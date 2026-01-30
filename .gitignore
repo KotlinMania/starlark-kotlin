@@ -14,3 +14,8 @@ build/
 *.iml
 out/
 tmp/
+
+# AST distance tool reports
+port_status_report.md
+high_priority_ports.md
+tasks.json.lock
