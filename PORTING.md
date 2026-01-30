@@ -4,6 +4,23 @@ This guide explains how to use the ast_distance tool for systematic Rust→Kotli
 
 ## Quick Start
 
+### Initial Setup (First Time Only)
+
+If stub files don't exist yet, generate them:
+
+```bash
+python tools/generate_stubs.py \
+  tmp/starlark/src \
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin \
+  io.github.kotlinmania.starlark_kotlin
+```
+
+This creates:
+- Proper folder structure matching Rust modules
+- CamelCase filenames (Value.kt, Ty.kt)
+- Lowercase directories (values/, typing/)
+- Port-lint headers in every file
+
 ### Get a Task Assignment
 ```bash
 ./tools/ast_distance/ast_distance --assign tasks.json agent-1
