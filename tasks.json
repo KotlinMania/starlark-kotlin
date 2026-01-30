@@ -102,9 +102,9 @@
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs/param_spec.rs",
-      "source_qualified": "__derive_refs.param_spec",
-      "target_path": "__derive_refs/ParamSpec.kt",
+      "source_path": "src/derive_refs/param_spec.rs",
+      "source_qualified": "derive_refs.param_spec",
+      "target_path": "derive_refs/ParamSpec.kt",
       "source_dependents": 19,
       "status": "pending",
       "assigned_to": null,
@@ -480,8 +480,8 @@
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs.rs",
-      "source_qualified": "__derive_refs",
+      "source_path": "src/derive_refs.rs",
+      "source_qualified": "derive_refs",
       "target_path": "DeriveRefs.kt",
       "source_dependents": 0,
       "status": "pending",
@@ -759,36 +759,36 @@
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs/sig.rs",
-      "source_qualified": "__derive_refs.sig",
-      "target_path": "__derive_refs/Sig.kt",
+      "source_path": "src/derive_refs/sig.rs",
+      "source_qualified": "derive_refs.sig",
+      "target_path": "derive_refs/Sig.kt",
       "source_dependents": 0,
       "status": "pending",
       "assigned_to": null,
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs/invoke_macro_error.rs",
-      "source_qualified": "__derive_refs.invoke_macro_error",
-      "target_path": "__derive_refs/InvokeMacroError.kt",
+      "source_path": "src/derive_refs/invoke_macro_error.rs",
+      "source_qualified": "derive_refs.invoke_macro_error",
+      "target_path": "derive_refs/InvokeMacroError.kt",
       "source_dependents": 0,
       "status": "pending",
       "assigned_to": null,
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs/components.rs",
-      "source_qualified": "__derive_refs.components",
-      "target_path": "__derive_refs/Components.kt",
+      "source_path": "src/derive_refs/components.rs",
+      "source_qualified": "derive_refs.components",
+      "target_path": "derive_refs/Components.kt",
       "source_dependents": 0,
       "status": "pending",
       "assigned_to": null,
       "assigned_at": null
     },
     {
-      "source_path": "src/__derive_refs/parse_args.rs",
-      "source_qualified": "__derive_refs.parse_args",
-      "target_path": "__derive_refs/ParseArgs.kt",
+      "source_path": "src/derive_refs/parse_args.rs",
+      "source_qualified": "derive_refs.parse_args",
+      "target_path": "derive_refs/ParseArgs.kt",
       "source_dependents": 0,
       "status": "pending",
       "assigned_to": null,
