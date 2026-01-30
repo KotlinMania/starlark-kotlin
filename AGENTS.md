@@ -61,6 +61,16 @@ This enables the AST distance tool to track porting progress and verify complete
 - Update references to Rust-specific concepts (e.g., "this trait" → "this interface")
 - Add KDoc for public APIs
 
+### 6. TODO Policy (IMPORTANT)
+
+**DO NOT add TODO comments without explicit user approval.**
+
+- If you cannot implement something fully, ASK the user first
+- Research Rust documentation before adding TODOs
+- Look for similar patterns in the codebase
+- Prefer complete implementations or approved placeholder strategies
+- TODOs should only be added when the user explicitly approves them
+
 ## Kotlin-Specific Guidelines
 
 ### Naming Conventions

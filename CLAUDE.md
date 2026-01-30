@@ -178,6 +178,23 @@ Ask the user for clarification if:
 - Architectural decisions affect multiple files
 - Build configuration needs changes
 - You encounter blocking issues
+- **You want to add a TODO comment** - get user approval first
+
+## TODO Policy
+
+**DO NOT add TODO comments without explicit user approval.**
+
+If you encounter something that cannot be fully implemented:
+1. Ask the user if a TODO is appropriate
+2. If approved, use the format: `// TODO: <description>`
+3. Better: Ask the user how they want to handle the incomplete functionality
+4. Best: Complete the implementation or find an alternative approach
+
+Avoid TODOs by:
+- Researching Rust documentation thoroughly
+- Looking at similar patterns in the codebase
+- Asking the user for guidance on complex Rust idioms
+- Using placeholder implementations only when explicitly approved
 
 ## Priority Files (Top 10)
 
