@@ -1,3 +1,15 @@
 /target/
 Cargo.lock
 *.wasm
+rust-source/
+
+# Kotlin/Gradle build artifacts
+build/
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+.idea/
+*.iml
+out/
