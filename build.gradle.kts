@@ -81,7 +81,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "io.github.kotlinmania.starlark"
+        namespace = "io.github.kotlinmania.starlark_kotlin"
         compileSdk = 34
         minSdk = 24
     }
