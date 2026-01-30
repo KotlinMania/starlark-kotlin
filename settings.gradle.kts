@@ -1,27 +1,27 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        mavenCentral()
         google()
+        mavenCentral()
+        gradlePluginPortal()
     }
-    // Include ktreesitter's custom Gradle plugin
-    includeBuild("ktreesitter-kotlin/ktreesitter-plugin")
+    plugins { kotlin("multiplatform") version "2.3.0" }
 }
+
+plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0" }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
     }
 }
 
-rootProject.name = "codex-kotlin"
+rootProject.name = "ratatui-kotlin"
 
-// Tree-sitter Kotlin bindings (vendored from wip/k2 branch)
-includeBuild("ktreesitter-kotlin") {
+// Include local kasuari-kotlin for development (until kasuari-kotlin 0.1.1+ is published with all targets)
+// Remove this once kasuari-kotlin is published to Maven Central with iOS/JS/WASM/Android targets
+includeBuild("../kasuari-kotlin") {
     dependencySubstitution {
-        substitute(module("io.github.tree-sitter:ktreesitter")).using(project(":ktreesitter"))
-        substitute(module("io.github.tree-sitter:ktreesitter-bash")).using(project(":languages:bash"))
+        substitute(module("io.github.kotlinmania:kasuari-kotlin")).using(project(":"))
     }
 }
