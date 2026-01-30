@@ -38,11 +38,19 @@ package io.github.kotlinmania.starlark_kotlin.<module>
 // Rest of file...
 ```
 
-Example:
+Examples:
 ```kotlin
-// port-lint: source starlark/src/environment/module.rs
+// port-lint: source src/environment/module.rs
 package io.github.kotlinmania.starlark_kotlin.environment
+
+// port-lint: source src/values/layout.rs
+package io.github.kotlinmania.starlark_kotlin.values
+
+// port-lint: source src/eval/runtime/evaluator.rs
+package io.github.kotlinmania.starlark_kotlin.eval.runtime
 ```
+
+**Path Format:** The path should be relative to `tmp/starlark/` (the Rust source root). So for a file at `tmp/starlark/src/values/layout.rs`, use `src/values/layout.rs`.
 
 This enables the AST distance tool to track porting progress and verify completeness.
 
@@ -119,17 +127,80 @@ This enables the AST distance tool to track porting progress and verify complete
 ./gradlew jvmTest
 ```
 
-### Tracking Progress
+### Task Management Workflow (REQUIRED)
 
-Use the AST distance tool from the parent codex-kotlin project:
+**⚠️ IMPORTANT: Use the task system - DO NOT port files randomly!**
+
+The project uses a task assignment system to coordinate parallel porting work and prevent conflicts.
+
+#### Getting Your Next Task
 
 ```bash
-# Analyze porting progress
-../codex-kotlin/tools/ast_distance/ast_distance --deep tmp/rust-source rust src kotlin
+./tools/ast_distance/ast_distance --assign tasks.json <your-agent-id>
+```
+
+This will:
+1. Assign you the highest-priority unassigned task
+2. Show you the source file path and target path
+3. Output complete porting instructions
+4. Lock the task to prevent other agents from taking it
+
+#### Completing a Task
+
+After porting a file:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json <source_qualified_name>
+```
+
+Example:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json layout.value
+```
+
+#### Releasing a Task (if blocked)
+
+If you cannot complete a task:
+```bash
+./tools/ast_distance/ast_distance --release tasks.json <source_qualified_name>
+```
+
+#### Viewing Task Status
+
+```bash
+./tools/ast_distance/ast_distance --tasks tasks.json
+```
+
+Shows pending, assigned, and completed tasks with priority rankings.
+
+#### ⚠️ WARNING: Do NOT Re-Initialize Tasks
+
+**NEVER run `--init-tasks` if `tasks.json` already exists!** This will overwrite all task assignments and progress. The task file is already initialized and managed.
+
+### Tracking Progress
+
+Use the built-in AST distance tool:
+
+```bash
+# Analyze overall porting progress
+./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
 
 # Check similarity of specific files
-../codex-kotlin/tools/ast_distance/ast_distance tmp/rust-source/starlark/src/module.rs src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Module.kt
+./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+
+# Find missing files ranked by importance
+./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
+
+# Scan for TODOs
+./tools/ast_distance/ast_distance --todos src
+
+# Run lint checks
+./tools/ast_distance/ast_distance --lint src
 ```
+
+**Similarity Targets:**
+- `≥ 0.85` — Excellent port (aim for this)
+- `0.60–0.85` — Good port, may need refinement
+- `< 0.60` — Incomplete, needs more work
 
 ## Code Style
 
