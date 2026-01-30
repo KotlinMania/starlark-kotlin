@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.kotlinmania"
-version = "0.1.2"
+version = "0.1.0-SNAPSHOT"
 
 // Android setup
 val sdkDir = file(".android-sdk")
@@ -36,17 +36,17 @@ kotlin {
 
     sourceSets.all { languageSettings.optIn("kotlin.time.ExperimentalTime") }
 
-    val xcf = XCFramework("Ratatui")
+    val xcf = XCFramework("Starlark")
 
     macosArm64 {
         binaries.framework {
-            baseName = "Ratatui"
+            baseName = "Starlark"
             xcf.add(this)
         }
     }
     macosX64 {
         binaries.framework {
-            baseName = "Ratatui"
+            baseName = "Starlark"
             xcf.add(this)
         }
     }
@@ -54,19 +54,19 @@ kotlin {
     mingwX64()
     iosArm64 {
         binaries.framework {
-            baseName = "Ratatui"
+            baseName = "Starlark"
             xcf.add(this)
         }
     }
     iosX64 {
         binaries.framework {
-            baseName = "Ratatui"
+            baseName = "Starlark"
             xcf.add(this)
         }
     }
     iosSimulatorArm64 {
         binaries.framework {
-            baseName = "Ratatui"
+            baseName = "Starlark"
             xcf.add(this)
         }
     }
@@ -81,7 +81,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "io.github.kotlinmania.ratatui"
+        namespace = "io.github.kotlinmania.starlark"
         compileSdk = 34
         minSdk = 24
     }
@@ -89,69 +89,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("io.github.kotlinmania:kasuari-kotlin:0.1.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
-
-                // Ktor HTTP client for multiplatform
-                implementation("io.ktor:ktor-client-core:3.0.3")
-                implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
-                implementation("io.ktor:ktor-client-auth:3.0.3")
-
-                // File I/O
-                implementation("com.squareup.okio:okio:3.9.1")
-
-                // Character encoding support (for legacy codepage conversion)
-                // fleeksoft-io provides JDK-like IO classes for Kotlin Multiplatform
-                implementation("com.fleeksoft.io:io-core:0.0.4")
-                implementation("com.fleeksoft.io:io:0.0.4")
-                implementation("com.fleeksoft.charset:charset:0.0.4")
-                implementation("com.fleeksoft.charset:charset-ext:0.0.4")
-            }
-        }
-
-        val nativeMain by getting {
-            dependencies {
-            }
-        }
-
-        val appleMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:3.0.3")
-            }
-        }
-
-        val linuxMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-curl:3.0.3")
-            }
-        }
-
-        val mingwMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-curl:3.0.3")
-            }
-        }
-
-        val jsMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-js:3.0.3")
-            }
-        }
-
-        val wasmJsMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-js:3.0.3")
-            }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-okhttp:3.0.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
             }
         }
 
@@ -165,18 +107,18 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group.toString(), "ratatui-kotlin", version.toString())
+    coordinates(group.toString(), "starlark-kotlin", version.toString())
 
     pom {
-        name.set("ratatui-kotlin")
-        description.set("Kotlin Multiplatform port of ratatui - a library for building terminal user interfaces")
-        inceptionYear.set("2024")
-        url.set("https://github.com/KotlinMania/ratatui-kotlin")
+        name.set("starlark-kotlin")
+        description.set("Kotlin Multiplatform port of facebook/starlark-rust - Starlark configuration language interpreter")
+        inceptionYear.set("2026")
+        url.set("https://github.com/KotlinMania/starlark-kotlin")
 
         licenses {
             license {
-                name.set("MIT")
-                url.set("https://opensource.org/licenses/MIT")
+                name.set("Apache-2.0")
+                url.set("https://opensource.org/licenses/Apache-2.0")
                 distribution.set("repo")
             }
         }
@@ -191,9 +133,9 @@ mavenPublishing {
         }
 
         scm {
-            url.set("https://github.com/KotlinMania/ratatui-kotlin")
-            connection.set("scm:git:git://github.com/KotlinMania/ratatui-kotlin.git")
-            developerConnection.set("scm:git:ssh://github.com/KotlinMania/ratatui-kotlin.git")
+            url.set("https://github.com/KotlinMania/starlark-kotlin")
+            connection.set("scm:git:git://github.com/KotlinMania/starlark-kotlin.git")
+            developerConnection.set("scm:git:ssh://github.com/KotlinMania/starlark-kotlin.git")
         }
     }
 }
