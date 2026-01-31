@@ -1682,186 +1682,228 @@
       "source_qualified": "values.types.namespace.typing",
       "target_path": "values/types/namespace/Typing.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-46",
+      "assigned_at": "2026-01-30T21:38:57",
+      "completed_at": "2026-01-30T21:47:42"
     },
     {
       "source_path": "src/values/types/int/globals.rs",
       "source_qualified": "values.types.int.globals",
       "target_path": "values/types/int/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-44",
+      "assigned_at": "2026-01-30T21:38:53",
+      "completed_at": "2026-01-30T21:42:18"
     },
     {
       "source_path": "src/values/types/int/pointer_i32.rs",
       "source_qualified": "values.types.int.pointer_i32",
       "target_path": "values/types/int/PointerI32.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "assigned",
+      "assigned_to": "agent-42",
+      "assigned_at": "2026-01-30T21:38:50"
     },
     {
       "source_path": "src/values/types/int/inline_int.rs",
       "source_qualified": "values.types.int.inline_int",
       "target_path": "values/types/int/InlineInt.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-40",
+      "assigned_at": "2026-01-30T21:23:40",
+      "completed_at": "2026-01-30T21:27:41"
     },
     {
       "source_path": "src/values/types/int/tests.rs",
       "source_qualified": "values.types.int.tests",
       "target_path": "values/types/int/Tests.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-38",
+      "assigned_at": "2026-01-30T21:23:36",
+      "completed_at": "2026-01-30T21:38:00"
     },
     {
       "source_path": "src/values/types/int/int_or_big.rs",
       "source_qualified": "values.types.int.int_or_big",
       "target_path": "values/types/int/IntOrBig.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-34",
+      "assigned_at": "2026-01-30T21:23:33",
+      "completed_at": "2026-01-30T21:28:18"
     },
     {
       "source_path": "src/values/types/int/i32.rs",
       "source_qualified": "values.types.int.i32",
       "target_path": "values/types/int/I32.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-36",
+      "assigned_at": "2026-01-30T21:23:32",
+      "completed_at": "2026-01-30T21:27:07"
     },
     {
       "source_path": "src/values/types/structs/unordered_hasher.rs",
       "source_qualified": "values.types.structs.unordered_hasher",
       "target_path": "values/types/structs/UnorderedHasher.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-32",
+      "assigned_at": "2026-01-30T20:50:23",
+      "completed_at": "2026-01-30T21:22:56"
     },
     {
       "source_path": "src/values/types/structs/alloc.rs",
       "source_qualified": "values.types.structs.alloc",
       "target_path": "values/types/structs/Alloc.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-30",
+      "assigned_at": "2026-01-30T20:50:16",
+      "completed_at": "2026-01-30T20:55:00"
     },
     {
       "source_path": "src/values/types/structs/value.rs",
       "source_qualified": "values.types.structs.value",
       "target_path": "values/types/structs/Value.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-28",
+      "assigned_at": "2026-01-30T18:41:29",
+      "completed_at": "2026-01-30T18:46:32"
     },
     {
       "source_path": "src/values/types/structs/refs.rs",
       "source_qualified": "values.types.structs.refs",
       "target_path": "values/types/structs/Refs.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-26",
+      "assigned_at": "2026-01-30T18:41:24",
+      "completed_at": "2026-01-30T19:08:49"
     },
     {
       "source_path": "src/values/types/structs/structs.rs",
       "source_qualified": "values.types.structs.structs",
       "target_path": "values/types/structs/Structs.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-24",
+      "assigned_at": "2026-01-30T18:41:20",
+      "completed_at": "2026-01-30T18:43:13"
     },
     {
       "source_path": "src/values/types/float/float.rs",
       "source_qualified": "values.types.float.float",
       "target_path": "values/types/float/Float.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-22",
+      "assigned_at": "2026-01-30T18:41:15",
+      "completed_at": "2026-01-30T19:08:19"
     },
     {
       "source_path": "src/values/types/float/globals.rs",
       "source_qualified": "values.types.float.globals",
       "target_path": "values/types/float/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-20",
+      "assigned_at": "2026-01-30T18:30:24",
+      "completed_at": "2026-01-30T18:31:45"
     },
     {
       "source_path": "src/values/types/float/unpack.rs",
       "source_qualified": "values.types.float.unpack",
       "target_path": "values/types/float/Unpack.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-18",
+      "assigned_at": "2026-01-30T18:30:20",
+      "completed_at": "2026-01-30T18:33:52"
     },
     {
       "source_path": "src/values/types/list/globals.rs",
       "source_qualified": "values.types.list.globals",
       "target_path": "values/types/list/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-16",
+      "assigned_at": "2026-01-30T18:30:15",
+      "completed_at": "2026-01-30T18:33:58"
     },
     {
       "source_path": "src/values/types/list/methods.rs",
       "source_qualified": "values.types.list.methods",
       "target_path": "values/types/list/Methods.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-15",
+      "assigned_at": "2026-01-30T18:15:15",
+      "completed_at": "2026-01-30T18:18:43"
     },
     {
       "source_path": "src/values/types/list/alloc.rs",
       "source_qualified": "values.types.list.alloc",
       "target_path": "values/types/list/Alloc.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-13",
+      "assigned_at": "2026-01-30T18:15:11",
+      "completed_at": "2026-01-30T18:17:45"
     },
     {
       "source_path": "src/values/types/list/value.rs",
       "source_qualified": "values.types.list.value",
       "target_path": "values/types/list/Value.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-14",
+      "assigned_at": "2026-01-30T16:11:50",
+      "completed_at": "2026-01-30T16:16:49"
     },
     {
       "source_path": "src/values/types/list/list_type.rs",
       "source_qualified": "values.types.list.list_type",
       "target_path": "values/types/list/ListType.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-11",
+      "assigned_at": "2026-01-30T16:11:47",
+      "completed_at": "2026-01-30T16:14:39"
     },
     {
       "source_path": "src/values/types/list/refs.rs",
       "source_qualified": "values.types.list.refs",
       "target_path": "values/types/list/Refs.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "assigned",
+      "assigned_to": "agent-10",
+      "assigned_at": "2026-01-30T16:11:41"
     },
     {
       "source_path": "src/values/types/list/unpack.rs",
       "source_qualified": "values.types.list.unpack",
       "target_path": "values/types/list/Unpack.kt",
       "dependent_count": 0,
-      "status": "assigned",
+      "status": "completed",
       "assigned_to": "agent-8",
-      "assigned_at": "2026-01-30T16:01:27"
+      "assigned_at": "2026-01-30T16:01:27",
+      "completed_at": "2026-01-30T16:11:02"
     },
     {
       "source_path": "src/values/types/bool/type_repr.rs",
       "source_qualified": "values.types.bool.type_repr",
       "target_path": "values/types/bool/TypeRepr.kt",
       "dependent_count": 0,
-      "status": "assigned",
+      "status": "completed",
       "assigned_to": "agent-6",
-      "assigned_at": "2026-01-30T16:01:21"
+      "assigned_at": "2026-01-30T16:01:21",
+      "completed_at": "2026-01-30T16:10:01"
     },
     {
       "source_path": "src/values/types/bool/globals.rs",
@@ -1908,186 +1950,230 @@
       "source_qualified": "values.types.string.simd",
       "target_path": "values/types/string/Simd.kt",
       "dependent_count": 0,
-      "status": "assigned",
+      "status": "completed",
       "assigned_to": "agent-5",
-      "assigned_at": "2026-01-30T16:01:19"
+      "assigned_at": "2026-01-30T16:01:19",
+      "completed_at": "2026-01-30T16:08:51"
     },
     {
       "source_path": "src/values/types/string/globals.rs",
       "source_qualified": "values.types.string.globals",
       "target_path": "values/types/string/Globals.kt",
       "dependent_count": 0,
-      "status": "assigned",
+      "status": "completed",
       "assigned_to": "agent-7",
-      "assigned_at": "2026-01-30T16:01:24"
+      "assigned_at": "2026-01-30T16:01:24",
+      "completed_at": "2026-01-30T16:09:22"
     },
     {
       "source_path": "src/values/types/string/methods.rs",
       "source_qualified": "values.types.string.methods",
       "target_path": "values/types/string/Methods.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-9",
+      "assigned_at": "2026-01-30T16:11:40",
+      "completed_at": "2026-01-30T16:15:39"
     },
     {
       "source_path": "src/values/types/string/interpolation.rs",
       "source_qualified": "values.types.string.interpolation",
       "target_path": "values/types/string/Interpolation.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-12",
+      "assigned_at": "2026-01-30T16:11:45",
+      "completed_at": "2026-01-30T16:15:22"
     },
     {
       "source_path": "src/values/types/string/iter.rs",
       "source_qualified": "values.types.string.iter",
       "target_path": "values/types/string/Iter.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-13",
+      "assigned_at": "2026-01-30T16:11:48",
+      "completed_at": "2026-01-30T16:15:36"
     },
     {
       "source_path": "src/values/types/string/intern.rs",
       "source_qualified": "values.types.string.intern",
       "target_path": "values/types/string/Intern.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-12",
+      "assigned_at": "2026-01-30T18:15:09",
+      "completed_at": "2026-01-30T18:29:35"
     },
     {
       "source_path": "src/values/types/string/str_type.rs",
       "source_qualified": "values.types.string.str_type",
       "target_path": "values/types/string/StrType.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-14",
+      "assigned_at": "2026-01-30T18:15:12",
+      "completed_at": "2026-01-30T18:17:31"
     },
     {
       "source_path": "src/values/types/string/dot_format.rs",
       "source_qualified": "values.types.string.dot_format",
       "target_path": "values/types/string/DotFormat.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-11",
+      "assigned_at": "2026-01-30T18:15:23",
+      "completed_at": "2026-01-30T18:22:22"
     },
     {
       "source_path": "src/values/types/string/repr.rs",
       "source_qualified": "values.types.string.repr",
       "target_path": "values/types/string/Repr.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-17",
+      "assigned_at": "2026-01-30T18:30:18",
+      "completed_at": "2026-01-30T18:38:42"
     },
     {
       "source_path": "src/values/types/string/alloc_unpack.rs",
       "source_qualified": "values.types.string.alloc_unpack",
       "target_path": "values/types/string/AllocUnpack.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-19",
+      "assigned_at": "2026-01-30T18:30:22",
+      "completed_at": "2026-01-30T18:40:35"
     },
     {
       "source_path": "src/values/types/string/intern/interner.rs",
       "source_qualified": "values.types.string.intern.interner",
       "target_path": "values/types/string/intern/Interner.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-21",
+      "assigned_at": "2026-01-30T18:41:13",
+      "completed_at": "2026-01-30T20:49:08"
     },
     {
       "source_path": "src/values/types/set/methods.rs",
       "source_qualified": "values.types.set.methods",
       "target_path": "values/types/set/Methods.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-23",
+      "assigned_at": "2026-01-30T18:41:17",
+      "completed_at": "2026-01-30T18:44:13"
     },
     {
       "source_path": "src/values/types/set/value.rs",
       "source_qualified": "values.types.set.value",
       "target_path": "values/types/set/Value.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-25",
+      "assigned_at": "2026-01-30T18:41:22",
+      "completed_at": "2026-01-30T18:44:40"
     },
     {
       "source_path": "src/values/types/set/set.rs",
       "source_qualified": "values.types.set.set",
       "target_path": "values/types/set/Set.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-27",
+      "assigned_at": "2026-01-30T18:41:27",
+      "completed_at": "2026-01-30T18:44:36"
     },
     {
       "source_path": "src/values/types/set/refs.rs",
       "source_qualified": "values.types.set.refs",
       "target_path": "values/types/set/Refs.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-29",
+      "assigned_at": "2026-01-30T20:50:15",
+      "completed_at": "2026-01-30T21:16:21"
     },
     {
       "source_path": "src/values/types/range/globals.rs",
       "source_qualified": "values.types.range.globals",
       "target_path": "values/types/range/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-31",
+      "assigned_at": "2026-01-30T20:50:20",
+      "completed_at": "2026-01-30T20:52:09"
     },
     {
       "source_path": "src/values/types/range/range_type.rs",
       "source_qualified": "values.types.range.range_type",
       "target_path": "values/types/range/RangeType.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-33",
+      "assigned_at": "2026-01-30T20:50:24",
+      "completed_at": "2026-01-30T21:14:25"
     },
     {
       "source_path": "src/values/types/none/globals.rs",
       "source_qualified": "values.types.none.globals",
       "target_path": "values/types/none/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-35",
+      "assigned_at": "2026-01-30T21:23:33",
+      "completed_at": "2026-01-30T21:26:23"
     },
     {
       "source_path": "src/values/types/none/none_type.rs",
       "source_qualified": "values.types.none.none_type",
       "target_path": "values/types/none/NoneType.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-37",
+      "assigned_at": "2026-01-30T21:23:34",
+      "completed_at": "2026-01-30T21:37:17"
     },
     {
       "source_path": "src/values/types/none/none_or.rs",
       "source_qualified": "values.types.none.none_or",
       "target_path": "values/types/none/NoneOr.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-39",
+      "assigned_at": "2026-01-30T21:23:38",
+      "completed_at": "2026-01-30T21:29:47"
     },
     {
       "source_path": "src/values/types/dict/globals.rs",
       "source_qualified": "values.types.dict.globals",
       "target_path": "values/types/dict/Globals.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-41",
+      "assigned_at": "2026-01-30T21:23:42",
+      "completed_at": "2026-01-30T21:30:30"
     },
     {
       "source_path": "src/values/types/dict/methods.rs",
       "source_qualified": "values.types.dict.methods",
       "target_path": "values/types/dict/Methods.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-43",
+      "assigned_at": "2026-01-30T21:38:52",
+      "completed_at": "2026-01-30T21:41:36"
     },
     {
       "source_path": "src/values/types/dict/dict_type.rs",
       "source_qualified": "values.types.dict.dict_type",
       "target_path": "values/types/dict/DictType.kt",
       "dependent_count": 0,
-      "status": "pending",
-      "assigned_to": "assigned_at"
+      "status": "completed",
+      "assigned_to": "agent-45",
+      "assigned_at": "2026-01-30T21:38:55",
+      "completed_at": "2026-01-30T21:40:29"
     },
     {
       "source_path": "src/values/types/dict/alloc.rs",

@@ -1,5 +1,5 @@
-// port-lint: source src/values/types/string/intern.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+// port-lint: source src/values/types/structs/unordered_hasher.rs
+package io.github.kotlinmania.starlark_kotlin.values.types.structs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-// This file corresponds to the Rust module declaration in intern.rs
-// which declares the `interner` submodule. In Kotlin, the package structure
-// (io.github.kotlinmania.starlark_kotlin.values.types.string.intern)
-// serves the same organizational purpose.
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class UnorderedHasherTest {
+    @Test
+    fun testUnorderedHasher() {
+        val h = UnorderedHasher()
+        h.writeHash(10uL)
+        h.writeHash(20uL)
+        val h0 = h.finish()
+
+        val h2 = UnorderedHasher()
+        h2.writeHash(20uL)
+        h2.writeHash(10uL)
+        val h1 = h2.finish()
+
+        assertEquals(h0, h1)
+    }
+}

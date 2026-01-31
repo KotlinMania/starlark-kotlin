@@ -102,6 +102,26 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 
 ## Kotlin-Specific Guidelines
 
+### CRITICAL: Kotlin Multiplatform - NO JAVA
+
+**This is a Kotlin Multiplatform project targeting JVM, Native, and JS.**
+
+**ABSOLUTELY NO Java-specific code is allowed in commonMain:**
+- ❌ NO `import java.*`
+- ❌ NO `java.util.concurrent.*`
+- ❌ NO `java.io.*`
+- ❌ NO `java.nio.*`
+- ❌ NO JVM-only APIs
+
+**Use Kotlin Multiplatform alternatives:**
+- ✅ `kotlin.collections.*` for collections
+- ✅ `kotlinx.atomicfu` for atomic operations (tree-sitter parsers already integrated)
+- ✅ `kotlinx.coroutines` for concurrency
+- ✅ `expect`/`actual` for platform-specific implementations
+- ✅ Pure Kotlin standard library APIs
+
+**Tree-sitter parsers are already available** - no need to implement parsers yourself.
+
 ### Naming Conventions
 
 - **Files:** Match Rust file names but use PascalCase for Kotlin files (e.g., `module.rs` → `Module.kt`)
