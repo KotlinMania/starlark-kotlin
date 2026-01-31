@@ -54,14 +54,43 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
 
 This enables the AST distance tool to track porting progress and verify completeness.
 
-### 5. Documentation
+### 5. Copyright Headers
+
+**REQUIRED:** Every ported Kotlin file must include this copyright header immediately after the port-lint header:
+
+```kotlin
+// port-lint: source <path>
+package <package-name>
+
+/*
+ * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+```
+
+This preserves the original Rust copyright while adding the maintainer's copyright for the Kotlin port.
+
+### 6. Documentation
 
 - Translate Rust doc comments (`///`, `//!`) to KDoc format
 - Preserve examples, code blocks, and explanatory text
 - Update references to Rust-specific concepts (e.g., "this trait" → "this interface")
 - Add KDoc for public APIs
 
-### 6. TODO Policy (IMPORTANT)
+### 7. TODO Policy (IMPORTANT)
 
 **DO NOT add TODO comments without explicit user approval.**
 
