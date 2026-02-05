@@ -75,16 +75,16 @@ inline fun <reified K, reified V, reified S> allocStructStarlarkTypeRepr(): Ty
 
 /**
  * Implementation of AllocValue for AllocStruct<S>
- * where S: IntoIterator, S::Item = (K, V), K: AllocStringValue<'v>, V: AllocValue<'v>.
+ * where S: IntoIterator, S::Item = (K, V), K: AllocStringValue<V_>, V: AllocValue<V_>.
  */
-fun <'v, K, V, S> AllocStruct<S>.allocValue(heap: Heap<'v>): Value<'v>
+fun <V_, K, V, S> AllocStruct<S>.allocValue(heap: Heap<V_>): Value<V_>
     where S : Iterable<Pair<K, V>>,
-          K : AllocStringValue<'v>,
-          V : AllocValue<'v> {
+          K : AllocStringValue<V_>,
+          V : AllocValue<V_> {
     val iter = value.iterator()
     // size_hint().0 in Rust returns the lower bound of the iterator's size hint
     val sizeHint = if (value is Collection<*>) value.size else 0
-    val fields = SmallMap.withCapacity<String, Value<'v>>(sizeHint)
+    val fields = SmallMap.withCapacity<String, Value<V_>>(sizeHint)
 
     for ((k, v) in iter) {
         val k = k.allocStringValue(heap)

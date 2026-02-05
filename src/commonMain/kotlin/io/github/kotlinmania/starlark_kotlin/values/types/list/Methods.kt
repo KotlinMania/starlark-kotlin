@@ -25,16 +25,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
 
 // Placeholder types until the actual implementations are ported
 expect class MethodsBuilder
-expect class Heap<'v>
-expect class Value<'v> {
-    fun ptrEq(other: Value<'v>): Boolean
+expect class Heap<V_>
+expect class Value<V_> {
+    fun ptrEq(other: Value<V_>): Boolean
 }
 expect class ValueError {
     companion object {
         fun IndexOutOfBound(index: Int): ValueError
     }
 }
-expect class ValueOfUnchecked<'v, T>
+expect class ValueOfUnchecked<V_, T>
 expect class NoneOr<T> {
     fun intoOption(): T?
 
@@ -78,10 +78,10 @@ internal fun listMethods(builder: MethodsBuilder) {
  * # "#);
  * ```
  */
-internal fun <'v> append(
-    thisValue: Value<'v>,
-    el: Value<'v>,
-    heap: Heap<'v>,
+internal fun <V_> append(
+    thisValue: Value<V_>,
+    el: Value<V_>,
+    heap: Heap<V_>,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     thisList.push(el, heap)
@@ -104,7 +104,7 @@ internal fun <'v> append(
  * # "#);
  * ```
  */
-internal fun <'v> clear(thisValue: Value<'v>): Result<NoneType> {
+internal fun <V_> clear(thisValue: Value<V_>): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     thisList.clear()
     return Result.success(NoneType)
@@ -130,10 +130,10 @@ internal fun <'v> clear(thisValue: Value<'v>): Result<NoneType> {
  * # "#);
  * ```
  */
-internal fun <'v> extend(
-    thisValue: Value<'v>,
-    other: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>,
-    heap: Heap<'v>,
+internal fun <V_> extend(
+    thisValue: Value<V_>,
+    other: ValueOfUnchecked<V_, StarlarkIter<Value<V_>>>,
+    heap: Heap<V_>,
 ): Result<NoneType> {
     val res = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     if (thisValue.ptrEq(other.get())) {
@@ -176,9 +176,9 @@ internal fun <'v> extend(
  * # )"#);
  * ```
  */
-internal fun <'v> index(
-    thisRef: ListRef<'v>,
-    needle: Value<'v>,
+internal fun <V_> index(
+    thisRef: ListRef<V_>,
+    needle: Value<V_>,
     start: NoneOr<Int> = NoneOr.None(),
     end: NoneOr<Int> = NoneOr.None(),
 ): Result<Int> {
@@ -220,11 +220,11 @@ internal fun <'v> index(
  * # "#);
  * ```
  */
-internal fun <'v> insert(
-    thisValue: Value<'v>,
+internal fun <V_> insert(
+    thisValue: Value<V_>,
     index: Int,
-    el: Value<'v>,
-    heap: Heap<'v>,
+    el: Value<V_>,
+    heap: Heap<V_>,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     val idx = convertIndex(thisList.len(), index)
@@ -255,10 +255,10 @@ internal fun <'v> insert(
  * # )"#);
  * ```
  */
-internal fun <'v> pop(
-    thisValue: Value<'v>,
+internal fun <V_> pop(
+    thisValue: Value<V_>,
     index: Int?,
-): Result<Value<'v>> {
+): Result<Value<V_>> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     val idx = index ?: (thisList.len() - 1)
     if (idx < 0 || idx >= thisList.len()) {
@@ -303,9 +303,9 @@ internal fun <'v> pop(
  * # "#, "not found");
  * ```
  */
-internal fun <'v> remove(
-    thisValue: Value<'v>,
-    needle: Value<'v>,
+internal fun <V_> remove(
+    thisValue: Value<V_>,
+    needle: Value<V_>,
 ): Result<NoneType> {
     // Written in two separate blocks so we ensure we give up the
     // immutable borrow before making the mutable borrow.

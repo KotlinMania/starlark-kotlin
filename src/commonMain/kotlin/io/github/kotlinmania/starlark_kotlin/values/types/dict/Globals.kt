@@ -73,15 +73,15 @@ internal fun registerDict(globals: GlobalsBuilder) {
      * dict(**{'a': 1}) == {'a': 1}
      * dict({'a': 1}) == {'a': 1}
      * dict([(1, 2), (3, 4)]) == {1: 2, 3: 4}
-     * dict([(1, 2), ['a', 'b']]) == {1: 2, 'a': 'b'}
-     * dict(one=1, two=2) == {'one': 1, 'two': 2}
-     * dict([(1, 2)], x=3) == {1: 2, 'x': 3}
+     * dict([(1, 2), ['a', B_']]) == {1: 2, A_': 'b'}
+     * dict(one=1, two=2) == {'one': 1, T_wo': 2}
+     * dict([(1, 2)], x=3) == {1: 2, X_': 3}
      * dict([('x', 2)], x=3) == {'x': 3}
      * # "#);
      * # starlark::assert::is_true(r#"
      * x = {'a': 1}
      * y = dict([('x', 2)], **x)
-     * x == {'a': 1} and y == {'x': 2, 'a': 1}
+     * x == {'a': 1} and y == {'x': 2, A_': 1}
      * # "#);
      * ```
      */

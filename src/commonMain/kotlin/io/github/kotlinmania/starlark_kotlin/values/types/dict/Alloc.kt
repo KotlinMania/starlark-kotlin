@@ -76,15 +76,15 @@ inline fun <reified D, reified K, reified V> allocDictStarlarkTypeRepr(): Ty
 }
 
 /**
- * Implementation of AllocValue<'v> for AllocDict<D>
- * where D: IntoIterator<Item = (K, V)>, K: AllocValue<'v>, V: AllocValue<'v>
+ * Implementation of AllocValue<V_> for AllocDict<D>
+ * where D: IntoIterator<Item = (K, V)>, K: AllocValue<V_>, V: AllocValue<V_>
  */
-fun <'v, D, K, V> AllocDict<D>.allocValue(heap: Heap<'v>): Value<'v>
+fun <V_, D, K, V> AllocDict<D>.allocValue(heap: Heap<V_>): Value<V_>
     where D : Iterable<Pair<K, V>>,
-          K : AllocValue<'v>,
-          V : AllocValue<'v> {
+          K : AllocValue<V_>,
+          V : AllocValue<V_> {
     val iter = this.d.iterator()
-    val map = SmallMap.withCapacity<Value<'v>, Value<'v>>((this.d as? Collection<*>)?.size ?: 0)
+    val map = SmallMap.withCapacity<Value<V_>, Value<V_>>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
         map.insertHashed(
             k.allocValue(heap).getHashed()!!,

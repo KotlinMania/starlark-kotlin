@@ -22,14 +22,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
 // Placeholder types until the actual implementations are ported
 expect class GlobalsBuilder
 
-expect class Arguments<'v> {
-    fun <'a> noPositionalArgs(heap: Heap<'v>): Result<Unit>
-    fun <'a> namesMap(): Result<Map<String, Value<'v>>>
+expect class Arguments<V_> {
+    fun <A_> noPositionalArgs(heap: Heap<V_>): Result<Unit>
+    fun <A_> namesMap(): Result<Map<String, Value<V_>>>
 }
 
-expect class Heap<'v>
+expect class Heap<V_>
 
-expect class Value<'v>
+expect class Value<V_>
 
 /**
  * Register namespace-related global functions.
@@ -59,7 +59,7 @@ internal fun registerNamespace(builder: GlobalsBuilder) {
  * Creates a namespace from keyword arguments.
  * Corresponds to the namespace function in the Rust source.
  */
-internal fun <'v> namespace(args: Arguments<'v>, heap: Heap<'v>): Result<Namespace<'v>> {
+internal fun <V_> namespace(args: Arguments<V_>, heap: Heap<V_>): Result<Namespace<V_>> {
     args.noPositionalArgs(heap).getOrElse { return Result.failure(it) }
 
     val namesMap = args.namesMap().getOrElse { return Result.failure(it) }

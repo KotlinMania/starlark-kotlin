@@ -63,7 +63,7 @@ inline fun <reified L, reified Item> allocListStarlarkTypeRepr(): Ty
 
 /**
  * Implementation of AllocValue for AllocList<L>
- * where L: IntoIterator, L::Item: AllocValue<'v>.
+ * where L: IntoIterator, L::Item: AllocValue<V_>.
  */
 fun <V, L, Item> AllocList<L>.allocValue(heap: Heap<V>): Value<V>
     where L : Iterable<Item>,

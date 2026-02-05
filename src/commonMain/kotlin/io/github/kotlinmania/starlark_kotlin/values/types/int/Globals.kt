@@ -22,21 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 // Placeholder types until the actual implementations are ported
 expect class GlobalsBuilder
 
-expect class Heap<'v> {
-    fun <T> alloc(value: T): Value<'v>
+expect class Heap<V_> {
+    fun <T> alloc(value: T): Value<V_>
 }
 
-expect class Value<'v>
+expect class Value<V_>
 
-expect class ValueOfUnchecked<'v, T> {
+expect class ValueOfUnchecked<V_, T> {
     companion object {
-        fun <'v, T> new(value: Value<'v>): ValueOfUnchecked<'v, T>
+        fun <V_, T> new(value: Value<V_>): ValueOfUnchecked<V_, T>
     }
 }
 
-expect class ValueOf<'v, T> {
+expect class ValueOf<V_, T> {
     val typed: T
-    val value: Value<'v>
+    val value: Value<V_>
 }
 
 
@@ -59,20 +59,20 @@ sealed class Either<out L, out R> {
 
 /**
  * Sealed class representing NumRef enum values.
- * This mimics Rust's `NumRef<'v>` enum.
+ * This mimics Rust's `NumRef<V_>` enum.
  */
-sealed class NumRefValue<'v> {
-    data class Int<'v>(val value: Value<'v>) : NumRefValue<'v>()
-    data class Float<'v>(val value: StarlarkFloat) : NumRefValue<'v>()
+sealed class NumRefValue<V_> {
+    data class Int<V_>(val value: Value<V_>) : NumRefValue<V_>()
+    data class Float<V_>(val value: StarlarkFloat) : NumRefValue<V_>()
 }
 
 // Extension functions for GlobalsBuilder to register functions
-expect fun <'v> GlobalsBuilder.function(
+expect fun <V_> GlobalsBuilder.function(
     name: String,
     asType: kotlin.reflect.KClass<*>,
     speculativeExecSafe: Boolean = false,
     requirePos: Boolean = false,
-    impl: (a: ValueOf<'v, Either<Either<NumRefValue<'v>, Boolean>, String>>?, base: Int?, heap: Heap<'v>) -> Result<ValueOfUnchecked<'v, StarlarkInt>>
+    impl: (a: ValueOf<V_, Either<Either<NumRefValue<V_>, Boolean>, String>>?, base: Int?, heap: Heap<V_>) -> Result<ValueOfUnchecked<V_, StarlarkInt>>
 )
 
 /**

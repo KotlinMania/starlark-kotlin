@@ -35,7 +35,7 @@ internal class IntegerTooBigError(val value: String, val integerType: String) :
 internal interface StarlarkTypeRepr { fun starlarkTypeRepr(): Ty }
 internal object PointerI32 { fun starlarkTypeRepr(): Ty = Ty() }
 
-// impl<'v> AllocValue<'v> for i32
+// impl<V_> AllocValue<V_> for i32
 internal inline fun <V> Int.allocValue(heap: Heap<V>): Value<V> {
     return heap.alloc(StarlarkInt.from(this))
 }

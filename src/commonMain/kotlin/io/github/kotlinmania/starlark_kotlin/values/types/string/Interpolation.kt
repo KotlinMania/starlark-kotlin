@@ -175,7 +175,7 @@ private class PercentFormatParser(
                 'X' -> Item(literal, PercentSFormat.HexUpper)
                 'e' -> Item(literal, PercentSFormat.Exp)
                 'E' -> Item(literal, PercentSFormat.ExpUpper)
-                'f', 'F' -> Item(literal, PercentSFormat.Float)
+                'f', F_' -> Item(literal, PercentSFormat.Float)
                 'g' -> Item(literal, PercentSFormat.FloatCompact)
                 'G' -> Item(literal, PercentSFormat.FloatCompactUpper)
                 else -> {
@@ -369,12 +369,12 @@ fun percent(format: String, value: Value): Result<String> {
             PercentSFormat.Exp -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeScientific(res, numRef.asFloat(), 'e', false)
+                FloatFormatting.writeScientific(res, numRef.asFloat(), E_', false)
             }
             PercentSFormat.ExpUpper -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeScientific(res, numRef.asFloat(), 'E', false)
+                FloatFormatting.writeScientific(res, numRef.asFloat(), E_', false)
             }
             PercentSFormat.Float -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
@@ -384,12 +384,12 @@ fun percent(format: String, value: Value): Result<String> {
             PercentSFormat.FloatCompact -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeCompact(res, numRef.asFloat(), 'e')
+                FloatFormatting.writeCompact(res, numRef.asFloat(), E_')
             }
             PercentSFormat.FloatCompactUpper -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeCompact(res, numRef.asFloat(), 'E')
+                FloatFormatting.writeCompact(res, numRef.asFloat(), E_')
             }
         }
     }

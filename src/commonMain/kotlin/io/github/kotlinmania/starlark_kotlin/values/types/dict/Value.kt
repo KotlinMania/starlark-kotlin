@@ -72,9 +72,9 @@ data class DictGen<T>(val inner: T) : Trace {
 }
 
 /**
- * Display implementation for Dict<'v>
+ * Display implementation for Dict<V_>
  */
-fun <'v> DictDisplay(dict: Dict<'v>): String {
+fun <V_> DictDisplay(dict: Dict<V_>): String {
     return fmtKeyedContainer("{", "}", ": ", dict.iter())
 }
 
@@ -83,9 +83,9 @@ fun <'v> DictDisplay(dict: Dict<'v>): String {
  */
 @ProvidesStaticType
 @JvmInline
-value class Dict<'v>(
+value class Dict<V_>(
     /** The data stored by the dictionary. The keys must all be hashable values. */
-    val content: SmallMap<Value<'v>, Value<'v>>
+    val content: SmallMap<Value<V_>, Value<V_>>
 ) : Trace {
     companion object {
         /** The result of calling `type()` on dictionaries. */
@@ -101,17 +101,17 @@ value class Dict<'v>(
          * Use [AllocDict] or [SmallMap] to allocate a new dictionary on the heap.
          */
         @Deprecated("Use AllocDict or SmallMap")
-        fun <'v> new(content: SmallMap<Value<'v>, Value<'v>>): Dict<'v> {
+        fun <V_> new(content: SmallMap<Value<V_>, Value<V_>>): Dict<V_> {
             return Dict(content)
         }
 
-        fun <'v> isDictType(x: KClass<*>): Boolean {
+        fun <V_> isDictType(x: KClass<*>): Boolean {
             return x == DictGen::class
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun <'v> fromValueUncheckedMut(x: Value<'v>): AtomicRef<Dict<'v>> {
-            val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict<'v>>>>()
+        fun <V_> fromValueUncheckedMut(x: Value<V_>): AtomicRef<Dict<V_>> {
+            val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict<V_>>>>()
             return dict.inner
         }
     }
@@ -123,22 +123,22 @@ value class Dict<'v>(
     fun isEmpty(): Boolean = content.isEmpty()
 
     /** Iterate through the key/value pairs in the dictionary. */
-    fun iter(): Sequence<Pair<Value<'v>, Value<'v>>> {
+    fun iter(): Sequence<Pair<Value<V_>, Value<V_>>> {
         return content.iter().map { (l, r) -> Pair(l, r) }
     }
 
     /** Iterate through the key/value pairs in the dictionary, but retaining the hash of the keys. */
-    fun iterHashed(): Sequence<Pair<Hashed<Value<'v>>, Value<'v>>> {
+    fun iterHashed(): Sequence<Pair<Hashed<Value<V_>>, Value<V_>>> {
         return content.iterHashed().map { (l, r) -> Pair(l.copied(), r) }
     }
 
     /** Iterator over keys. */
-    fun keys(): Sequence<Value<'v>> {
+    fun keys(): Sequence<Value<V_>> {
         return content.keys()
     }
 
     /** Iterator over values. */
-    fun values(): Sequence<Value<'v>> {
+    fun values(): Sequence<Value<V_>> {
         return content.values()
     }
 
@@ -146,12 +146,12 @@ value class Dict<'v>(
      * Get the value associated with a particular key. Will return [Result.failure] if the key is not hashable,
      * and otherwise [null] if the key doesn't exist or the value if it does.
      */
-    fun get(key: Value<'v>): Result<Value<'v>?> {
+    fun get(key: Value<V_>): Result<Value<V_>?> {
         return key.getHashed().map { hashed -> getHashed(hashed) }
     }
 
     /** Lookup the value by the given prehashed key. */
-    fun getHashed(key: Hashed<Value<'v>>): Value<'v>? {
+    fun getHashed(key: Hashed<Value<V_>>): Value<V_>? {
         return content.getHashedByValue(key)
     }
 
@@ -159,17 +159,17 @@ value class Dict<'v>(
      * Get the value associated with a particular string. Equivalent to allocating the
      * string on the heap, turning it into a value, and looking up using that.
      */
-    fun getStr(key: String): Value<'v>? {
+    fun getStr(key: String): Value<V_>? {
         return content.get(ValueStr(key))
     }
 
     /** Like [getStr], but where you already have the hash. */
-    fun getStrHashed(key: Hashed<String>): Value<'v>? {
+    fun getStrHashed(key: Hashed<String>): Value<V_>? {
         return content.getHashedByValue(Hashed.newUnchecked(key.hash(), ValueStr(key.key())))
     }
 
     /** Try to coerce all keys to strings. */
-    fun downcastRefKeyString(): SmallMap<StringValue<'v>, Value<'v>>? {
+    fun downcastRefKeyString(): SmallMap<StringValue<V_>, Value<V_>>? {
         for (key in content.keys()) {
             if (unlikely(!key.isStr())) {
                 return null
@@ -180,14 +180,14 @@ value class Dict<'v>(
         // and we just checked above that all keys are strings.
 
         @Suppress("UNUSED_PARAMETER")
-        fun <'v> assertCoerce(
-            s: SmallMap<StringValue<'v>, Value<'v>>
-        ): SmallMap<Value<'v>, Value<'v>> {
+        fun <V_> assertCoerce(
+            s: SmallMap<StringValue<V_>, Value<V_>>
+        ): SmallMap<Value<V_>, Value<V_>> {
             return coerce(s)
         }
 
         @Suppress("UNCHECKED_CAST")
-        return transmute<SmallMap<Value<'v>, Value<'v>>, SmallMap<StringValue<'v>, Value<'v>>>(content)
+        return transmute<SmallMap<Value<V_>, Value<V_>>, SmallMap<StringValue<V_>, Value<V_>>>(content)
     }
 
     /** Reserve capacity to insert [additional] elements without reallocating. */
@@ -196,12 +196,12 @@ value class Dict<'v>(
     }
 
     /** Insert a key/value pair into the dictionary. */
-    fun insertHashed(key: Hashed<Value<'v>>, value: Value<'v>): Value<'v>? {
+    fun insertHashed(key: Hashed<Value<V_>>, value: Value<V_>): Value<V_>? {
         return content.insertHashed(key, value)
     }
 
     /** Remove given key from the dictionary. */
-    fun removeHashed(key: Hashed<Value<'v>>): Value<'v>? {
+    fun removeHashed(key: Hashed<Value<V_>>): Value<V_>? {
         return content.shiftRemoveHashed(key.asRef())
     }
 
@@ -211,9 +211,9 @@ value class Dict<'v>(
     }
 }
 
-/** StarlarkTypeRepr for Dict<'v> */
+/** StarlarkTypeRepr for Dict<V_> */
 object DictStarlarkTypeRepr {
-    fun <'v> starlarkTypeRepr(): Ty {
+    fun <V_> starlarkTypeRepr(): Ty {
         return DictType.starlarkTypeRepr<FrozenValue, FrozenValue>()
     }
 }
@@ -245,7 +245,7 @@ value class FrozenDictData(
 typealias FrozenDict = DictGen<FrozenDictData>
 
 /** Mutable dict type */
-typealias MutableDict<'v> = DictGen<AtomicRef<Dict<'v>>>
+typealias MutableDict<V_> = DictGen<AtomicRef<Dict<V_>>>
 
 /** Empty frozen dict constant */
 val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<DictGen<FrozenDictData>> =
@@ -259,9 +259,9 @@ class FrozenDictDataCoerce : Coerce<Dict<*>, FrozenDictData> {
     }
 }
 
-/** AllocValue for Dict<'v> */
+/** AllocValue for Dict<V_> */
 object DictAllocValue {
-    fun <'v> allocValue(dict: Dict<'v>, heap: Heap<'v>): Value<'v> {
+    fun <V_> allocValue(dict: Dict<V_>, heap: Heap<V_>): Value<V_> {
         return heap.allocComplex(DictGen(atomic(dict)))
     }
 }
@@ -299,8 +299,8 @@ data class ValueStr(val str: String) {
     }
 }
 
-/** Equivalent trait implementation for ValueStr with Value<'v> */
-fun <'v> ValueStr.equivalent(key: Value<'v>): Boolean {
+/** Equivalent trait implementation for ValueStr with Value<V_> */
+fun <V_> ValueStr.equivalent(key: Value<V_>): Boolean {
     return key.unpackStr() == this.str
 }
 
@@ -309,9 +309,9 @@ fun ValueStr.equivalentFrozen(key: FrozenValue): Boolean {
     return key.unpackStr() == this.str
 }
 
-/** Freeze implementation for DictGen<AtomicRef<Dict<'v>>> */
-fun <'v> freezeDictGen(
-    dict: DictGen<AtomicRef<Dict<'v>>>,
+/** Freeze implementation for DictGen<AtomicRef<Dict<V_>>> */
+fun <V_> freezeDictGen(
+    dict: DictGen<AtomicRef<Dict<V_>>>,
     freezer: Freezer
 ): FreezeResult<DictGen<FrozenDictData>> {
     val innerDict = dict.inner.value
@@ -322,19 +322,19 @@ fun <'v> freezeDictGen(
 /**
  * DictLike trait - provides common interface for both mutable and frozen dicts.
  */
-interface DictLike<'v> {
-    fun content(): SmallMap<Value<'v>, Value<'v>>
+interface DictLike<V_> {
+    fun content(): SmallMap<Value<V_>, Value<V_>>
 
     // These functions are unsafe for the same reason StarlarkValue iterator functions are unsafe.
     fun iterStart()
-    fun contentUnchecked(): SmallMap<Value<'v>, Value<'v>>
+    fun contentUnchecked(): SmallMap<Value<V_>, Value<V_>>
     fun iterStop()
-    fun setAt(index: Hashed<Value<'v>>, value: Value<'v>): Result<Unit>
+    fun setAt(index: Hashed<Value<V_>>, value: Value<V_>): Result<Unit>
 }
 
-/** DictLike implementation for AtomicRef<Dict<'v>> */
-class RefCellDictLike<'v>(private val cell: AtomicRef<Dict<'v>>) : DictLike<'v> {
-    override fun content(): SmallMap<Value<'v>, Value<'v>> {
+/** DictLike implementation for AtomicRef<Dict<V_>> */
+class RefCellDictLike<V_>(private val cell: AtomicRef<Dict<V_>>) : DictLike<V_> {
+    override fun content(): SmallMap<Value<V_>, Value<V_>> {
         return cell.value.content
     }
 
@@ -348,13 +348,13 @@ class RefCellDictLike<'v>(private val cell: AtomicRef<Dict<'v>>) : DictLike<'v> 
         // In Kotlin, we don't have the same borrow checking, so this is a no-op
     }
 
-    override fun contentUnchecked(): SmallMap<Value<'v>, Value<'v>> {
+    override fun contentUnchecked(): SmallMap<Value<V_>, Value<V_>> {
         // In Rust, this unsafely accesses the content without borrowing
         // In Kotlin, we just access the value
         return cell.value.content
     }
 
-    override fun setAt(index: Hashed<Value<'v>>, value: Value<'v>): Result<Unit> {
+    override fun setAt(index: Hashed<Value<V_>>, value: Value<V_>): Result<Unit> {
         return try {
             val dict = cell.value
             dict.content.insertHashed(index, value)
@@ -366,10 +366,10 @@ class RefCellDictLike<'v>(private val cell: AtomicRef<Dict<'v>>) : DictLike<'v> 
 }
 
 /** DictLike implementation for FrozenDictData */
-class FrozenDictDataDictLike<'v>(private val data: FrozenDictData) : DictLike<'v> {
+class FrozenDictDataDictLike<V_>(private val data: FrozenDictData) : DictLike<V_> {
     @Suppress("UNCHECKED_CAST")
-    override fun content(): SmallMap<Value<'v>, Value<'v>> {
-        return coerce(data.content) as SmallMap<Value<'v>, Value<'v>>
+    override fun content(): SmallMap<Value<V_>, Value<V_>> {
+        return coerce(data.content) as SmallMap<Value<V_>, Value<V_>>
     }
 
     override fun iterStart() {}
@@ -377,11 +377,11 @@ class FrozenDictDataDictLike<'v>(private val data: FrozenDictData) : DictLike<'v
     override fun iterStop() {}
 
     @Suppress("UNCHECKED_CAST")
-    override fun contentUnchecked(): SmallMap<Value<'v>, Value<'v>> {
-        return coerce(data.content) as SmallMap<Value<'v>, Value<'v>>
+    override fun contentUnchecked(): SmallMap<Value<V_>, Value<V_>> {
+        return coerce(data.content) as SmallMap<Value<V_>, Value<V_>>
     }
 
-    override fun setAt(index: Hashed<Value<'v>>, value: Value<'v>): Result<Unit> {
+    override fun setAt(index: Hashed<Value<V_>>, value: Value<V_>): Result<Unit> {
         return Result.failure(ValueError.CannotMutateImmutableValue())
     }
 }
@@ -399,12 +399,12 @@ private object RES : MethodsStatic() {
 
 /**
  * StarlarkValue implementation for DictGen<T>
- * where T: DictLike<'v>
+ * where T: DictLike<V_>
  */
 @StarlarkValue(type = Dict.TYPE)
-interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
-    where T : DictLike<'v>,
-          T : ProvidesStaticType<'v> {
+interface DictGenStarlarkValue<V_, T> : StarlarkValue<V_>
+    where T : DictLike<V_>,
+          T : ProvidesStaticType<V_> {
 
     val dictGen: DictGen<T>
 
@@ -435,7 +435,7 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
         return !dictGen.inner.content().isEmpty()
     }
 
-    override fun equals(other: Value<'v>): Result<Boolean> {
+    override fun equals(other: Value<V_>): Result<Boolean> {
         val otherDict = DictRef.fromValue(other) ?: return Result.success(false)
         return equalsSmallMap(
             dictGen.inner.content(),
@@ -443,7 +443,7 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
         ) { x, y -> x.equals(y) }
     }
 
-    override fun at(index: Value<'v>, heap: Heap<'v>): Result<Value<'v>> {
+    override fun at(index: Value<V_>, heap: Heap<V_>): Result<Value<V_>> {
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         val value = dictGen.inner.content().getHashedByValue(hashed)
         return if (value != null) {
@@ -457,12 +457,12 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
         return Result.success(dictGen.inner.content().len())
     }
 
-    override fun isIn(other: Value<'v>): Result<Boolean> {
+    override fun isIn(other: Value<V_>): Result<Boolean> {
         val hashed = other.getHashed().getOrElse { return Result.failure(it) }
         return Result.success(dictGen.inner.content().containsKeyHashedByValue(hashed))
     }
 
-    override fun iterate(me: Value<'v>, heap: Heap<'v>): Result<Value<'v>> {
+    override fun iterate(me: Value<V_>, heap: Heap<V_>): Result<Value<V_>> {
         dictGen.inner.iterStart()
         return Result.success(me)
     }
@@ -475,7 +475,7 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
         return Pair(rem, rem)
     }
 
-    override fun iterNext(index: Int, heap: Heap<'v>): Value<'v>? {
+    override fun iterNext(index: Int, heap: Heap<V_>): Value<V_>? {
         return dictGen.inner.contentUnchecked().keys().elementAtOrNull(index)
     }
 
@@ -483,12 +483,12 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
         dictGen.inner.iterStop()
     }
 
-    override fun setAt(index: Value<'v>, value: Value<'v>): Result<Unit> {
+    override fun setAt(index: Value<V_>, value: Value<V_>): Result<Unit> {
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         return dictGen.inner.setAt(hashed, value)
     }
 
-    override fun bitOr(rhs: Value<'v>, heap: Heap<'v>): Result<Value<'v>> {
+    override fun bitOr(rhs: Value<V_>, heap: Heap<V_>): Result<Value<V_>> {
         val rhsDict = DictRef.fromValue(rhs)
             ?: return ValueError.unsupportedWith(this, "|", rhs)
 
@@ -526,7 +526,7 @@ interface DictGenStarlarkValue<'v, T> : StarlarkValue<'v>
 /**
  * Serialize implementation for DictGen<T>
  */
-fun <'v, T : DictLike<'v>> serializeDictGen(
+fun <V_, T : DictLike<V_>> serializeDictGen(
     dict: DictGen<T>,
     serializer: kotlinx.serialization.SerializationStrategy<Map<*, *>>
 ): Result<Unit> {

@@ -31,15 +31,15 @@ import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
 /**
  * Define the set type.
  */
-class SetRef<'v> internal constructor(
-    internal val aref: Either<BorrowedSetData<'v>, SetData<'v>>
+class SetRef<V_> internal constructor(
+    internal val aref: Either<BorrowedSetData<V_>, SetData<V_>>
 )
 
 /**
  * Clone implementation for SetRef.
  * Corresponds to Rust's Clone impl which uses Ref::clone for Left case.
  */
-fun <'v> SetRef<'v>.clone(): SetRef<'v> {
+fun <V_> SetRef<V_>.clone(): SetRef<V_> {
     return when (val ref = this.aref) {
         is Either.Left -> SetRef(Either.Left(ref.value.clone()))
         is Either.Right -> SetRef(Either.Right(ref.value))
@@ -50,7 +50,7 @@ fun <'v> SetRef<'v>.clone(): SetRef<'v> {
  * Access the underlying content (SmallSet).
  * Extension property that mimics Rust's Deref to access `aref.content`.
  */
-val <'v> SetRef<'v>.content: SmallSet<Value<'v>>
+val <V_> SetRef<V_>.content: SmallSet<Value<V_>>
     get() = when (val ref = aref) {
         is Either.Left -> ref.value.data.content
         is Either.Right -> ref.value.content
@@ -60,7 +60,7 @@ val <'v> SetRef<'v>.content: SmallSet<Value<'v>>
  * Iterate through the values in the set, retaining their hashes.
  * Corresponds to accessing methods through Deref in Rust.
  */
-fun <'v> SetRef<'v>.iterHashed(): Sequence<Hashed<Value<'v>>> = when (val ref = aref) {
+fun <V_> SetRef<V_>.iterHashed(): Sequence<Hashed<Value<V_>>> = when (val ref = aref) {
     is Either.Left -> ref.value.data.iterHashed()
     is Either.Right -> ref.value.iterHashed()
 }
@@ -69,7 +69,7 @@ fun <'v> SetRef<'v>.iterHashed(): Sequence<Hashed<Value<'v>>> = when (val ref = 
  * Check if the set contains a hashed element.
  * Corresponds to accessing methods through Deref in Rust.
  */
-fun <'v> SetRef<'v>.containsHashed(key: Hashed<Value<'v>>): Boolean = when (val ref = aref) {
+fun <V_> SetRef<V_>.containsHashed(key: Hashed<Value<V_>>): Boolean = when (val ref = aref) {
     is Either.Left -> ref.value.data.containsHashed(key)
     is Either.Right -> ref.value.containsHashed(key)
 }
@@ -77,8 +77,8 @@ fun <'v> SetRef<'v>.containsHashed(key: Hashed<Value<'v>>): Boolean = when (val 
 /**
  * Mutably borrowed `Set`.
  */
-class SetMut<'v> internal constructor(
-    internal val aref: BorrowedMutSetData<'v>
+class SetMut<V_> internal constructor(
+    internal val aref: BorrowedMutSetData<V_>
 ) {
     companion object {
         /**
@@ -90,7 +90,7 @@ class SetMut<'v> internal constructor(
         /**
          * Cold/inline(never) error path.
          */
-        private fun <'v> error(x: Value<'v>): Throwable {
+        private fun <V_> error(x: Value<V_>): Throwable {
             return if (x.downcastRef<SetGen<FrozenSetData>>() != null) {
                 ValueError.CannotMutateImmutableValue
             } else {
@@ -101,8 +101,8 @@ class SetMut<'v> internal constructor(
         /**
          * Downcast the value to a mutable set reference.
          */
-        inline fun <'v> fromValue(x: Value<'v>): Result<SetMut<'v>> {
-            val ptr = x.downcastRef<SetGen<RefCell<SetData<'v>>>>()
+        inline fun <V_> fromValue(x: Value<V_>): Result<SetMut<V_>> {
+            val ptr = x.downcastRef<SetGen<RefCell<SetData<V_>>>>()
             return when (ptr) {
                 null -> Result.failure(error(x))
                 else -> {
@@ -131,13 +131,13 @@ object SetRefStarlarkTypeRepr : StarlarkTypeRepr {
  * UnpackValue implementation for SetRef.
  */
 object SetRefUnpackValue : UnpackValue<Nothing> {
-    override fun <'v> unpackValueImpl(value: Value<'v>): Result<SetRef<'v>?> {
+    override fun <V_> unpackValueImpl(value: Value<V_>): Result<SetRef<V_>?> {
         val result = if (value.unpackFrozen() != null) {
             value.unpackFrozen()!!
                 .downcastRef<SetGen<FrozenSetData>>()
                 ?.let { SetRef(Either.Right(coerce(it.inner))) }
         } else {
-            value.downcastRef<SetGen<RefCell<SetData<'v>>>>()
+            value.downcastRef<SetGen<RefCell<SetData<V_>>>>()
                 ?.let { ptr -> SetRef(Either.Left(ptr.inner.borrow())) }
         }
         return Result.success(result)
@@ -182,14 +182,14 @@ class RefCell<T>(private var value: T) {
 
 /**
  * Borrowed reference to SetData (immutable).
- * Corresponds to Rust's `Ref<'v, SetData<'v>>`.
+ * Corresponds to Rust's `Ref<V_, SetData<V_>>`.
  */
-class BorrowedSetData<'v>(val data: SetData<'v>) {
-    fun clone(): BorrowedSetData<'v> = BorrowedSetData(data)
+class BorrowedSetData<V_>(val data: SetData<V_>) {
+    fun clone(): BorrowedSetData<V_> = BorrowedSetData(data)
 }
 
 /**
  * Mutably borrowed reference to SetData.
- * Corresponds to Rust's `RefMut<'v, SetData<'v>>`.
+ * Corresponds to Rust's `RefMut<V_, SetData<V_>>`.
  */
-class BorrowedMutSetData<'v>(val data: SetData<'v>)
+class BorrowedMutSetData<V_>(val data: SetData<V_>)

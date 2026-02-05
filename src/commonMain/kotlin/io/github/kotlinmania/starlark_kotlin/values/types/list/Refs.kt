@@ -30,8 +30,8 @@ import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
  * Reference to list content (mutable or frozen).
  */
 @JvmInline
-value class ListRef<'v> internal constructor(
-    internal val content: List<Value<'v>>
+value class ListRef<V_> internal constructor(
+    internal val content: List<Value<V_>>
 )
 
 /**
@@ -42,31 +42,31 @@ value class FrozenListRef internal constructor(
     internal val content: List<FrozenValue>
 )
 
-// impl<'v> ListRef<'v>
+// impl<V_> ListRef<V_>
 object ListRefImpl {
     /**
      * `type([])`, which is `"list"`.
      */
     const val TYPE: String = ListData.TYPE
 
-    internal fun <'v> new(slice: List<Value<'v>>): ListRef<'v> = ListRef(slice)
+    internal fun <V_> new(slice: List<Value<V_>>): ListRef<V_> = ListRef(slice)
 
     /**
      * Empty list reference.
      */
-    fun <'v> empty(): ListRef<'v> {
+    fun <V_> empty(): ListRef<V_> {
         return new(emptyList())
     }
 
     /**
      * Downcast the value to the list or frozen list (both are represented by `ListRef`).
      */
-    fun <'v> fromValue(x: Value<'v>): ListRef<'v>? {
+    fun <V_> fromValue(x: Value<V_>): ListRef<V_>? {
         if (x.unpackFrozen() != null) {
             return x.downcastRef<ListGen<FrozenListData>>()
                 ?.let { new(coerce(it.`0`.content())) }
         } else {
-            val ptr = x.downcastRef<ListGen<ListData<'v>>>() ?: return null
+            val ptr = x.downcastRef<ListGen<ListData<V_>>>() ?: return null
             return new(ptr.`0`.content())
         }
     }
@@ -74,7 +74,7 @@ object ListRefImpl {
     /**
      * Downcast the list.
      */
-    fun <'f> fromFrozenValue(x: FrozenValue): ListRef<'f>? {
+    fun <F_> fromFrozenValue(x: FrozenValue): ListRef<F_>? {
         return x.downcastRef<ListGen<FrozenListData>>()
             ?.let { new(coerce(it.`0`.content())) }
     }
@@ -83,14 +83,14 @@ object ListRefImpl {
 /**
  * List elements.
  */
-fun <'v> ListRef<'v>.content(): List<Value<'v>> {
+fun <V_> ListRef<V_>.content(): List<Value<V_>> {
     return content
 }
 
 /**
  * Iterate over the elements in the list.
  */
-fun <'v, 'a> ListRef<'v>.iter(): Iterator<Value<'v>> where 'v : 'a {
+fun <V_, A_> ListRef<V_>.iter(): Iterator<Value<V_>> where 'v : 'a {
     return content.iterator()
 }
 
@@ -124,8 +124,8 @@ object FrozenListRefImpl {
     }
 }
 
-// impl<'v> Deref for ListRef<'v>
-operator fun <'v> ListRef<'v>.getValue(thisRef: Any?, property: Any?): List<Value<'v>> {
+// impl<V_> Deref for ListRef<V_>
+operator fun <V_> ListRef<V_>.getValue(thisRef: Any?, property: Any?): List<Value<V_>> {
     return content
 }
 
@@ -134,8 +134,8 @@ operator fun FrozenListRef.getValue(thisRef: Any?, property: Any?): List<FrozenV
     return content
 }
 
-// impl<'v> Display for ListRef<'v>
-fun <'v> ListRef<'v>.fmt(): String {
+// impl<V_> Display for ListRef<V_>
+fun <V_> ListRef<V_>.fmt(): String {
     return displayList(content)
 }
 
@@ -144,34 +144,34 @@ fun FrozenListRef.fmt(): String {
     return displayList(coerce(content))
 }
 
-// impl<'v> StarlarkTypeRepr for &'v ListRef<'v>
+// impl<V_> StarlarkTypeRepr for &'v ListRef<V_>
 object ListRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
         return VecStarlarkTypeRepr<Value<Any>>().starlarkTypeRepr()
     }
 }
 
-// impl<'v> StarlarkTypeRepr for &'v FrozenListRef
+// impl<V_> StarlarkTypeRepr for &'v FrozenListRef
 object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
         return VecStarlarkTypeRepr<FrozenValue>().starlarkTypeRepr()
     }
 }
 
-// impl<'v> UnpackValue<'v> for &'v ListRef<'v>
+// impl<V_> UnpackValue<V_> for &'v ListRef<V_>
 object ListRefUnpackValue : UnpackValue<Nothing> {
-    override fun <'v> unpackValueImpl(value: Value<'v>): Result<ListRef<'v>?> {
+    override fun <V_> unpackValueImpl(value: Value<V_>): Result<ListRef<V_>?> {
         return Result.success(ListRefImpl.fromValue(value))
     }
 }
 
-// impl<'v> UnpackValue<'v> for &'v FrozenListRef
+// impl<V_> UnpackValue<V_> for &'v FrozenListRef
 object FrozenListRefUnpackValue : UnpackValue<io.github.kotlinmania.starlark_kotlin.Error> {
-    override fun <'v> unpackValueImpl(value: Value<'v>): io.github.kotlinmania.starlark_kotlin.Result<FrozenListRef?> {
+    override fun <V_> unpackValueImpl(value: Value<V_>): io.github.kotlinmania.starlark_kotlin.Result<FrozenListRef?> {
         return io.github.kotlinmania.starlark_kotlin.Result.success(FrozenListRefImpl.fromValue(value))
     }
 }
 
-internal fun <'v> displayList(content: List<Value<'v>>): String {
+internal fun <V_> displayList(content: List<Value<V_>>): String {
     return "[${content.joinToString(", ")}]"
 }

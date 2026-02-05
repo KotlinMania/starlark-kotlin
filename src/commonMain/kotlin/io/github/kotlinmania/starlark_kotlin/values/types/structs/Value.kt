@@ -25,7 +25,7 @@ import kotlinx.serialization.Serializable
  * The result of calling `struct()`.
  *
  * This is a generic struct implementation parametrized over V which represents
- * either Value<'v> or FrozenValue in the Rust implementation. The lifetime parameter
+ * either Value<V_> or FrozenValue in the Rust implementation. The lifetime parameter
  * 'v from Rust is handled through Kotlin's type system.
  */
 @Serializable
@@ -174,7 +174,7 @@ fun coerceStruct(frozen: StructGen<FrozenValue>): StructGen<Value> {
 }
 
 /**
- * Type alias for mutable Struct - corresponds to starlark_complex_value!(pub(crate) Struct<'v>)
+ * Type alias for mutable Struct - corresponds to starlark_complex_value!(pub(crate) Struct<V_>)
  */
 typealias Struct = StructGen<Value>
 

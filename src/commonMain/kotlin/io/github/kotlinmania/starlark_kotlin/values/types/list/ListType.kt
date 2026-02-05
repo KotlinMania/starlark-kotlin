@@ -90,16 +90,16 @@ internal class ListTypeStarlarkTypeRepr<T>(
 
 /**
  * Placeholder for UnpackValue trait.
- * Corresponds to: impl<'v, T: UnpackValue<'v>> UnpackValue<'v> for ListType<T>
+ * Corresponds to: impl<V_, T: UnpackValue<V_>> UnpackValue<V_> for ListType<T>
  */
 internal interface UnpackValue<V, Self> {
     /**
-     * Type Error = <T as UnpackValue<'v>>::Error
+     * Type Error = <T as UnpackValue<V_>>::Error
      */
     val errorType: Any
 
     /**
-     * fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
+     * fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error>
      */
     fun unpackValueImpl(value: V): Result<Self?>
 }
@@ -110,14 +110,14 @@ internal interface UnpackValue<V, Self> {
 internal class Value<V> private constructor()
 
 /**
- * UnpackValue implementation for ListType<T> where T: UnpackValue<'v>.
+ * UnpackValue implementation for ListType<T> where T: UnpackValue<V_>.
  *
  * Rust equivalent:
  * ```rust
- * impl<'v, T: UnpackValue<'v>> UnpackValue<'v> for ListType<T> {
- *     type Error = <T as UnpackValue<'v>>::Error;
+ * impl<V_, T: UnpackValue<V_>> UnpackValue<V_> for ListType<T> {
+ *     type Error = <T as UnpackValue<V_>>::Error;
  *
- *     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
+ *     fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error> {
  *         match UnpackList::<UnpackAndDiscard<T>>::unpack_value_impl(value) {
  *             Ok(Some(_)) => Ok(Some(ListType {
  *                 _item: std::marker::PhantomData,

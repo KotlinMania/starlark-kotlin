@@ -45,7 +45,7 @@ sealed class Either<out L, out R> {
 
 /**
  * AllocValue implementation for SmallMap<K, V>.
- * Corresponds to: impl<'v, K: AllocValue<'v>, V: AllocValue<'v>> AllocValue<'v> for SmallMap<K, V>
+ * Corresponds to: impl<V_, K: AllocValue<V_>, V: AllocValue<V_>> AllocValue<V_> for SmallMap<K, V>
  */
 fun <V, K, T> SmallMap<K, T>.allocValueSmallMap(heap: Heap<V>): Value<V>
     where K : AllocValue<V>,
@@ -65,7 +65,7 @@ fun <K, V> SmallMap<K, V>.allocFrozenValueSmallMap(heap: FrozenHeap): FrozenValu
 
 /**
  * AllocValue implementation for &SmallMap<K, V>.
- * Corresponds to: impl<'a, 'v, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocValue<'v> for &'a SmallMap<K, V>
+ * Corresponds to: impl<A_, V_, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocValue<V_> for &'a SmallMap<K, V>
  */
 fun <V, K, T> SmallMap<K, T>.allocValueSmallMapRef(heap: Heap<V>): Value<V>
     where K : StarlarkTypeRepr,
@@ -75,7 +75,7 @@ fun <V, K, T> SmallMap<K, T>.allocValueSmallMapRef(heap: Heap<V>): Value<V>
 
 /**
  * AllocFrozenValue implementation for &SmallMap<K, V>.
- * Corresponds to: impl<'a, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocFrozenValue for &'a SmallMap<K, V>
+ * Corresponds to: impl<A_, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocFrozenValue for &'a SmallMap<K, V>
  */
 fun <K, V> SmallMap<K, V>.allocFrozenValueSmallMapRef(heap: FrozenHeap): FrozenValue
     where K : StarlarkTypeRepr,
@@ -85,7 +85,7 @@ fun <K, V> SmallMap<K, V>.allocFrozenValueSmallMapRef(heap: FrozenHeap): FrozenV
 
 /**
  * StarlarkTypeRepr for &SmallMap<K, V>.
- * Corresponds to: impl<'a, K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for &'a SmallMap<K, V>
+ * Corresponds to: impl<A_, K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for &'a SmallMap<K, V>
  */
 object SmallMapRefStarlarkTypeRepr {
     inline fun <reified K, reified V> starlarkTypeRepr(): Ty
@@ -109,7 +109,7 @@ object SmallMapStarlarkTypeRepr {
 
 /**
  * UnpackValue implementation for SmallMap<K, V>.
- * Corresponds to: impl<'v, K: UnpackValue<'v> + Hash + Eq, V: UnpackValue<'v>> UnpackValue<'v> for SmallMap<K, V>
+ * Corresponds to: impl<V_, K: UnpackValue<V_> + Hash + Eq, V: UnpackValue<V_>> UnpackValue<V_> for SmallMap<K, V>
  */
 object SmallMapUnpackValue {
     fun <V, K, T> unpackValueImpl(value: Value<V>): Result<SmallMap<K, T>?>
@@ -148,7 +148,7 @@ object SmallMapUnpackValue {
 
 /**
  * AllocValue implementation for BTreeMap<K, V>.
- * Corresponds to: impl<'v, K: AllocValue<'v>, V: AllocValue<'v>> AllocValue<'v> for BTreeMap<K, V>
+ * Corresponds to: impl<V_, K: AllocValue<V_>, V: AllocValue<V_>> AllocValue<V_> for BTreeMap<K, V>
  * Note: In Kotlin, BTreeMap is represented by sorted map types.
  */
 fun <V, K, T> Map<K, T>.allocValueBTreeMap(heap: Heap<V>): Value<V>
@@ -171,7 +171,7 @@ fun <K, V> Map<K, V>.allocFrozenValueBTreeMap(heap: FrozenHeap): FrozenValue
 
 /**
  * AllocValue implementation for &BTreeMap<K, V>.
- * Corresponds to: impl<'a, 'v, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocValue<'v> for &'a BTreeMap<K, V>
+ * Corresponds to: impl<A_, V_, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocValue<V_> for &'a BTreeMap<K, V>
  */
 fun <V, K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap<V>): Value<V>
     where K : Comparable<K>,
@@ -182,7 +182,7 @@ fun <V, K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap<V>): Value<V>
 
 /**
  * AllocFrozenValue implementation for &BTreeMap<K, V>.
- * Corresponds to: impl<'a, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocFrozenValue for &'a BTreeMap<K, V>
+ * Corresponds to: impl<A_, K: 'a + StarlarkTypeRepr, V: 'a + StarlarkTypeRepr> AllocFrozenValue for &'a BTreeMap<K, V>
  */
 fun <K, V> Map<K, V>.allocFrozenValueBTreeMapRef(heap: FrozenHeap): FrozenValue
     where K : Comparable<K>,
@@ -193,7 +193,7 @@ fun <K, V> Map<K, V>.allocFrozenValueBTreeMapRef(heap: FrozenHeap): FrozenValue
 
 /**
  * StarlarkTypeRepr for &BTreeMap<K, V>.
- * Corresponds to: impl<'a, K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for &'a BTreeMap<K, V>
+ * Corresponds to: impl<A_, K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for &'a BTreeMap<K, V>
  */
 object BTreeMapRefStarlarkTypeRepr {
     inline fun <reified K, reified V> starlarkTypeRepr(): Ty
@@ -219,7 +219,7 @@ object BTreeMapStarlarkTypeRepr {
 
 /**
  * UnpackValue implementation for BTreeMap<K, V>.
- * Corresponds to: impl<'v, K: UnpackValue<'v> + Ord, V: UnpackValue<'v>> UnpackValue<'v> for BTreeMap<K, V>
+ * Corresponds to: impl<V_, K: UnpackValue<V_> + Ord, V: UnpackValue<V_>> UnpackValue<V_> for BTreeMap<K, V>
  */
 object BTreeMapUnpackValue {
     fun <V, K, T> unpackValueImpl(value: Value<V>): Result<MutableMap<K, T>?>

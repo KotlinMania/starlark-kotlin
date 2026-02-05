@@ -78,11 +78,11 @@ sealed class NoneOr<out T> {
 // impl<T: StarlarkTypeRepr> StarlarkTypeRepr for NoneOr<T>
 expect class NoneOrStarlarkTypeRepr<T : StarlarkTypeRepr> : StarlarkTypeRepr
 
-// impl<'v, T: UnpackValue<'v>> UnpackValue<'v> for NoneOr<T>
-expect class NoneOrUnpackValue<'v, T> : UnpackValue<'v>
+// impl<V_, T: UnpackValue<V_>> UnpackValue<V_> for NoneOr<T>
+expect class NoneOrUnpackValue<V_, T> : UnpackValue<V_>
 
-// impl<'v, T: AllocValue<'v>> AllocValue<'v> for NoneOr<T>
-expect fun <'v, T> NoneOr<T>.allocValue(heap: Heap<'v>): Value<'v>
+// impl<V_, T: AllocValue<V_>> AllocValue<V_> for NoneOr<T>
+expect fun <V_, T> NoneOr<T>.allocValue(heap: Heap<V_>): Value<V_>
 
 // impl<T: AllocFrozenValue> AllocFrozenValue for NoneOr<T>
 expect fun <T> NoneOr<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue

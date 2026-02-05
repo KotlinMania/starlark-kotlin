@@ -187,7 +187,7 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr {
 
     override fun toString(): String {
         val builder = StringBuilder()
-        writeCompact(builder, value, 'e').getOrThrow()
+        writeCompact(builder, value, E_').getOrThrow()
         return builder.toString()
     }
 }

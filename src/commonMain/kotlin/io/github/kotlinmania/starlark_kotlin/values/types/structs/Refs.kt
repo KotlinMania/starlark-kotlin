@@ -34,18 +34,18 @@ import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
  * Struct implementation (for example, memory layout) may change,
  * this type provides implementation agnostics API to it.
  */
-data class StructRef<'v> internal constructor(
-    private val struct: Struct<'v>
+data class StructRef<V_> internal constructor(
+    private val struct: Struct<V_>
 ) {
     companion object {
         /**
          * Downcast a value to a struct reference.
          */
-        fun <'v> fromValue(value: Value<'v>): StructRef<'v>? {
+        fun <V_> fromValue(value: Value<V_>): StructRef<V_>? {
             return Struct.fromValue(value)?.let { StructRef(it) }
         }
 
-        internal fun <'v> isInstance(value: Value<'v>): Boolean {
+        internal fun <V_> isInstance(value: Value<V_>): Boolean {
             // debug_assert in Rust: StarlarkTypeId::of::<Struct>() == StarlarkTypeId::of::<FrozenStruct>()
             return value.starlarkTypeId() == StarlarkTypeId.of<Struct<Any>>()
         }
@@ -54,7 +54,7 @@ data class StructRef<'v> internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Iterator<Pair<StringValue<'v>, Value<'v>>> {
+    fun iter(): Iterator<Pair<StringValue<V_>, Value<V_>>> {
         return struct.iter()
     }
 }
@@ -83,16 +83,16 @@ data class FrozenStructRef internal constructor(
     }
 }
 
-// impl<'v> StarlarkTypeRepr for StructRef<'v>
+// impl<V_> StarlarkTypeRepr for StructRef<V_>
 object StructRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
         return FrozenStruct.starlarkTypeRepr()
     }
 }
 
-// impl<'v> UnpackValue<'v> for StructRef<'v>
+// impl<V_> UnpackValue<V_> for StructRef<V_>
 object StructRefUnpackValue : UnpackValue<Nothing> {
-    override fun <'v> unpackValueImpl(value: Value<'v>): Result<StructRef<'v>?> {
+    override fun <V_> unpackValueImpl(value: Value<V_>): Result<StructRef<V_>?> {
         return Result.success(StructRef.fromValue(value))
     }
 }

@@ -91,7 +91,7 @@ internal class DictTypeStarlarkTypeRepr<K, V>(
 
 /**
  * Placeholder for UnpackValue trait.
- * Corresponds to: impl<'v, K: UnpackValue<'v>, V: UnpackValue<'v>> UnpackValue<'v> for DictType<K, V>
+ * Corresponds to: impl<V_, K: UnpackValue<V_>, V: UnpackValue<V_>> UnpackValue<V_> for DictType<K, V>
  */
 internal interface UnpackValue<Val, Self> {
     /**
@@ -100,7 +100,7 @@ internal interface UnpackValue<Val, Self> {
     val errorType: Any
 
     /**
-     * fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
+     * fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error>
      */
     fun unpackValueImpl(value: Val): Result<Self?>
 }
@@ -120,14 +120,14 @@ internal sealed class Either<L, R> {
 }
 
 /**
- * UnpackValue implementation for DictType<K, V> where K: UnpackValue<'v>, V: UnpackValue<'v>.
+ * UnpackValue implementation for DictType<K, V> where K: UnpackValue<V_>, V: UnpackValue<V_>.
  *
  * Rust equivalent:
  * ```rust
- * impl<'v, K: UnpackValue<'v>, V: UnpackValue<'v>> UnpackValue<'v> for DictType<K, V> {
+ * impl<V_, K: UnpackValue<V_>, V: UnpackValue<V_>> UnpackValue<V_> for DictType<K, V> {
  *     type Error = Either<K::Error, V::Error>;
  *
- *     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
+ *     fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error> {
  *         match UnpackDictEntries::<UnpackAndDiscard<K>, UnpackAndDiscard<V>>::unpack_value_impl(
  *             value,
  *         ) {
