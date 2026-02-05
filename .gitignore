@@ -10,6 +10,9 @@ build/
 *.jar
 *.war
 *.ear
+
+# Keep the Gradle wrapper jar checked in so CI can run `./gradlew`.
+!gradle/wrapper/gradle-wrapper.jar
 .idea/
 *.iml
 out/
