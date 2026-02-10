@@ -11,6 +11,7 @@
 #include <set>
 #include <cctype>
 #include <algorithm>
+#include <cmath>
 
 // External declarations for tree-sitter language functions
 extern "C" {

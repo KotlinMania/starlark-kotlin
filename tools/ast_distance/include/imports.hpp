@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <filesystem>
 
 // External declarations for tree-sitter language functions
 extern "C" {
