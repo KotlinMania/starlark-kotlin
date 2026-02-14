@@ -287,7 +287,7 @@ object FrozenDictDataAllocFrozenValue {
 /**
  * Helper type for lookups, not useful externally.
  */
-data class ValueStr(val str: String) {
+data class ValueStr(val str: String) : starlark_map.Equivalent<Any> {
     override fun hashCode(): Int {
         return hashStringValue(str, null)
     }
@@ -297,16 +297,14 @@ data class ValueStr(val str: String) {
         if (other !is ValueStr) return false
         return str == other.str
     }
-}
 
-/** Equivalent trait implementation for ValueStr with Value<V_> */
-fun <V_> ValueStr.equivalent(key: Value<V_>): Boolean {
-    return key.unpackStr() == this.str
-}
-
-/** Equivalent trait implementation for ValueStr with FrozenValue */
-fun ValueStr.equivalentFrozen(key: FrozenValue): Boolean {
-    return key.unpackStr() == this.str
+    override fun equivalent(key: Any): Boolean {
+        return when (key) {
+            is Value<*> -> key.unpackStr() == this.str
+            is FrozenValue -> key.unpackStr() == this.str
+            else -> false
+        }
+    }
 }
 
 /** Freeze implementation for DictGen<AtomicRef<Dict<V_>>> */

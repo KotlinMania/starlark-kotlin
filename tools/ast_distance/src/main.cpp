@@ -6,6 +6,7 @@
 #include "task_manager.hpp"
 #include "symbol_analysis.hpp"
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include <iomanip>
 #include <ctime>
@@ -1358,6 +1359,19 @@ int main(int argc, char* argv[]) {
             std::string file2 = argv[3];
             Language lang2 = parse_language(argv[4]);
 
+            auto file_contains_macro_rules = [](const std::string& path) -> bool {
+                std::ifstream in(path);
+                if (!in) return false;
+                std::string content(
+                    (std::istreambuf_iterator<char>(in)),
+                    std::istreambuf_iterator<char>());
+                return content.find("macro_rules!") != std::string::npos;
+            };
+
+            bool macro_friendly = false;
+            if (lang1 == Language::RUST) macro_friendly |= file_contains_macro_rules(file1);
+            if (lang2 == Language::RUST) macro_friendly |= file_contains_macro_rules(file2);
+
             std::cout << "Parsing " << language_name(lang1) << " file: " << file1 << "\n";
             TreePtr tree1 = parser.parse_file(file1, lang1);
 
@@ -1365,7 +1379,7 @@ int main(int argc, char* argv[]) {
             TreePtr tree2 = parser.parse_file(file2, lang2);
 
             std::cout << "\n";
-            auto report = ASTSimilarity::compare(tree1.get(), tree2.get());
+            auto report = ASTSimilarity::compare(tree1.get(), tree2.get(), macro_friendly);
             report.print();
 
             std::cout << "\n=== " << language_name(lang1) << " AST Histogram ===\n";

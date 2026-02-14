@@ -1,0 +1,201 @@
+{
+  "source_root": "tmp/starlark_map",
+  "target_root": "src/commonMain/kotlin/starlark_map",
+  "source_lang": "rust",
+  "target_lang": "kotlin",
+  "agents_md": "AGENTS.md",
+  "tasks": [
+    {
+      "source_path": "src/ordered_map.rs",
+      "source_qualified": "ordered_map",
+      "target_path": "ordered_map.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/ordered_set.rs",
+      "source_qualified": "ordered_set",
+      "target_path": "ordered_set.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sorted_vec.rs",
+      "source_qualified": "sorted_vec",
+      "target_path": "sorted_vec.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/unordered_map.rs",
+      "source_qualified": "unordered_map",
+      "target_path": "unordered_map.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/vec_map/hint.rs",
+      "source_qualified": "vec_map.hint",
+      "target_path": "vec_map/hint.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/vec2/iter.rs",
+      "source_qualified": "vec2.iter",
+      "target_path": "vec2/iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/vec_map/iter.rs",
+      "source_qualified": "vec_map.iter",
+      "target_path": "vec_map/iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/vec_map/simd.rs",
+      "source_qualified": "vec_map.simd",
+      "target_path": "vec_map/simd.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/unordered_set.rs",
+      "source_qualified": "unordered_set",
+      "target_path": "unordered_set.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sorting/insertion.rs",
+      "source_qualified": "sorting.insertion",
+      "target_path": "sorting/insertion.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sorting.rs",
+      "source_qualified": "sorting",
+      "target_path": "sorting.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sorted_set.rs",
+      "source_qualified": "sorted_set",
+      "target_path": "sorted_set.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sorted_map.rs",
+      "source_qualified": "sorted_map",
+      "target_path": "sorted_map.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/small_set/iter.rs",
+      "source_qualified": "small_set.iter",
+      "target_path": "small_set/iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/small_map/iter.rs",
+      "source_qualified": "small_map.iter",
+      "target_path": "small_map/iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "build.rs",
+      "source_qualified": "build",
+      "target_path": "build.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/hash_value.rs",
+      "source_qualified": "hash_value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:28:49"
+    },
+    {
+      "source_path": "src/hashed.rs",
+      "source_qualified": "hashed",
+      "target_path": "",
+      "dependent_count": 10,
+      "status": "completed",
+      "completed_at": "2026-02-05T13:46:44"
+    },
+    {
+      "source_path": "src/hasher.rs",
+      "source_qualified": "hasher",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:03:55"
+    },
+    {
+      "source_path": "src/iter.rs",
+      "source_qualified": "iter",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:26:31"
+    },
+    {
+      "source_path": "src/lib.rs",
+      "source_qualified": "lib",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:28:49"
+    },
+    {
+      "source_path": "src/mix_u32.rs",
+      "source_qualified": "mix_u32",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:28:49"
+    },
+    {
+      "source_path": "src/small_map.rs",
+      "source_qualified": "small_map",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:17:33"
+    },
+    {
+      "source_path": "src/small_set.rs",
+      "source_qualified": "small_set",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:28:27"
+    },
+    {
+      "source_path": "src/vec2.rs",
+      "source_qualified": "vec2",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:27:24"
+    },
+    {
+      "source_path": "src/vec_map.rs",
+      "source_qualified": "vec_map",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-02-05T14:28:15"
+    }
+  ]
+}

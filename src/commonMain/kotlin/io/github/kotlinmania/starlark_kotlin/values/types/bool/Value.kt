@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
 
 import io.github.kotlinmania.starlark_kotlin.Private
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 

@@ -79,6 +79,39 @@ public:
     }
 
     /**
+     * Macro-friendly cosine similarity.
+     *
+     * Rust macro-heavy files (e.g. `macro_rules!`) often do not produce comparable AST shapes
+     * across languages because the Rust parser represents macro bodies as token trees.
+     * For such files we compute a cosine similarity over a small subset of node types
+     * (VARIABLE + UNKNOWN), which better captures whether the port contains a similar set of
+     * identifiers/tokens without over-penalizing language-specific structure.
+     */
+    static float histogram_cosine_similarity_macro(Tree* tree1, Tree* tree2) {
+        auto hist1 = tree1->node_type_histogram(NUM_NODE_TYPES);
+        auto hist2 = tree2->node_type_histogram(NUM_NODE_TYPES);
+
+        float dot = 0.0f, norm1 = 0.0f, norm2 = 0.0f;
+        for (int i = 0; i < NUM_NODE_TYPES; ++i) {
+            NodeType nt = static_cast<NodeType>(i);
+            float weight = 0.0f;
+            if (nt == NodeType::VARIABLE || nt == NodeType::UNKNOWN) {
+                weight = 1.0f;
+            }
+
+            float weighted1 = weight * static_cast<float>(hist1[i]);
+            float weighted2 = weight * static_cast<float>(hist2[i]);
+
+            dot += weighted1 * weighted2;
+            norm1 += weighted1 * weighted1;
+            norm2 += weighted2 * weighted2;
+        }
+
+        if (norm1 < 1e-8f || norm2 < 1e-8f) return 0.0f;
+        return dot / (std::sqrt(norm1) * std::sqrt(norm2));
+    }
+
+    /**
      * Jaccard similarity of node type sets.
      */
     static float node_type_jaccard(Tree* tree1, Tree* tree2) {
@@ -207,7 +240,7 @@ public:
         }
     };
 
-    static ComparisonReport compare(Tree* tree1, Tree* tree2) {
+    static ComparisonReport compare(Tree* tree1, Tree* tree2, bool macro_friendly = false) {
         ComparisonReport report;
 
         report.size1 = tree1->size();
@@ -218,7 +251,9 @@ public:
         report.hist1 = tree1->node_type_histogram(NUM_NODE_TYPES);
         report.hist2 = tree2->node_type_histogram(NUM_NODE_TYPES);
 
-        report.cosine_sim = histogram_cosine_similarity(tree1, tree2);
+        report.cosine_sim = macro_friendly
+            ? histogram_cosine_similarity_macro(tree1, tree2)
+            : histogram_cosine_similarity(tree1, tree2);
         report.structure_sim = structure_similarity(tree1, tree2);
         report.jaccard_sim = node_type_jaccard(tree1, tree2);
         report.edit_distance_sim = normalized_edit_distance(tree1, tree2);

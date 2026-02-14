@@ -1,3 +1,71 @@
 // port-lint: source src/values/layout/value_not_special.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
+/*
+ * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
+import io.github.kotlinmania.starlark_kotlin.values.stackGuard
+
+/// `FrozenValue` which is not `i32` or `str`.
+// #[derive(Copy, Clone, Dupe, Debug, Display)]
+// pub(crate) struct FrozenValueNotSpecial(FrozenValue)
+internal class FrozenValueNotSpecial private constructor(
+    private val value: FrozenValue,
+) {
+    companion object {
+        // pub(crate) fn new(value: FrozenValue) -> Option<FrozenValueNotSpecial>
+        fun new(value: FrozenValue): FrozenValueNotSpecial? {
+            return if (value.isStr() || value.unpackInlineInt() != null) {
+                null
+            } else {
+                FrozenValueNotSpecial(value)
+            }
+        }
+    }
+
+    // pub(crate) fn to_frozen_value(self) -> FrozenValue
+    fun toFrozenValue(): FrozenValue = value
+
+    // pub(crate) fn to_value(self) -> Value
+    fun toValue(): Value = value.toValue()
+
+    // fn get_ref(self) -> AValueDyn
+    private fun getRef(): AValueDyn {
+        return value.unpackPtrNoIntNoStr()!!.unpackHeader().unpack()
+    }
+
+    // pub(crate) fn equals(self, other: Value) -> Result<bool>
+    fun equals(other: Value): Result<Boolean> {
+        return if (toValue().ptrEq(other)) {
+            Result.success(true)
+        } else {
+            equalsNotPtrEq(other)
+        }
+    }
+
+    // fn equals_not_ptr_eq(self, other: Value) -> Result<bool>
+    private fun equalsNotPtrEq(other: Value): Result<Boolean> {
+        stackGuard()
+        return getRef().equals(other)
+    }
+
+    override fun toString(): String = value.toString()
+}

@@ -1,3 +1,182 @@
 // port-lint: source src/values/layout/avalues/list.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
 
+/*
+ * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.ValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
+import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
+import io.github.kotlinmania.starlark_kotlin.values.types.list.newListData
+import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
+
+// fn list_avalue<'v>(content: ValueTyped<'v, Array<'v>>) -> AValueImpl<'v, impl AValue<'v, ...>>
+internal fun listAvalue(
+    content: ValueTyped<Array>,
+): AValueImpl<AValueList> {
+    return AValueImpl.new(ListGen(newListData(content)))
+}
+
+// fn frozen_list_avalue<'fv>(len: usize) -> AValueImpl<'fv, AValueFrozenList>
+internal fun frozenListAvalue(len: Int): AValueImpl<AValueFrozenList> {
+    return AValueImpl.new(ListGen(FrozenListData.new(len)))
+}
+
+/// AValue implementation for mutable lists.
+// struct AValueList;
+// impl<'v> AValue<'v> for AValueList
+internal object AValueList : AValue {
+
+    // fn extra_len(_value: &ListGen<ListData<'v>>) -> usize
+    override fun extraLen(value: Any): Int = 0
+
+    // fn offset_of_extra() -> usize
+    override fun offsetOfExtra(): Int = 0
+
+    // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> FreezeResult<FrozenValue>
+    override fun heapFreeze(value: Any, freezer: Freezer): FreezeResult<FrozenValue> {
+        @Suppress("UNCHECKED_CAST")
+        val list = value as ListGen<ListData>
+        val content = list.value.content()
+
+        if (content.isEmpty()) {
+            return FreezeResult.success(FrozenValue.newEmptyList())
+        }
+
+        val frozenContent = kotlin.Array(content.size) { i ->
+            val frozen = freezer.freeze(content[i])
+            if (frozen.isError()) return frozen
+            frozen.get()
+        }
+
+        val frozenList = ListGen(FrozenListData.new(frozenContent.size))
+        return FreezeResult.success(freezer.frozenHeap().alloc(frozenList))
+    }
+
+    // unsafe fn heap_copy(me: ..., tracer: &Tracer<'v>) -> Value<'v>
+    override fun heapCopy(value: Any, tracer: Tracer): Value {
+        @Suppress("UNCHECKED_CAST")
+        val list = value as ListGen<ListData>
+        list.value.trace(tracer)
+        return Value.of(list)
+    }
+
+    override fun unpack(value: Any): Any = value
+}
+
+/// AValue implementation for frozen lists.
+// pub(crate) struct AValueFrozenList;
+// impl<'v> AValue<'v> for AValueFrozenList
+internal object AValueFrozenList : AValue {
+
+    // fn extra_len(value: &ListGen<FrozenListData>) -> usize
+    override fun extraLen(value: Any): Int {
+        val list = value as ListGen<FrozenListData>
+        return list.value.len
+    }
+
+    // fn offset_of_extra() -> usize
+    override fun offsetOfExtra(): Int = 0
+
+    // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
+    override fun heapFreeze(value: Any, freezer: Freezer): FreezeResult<FrozenValue> {
+        error("already frozen")
+    }
+
+    // unsafe fn heap_copy(...) -> Value<'v>
+    override fun heapCopy(value: Any, tracer: Tracer): Value {
+        error("shouldn't be copying frozen values")
+    }
+
+    override fun unpack(value: Any): Any = value
+}
+
+// --- FrozenHeap list allocation extensions ---
+
+// impl FrozenHeap
+
+/// Allocate a list with the given elements on this heap.
+// pub(crate) fn alloc_list(&self, elems: &[FrozenValue]) -> FrozenValue
+fun FrozenHeap.allocList(elems: List<FrozenValue>): FrozenValue {
+    if (elems.isEmpty()) {
+        return VALUE_EMPTY_FROZEN_LIST.toFrozenValue()
+    }
+
+    val frozen = frozenListAvalue(elems.size)
+    return alloc(frozen)
+}
+
+// pub(crate) fn alloc_list_iter(&self, elems: impl IntoIterator<Item = FrozenValue>) -> FrozenValue
+fun FrozenHeap.allocListIter(elems: Iterable<FrozenValue>): FrozenValue {
+    val list = elems.toList()
+    return allocList(list)
+}
+
+// --- Heap list allocation extensions ---
+
+// impl<'v> Heap<'v>
+
+/// Allocate a list with the given elements.
+// pub(crate) fn alloc_list(self, elems: &[Value<'v>]) -> Value<'v>
+fun Heap.allocList(elems: kotlin.Array<Value>): Value {
+    val array = allocArray(elems.size)
+    array.extendFromSlice(elems)
+    return allocRaw(listAvalue(array)).toValue()
+}
+
+/// Allocate a list with the given elements.
+// pub(crate) fn alloc_list_iter(self, elems: impl IntoIterator<Item = Value<'v>>) -> Value<'v>
+fun Heap.allocListIter(elems: Iterable<Value>): Value {
+    return when (val result = tryAllocListIter(elems.map { Result.success(it) })) {
+        else -> result.getOrThrow()
+    }
+}
+
+/// Allocate a list with the given elements.
+// pub(crate) fn try_alloc_list_iter<E>(self, elems: impl IntoIterator<Item = Result<Value<'v>, E>>) -> Result<Value<'v>, E>
+fun <E : Throwable> Heap.tryAllocListIter(
+    elems: Iterable<Result<Value>>,
+): Result<Value> {
+    val array = allocArray(0)
+    val list = allocRaw(listAvalue(array))
+    for (elem in elems) {
+        val v = elem.getOrElse { return Result.failure(it) }
+        list.value.push(v, this)
+    }
+    return Result.success(list.toValue())
+}
+
+/// Allocate a list by concatenating two slices.
+// pub(crate) fn alloc_list_concat(self, a: &[Value<'v>], b: &[Value<'v>]) -> Value<'v>
+fun Heap.allocListConcat(a: kotlin.Array<Value>, b: kotlin.Array<Value>): Value {
+    val array = allocArray(a.size + b.size)
+    array.extendFromSlice(a)
+    array.extendFromSlice(b)
+    return allocRaw(listAvalue(array)).toValue()
+}
