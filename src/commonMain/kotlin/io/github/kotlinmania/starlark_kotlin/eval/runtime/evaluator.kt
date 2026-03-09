@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/evaluator.rs
+// port-lint: source eval/runtime/evaluator.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
 
 /*
@@ -64,6 +64,8 @@ import io.github.kotlinmania.starlark_kotlin.stdlib.breakpoint.BreakpointConsole
 import io.github.kotlinmania.starlark_kotlin.stdlib.breakpoint.RealBreakpointConsole
 import io.github.kotlinmania.starlark_kotlin.stdlib.extra.PrintHandler
 import io.github.kotlinmania.starlark_kotlin.stdlib.extra.StderrPrintHandler
+import io.github.kotlinmania.starlark_kotlin.syntax.eval_exception.EvalException
+import io.github.kotlinmania.starlark_kotlin.syntax.frame.Frame
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.Heap
@@ -72,11 +74,10 @@ import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.FrozenValueCaptured
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.ValueCaptured
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.valueCapturedGet
-import starlark_syntax.eval_exception.EvalException
-import starlark_syntax.frame.Frame
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :
@@ -110,8 +111,20 @@ private const val INFREQUENT_INSTRUCTION_CHECK_PERIOD: UInt = 1000u
 /** Default value for max starlark stack size */
 internal const val DEFAULT_STACK_SIZE: Int = 50
 
+// Rust uses `_check_variance`/`check_covariant_a` to validate lifetime variance on `Evaluator`.
+// Kotlin has no equivalent lifetime system, so these remain explicit no-op parity markers.
+@Suppress("unused")
+private fun checkVariance() {
+    checkCovariantA()
+}
+
+@Suppress("unused")
+private fun checkCovariantA() {
+    // No-op.
+}
+
 /** Just holds things that require using EvaluationCallbacksEnabled so that we can cache whether that needs to be enabled or not. */
-private class EvaluationInstrumentation {
+internal class EvaluationInstrumentation {
     // Bytecode profile.
     var bcProfile: BcProfile = BcProfile()
     // Extra functions to run on each statement, usually empty
@@ -164,7 +177,7 @@ class Evaluator(
     // Used for line profiling
     private var stmtProfile: StmtProfile = StmtProfile()
     // Holds things that require hooking into evaluation.
-    private var evalInstrumentation: EvaluationInstrumentation = EvaluationInstrumentation()
+    internal var evalInstrumentation: EvaluationInstrumentation = EvaluationInstrumentation()
     // Total time spent in runtime typechecking.
     // Filled only if runtime typechecking profiling is enabled.
     internal var typecheckProfile: TypecheckProfile = TypecheckProfile()
@@ -298,10 +311,14 @@ class Evaluator(
     fun genProfile(): ProfileData {
         val mode = when (val pMode = profileOrInstrumentationMode) {
             ProfileOrInstrumentationMode.None -> {
-                throw EvaluatorError.ProfilingNotEnabled
+                throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+                    EvaluatorError.ProfilingNotEnabled
+                )
             }
             ProfileOrInstrumentationMode.Collected -> {
-                throw EvaluatorError.ProfileDataAlreadyCollected
+                throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+                    EvaluatorError.ProfileDataAlreadyCollected
+                )
             }
             is ProfileOrInstrumentationMode.Profile -> pMode.mode
         }
@@ -315,7 +332,9 @@ class Evaluator(
                 .gen(heap(), HeapProfileFormat.FlameGraph)
             ProfileMode.HeapSummaryRetained,
             ProfileMode.HeapFlameRetained,
-            ProfileMode.HeapRetained -> throw EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator
+            ProfileMode.HeapRetained -> throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+                EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator
+            )
             ProfileMode.Statement -> stmtProfile.gen()
             ProfileMode.Coverage -> stmtProfile.genCoverage()
             ProfileMode.Bytecode -> genBcProfile()
@@ -338,16 +357,11 @@ class Evaluator(
      * * some optimizer transformations may remove statements
      */
     fun coverage(): HashSet<ResolvedFileSpan> {
-        return when (profileOrInstrumentationMode) {
-            is ProfileOrInstrumentationMode.Profile -> {
-                if ((profileOrInstrumentationMode as ProfileOrInstrumentationMode.Profile).mode == ProfileMode.Coverage) {
-                    stmtProfile.coverage()
-                } else {
-                    throw EvaluatorError.CoverageNotEnabled
-                }
-            }
-            else -> throw EvaluatorError.CoverageNotEnabled
+        val pMode = profileOrInstrumentationMode
+        if (pMode is ProfileOrInstrumentationMode.Profile && pMode.mode == ProfileMode.Coverage) {
+            return stmtProfile.coverage()
         }
+        throw io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.CoverageNotEnabled)
     }
 
     /**

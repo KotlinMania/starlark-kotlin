@@ -23,18 +23,27 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.coerce
 import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either as DictEither
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
-internal sealed class FunctionError(override val message: String) : Exception(message) {
+internal sealed class FunctionError(
+    private val text: String,
+) : Exception() {
+    override val message: String
+        get() = text
+
     // #[error("Found {count} extra positional argument(s) for call to {function}")]
     data class ExtraPositionalArg(
         val count: Int,
@@ -90,11 +99,6 @@ internal interface ArgSymbol {
     fun smallHash(): StarlarkHashValue
 }
 
-// impl ArgSymbol for Symbol
-// Kotlin: Symbol would implement ArgSymbol interface directly.
-// fun Symbol.getIndexFromParamSpec(ps: ParametersSpec<*>): Int? = ps.names[this]?.toInt()
-// fun Symbol.smallHash(): StarlarkHashValue = this.smallHash()
-
 /**
  * `Symbol` resolved to function parameter index.
  */
@@ -125,12 +129,20 @@ internal data class ResolvedArgName(
 // pub(crate) struct ArgNames<'a, 'v, S: ArgSymbol>
 internal class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
-    val names: List<Pair<S, StringValue>>,
+    private val names_: List<Pair<S, StringValue>>,
 ) {
     // impl<'a, 'v, S: ArgSymbol> Default for ArgNames<'a, 'v, S>
     constructor() : this(emptyList())
 
+    fun names(): List<Pair<S, StringValue>> {
+        return names_
+    }
+
     companion object {
+        fun <S : ArgSymbol> default(): ArgNames<S> {
+            return ArgNames()
+        }
+
         // pub(crate) fn new_unique(names: &'a [(S, StringValue<'v>)]) -> ArgNames<'a, 'v, S>
         /**
          * Names must be unique.
@@ -233,8 +245,11 @@ internal class ArgumentsPos<S : ArgSymbol>(
 // #[derive(Default, Clone, Dupe_)]
 // pub struct Arguments<'v, 'a>(pub(crate) ArgumentsFull<'v, 'a, Symbol>);
 class Arguments(
-    internal val inner: ArgumentsFull<Symbol> = ArgumentsFull(),
+    internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
 ) {
+    internal val inner: ArgumentsFull<Symbol>
+        get() = full
+
     /** Unwrap all named arguments (both explicit and in `**kwargs`) into a map.
      *
      * This operation fails if named argument names are not unique.
@@ -250,35 +265,35 @@ class Arguments(
         return when (kwargsVal) {
             // None =>
             null -> {
-                val result = SmallMap.withCapacity<StringValue, Value>(inner.names.names.size)
-                for ((i, kv) in inner.names.names.withIndex()) {
+                val result = SmallMap.withCapacity<StringValue, Value>(full.names.names().size)
+                for ((i, kv) in full.names.names().withIndex()) {
                     val (s, stringVal) = kv
                     result.insertHashedUniqueUnchecked(
                         Hashed.newUnchecked(s.smallHash(), stringVal),
-                        inner.named[i],
+                        full.named[i],
                     )
                 }
                 Result.success(result)
             }
             // Some(kwargs) =>
             else -> {
-                if (inner.names().names.isEmpty()) {
+                if (full.names().names().isEmpty()) {
                     val downcast = kwargsVal.downcastRefKeyString()
                     if (downcast != null) {
-                        Result.success(downcast.clone())
+                        Result.success(downcast)
                     } else {
                         Result.failure(FunctionError.ArgsValueIsNotString)
                     }
                 } else {
                     // We have to insert the names before the kwargs since the iteration order is observable
                     val result = SmallMap.withCapacity<StringValue, Value>(
-                        inner.names.names.size + kwargsVal.len()
+                        full.names.names().size + kwargsVal.len()
                     )
-                    for ((i, kv) in inner.names.names.withIndex()) {
+                    for ((i, kv) in full.names.names().withIndex()) {
                         val (s, stringVal) = kv
                         result.insertHashedUniqueUnchecked(
                             Hashed.newUnchecked(s.smallHash(), stringVal),
-                            inner.named[i],
+                            full.named[i],
                         )
                     }
                     for ((k, v) in kwargsVal.iterHashed()) {
@@ -306,7 +321,7 @@ class Arguments(
      */
     // pub fn len(&self) -> crate::Result<usize>
     fun len(): Result<Int> {
-        val argsLen = when (val a = inner.args) {
+        val argsLen = when (val a = full.args) {
             null -> 0
             else -> {
                 val lenResult = a.length()
@@ -317,7 +332,7 @@ class Arguments(
         val kwargsResult = unpackKwargs()
         if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
         val kwargsLen = kwargsResult.getOrNull()?.len() ?: 0
-        return Result.success(inner.pos.size + inner.named.size + argsLen + kwargsLen)
+        return Result.success(full.pos.size + full.named.size + argsLen + kwargsLen)
     }
 
     /**
@@ -329,7 +344,7 @@ class Arguments(
     internal fun names(): Result<Dict> {
         val mapResult = namesMap()
         if (mapResult.isFailure) return Result.failure(mapResult.exceptionOrNull()!!)
-        return Result.success(Dict(mapResult.getOrThrow()))
+        return Result.success(Dict.new(coerce(mapResult.getOrThrow())))
     }
 
     /**
@@ -337,15 +352,15 @@ class Arguments(
      */
     // pub fn positions<'b>(&'b self, heap: Heap<'v>) -> crate::Result<impl Iterator<Item = Value<'v>> + 'b>
     fun positions(heap: Heap): Result<Iterator<Value>> {
-        val tail: Iterator<Value> = when (val a = inner.args) {
-            null -> emptyList<Value>().iterator()
+        val tail: Iterator<Value> = when (val a = full.args) {
+            null -> StarlarkIterator.empty(heap)
             else -> {
                 val iterResult = a.iterate(heap)
                 if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
                 iterResult.getOrThrow()
             }
         }
-        return Result.success((inner.pos.asSequence() + tail.asSequence()).iterator())
+        return Result.success((full.pos.asSequence() + tail.asSequence()).iterator())
     }
 
     /**
@@ -356,10 +371,10 @@ class Arguments(
      */
     // pub(crate) fn unpack_kwargs(&self) -> crate::Result<Option<DictRef<'v>>>
     internal fun unpackKwargs(): Result<DictRef?> {
-        return when (val kw = inner.kwargs) {
+        return when (val kw = full.kwargs) {
             null -> Result.success(null)
             else -> {
-                val dictRef = DictRef.fromValue(kw)
+                val dictRef = dictRefFromValue<Value>(kw)
                 if (dictRef == null) {
                     Result.failure(FunctionError.KwArgsIsNotDict)
                 } else {
@@ -403,12 +418,12 @@ class Arguments(
      */
     // pub fn no_named_args(&self) -> crate::Result<()>
     fun noNamedArgs(): Result<Unit> {
-        if (inner.named.isEmpty() && inner.kwargs == null) {
+        if (full.named.isEmpty() && full.kwargs == null) {
             return Result.success(Unit)
         }
         // #[cold] fn bad(x: &Arguments) -> crate::Result<()>
         val extra = mutableListOf<String>()
-        extra.addAll(inner.names.names.map { it.first.smallHash().toString() })
+        extra.addAll(full.names.names().map { it.second.asStr() })
         val kwargsResult = unpackKwargs()
         if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
         val kwargsVal = kwargsResult.getOrNull()
@@ -438,7 +453,7 @@ class Arguments(
      */
     // pub(crate) fn positional<const N: usize>(&self, heap: Heap<'v>) -> crate::Result<[Value<'v>; N]>
     internal fun positional(n: Int, heap: Heap): Result<List<Value>> {
-        val (required, optional) = optionalArgs(n, 0, heap).let {
+        val (required, optional) = optional(n, 0, heap).let {
             if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
             it.getOrThrow()
         }
@@ -451,18 +466,18 @@ class Arguments(
      * The optional list will never have a non-null after a null.
      */
     // pub(crate) fn optional<const REQUIRED: usize, const OPTIONAL: usize>(...)
-    internal fun optionalArgs(
+    internal fun optional(
         required: Int,
         optional: Int,
         heap: Heap,
     ): Result<Pair<List<Value>, List<Value?>>> {
-        if (inner.args == null
-            && inner.pos.size >= required
-            && inner.pos.size <= required + optional
+        if (full.args == null
+            && full.pos.size >= required
+            && full.pos.size <= required + optional
         ) {
-            val requiredList = inner.pos.subList(0, required)
+            val requiredList = full.pos.subList(0, required)
             val optionalList = MutableList<Value?>(optional) { null }
-            val remaining = inner.pos.subList(required, inner.pos.size)
+            val remaining = full.pos.subList(required, full.pos.size)
             for ((i, v) in remaining.withIndex()) {
                 optionalList[i] = v
             }
@@ -471,15 +486,15 @@ class Arguments(
         // Rare path: need to iterate *args
         // Very sad that we allocate into a list, but I expect calling into a small positional argument
         // with a *args is very rare.
-        val argsIter: Iterator<Value> = when (val a = inner.args) {
-            null -> emptyList<Value>().iterator()
+        val argsIter: Iterator<Value> = when (val a = full.args) {
+            null -> StarlarkIterator.empty(heap)
             else -> {
                 val iterResult = a.iterate(heap)
                 if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
                 iterResult.getOrThrow()
             }
         }
-        val xs = inner.pos.toMutableList()
+        val xs = full.pos.toMutableList()
         argsIter.forEach { xs.add(it) }
         return if (xs.size >= required && xs.size <= required + optional) {
             val requiredList = xs.subList(0, required)
@@ -519,14 +534,30 @@ class Arguments(
     // pub(crate) fn optional1(&self, heap: Heap<'v>) -> crate::Result<Option<Value<'v>>>
     internal fun optional1(heap: Heap): Result<Value?> {
         // Could be implemented more directly, let's see if profiling shows it up
-        val (_, opt) = optionalArgs(0, 1, heap).let {
+        val (_, opt) = optional(0, 1, heap).let {
             if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
             it.getOrThrow()
         }
         return Result.success(opt[0])
     }
 
+    internal fun optional(
+        heap: Heap,
+        required: Int,
+        optional: Int,
+    ): Result<Pair<List<Value>, List<Value?>>> {
+        return optional(required, optional, heap)
+    }
+
+    fun frozenToV(): Arguments {
+        return this
+    }
+
     companion object {
+        fun default(): Arguments {
+            return Arguments()
+        }
+
         // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
         /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
         fun unpackKwargsKeyAsValue(k: Value): Result<StringValue> {
@@ -546,6 +577,32 @@ class Arguments(
 // impl<'a> Arguments<'static, 'a>
 // pub(crate) fn frozen_to_v<'v>(&self) -> &Arguments<'v, 'a>
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
+
+private fun DictRef<*>.dict(): Dict<*> {
+    return when (val ref = aref) {
+        is DictEither.Left -> ref.value.value
+        is DictEither.Right -> ref.value
+    }
+}
+
+private fun DictRef<*>.len(): Int {
+    return dict().len()
+}
+
+private fun DictRef<*>.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
+    @Suppress("UNCHECKED_CAST")
+    return dict().iterHashed() as Sequence<Pair<Hashed<Value>, Value>>
+}
+
+private fun DictRef<*>.keys(): Sequence<Value> {
+    @Suppress("UNCHECKED_CAST")
+    return dict().keys() as Sequence<Value>
+}
+
+private fun DictRef<*>.downcastRefKeyString(): SmallMap<StringValue, Value>? {
+    @Suppress("UNCHECKED_CAST")
+    return dict().downcastRefKeyString() as SmallMap<StringValue, Value>?
+}
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

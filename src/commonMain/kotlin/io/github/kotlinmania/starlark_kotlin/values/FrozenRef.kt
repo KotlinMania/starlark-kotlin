@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import kotlinx.atomicfu.atomic
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
  * A [FrozenRef] is essentially a [FrozenValue],
@@ -33,7 +34,7 @@ import kotlinx.atomicfu.atomic
 // pub struct FrozenRef<'fv, T: 'fv + ?Sized>
 class FrozenRef<T>(
     internal val value: T,
-) {
+) : Trace {
     // impl<'fv, T> Default for FrozenRef<'fv, [T]>
     // Kotlin: use companion object factory for default empty list ref.
 
@@ -45,10 +46,14 @@ class FrozenRef<T>(
         return value
     }
 
+    fun deref(): T {
+        return value
+    }
+
     // pub fn map<F, U: 'fv + ?Sized>(self, f: F) -> FrozenRef<'fv, U>
     /** Converts `self` into a new reference that points at something reachable from the previous. */
     fun <U> map(f: (T) -> U): FrozenRef<U> {
-        return FrozenRef(
+        return FrozenRef.new(
             value = f(value),
         )
     }
@@ -57,14 +62,14 @@ class FrozenRef<T>(
     /** Fallible map the reference to another one. */
     fun <U, E> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
         val mapped = f(value)
-        return mapped.map { FrozenRef(it) }
+        return mapped.map { FrozenRef.new(it) }
     }
 
     // pub fn try_map_option<F, U: 'fv + ?Sized>(self, f: F) -> Option<FrozenRef<'fv, U>>
     /** Optionally map the reference to another one. */
     fun <U> tryMapOption(f: (T) -> U?): FrozenRef<U>? {
         val mapped = f(value) ?: return null
-        return FrozenRef(mapped)
+        return FrozenRef.new(mapped)
     }
 
     // impl<'fv, T: ?Sized + Display> Display for FrozenRef<'fv, T>
@@ -81,6 +86,12 @@ class FrozenRef<T>(
     // impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, Box<T>>
     // Kotlin: no Box/Borrow distinction needed.
 
+    // unsafe impl<'v, 'fv, T: 'fv + ?Sized> Trace<'v> for FrozenRef<'fv, T>
+    /** FrozenRef trace is a no-op because it can only point to frozen values. */
+    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+        // Do nothing, because FrozenRef can only point to frozen value.
+    }
+
     // impl<'fv, T: 'fv + ?Sized> PartialEq for FrozenRef<'fv, T>
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -94,23 +105,44 @@ class FrozenRef<T>(
     }
 
     companion object {
+        fun <T> new(value: T): FrozenRef<T> {
+            return FrozenRef(value)
+        }
+
         // impl<'fv, T> Default for FrozenRef<'fv, [T]>
         /** Default for FrozenRef of a list: empty list. */
+        fun <T> default(): FrozenRef<List<T>> {
+            return FrozenRef.new(emptyList())
+        }
+
         fun <T> defaultList(): FrozenRef<List<T>> {
-            return FrozenRef(emptyList())
+            return default()
         }
     }
 }
 
+fun <T> FrozenRef<T>.borrow(): T {
+    return deref()
+}
+
+fun <T> FrozenRef<Box<T>>.borrow(): T {
+    return deref().intoInner()
+}
+
 // impl<'fv, T: 'fv + ?Sized> PartialOrd for FrozenRef<'fv, T>
 // impl<'fv, T: 'fv + ?Sized> Ord for FrozenRef<'fv, T>
-// Kotlin: Implement Comparable when the contained T is Comparable.
+/** Compare two [FrozenRef]s when the contained type is [Comparable]. */
+fun <T : Comparable<T>> FrozenRef<T>.compareTo(other: FrozenRef<T>): Int {
+    return value.compareTo(other.value)
+}
 
-// impl<'fv, T: 'fv + ?Sized> Eq for FrozenRef<'fv, T> where T: Eq
-// Kotlin: equals() already covers Eq semantics.
+fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {
+    return compareTo(other)
+}
 
-// unsafe impl<'v, 'fv, T: 'fv + ?Sized> Trace<'v> for FrozenRef<'fv, T>
-// FrozenRef trace is a no-op because it can only point to frozen values.
+fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int {
+    return compareTo(other)
+}
 
 // impl<'fv, T: 'fv + ?Sized> Freeze for FrozenRef<'fv, T>
 /** Freeze a [FrozenRef]. FrozenRef is already frozen, so this is a no-op. */
@@ -128,27 +160,35 @@ fun <T> FrozenRef<T>.freeze(
 // pub(crate) struct AtomicFrozenRefOption<T>(atomic::AtomicPtr<T>);
 internal class AtomicFrozenRefOption<T>(
     initial: FrozenRef<T>?,
-) {
-    private val ref_ = atomic(initial)
+) : Trace {
+    private val ref_ = atomic(initial?.asRef())
 
     // unsafe impl<'v, T> Trace<'v> for AtomicFrozenRefOption<T>
-    // Trace is a no-op because AtomicFrozenRefOption holds FrozenRef.
+    /** Trace is a no-op because AtomicFrozenRefOption holds FrozenRef. */
+    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+        // Do nothing, because AtomicFrozenRefOption holds FrozenRef.
+    }
 
     constructor() : this(null)
 
     // pub(crate) fn new(module: Option<FrozenRef<T>>) -> AtomicFrozenRefOption<T>
-    // Handled by primary constructor above.
+    companion object {
+        fun <T> new(module: FrozenRef<T>?): AtomicFrozenRefOption<T> {
+            return AtomicFrozenRefOption(module)
+        }
+    }
 
     // pub(crate) fn load_relaxed(&self) -> Option<FrozenRef<'static, T>>
     /** Load the value with relaxed ordering. */
     fun loadRelaxed(): FrozenRef<T>? {
         // Note this is relaxed load which is cheap.
-        return ref_.value
+        return ref_.value?.let { FrozenRef.new(it) }
     }
 
     // pub(crate) fn store_relaxed(&self, module: FrozenRef<T>)
     /** Store a value with relaxed ordering. */
     fun storeRelaxed(module: FrozenRef<T>) {
-        ref_.value = module
+        val value: T = module.asRef()
+        ref_.value = value
     }
 }

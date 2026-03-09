@@ -1,5 +1,5 @@
 // port-lint: source src/util/refcell.rs
-package io.github.kotlinmania.starlark_kotlin.util
+package io.github.kotlinmania.starlark_kotlin.util.refcell
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,28 +19,96 @@ package io.github.kotlinmania.starlark_kotlin.util
  * limitations under the License.
  */
 
-/**
- * "Unleak" previously leaked `RefCell` borrow (which is `Ref`).
- *
- * In Rust, this unsafely drops a borrow reference twice to decrement
- * the RefCell borrow counter, recovering from a `mem::forget`-ed borrow.
- *
- * In Kotlin, there is no RefCell / borrow-checker mechanism.
- * This function is a no-op placeholder preserving the API surface
- * for callers that need to "unleak" a borrow in the Rust port.
- */
+internal class RefCell<T>(
+    private val value: T,
+) {
+    private var borrowCount: Int = 0
+    private var borrowedMut: Boolean = false
+
+    fun borrow(): Ref<T> {
+        if (borrowedMut) {
+            error("RefCell is mutably borrowed")
+        }
+        borrowCount += 1
+        return Ref(this, value)
+    }
+
+    fun tryBorrowMut(): RefMut<T>? {
+        if (borrowedMut || borrowCount != 0) {
+            return null
+        }
+        borrowedMut = true
+        return RefMut(this, value)
+    }
+
+    internal fun releaseBorrow() {
+        if (borrowCount <= 0) {
+            error("RefCell is not borrowed")
+        }
+        borrowCount -= 1
+    }
+
+    internal fun releaseBorrowMut() {
+        if (!borrowedMut) {
+            error("RefCell is not mutably borrowed")
+        }
+        borrowedMut = false
+    }
+
+    internal fun unleakBorrow() {
+        releaseBorrow()
+    }
+}
+
+internal class Ref<T> internal constructor(
+    private val refCell: RefCell<T>,
+    private val value: T,
+) {
+    private var active: Boolean = true
+
+    fun get(): T {
+        return value
+    }
+
+    fun close() {
+        if (active) {
+            active = false
+            refCell.releaseBorrow()
+        }
+    }
+
+    fun leak() {
+        active = false
+    }
+}
+
+internal class RefMut<T> internal constructor(
+    private val refCell: RefCell<T>,
+    private val value: T,
+) {
+    private var active: Boolean = true
+
+    fun get(): T {
+        return value
+    }
+
+    fun close() {
+        if (active) {
+            active = false
+            refCell.releaseBorrowMut()
+        }
+    }
+}
+
+/// "Unleak" previously leaked `RefCell` borrow (which is `Ref`).
 // #[inline]
 // pub(crate) unsafe fn unleak_borrow<T: ?Sized>(ref_cell: &RefCell<T>)
-internal fun <T> unleakBorrow(@Suppress("UNUSED_PARAMETER") refCell: Any) {
+internal fun unleakBorrow(refCell: RefCell<*>) {
     // Note this call contains a runtime assertion that the `RefCell` is borrowed.
-    // let r = ref_cell.borrow();
-    // unsafe {
-    //     // Drop `b` twice to decrement the borrow counter.
-    //     drop::<Ref<T>>(ptr::read(&r as *const Ref<T>));
-    //     drop::<Ref<T>>(r);
-    // }
-    //
-    // Kotlin: No borrow-counting mechanism to manage. No-op.
+    val r = refCell.borrow()
+    // Drop `r` twice to decrement the borrow counter.
+    refCell.unleakBorrow()
+    r.close()
 }
 
 // #[cfg(test)] mod tests

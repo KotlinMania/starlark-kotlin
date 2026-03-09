@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/alloc_value.rs
+// port-lint: source src/tests/derive/alloc_value.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -19,36 +19,33 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-/// Tests for `#[derive(AllocValue)]`.
+// Tests for `#[derive(AllocValue)]`.
 
 // Only check it compiles.
-
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 
 // #[derive(StarlarkTypeRepr, AllocValue, AllocFrozenValue)]
 // enum AllocNoVariant {}
 @Suppress("unused")
-private sealed class AllocNoVariant : StarlarkTypeRepr, AllocValue
+private sealed class AllocNoVariant
 
 // #[derive(StarlarkTypeRepr, AllocValue, AllocFrozenValue)]
 // enum AllocOneVariant { Int(u32) }
 @Suppress("unused")
-private sealed class AllocOneVariant : StarlarkTypeRepr, AllocValue {
+private sealed class AllocOneVariant {
     class Int(val value: UInt) : AllocOneVariant()
 }
 
 // #[derive(StarlarkTypeRepr, AllocValue, AllocFrozenValue)]
 // enum AllocTwoVariants { Int(u32), String(String) }
 @Suppress("unused")
-private sealed class AllocTwoVariants : StarlarkTypeRepr, AllocValue {
+private sealed class AllocTwoVariants {
     class Int(val value: UInt) : AllocTwoVariants()
-    class StringVariant(val value: String) : AllocTwoVariants()
+    class `String`(val value: String) : AllocTwoVariants()
 }
 
 // #[derive(StarlarkTypeRepr, AllocValue, AllocFrozenValue)]
 // enum AllocWithLifetime<'v> { String(&'v str) }
 @Suppress("unused")
-private sealed class AllocWithLifetime : StarlarkTypeRepr, AllocValue {
-    class StringVariant(val value: String) : AllocWithLifetime()
+private sealed class AllocWithLifetime {
+    class `String`(val value: String) : AllocWithLifetime()
 }

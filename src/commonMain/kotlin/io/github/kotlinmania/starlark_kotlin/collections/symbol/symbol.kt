@@ -19,20 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class StarlarkHashValue(val value: Int)
-
-class Hashed<T>(val hash: StarlarkHashValue, val key: T) {
-    companion object {
-        fun <T> new(value: T): Hashed<T> {
-            return Hashed(StarlarkHashValue(value.hashCode()), value)
-        }
-        fun <T> newUnchecked(hash: StarlarkHashValue, value: T): Hashed<T> {
-            return Hashed(hash, value)
-        }
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark_kotlin.values.ValueLike
+import starlark_map.StarlarkHashValue
+import starlark_map.Hashed
 
 class AlignedPaddedStr(val str: String)
 
@@ -44,7 +35,7 @@ internal class Symbol private constructor(
     // In Kotlin we use the string directly.
     private val payload: String,
     private val smallHash: StarlarkHashValue,
-) {
+) : ArgSymbol {
 
     companion object {
         fun new(x: String): Symbol {
@@ -52,13 +43,13 @@ internal class Symbol private constructor(
         }
 
         fun newHashed(x: Hashed<String>): Symbol {
-            val smallHash = x.hash
-            val hash = smallHash.value.toLong()
-            val len = x.key.length
+            val smallHash = x.hash()
+            val hash = smallHash.get().toLong()
+            val len = x.key().length
             return Symbol(
                 hash = hash,
                 len = len,
-                payload = x.key,
+                payload = x.key(),
                 smallHash = smallHash,
             )
         }
@@ -76,7 +67,11 @@ internal class Symbol private constructor(
         return Hashed.newUnchecked(smallHash, asStr())
     }
 
-    fun smallHash(): StarlarkHashValue = smallHash
+    override fun <V : ValueLike> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? {
+        return ps.names[this]?.toInt()
+    }
+
+    override fun smallHash(): StarlarkHashValue = smallHash
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

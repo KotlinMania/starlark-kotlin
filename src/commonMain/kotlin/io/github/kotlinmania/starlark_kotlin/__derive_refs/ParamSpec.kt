@@ -35,16 +35,18 @@ sealed class NativeCallableParamDefaultValue {
 }
 
 // pub struct NativeCallableParam
+// Type of `ty`:
+// for `*args` is the type of the element, and for `**kwargs` is the type of the value.
+// `required == null` means the parameter is required.
 class NativeCallableParam(
-    val name: String,
-    /**
-     * Type of the parameter.
-     * For `*args` is the type of the element, and for `**kwargs` is the type of the value.
-     */
-    val ty: Ty,
-    /** `null` means the parameter is required. */
-    val required: NativeCallableParamDefaultValue?,
+    name: String,
+    ty: Ty,
+    required: NativeCallableParamDefaultValue?,
 ) {
+    val name: String = name
+    val ty: Ty = ty
+    val required: NativeCallableParamDefaultValue? = required
+
     // impl NativeCallableParam
 
     // pub fn args(name: &'static str, param_ty: Ty) -> NativeCallableParam

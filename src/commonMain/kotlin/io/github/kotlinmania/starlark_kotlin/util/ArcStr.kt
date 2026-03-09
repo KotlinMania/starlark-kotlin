@@ -19,37 +19,54 @@ package io.github.kotlinmania.starlark_kotlin.util
  * limitations under the License.
  */
 
-/**
- * Wrapper for `Arc<str>`.
- *
- * In Kotlin, [String] is already immutable and managed by the platform GC,
- * so `ArcStr` is a thin wrapper preserving the Rust API surface.
- */
+import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.ArcOrStatic
+
+/** Wrapper for `Arc<str>`. */
 // #[derive(Clone, Dupe, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, derive_more::Display, Allocative)]
 // #[display("{}", &**self)]
 // pub struct ArcStr(ArcOrStatic<str>)
 class ArcStr private constructor(
-    private val inner: String,
+    private val inner: ArcOrStatic<String>,
 ) : Comparable<ArcStr> {
-
     // impl ArcStr
+
+    // pub fn new_static(s: &'static str) -> ArcStr
+    /** Create from static `str` without allocation. */
+    companion object {
+        fun newStatic(s: String): ArcStr {
+            return ArcStr(ArcOrStatic.newStatic(s))
+        }
+
+        // impl<'a> From<&'a str> for ArcStr
+        fun from(s: String): ArcStr {
+            return if (s.isEmpty()) {
+                ArcStr(ArcOrStatic.newStatic(""))
+            } else {
+                ArcStr(ArcOrStatic.newArc(s))
+            }
+        }
+    }
 
     // pub fn as_str(&self) -> &str
     /** Get the `str`. */
     fun asStr(): String {
-        return inner
+        return deref()
     }
 
     // impl Deref for ArcStr
-    // Kotlin: no Deref. Use `asStr()` or `inner` directly.
+    fun deref(): String {
+        return inner.deref()
+    }
 
     // impl Borrow<str> for ArcStr
-    // Kotlin: no Borrow trait. Use `asStr()`.
+    fun borrow(): String {
+        return deref()
+    }
 
     // impl Display for ArcStr
     // #[display("{}", &**self)]
     override fun toString(): String {
-        return inner
+        return deref()
     }
 
     // impl PartialEq for ArcStr (via ArcOrStatic)
@@ -67,20 +84,5 @@ class ArcStr private constructor(
     // impl Ord for ArcStr (via ArcOrStatic)
     override fun compareTo(other: ArcStr): Int {
         return inner.compareTo(other.inner)
-    }
-
-    companion object {
-        // pub fn new_static(s: &'static str) -> ArcStr
-        /** Create from static `str` without allocation. */
-        fun newStatic(s: String): ArcStr {
-            return ArcStr(s)
-        }
-
-        // impl<'a> From<&'a str> for ArcStr
-        fun from(s: String): ArcStr {
-            // In Rust: if s.is_empty() => use static, else Arc::from(s)
-            // In Kotlin: String is always managed, no distinction needed.
-            return ArcStr(s)
-        }
     }
 }

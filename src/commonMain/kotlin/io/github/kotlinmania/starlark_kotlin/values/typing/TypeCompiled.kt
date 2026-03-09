@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-// Module gateway for type_compiled.
-// Kotlin submodules are separate files in the type_compiled package.
-//
 // pub(crate) mod alloc;
 // pub(crate) mod compiled;
 // pub(crate) mod factory;

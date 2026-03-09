@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/unpack_value.rs
+// port-lint: source tests/derive/unpack_value.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -26,8 +26,8 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.IntTypeReprCanonical
-import io.github.kotlinmania.starlark_kotlin.values.typing.never.StarlarkNever
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 // enum EmptyEnum {}

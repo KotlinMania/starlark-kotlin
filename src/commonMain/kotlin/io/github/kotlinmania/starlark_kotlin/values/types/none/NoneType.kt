@@ -19,78 +19,85 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Private
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.serde.Serializer
 
-/** Define the None type, use NoneType in Rust. */
-object NoneType {
-    /** The result of type(None). */
-    const val TYPE: String = "NoneType"
+/** Define the None type, use [NoneType] in Rust. */
+object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
+    /** The result of `type(None)`. */
+    override val TYPE: String = "NoneType"
 
-    override fun toString(): String {
-        return "None"
+    override fun toString(): String = "None"
+
+    override fun isSpecial(): Boolean = true
+
+    override fun toBool(): Boolean = false
+
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+        // just took the result of hash(None) in macos python 2.7.10 interpreter.
+        hasher.writeU64(9_223_380_832_852_120_682UL)
+        return Result.success(Unit)
     }
-}
 
-/** Define the NoneType type */
-fun isSpecial(private: Private): Boolean
-    where NoneType : Any {
-    return true
-}
+    override fun getHash(): Result<StarlarkHashValue> {
+        // Just a random number.
+        return Result.success(StarlarkHashValue.newUnchecked(0xf9c2263dU))
+    }
 
-fun NoneType.toBool(): Boolean {
-    return false
-}
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.none()
+    }
 
-fun NoneType.writeHash(hasher: StarlarkHasher): Result<Unit> {
-    // just took the result of hash(None) in macos python 2.7.10 interpreter.
-    hasher.writeU64(9_223_380_832_852_120_682UL)
-    return Result.success(Unit)
-}
+    override fun getTypeStarlarkRepr(): Ty {
+        return Ty.none()
+    }
 
-fun NoneType.getHash(private: Private): Result<StarlarkHashValue> {
-    // Just a random number.
-    return Result.success(StarlarkHashValue.newUnchecked(0xf9c2263dU))
-}
+    override fun typecheckerTy(): Ty? {
+        return Ty.none()
+    }
 
-fun getTypeStarlarkRepr(): Ty {
-    return Ty.none()
-}
+    override fun evalType(): Ty? {
+        return Ty.none()
+    }
 
-fun NoneType.typecheckerTy(): Ty? {
-    return Ty.none()
-}
+    override fun allocValue(heap: Heap): Value {
+        return Value.newNone()
+    }
 
-fun NoneType.evalType(): Ty? {
-    return Ty.none()
-}
+    fun serialize(serializer: Serializer): Result<Unit> {
+        return serializer.serializeNone()
+    }
 
-fun <V> NoneType.allocValue(heap: Heap<V>): Value<V> {
-    return Value.newNone()
-}
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+        return FrozenValue.newNone()
+    }
 
-fun <S> NoneType.serialize(serializer: S): Result<Any>
-    where S : kotlinx.serialization.SerializationStrategy<*> {
-    return Result.success(Unit)
+    override fun unpackValueImpl(value: Value): Result<NoneType?> {
+        return if (value.isNone()) {
+            Result.success(NoneType)
+        } else {
+            Result.success(null)
+        }
+    }
 }
 
 internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
 
-fun NoneType.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return FrozenValue.newNone()
+fun getTypeStarlarkRepr(): Ty {
+    return NoneType.getTypeStarlarkRepr()
 }
 
-fun <V> unpackValueImpl(value: Value<V>): Result<NoneType?> {
-    return if (value.isNone()) {
-        Result.success(NoneType)
-    } else {
-        Result.success(null)
-    }
+fun unpackValueImpl(value: Value): Result<NoneType?> {
+    return NoneType.unpackValueImpl(value)
 }

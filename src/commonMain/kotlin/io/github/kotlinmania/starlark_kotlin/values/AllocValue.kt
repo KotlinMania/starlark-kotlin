@@ -19,21 +19,26 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-/** This module defines utilities to easily create values as Starlark values. */
+import io.github.kotlinmania.starlark_kotlin.Either
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+/**
+ * This module defines utilities to easily create Rust values as Starlark values.
+ */
 
 /**
  * Trait for things that can be created on a [Heap] producing a [Value].
  *
- * Note, this interface does not represent Starlark types.
- * For example, this interface could be implemented for `Char`,
- * but there's no Starlark type for `Char`, this interface
- * is implemented for `Char` to construct Starlark `str`.
+ * Note, this trait does not represent Starlark types.
+ * For example, this trait can be implemented for `Char`,
+ * but there's no Starlark type for `Char`; this trait is implemented
+ * for `Char` to construct Starlark `str`.
  *
- * For types that implement [StarlarkValue][io.github.kotlinmania.starlark_kotlin.values.StarlarkValue] a typical implementation
- * will probably call either [Heap.allocSimple] or [Heap.allocComplex],
- * e.g.
+ * For types that implement
+ * [StarlarkValue][io.github.kotlinmania.starlark_kotlin.values.StarlarkValue]
+ * a typical implementation will probably call either [Heap.allocSimple]
+ * or [Heap.allocComplex], for example:
  *
  * ```kotlin
  * class MySimpleValue : StarlarkValue, AllocValue {
@@ -45,11 +50,11 @@ import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
  *
  * ## Derive
  *
- * `AllocValue` can be implemented for sealed classes, like this:
+ * `AllocValue` can be derived for enums, like this:
  *
  * ```kotlin
  * sealed class AllocIntOrStr : StarlarkTypeRepr, AllocValue {
- *     data class Int(val value: kotlin.Int) : AllocIntOrStr()
+ *     data class Int(val value: Int) : AllocIntOrStr()
  *     data class Str(val value: String) : AllocIntOrStr()
  * }
  * ```
@@ -71,41 +76,29 @@ interface AllocStringValue : AllocValue {
 }
 
 // impl AllocValue for FrozenValue
-fun FrozenValue.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
-    return toValue()
-}
+fun FrozenValue.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value = toValue()
 
 // impl AllocValue for Value
-fun Value.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
-    return this
-}
+fun Value.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value = this
 
 // impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
-fun <A : AllocValue, B : AllocValue> allocValueEither(either: Any, heap: Heap): Value {
-    return when (either) {
-        is AllocValue -> either.allocValue(heap)
-        else -> error("Expected AllocValue")
+inline fun <A, B> Either<A, B>.allocValue(heap: Heap): Value
+    where A : AllocValue, B : AllocValue =
+    when (this) {
+        is Either.Left -> value.allocValue(heap)
+        is Either.Right -> value.allocValue(heap)
     }
-}
-
-// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
-fun <A : AllocFrozenValue, B : AllocFrozenValue> allocFrozenValueEither(either: Any, heap: FrozenHeap): FrozenValue {
-    return when (either) {
-        is AllocFrozenValue -> either.allocFrozenValue(heap)
-        else -> error("Expected AllocFrozenValue")
-    }
-}
 
 /**
  * Trait for things that can be allocated on a [FrozenHeap] producing a [FrozenValue].
  *
  * ## Derive
  *
- * `AllocFrozenValue` can be implemented for sealed classes, like this:
+ * `AllocFrozenValue` can be derived for enums, like this:
  *
  * ```kotlin
  * sealed class AllocIntOrStr : StarlarkTypeRepr, AllocFrozenValue {
- *     data class Int(val value: kotlin.Int) : AllocIntOrStr()
+ *     data class Int(val value: Int) : AllocIntOrStr()
  *     data class Str(val value: String) : AllocIntOrStr()
  * }
  * ```
@@ -122,6 +115,12 @@ interface AllocFrozenStringValue : AllocFrozenValue {
 }
 
 // impl AllocFrozenValue for FrozenValue
-fun FrozenValue.allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
-    return this
-}
+fun FrozenValue.allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue = this
+
+// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
+inline fun <A, B> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+    where A : AllocFrozenValue, B : AllocFrozenValue =
+    when (this) {
+        is Either.Left -> value.allocFrozenValue(heap)
+        is Either.Right -> value.allocFrozenValue(heap)
+    }

@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
  * Store value annotated with type, but do not check the type.
@@ -34,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 // pub struct ValueOfUncheckedGeneric<V: ValueLifetimeless, T: StarlarkTypeRepr>(V, PhantomData<fn() -> T>)
 class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
     private val value: V,
-) {
+) : Trace {
     // unsafe impl<V, U, T> Coerce<ValueOfUncheckedGeneric<V, T>> for ValueOfUncheckedGeneric<U, T>
     // Kotlin: no Coerce equivalent needed.
 
@@ -60,8 +62,8 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      */
     // pub fn unpack<'v>(self) -> crate::Result<T>
     // where V: ValueLike<'v>, T: UnpackValue<'v>
-    // Kotlin: requires the T type to implement UnpackValue.
-    // This is handled at call sites through explicit unpacking.
+    // Kotlin: type erasure prevents calling T::unpackValueErr directly,
+    // so this is performed at call sites through explicit unpacking.
 
     // impl<V: ValueLifetimeless, T: StarlarkTypeRepr> Debug for ValueOfUncheckedGeneric<V, T>
     // impl<V: ValueLifetimeless, T: StarlarkTypeRepr> Display for ValueOfUncheckedGeneric<V, T>
@@ -69,23 +71,30 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
         return value.toString()
     }
 
-    // impl<V: ValueLifetimeless, T: StarlarkTypeRepr> StarlarkTypeRepr for ValueOfUncheckedGeneric<V, T>
-    // Kotlin: type repr is accessed through the T companion/class itself.
-
     // impl<'v, V: ValueLike<'v>, T: StarlarkTypeRepr> AllocValue<'v> for ValueOfUncheckedGeneric<V, T>
-    // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v>
-    // Kotlin: handled at call sites. value is already a Value.
+    /** Alloc the wrapped value on the heap. Returns the underlying value. */
+    fun allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
+        return when (val v = value) {
+            is Value -> v
+            is ValueLike -> v.toValue()
+            else -> throw IllegalStateException("ValueOfUncheckedGeneric: cannot alloc non-Value type")
+        }
+    }
 
     // impl<T: StarlarkTypeRepr> AllocFrozenValue for ValueOfUncheckedGeneric<FrozenValue, T>
-    // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
-    // Kotlin: handled at call sites.
+    /** Alloc frozen value. Returns the underlying frozen value. */
+    fun allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
+        return value as FrozenValue
+    }
 
     // unsafe impl<'v, V, T> Trace<'v> for ValueOfUncheckedGeneric<V, T>
-    // fn trace(&mut self, tracer: &Tracer<'v>)
-    // Kotlin: trace delegates to the inner value's trace.
-
-    // impl<V: ValueLifetimeless + Freeze, T: StarlarkTypeRepr> Freeze for ValueOfUncheckedGeneric<V, T>
-    // type Frozen = ValueOfUncheckedGeneric<FrozenValue, T>
+    /** Trace delegates to the inner value's trace when V is Trace. */
+    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+        val v = value
+        if (v is Trace) {
+            v.trace(tracer)
+        }
+    }
 
     // impl<'v, V: ValueLike<'v>, T: StarlarkTypeRepr> ValueOfUncheckedGeneric<V, T>
     /** Convert to a value. */

@@ -52,6 +52,10 @@ internal data class FrameSpan(
     }
 
     companion object {
+        fun new(span: FrozenFileSpan): FrameSpan {
+            return FrameSpan(span)
+        }
+
         val DEFAULT = FrameSpan(
             span = FrozenFileSpan.DEFAULT,
             inlinedFrames = InlinedFrames(frames = null),

@@ -1,4 +1,4 @@
-// port-lint: source src/values/trace.rs
+// port-lint: source values/trace.rs
 package io.github.kotlinmania.starlark_kotlin.values
 
 /*
@@ -23,6 +23,7 @@ import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.AtomicLong
 import kotlinx.atomicfu.AtomicRef
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 
 /**
  * Called by the garbage collection, and must walk over every contained `Value` in the type.
@@ -78,6 +79,11 @@ fun <T : Trace> traceSet(set: MutableSet<T>, tracer: Tracer) {
     for (v in set) {
         v.trace(tracer)
     }
+}
+
+// unsafe impl<'v, T: Trace<'v>> Trace<'v> for Hashed<T>
+fun <T : Trace> traceHashed(hashed: Hashed<T>, tracer: Tracer) {
+    hashed.key().trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Option<T>
@@ -138,43 +144,113 @@ fun <T1 : Trace, T2 : Trace> traceEither(either: Any, tracer: Tracer) {
 }
 
 // unsafe impl<'v> Trace<'v> for Value<'v>
-// Value implements Trace directly; tracer.trace(self).
+fun traceValue(value: Value, tracer: Tracer) {
+    tracer.trace(value)
+}
 
 // unsafe impl<'v> Trace<'v> for FrozenValue
-// FrozenValue trace is a no-op.
+fun traceFrozenValue(
+    @Suppress("UNUSED_PARAMETER") value: FrozenValue,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
 
-// No-op trace implementations for primitive types.
-// In Kotlin, primitives (String, Int, Long, Boolean, etc.) do not need tracing
-// as they cannot contain heap references.
-// unsafe impl<'v> Trace<'v> for String -> no-op
-// unsafe impl<'v> Trace<'v> for usize -> no-op
-// unsafe impl<'v> Trace<'v> for i32 -> no-op
-// unsafe impl<'v> Trace<'v> for u32 -> no-op
-// unsafe impl<'v> Trace<'v> for u64 -> no-op
-// unsafe impl<'v> Trace<'v> for bool -> no-op
+// unsafe impl<'v> Trace<'v> for ()
+fun traceUnit(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+}
 
-// No-op trace implementations for atomic types.
-// unsafe impl<'v> Trace<'v> for AtomicBool -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicI8 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicU8 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicI16 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicU16 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicI32 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicU32 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicI64 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicU64 -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicUsize -> no-op
-// unsafe impl<'v> Trace<'v> for AtomicIsize -> no-op
+// unsafe impl<'v> Trace<'v> for String
+fun traceString(
+    @Suppress("UNUSED_PARAMETER") value: String,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
 
-// unsafe impl<'v> Trace<'v> for std::time::Instant -> no-op
-// unsafe impl<'v, T: ?Sized> Trace<'v> for marker::PhantomData<T> -> no-op
+// unsafe impl<'v> Trace<'v> for usize
+fun traceUsize(
+    @Suppress("UNUSED_PARAMETER") value: UInt,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for i32
+fun traceI32(
+    @Suppress("UNUSED_PARAMETER") value: Int,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for u32
+fun traceU32(
+    @Suppress("UNUSED_PARAMETER") value: UInt,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for u64
+fun traceU64(
+    @Suppress("UNUSED_PARAMETER") value: ULong,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for bool
+fun traceBool(
+    @Suppress("UNUSED_PARAMETER") value: Boolean,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for AtomicBool
+fun traceAtomicBoolean(
+    @Suppress("UNUSED_PARAMETER") value: AtomicBoolean,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for AtomicI32 / AtomicU32
+fun traceAtomicInt(
+    @Suppress("UNUSED_PARAMETER") value: AtomicInt,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v> Trace<'v> for AtomicI64 / AtomicU64
+fun traceAtomicLong(
+    @Suppress("UNUSED_PARAMETER") value: AtomicLong,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v, T: ?Sized> Trace<'v> for marker::PhantomData<T>
+fun <T> tracePhantomData(
+    @Suppress("UNUSED_PARAMETER") value: T?,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Arc<Mutex<T>>
 fun <T : Trace> traceAtomicRef(atomicRef: AtomicRef<T>, tracer: Tracer) {
     atomicRef.value.trace(tracer)
 }
 
-// unsafe impl<'v, A, R> Trace<'v> for fn(A) -> R -> no-op
-// unsafe impl<'v, A, B, R> Trace<'v> for fn(A, B) -> R -> no-op
-// unsafe impl<'v, A, B, C, R> Trace<'v> for fn(A, B, C) -> R -> no-op
-// Function references do not contain heap values; no-op.
+// unsafe impl<'v, A, R> Trace<'v> for fn(A) -> R
+fun <A, R> traceFn1(
+    @Suppress("UNUSED_PARAMETER") fn: (A) -> R,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v, A, B, R> Trace<'v> for fn(A, B) -> R
+fun <A, B, R> traceFn2(
+    @Suppress("UNUSED_PARAMETER") fn: (A, B) -> R,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}
+
+// unsafe impl<'v, A, B, C, R> Trace<'v> for fn(A, B, C) -> R
+fun <A, B, C, R> traceFn3(
+    @Suppress("UNUSED_PARAMETER") fn: (A, B, C) -> R,
+    @Suppress("UNUSED_PARAMETER") tracer: Tracer,
+) {
+}

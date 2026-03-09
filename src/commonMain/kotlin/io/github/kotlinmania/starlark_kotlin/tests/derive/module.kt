@@ -1,8 +1,8 @@
-// port-lint: source src/debug.rs
-package io.github.kotlinmania.starlark_kotlin
+// port-lint: source tests/derive/module.rs
+package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,8 +19,14 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-/** Provides debug-related functionality and utilities. */
-
-// mod adapter -> io.github.kotlinmania.starlark_kotlin.debug.adapter
-// mod evaluate -> io.github.kotlinmania.starlark_kotlin.debug.evaluate
-// mod inspect -> io.github.kotlinmania.starlark_kotlin.debug.inspect
+// mod basic;
+// mod default_value;
+// mod generic;
+// mod kwargs;
+// mod methods;
+// mod named_positional;
+// mod other_attributes;
+// mod return_impl;
+// mod special_params;
+// mod type_annotation;
+// mod unpack_value;

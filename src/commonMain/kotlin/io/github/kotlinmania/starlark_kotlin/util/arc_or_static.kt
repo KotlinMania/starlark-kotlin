@@ -24,52 +24,71 @@ package io.github.kotlinmania.starlark_kotlin.util.arc_or_static
 //     Arc(Arc<T>),
 //     Static(&'static T),
 // }
-// Kotlin: GC handles all references; no need for Arc/static distinction.
+internal sealed interface Inner<T : Any> {
+    data class Arc<T : Any>(
+        val value: T,
+    ) : Inner<T>
+
+    data class Static<T : Any>(
+        val value: T,
+    ) : Inner<T>
+}
 
 // #[derive(Debug, Allocative)]
 // pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>);
-// Kotlin: simple wrapper around a reference. GC handles lifetimes.
 internal class ArcOrStatic<T : Any> private constructor(
-    private val value: T,
+    private val inner: Inner<T>,
 ) : Comparable<ArcOrStatic<T>> {
-
     companion object {
         // pub(crate) fn new_static(a: &'static T) -> Self
         fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(a)
+            return ArcOrStatic(Inner.Static(a))
         }
 
         // pub(crate) fn new_arc(a: Arc<T>) -> Self
         fun <T : Any> newArc(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(a)
+            return ArcOrStatic(Inner.Arc(a))
         }
 
         // pub(crate) fn new(a: T) -> Self
         fun <T : Any> new(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(a)
+            return newArc(a)
         }
     }
 
     // impl Deref for ArcOrStatic
     // fn deref(&self) -> &T
-    fun deref(): T = value
+    fun deref(): T {
+        return when (val inner = inner) {
+            is Inner.Arc -> inner.value
+            is Inner.Static -> inner.value
+        }
+    }
+
+    // impl Clone for ArcOrStatic<T>
+    fun clone(): ArcOrStatic<T> {
+        return when (val inner = inner) {
+            is Inner.Arc -> ArcOrStatic(Inner.Arc(inner.value))
+            is Inner.Static -> ArcOrStatic(Inner.Static(inner.value))
+        }
+    }
 
     // impl Display for ArcOrStatic
-    override fun toString(): String = value.toString()
+    override fun toString(): String = deref().toString()
 
     // impl PartialEq for ArcOrStatic
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ArcOrStatic<*>) return false
-        return value == other.value
+        return deref() == other.deref()
     }
 
     // impl Hash for ArcOrStatic
-    override fun hashCode(): Int = value.hashCode()
+    override fun hashCode(): Int = deref().hashCode()
 
     // impl Ord for ArcOrStatic
     @Suppress("UNCHECKED_CAST")
     override fun compareTo(other: ArcOrStatic<T>): Int {
-        return (value as Comparable<T>).compareTo(other.value)
+        return (deref() as Comparable<T>).compareTo(other.deref())
     }
 }

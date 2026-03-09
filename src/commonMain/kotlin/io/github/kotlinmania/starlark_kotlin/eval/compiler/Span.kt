@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 
 /**
  * Similar to `Spanned<T>` but with file span.
  *
  * For intermediate representation.
  */
-internal data class IrSpanned<T>(
+data class IrSpanned<T>(
     val span: FrameSpan,
     val node: T,
 ) {
@@ -35,5 +35,9 @@ internal data class IrSpanned<T>(
             node = f(node),
             span = span,
         )
+    }
+
+    fun deref(): T {
+        return node
     }
 }
