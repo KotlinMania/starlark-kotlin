@@ -28,24 +28,34 @@ package io.github.kotlinmania.starlark_kotlin.eval
 // pub(crate) mod runtime;
 // pub(crate) mod soft_error;
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.docs.extractRawStarlarkDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefInfo
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.DEFAULT_STACK_SIZE
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.syntax.DialectTypes
-import io.github.kotlinmania.starlark_kotlin.syntax.module.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import kotlin.time.TimeSource
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
+import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
+import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
+import io.github.kotlinmania.starlark_kotlin.typing.scopeData
+import io.github.kotlinmania.starlark_kotlin.typing.cst
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.enableTypes
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.newCheckUnique
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtCount
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.moduleSlotCount
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // --- Re-exports (Rust `pub use`) ---
 // pub use runtime::arguments::Arguments;

@@ -1,6 +1,12 @@
 // port-lint: source src/eval/bc/instrs.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.Iter
+import io.github.kotlinmania.starlark_kotlin.values.index
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.End
+import io.github.kotlinmania.starlark_kotlin.values.types.string.buffer
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

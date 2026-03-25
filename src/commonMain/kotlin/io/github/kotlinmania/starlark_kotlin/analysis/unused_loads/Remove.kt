@@ -19,8 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
+import io.github.kotlinmania.starlark_kotlin.codemap.sourceSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.fullSpan
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.end
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 /// Helper for building the output string with span-based skipping.

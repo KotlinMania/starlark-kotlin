@@ -1,6 +1,18 @@
 // port-lint: source src/analysis/find_call_name.rs
 package io.github.kotlinmania.starlark_kotlin.analysis.find_call_name
 
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgumentP
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.values.types.string.literal
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
+import io.github.kotlinmania.starlark_kotlin.analysis.statement
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,51 +33,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis.find_call_name
 
 /// Linter.
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Span
-
-class AstExpr(val node: Expr, val span: Span) {
-    fun visitExpr(visitor: (AstExpr) -> Unit) {
-        node.visitChildren(visitor)
-    }
-}
-
-sealed class Expr {
-    class Call(val identifier: AstExpr, val arguments: CallArgs) : Expr()
-    class Identifier(val name: String) : Expr()
-    class Dot(val expr: AstExpr, val attr: String) : Expr()
-    class Literal(val literal: AstLiteral) : Expr()
-    class Other : Expr()
-
-    fun visitChildren(visitor: (AstExpr) -> Unit) {}
-}
-
-sealed class AstLiteral {
-    class StringLit(val node: String) : AstLiteral()
-    class Other : AstLiteral()
-}
-
-class CallArgs(val args: List<SpannedArgument>)
-
-class SpannedArgument(val node: Argument)
-
-sealed class Argument {
-    class Named(val name: SpannedString, val value: AstExpr) : Argument()
-    class Other : Argument()
-}
-
-class SpannedString(val node: String)
-
-class AstStmt {
-    fun visitExpr(visitor: (AstExpr) -> Unit) {}
-}
-
-class AstModule(
-    private val statement: AstStmt,
-) {
-    fun statement(): AstStmt = statement
-}
+// Placeholder types removed. Rely on imports.
 
 /// Find the location of a top level function call that has a kwarg "name", and a string value
 /// matching `name`.
@@ -87,17 +55,17 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
         }
 
         when (val expr = node.node) {
-            is Expr.Call -> {
-                val identifier = expr.identifier
-                if (identifier.node is Expr.Identifier || identifier.node is Expr.Dot) {
-                    val found = expr.arguments.args.firstNotNullOfOrNull { argument ->
+            is ExprP.Call<*> -> {
+                val identifier = expr.expr
+                if (identifier.node is ExprP.Identifier<*, *> || identifier.node is ExprP.Dot<*>) {
+                    val found = expr.args.args.firstNotNullOfOrNull { argument ->
                         when (val arg = argument.node) {
-                            is Argument.Named -> {
-                                val value = arg.value
+                            is ArgumentP.Named<*> -> {
+                                val value = arg.expr
                                 if (arg.name.node == "name" &&
-                                    value.node is Expr.Literal &&
-                                    (value.node as Expr.Literal).literal is AstLiteral.StringLit &&
-                                    ((value.node as Expr.Literal).literal as AstLiteral.StringLit).node == name
+                                    value.node is ExprP.Literal<*> &&
+                                    (value.node as ExprP.Literal<*>).literal is AstLiteral.StringLit &&
+                                    ((value.node as ExprP.Literal<*>).literal as AstLiteral.StringLit).node == name
                                 ) {
                                     identifier.span
                                 } else {
@@ -116,6 +84,6 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
         }
     }
 
-    statement().visitExpr(::visitExpr)
+    statement.visitExpr(::visitExpr)
     return ret
 }

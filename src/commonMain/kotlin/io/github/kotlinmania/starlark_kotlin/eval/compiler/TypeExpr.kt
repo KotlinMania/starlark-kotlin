@@ -20,8 +20,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.values.typing.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.asValue
 
 /// IR expression in type position.
 // #[derive(Clone, Debug, VisitSpanMut)]

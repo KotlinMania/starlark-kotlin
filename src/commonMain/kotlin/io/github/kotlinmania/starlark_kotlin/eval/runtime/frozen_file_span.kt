@@ -19,11 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.codemap.sourceSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
+import io.github.kotlinmania.starlark_kotlin.codemap.endSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.values.default
 
 // #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq)]
 // pub(crate) struct FrozenFileSpan {

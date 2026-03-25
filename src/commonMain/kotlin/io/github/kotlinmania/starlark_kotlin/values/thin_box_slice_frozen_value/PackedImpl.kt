@@ -21,7 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.int.InlineInt
+import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
 
 /// Wrapper to handle the packing and most of the unsafety.
 ///

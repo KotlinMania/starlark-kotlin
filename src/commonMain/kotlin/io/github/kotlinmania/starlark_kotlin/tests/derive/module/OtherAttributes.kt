@@ -24,7 +24,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 
 // #[starlark_module]
 // fn test_other_attributes_in_globals(globals: &mut GlobalsBuilder)

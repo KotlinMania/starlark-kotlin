@@ -19,10 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeAnyOfTwo
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.fromTy
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypingMacroRefsError

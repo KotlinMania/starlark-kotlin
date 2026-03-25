@@ -20,11 +20,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.string.registerFunction
+import io.github.kotlinmania.starlark_kotlin.values.default
 
 /**
  * Register the `set` builtin function.

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 
 class TyEnumData(
     /// Name of the enum type.

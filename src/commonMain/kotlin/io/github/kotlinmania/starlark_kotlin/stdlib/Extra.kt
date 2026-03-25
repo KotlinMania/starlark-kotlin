@@ -20,15 +20,22 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.function.StarlarkFunction
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneOr
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.tuple.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.values.typing.iter.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.list.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneOr
+import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkFunction
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
+import io.github.kotlinmania.starlark_kotlin.values.types.list.None
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.analysis.Other
+import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
+import io.github.kotlinmania.starlark_kotlin.assert.printHandler
 
 /// Apply a predicate to each element of the iterable, returning those that match.
 /// As a special case if the function is `None` then removes all the `None` values.

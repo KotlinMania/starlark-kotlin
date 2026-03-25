@@ -20,19 +20,16 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max.registerMinMax
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.other.registerOther
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip.registerZip
-import io.github.kotlinmania.starlark_kotlin.values.bool.globals.registerBool
-import io.github.kotlinmania.starlark_kotlin.values.float.globals.registerFloat
-import io.github.kotlinmania.starlark_kotlin.values.int.globals.registerInt
-import io.github.kotlinmania.starlark_kotlin.values.none.globals.registerNone
-import io.github.kotlinmania.starlark_kotlin.values.range.globals.registerRange
-import io.github.kotlinmania.starlark_kotlin.values.string.globals.registerStr
-import io.github.kotlinmania.starlark_kotlin.values.tuple.globals.registerTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.globals.registerDict
-import io.github.kotlinmania.starlark_kotlin.values.types.list.globals.registerList
-import io.github.kotlinmania.starlark_kotlin.values.types.num.globals.registerNum
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.registerTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.string.registerStr
+import io.github.kotlinmania.starlark_kotlin.values.types.range.registerRange
+import io.github.kotlinmania.starlark_kotlin.values.types.num.registerNum
+import io.github.kotlinmania.starlark_kotlin.values.types.none.registerNone
+import io.github.kotlinmania.starlark_kotlin.values.types.list.registerList
+import io.github.kotlinmania.starlark_kotlin.values.types.int.registerInt
+import io.github.kotlinmania.starlark_kotlin.values.types.float.registerFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.registerDict
+import io.github.kotlinmania.starlark_kotlin.values.types.bool.registerBool
 
 internal fun registerGlobals(globals: GlobalsBuilder) {
     registerList(globals)

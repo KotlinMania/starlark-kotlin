@@ -20,8 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.goldenTestTemplate
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 
 // mod pass
 

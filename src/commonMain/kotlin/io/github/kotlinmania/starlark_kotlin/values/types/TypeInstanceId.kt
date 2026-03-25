@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-import kotlinx.atomicfu.atomic
 
 /// Globally unique identifier for a type, like record type or enum type.
 // #[derive(Debug, Copy, Clone, Dupe, Hash, Eq, PartialEq, Ord, PartialOrd, Allocative, Freeze)]

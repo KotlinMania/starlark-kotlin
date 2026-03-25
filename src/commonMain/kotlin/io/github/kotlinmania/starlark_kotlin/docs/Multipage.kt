@@ -24,6 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
+import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderMarkdownPageForMultipageRender
 
 // pub struct RenderConfig
 class RenderConfig(

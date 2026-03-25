@@ -19,34 +19,41 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.names.MutableNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.BindingSource
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.syntax.top_level_stmts.topLevelStmtsMut
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.Bindings
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
 import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
 import io.github.kotlinmania.starlark_kotlin.typing.error.TypingError
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleVarTypes
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.fillTypesForLintTypechecker
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleVarTypes
 import io.github.kotlinmania.starlark_kotlin.typing.`interface`.Interface
 import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.typing.ty.Approximation
-import io.github.kotlinmania.starlark_kotlin.typing.ty.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingContext
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BindingId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingSource
+import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
+import io.github.kotlinmania.starlark_kotlin.analysis.Def
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark_kotlin.values.intoError
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.fillTypesForLintTypechecker
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleVarTypes
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.TypingContext
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
+import io.github.kotlinmania.starlark_kotlin.analysis.types
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.values.default
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(

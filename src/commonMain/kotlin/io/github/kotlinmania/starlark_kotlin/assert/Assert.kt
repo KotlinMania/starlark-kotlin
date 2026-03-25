@@ -21,24 +21,36 @@ package io.github.kotlinmania.starlark_kotlin.assert
 
 //! Utilities to test Starlark code execution.
 
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.ReturnFileLoader
 import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.structs.AllocStruct
-import io.github.kotlinmania.starlark_kotlin.values.tuple.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
+import io.github.kotlinmania.starlark_kotlin.tests.getAttr
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.triggerGc
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtFn
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // fn mk_environment() -> GlobalsBuilder
 private fun mkEnvironment(): GlobalsBuilder {

@@ -23,15 +23,25 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.eval.bc.COUNT
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.values.types.string.second
+import io.github.kotlinmania.starlark_kotlin.values.types.string.format
+import io.github.kotlinmania.starlark_kotlin.typing.ordinal
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.genBcProfile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.genBcPairsProfile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.eval.bc.byNumber
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
 
 // pub(crate) struct BcProfilerType
 internal object BcProfilerType : ProfilerType<BcProfileData> {

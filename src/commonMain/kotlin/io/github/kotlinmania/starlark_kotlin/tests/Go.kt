@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.tests
 //! Run Go implementation tests.
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.conformance
 import io.github.kotlinmania.starlark_kotlin.assert.conformanceExcept
+import io.github.kotlinmania.starlark_kotlin.assert.conformance
 
 /// Load a test case file from the testcases directory.
 // macro_rules! test_case { ($name:expr) => { include_str!(...) } }

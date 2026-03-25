@@ -24,9 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefGen
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefBody
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.InlineDefBody
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.defInfo
 
 // #[starlark_module]
 // fn globals(builder: &mut GlobalsBuilder)

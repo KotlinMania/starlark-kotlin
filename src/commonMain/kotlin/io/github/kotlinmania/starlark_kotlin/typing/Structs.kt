@@ -20,10 +20,11 @@ package io.github.kotlinmania.starlark_kotlin.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextOrInternalError
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.structs.StructRef
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.alloc.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.intersectsBasic
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 // struct StructMatcher;
@@ -95,7 +96,7 @@ data class TyStruct(
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
-    fun <T : TypeMatcherAlloc> matcher(factory: T): Any {
+    fun <R, T : TypeMatcherAlloc<R>> matcher(factory: T): R {
         return factory.alloc(StructMatcher)
     }
 

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval_exception.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
 
 class CompilerInternalError(private val exception: EvalException) {
     companion object {

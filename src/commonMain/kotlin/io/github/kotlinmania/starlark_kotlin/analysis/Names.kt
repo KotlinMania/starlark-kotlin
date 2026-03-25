@@ -26,25 +26,39 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 //
 // But it does as things stand.
 
-import io.github.kotlinmania.starlark_kotlin.analysis.types.LintT
-import io.github.kotlinmania.starlark_kotlin.analysis.types.LintWarning
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Clause
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
+import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClause
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Clause
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.values.key
+import io.github.kotlinmania.starlark_kotlin.value
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.eval.bc.over
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
+import io.github.kotlinmania.starlark_kotlin.docs.ty
+import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ListComprehension
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DictComprehension
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 sealed class NameWarning : LintWarning {
     data class UnusedLoad(val name: String) : NameWarning()
@@ -125,9 +139,9 @@ private enum class Abort {
 /// you're going to confuse users, so not too problematic.
 private fun isFail(x: AstExpr): Boolean {
     val expr = x.node
-    if (expr is Expr.Call) {
+    if (expr is ExprP.Call) {
         val func = expr.function.node
-        if (func is Expr.Identifier) {
+        if (func is ExprP.Identifier) {
             return func.ident == "fail"
         }
     }
@@ -365,11 +379,11 @@ private class State(
         assign(forClause.variable)
         for (clause in clauses) {
             when (clause) {
-                is Clause.For -> {
+                is ClauseP.For -> {
                     expr(clause.forClause.over)
                     assign(clause.forClause.variable)
                 }
-                is Clause.If -> expr(clause.expr)
+                is ClauseP.If -> expr(clause.Expr)
             }
         }
         expr(res1)
@@ -379,23 +393,23 @@ private class State(
 
     fun expr(expr: AstExpr) {
         when (val e = expr.node) {
-            is Expr.Identifier -> useIdent(astStrFromIdent(e.ident))
-            is Expr.Lambda -> {
-                for (p in e.params) {
-                    p.node.visitExpr { x -> expr(x) }
+            is ExprP.Identifier -> useIdent(astStrFromIdent(e.ident))
+            is ExprP.Lambda<*, *> -> {
+                for (p in e.lambda.params) {
+                    p.node.visitExpr { x -> expr(x as AstExpr) }
                 }
                 enterScope()
-                for (p in e.params) {
+                for (p in e.lambda.params) {
                     val pname = p.node.ident()
                     if (pname != null) {
-                        setIdent(pname, Kind.Argument)
+                        setIdent(pname as AstAssignIdent, Kind.Argument)
                     }
                 }
-                expr(e.body)
+                expr(e.lambda.body as AstExpr)
                 exitScope()
             }
-            is Expr.ListComprehension -> comprehension(e.expr, null, e.forClause, e.clauses)
-            is Expr.DictComprehension -> comprehension(e.key, e.value, e.forClause, e.clauses)
+            is ExprP.ListComprehension -> comprehension(e.expr, null, e.forClause, e.clauses)
+            is ExprP.DictComprehension -> comprehension(e.key, e.value, e.forClause, e.clauses)
             else -> expr.visitExpr { x -> expr(x) }
         }
     }
@@ -409,7 +423,7 @@ private class State(
     }
 
     fun typ(ty: AstTypeExpr) {
-        expr(ty.expr)
+        expr(ty.Expr)
     }
 
     fun assignAsExpr(assign: AstAssignTarget) {
@@ -419,40 +433,40 @@ private class State(
 
     fun stmt(stmt: AstStmt) {
         when (val s = stmt.node) {
-            is Stmt.Expression -> {
+            is StmtP.Expression -> {
                 expr(s.expr)
                 if (isFail(s.expr)) {
                     setAbort(Abort.Function)
                 }
             }
-            is Stmt.Return -> {
+            is StmtP.Return -> {
                 exprOpt(s.expr)
                 setAbort(Abort.Function)
             }
-            is Stmt.Assign -> {
+            is StmtP.Assign -> {
                 typOpt(s.ty)
                 expr(s.rhs)
                 assign(s.lhs)
             }
-            is Stmt.AssignModify -> {
+            is StmtP.AssignModify -> {
                 expr(s.rhs)
                 assignAsExpr(s.lhs)
                 assign(s.lhs)
             }
-            is Stmt.Statements -> {
+            is StmtP.Statements -> {
                 for (x in s.stmts) {
                     stmt(x)
                 }
             }
-            is Stmt.If -> {
+            is StmtP.If -> {
                 expr(s.cond)
                 branch({ me -> me.stmt(s.thenBlock) }, { })
             }
-            is Stmt.IfElse -> {
+            is StmtP.IfElse -> {
                 expr(s.cond)
                 branch({ me -> me.stmt(s.thenBlock) }, { me -> me.stmt(s.elseBlock) })
             }
-            is Stmt.For -> {
+            is StmtP.For -> {
                 expr(s.over)
                 // Note this isn't 100% correct, as a for loop may set something the next iteration consumes
                 loops { me ->
@@ -460,40 +474,40 @@ private class State(
                     me.stmt(s.body)
                 }
             }
-            is Stmt.Def -> {
-                for (p in s.params) {
-                    p.node.visitExpr { e -> expr(e) }
+            is StmtP.Def<*, *> -> {
+                for (p in s.def.params) {
+                    p.node.visitExpr { e -> expr(e as AstExpr) }
                 }
-                typOpt(s.returnType)
-                setIdent(s.name, Kind.Assign)
+                typOpt(s.def.returnType as AstTypeExpr?)
+                setIdent(s.def.name as AstAssignIdent, Kind.Assign)
                 enterScope()
-                for (p in s.params) {
+                for (p in s.def.params) {
                     val pname = p.node.ident()
                     if (pname != null) {
-                        setIdent(pname, Kind.Argument)
+                        setIdent(pname as AstAssignIdent, Kind.Argument)
                     }
                 }
-                stmt(s.body)
+                stmt(s.def.body as AstStmt)
                 exitScope()
             }
             // These were handled by collecting the scopes
-            is Stmt.Load -> {
-                for (arg in s.args) {
+            is StmtP.Load -> {
+                for (arg in s.loadStmt.args) {
                     setIdent(arg.local, Kind.Load)
                 }
             }
             // These control flow operators can be ignored - either the code after is fine (no problem)
             // or in error (in which case you have useless code after flow control)
-            is Stmt.Break, is Stmt.Continue -> {
+            is StmtP.Break, is StmtP.Continue -> {
                 setAbort(Abort.Loop)
             }
-            is Stmt.Pass -> {}
+            is StmtP.Pass -> {}
         }
     }
 
     fun module(module: AstModule) {
         enterScope()
-        stmt(module.statement())
+        stmt(module.statement)
         exitScope()
     }
 }
@@ -509,7 +523,7 @@ internal fun namesLint(
     globals: Set<String>?,
 ): List<LintT<NameWarning>> {
     val state = State(
-        codemap = module.codemap(),
+        codemap = module.codemap,
         globals = globals,
     )
     state.module(module)

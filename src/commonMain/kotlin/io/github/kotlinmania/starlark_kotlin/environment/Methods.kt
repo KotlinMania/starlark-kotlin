@@ -19,24 +19,31 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.components.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeAttribute
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeMeth
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeMethFn
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeMethod
-import io.github.kotlinmania.starlark_kotlin.values.types.unbound.UnboundValue
+import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethFn
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeAttribute
+import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimpleTypedStatic
+import io.github.kotlinmania.starlark_kotlin.values.owned.toFrozenValue
+import io.github.kotlinmania.starlark_kotlin.docs.typ
+import io.github.kotlinmania.starlark_kotlin.docs.ty
+import io.github.kotlinmania.starlark_kotlin.analysis.iter
 
 /// Methods of an object.
 // #[derive(Clone, Debug)]

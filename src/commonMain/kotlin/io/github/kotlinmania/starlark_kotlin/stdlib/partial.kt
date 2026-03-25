@@ -1,6 +1,10 @@
 // port-lint: source src/stdlib/partial.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
 
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.tests.freeze
+import io.github.kotlinmania.starlark_kotlin.values.types.list.fmt
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

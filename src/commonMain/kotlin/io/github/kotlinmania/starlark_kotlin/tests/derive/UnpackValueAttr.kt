@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
 // Only check it compiles.
 
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
 // #[display("ValueWithLifetimeParam")]

@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
@@ -29,11 +28,19 @@ import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextError
 import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.util.arc_str.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.alloc.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Result
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.dupe
+import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.Result
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.success
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 internal data class NamespaceMatcher(
     private val dummy: Unit = Unit
@@ -103,7 +110,7 @@ data class TyNamespace(
     }
 
     override fun <T : TypeMatcherAlloc> matcher(factory: T): T.Result {
-        return factory.alloc(NamespaceMatcher())
+        return factory.allocMatcher(NamespaceMatcher())
     }
 
     override fun compareTo(other: TyNamespace): Int {

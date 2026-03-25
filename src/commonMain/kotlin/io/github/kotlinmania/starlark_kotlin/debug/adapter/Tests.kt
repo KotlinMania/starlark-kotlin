@@ -19,26 +19,38 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.debug.DapAdapter
 import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient
 import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterEvalHook
 import io.github.kotlinmania.starlark_kotlin.debug.StepKind
 import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
-import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation.prepareDapAdapter
-import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation.resolveBreakpoints
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.wasm.isWasm
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
+import io.github.kotlinmania.starlark_kotlin.Variable
+import io.github.kotlinmania.starlark_kotlin.SourceBreakpoint
+import io.github.kotlinmania.starlark_kotlin.SetBreakpointsArguments
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.start
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Source
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.resolveBreakpoints
+import io.github.kotlinmania.starlark_kotlin.prepareDapAdapter
+import io.github.kotlinmania.starlark_kotlin.isWasm
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.debug.subValues
+import io.github.kotlinmania.starlark_kotlin.debug.hasChildren
+import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
+import io.github.kotlinmania.starlark_kotlin.analysis.result
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // #[cfg(test)]
 // mod t

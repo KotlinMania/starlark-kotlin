@@ -24,8 +24,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.call
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsFull
 import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsPos
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.expr.writeExprOpt
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.expr.writeExprs
 import io.github.kotlinmania.starlark_kotlin.eval.bc.native_function.BcNativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcSlotOut
@@ -33,13 +31,22 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValu
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.CallCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.known_methods.getKnownMethod
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.values.types.getKnownMethod
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.newFrozen
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.allocFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeExprs
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeExprOpt
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.call.resolve
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 
 // impl ArgsCompiledValue
 

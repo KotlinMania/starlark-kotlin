@@ -1,6 +1,33 @@
 // port-lint: source src/values/types/set/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
 
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Ty
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Serializer
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Methods
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.SetType
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.typing.anySet
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.insertHashed
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.intoInner
+import io.github.kotlinmania.starlark_kotlin.values.equalsSmallSet
+import io.github.kotlinmania.starlark_kotlin.util.unleakBorrow
+import io.github.kotlinmania.starlark_kotlin.util.refcell.borrow
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -297,14 +324,14 @@ fun <V, T> SetGen<T>.bitOr(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> where
             ?: return ValueError.unsupportedWith(this, "|", rhs)
 
         if (setLike.content().isEmpty()) {
-            return Result.success(heap.alloc(rhsSet.aref.clone()))
+            return Result.success(rhsSet.aref.clone().allocValue(heap))
         }
 
         val items = setLike.content().clone()
         for (h in rhsSet.aref.iterHashed()) {
             items.insertHashed(h)
         }
-        Result.success(heap.alloc(SetData<V>().apply { content.addAll(items) }))
+        Result.success(SetData<V>().apply { content.addAll(items) }.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -321,7 +348,7 @@ fun <V, T> SetGen<T>.bitAnd(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> wher
 
         val items = SmallSet<Value<V>>()
         if (setLike.content().isEmpty()) {
-            return Result.success(heap.alloc(SetData<V>()))
+            return Result.success(SetData<V>().allocValue(heap))
         }
 
         for (h in rhsSet.aref.iterHashed()) {
@@ -330,7 +357,7 @@ fun <V, T> SetGen<T>.bitAnd(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> wher
             }
         }
 
-        Result.success(heap.alloc(SetData<V>().apply { content.addAll(items) }))
+        Result.success(SetData<V>().apply { content.addAll(items) }.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -346,9 +373,9 @@ fun <V, T> SetGen<T>.bitXor(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> wher
             ?: return ValueError.unsupportedWith(this, "^", rhs)
 
         if (rhsSet.aref.content.isEmpty()) {
-            return Result.success(heap.alloc(SetData<V>().apply {
+            return Result.success(SetData<V>().apply {
                 content.addAll(setLike.content().clone())
-            }))
+            }.allocValue(heap))
         }
 
         val data = SetData<V>()
@@ -363,7 +390,7 @@ fun <V, T> SetGen<T>.bitXor(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> wher
                 data.addHashed(hashed)
             }
         }
-        Result.success(heap.alloc(data))
+        Result.success(data.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -379,13 +406,13 @@ fun <V, T> SetGen<T>.sub(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> where T
             ?: return ValueError.unsupportedWith(this, "-", rhs)
 
         if (setLike.content().isEmpty()) {
-            return Result.success(heap.alloc(SetData<V>()))
+            return Result.success(SetData<V>().allocValue(heap))
         }
 
         if (rhsSet.aref.content.isEmpty()) {
-            return Result.success(heap.alloc(SetData<V>().apply {
+            return Result.success(SetData<V>().apply {
                 content.addAll(setLike.content().clone())
-            }))
+            }.allocValue(heap))
         }
 
         val data = SetData<V>()
@@ -395,7 +422,7 @@ fun <V, T> SetGen<T>.sub(rhs: Value<V>, heap: Heap<V>): Result<Value<V>> where T
                 data.addHashed(elem.copied())
             }
         }
-        Result.success(heap.alloc(data))
+        Result.success(data.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }

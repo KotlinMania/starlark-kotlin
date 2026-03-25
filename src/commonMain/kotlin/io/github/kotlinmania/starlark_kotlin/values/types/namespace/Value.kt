@@ -23,7 +23,11 @@ import kotlinx.serialization.Serializable
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.util.arc_str.ArcStr
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
+import io.github.kotlinmania.starlark_kotlin.docs.DocMember
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
 
 /**
  * Internal helper to wrap a value with doc visibility metadata.

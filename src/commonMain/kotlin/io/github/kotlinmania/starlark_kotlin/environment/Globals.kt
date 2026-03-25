@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.components.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
@@ -27,22 +26,36 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.stdlib.LibraryExtension
-import io.github.kotlinmania.starlark_kotlin.stdlib.standardEnvironment
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunc
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFuncFn
-import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.MaybeDocHiddenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.function.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.docHidden
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.dupe
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
+import io.github.kotlinmania.starlark_kotlin.values.documentation
+import io.github.kotlinmania.starlark_kotlin.stdlib.standardEnvironment
+import io.github.kotlinmania.starlark_kotlin.analysis.iter
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>;
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>

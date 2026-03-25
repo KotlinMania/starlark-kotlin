@@ -23,9 +23,12 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.asInt
 
 // struct Test<V> { field: V }
 private class TestFreeze(var field: Value) : Freeze<TestFrozen> {

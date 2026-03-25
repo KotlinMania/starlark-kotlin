@@ -1,6 +1,8 @@
 // port-lint: source src/tests/opt.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
+import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 //! Optimizer tests.
 
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 
 // #[test]
 // fn test_type_is_inlined()

@@ -1,6 +1,8 @@
 // port-lint: source src/typing/error.rs
 package io.github.kotlinmania.starlark_kotlin.typing.error
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -45,7 +47,6 @@ class StarlarkError(message: String, cause: Throwable? = null) : Exception(messa
     }
 }
 
-class Span
 
 class CodeMap
 

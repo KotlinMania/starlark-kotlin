@@ -21,11 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /// Define the bytecode instruction.
 
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcPtrAddr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_arg.BcInstrArg
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /// Result of instruction evaluation.
 ///

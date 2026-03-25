@@ -19,9 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.newParts
 
 sealed class NativeSigArg {
     data class Required(val name: String) : NativeSigArg()

@@ -19,13 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.errors.Frame
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
+import io.github.kotlinmania.starlark_kotlin.analysis.location
+import io.github.kotlinmania.starlark_kotlin.codemap.fullSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 
 /// When a function `a` is inlined into `b`, this struct contains
 /// the inlined frame for expressions in `a` which now reside in `b`.

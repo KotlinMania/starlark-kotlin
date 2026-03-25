@@ -20,6 +20,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  */
 
 import kotlin.jvm.JvmInline
+import io.github.kotlinmania.starlark_kotlin.values.types.string.start
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.toBool
 
 /**
  * Kotlin equivalent of Rust's NonZeroI32.

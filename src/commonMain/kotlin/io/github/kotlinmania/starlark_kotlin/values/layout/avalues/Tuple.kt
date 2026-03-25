@@ -19,19 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.trace
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.types.any_array.offsetOfContent
+import io.github.kotlinmania.starlark_kotlin.values.types.array.len
+import io.github.kotlinmania.starlark_kotlin.values.types.array.contentMut
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn tuple_avalue<'v>(len: usize) -> AValueImpl<'v, AValueTuple>
 internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> {

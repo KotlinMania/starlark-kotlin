@@ -19,8 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-import kotlinx.atomicfu.atomic
 import kotlin.math.max
+import io.github.kotlinmania.starlark_kotlin.values.types.list.None
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
+import io.github.kotlinmania.starlark_kotlin.analysis.Other
+import io.github.kotlinmania.starlark_kotlin.values.unsupportedWith
+import io.github.kotlinmania.starlark_kotlin.values.unsupported
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.list.haystack
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackI32
+import io.github.kotlinmania.starlark_kotlin.values.hash
+import io.github.kotlinmania.starlark_kotlin.tests.str
+import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
+import io.github.kotlinmania.starlark_kotlin.analysis.body
 
 /**
  * The result of calling `type()` on strings.
@@ -275,7 +286,7 @@ internal interface StarlarkStrValue {
         if (i >= 0) {
             val c = fastString.at(self.asStr(), CharIndex(i))
             return if (c != null) {
-                Result.success(heap.alloc(c.toString()))
+                Result.success(c.toString().allocStringValue(heap))
             } else {
                 Result.failure(ValueError.IndexOutOfBound(i))
             }
@@ -287,10 +298,10 @@ internal interface StarlarkStrValue {
             } else if (lenChars.value == self.len()) {
                 // We are a 7bit ASCII string, so take the fast-path
                 val bytes = self.asStr().toByteArray()
-                Result.success(heap.alloc((bytes[(lenChars - ind).value].toInt().toChar()).toString()))
+                Result.success((bytes[(lenChars - ind).value].toInt().toChar()).toString().allocStringValue(heap))
             } else {
                 val c = fastString.at(self.asStr(), lenChars - ind)
-                Result.success(heap.alloc(c.toString()))
+                Result.success(c.toString().allocStringValue(heap))
             }
         }
     }
@@ -317,7 +328,7 @@ internal interface StarlarkStrValue {
             // The stride case is super rare and super complex, so let's do something inefficient but safe
             val xs = s.map { it }.toList()
             val result = applySlice(xs, start, stop, stride)
-            return result.map { heap.alloc(it.joinToString("")) }
+            return result.map { it.joinToString("").allocStringValue(heap) }
         }
 
         fun startStopToNoneOr(v: Value?): Result<NoneOr<Int>> {
@@ -373,7 +384,7 @@ internal interface StarlarkStrValue {
         repeat(l) {
             result.append(self.asStr())
         }
-        return Result.success(heap.alloc(result.toString()))
+        return Result.success(result.toString().allocStringValue(heap))
     }
 
     fun rmul(self: StarlarkStr, lhs: Value, heap: Heap): Result<Value>? {
@@ -381,7 +392,7 @@ internal interface StarlarkStrValue {
     }
 
     fun percent(self: StarlarkStr, other: Value, heap: Heap): Result<Value> {
-        return interpolation.percent(self.asStr(), other).map { heap.alloc(it) }
+        return interpolation.percent(self.asStr(), other).map { it.allocStringValue(heap) }
     }
 
     fun typecheckerTy(self: StarlarkStr): Ty? {

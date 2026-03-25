@@ -20,11 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.fail
-import io.github.kotlinmania.starlark_kotlin.assert.pass
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.DialectTypes
-import kotlin.test.Test
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
 
 private const val PROGRAM = """def f(x: int): pass
 

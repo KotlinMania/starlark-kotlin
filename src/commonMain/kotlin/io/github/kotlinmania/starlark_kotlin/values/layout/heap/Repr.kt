@@ -20,11 +20,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.heap_type.HeapKind
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
-import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueDyn
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 
 /// In Kotlin, AValueHeader wraps the vtable reference for an allocated value.
 /// The low-level pointer tagging and alignment concerns from Rust are not

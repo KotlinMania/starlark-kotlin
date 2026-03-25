@@ -23,10 +23,10 @@ package io.github.kotlinmania.starlark_kotlin.values
 /// given type.
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.heap_type.Heap
-import io.github.kotlinmania.starlark_kotlin.values.list.ListType
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.string.str_type.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 
 /// Provides a starlark type representation, even if StarlarkValue is not implemented.
 ///

@@ -1,6 +1,10 @@
 // port-lint: source src/values/types/int/i32.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
 
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackI32
+
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

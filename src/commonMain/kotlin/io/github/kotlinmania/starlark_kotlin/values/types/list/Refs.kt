@@ -19,12 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.coerce.coerce
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Result
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.TYPE
+import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.Result
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.success
 
 /**
  * Reference to list content (mutable or frozen).

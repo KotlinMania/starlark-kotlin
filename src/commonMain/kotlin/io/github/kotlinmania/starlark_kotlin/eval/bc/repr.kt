@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Instruction representation in memory.
 
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.forInstr
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses

@@ -22,10 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.docs
 /// Types supporting documentation for code written in or for Starlark.
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.FmtParam
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.iterFmtParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.FmtParam
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.iterFmtParamSpec
 
 /// The documentation provided by a user for a specific module, object, function, etc.
 // #[derive(Debug, Clone, PartialEq, Trace, Default, Allocative)]

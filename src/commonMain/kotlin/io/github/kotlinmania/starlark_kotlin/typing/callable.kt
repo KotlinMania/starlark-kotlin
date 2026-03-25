@@ -1,6 +1,8 @@
 // port-lint: source src/typing/callable.rs
 package io.github.kotlinmania.starlark_kotlin.typing.callable
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.typing.callable
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span
 class ParamSpec(private val params: Any? = null, private val isAnyFlag: Boolean = false) {
     companion object {
         fun any(): ParamSpec = ParamSpec(isAnyFlag = true)

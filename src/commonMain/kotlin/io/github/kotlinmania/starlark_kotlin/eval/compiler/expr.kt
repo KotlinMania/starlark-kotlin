@@ -21,10 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.expr
 
 /// Evaluation of an expression.
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.environment.slots.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.CallCompiled
@@ -32,30 +28,57 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ComprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.error.CompilerInternalError
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr_bool.ExprCompiledBool
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.AssignCount
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Captured
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstExpr
+import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ExprCompiledBool
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCount
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalCapturedSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.asType
+import io.github.kotlinmania.starlark_kotlin.values.toBool
+import io.github.kotlinmania.starlark_kotlin.values.sub
+import io.github.kotlinmania.starlark_kotlin.values.rightShift
+import io.github.kotlinmania.starlark_kotlin.values.percent
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
+import io.github.kotlinmania.starlark_kotlin.values.mul
+import io.github.kotlinmania.starlark_kotlin.values.leftShift
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
+import io.github.kotlinmania.starlark_kotlin.values.isIn
+import io.github.kotlinmania.starlark_kotlin.values.div
+import io.github.kotlinmania.starlark_kotlin.values.bitXor
+import io.github.kotlinmania.starlark_kotlin.values.bitOr
+import io.github.kotlinmania.starlark_kotlin.values.bitNot
+import io.github.kotlinmania.starlark_kotlin.values.bitAnd
+import io.github.kotlinmania.starlark_kotlin.values.at
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstExpr
+import io.github.kotlinmania.starlark_kotlin.stdlib.add
+import io.github.kotlinmania.starlark_kotlin.eval.bc.getTypeValue
 
 /// `bool` operation.
 // #[derive(Copy, Clone, Dupe, Eq, PartialEq, Debug)]

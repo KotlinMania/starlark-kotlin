@@ -1,6 +1,8 @@
 // port-lint: source src/typing/call_args.rs
 package io.github.kotlinmania.starlark_kotlin.typing.call_args
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,8 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.typing.call_args
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span
-class Spanned<T>(val node: T, val span: Span)
 class Ty
 
 /// Function call arguments.

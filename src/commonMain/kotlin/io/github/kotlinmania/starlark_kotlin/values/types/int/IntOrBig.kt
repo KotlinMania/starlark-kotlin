@@ -19,8 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import com.ionspin.kotlin.bignum.integer.Sign
+import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
+import io.github.kotlinmania.starlark_kotlin.values.types.string.BigInt
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.num.abs
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.toOwned
+import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
 /**
  * Starlark integer error types.

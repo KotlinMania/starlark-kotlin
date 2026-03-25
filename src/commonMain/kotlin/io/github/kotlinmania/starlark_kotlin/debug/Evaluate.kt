@@ -22,13 +22,27 @@ package io.github.kotlinmania.starlark_kotlin.debug
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.isWasm
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.topFrameDefInfoForDebugger
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.topFrameDefFrozenModule
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.environment.getSlot
+import io.github.kotlinmania.starlark_kotlin.assert.disableGc
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
+import io.github.kotlinmania.starlark_kotlin.analysis.globals
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.wasm.isWasm
 
 // impl<'v> Evaluator<'v, '_, '_>
 // Extension function on Evaluator

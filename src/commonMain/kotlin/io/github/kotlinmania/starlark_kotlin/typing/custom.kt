@@ -1,6 +1,8 @@
 // port-lint: source src/typing/custom.rs
 package io.github.kotlinmania.starlark_kotlin.typing.custom
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.typing.custom
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span
 class Ty
 class TyBasic {
     sealed class Variant {

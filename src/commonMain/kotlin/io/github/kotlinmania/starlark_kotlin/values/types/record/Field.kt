@@ -21,9 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.writeHash
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 
 /// The result of `field()`.
 // #[derive(Clone, Debug, Dupe, Trace, Freeze, NoSerialize, ProvidesStaticType, Allocative)]

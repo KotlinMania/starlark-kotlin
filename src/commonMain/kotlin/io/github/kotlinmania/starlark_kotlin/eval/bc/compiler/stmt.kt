@@ -27,15 +27,46 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompileContext
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtsCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.StmtCompileContext
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.AssignCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.MaybeNot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.PossibleGc
+import io.github.kotlinmania.starlark_kotlin.analysis.If
+import io.github.kotlinmania.starlark_kotlin.analysis.For
+import io.github.kotlinmania.starlark_kotlin.analysis.Continue
+import io.github.kotlinmania.starlark_kotlin.analysis.Break
+import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
+import io.github.kotlinmania.starlark_kotlin.analysis.Assign
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.values.op
+import io.github.kotlinmania.starlark_kotlin.values.layout.newNone
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.If
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ExprP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Continue
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Break
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.asLocalNonCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.asValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toBcSlot
+import io.github.kotlinmania.starlark_kotlin.eval.bc.over
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark_kotlin.docs.ty
+import io.github.kotlinmania.starlark_kotlin.analysis.stmts
+import io.github.kotlinmania.starlark_kotlin.analysis.rhs
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.analysis.lhs
+import io.github.kotlinmania.starlark_kotlin.analysis.body
+import io.github.kotlinmania.starlark_kotlin.analysis.span
 
 /// Compile a for-loop to bytecode.
 internal fun writeFor(
@@ -90,7 +121,7 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
             @Suppress("UNUSED_EXPRESSION")
             expr
         }
-        is StmtCompiled.Expr -> expr.markDefinitelyAssignedAfter(bc)
+        is StmtCompiled.Expr -> ExprP.markDefinitelyAssignedAfter(bc)
         is StmtCompiled.Assign -> {
             lhs.markDefinitelyAssignedAfter(bc)
             rhs.markDefinitelyAssignedAfter(bc)
@@ -220,7 +251,7 @@ private fun IrSpanned<StmtCompiled>.writeBcInner(
         is StmtCompiled.PossibleGc -> bc.writeInstr("InstrPossibleGc", span, Unit)
         is StmtCompiled.Return -> writeReturn(span, stmt.expr, compiler, bc)
         is StmtCompiled.Expr -> {
-            stmt.expr.writeBcForEffect(bc)
+            stmt.ExprP.writeBcForEffect(bc)
         }
         is StmtCompiled.Assign -> {
             val local = stmt.lhs.node.asLocalNonCaptured()

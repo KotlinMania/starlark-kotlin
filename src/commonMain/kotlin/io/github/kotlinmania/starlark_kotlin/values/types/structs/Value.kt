@@ -20,6 +20,40 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  */
 
 import kotlinx.serialization.Serializable
+import io.github.kotlinmania.starlark_kotlin.values.typing.TyStruct
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Ty
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
+import io.github.kotlinmania.starlark_kotlin.docs.DocMember
+import io.github.kotlinmania.starlark_kotlin.docs.DocItem
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import starlark_map.writeU64
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.writeHash
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.custom
+import io.github.kotlinmania.starlark_kotlin.values.typing.anyStruct
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.set.iterHashed
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue
+import io.github.kotlinmania.starlark_kotlin.values.hash
+import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
+import io.github.kotlinmania.starlark_kotlin.values.compare
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.analysis.keys
 
 /**
  * The result of calling `struct()`.

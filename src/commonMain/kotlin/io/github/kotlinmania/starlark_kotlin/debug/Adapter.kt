@@ -23,13 +23,21 @@ package io.github.kotlinmania.starlark_kotlin.debug
 /// <https://microsoft.github.io/debug-adapter-protocol/>), primarily the DapAdapter/DapAdapterEvalHook
 /// that provide for debugging a starlark Evaluation.
 
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
+import io.github.kotlinmania.starlark_kotlin.values.dirAttr
+import io.github.kotlinmania.starlark_kotlin.values.at
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.getAttrError
 import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
+import io.github.kotlinmania.starlark_kotlin.analysis.iter
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.heap_type.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.value.Value
 
 /// The DapAdapterClient is implemented by the user and provides functionality required by the DapAdapter.
 interface DapAdapterClient {

@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
 
 // Just check it compiles.
 
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[derive(Trace)]
 // struct TraceWithStatic<'v>

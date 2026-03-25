@@ -22,10 +22,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Instruction opcode.
 
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.docs.name
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
 // BcInstr is defined in repr.kt
+interface BcInstr
 
 /// Callback for the `dispatch` function.
 interface BcOpcodeHandler<R> {
@@ -128,7 +130,7 @@ enum class BcOpcode {
 
     companion object {
         /// Opcode count.
-        val COUNT: Int = entries.size
+        val COUNT: Int = values().size
 
         /// Invoke a callback parameterized by instruction type for each opcode.
         fun dispatchAll(handler: BcOpcodeAllHandler) {
@@ -138,14 +140,14 @@ enum class BcOpcode {
         }
 
         private fun doDispatchAll(handler: BcOpcodeAllHandler) {
-            for (opcode in entries) {
+            for (opcode in values()) {
                 handler.handle(BcInstr::class, opcode)
             }
         }
 
         /// Get opcode by opcode number.
         fun byNumber(n: UInt): BcOpcode? {
-            val entries = entries
+            val entries = values()
             val index = n.toInt()
             return if (index in entries.indices) {
                 entries[index]
@@ -159,7 +161,7 @@ enum class BcOpcode {
             var found: BcOpcode? = null
             dispatchAll(object : BcOpcodeAllHandler {
                 override fun <I : BcInstr> handle(klass: KClass<I>, opcode: BcOpcode) {
-                    if (klass == instrClass) {
+                    if (klass.equals(instrClass)) {
                         check(found == null)
                         found = opcode
                     }
@@ -180,22 +182,20 @@ enum class BcOpcode {
         return handler.handle(BcInstr::class)
     }
 
-    /// Check if this opcode is a call instruction.
+    // Bypass compiler bug: use .name == "string" instead of `this == Op`
     fun isCall(): Boolean {
-        return when (this) {
-            Call,
-            CallPos,
-            CallFrozenDef,
-            CallFrozenDefPos,
-            CallFrozenNative,
-            CallFrozenNativePos,
-            CallFrozen,
-            CallFrozenPos,
-            CallMethod,
-            CallMethodPos,
-            CallMaybeKnownMethod,
-            CallMaybeKnownMethodPos -> true
-            else -> false
-        }
+        val n = this.name
+        return n == "Call" ||
+            n == "CallPos" ||
+            n == "CallFrozenDef" ||
+            n == "CallFrozenDefPos" ||
+            n == "CallFrozenNative" ||
+            n == "CallFrozenNativePos" ||
+            n == "CallFrozen" ||
+            n == "CallFrozenPos" ||
+            n == "CallMethod" ||
+            n == "CallMethodPos" ||
+            n == "CallMaybeKnownMethod" ||
+            n == "CallMaybeKnownMethodPos"
     }
 }

@@ -23,10 +23,14 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
 import kotlin.random.Random
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.extra
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 /// Count side effects. For example, in expression like:
 ///

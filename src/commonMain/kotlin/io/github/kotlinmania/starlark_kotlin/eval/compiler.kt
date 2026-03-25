@@ -19,15 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopeData
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.syntax.eval_exception.EvalException
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleScopeData
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleScopeData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.inlinedFrames
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 
 // pub(crate) mod args;
 // pub(crate) mod call;

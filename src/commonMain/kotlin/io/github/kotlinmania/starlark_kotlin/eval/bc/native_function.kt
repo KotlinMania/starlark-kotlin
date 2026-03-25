@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.native_function
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunc
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /// Pointer to a native function optimized for bytecode execution.
 // #[derive(Copy, Clone, Dupe, Allocative)]

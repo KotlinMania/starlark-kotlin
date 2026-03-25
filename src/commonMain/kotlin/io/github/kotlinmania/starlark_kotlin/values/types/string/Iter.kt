@@ -1,6 +1,8 @@
 // port-lint: source src/values/types/string/iter.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -56,9 +58,9 @@ internal fun <V : ValueLike<V>> StringIterableGen<V>.iterate(
 ): Result<Value> {
     // Lazy implementation: we allocate a tuple and then iterate over it.
     val iter = if (this.produceChar) {
-        heap.allocTupleIter(this.string.asStr().asSequence().map { c -> heap.alloc(c) })
+        heap.allocTupleIter(this.string.asStr().asSequence().map { c -> c.toString().allocStringValue(heap) })
     } else {
-        heap.allocTupleIter(this.string.asStr().asSequence().map { c -> heap.alloc(c.code.toUInt()) })
+        heap.allocTupleIter(this.string.asStr().asSequence().map { c -> io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt.of(c.code).allocValue(heap) })
     }
     return Result.success(iter)
 }

@@ -21,7 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.constants
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.namespace.FrozenNamespace
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.downcastFrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BuiltinFn(pub(crate) FrozenValue);

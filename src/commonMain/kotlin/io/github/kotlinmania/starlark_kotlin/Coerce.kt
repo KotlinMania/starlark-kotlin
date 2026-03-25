@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark_kotlin
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.Box
-import io.github.kotlinmania.starlark_kotlin.values.PhantomData
-import io.github.kotlinmania.starlark_kotlin.values.Tuple1
 
 /**
  * A trait to represent zero-cost conversions.

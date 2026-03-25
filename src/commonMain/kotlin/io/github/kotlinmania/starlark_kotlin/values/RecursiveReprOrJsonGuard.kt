@@ -23,6 +23,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.types.list.pop
+import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
 
 /// Pop the stack on drop.
 // pub(crate) struct ReprStackGuard;

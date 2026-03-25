@@ -22,6 +22,10 @@ package io.github.kotlinmania.starlark_kotlin.eval
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.newParts
 
 /// Build both [`ParametersSpec`] (for parsing) and [`ParamSpec`] (for typechecking)
 /// from a list of parameters.

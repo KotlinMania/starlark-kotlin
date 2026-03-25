@@ -23,21 +23,20 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
-import io.github.kotlinmania.starlark_kotlin.docs.multipage.DocModuleInfo
-import io.github.kotlinmania.starlark_kotlin.docs.multipage.renderMarkdownMultipage
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.syntax.golden_test_template.goldenTestTemplate
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.starlark_value_as_type.StarlarkValueAsType
-import io.github.kotlinmania.starlark_kotlin.values.tuple.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
+import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage
+import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
 
 // fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
 private fun docsGoldenTest(testFileName: String, doc: DocItem): String {

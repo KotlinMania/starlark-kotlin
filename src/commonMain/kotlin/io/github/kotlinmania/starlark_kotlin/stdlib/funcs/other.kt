@@ -23,19 +23,29 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
 /// dialect of Starlark
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.list.AllocList
-import io.github.kotlinmania.starlark_kotlin.values.tuple.UnpackTuple
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.typing.never.StarlarkNever
-import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
-import io.github.kotlinmania.starlark_kotlin.values.value_of_unchecked.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
+import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.values.toBool
+import io.github.kotlinmania.starlark_kotlin.values.hasAttr
+import io.github.kotlinmania.starlark_kotlin.values.dirAttr
+import io.github.kotlinmania.starlark_kotlin.tests.getAttr
+import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.getTypeValue
 
 /// fail: fail the execution
 ///

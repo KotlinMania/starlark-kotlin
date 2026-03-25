@@ -20,6 +20,46 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  */
 
 import kotlin.jvm.JvmInline
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Methods
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.AllocValue
+import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.Private
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.MutationDuringIteration
+import io.github.kotlinmania.starlark_kotlin.values.CannotMutateImmutableValue
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.unsupportedWith
+import io.github.kotlinmania.starlark_kotlin.values.typing.anyList
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
+import io.github.kotlinmania.starlark_kotlin.values.types.array.remainingCapacity
+import io.github.kotlinmania.starlark_kotlin.values.types.array.incIterCount
+import io.github.kotlinmania.starlark_kotlin.values.sizeHint
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListConcat
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocArray
+import io.github.kotlinmania.starlark_kotlin.values.getTypeValueStatic
+import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
+import io.github.kotlinmania.starlark_kotlin.values.compareSlice
+import io.github.kotlinmania.starlark_kotlin.values.applySlice
+import io.github.kotlinmania.starlark_kotlin.tests.opt.error
+import io.github.kotlinmania.starlark_kotlin.pagable.typeId
+import io.github.kotlinmania.starlark_kotlin.hint.unlikely
+import io.github.kotlinmania.starlark_kotlin.hint.likely
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.values.types.array.extendFromSlice
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
 @JvmInline
 value class ListGen<T>(val value: T)

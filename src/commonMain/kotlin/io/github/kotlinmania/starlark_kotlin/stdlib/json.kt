@@ -1,6 +1,9 @@
 // port-lint: source src/stdlib/json.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
 
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.namespace
+
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

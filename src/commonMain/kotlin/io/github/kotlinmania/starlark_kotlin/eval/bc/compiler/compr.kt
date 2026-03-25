@@ -21,15 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /// Compile comprehensions.
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.expr.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.if_compiler.writeIfThen
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.stmt.writeFor
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ClauseCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ComprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 
 // impl ClauseCompiled
 // fn write_bc(&self, bc: &mut BcWriter, rem: &[ClauseCompiled], term: impl FnOnce(&mut BcWriter))

@@ -23,7 +23,8 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
 
 // #[test]
 // fn arithmetic_test()

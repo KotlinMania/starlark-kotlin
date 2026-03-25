@@ -19,8 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.likely
 import kotlin.jvm.JvmInline
+import io.github.kotlinmania.starlark_kotlin.values.types.num.abs
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toI32
+import io.github.kotlinmania.starlark_kotlin.hint.likely
 
 /**
  * Integer which is stored inline in `RawPointer`.

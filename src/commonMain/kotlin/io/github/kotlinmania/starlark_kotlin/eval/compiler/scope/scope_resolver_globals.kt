@@ -22,7 +22,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.owned.toFrozenValue
 
 // pub(crate) struct ScopeResolverGlobals {
 //     pub(crate) globals: Option<FrozenRef<'static, Globals>>,

@@ -1,6 +1,10 @@
 // port-lint: source src/values/types/string/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

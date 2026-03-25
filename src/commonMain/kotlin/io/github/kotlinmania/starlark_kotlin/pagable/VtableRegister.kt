@@ -19,8 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueVTable
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.typing.forType
 
 /// In Rust, `register_avalue_simple_frozen!` is a macro that registers a frozen value type
 /// for deserialization via the `inventory` crate (compile-time global registry).

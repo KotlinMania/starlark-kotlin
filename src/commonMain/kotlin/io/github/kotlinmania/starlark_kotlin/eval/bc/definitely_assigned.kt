@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
 
 /// Tracker for local variables which are definitely assigned.
 ///

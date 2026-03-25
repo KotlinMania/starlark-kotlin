@@ -1,6 +1,16 @@
 // port-lint: source src/typing/fill_types_for_lint.rs
 package io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint
 
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
+import io.github.kotlinmania.starlark_kotlin.analysis.ident
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -255,14 +265,14 @@ private class GlobalTypesBuilder(
     // fn assign_value(&mut self, lhs: &AssignTargetP<CstPayload>, rhs: GlobalValue) -> Result<(), InternalError>
     fun assignValue(lhs: AssignTarget, rhs: GlobalValue) {
         when (lhs) {
-            is AssignTarget.Tuple -> {
+            is AssignTargetP.Tuple -> {
                 for (x in lhs.elements) {
                     assignUnset(x)
                 }
             }
-            is AssignTarget.Index -> { /* noop */ }
-            is AssignTarget.Dot -> { /* noop */ }
-            is AssignTarget.Identifier -> assignIdentValue(lhs.ident, rhs)
+            is AssignTargetP.Index -> { /* noop */ }
+            is AssignTargetP.Dot -> { /* noop */ }
+            is AssignTargetP.Identifier -> assignIdentValue(lhs.ident, rhs)
         }
     }
 
@@ -287,14 +297,14 @@ private class GlobalTypesBuilder(
     // fn assign_unset(&mut self, lhs: &AssignTargetP<CstPayload>) -> Result<(), InternalError>
     fun assignUnset(lhs: AssignTarget) {
         when (lhs) {
-            is AssignTarget.Tuple -> {
+            is AssignTargetP.Tuple -> {
                 for (x in lhs.elements) {
                     assignUnset(x)
                 }
             }
-            is AssignTarget.Index -> { /* noop */ }
-            is AssignTarget.Dot -> { /* noop */ }
-            is AssignTarget.Identifier -> assignUnsetIdent(lhs.ident)
+            is AssignTargetP.Index -> { /* noop */ }
+            is AssignTargetP.Dot -> { /* noop */ }
+            is AssignTargetP.Identifier -> assignUnsetIdent(lhs.ident)
         }
     }
 
@@ -620,13 +630,6 @@ internal class Ty {
         fun ofValue(value: Any): Ty = Ty()
     }
 }
-internal class Span {
-    fun merge(other: Span): Span = this
-    companion object {
-        fun mergeAll(spans: List<Span>): Span = Span()
-    }
-}
-internal class Spanned<T>(val span: Span, val node: T)
 internal class Heap {
     fun alloc(value: Any): Any = value
     fun allocTuple(items: List<Any>): Any = items
@@ -711,8 +714,8 @@ internal sealed class AssignTarget {
     class Dot(val obj: Any, val field: Any) : AssignTarget()
     class Identifier(val ident: CstAssignIdent) : AssignTarget()
 }
-internal class AssignP(val lhs: AssignTarget = AssignTarget.Tuple(emptyList()), val ty: CstTypeExpr? = null, val rhs: CstExpr = CstExpr())
-internal class ForP(val variable: AssignTarget = AssignTarget.Tuple(emptyList()), val body: CstStmt = CstStmt())
+internal class AssignP(val lhs: AssignTarget = AssignTargetP.Tuple(emptyList()), val ty: CstTypeExpr? = null, val rhs: CstExpr = CstExpr())
+internal class ForP(val variable: AssignTarget = AssignTargetP.Tuple(emptyList()), val body: CstStmt = CstStmt())
 internal sealed class StmtP {
     object Break : StmtP()
     object Continue : StmtP()

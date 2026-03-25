@@ -20,16 +20,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.dict.value.dictMethods
-import io.github.kotlinmania.starlark_kotlin.values.list.value.listMethods
-import io.github.kotlinmania.starlark_kotlin.values.set.value.setMethods
-import io.github.kotlinmania.starlark_kotlin.values.string.str_type.strMethods
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.set.setMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.list.listMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMethods
 
 /// Method and a `Methods` container which declares it.
 // #[derive(Clone, Copy, Dupe)]

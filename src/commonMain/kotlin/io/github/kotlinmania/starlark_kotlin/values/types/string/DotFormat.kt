@@ -20,14 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  */
 
 // Placeholder types until dependencies are ported
-expect enum class FormatConv { Str, Repr }
-expect enum class EscapeCurlyBrace { Open, Close; fun asStr(): String }
-expect sealed class FormatToken {
-    class Text(text: String) : FormatToken
-    class Capture(capture: String, pos: Int, conv: FormatConv) : FormatToken
-    class Escape(escape: EscapeCurlyBrace) : FormatToken
-}
-expect class FormatParser { fun next(): Result<FormatToken?> }
+
 expect class StringPool { fun alloc(): String; fun release(s: String) }
 expect class Heap<V> {
     fun allocStr(s: String): StringValue<V>

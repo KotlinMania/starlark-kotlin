@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**

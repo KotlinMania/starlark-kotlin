@@ -23,11 +23,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_
 //!
 //! To be able to propagate the local slot number through parameter binding machinery.
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimpleTypedStatic
 
 /// Local slot id as `FrozenValue`. This object only using during compilation
 /// and never appears in the executed program.

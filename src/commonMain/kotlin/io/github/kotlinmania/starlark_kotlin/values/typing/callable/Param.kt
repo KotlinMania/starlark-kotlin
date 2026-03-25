@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.callable
 
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 
 /// Type parameter for [`StarlarkCallable`] or [`FrozenStarlarkCallable`]
 /// describing the expected parameters of the callable.

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.typing.arc_ty
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.ty.TypeRenderConfig
+import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
 
 // #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Allocative)]
 // enum ArcTyInner {

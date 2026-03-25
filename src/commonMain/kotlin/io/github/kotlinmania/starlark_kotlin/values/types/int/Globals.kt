@@ -1,6 +1,10 @@
 // port-lint: source src/values/types/int/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
 
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

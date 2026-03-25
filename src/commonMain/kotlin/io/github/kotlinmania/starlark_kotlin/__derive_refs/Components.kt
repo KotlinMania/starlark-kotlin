@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.param_spec.NativeCallableParam
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.param_spec.NativeCallableParamDefaultValue
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.param_spec.NativeCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
@@ -29,8 +26,9 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocParam
 import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.PARAM_FMT_OPTIONAL
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.callable_param.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.v
 
 /// A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method`
 // pub struct NativeCallableComponents

@@ -1,6 +1,9 @@
 // port-lint: source src/values/layout/identity.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
+import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Value
 
 /// An opaque value representing the identity of a given Value. Two values have the same identity
 /// if and only if `Value.ptrEq` would return `true` on them.

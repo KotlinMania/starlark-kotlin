@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileError {

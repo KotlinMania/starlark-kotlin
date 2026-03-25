@@ -22,18 +22,18 @@ package io.github.kotlinmania.starlark_kotlin.tests
 //! Test of runtime.
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.fail
-import io.github.kotlinmania.starlark_kotlin.assert.pass
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.any.StarlarkAny
 import kotlin.concurrent.atomics.AtomicInt
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
+import io.github.kotlinmania.starlark_kotlin.assert.disableGc
+import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 
 class RuntimeTests {
 

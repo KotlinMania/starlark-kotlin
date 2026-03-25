@@ -21,14 +21,18 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.frame
 
 //! Local variables and stack, in single allocation.
 
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.bc.for_loop.LoopDepth
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LoopDepth
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.trace
+import io.github.kotlinmania.starlark_kotlin.values.index
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
 
 /// Current `def` frame (but not native function frame).
 ///

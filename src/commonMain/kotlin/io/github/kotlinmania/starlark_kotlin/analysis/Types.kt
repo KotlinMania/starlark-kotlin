@@ -1,6 +1,11 @@
 // port-lint: source src/analysis/types.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
+import io.github.kotlinmania.starlark_kotlin.eval.bc.call.resolve
+import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -107,8 +112,8 @@ class EvalMessage(
     override fun toString(): String {
         return buildString {
             append("$severity: $path:")
-            if (span != null) {
-                append("$span")
+            if (Span != null) {
+                append("$Span")
             }
             append(" $description")
         }

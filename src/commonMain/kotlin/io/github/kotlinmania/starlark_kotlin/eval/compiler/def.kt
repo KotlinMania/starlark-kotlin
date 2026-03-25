@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def
 
 //! Implementation of `def`.
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
@@ -31,59 +29,97 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.bc.bytecode.Bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.inlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.error.CompilerInternalError
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Captured
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstParameter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.OptimizeOnFreezeContext
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.StmtCompileContext
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.StmtsCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.evaluator.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.starlark_syntax.eval_exception.EvalException
-import io.github.kotlinmania.starlark_kotlin.starlark_syntax.syntax.def.DefParam
-import io.github.kotlinmania.starlark_kotlin.starlark_syntax.syntax.def.DefParamIndices
-import io.github.kotlinmania.starlark_kotlin.starlark_syntax.syntax.def.DefParamKind
-import io.github.kotlinmania.starlark_kotlin.starlark_syntax.syntax.def.DefParams
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.util.arc_str.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.frozen_ref.AtomicFrozenRefOption
-import io.github.kotlinmania.starlark_kotlin.values.function.FUNCTION_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.AtomicFrozenRefOption
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefParams
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefParamKind
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefParam
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.typing.callable_param.DefParamIndices
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.InlineDefBody
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.analysis.CstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
+import io.github.kotlinmania.starlark_kotlin.values.writeHash
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefParams
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefParamKind
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefParam
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
+import io.github.kotlinmania.starlark_kotlin.pagable.of
+import io.github.kotlinmania.starlark_kotlin.inner
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.wrapLocalSlotCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.topFrameDefFrozenModule
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.toCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.evalBc
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.cloneSlotCapture
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.compileContext
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.inlineDefBody
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.exprForType
+import io.github.kotlinmania.starlark_kotlin.eval.bc.typecheckProfile
+import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
+import io.github.kotlinmania.starlark_kotlin.environment.dumpDebug
+import io.github.kotlinmania.starlark_kotlin.docs.params
+import io.github.kotlinmania.starlark_kotlin.docs.defaultValue
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
+import io.github.kotlinmania.starlark_kotlin.analysis.ident
+import io.github.kotlinmania.starlark_kotlin.analysis.fileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.getScope
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.values.default
 
 // #[derive(thiserror::Error, Debug)]
 // enum DefError {
@@ -400,7 +436,7 @@ internal data class DefCompiled(
 
 // fn parameter_name(&mut self, ident: &CstAssignIdent) -> ParameterName
 internal fun Compiler.parameterName(ident: CstAssignIdent): ParameterName {
-    val bindingId = ident.payload ?: error("no binding for parameter")
+    val bindingId = ident.Payload ?: error("no binding for parameter")
     val binding = this.scopeData.getBinding(bindingId)
     return ParameterName(
         name = ident.node.ident,
@@ -418,7 +454,7 @@ internal fun Compiler.parameter(
         is DefParamKind.Regular -> {
             val ty = this.exprForType(x.node.ty)?.node
             val default = kind.defaultValue?.let { d ->
-                this.expr(d).getOrElse { return Result.failure(it) }
+                this.Expr(d).getOrElse { return Result.failure(it) }
             }
             ParameterCompiled.Normal(pName, ty, default)
         }
@@ -465,7 +501,7 @@ internal fun Compiler.function(
     this.enterScope(scopeId)
 
     val docstring = DocString.extractRawStarlarkDocstring(suite)
-    val body = this.stmt(suite, false).getOrElse { return Result.failure(it) }
+    val body = this.Stmt(suite, false).getOrElse { return Result.failure(it) }
     val exitedScopeId = this.exitScope()
     val scopeNames = this.scopeData.getScope(exitedScopeId)
 
@@ -534,7 +570,15 @@ internal class DefGen<V : ValueLike>(
     private val optimizedOnFreezeStmt: StmtCompiledCell,
     /// Whether this is frozen.
     private val frozen: Boolean,
-) : StarlarkValue {
+) : StarlarkValue, AllocValue, AllocFrozenValue {
+
+    override fun allocValue(heap: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap): io.github.kotlinmania.starlark_kotlin.values.layout.Value {
+        return io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexNoFreeze(heap, this)
+    }
+
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+        return io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex(heap, this)
+    }
 
     // impl Display for DefGen
     override fun toString(): String = parameters.signature()
@@ -725,7 +769,7 @@ internal fun Def.Companion.new(
         optimizedOnFreezeStmt = StmtCompiledCell.new(),
         frozen = false,
     )
-    return Result.success(eval.heap().alloc(def))
+    return Result.success(def.allocValue(eval.heap()))
 }
 
 // impl FrozenDef

@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
@@ -29,20 +28,30 @@ import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueErr
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
+import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.typing.hasInvoke
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)

@@ -1,6 +1,9 @@
 // port-lint: source src/values/types/int/pointer_i32.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
 
+import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark_kotlin.tests.assert
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-import com.ionspin.kotlin.bignum.integer.BigInteger
 
 /**
  * The result of calling `type()` on integers.

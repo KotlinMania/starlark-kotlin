@@ -22,6 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.values
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import starlark_map.vec_map.insertHashedUniqueUnchecked
+import starlark_map.intoKey
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
  * Need to be implemented for non-simple `StarlarkValue`.

@@ -25,14 +25,27 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.list.AllocList
-import io.github.kotlinmania.starlark_kotlin.values.list.ListRef
-import io.github.kotlinmania.starlark_kotlin.values.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
+import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.Entry
+import io.github.kotlinmania.starlark_kotlin.values.types.set.aref
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.set.iterHashed
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.values
+import io.github.kotlinmania.starlark_kotlin.values.next
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark_kotlin.analysis.keys
+import io.github.kotlinmania.starlark_kotlin.values.types.record.values
 
 /**
  * Register methods for the `dict` type.
@@ -200,7 +213,7 @@ internal fun <V> keys(
     heap: Heap<V>
 ): Result<ValueOfUnchecked<V, ListRef<V>>> {
     return Result.success(
-        ValueOfUnchecked.new(heap.alloc(AllocList(thisRef.keys())))
+        ValueOfUnchecked.new(io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList(thisRef.keys()).allocValue(heap))
     )
 }
 

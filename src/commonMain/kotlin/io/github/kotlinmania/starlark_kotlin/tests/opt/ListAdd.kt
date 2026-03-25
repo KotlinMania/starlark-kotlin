@@ -1,6 +1,8 @@
 // port-lint: source src/tests/opt/list_add.rs
 package io.github.kotlinmania.starlark_kotlin.tests.opt
 
+import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 
 // #[test]
 // fn test_list_of_const_add_opt()

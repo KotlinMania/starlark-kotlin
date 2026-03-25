@@ -22,33 +22,27 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 //! Write operators like `+=`.
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrAddAssign
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrArrayIndex
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrArrayIndexSet
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrBitAnd
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrBitOrAssign
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrBitXor
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrDivide
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrFloorDivide
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrLeftShift
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrLoadModule
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrMultiply
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrObjectField
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrPercent
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrRightShift
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSetObjectField
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrStoreModule
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSub
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotsN
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.AssignModifyLhs
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toOut
+import io.github.kotlinmania.starlark_kotlin.docs.Module
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.array
+import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.field
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeStoreLocalCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeMov
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeLoadLocalCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeLoadLocal
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toIn
+import io.github.kotlinmania.starlark_kotlin.analysis.local
 
 // trait AssignOnWriteBc
 // impl AssignOnWriteBc for AssignOp
@@ -178,7 +172,7 @@ internal fun AssignModifyLhs.writeBc(
             bc.writeStoreLocalCaptured(span, lhsRhs.get(1).toIn(), slot)
         }
         is AssignModifyLhs.Module -> bc.allocSlotsC { lhsRhs: BcSlotsN<*>, bc ->
-            val slot = module.node
+            val slot = Module.node
             bc.writeInstr<InstrLoadModule>(span, Pair(slot, lhsRhs.get(0).toOut()))
             rhs.writeBc(lhsRhs.get(1).toOut(), bc)
             op.writeBc(

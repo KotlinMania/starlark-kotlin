@@ -21,18 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 //! Handle special "unbound" globals: methods or attributes.
 
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.function.BoundMethodGen
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeAttribute
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeMethod
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
+import io.github.kotlinmania.starlark_kotlin.eval.bc.withCallStack
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 
 /// A value or an unbound method or unbound attribute.
 // #[derive(Clone)]

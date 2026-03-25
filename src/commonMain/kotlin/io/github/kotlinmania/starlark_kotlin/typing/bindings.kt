@@ -19,41 +19,89 @@ package io.github.kotlinmania.starlark_kotlin.typing.bindings
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignIdentExt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParamKind
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParams
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefRegularParamMode
-import io.github.kotlinmania.starlark_kotlin.syntax.uniplate.Visit
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.arc_ty.ArcTy
 import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
 import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
-import io.github.kotlinmania.starlark_kotlin.typing.tuple.TyTuple
-import io.github.kotlinmania.starlark_kotlin.typing.ty.Approximation
-import io.github.kotlinmania.starlark_kotlin.typing.ty.Ty
+import io.github.kotlinmania.starlark_kotlin.values.typing.TyTuple
+import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Ty
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefRegularParamMode
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefParams
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefParamKind
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BindingId
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.CstPayload
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.analysis.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.values.types.function
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.values.index
+import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.analysis.def
+import io.github.kotlinmania.starlark_kotlin.analysis.Return
+import io.github.kotlinmania.starlark_kotlin.analysis.IfElse
+import io.github.kotlinmania.starlark_kotlin.analysis.If
+import io.github.kotlinmania.starlark_kotlin.analysis.For
+import io.github.kotlinmania.starlark_kotlin.analysis.Expression
+import io.github.kotlinmania.starlark_kotlin.analysis.Def
+import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
+import io.github.kotlinmania.starlark_kotlin.analysis.Assign
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.values.typing.basic
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.string.string
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dict
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.mode
+import io.github.kotlinmania.starlark_kotlin.values.attr
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.resolvedBindingId
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.IfElse
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.If
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ExprP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefRegularParamMode
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefParams
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefParamKind
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstExpr
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
+import io.github.kotlinmania.starlark_kotlin.tests.derive.obj
+import io.github.kotlinmania.starlark_kotlin.stdlib.add
+import io.github.kotlinmania.starlark_kotlin.eval.bc.over
+import io.github.kotlinmania.starlark_kotlin.docs.params
+import io.github.kotlinmania.starlark_kotlin.docs.defaultValue
+import io.github.kotlinmania.starlark_kotlin.docs.args
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.bindingId
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.analysis.ident
+import io.github.kotlinmania.starlark_kotlin.analysis.func
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.returnType
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefP
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // pub(crate) enum BindExpr<'a>
 internal sealed class BindExpr {
@@ -184,8 +232,8 @@ internal class BindingsCollect(
         codemap: CodeMap,
     ): Ty {
         val ty = when (typecheckMode) {
-            TypecheckMode.Lint -> expr.payload.typecheckerTy
-            TypecheckMode.Compiler -> expr.payload.compilerTy
+            TypecheckMode.Lint -> expr.Payload.typecheckerTy
+            TypecheckMode.Compiler -> expr.Payload.compilerTy
         }
         return ty ?: throw InternalError.msg(
             "Type must be populated earlier",
@@ -280,7 +328,7 @@ internal class BindingsCollect(
         codemap: CodeMap,
     ) {
         when (x) {
-            is Visit.Stmt -> when (val node = x.stmt.node) {
+            is Visit.Stmt -> when (val node = x.StmtP.node) {
                 is StmtP.Assign -> {
                     val assignP = node.assign
                     if (assignP.ty != null) {
@@ -314,10 +362,10 @@ internal class BindingsCollect(
                 }
                 is StmtP.Load -> {}
                 is StmtP.Return -> {
-                    bindings.checkType.add(Triple(x.stmt.span, node.expr, returnType))
+                    bindings.checkType.add(Triple(x.StmtP.span, node.Expr, returnType))
                 }
                 is StmtP.Expression -> {
-                    val expr = node.expr
+                    val expr = node.Expr
                     // We want to find ident.append(), ident.extend()
                     // to fake up a BindExpr::ListAppend/ListExtend
                     if (expr.node is ExprP.Call) {
@@ -341,9 +389,9 @@ internal class BindingsCollect(
                                     if (payload is ResolvedIdent.Slot) {
                                         val bindId = payload.bindingId
                                         val bind = if (extend) {
-                                            BindExpr.ListExtend(bindId, call.args[arg].expr())
+                                            BindExpr.ListExtend(bindId, call.args[arg].Expr())
                                         } else {
-                                            BindExpr.ListAppend(bindId, call.args[arg].expr())
+                                            BindExpr.ListAppend(bindId, call.args[arg].Expr())
                                         }
                                         bindings.expressions
                                             .getOrPut(bindId) { mutableListOf() }
@@ -359,7 +407,7 @@ internal class BindingsCollect(
                 is StmtP.IfElse -> bindings.check.add(node.condition)
                 else -> {}
             }
-            is Visit.Expr -> when (val node = x.expr.node) {
+            is Visit.Expr -> when (val node = x.ExprP.node) {
                 is ExprP.ListComprehension, is ExprP.DictComprehension -> {
                     val (for1, clauses) = when (node) {
                         is ExprP.ListComprehension -> Pair(node.for1, node.clauses)

@@ -321,7 +321,7 @@ class ParamSpec(
     /// All parameters are required and positional only or named only.
     fun allRequiredPosOnlyNamedOnly(): Pair<List<Ty>, List<Pair<String, Ty>>>? {
         val s = split()
-        if (s.posOrNamed.isNotEmpty() || s.args != null || s.kwargs != null) {
+        if (s.posOrNamed.isNotEmpty() || s.loadStmt.args != null || s.kwargs != null) {
             return null
         }
 

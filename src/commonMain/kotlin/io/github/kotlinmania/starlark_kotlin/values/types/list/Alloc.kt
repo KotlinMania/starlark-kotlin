@@ -24,9 +24,9 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 
 /**
  * Utility to allocate a list from iterator.
@@ -68,7 +68,7 @@ inline fun <reified L, reified Item> allocListStarlarkTypeRepr(): Ty
 fun <V, L, Item> AllocList<L>.allocValue(heap: Heap<V>): Value<V>
     where L : Iterable<Item>,
           Item : AllocValue<V> {
-    return heap.allocListIter(value.asSequence().map { x -> heap.alloc(x) })
+    return heap.allocListIter(value.asSequence().map { x -> x.allocValue(heap) })
 }
 
 /**
@@ -78,5 +78,5 @@ fun <V, L, Item> AllocList<L>.allocValue(heap: Heap<V>): Value<V>
 fun <L, Item> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where L : Iterable<Item>,
           Item : AllocFrozenValue {
-    return heap.allocListIter(value.asSequence().map { x -> heap.alloc(x) })
+    return heap.allocListIter(value.asSequence().map { x -> x.allocFrozenValue(heap) })
 }

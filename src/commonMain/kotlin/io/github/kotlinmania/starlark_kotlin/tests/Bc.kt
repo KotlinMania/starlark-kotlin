@@ -26,7 +26,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 ///  - bc/Call.kt (call)
 ///  - bc/Compr.kt (compr)
 ///  - bc/DefinitelyAssigned.kt (definitely_assigned)
-///  - bc/Expr.kt (expr)
+///  - bc/ExprP.kt (expr)
 ///  - bc/ForStmt.kt (for_stmt)
 ///  - bc/Golden.kt (golden)
 ///  - bc/IfStmt.kt (if_stmt)

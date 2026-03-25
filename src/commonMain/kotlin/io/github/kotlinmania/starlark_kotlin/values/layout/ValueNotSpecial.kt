@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
-import io.github.kotlinmania.starlark_kotlin.values.stackGuard
+import io.github.kotlinmania.starlark_kotlin.values.stack_guard.stackGuard
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.isStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.unpackHeader
 
 /// `FrozenValue` which is not `i32` or `str`.
 // #[derive(Copy, Clone, Dupe, Debug, Display)]

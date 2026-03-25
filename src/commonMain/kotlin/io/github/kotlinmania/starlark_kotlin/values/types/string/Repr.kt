@@ -1,6 +1,8 @@
 // port-lint: source src/values/types/string/repr.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+import io.github.kotlinmania.starlark_kotlin.hint.unlikely
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.unlikely
 
 /**
  * Implementation of `repr()`.

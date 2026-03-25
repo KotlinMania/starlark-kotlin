@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
+import io.github.kotlinmania.starlark_kotlin.typing.error.StarlarkError
 
 /// Trait used to convert error returned from native function into `starlark::Error`.
 // pub trait InvokeMacroError

@@ -24,9 +24,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.isPureInfallibleToBool
+import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Boolean expression.
 // pub(crate) enum ExprCompiledBool
@@ -39,7 +40,7 @@ internal sealed class ExprCompiledBool {
 
     // fn into_expr(self) -> ExprCompiled
     fun intoExpr(): ExprCompiled = when (this) {
-        is Const -> ExprCompiled.Value(FrozenValue.newBool(value))
+        is Const -> ExprCompiled.ValueExpr(FrozenValue.newBool(value))
         is Expr -> expr
     }
 

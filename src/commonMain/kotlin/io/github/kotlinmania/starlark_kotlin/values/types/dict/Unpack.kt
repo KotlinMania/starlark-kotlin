@@ -1,6 +1,10 @@
 // port-lint: source src/values/types/dict/unpack.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

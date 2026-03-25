@@ -26,12 +26,17 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.*
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheck.NumTy
-import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheck.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.values.types.num.value.Num
-import io.github.kotlinmania.starlark_kotlin.values.types.num.value.NumRef
 import kotlin.math.*
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.string.format
+import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.from
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Float
 
 private const val WRITE_PRECISION: Int = 6
 
@@ -209,12 +214,12 @@ fun StarlarkFloat.allocFrozenValue(heap: FrozenHeap): FrozenValue {
 
 // AllocValue implementation for Double
 fun <V> Double.allocValue(heap: Heap<V>): Value<V> {
-    return heap.alloc(StarlarkFloat(this))
+    return StarlarkFloat(this).allocValue(heap)
 }
 
 // AllocFrozenValue implementation for Double
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return heap.alloc(StarlarkFloat(this))
+    return StarlarkFloat(this).allocFrozenValue(heap)
 }
 
 /**
@@ -252,16 +257,16 @@ fun StarlarkFloat.getHash(private: Private): Result<StarlarkHashValue> {
 }
 
 fun <V> StarlarkFloat.plus(heap: Heap<V>): Result<Value<V>> {
-    return Result.success(heap.alloc(this))
+    return Result.success(this.allocValue(heap))
 }
 
 fun <V> StarlarkFloat.minus(heap: Heap<V>): Result<Value<V>> {
-    return Result.success(heap.alloc(StarlarkFloat(-this.value)))
+    return Result.success(StarlarkFloat(-this.value).allocValue(heap))
 }
 
 fun <V> StarlarkFloat.add(other: Value<V>, heap: Heap<V>): Result<Value<V>>? {
     val otherNum = other.unpackNum() ?: return null
-    return Result.success(heap.alloc(NumRef.Float(this) + otherNum))
+    return Result.success((NumRef.Float(this) + otherNum).allocValue(heap))
 }
 
 fun <V> StarlarkFloat.sub(other: Value<V>, heap: Heap<V>): Result<Value<V>> {
@@ -269,13 +274,13 @@ fun <V> StarlarkFloat.sub(other: Value<V>, heap: Heap<V>): Result<Value<V>> {
     return if (otherNum == null) {
         ValueError.unsupportedWith(this, "-", other)
     } else {
-        Result.success(heap.alloc(NumRef.Float(this) - otherNum))
+        Result.success((NumRef.Float(this) - otherNum).allocValue(heap))
     }
 }
 
 fun <V> StarlarkFloat.mul(other: Value<V>, heap: Heap<V>): Result<Value<V>>? {
     val otherNum = other.unpackNum() ?: return null
-    return Result.success(heap.alloc(NumRef.Float(this) * otherNum))
+    return Result.success((NumRef.Float(this) * otherNum).allocValue(heap))
 }
 
 fun <V> StarlarkFloat.div(other: Value<V>, heap: Heap<V>): Result<Value<V>> {
@@ -284,7 +289,7 @@ fun <V> StarlarkFloat.div(other: Value<V>, heap: Heap<V>): Result<Value<V>> {
         ValueError.unsupportedWith(this, "/", other)
     } else {
         val result = NumRef.Float(this).div(otherNum)
-        result.map { heap.alloc(it) }
+        result.map { it.allocValue(heap) }
     }
 }
 
@@ -294,7 +299,7 @@ fun <V> StarlarkFloat.percent(other: Value<V>, heap: Heap<V>): Result<Value<V>> 
         ValueError.unsupportedWith(this, "%", other)
     } else {
         val result = NumRef.Float(this).percent(otherNum)
-        result.map { heap.alloc(it) }
+        result.map { it.allocValue(heap) }
     }
 }
 
@@ -304,7 +309,7 @@ fun <V> StarlarkFloat.floorDiv(other: Value<V>, heap: Heap<V>): Result<Value<V>>
         ValueError.unsupportedWith(this, "//", other)
     } else {
         val result = NumRef.Float(this).floorDiv(otherNum)
-        result.map { heap.alloc(it) }
+        result.map { it.allocValue(heap) }
     }
 }
 

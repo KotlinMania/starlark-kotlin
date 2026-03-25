@@ -20,21 +20,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.collections.alloca.Alloca
 import io.github.kotlinmania.starlark_kotlin.collections.string_pool.StringPool
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.environment.slots.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.CallStack
-import io.github.kotlinmania.starlark_kotlin.eval.FileLoader
 import io.github.kotlinmania.starlark_kotlin.eval.SoftErrorHandler
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcPtrAddr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.bytecode.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcStatementLocations
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.CopySlotFromParent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
@@ -43,41 +34,70 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.cheap_call_stack.CheapCallStack
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.inlined_frame.InlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.bc.BcProfile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapProfile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapProfileFormat
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.or_instrumentation.ProfileOrInstrumentationMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.stmt.StmtProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.time_flame.TimeFlameProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.typecheck.TypecheckProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.soft_error.HardErrorSoftErrorHandler
 import io.github.kotlinmania.starlark_kotlin.stdlib.breakpoint.BreakpointConsole
 import io.github.kotlinmania.starlark_kotlin.stdlib.breakpoint.RealBreakpointConsole
-import io.github.kotlinmania.starlark_kotlin.stdlib.extra.PrintHandler
-import io.github.kotlinmania.starlark_kotlin.stdlib.extra.StderrPrintHandler
-import io.github.kotlinmania.starlark_kotlin.syntax.eval_exception.EvalException
-import io.github.kotlinmania.starlark_kotlin.syntax.frame.Frame
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.function.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.FrozenValueCaptured
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.ValueCaptured
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.stdlib.StderrPrintHandler
+import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.StmtProfile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfileOrInstrumentationMode
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcProfile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.FileLoader
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.TypecheckProfile
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
+import io.github.kotlinmania.starlark_kotlin.eval.HardErrorSoftErrorHandler
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.analysis.ResolvedFileSpan
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.trace
+import io.github.kotlinmania.starlark_kotlin.values.index
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Profile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Collected
+import io.github.kotlinmania.starlark_kotlin.docs.Module
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
+import io.github.kotlinmania.starlark_kotlin.values.types.gen
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.valueCapturedGet
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.newFrozen
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.mode
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.exportAs
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.stmtLocs
+import io.github.kotlinmania.starlark_kotlin.eval.bc.startPtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.checkReturnType
+import io.github.kotlinmania.starlark_kotlin.environment.getSlotName
+import io.github.kotlinmania.starlark_kotlin.environment.getSlot
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.analysis.used
+import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :
@@ -642,8 +662,8 @@ class Evaluator(
         forDebugger: Boolean,
     ): FrozenRef<FrozenModuleData>? {
         val func = topFrameMaybeForDebugger(forDebugger)
-        func.downcastRef<FrozenDef>()?.let { return it.module.loadRelaxed() }
-        func.downcastRef<Def>()?.let { return it.module.loadRelaxed() }
+        func.downcastRef<FrozenDef>()?.let { return it.Module.loadRelaxed() }
+        func.downcastRef<Def>()?.let { return it.Module.loadRelaxed() }
         return null
     }
 

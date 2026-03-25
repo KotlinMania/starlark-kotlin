@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.NativeCodeMap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 
 /// Initialize a `FrozenRef<FrameSpan>` with Kotlin file and line number.
 // macro_rules! rust_loc { ... }

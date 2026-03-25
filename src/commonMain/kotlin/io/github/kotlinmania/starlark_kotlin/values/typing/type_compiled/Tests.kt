@@ -20,8 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 // #[test]
 // fn test_types()

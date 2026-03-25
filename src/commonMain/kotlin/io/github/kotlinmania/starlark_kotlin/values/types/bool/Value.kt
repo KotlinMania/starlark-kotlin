@@ -23,9 +23,10 @@ import io.github.kotlinmania.starlark_kotlin.Private
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 
 /** The result of calling type() on booleans. */
 const val BOOL_TYPE: String = "bool"

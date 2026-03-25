@@ -22,9 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 /// Parameter conversion utilities for `starlark_module` macros.
 
 import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.Error
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.newValue
 
 /// Error that can be returned by [UnpackValue].
 // pub trait UnpackValueError: Debug + Send + Sync + 'static

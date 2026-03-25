@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.values.typing.ANY
 
 internal enum class NumTy {
     Int,

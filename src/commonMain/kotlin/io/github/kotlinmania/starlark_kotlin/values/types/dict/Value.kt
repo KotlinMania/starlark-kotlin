@@ -20,40 +20,47 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  */
 
 import io.github.kotlinmania.starlark_kotlin.any.ProvidesStaticType
-import io.github.kotlinmania.starlark_kotlin.cast.transmute
-import io.github.kotlinmania.starlark_kotlin.coerce.Coerce
-import io.github.kotlinmania.starlark_kotlin.coerce.coerce
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.hint.unlikely
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.util.refcell.unleakBorrow
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.comparison.equalsSmallMap
-import io.github.kotlinmania.starlark_kotlin.values.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.error.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.string.strType.hashStringValue
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictType.DictType
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.Coerce
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.INSTANCE
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.hashStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.isStr
+import io.github.kotlinmania.starlark_kotlin.values.getTypeValueStatic
+import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
+import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
+import io.github.kotlinmania.starlark_kotlin.hint.unlikely
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.cast.transmute
+import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
  * Generic dictionary wrapper type.
@@ -491,7 +498,7 @@ interface DictGenStarlarkValue<V_, T> : StarlarkValue<V_>
             ?: return ValueError.unsupportedWith(this, "|", rhs)
 
         if (dictGen.inner.content().isEmpty()) {
-            return Result.success(heap.alloc(rhsDict.clone()))
+            return Result.success(heap.allocComplex(rhsDict.clone()))
         }
 
         // Might be faster if we preallocate the capacity, but then copying in the LHS
@@ -501,7 +508,7 @@ interface DictGenStarlarkValue<V_, T> : StarlarkValue<V_>
         for ((k, v) in rhsDict.iterHashed()) {
             items.insertHashed(k, v)
         }
-        return Result.success(heap.alloc(Dict.new(items)))
+        return Result.success(heap.allocComplex(DictGen(atomic(Dict.new(items)))))
     }
 
     override fun typecheckerTy(): Ty? {

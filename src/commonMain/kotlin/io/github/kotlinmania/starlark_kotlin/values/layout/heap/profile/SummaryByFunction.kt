@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.aggregated.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.aggregated.StackFrame
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
@@ -40,7 +38,7 @@ internal data class FuncInfo(
     /// Time spent directly in this function and recursive functions.
     var timeRec: SmallDuration = SmallDuration(),
     /// Allocations made by this function
-    val alloc: MutableMap<String, AllocCounts> = mutableMapOf(),
+    val allocations: MutableMap<String, AllocCounts> = mutableMapOf(),
 ) {
     companion object {
         // pub(crate) fn merge<'a>(xs: impl Iterator<Item = &'a Self>) -> Self
@@ -49,8 +47,8 @@ internal data class FuncInfo(
             for (x in xs) {
                 result.calls += x.calls
                 result.time += x.time
-                for ((k, v) in x.alloc) {
-                    val entry = result.alloc.getOrPut(k) { AllocCounts() }
+                for ((k, v) in x.allocations) {
+                    val entry = result.allocations.getOrPut(k) { AllocCounts() }
                     entry += v
                 }
             }
@@ -62,11 +60,11 @@ internal data class FuncInfo(
 
     /// Total number of allocations made by this function.
     // fn alloc_count(&self) -> usize
-    fun allocCount(): Int = alloc.values.sumOf { it.count }
+    fun allocCount(): Int = allocations.values.sumOf { it.count }
 
     /// Total number of bytes allocated by this function.
     // fn alloc_bytes(&self) -> usize
-    fun allocBytes(): Int = alloc.values.sumOf { it.bytes }
+    fun allocBytes(): Int = allocations.values.sumOf { it.bytes }
 }
 
 /// We morally have two pieces of information:
@@ -114,7 +112,7 @@ internal class HeapSummaryByFunction(
         info.getOrPut(funcStr) { FuncInfo() }.calls += frame.callsX2
         info.getOrPut(funcStr) { FuncInfo() }.callers.merge(caller, 1) { a, b -> a + b }
         for ((t, allocs) in frame.allocs.summary) {
-            val entry = info.getOrPut(funcStr) { FuncInfo() }.alloc.getOrPut(t) { AllocCounts() }
+            val entry = info.getOrPut(funcStr) { FuncInfo() }.allocations.getOrPut(t) { AllocCounts() }
             entry += allocs
         }
 
@@ -134,7 +132,7 @@ internal class HeapSummaryByFunction(
         // Add a totals column
         val totals = totals()
         val columns: MutableList<Pair<String, AllocCounts>> =
-            totals.alloc.entries.map { (k, v) -> k to v }.toMutableList()
+            totals.allocations.entries.map { (k, v) -> k to v }.toMutableList()
 
         columns.sortByDescending { it.second.count }
 
@@ -218,9 +216,9 @@ _ignore = str([1])     # allocate a string in non_drop
 
         val total = FuncInfo.merge(info.info().map { it.second })
         // from non-drop heap
-        check(total.alloc["string"]!!.count == 1)
+        check(total.allocations["string"]!!.count == 1)
         // from drop heap
-        check(total.alloc["dict"]!!.count == 1)
+        check(total.allocations["dict"]!!.count == 1)
         Result.success(Unit)
     }.getOrThrow()
 }

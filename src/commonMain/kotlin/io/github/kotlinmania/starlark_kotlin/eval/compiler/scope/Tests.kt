@@ -20,22 +20,46 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.names.MutableNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.module.AstModuleFields
-import io.github.kotlinmania.starlark_kotlin.syntax.uniplate.Visit
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCount
+import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.analysis.ForP
+import io.github.kotlinmania.starlark_kotlin.analysis.DefP
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.analysis.For
+import io.github.kotlinmania.starlark_kotlin.analysis.Def
+import io.github.kotlinmania.starlark_kotlin.analysis.Assign
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.analysis.visitLvalue
+import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.bindingId
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.analysis.lhs
+import io.github.kotlinmania.starlark_kotlin.analysis.ident
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ForP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefP
+import io.github.kotlinmania.starlark_kotlin.docs.params
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.codemap
 
 // fn test_with_module(program: &str, expected: &str, module: &MutableNames)
 private fun testWithModule(program: String, expected: String, module: MutableNames) {
@@ -100,14 +124,14 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
         }
 
         fun visitLvalue(ident: CstAssignIdent) {
-            r.append(" ${ident.ident}:${ident.payload!!.value}")
+            r.append(" ${ident.ident}:${ident.Payload!!.value}")
         }
 
         fun visitStmtChildren(stmt: CstStmt) {
             stmt.visitChildren { visit ->
                 when (visit) {
-                    is Visit.Stmt -> visitStmt(visit.stmt)
-                    is Visit.Expr -> visitExpr(visit.expr)
+                    is Visit.Stmt -> visitStmt(visit.Stmt)
+                    is Visit.Expr -> visitExpr(visit.Expr)
                 }
             }
         }

@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.toDuration
 
 /// Real `Instant` for production code, thread-local counter for tests.
 // #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Allocative)]

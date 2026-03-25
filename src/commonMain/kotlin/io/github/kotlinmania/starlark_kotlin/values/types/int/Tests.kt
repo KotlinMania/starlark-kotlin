@@ -19,12 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.allTrue
-import io.github.kotlinmania.starlark_kotlin.assert.eq
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.eq
+import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
+import io.github.kotlinmania.starlark_kotlin.assert.allTrue
 
 class IntTests {
     @Test

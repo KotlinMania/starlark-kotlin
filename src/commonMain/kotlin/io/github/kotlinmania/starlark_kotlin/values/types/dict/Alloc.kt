@@ -25,10 +25,10 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.value.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 
 /**
  * Utility to allocate a dict from iterator.
@@ -91,7 +91,7 @@ fun <V_, D, K, V> AllocDict<D>.allocValue(heap: Heap<V_>): Value<V_>
             v.allocValue(heap)
         )
     }
-    return heap.alloc(Dict.new(map))
+    return DictAllocValue.allocValue(Dict.new(map), heap)
 }
 
 /**
@@ -110,5 +110,5 @@ fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
             v.allocFrozenValue(heap)
         )
     }
-    return heap.alloc(FrozenDictData(content = map))
+    return FrozenDictDataAllocFrozenValue.allocFrozenValue(FrozenDictData(content = map), heap)
 }

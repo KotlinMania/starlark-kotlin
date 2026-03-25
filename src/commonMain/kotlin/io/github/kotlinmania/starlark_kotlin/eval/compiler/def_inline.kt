@@ -1,6 +1,10 @@
 // port-lint: source src/eval/compiler/def_inline.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

@@ -1,6 +1,8 @@
 // port-lint: source src/tests/opt/eq.rs
 package io.github.kotlinmania.starlark_kotlin.tests.opt
 
+import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 //! Test for `a == b` optimizations.
 
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 
 // #[test]
 // fn test_eq_int()

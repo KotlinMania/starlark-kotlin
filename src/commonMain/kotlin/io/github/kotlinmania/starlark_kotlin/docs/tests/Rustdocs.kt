@@ -28,18 +28,25 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.starlark_value_as_type.StarlarkValueAsType
-import io.github.kotlinmania.starlark_kotlin.values.tuple.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.typing.callable_param.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.values.documentation
+import io.github.kotlinmania.starlark_kotlin.tests.getAttr
+import io.github.kotlinmania.starlark_kotlin.docs.summary
+import io.github.kotlinmania.starlark_kotlin.docs.params
+import io.github.kotlinmania.starlark_kotlin.docs.docs
+import io.github.kotlinmania.starlark_kotlin.docs.defaultValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // struct InputTypeRepr;
 private class InputTypeRepr : StarlarkValue {

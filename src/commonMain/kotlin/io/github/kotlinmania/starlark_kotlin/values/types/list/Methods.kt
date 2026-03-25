@@ -1,6 +1,11 @@
 // port-lint: source src/values/types/list/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
 
+import io.github.kotlinmania.starlark_kotlin.values.index
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

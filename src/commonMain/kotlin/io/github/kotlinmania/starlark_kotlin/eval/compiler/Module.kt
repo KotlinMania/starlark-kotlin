@@ -21,28 +21,55 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 //! Compile and evaluate module top-level statements.
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
 import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleVarTypes
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleVarTypes
 import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
-import io.github.kotlinmania.starlark_kotlin.typing.typecheck.solveBindings
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import starlark_syntax.eval_exception.EvalException
-import starlark_syntax.syntax.ast.LoadP
-import starlark_syntax.syntax.ast.StmtP
-import starlark_syntax.syntax.top_level_stmts.topLevelStmtsMut
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.CstPayload
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.analysis.LoadP
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
+import io.github.kotlinmania.starlark_kotlin.analysis.Statements
+import io.github.kotlinmania.starlark_kotlin.analysis.Def
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.typing.solveBindings
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleVarTypes
+import io.github.kotlinmania.starlark_kotlin.typing.error.intoEvalException
+import io.github.kotlinmania.starlark_kotlin.typing.bindings.bindings
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.evalBc
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.moduleTopLevelStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.compileContext
+import io.github.kotlinmania.starlark_kotlin.eval.bc.setSlotModule
+import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
+import io.github.kotlinmania.starlark_kotlin.docs.args
+import io.github.kotlinmania.starlark_kotlin.assert.staticTypechecking
+import io.github.kotlinmania.starlark_kotlin.assert.loader
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.their
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.load
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.analysis.module
+import io.github.kotlinmania.starlark_kotlin.analysis.local
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 
 // #[derive(Debug, thiserror::Error)]
 // enum ModuleError

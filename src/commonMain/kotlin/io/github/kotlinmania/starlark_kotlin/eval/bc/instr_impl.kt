@@ -1,6 +1,54 @@
 // port-lint: source src/eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.values.types.typeMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.invokeMethod
+import io.github.kotlinmania.starlark_kotlin.values.toBool
+import io.github.kotlinmania.starlark_kotlin.values.sub
+import io.github.kotlinmania.starlark_kotlin.values.setAt
+import io.github.kotlinmania.starlark_kotlin.values.rightShift
+import io.github.kotlinmania.starlark_kotlin.values.percent
+import io.github.kotlinmania.starlark_kotlin.values.mul
+import io.github.kotlinmania.starlark_kotlin.values.leftShift
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackIntValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.info
+import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
+import io.github.kotlinmania.starlark_kotlin.values.key
+import io.github.kotlinmania.starlark_kotlin.values.isIn
+import io.github.kotlinmania.starlark_kotlin.values.exportAs
+import io.github.kotlinmania.starlark_kotlin.values.div
+import io.github.kotlinmania.starlark_kotlin.values.bitXor
+import io.github.kotlinmania.starlark_kotlin.values.bitOr
+import io.github.kotlinmania.starlark_kotlin.values.bitNot
+import io.github.kotlinmania.starlark_kotlin.values.bitAnd
+import io.github.kotlinmania.starlark_kotlin.values.at
+import io.github.kotlinmania.starlark_kotlin.typing.numPositionalOnly
+import io.github.kotlinmania.starlark_kotlin.typing.numPositional
+import io.github.kotlinmania.starlark_kotlin.typing.bindings.nameTy
+import io.github.kotlinmania.starlark_kotlin.tests.setAttr
+import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
+import io.github.kotlinmania.starlark_kotlin.stdlib.invokeWithLoc
+import io.github.kotlinmania.starlark_kotlin.stdlib.add
+import io.github.kotlinmania.starlark_kotlin.pagable.vtable
+import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.toRange
+import io.github.kotlinmania.starlark_kotlin.docs.params
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.returnType
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
+import io.github.kotlinmania.starlark_kotlin.values.default
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -106,7 +154,7 @@ class StringValue {
 }
 class FrozenValueTyped<T>(val value: T) {
     fun toValue(): Value = Value()
-    fun asRef(): T = value
+    fun asRef(): T = Value
     companion object {
         fun <T : Any> new(v: FrozenValue): FrozenValueTyped<T>? = null
     }

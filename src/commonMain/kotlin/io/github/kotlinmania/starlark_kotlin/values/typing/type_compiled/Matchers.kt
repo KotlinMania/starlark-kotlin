@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 /// TypeMatcher implementations for runtime type checking.
 
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeIdAligned
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
@@ -33,8 +32,16 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcherBox
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
+import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
+import io.github.kotlinmania.starlark_kotlin.pagable.vtable
+import io.github.kotlinmania.starlark_kotlin.tests.b
+import io.github.kotlinmania.starlark_kotlin.tests.a
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
 // pub(crate) struct IsAny;

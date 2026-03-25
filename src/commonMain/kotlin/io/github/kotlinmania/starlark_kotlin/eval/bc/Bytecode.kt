@@ -21,21 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /// Unsorted/core interpreter stuff.
 
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcPtrAddr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.for_loop.LoopDepth
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrEnd
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instrs.BcInstrs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcodeHandler
-import io.github.kotlinmania.starlark_kotlin.eval.bc.slow_arg.BcInstrEndArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.slow_arg.BcInstrSlowArg
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.addSpanToExprError
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.evaluator.EvaluationCallbacks
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.End
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
 
 /// Ready to execute bytecode.
 // #[derive(Default)]

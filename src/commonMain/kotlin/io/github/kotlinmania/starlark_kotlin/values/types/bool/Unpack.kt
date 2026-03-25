@@ -20,7 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 
 class BooleanUnpackValue<V> : UnpackValue<V, Boolean, Nothing> {
     override fun unpackValueImpl(value: Value<V>): Result<Boolean?> {

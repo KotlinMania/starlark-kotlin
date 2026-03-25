@@ -34,10 +34,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapRetai
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapSummaryAllocatedProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapSummaryRetainedProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.time_flame.TimeFlameProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.typecheck.TypecheckProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.typecheck.TypecheckProfilerType
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.aggregated.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfilerType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfilerType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profile
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileDataError

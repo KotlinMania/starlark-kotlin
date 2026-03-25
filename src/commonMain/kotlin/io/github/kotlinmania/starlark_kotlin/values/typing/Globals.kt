@@ -20,11 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.typing.any.TypingAny
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.TypingCallable
-import io.github.kotlinmania.starlark_kotlin.values.typing.iter.TypingIterable
-import io.github.kotlinmania.starlark_kotlin.values.typing.never.TypingNever
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.globals.registerEvalType
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.registerEvalType
 
 // pub(crate) fn register_typing(globals: &mut GlobalsBuilder)
 internal fun registerTyping(globals: GlobalsBuilder) {

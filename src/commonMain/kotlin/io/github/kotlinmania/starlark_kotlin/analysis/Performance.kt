@@ -1,6 +1,16 @@
 // port-lint: source src/analysis/performance.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.docs.args
+import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,64 +29,23 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  * limitations under the License.
  */
 
-// Forward reference AST argument types (from starlark_syntax::syntax::ast).
-// These will unify with a single definition when the syntax AST is fully ported.
-internal sealed class ArgumentAst {
-    class Positional(val expr: AstExpr) : ArgumentAst()
-    class Named(val name: String, val value: AstExpr) : ArgumentAst()
-    class Args(val expr: AstExpr) : ArgumentAst()
-    class KwArgs(val expr: AstExpr) : ArgumentAst()
-}
-
-// Forward reference: CallArgs wrapping argument list (from Expr::Call).
-internal class CallArgs(val args: List<ArgumentAst>)
-
-// Forward reference: comprehension Expr variants not yet in flow.kt.
-// Expr.ListComprehension and Expr.DictComprehension extend Expr.
-// These are declared locally until Expr is fully ported.
-
-// #[derive(Error, Debug)]
-// pub(crate) enum Performance
-internal sealed class Performance : LintWarning {
-    // #[error("Dict copy `{0}` is more efficient as `{1}`")]
-    class DictWithoutStarStar(val original: String, val suggested: String) : Performance() {
-        override fun toString(): String = "Dict copy `$original` is more efficient as `$suggested`"
-    }
-
-    // #[error("`{0}` eagerly evaluates all items in the iterable, and allocates an array for the results. Prefer using a for-loop.")]
-    class EagerAndInefficientBoolCheck(val funcName: String) : Performance() {
-        override fun toString(): String =
-            "`$funcName` eagerly evaluates all items in the iterable, and allocates an array for the results. Prefer using a for-loop."
-    }
-
-    // #[error("`{0}` allocates a new {1} for the results. Prefer using a for-loop.")]
-    class InefficientBoolCheck(val callExpr: String, val allocType: String) : Performance() {
-        override fun toString(): String =
-            "`$callExpr` allocates a new $allocType for the results. Prefer using a for-loop."
-    }
-
-    // impl LintWarning for Performance
-    override fun severity(): EvalSeverity = EvalSeverity.Warning
-
-    override fun shortName(): String = when (this) {
-        is DictWithoutStarStar -> "dict-without-star-star"
-        is EagerAndInefficientBoolCheck -> "eager-and-inefficient-bool-check"
-        is InefficientBoolCheck -> "inefficient-bool-check"
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark_kotlin.values.types.list.List
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // fn match_dict_copy(codemap: &CodeMap, x: &AstExpr, res: &mut Vec<LintT<Performance>>)
 private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
     // If we see `dict(**x)` suggest `dict(x)`
     val expr = x.node
-    if (expr is Expr.Call && expr.args.size == 1) {
-        val func = expr.func.node
-        val arg = expr.args[0]
-        if (func is Expr.Identifier
-            && func.name.node.ident == "dict"
-            && arg.node is ArgumentAst.KwArgs
+    if (expr is ExprP.Call<*> && expr.args.args.size == 1) {
+        val func = expr.expr.node
+        val arg = expr.args.args[0]
+        if (func is ExprP.Identifier<*, *>
+            && func.ident.node.ident == "dict"
+            && arg.node is ArgumentP.KwArgs<*>
         ) {
-            val kwArg = (arg.node as ArgumentAst.KwArgs).expr
+            val kwArg = (arg.node as ArgumentP.KwArgs<*>).expr
             res.add(
                 LintT.new(
                     codemap,
@@ -98,31 +67,31 @@ private fun matchInefficientBoolCheck(
     res: MutableList<LintT<Performance>>,
 ) {
     val expr = x.node
-    if (expr !is Expr.Call || expr.args.size != 1) return
+    if (expr !is ExprP.Call<*> || expr.args.args.size != 1) return
 
-    val func = expr.func.node
-    val argAst = expr.args[0]
+    val func = expr.expr.node
+    val argAst = expr.args.args[0]
 
-    if (func !is Expr.Identifier) return
-    val funcIdent = func.name.node.ident
+    if (func !is ExprP.Identifier<*, *>) return
+    val funcIdent = func.ident.node.ident
     if (funcIdent != "any" && funcIdent != "all") return
 
     // Check for positional argument patterns
-    if (argAst.node !is ArgumentAst.Positional) return
-    val arg = (argAst.node as ArgumentAst.Positional).expr.node
+    if (argAst.node !is ArgumentP.Positional<*>) return
+    val arg = (argAst.node as ArgumentP.Positional<*>).expr.node
 
     when (arg) {
         // any([blah for blah in blahs]) or any({k: v for ...})
-        is Expr.ListExpr, is Expr.Dict -> {
+        is ExprP.List<*>, is ExprP.Dict<*> -> {
             // Comprehension variants — in the full AST these would be
-            // Expr.ListComprehension / Expr.DictComprehension.
+            // ExprP.ListComprehension / ExprP.DictComprehension.
             // Placeholder: trigger on list/dict comprehensions once available.
         }
-        is Expr.Call -> {
+        is ExprP.Call<*> -> {
             // any(list(_get_some_dict())) or any(dict([]))
-            val innerFunc = arg.func.node
-            if (innerFunc is Expr.Identifier) {
-                val innerIdent = innerFunc.name.node.ident
+            val innerFunc = arg.expr.node
+            if (innerFunc is ExprP.Identifier<*, *>) {
+                val innerIdent = innerFunc.ident.node.ident
                 if (innerIdent == "dict" || innerIdent == "list") {
                     res.add(
                         LintT.new(
@@ -148,7 +117,7 @@ private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>
         matchInefficientBoolCheck(codemap, x, res)
         x.visitExpr { child -> check(codemap, child, res) }
     }
-    module.statement().visitExpr { x -> check(module.codemap(), x, res) }
+    module.statement.visitExpr { x -> check(module.codemap, x, res) }
 }
 
 // pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Performance>>

@@ -1,6 +1,8 @@
 // port-lint: source src/analysis.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -33,32 +35,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 // underscore
 // unused_loads
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Span
-class FileSpan(val span: Span, val description: String) {
-    fun begin(): Int = 0
-}
-
-class AstModule {
-    fun isSuppressed(shortName: String, span: Span): Boolean = false
-}
-
-class Lint(
-    val shortName: String,
-    val problem: String,
-    val original: String,
-    val location: FileSpan,
-)
-
-class LintT<T>(val inner: T) {
-    fun erase(): Lint = Lint("", "", "", FileSpan(Span(), ""))
-}
-
-enum class EvalSeverity { Warning, Error }
-
-class EvalMessage
-class LintMessage
+// Placeholder types removed. Rely on imports.
 
 /// Run the linter.
 interface AstModuleLint {

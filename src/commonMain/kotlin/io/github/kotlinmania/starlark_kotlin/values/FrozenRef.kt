@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import kotlinx.atomicfu.atomic
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.intoInner
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**

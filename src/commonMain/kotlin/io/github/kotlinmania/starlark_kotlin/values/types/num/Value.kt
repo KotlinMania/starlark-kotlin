@@ -19,21 +19,26 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
-import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import kotlin.math.floor
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toI32
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toF64
+import io.github.kotlinmania.starlark_kotlin.values.percent
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.toOwned
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 
 sealed class NumError : Exception() {
     data class DivisionByZero(val a: Num, val b: Num) : NumError() {
@@ -220,8 +225,8 @@ sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
 
     override fun <V> allocValue(heap: Heap<V>): Value<V> {
         return when (this) {
-            is Int -> heap.alloc(value)
-            is Float -> heap.alloc(StarlarkFloat(value))
+            is Int -> value.allocValue(heap)
+            is Float -> StarlarkFloat(value).allocValue(heap)
         }
     }
 

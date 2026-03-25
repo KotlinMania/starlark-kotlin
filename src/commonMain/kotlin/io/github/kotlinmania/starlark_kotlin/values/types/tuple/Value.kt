@@ -21,17 +21,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.comparison.compareSlice
-import io.github.kotlinmania.starlark_kotlin.values.comparison.equalsSlice
-import io.github.kotlinmania.starlark_kotlin.values.index.applySlice
-import io.github.kotlinmania.starlark_kotlin.values.index.convertIndex
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
+import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
+import io.github.kotlinmania.starlark_kotlin.values.convertIndex
+import io.github.kotlinmania.starlark_kotlin.values.compareSlice
+import io.github.kotlinmania.starlark_kotlin.values.applySlice
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 
 /// Define the tuple type. See [Tuple] and [FrozenTuple] as the two aliases.
 class TupleGen<V>(

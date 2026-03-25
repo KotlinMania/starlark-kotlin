@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing.user
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
 import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
@@ -32,8 +31,10 @@ import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.custom.TyCustomImpl
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.alloc.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_matcher_factory.TypeMatcherFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark_kotlin.values.typing.basic
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 private sealed class TyUserError(override val message: String) : Exception(message) {
     class CallableNotCallable(name: String) : TyUserError(

@@ -21,17 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /// Runtime typecheck profile.
 
-import io.github.kotlinmania.starlark_kotlin.Error
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.util.arc_str.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import kotlin.time.Duration
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
+import io.github.kotlinmania.starlark_kotlin.util.asStr
 
 // pub(crate) struct TypecheckProfilerType
 internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {

@@ -19,13 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
@@ -33,8 +28,18 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
 import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
-import io.github.kotlinmania.starlark_kotlin.values.types.list.newListData
 import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.types.list.newListData
+import io.github.kotlinmania.starlark_kotlin.values.types.array.push
+import io.github.kotlinmania.starlark_kotlin.values.types.array.extendFromSlice
+import io.github.kotlinmania.starlark_kotlin.values.types.array.content
+import io.github.kotlinmania.starlark_kotlin.pagable.of
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn list_avalue<'v>(content: ValueTyped<'v, Array<'v>>) -> AValueImpl<'v, impl AValue<'v, ...>>
 internal fun listAvalue(

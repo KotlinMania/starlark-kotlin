@@ -19,13 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instrs.PatchAddr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.PatchAddr
+import io.github.kotlinmania.starlark_kotlin.values.op
+import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Common code for compiling if statements and if expressions.
 // pub(crate) fn write_if_else(...)

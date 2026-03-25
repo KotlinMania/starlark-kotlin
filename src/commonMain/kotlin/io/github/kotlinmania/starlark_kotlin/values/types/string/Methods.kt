@@ -1,6 +1,19 @@
 // port-lint: source src/values/types/string/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+import io.github.kotlinmania.starlark_kotlin.values.types.list.None
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.values.length
+import io.github.kotlinmania.starlark_kotlin.values.sizeHint
+import io.github.kotlinmania.starlark_kotlin.values.next
+import io.github.kotlinmania.starlark_kotlin.values.layout.toValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyString
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.positions
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.range
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
+import io.github.kotlinmania.starlark_kotlin.values.default
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

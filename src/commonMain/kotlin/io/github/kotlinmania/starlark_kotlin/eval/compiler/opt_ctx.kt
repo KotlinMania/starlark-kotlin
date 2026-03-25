@@ -20,10 +20,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.OptimizeOnFreezeContext
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
 
 // pub(crate) trait OptCtxEval<'v, 'a, 'e> {
 //     fn heap(&self) -> Heap<'v>;

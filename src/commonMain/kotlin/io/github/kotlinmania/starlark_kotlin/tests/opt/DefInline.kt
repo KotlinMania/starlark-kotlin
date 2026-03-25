@@ -22,10 +22,13 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 //! Test function bodies inlined.
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefGen
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.values.types.list.display
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.bc
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 
 // #[test]
 // fn test_def_const_inlined()

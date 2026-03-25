@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph
 
 //! Utility to write files in formats understood by `flamegraph.pl`.
 
-import io.github.kotlinmania.starlark_kotlin.util.arc_str.ArcStr
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 
 /// Node in flamegraph tree.
 // #[derive(Debug, Clone, Default, PartialEq, Eq)]

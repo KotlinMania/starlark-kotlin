@@ -21,10 +21,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.registerFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.set.iterHashed
+import io.github.kotlinmania.starlark_kotlin.values.types.array.len
+import io.github.kotlinmania.starlark_kotlin.values.sizeHint
+import io.github.kotlinmania.starlark_kotlin.values.next
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.optional1
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 
 /**
  * Helper function to unpack a pair (two-element sequence) from a value.

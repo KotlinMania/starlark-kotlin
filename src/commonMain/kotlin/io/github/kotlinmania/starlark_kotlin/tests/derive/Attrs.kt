@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkAttrs
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 
 // #[test]

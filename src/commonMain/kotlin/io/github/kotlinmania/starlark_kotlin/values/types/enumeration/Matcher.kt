@@ -19,9 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.fromValue
 
 data class EnumTypeMatcher(
     val id: TypeInstanceId,

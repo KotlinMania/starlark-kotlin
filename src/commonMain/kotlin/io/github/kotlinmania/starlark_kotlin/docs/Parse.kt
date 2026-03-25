@@ -19,13 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.String
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.analysis.Statements
+import io.github.kotlinmania.starlark_kotlin.analysis.Expression
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.range
+import io.github.kotlinmania.starlark_kotlin.analysis.stmts
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.AstLiteral
 
 /// Controls the formatting to use when parsing [DocString]s from raw docstrings.
 // #[derive(Copy, Clone, Dupe)]
@@ -137,7 +144,7 @@ fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstSt
         val first = stmtNode.stmts.firstOrNull() ?: return null
         val firstNode = first.node
         if (firstNode is StmtP.Expression) {
-            val exprSpanned = firstNode.expr
+            val exprSpanned = firstNode.Expr
             val exprNode = exprSpanned.node
             if (exprNode is ExprP.Literal) {
                 val lit = exprNode.literal

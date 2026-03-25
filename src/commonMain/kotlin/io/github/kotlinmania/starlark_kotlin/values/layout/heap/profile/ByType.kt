@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
+import io.github.kotlinmania.starlark_kotlin.values.types.string.bytes
 
 /// Information about the data stored on a heap. Accessible through
 /// the function `allocated_summary` available on [`Heap`](crate::values::Heap)

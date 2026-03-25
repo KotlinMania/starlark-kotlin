@@ -19,22 +19,30 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyFunction
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.typing.callArgs.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.string.registerFunction
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark_kotlin.typing.iterItem
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.callable.validateFnCall
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.pos
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 object ListType : TyCustomFunctionImpl {
     override fun isType(): Boolean {
@@ -105,10 +113,10 @@ internal fun registerList(globals: GlobalsBuilder) {
                 heap.allocList(xs.content())
             } else {
                 val it = a.get().iterate(heap).getOrElse { return@registerFunction Result.failure(it) }
-                heap.alloc(AllocList(it))
+                AllocList(it).allocValue(heap)
             }
         } else {
-            heap.alloc(AllocList.EMPTY)
+            AllocList.EMPTY.allocValue(heap)
         }))
     }
 }

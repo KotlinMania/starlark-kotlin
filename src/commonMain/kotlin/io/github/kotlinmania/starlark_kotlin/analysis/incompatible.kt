@@ -272,7 +272,7 @@ private fun badTypeEquality(module: IncompatAstModule, res: MutableList<Incompat
         matchBadTypeEquality(codemap, x, types, res)
         x.visitExpr { check(codemap, it, types, res) }
     }
-    module.statement().visitExpr { check(module.codemap(), it, types, res) }
+    module.statement.visitExpr { check(module.codemap, it, types, res) }
 }
 
 // Go implementation of Starlark disallows duplicate top-level assignments,
@@ -346,8 +346,8 @@ private fun duplicateTopLevelAssignment(module: IncompatAstModule, res: MutableL
     }
 
     stmt(
-        module.statement(),
-        module.codemap(),
+        module.statement,
+        module.codemap,
         defined,
         exported,
         res,

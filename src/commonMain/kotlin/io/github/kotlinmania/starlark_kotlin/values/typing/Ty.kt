@@ -4,7 +4,8 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.docs.Type
 
 /**
  * A typing operation wasn't able to produce a precise result,

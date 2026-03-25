@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /// #[derive(Hash, Debug, Eq, PartialEq, Clone, Dupe, Allocative)]
 /// pub(crate) struct RecordTypeMatcher { pub(crate) id: TypeInstanceId }

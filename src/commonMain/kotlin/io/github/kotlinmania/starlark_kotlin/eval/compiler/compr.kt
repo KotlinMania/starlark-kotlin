@@ -1,6 +1,12 @@
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.compr
 
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.eval.bc.over
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.analysis.expr
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -23,7 +29,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.compr
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span
 class IrSpanned<T>(val node: T, val span: Span = Span()) {
     fun optimize(ctx: OptCtx): IrSpanned<T> = this
     fun isIterableEmpty(): Boolean = false
@@ -36,11 +41,6 @@ class IrSpanned<T>(val node: T, val span: Span = Span()) {
 class CstExpr
 class CstPayload
 
-class ForClauseP(val over: CstExpr, val variable: CstExpr)
-
-sealed class ClauseP {
-    class For(val clause: ForClauseP) : ClauseP()
-    class If(val expr: CstExpr) : ClauseP()
 }
 
 class ExprCompiled {

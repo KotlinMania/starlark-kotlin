@@ -1,6 +1,9 @@
 // port-lint: source src/values/error.rs
 package io.github.kotlinmania.starlark_kotlin.values
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

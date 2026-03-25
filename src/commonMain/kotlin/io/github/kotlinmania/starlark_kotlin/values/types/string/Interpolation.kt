@@ -1,6 +1,13 @@
 // port-lint: source src/values/types/string/interpolation.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

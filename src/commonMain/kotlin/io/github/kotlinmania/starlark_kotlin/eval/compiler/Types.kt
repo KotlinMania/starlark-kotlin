@@ -19,27 +19,63 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.syntax.eval_exception.EvalException
-import io.github.kotlinmania.starlark_kotlin.syntax.internalError
-import io.github.kotlinmania.starlark_kotlin.syntax.syntax.type_expr.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.syntax.syntax.type_expr.TypePathP
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypePathP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprUnpackP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.CstPayload
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
+import io.github.kotlinmania.starlark_kotlin.values.types.list.List
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Union
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Path
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Index2
+import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.analysis.Tuple
+import io.github.kotlinmania.starlark_kotlin.analysis.Index
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeAnyOf
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.toInner
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.fromTy
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
+import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
+import io.github.kotlinmania.starlark_kotlin.values.types.array.rem
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.internalError
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.i0
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.getAttrError
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Union
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypePathP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypeExprUnpackP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Path
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Index2
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.tests.xs
+import io.github.kotlinmania.starlark_kotlin.tests.opt.i1
+import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
+import io.github.kotlinmania.starlark_kotlin.tests.derive.i
+import io.github.kotlinmania.starlark_kotlin.tests.a
+import io.github.kotlinmania.starlark_kotlin.analysis.path
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypesError
@@ -79,7 +115,7 @@ internal fun Compiler.exprForType(
     }
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
-    val ty = expr.payload.compilerTy
+    val ty = expr.Payload.compilerTy
     if (ty == null) {
         // This is unreachable. But unfortunately we do not return error here.
         // Still make an error in panic to produce nice panic message.
@@ -249,7 +285,7 @@ private fun Compiler.evalExpr(
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
 ) {
-    if (typeExpr.payload.compilerTy != null) {
+    if (typeExpr.Payload.compilerTy != null) {
         throw EvalException.new(
             internalError("Type already initialized"),
             typeExpr.span,
@@ -257,9 +293,9 @@ private fun Compiler.populateTypesInTypeExpr(
         )
     }
     // This should not fail because we validated it at parse time.
-    val unpack = TypeExprUnpackP.unpack(typeExpr.expr, codemap)
+    val unpack = TypeExprUnpackP.unpack(typeExpr.Expr, codemap)
     val typeValue = evalExprAsType(unpack)
-    typeExpr.payload.compilerTy = typeValue.asTy().clone()
+    typeExpr.Payload.compilerTy = typeValue.asTy().clone()
 }
 
 // pub(crate) fn populate_types_in_stmt(

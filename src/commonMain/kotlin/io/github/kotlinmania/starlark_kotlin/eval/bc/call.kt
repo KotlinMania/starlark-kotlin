@@ -23,17 +23,19 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.call
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_arg.BcInstrArg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsPos
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
+import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsPos
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.util.asStr
 
 /// Call arguments.
 // pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg

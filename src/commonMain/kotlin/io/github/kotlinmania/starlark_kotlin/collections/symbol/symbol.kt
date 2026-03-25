@@ -19,11 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.values.ValueLike
 import starlark_map.StarlarkHashValue
 import starlark_map.Hashed
+import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 
 class AlignedPaddedStr(val str: String)
 

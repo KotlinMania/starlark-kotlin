@@ -22,17 +22,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign
 /// Compile assignment lhs.
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.expr.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSetArrayIndex
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSetObjectField
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrStoreModuleAndExport
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrUnpack
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.AssignCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.asLocalNonCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toOut
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toIn
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // impl AssignCompiledValue
 /// After evaluation of `(x, y[z]) = ...`, variables `x`, `y` and `z` are definitely assigned.

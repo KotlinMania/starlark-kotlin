@@ -24,11 +24,17 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
-import io.github.kotlinmania.starlark_kotlin.values.allocValue.AllocFrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.allocValue.AllocStringValue
-import io.github.kotlinmania.starlark_kotlin.values.typeRepr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.AllocStringValue
+import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.allocStringValue
+import io.github.kotlinmania.starlark_kotlin.tests.assert
+import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
 
 /**
  * Utility to allocate a struct on a heap.
@@ -93,7 +99,7 @@ fun <V_, K, V, S> AllocStruct<S>.allocValue(heap: Heap<V_>): Value<V_>
         assert(prev == null) { "non-unique key: $k" }
     }
 
-    return heap.alloc(Struct.new(fields))
+    return Struct.new(fields).allocValue(heap)
 }
 
 /**

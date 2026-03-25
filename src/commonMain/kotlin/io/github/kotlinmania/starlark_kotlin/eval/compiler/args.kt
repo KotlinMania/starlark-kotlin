@@ -1,6 +1,9 @@
 // port-lint: source src/eval/compiler/args.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.args
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -31,7 +34,7 @@ internal class ArgsCompiledValue(
     /// Named arguments compiled.
     ///
     /// Note names are guaranteed to be unique here because names are validated in AST:
-    /// named arguments in `Expr.Call` are unique.
+    /// named arguments in `ExprP.Call` are unique.
     val names: MutableList<Pair<Symbol, FrozenStringValue>> = mutableListOf(),
     var args: IrSpanned<ExprCompiled>? = null,
     var kwargs: IrSpanned<ExprCompiled>? = null,
@@ -196,7 +199,6 @@ internal class FrozenHeap {
     fun allocStrIntern(s: String): FrozenStringValue = FrozenStringValue()
 }
 internal class CallArgsP(val args: List<Spanned<ArgumentP>> = emptyList())
-internal class Spanned<T>(val node: T)
 internal sealed class ArgumentP {
     class Positional(val expr: Any) : ArgumentP()
     class Named(val name: Spanned<String>, val value: Any) : ArgumentP()

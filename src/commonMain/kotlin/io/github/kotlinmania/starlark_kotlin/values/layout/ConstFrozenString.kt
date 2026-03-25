@@ -19,7 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.stdlib.fromString
 
 /// Create a [`FrozenStringValue`].
 // #[macro_export]

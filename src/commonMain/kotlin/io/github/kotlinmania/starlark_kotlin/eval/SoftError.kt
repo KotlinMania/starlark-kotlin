@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Error
 
 /// Deprecation handler provided by a user.
 // pub trait SoftErrorHandler

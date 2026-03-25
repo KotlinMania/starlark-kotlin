@@ -1,6 +1,10 @@
 // port-lint: source src/typing/small_arc_vec.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.values
+import io.github.kotlinmania.starlark_kotlin.values.types.record.values
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

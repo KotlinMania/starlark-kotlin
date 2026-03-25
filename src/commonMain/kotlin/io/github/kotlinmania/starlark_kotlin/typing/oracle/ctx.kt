@@ -1,6 +1,14 @@
 // port-lint: source src/typing/oracle/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.isNever
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.values.default
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,13 +29,12 @@ package io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span {
     companion object {
         fun default(): Span = Span()
     }
 }
 class CodeMap
-class Spanned<T>(val node: T, val span: Span) {
+ {
     fun <R> asRef(): Spanned<R> {
         @Suppress("UNCHECKED_CAST")
         return this as Spanned<R>

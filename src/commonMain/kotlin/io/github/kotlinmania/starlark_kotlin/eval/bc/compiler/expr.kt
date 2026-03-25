@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.bc.slow_arg.BcInstrSlowArg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlot
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
@@ -35,11 +34,18 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.CompareOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_not_special.FrozenValueNotSpecial
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcInstrSlowArg
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackIntValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
 
 // Forward reference: write_if_else from if_compiler.rs (not yet ported).
 // pub(crate) fn write_if_else(c, t, f, bc)
@@ -195,7 +201,7 @@ internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
 
 // Helper: IrSpanned<ExprCompiled>::mark_definitely_assigned_after
 internal fun IrSpanned<ExprCompiled>.markDefinitelyAssignedAfter(bc: BcWriter) {
-    node.markDefinitelyAssignedAfter(bc)
+    Node.markDefinitelyAssignedAfter(bc)
 }
 
 // fn try_dict_of_consts(xs) -> Option<SmallMap<FrozenValue, FrozenValue>>

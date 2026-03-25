@@ -1,6 +1,47 @@
 // port-lint: source src/typing/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing.ctx
 
+import io.github.kotlinmania.starlark_kotlin.values.types.string.start
+import io.github.kotlinmania.starlark_kotlin.values.types.string.literal
+import io.github.kotlinmania.starlark_kotlin.values.types.range.stop
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.op
+import io.github.kotlinmania.starlark_kotlin.values.attr
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ExprP
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstExpr
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.star
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.kv
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.CallArgsP
+import io.github.kotlinmania.starlark_kotlin.eval.bc.over
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
+import io.github.kotlinmania.starlark_kotlin.entries
+import io.github.kotlinmania.starlark_kotlin.docs.name
+import io.github.kotlinmania.starlark_kotlin.docs.args
+import io.github.kotlinmania.starlark_kotlin.debug.condition
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.pos
+import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.analysis.rhs
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.analysis.lhs
+import io.github.kotlinmania.starlark_kotlin.analysis.ident
+import io.github.kotlinmania.starlark_kotlin.analysis.func
+import io.github.kotlinmania.starlark_kotlin.analysis.expr
+import io.github.kotlinmania.starlark_kotlin.analysis.body
+import io.github.kotlinmania.starlark_kotlin.values.types.list.List
+import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Float
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -21,9 +62,7 @@ package io.github.kotlinmania.starlark_kotlin.typing.ctx
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class Span
-class Spanned<T>(val span: Span, val node: T) {
-    fun asRef(): Spanned<T> = this
+ {
 }
 
 class BindingId
@@ -138,80 +177,7 @@ class ModuleVarTypes(
     val types: MutableMap<ModuleSlotId, Ty> = mutableMapOf()
 )
 
-// AST placeholder types
-class CstExpr(val node: ExprP, val span: Span)
 
-sealed class ExprP {
-    class Tuple(val elements: List<CstExpr>) : ExprP()
-    class Dot(val expr: CstExpr, val attr: SpannedString) : ExprP()
-    class Call(val func: CstExpr, val args: CallArgsP) : ExprP()
-    class Index(val pair: Pair<CstExpr, CstExpr>) : ExprP()
-    class Index2(val triple: Triple<CstExpr, CstExpr, CstExpr>) : ExprP()
-    class Slice(val expr: CstExpr, val start: CstExpr?, val stop: CstExpr?, val stride: CstExpr?) : ExprP()
-    class Identifier(val ident: CstIdent) : ExprP()
-    class Lambda(val params: Any?) : ExprP()
-    class Literal(val literal: AstLiteral) : ExprP()
-    class Not(val expr: CstExpr) : ExprP()
-    class Minus(val expr: CstExpr) : ExprP()
-    class Plus(val expr: CstExpr) : ExprP()
-    class BitNot(val expr: CstExpr) : ExprP()
-    class Op(val lhs: CstExpr, val op: BinOp, val rhs: CstExpr) : ExprP()
-    class If(val condition: CstExpr, val trueBranch: CstExpr, val falseBranch: CstExpr) : ExprP()
-    class List(val elements: List<CstExpr>) : ExprP()
-    class Dict(val entries: List<Pair<CstExpr, CstExpr>>) : ExprP()
-    class ListComprehension(val body: CstExpr, val forClause: ForClauseP, val clauses: List<ClauseP>) : ExprP()
-    class DictComprehension(val kv: Pair<CstExpr, CstExpr>, val forClause: ForClauseP, val clauses: List<ClauseP>) : ExprP()
-    class FString(val parts: List<Any>) : ExprP()
-}
-
-sealed class AstLiteral {
-    class Int(val value: Any) : AstLiteral()
-    class Float(val value: Double) : AstLiteral()
-    class StringLit(val value: String) : AstLiteral()
-    data object Ellipsis : AstLiteral()
-}
-
-class SpannedString(val value: String, val span: Span)
-class CstIdent(val node: IdentPayload, val span: Span)
-class IdentPayload(val ident: String, val payload: ResolvedIdent?)
-class CallArgsP
-class ForClauseP(val over: CstExpr)
-sealed class ClauseP {
-    class For(val forClause: ForClauseP) : ClauseP()
-    class If(val expr: CstExpr) : ClauseP()
-}
-
-class CallArgsUnpack(
-    val pos: List<Spanned<CallArgEntry>>,
-    val named: List<SpannedNamed>,
-    val star: Spanned<CallArgEntry>?,
-    val starStar: Spanned<CallArgEntry>?,
-) {
-    companion object {
-        fun unpack(args: CallArgsP, codemap: CodeMap): CallArgsUnpack {
-            return CallArgsUnpack(emptyList(), emptyList(), null, null)
-        }
-    }
-}
-
-class CallArgEntry {
-    fun expr(): CstExpr = CstExpr(ExprP.Literal(AstLiteral.Ellipsis), Span())
-}
-
-class SpannedNamed(val span: Span, val node: CallArgEntry) {
-    fun name(): String? = null
-}
-
-class CstAssignTarget(val node: AssignTargetP, val span: Span)
-
-sealed class AssignTargetP {
-    class Tuple(val elements: List<CstAssignTarget>) : AssignTargetP()
-    class Index(val pair: Pair<CstExpr, CstExpr>) : AssignTargetP()
-    class Dot(val expr: CstExpr, val attr: String) : AssignTargetP()
-    class Identifier(val ident: IdentWithPayload) : AssignTargetP()
-}
-
-class IdentWithPayload(val ident: String, val span: Span, val payload: BindingId?)
 
 sealed class BindExpr {
     class Expr(val expr: CstExpr) : BindExpr()

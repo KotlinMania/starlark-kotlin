@@ -19,16 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalue
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.repr.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.repr.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.repr.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.tests.freeze
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /// Extended vtable methods (those not covered by `StarlarkValue`).
 // pub(crate) trait AValue<'v>: Sized + 'v

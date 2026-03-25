@@ -19,20 +19,34 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.analysis.CodeMap
-import io.github.kotlinmania.starlark_kotlin.analysis.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.top_level_stmts.topLevelStmts
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BindingId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.assert.parse
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
+import io.github.kotlinmania.starlark_kotlin.typing.cst
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmts
+import io.github.kotlinmania.starlark_kotlin.environment.slot
+import io.github.kotlinmania.starlark_kotlin.codemap.sourceLine
+import io.github.kotlinmania.starlark_kotlin.codemap.findLine
+import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.analysis.span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.end
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // Forward-reference AST types until starlark_syntax port is complete.
 // use starlark_syntax::codemap::FileSpanRef;
@@ -197,7 +211,7 @@ internal fun findUnusedLoads(
 
     for (top in topLevelStmts(moduleScopes.cst)) {
         top.visitIdent { ident ->
-            val resolved = ident.payload
+            val resolved = ident.Payload
                 ?: return@visitIdent Result.failure(
                     IllegalStateException("ident is not resolved (internal error)")
                 )
