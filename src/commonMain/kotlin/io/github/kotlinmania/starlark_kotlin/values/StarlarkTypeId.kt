@@ -22,13 +22,13 @@ package io.github.kotlinmania.starlark_kotlin.values.starlark_type_id
 import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
 import kotlin.reflect.KClass
 
-/// Identifier of a starlark type.
-///
-/// This is different from `TypeId` of `StarlarkValue` implementation:
-/// multiple Rust types can share the same `StarlarkTypeId`.
-/// For example, mutable and frozen list share the same `StarlarkTypeId`.
-// #[derive(Eq, PartialEq, Hash, Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) struct StarlarkTypeId(ConstTypeId);
+/**
+ * Identifier of a starlark type.
+ *
+ * This is different from `TypeId` of `StarlarkValue` implementation:
+ * multiple Rust types can share the same `StarlarkTypeId`.
+ * For example, mutable and frozen list share the same `StarlarkTypeId`.
+ */
 internal data class StarlarkTypeId(
     // ConstTypeId
     private val typeId: ConstTypeId,
@@ -54,13 +54,13 @@ internal data class StarlarkTypeId(
     }
 }
 
-/// We require alignment 8 for `StarlarkValue`.
-/// `TypeId` is 16 bytes aligned on Rust 1.72 on Apple Silicon.
-/// Use this struct to put `ConstTypeId` in a `StarlarkValue`.
-// #[repr(C, packed(8))]
-// #[derive(Allocative, Eq, Clone, Copy, Dupe, Debug)]
-// pub(crate) struct StarlarkTypeIdAligned { starlark_type_id: StarlarkTypeId }
-// Kotlin: No alignment concerns; this is a simple wrapper.
+/**
+ * We require alignment 8 for `StarlarkValue`.
+ * `TypeId` is 16 bytes aligned on Rust 1.72 on Apple Silicon.
+ * Use this struct to put `ConstTypeId` in a `StarlarkValue`.
+ *
+ * In Kotlin, there are no alignment concerns; this is a simple wrapper.
+ */
 internal data class StarlarkTypeIdAligned(
     private val starlarkTypeId: StarlarkTypeId,
 ) {

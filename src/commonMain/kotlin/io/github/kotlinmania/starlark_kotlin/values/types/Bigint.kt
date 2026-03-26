@@ -19,67 +19,66 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  * limitations under the License.
  */
 
-// mod convert;
-
+import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
+import io.github.kotlinmania.starlark_kotlin.analysis.dubious.NumRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.types.int.Big
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
-import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
-import io.github.kotlinmania.starlark_kotlin.values.types.int.Big
-import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.NumRef
+import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
+import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
 
-/// `int` implementation for larger integers.
-// #[derive(Clone, Debug, Default, Display, ProvidesStaticType, Ord, PartialOrd, Eq, PartialEq, Hash, Allocative)]
-// #[display("{}", value)]
-// pub struct StarlarkBigInt { value: BigInt }
+/**
+ * `int` implementation for larger integers.
+ *
+ * Rust: `struct StarlarkBigInt` with derives for Clone, Debug, Default, Display,
+ * Ord, PartialOrd, Eq, PartialEq, Hash, Allocative.
+ */
 class StarlarkBigInt private constructor(
-    /// `value` is strictly either smaller than `i32::MIN` or larger than `i32::MAX`.
-    /// Many operation implementations depend on this fact.
-    /// For example, `non_zero_int << positive_big_int` is considered to be overflow
-    /// without checking the actual value of `positive_big_int`.
-    // value: BigInt
+    /**
+     * `value` is strictly either smaller than `Int.MIN_VALUE` or larger than `Int.MAX_VALUE`.
+     * Many operation implementations depend on this fact.
+     * For example, `non_zero_int << positive_big_int` is considered to be overflow
+     * without checking the actual value of `positive_big_int`.
+     */
     private val value: BigInteger,
 ) : Comparable<StarlarkBigInt> {
 
-    // impl StarlarkBigInt
-
     companion object {
-        // pub(crate) fn unchecked_new(value: BigInt) -> Self
+        /** Creates a [StarlarkBigInt] without range checking. Caller must ensure value is outside InlineInt range. */
         internal fun uncheckedNew(value: BigInteger): StarlarkBigInt {
             return StarlarkBigInt(value)
         }
 
-        // pub(crate) fn cmp_small_big(a: InlineInt, b: &StarlarkBigInt) -> Ordering
+        /**
+         * Compares a small inline int against a big int.
+         * Sign comparison is enough because [StarlarkBigInt] is out of range of `Int`.
+         */
         internal fun cmpSmallBig(a: InlineInt, b: StarlarkBigInt): Int {
             val aSign = a.signum()
             val bSign = when (b.value.sign) {
+                // Rust: Sign::Plus => 2, Sign::Minus => -2, Sign::NoSign => 0
                 Sign.POSITIVE -> 2
                 Sign.NEGATIVE -> -2
                 Sign.ZERO -> 0
             }
-            // Sign comparison is enough because `StarlarkBigInt` is out of range of `i32`.
             return aSign.compareTo(bSign)
         }
 
-        // pub(crate) fn cmp_big_small(a: &StarlarkBigInt, b: InlineInt) -> Ordering
+        /** Compares a big int against a small inline int. Reverse of [cmpSmallBig]. */
         internal fun cmpBigSmall(a: StarlarkBigInt, b: InlineInt): Int {
             return -cmpSmallBig(b, a)
         }
@@ -99,18 +98,16 @@ class StarlarkBigInt private constructor(
 
     override fun toString(): String = value.toString()
 
-    // pub(crate) fn get(&self) -> &BigInt
+    /** Returns the underlying [BigInteger] value. */
     internal fun get(): BigInteger = value
 
-    // pub(crate) fn to_f64(&self) -> f64
+    /** Converts to Double. Infallible (may lose precision for very large values). */
     internal fun toF64(): Double {
-        // `to_f64` is infallible.
         return value.doubleValue(exactRequired = false)
     }
 
-    // pub(crate) fn to_i32(&self) -> Option<i32>
+    /** Converts to Int if InlineInt range is smaller than i32. Returns null if out of range. */
     internal fun toI32(): Int? {
-        // Avoid calling `to_i32` if the value is known to be out of range.
         return if (InlineInt.smallerThanI32()) {
             val v = try {
                 value.intValue(exactRequired = true)
@@ -123,7 +120,10 @@ class StarlarkBigInt private constructor(
         }
     }
 
-    // pub(crate) fn unpack_integer<'v, I: TryFrom<&'v BigInt>>(&'v self) -> Option<I>
+    /**
+     * Attempts to unpack as a Long.
+     * Rust: generic `unpack_integer<I: TryFrom<&BigInt>>` -- here specialized to Long.
+     */
     internal fun unpackLong(): Long? {
         return try {
             value.longValue(exactRequired = true)
@@ -132,144 +132,143 @@ class StarlarkBigInt private constructor(
         }
     }
 
-    // impl PartialEq<i32> for StarlarkBigInt
-    // fn eq(&self, _other: &i32) -> bool
+    /**
+     * A [StarlarkBigInt] is never equal to an Int, because big ints are outside Int range.
+     * Rust: `impl PartialEq<i32> for StarlarkBigInt`
+     */
     fun equalsI32(@Suppress("UNUSED_PARAMETER") other: Int): Boolean {
         return false
     }
 
-    // impl Serialize for StarlarkBigInt
-    // Kotlin: Serialization handled separately.
+    // Rust: impl Serialize -- serialization handled separately in Kotlin.
 
-    // impl<'v> AllocValue<'v> for StarlarkBigInt
-    // fn alloc_value(self, heap: Heap<'v>) -> Value<'v>
+    /** Allocates this value on the given heap. Rust: `impl AllocValue for StarlarkBigInt` */
     fun allocValue(heap: Heap): Value {
         return heap.allocSimple(this)
     }
 
-    // impl AllocFrozenValue for StarlarkBigInt
-    // fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue
+    /** Allocates this as a frozen value. Rust: `impl AllocFrozenValue for StarlarkBigInt` */
     fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return heap.allocSimple(this)
     }
 
-    // #[starlark_value(type = "int")]
-    // impl<'v> StarlarkValue<'v> for StarlarkBigInt
+    // --- StarlarkValue implementation ---
+    // Rust: #[starlark_value(type = "int")]
+    // Rust: impl<'v> StarlarkValue<'v> for StarlarkBigInt
 
-    // fn to_bool(&self) -> bool
-    /** `StarlarkBigInt` is non-zero. */
+    /** StarlarkBigInt is always non-zero, so always truthy. */
     fun toBool(): Boolean = true
 
-    // fn minus(&self, heap: Heap<'v>) -> starlark::Result<Value<'v>>
+    /** Unary minus. Rust: `fn minus` */
     fun minus(heap: Heap): Result<Value> {
         return Result.success(heap.alloc(StarlarkInt.from(-value)))
     }
 
-    // fn plus(&self, heap: Heap<'v>) -> starlark::Result<Value<'v>>
+    /** Unary plus. Rust: `fn plus` */
     fun plus(heap: Heap): Result<Value> {
         return Result.success(heap.alloc(StarlarkInt.from(value)))
     }
 
-    // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
+    /** Equality check against another Starlark value. Rust: `fn equals` */
     fun equals(other: Value): Result<Boolean> {
         return Result.success(
             NumRef.Int(StarlarkIntRef.Big(this)) == other.unpackNum()
         )
     }
 
-    // fn compare(&self, other: Value<'v>) -> crate::Result<Ordering>
+    /** Comparison against another Starlark value. Rust: `fn compare` */
     fun compare(other: Value): Result<Int> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(this, "compare", other)
         return Result.success(NumRef.Int(StarlarkIntRef.Big(this)).compareTo(otherNum))
     }
 
-    // fn add(&self, rhs: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
+    /** Addition. Returns null if rhs is not numeric. Rust: `fn add` */
     fun add(rhs: Value, heap: Heap): Result<Value>? {
         val rhsNum = rhs.unpackNum() ?: return null
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) + rhsNum))
     }
 
-    // fn sub(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Subtraction. Rust: `fn sub` */
     fun sub(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(this, "-", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) - otherNum))
     }
 
-    // fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
+    /** Multiplication. Returns null if rhs is not numeric. Rust: `fn mul` */
     fun mul(other: Value, heap: Heap): Result<Value>? {
         val otherNum = other.unpackNum() ?: return null
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) * otherNum))
     }
 
-    // fn div(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** True division. Rust: `fn div` */
     fun div(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(this, "/", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).div(otherNum)))
     }
 
-    // fn floor_div(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Floor division. Rust: `fn floor_div` */
     fun floorDiv(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
             ?: return ValueError.unsupportedWith(this, "//", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).floorDiv(rhs)))
     }
 
-    // fn percent(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Modulo. Rust: `fn percent` */
     fun percent(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
             ?: return ValueError.unsupportedWith(this, "%", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).percent(rhs)))
     }
 
-    // fn bit_and(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Bitwise AND. Rust: `fn bit_and` */
     fun bitAnd(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(this, "&", other)
         return Result.success(heap.alloc(StarlarkIntRef.Big(this) and rhs))
     }
 
-    // fn bit_xor(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Bitwise XOR. Rust: `fn bit_xor` */
     fun bitXor(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(this, "^", other)
         return Result.success(heap.alloc(StarlarkIntRef.Big(this) xor rhs))
     }
 
-    // fn bit_or(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Bitwise OR. Rust: `fn bit_or` */
     fun bitOr(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(this, "|", other)
         return Result.success(heap.alloc(StarlarkIntRef.Big(this) or rhs))
     }
 
-    // fn bit_not(&self, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Bitwise NOT. Rust: `fn bit_not` */
     fun bitNot(heap: Heap): Result<Value> {
         return Result.success(heap.alloc(StarlarkIntRef.Big(this).not()))
     }
 
-    // fn left_shift(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Left shift. Rust: `fn left_shift` */
     fun leftShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(this, "<<", other)
         return Result.success(heap.alloc(StarlarkIntRef.Big(this).leftShift(rhs)))
     }
 
-    // fn right_shift(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    /** Right shift. Rust: `fn right_shift` */
     fun rightShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(this, ">>", other)
         return Result.success(heap.alloc(StarlarkIntRef.Big(this).rightShift(rhs)))
     }
 
-    // fn bin_op_ty(op: TypingBinOp, rhs: &TyBasic) -> Option<Ty>
+    /** Type-checks a binary operation. Rust: `fn bin_op_ty` */
     fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? {
         return typecheckNumBinOp(NumTy.Int, op, rhs)
     }
 
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
+    /** Writes this value's hash. Rust: `fn write_hash` */
     fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         NumRef.Int(StarlarkIntRef.Big(this))
             .getHash64()
@@ -277,9 +276,8 @@ class StarlarkBigInt private constructor(
         return Result.success(Unit)
     }
 
-    // fn typechecker_ty(&self) -> Option<Ty>
+    /** Returns the typechecker type. Rust: `fn typechecker_ty` */
     fun typecheckerTy(): Ty? = Ty.int()
 }
 
-// #[cfg(test)] mod tests { ... }
-// Tests are in commonTest, not here.
+// Tests are in commonTest.

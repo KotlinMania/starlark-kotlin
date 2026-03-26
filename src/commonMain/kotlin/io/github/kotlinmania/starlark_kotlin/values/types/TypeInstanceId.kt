@@ -20,22 +20,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 
-/// Globally unique identifier for a type, like record type or enum type.
-// #[derive(Debug, Copy, Clone, Dupe, Hash, Eq, PartialEq, Ord, PartialOrd, Allocative, Freeze)]
-// pub struct TypeInstanceId(u64);
+/** Globally unique identifier for a type, like record type or enum type. */
 data class TypeInstanceId(private val id: Long) : Comparable<TypeInstanceId> {
 
     override fun compareTo(other: TypeInstanceId): Int {
         return id.compareTo(other.id)
     }
 
-    // impl TypeInstanceId
-
     companion object {
-        // static LAST_ID: AtomicU64 = AtomicU64::new(0);
         private val lastId = atomic(0L)
 
-        // pub fn r#gen() -> TypeInstanceId
         /** Generate a new unique identifier. */
         fun gen(): TypeInstanceId {
             return TypeInstanceId(lastId.incrementAndGet())

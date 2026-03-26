@@ -19,12 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_c
  * limitations under the License.
  */
 
-/// Allocations counters.
-// #[derive(Default, Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) struct AllocCounts {
-//     pub(crate) bytes: usize,
-//     pub(crate) count: usize,
-// }
+/** Allocations counters. */
 internal data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,

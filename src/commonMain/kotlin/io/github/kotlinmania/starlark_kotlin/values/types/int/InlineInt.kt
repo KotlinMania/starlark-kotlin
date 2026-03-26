@@ -19,23 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
+import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark_kotlin.likely
 import kotlin.jvm.JvmInline
-import io.github.kotlinmania.starlark_kotlin.values.types.num.abs
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toI32
-import io.github.kotlinmania.starlark_kotlin.hint.likely
 
 /**
  * Integer which is stored inline in `RawPointer`.
  *
  * This is a value class wrapper around [Int] (i32 in Rust) that enforces
- * bit width constraints based on platform pointer size. The range of valid
- * values depends on the target platform's pointer width.
+ * bit width constraints based on platform pointer size.
  */
+// Rust: pub struct InlineInt(i32)
 @JvmInline
 internal value class InlineInt private constructor(private val value: Int) : Comparable<InlineInt> {
 
     companion object {
+        // Rust: const fn min_max_for_bits(bits: usize) -> (i32, i32)
         private fun minMaxForBits(bits: Int): Pair<Int, Int> {
             val max = ((1L shl (bits - 1)) - 1).toInt()
             val min = -max - 1
@@ -44,12 +43,10 @@ internal value class InlineInt private constructor(private val value: Int) : Com
 
         /**
          * Number of bits in the integer.
+         *
+         * In Rust this is 32 on 64-bit platforms, 29 on 32-bit.
+         * Kotlin Multiplatform targets 64-bit, so we use 32.
          */
-        // In Kotlin Multiplatform, we use 32 bits for now.
-        // The Rust code uses conditional compilation based on target_pointer_width:
-        // - 64-bit platforms use 32 bits
-        // - 32-bit platforms use 29 bits
-        // For semantic parity, this should be adjusted based on platform when needed.
         internal const val BITS: Int = 32
 
         internal val ZERO: InlineInt = InlineInt(0)
@@ -57,49 +54,63 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         internal val MIN: InlineInt = InlineInt(minMaxForBits(BITS).first)
         internal val MAX: InlineInt = InlineInt(minMaxForBits(BITS).second)
 
-        /**
-         * This type does not contain full range of `i32`.
-         */
+        /** This type does not contain full range of i32. */
         internal fun smallerThanI32(): Boolean {
             return BITS < 32
         }
 
+        // Rust: fn new_unchecked(i: i32) -> InlineInt
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun newUnchecked(i: Int): InlineInt {
             return InlineInt(i)
         }
 
+        // Rust: fn testing_new(i: i32) -> InlineInt
         internal fun testingNew(i: Int): InlineInt {
             return tryFrom(i).getOrThrow()
         }
 
+        // --- TryFrom impls ---
+
+        // Rust: impl TryFrom<i32> for InlineInt
         internal fun tryFrom(value: Int): Result<InlineInt> {
             return tryFromImpl(value)
         }
 
+        // Rust: impl TryFrom<u32> for InlineInt
         internal fun tryFrom(value: UInt): Result<InlineInt> {
             val i = value.toInt()
             if (i < 0) return Result.failure(InlineIntOverflow())
-            return tryFromImpl(i).flatMap { result ->
-                if (result.toI32() == i) {
-                    Result.success(result)
+            return tryFromImpl(i).mapCatching { result ->
+                if (result.toI32().toUInt() == value) {
+                    result
                 } else {
-                    Result.failure(InlineIntOverflow())
+                    throw InlineIntOverflow()
                 }
             }
         }
 
+        // Rust: impl TryFrom<i64> for InlineInt
         internal fun tryFrom(value: Long): Result<InlineInt> {
             return tryFromImpl(value)
         }
 
+        // Rust: impl TryFrom<u64> for InlineInt
         internal fun tryFrom(value: ULong): Result<InlineInt> {
             return tryFromImpl(value)
         }
 
-        // Kotlin doesn't have USize/ISize as platform-specific types
-        // We use Long as the closest equivalent
+        // Rust: impl TryFrom<&BigInt> for InlineInt
+        internal fun tryFrom(value: BigInteger): Result<InlineInt> {
+            return try {
+                val i = value.intValue(exactRequired = true)
+                tryFromImpl(i)
+            } catch (_: ArithmeticException) {
+                Result.failure(InlineIntOverflow())
+            }
+        }
 
+        // Rust: fn try_from_impl<I>(i: I) -> Result<InlineInt, InlineIntOverflow>
         private inline fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
             val i = when (value) {
@@ -125,7 +136,6 @@ internal value class InlineInt private constructor(private val value: Int) : Com
                 else -> return Result.failure(InlineIntOverflow())
             }
 
-            // Only absurd for certain bit widths
             @Suppress("KotlinConstantConditions")
             if (likely(i >= MIN.value && i <= MAX.value)) {
                 return Result.success(InlineInt(i))
@@ -133,41 +143,43 @@ internal value class InlineInt private constructor(private val value: Int) : Com
                 return Result.failure(InlineIntOverflow())
             }
         }
-
-        internal fun tryFromBigInt(value: java.math.BigInteger): Result<InlineInt> {
-            // Try to convert BigInt to Int first
-            if (value < Int.MIN_VALUE.toBigInteger() || value > Int.MAX_VALUE.toBigInteger()) {
-                return Result.failure(InlineIntOverflow())
-            }
-            return tryFromImpl(value.toInt())
-        }
     }
 
+    // --- Conversion methods ---
+
+    /** Rust: fn to_i32(self) -> i32 */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun toI32(): Int {
         return value
     }
 
+    /** Rust: fn to_u64(self) -> Option<u64> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun toU64(): ULong? {
         return if (value >= 0) value.toULong() else null
     }
 
+    /** Rust: fn to_u32(self) -> Option<u32> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun toU32(): UInt? {
         return if (value >= 0) value.toUInt() else null
     }
 
+    /** Rust: fn to_f64(self) -> f64 */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun toF64(): Double {
         return value.toDouble()
     }
 
+    /** Rust: fn signum(self) -> i32 */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun signum(): Int {
         return value.compareTo(0)
     }
 
+    // --- Checked arithmetic ---
+
+    /** Rust: fn checked_add(self, rhs: InlineInt) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedAdd(rhs: InlineInt): InlineInt? {
         val result = value.toLong() + rhs.value.toLong()
@@ -177,11 +189,13 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(result.toInt()).getOrNull()
     }
 
+    /** Rust: fn checked_sub(self, rhs: InlineInt) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedSub(rhs: InlineInt): InlineInt? {
         return checkedSubI32(rhs.value)
     }
 
+    /** Rust: fn checked_sub_i32(self, rhs: i32) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedSubI32(rhs: Int): InlineInt? {
         val result = value.toLong() - rhs.toLong()
@@ -191,6 +205,7 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(result.toInt()).getOrNull()
     }
 
+    /** Rust: fn checked_neg(self) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedNeg(): InlineInt? {
         if (value == Int.MIN_VALUE) {
@@ -199,6 +214,7 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(-value).getOrNull()
     }
 
+    /** Rust: fn checked_div(self, rhs: InlineInt) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedDiv(rhs: InlineInt): InlineInt? {
         if (rhs.value == 0) {
@@ -211,6 +227,7 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(result).getOrNull()
     }
 
+    /** Rust: fn checked_mul_i32(self, rhs: i32) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedMulI32(rhs: Int): InlineInt? {
         val result = value.toLong() * rhs.toLong()
@@ -220,6 +237,7 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(result.toInt()).getOrNull()
     }
 
+    /** Rust: fn checked_shr(self, rhs: u32) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedShr(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
@@ -229,37 +247,36 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return tryFrom(result).getOrNull()
     }
 
+    /** Rust: fn checked_shl(self, rhs: u32) -> Option<InlineInt> */
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedShl(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
             return null
         }
         val result = value shl rhs.toInt()
-        // Check for overflow: if the sign changed or bits were lost
-        if ((value >= 0 && result < 0) || (value < 0 && result >= 0)) {
-            return null
-        }
-        // Also check if the shift back doesn't restore the original
         if ((result shr rhs.toInt()) != value) {
             return null
         }
         return tryFrom(result).getOrNull()
     }
 
-    internal fun toBigInt(): java.math.BigInteger {
-        return value.toBigInteger()
+    // --- BigInt / abs ---
+
+    /** Rust: fn to_bigint(self) -> BigInt */
+    internal fun toBigInt(): BigInteger {
+        return BigInteger.fromInt(value)
     }
 
+    /** Rust: fn abs(self) -> StarlarkInt */
     internal fun abs(): StarlarkInt {
         if (value == Int.MIN_VALUE) {
-            // Int.MIN_VALUE.absoluteValue overflows, need to use BigInt
-            return StarlarkInt.fromBigInt(toBigInt().abs())
+            return StarlarkInt.from(toBigInt().abs())
         }
-        val abs = kotlin.math.abs(value)
-        return StarlarkInt.fromI32(abs)
+        return StarlarkInt.from(kotlin.math.abs(value))
     }
 
-    // Bitwise operators
+    // --- Bitwise operators (Rust: BitAnd, BitOr, BitXor, Not) ---
+
     infix fun and(other: InlineInt): InlineInt {
         return InlineInt(value and other.value)
     }
@@ -276,12 +293,14 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return InlineInt(value.inv())
     }
 
-    // Remainder operator
+    // --- Rem (Rust: impl Rem for InlineInt) ---
+
     operator fun rem(other: InlineInt): InlineInt {
         return InlineInt(value % other.value)
     }
 
-    // Comparison operators
+    // --- Comparison (Rust: PartialEq/PartialOrd with i32, Comparable<InlineInt>) ---
+
     override fun compareTo(other: InlineInt): Int {
         return value.compareTo(other.value)
     }
@@ -290,7 +309,6 @@ internal value class InlineInt private constructor(private val value: Int) : Com
         return value.compareTo(other)
     }
 
-    // Equality with Int
     override fun equals(other: Any?): Boolean {
         return when (other) {
             is InlineInt -> value == other.value
@@ -308,149 +326,10 @@ internal value class InlineInt private constructor(private val value: Int) : Com
     }
 }
 
-// Extension functions for Int to support comparison with InlineInt
+// Rust: impl PartialOrd<InlineInt> for i32
 internal operator fun Int.compareTo(other: InlineInt): Int {
     return this.compareTo(other.toI32())
 }
 
-/**
- * Error type for InlineInt overflow.
- */
+/** Rust: pub struct InlineIntOverflow */
 internal class InlineIntOverflow : Exception("InlineInt overflow")
-
-// Placeholder types - these will be replaced when the actual implementations are ported
-// from their respective source files
-
-/**
- * Placeholder for StarlarkInt until int_or_big.rs is ported.
- */
-internal class StarlarkInt private constructor() {
-    companion object {
-        fun fromI32(value: Int): StarlarkInt = StarlarkInt()
-        fun fromBigInt(value: java.math.BigInteger): StarlarkInt = StarlarkInt()
-    }
-}
-
-/**
- * Placeholder for Ty until typing/ty.rs is ported.
- */
-internal class Ty private constructor()
-
-/**
- * Placeholder for PointerI32 until pointer_i32.rs is ported.
- */
-internal object PointerI32 {
-    fun starlarkTypeRepr(): Ty = Ty()
-}
-
-/**
- * Placeholder for StarlarkTypeRepr until values/type_repr.rs is ported.
- */
-internal interface StarlarkTypeRepr {
-    val canonical: StarlarkTypeRepr
-    fun starlarkTypeRepr(): Ty
-}
-
-/**
- * StarlarkTypeRepr implementation for InlineInt.
- */
-internal object InlineIntStarlarkTypeRepr : StarlarkTypeRepr {
-    override val canonical: StarlarkTypeRepr
-        get() = StarlarkIntStarlarkTypeRepr.canonical
-
-    override fun starlarkTypeRepr(): Ty {
-        return PointerI32.starlarkTypeRepr()
-    }
-}
-
-/**
- * Helper object for StarlarkInt's StarlarkTypeRepr.
- */
-private object StarlarkIntStarlarkTypeRepr : StarlarkTypeRepr {
-    override val canonical: StarlarkTypeRepr
-        get() = this
-
-    override fun starlarkTypeRepr(): Ty {
-        return PointerI32.starlarkTypeRepr()
-    }
-}
-
-/**
- * Placeholder for UnpackValue until it's ported.
- */
-internal interface UnpackValue<T> {
-    fun unpackValueImpl(value: Value<*>): Result<T?>
-}
-
-/**
- * UnpackValue implementation for InlineInt.
- */
-internal object InlineIntUnpackValue : UnpackValue<InlineInt> {
-    override fun unpackValueImpl(value: Value<*>): Result<InlineInt?> {
-        // TODO: return error on too big integer.
-        return Result.success(value.unpackInt())
-    }
-}
-
-/**
- * Placeholder for Value until it's ported.
- */
-internal class Value<T> private constructor() {
-    fun unpackInt(): InlineInt? = null
-
-    companion object {
-        fun newInt(i: InlineInt): Value<*> = Value<Any>()
-    }
-}
-
-/**
- * Placeholder for FrozenValue until it's ported.
- */
-internal class FrozenValue private constructor() {
-    companion object {
-        fun newInt(i: InlineInt): FrozenValue = FrozenValue()
-    }
-}
-
-/**
- * Placeholder for Heap until it's ported.
- */
-internal class Heap<T> private constructor()
-
-/**
- * Placeholder for FrozenHeap until it's ported.
- */
-internal class FrozenHeap private constructor()
-
-/**
- * Placeholder for AllocValue until it's ported.
- */
-internal interface AllocValue<T> {
-    fun allocValue(heap: Heap<T>): Value<T>
-}
-
-/**
- * InlineInt implementation of AllocValue.
- */
-internal object InlineIntAllocValue : AllocValue<Any> {
-    override fun allocValue(heap: Heap<Any>): Value<Any> {
-        // This will be properly implemented when Value is ported
-        return Value.newInt(InlineInt.ZERO)
-    }
-}
-
-/**
- * Placeholder for AllocFrozenValue until it's ported.
- */
-internal interface AllocFrozenValue {
-    fun allocFrozenValue(heap: FrozenHeap): FrozenValue
-}
-
-/**
- * InlineInt implementation of AllocFrozenValue.
- */
-internal object InlineIntAllocFrozenValue : AllocFrozenValue {
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return FrozenValue.newInt(InlineInt.ZERO)
-    }
-}

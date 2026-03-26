@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-//! The dictionary type, a mutable associative-map, which iterates in insertion order.
+/** The dictionary type, a mutable associative-map, which iterates in insertion order. */
 
-// Module gateway for values/types/dict.
+// Rust mod declarations — in Kotlin, these are separate files in the dict/ package.
 // mod alloc;
 // mod dict_type;
 // pub(crate) mod globals;
@@ -31,10 +31,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 // pub(crate) mod unpack;
 // pub(crate) mod value;
 
-// pub use crate::values::dict::alloc::AllocDict;
-// pub use crate::values::dict::dict_type::DictType;
-// pub use crate::values::dict::refs::DictMut;
-// pub use crate::values::dict::refs::DictRef;
-// pub use crate::values::dict::refs::FrozenDictRef;
-// pub use crate::values::dict::unpack::UnpackDictEntries;
-// pub use crate::values::dict::value::Dict;
+// Rust pub use re-exports — in Kotlin, classes are directly accessible via their package.
+// pub use alloc::AllocDict;
+// pub use dict_type::DictType;
+// pub use refs::DictMut;
+// pub use refs::DictRef;
+// pub use refs::FrozenDictRef;
+// pub use unpack::UnpackDictEntries;
+// pub use value::Dict;

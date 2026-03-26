@@ -22,14 +22,15 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.stdlib.fromString
 
-/// Create a [`FrozenStringValue`].
-// #[macro_export]
-// macro_rules! const_frozen_string { ... }
-// Kotlin: No macro system. Translated as a function that creates frozen string values.
-// In Rust, this macro creates compile-time static frozen strings using `StarlarkStrNRepr`.
-// In Kotlin, we simply intern/cache the string.
+/**
+ * Kotlin equivalent of Rust's `const_frozen_string!` macro.
+ *
+ * In Rust, this macro creates compile-time static frozen string values using `StarlarkStrNRepr`.
+ * Kotlin has no macro system, so this is implemented as a function that interns/caches
+ * frozen string values for identity-based comparison.
+ */
 
-// Cache for frequently used frozen strings.
+/** Cache for frequently used frozen strings. */
 private val frozenStringCache = HashMap<String, FrozenStringValue>()
 
 /**

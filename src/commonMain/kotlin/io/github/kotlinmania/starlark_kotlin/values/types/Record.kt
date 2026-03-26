@@ -19,16 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-//! A `record` type, comprising of a fixed set of fields.
-//!
-//! Calling `record()` produces a `RecordType`. Calling `RecordType` produces a `Record`.
-//! The field names of the record are only stored once, potentially reducing memory usage.
+/**
+ * A `record` type, comprising of a fixed set of fields.
+ *
+ * Calling `record()` produces a `RecordType`. Calling `RecordType` produces a `Record`.
+ * The field names of the record are only stored once, potentially reducing memory usage.
+ */
 
-// pub(crate) mod field;
-// pub(crate) mod globals;
-// pub(crate) mod instance;
-// pub(crate) mod matcher;
-// pub(crate) mod record_type;
-// pub(crate) mod ty_record_type;
-
-// pub use crate::values::record::instance::Record;
+// Rust mod declarations — in Kotlin, these are separate files in the record/ package.
+// mod field
+// mod globals
+// mod instance
+// mod matcher
+// mod record_type
+// mod ty_record_type
+// pub use instance::Record

@@ -26,11 +26,11 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
 
-/// Unpack the value of type `T`, but do not store result.
-///
-/// This can be used when type needs to be checked, but the unpacked value is not needed.
-// #[derive(Clone_, Copy_, Dupe_, Allocative)]
-// pub struct UnpackAndDiscard<T>(PhantomData<fn() -> T>);
+/**
+ * Unpack the value of type [T], but do not store result.
+ *
+ * This can be used when type needs to be checked, but the unpacked value is not needed.
+ */
 class UnpackAndDiscard<T : Any> private constructor(
     // Kotlin: KClass replaces PhantomData for type info.
     private val targetType: KClass<T>,

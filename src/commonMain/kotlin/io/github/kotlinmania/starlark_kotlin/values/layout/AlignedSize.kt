@@ -21,10 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 
-/// Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
-// #[derive(Copy, Clone, Dupe, Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative, Display)]
-// #[repr(transparent)]
-// pub(crate) struct AlignedSize { bytes: u32 }
+/** Allocations in Starlark are word-aligned, and this type represents the size of an allocation. */
 internal data class AlignedSize(
     /** Starlark only supports objects smaller than 1 shl 32. */
     // bytes: u32

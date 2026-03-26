@@ -28,25 +28,22 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
 
-/// A wrapper that keeps the original value on the heap for use elsewhere,
-/// and also, when unpacked, unpacks the value to validate it is of
-/// the correct type.
-// #[derive(Debug, Copy, Clone, Dupe)]
-// pub struct ValueOf<'v, T: UnpackValue<'v>> {
-//     pub value: Value<'v>,
-//     pub typed: T,
-// }
+/**
+ * A wrapper that keeps the original value on the heap for use elsewhere,
+ * and also, when unpacked, unpacks the value to validate it is of
+ * the correct type. Has an [UnpackValue] instance, so often used as
+ * an argument to `#[starlark_module]` defined functions.
+ */
 class ValueOf<T>(
-    /// The original Value on the same heap.
+    /** The original [Value] on the same heap. */
     val value: Value,
-    /// The value that was unpacked.
+    /** The value that was unpacked. */
     val typed: T,
 ) : StarlarkTypeRepr, AllocValue {
 
     // impl ValueOf
 
-    /// Convert to `ValueOfUnchecked`.
-    // pub fn as_unchecked(&self) -> ValueOfUnchecked<'v, T>
+    /** Convert to [ValueOfUnchecked]. */
     fun asUnchecked(): ValueOfUnchecked<T> {
         return ValueOfUnchecked.new(value)
     }

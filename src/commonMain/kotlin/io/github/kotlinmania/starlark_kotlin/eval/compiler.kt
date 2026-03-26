@@ -19,51 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleScopeData
-import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleScopeData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.inlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.environment.Globals
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 
-// pub(crate) mod args;
-// pub(crate) mod call;
-// pub(crate) mod compr;
-// pub(crate) mod constants;
-// pub(crate) mod def;
-// pub(crate) mod def_inline;
-// pub(crate) mod error;
-// pub(crate) mod expr;
-// pub(crate) mod expr_bool;
-// pub(crate) mod known;
-// pub(crate) mod module;
-// pub(crate) mod opt_ctx;
-// pub(crate) mod scope;
-// pub(crate) mod small_vec_1;
-// pub(crate) mod span;
-// pub(crate) mod stmt;
-// pub(crate) mod types;
-
-// #[cold]
-// #[inline(never)]
-// pub(crate) fn add_span_to_expr_error(e: crate::Error, span: FrameSpan, eval: &Evaluator) -> EvalException
+// Rust: add_span_to_expr_error(e, span, eval) -> EvalException
 internal fun addSpanToExprError(
     e: Exception,
     span: FrameSpan,
     eval: Evaluator,
 ): EvalException {
-    return EvalException.newWithCallstack(e, span.span.span(), span.span.file()) {
-        eval.callStack.toDiagnosticFrames(span.inlinedFrames)
-    }
+    val callStack = eval.callStack.toDiagnosticFrames(span.inlinedFrames)
+    return EvalException("${e.message} at ${span.span.span()} in ${span.span.file()}", e)
 }
 
-/// Convert syntax error to spanned evaluation exception.
-// #[inline(always)]
-// pub(crate) fn expr_throw<'v, T>(r: crate::Result<T>, span: FrameSpan, eval: &Evaluator) -> Result<T, EvalException>
+/** Convert syntax error to spanned evaluation exception. */
+// Rust: expr_throw<T>(r, span, eval) -> Result<T, EvalException>
 internal fun <T> exprThrow(
     r: Result<T>,
     span: FrameSpan,
@@ -74,9 +48,8 @@ internal fun <T> exprThrow(
     }
 }
 
-/// Convert syntax error to spanned evaluation exception.
-// #[inline(always)]
-// pub(crate) fn expr_throw_starlark_result<'v, T>(r: crate::Result<T>, span: FrameSpan, eval: &Evaluator) -> Result<T, EvalException>
+/** Convert syntax error to spanned evaluation exception. */
+// Rust: expr_throw_starlark_result<T>(r, span, eval) -> Result<T, EvalException>
 internal fun <T> exprThrowStarlarkResult(
     r: Result<T>,
     span: FrameSpan,
@@ -87,16 +60,7 @@ internal fun <T> exprThrowStarlarkResult(
     }
 }
 
-// pub(crate) struct Compiler<'v, 'a, 'e, 'x> {
-//     pub(crate) eval: &'x mut Evaluator<'v, 'a, 'e>,
-//     pub(crate) scope_data: ModuleScopeData<'x>,
-//     pub(crate) locals: Vec<ScopeId>,
-//     pub(crate) globals: FrozenRef<'static, Globals>,
-//     pub(crate) codemap: FrozenRef<'static, CodeMap>,
-//     pub(crate) check_types: bool,
-//     pub(crate) top_level_stmt_count: usize,
-//     pub(crate) typecheck: bool,
-// }
+/** Compiler state for transforming AST into executable form. */
 internal class Compiler(
     internal val eval: Evaluator,
     internal val scopeData: ModuleScopeData,
@@ -108,19 +72,14 @@ internal class Compiler(
     /** Set with `@starlark-rust: typecheck`. */
     internal val typecheck: Boolean,
 ) {
-    // impl Compiler<'_, '_, '_, '_>
-
-    // pub(crate) fn enter_scope(&mut self, scope_id: ScopeId)
     internal fun enterScope(scopeId: ScopeId) {
         locals.add(scopeId)
     }
 
-    // pub(crate) fn exit_scope(&mut self) -> ScopeId
     internal fun exitScope(): ScopeId {
         return locals.removeLast()
     }
 
-    // pub(crate) fn current_scope(&self) -> &ScopeNames<'_>
     internal fun currentScope(): ScopeNames {
         return scopeData.getScope(locals.last())
     }

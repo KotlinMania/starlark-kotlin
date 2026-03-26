@@ -22,13 +22,9 @@ package io.github.kotlinmania.starlark_kotlin.values.demand
 import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-/// Taken by [`StarlarkValue::provide`](crate::values::StarlarkValue::provide)
-/// to provide different data depending on the type.
-// pub struct Demand<'a, 'v> {
-//     type_id_of_t: TypeId,
-//     option: *mut (),
-//     _marker: PhantomData<&'a mut &'v ()>,
-// }
+/**
+ * Taken by `StarlarkValue.provide` to provide different data depending on the type.
+ */
 class Demand internal constructor(
     // Kotlin: use KClass for type identification instead of TypeId + raw pointer.
     private val requestedType: KClass<*>,
@@ -44,11 +40,12 @@ class Demand internal constructor(
         // Kotlin: constructors are used directly.
     }
 
-    /// Provide a value of given type.
-    ///
-    /// If type matches the type requested from [`Value::request_value`], the value is stored
-    /// inside the [`Demand`] and later returned, otherwise the value is discarded.
-    // pub fn provide_value<T: AnyLifetime<'v>>(&mut self, value: T)
+    /**
+     * Provide a value of given type.
+     *
+     * If type matches the type requested from `Value.requestValue`, the value is stored
+     * inside the [Demand] and later returned, otherwise the value is discarded.
+     */
     fun provideValue(value: Any) {
         if (requestedType.isInstance(value)) {
             result = value
@@ -56,8 +53,7 @@ class Demand internal constructor(
         }
     }
 
-    /// Similar to `provide_value`, but does not require implementing `ProvidesStaticType`.
-    // pub(crate) fn provide_ref_static<T: 'static + ?Sized>(&mut self, value: &'v T)
+    /** Similar to [provideValue], but does not require implementing `ProvidesStaticType`. */
     internal fun provideRefStatic(value: Any) {
         if (requestedType.isInstance(value)) {
             result = value

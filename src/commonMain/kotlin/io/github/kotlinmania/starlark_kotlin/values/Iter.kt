@@ -1,11 +1,6 @@
 // port-lint: source src/values/iter.rs
 package io.github.kotlinmania.starlark_kotlin.values
 
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
-import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
-
-
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -24,12 +19,21 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+
 /**
  * Iterator of starlark values.
+ *
+ * Corresponds to Rust's `StarlarkIterator<'v>`. Implements Kotlin's [Iterator] interface
+ * with a two-phase `hasNext()`/`next()` protocol instead of Rust's single `next() -> Option`.
+ *
+ * @property value Iterator implementation. Typically an iterable itself.
+ * @property index Current index.
+ * @property heap Heap to allocate values on.
  */
-// #[derive(Debug)]
-// pub struct StarlarkIterator<'v>
-class StarlarkIterator(
+class StarlarkIterator private constructor(
     /** Iterator implementation. Typically an iterable itself. */
     private var value: Value,
     /** Current index. */
@@ -38,14 +42,22 @@ class StarlarkIterator(
     private val heap: Heap,
 ) : Iterator<Value> {
 
-    // impl<'v> StarlarkIterator<'v>
-
+    /**
+     * Whether the iterator has been exhausted.
+     * Used to track when `iter_stop` has already been called.
+     */
     private var stopped: Boolean = false
 
-    // impl<'v> Iterator for StarlarkIterator<'v>
-    // type Item = Value<'v>
+    /** Cached next value from [hasNext] for use by [next]. */
+    private var nextValue: Value? = null
 
-    // fn next(&mut self) -> Option<Value<'v>>
+    /**
+     * Check if the iterator has more elements.
+     *
+     * Delegates to `iter_next` on the underlying value. When no more elements
+     * remain, calls `iter_stop` exactly once and replaces the value with an
+     * empty tuple (for which `iter_stop` is a no-op).
+     */
     override fun hasNext(): Boolean {
         if (stopped) return false
         val r = value.getRef().iterNext(index, heap)
@@ -64,8 +76,11 @@ class StarlarkIterator(
         }
     }
 
-    private var nextValue: Value? = null
-
+    /**
+     * Returns the next element in the iteration.
+     *
+     * @throws NoSuchElementException if the iterator is exhausted.
+     */
     override fun next(): Value {
         if (nextValue != null || hasNext()) {
             val v = nextValue!!
@@ -76,26 +91,33 @@ class StarlarkIterator(
         throw NoSuchElementException()
     }
 
-    // fn size_hint(&self) -> (usize, Option<usize>)
-    /** Returns a size hint for the remaining elements. */
+    /**
+     * Returns a size hint for the remaining elements.
+     *
+     * Returns a pair of `(lower_bound, upper_bound)` where `upper_bound`
+     * is `null` if the upper bound is unknown.
+     */
     fun sizeHint(): Pair<Int, Int?> {
         return value.getRef().iterSizeHint(index)
     }
 
-    // impl<'v> Drop for StarlarkIterator<'v>
-    // fn drop(&mut self)
-    /** Call iter_stop to clean up iteration state. */
+    /**
+     * Clean up iteration state.
+     *
+     * Corresponds to Rust's `Drop` implementation for `StarlarkIterator`.
+     * `iter_stop` is a no-op for empty tuple, which saves a virtual call
+     * after the iterator is exhausted.
+     */
     fun close() {
-        // `iter_stop` is no-op for empty tuple, this saves us from virtual call
-        // after iterator is exhausted.
         if (!value.ptrEq(Value.newEmptyTuple())) {
             value.getRef().iterStop()
         }
     }
 
     companion object {
-        // pub(crate) fn new(value: Value<'v>, heap: Heap<'v>) -> StarlarkIterator<'v>
-        /** Construct iterator from the given value. */
+        /**
+         * Construct iterator from the given value.
+         */
         internal fun new(value: Value, heap: Heap): StarlarkIterator {
             return StarlarkIterator(
                 value = value,
@@ -104,8 +126,9 @@ class StarlarkIterator(
             )
         }
 
-        // pub fn empty(heap: Heap<'v>) -> StarlarkIterator<'v>
-        /** Iterator yielding no values. */
+        /**
+         * Iterator yielding no values.
+         */
         fun empty(heap: Heap): StarlarkIterator {
             return new(Value.newEmptyTuple(), heap)
         }

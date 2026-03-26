@@ -21,29 +21,25 @@ package io.github.kotlinmania.starlark_kotlin.any
 
 import kotlin.reflect.KClass
 
-/// Methods that build upon the `Any` trait.
+/** Methods that build upon the `Any` trait. */
 
-// pub unsafe trait ProvidesStaticType<'a> {
-//     type StaticType: 'static + ?Sized;
-// }
-/// Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
-/// (including lifetimes of parameters).
-///
-/// In Kotlin, this is represented via `KClass` since there are no lifetime parameters.
-/// This type is usually derived in Rust; in Kotlin, every class inherently provides its type.
+/**
+ * Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
+ * (including lifetimes of parameters).
+ *
+ * This type is usually implemented with `#[derive(ProvidesStaticType)]` in Rust.
+ * In Kotlin, this is represented via [KClass] since there are no lifetime parameters.
+ */
 interface ProvidesStaticType {
     /** Same type as `Self` but with lifetimes dropped to `'static`. */
     val staticType: KClass<*>
 }
 
-// pub trait AnyLifetime<'a>: 'a {
-//     fn static_type_id() -> TypeId where Self: Sized;
-//     fn static_type_of(&self) -> TypeId;
-// }
-/// Like `Any`, but while `Any` requires `'static`, this version allows a lifetime parameter.
-///
-/// In Kotlin, this maps to runtime type checking since the language has no lifetime system.
-/// You cannot implement this trait directly. You should instead implement `ProvidesStaticType`.
+/**
+ * Like `Any`, but while `Any` requires `'static`, this version allows a lifetime parameter.
+ *
+ * You cannot implement this trait directly. You should instead implement [ProvidesStaticType].
+ */
 interface AnyLifetime {
     /** Must return the `TypeId` of `Self` but where the lifetimes are changed to `'static`. */
     fun staticTypeOf(): KClass<*>
@@ -55,20 +51,17 @@ interface AnyLifetime {
 
 // impl<'a> dyn AnyLifetime<'a> {
 
-/// Is the value of type `T`.
-// pub fn is<T: AnyLifetime<'a>>(&self) -> bool
+/** Is the value of type [T]. */
 inline fun <reified T> AnyLifetime.isType(): Boolean {
     return this is T
 }
 
-/// Downcast a reference to type `T`, or return `null` if it is not the right type.
-// pub fn downcast_ref<T: AnyLifetime<'a>>(&self) -> Option<&T>
+/** Downcast a reference to type [T], or return `null` if it is not the right type. */
 inline fun <reified T> AnyLifetime.downcastRef(): T? {
     return this as? T
 }
 
-/// Downcast a mutable reference to type `T`, or return `null` if it is not the right type.
-// pub fn downcast_mut<T: AnyLifetime<'a>>(&mut self) -> Option<&mut T>
+/** Downcast a mutable reference to type [T], or return `null` if it is not the right type. */
 inline fun <reified T> AnyLifetime.downcastMut(): T? {
     return this as? T
 }

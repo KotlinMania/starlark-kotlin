@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-//! Provides the `namespace` type and global
+/** Provides the `namespace` type and global. */
 
-// pub(crate) mod globals;
-// mod typing;
-// pub(crate) mod value;
-
-// pub use value::FrozenNamespace;
-// pub use value::Namespace;
+// Rust mod declarations — in Kotlin, these are separate files in the namespace/ package.
+// mod globals
+// mod typing
+// mod value
+// pub use value::FrozenNamespace
+// pub use value::Namespace

@@ -21,72 +21,101 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
 import io.github.kotlinmania.starlark_kotlin.codemap.sourceSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
 import io.github.kotlinmania.starlark_kotlin.codemap.endSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.values.default
 
-// #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq)]
-// pub(crate) struct FrozenFileSpan {
-//     file: FrozenRef<'static, CodeMap>,
-//     span: Span,
-// }
+/**
+ * A file span that references a frozen (immutable) [CodeMap] and a [Span] within it.
+ *
+ * This is the frozen counterpart of [FileSpan], used after the module has been frozen.
+ * The [file] and [span] are both immutable once created.
+ *
+ * Rust: `FrozenFileSpan` — `#[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq)]`
+ */
 internal data class FrozenFileSpan(
-    // file: FrozenRef<'static, CodeMap>
+    /** The frozen code map this span belongs to. */
     private val file: FrozenRef<CodeMap>,
-    // span: Span
+    /** The span within [file]. */
     private val span: Span,
 ) {
-    // impl Display for FrozenFileSpan
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    // Rust: impl Display for FrozenFileSpan
     override fun toString(): String = toFileSpan().toString()
 
-    // impl FrozenFileSpan
-
     companion object {
-        // impl Default for FrozenFileSpan
-        // fn default() -> FrozenFileSpan
+        /**
+         * Returns a default [FrozenFileSpan] with an empty code map and default span.
+         *
+         * Rust: `impl Default for FrozenFileSpan`
+         */
         fun default(): FrozenFileSpan {
             return FrozenFileSpan(FrozenRef(CodeMap.emptyStatic()), Span.default())
         }
     }
 
-    // pub(crate) const fn new_unchecked(file: FrozenRef<'static, CodeMap>, span: Span) -> FrozenFileSpan
-    // Kotlin: Use primary constructor directly for unchecked creation.
+    // The primary constructor serves as the unchecked factory (Rust: `new_unchecked`).
 
-    // pub(crate) fn new(file: FrozenRef<'static, CodeMap>, span: Span) -> FrozenFileSpan
-    /** Create a new [FrozenFileSpan], validating the span against the file. */
-    constructor(file: FrozenRef<CodeMap>, span: Span, @Suppress("UNUSED_PARAMETER") validate: Boolean = true) : this(file, span) {
+    /**
+     * Creates a new [FrozenFileSpan], validating that [span] is valid within [file].
+     *
+     * Throws if the span is not valid for the given code map.
+     *
+     * Rust: `fn new(file, span) -> FrozenFileSpan`
+     *
+     * @param validate Disambiguates from the primary constructor; always `true`.
+     */
+    constructor(
+        file: FrozenRef<CodeMap>,
+        span: Span,
+        @Suppress("UNUSED_PARAMETER") validate: Boolean = true,
+    ) : this(file, span) {
         // Check the span is valid: this will panic if the span is not valid.
         file.get().sourceSpan(span)
     }
 
-    // pub(crate) fn file(&self) -> FrozenRef<'static, CodeMap>
+    /** Returns the frozen code map reference. */
+    // Rust: fn file(&self) -> FrozenRef<'static, CodeMap>
     internal fun file(): FrozenRef<CodeMap> = file
 
-    // pub(crate) fn span(&self) -> Span
+    /** Returns the span within the code map. */
+    // Rust: fn span(&self) -> Span
     internal fun span(): Span = span
 
-    // pub(crate) fn end_span(&self) -> FrozenFileSpan
+    /**
+     * Returns a new [FrozenFileSpan] pointing to the end of this span.
+     *
+     * Rust: `fn end_span(&self) -> FrozenFileSpan`
+     */
     internal fun endSpan(): FrozenFileSpan {
         return FrozenFileSpan(file, span.endSpan())
     }
 
-    // pub(crate) fn file_span_ref(&self) -> FileSpanRef<'static>
+    /**
+     * Converts this frozen span to a [FileSpanRef].
+     *
+     * Rust: `fn file_span_ref(&self) -> FileSpanRef<'static>`
+     */
     internal fun fileSpanRef(): FileSpanRef {
         return FileSpanRef(file.get(), span)
     }
 
-    // pub(crate) fn to_file_span(&self) -> FileSpan
+    /**
+     * Converts this frozen span to an owned [FileSpan].
+     *
+     * Rust: `fn to_file_span(&self) -> FileSpan`
+     */
     internal fun toFileSpan(): FileSpan {
         return FileSpan(file.get(), span)
     }
 
-    // pub(crate) fn merge(&self, other: &FrozenFileSpan) -> FrozenFileSpan
+    /**
+     * Merges this span with [other]. If both reference the same file, returns a span
+     * covering both. Otherwise returns `this`.
+     *
+     * Rust: `fn merge(&self, other: &FrozenFileSpan) -> FrozenFileSpan`
+     */
     internal fun merge(other: FrozenFileSpan): FrozenFileSpan {
         return if (file == other.file) {
             FrozenFileSpan(file, span.merge(other.span))

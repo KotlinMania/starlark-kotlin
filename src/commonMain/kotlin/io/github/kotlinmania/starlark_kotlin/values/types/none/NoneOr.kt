@@ -24,30 +24,34 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
- * Equivalent of a Rust [Option], where `None`
+ * Equivalent of a Kotlin nullable type, where `null`
  * is encoded as [NoneType].
  * Useful for its [UnpackValue] instance.
  */
-sealed class NoneOr<out T> {
-    /**
-     * Starlark `None`.
-     */
-    data object None : NoneOr<kotlin.Nothing>()
+sealed class NoneOr<out T> : StarlarkTypeRepr {
+    /** Starlark `None`. */
+    data object None : NoneOr<kotlin.Nothing>() {
+        override fun starlarkTypeRepr(): Ty = Ty.none()
+    }
 
-    /**
-     * Not `None`.
-     */
-    data class Other<T>(val value: T) : NoneOr<T>()
+    /** Not `None`. */
+    data class Other<T>(val value: T) : NoneOr<T>() {
+        override fun starlarkTypeRepr(): Ty {
+            return if (value is StarlarkTypeRepr) {
+                Ty.union2(Ty.none(), value.starlarkTypeRepr())
+            } else {
+                Ty.none()
+            }
+        }
+    }
 
-    /**
-     * Convert the [NoneOr] to a real Kotlin [Option] (nullable type).
-     */
+    /** Convert the [NoneOr] to a nullable type. */
     inline fun intoOption(): T? {
         return when (this) {
             is None -> null
@@ -55,17 +59,13 @@ sealed class NoneOr<out T> {
         }
     }
 
-    /**
-     * Is the value a [NoneOr.None].
-     */
+    /** Is the value a [NoneOr.None]. */
     fun isNone(): Boolean {
         return this is None
     }
 
     companion object {
-        /**
-         * Convert a Kotlin [Option] (nullable type) to a [NoneOr].
-         */
+        /** Convert a nullable type to a [NoneOr]. */
         inline fun <T> fromOption(option: T?): NoneOr<T> {
             return when (option) {
                 null -> None
@@ -75,14 +75,34 @@ sealed class NoneOr<out T> {
     }
 }
 
-// impl<T: StarlarkTypeRepr> StarlarkTypeRepr for NoneOr<T>
-expect class NoneOrStarlarkTypeRepr<T : StarlarkTypeRepr> : StarlarkTypeRepr
+/** [UnpackValue] implementation for [NoneOr]. */
+class NoneOrUnpackValue<T>(
+    private val inner: UnpackValue<T>,
+) : UnpackValue<NoneOr<T>> {
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.union2(Ty.none(), inner.starlarkTypeRepr())
+    }
 
-// impl<V_, T: UnpackValue<V_>> UnpackValue<V_> for NoneOr<T>
-expect class NoneOrUnpackValue<V_, T> : UnpackValue<V_>
+    override fun unpackValueImpl(value: Value): Result<NoneOr<T>?> {
+        if (value.isNone()) {
+            return Result.success(NoneOr.None)
+        }
+        return inner.unpackValueImpl(value).map { it?.let { NoneOr.Other(it) } }
+    }
+}
 
-// impl<V_, T: AllocValue<V_>> AllocValue<V_> for NoneOr<T>
-expect fun <V_, T> NoneOr<T>.allocValue(heap: Heap<V_>): Value<V_>
+/** [AllocValue] implementation for [NoneOr] where [T] implements [AllocValue]. */
+fun <T : AllocValue> NoneOr<T>.allocValue(heap: Heap): Value {
+    return when (this) {
+        is NoneOr.None -> Value.newNone()
+        is NoneOr.Other -> value.allocValue(heap)
+    }
+}
 
-// impl<T: AllocFrozenValue> AllocFrozenValue for NoneOr<T>
-expect fun <T> NoneOr<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+/** [AllocFrozenValue] implementation for [NoneOr] where [T] implements [AllocFrozenValue]. */
+fun <T : AllocFrozenValue> NoneOr<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue {
+    return when (this) {
+        is NoneOr.None -> FrozenValue.newNone()
+        is NoneOr.Other -> value.allocFrozenValue(heap)
+    }
+}

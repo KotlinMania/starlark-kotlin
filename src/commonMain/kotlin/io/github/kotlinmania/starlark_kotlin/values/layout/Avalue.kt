@@ -21,50 +21,59 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalue
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
+import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
 
-/// Extended vtable methods (those not covered by `StarlarkValue`).
-// pub(crate) trait AValue<'v>: Sized + 'v
+/** Extended vtable methods (those not covered by [StarlarkValue]). */
+// Rust: pub(crate) trait AValue<'v>: Sized + 'v
 internal interface AValue {
-    // type StarlarkValue: StarlarkValue<'v>;
-    // Kotlin: associated type represented as a generic bound on implementations.
 
-    // type ExtraElem: 'v;
-    // Kotlin: no extra element type needed; no raw memory layout.
-
-    // fn extra_len(value: &Self::StarlarkValue) -> usize;
     /** Payload array length. */
     fun extraLen(value: StarlarkValue): Int
 
-    // fn offset_of_extra() -> usize;
-    /** Offset of field holding content, in bytes. */
+    /** Offset of field holding content, in bytes. Return size of self if there's no extra content. */
     fun offsetOfExtra(): Int
 
-    // const IS_STR: bool = false;
     /** Type is `StarlarkStr`. */
     val isStr: Boolean get() = false
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     /** Memory size of starlark value including `AValueHeader`. */
-    fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize
-
-    // fn total_memory_for_profile(value: &Self::StarlarkValue) -> usize
-    /** The memory that should be charged to this value in a profile. */
-    fun totalMemoryForProfile(value: StarlarkValue): Int {
-        return allocSizeForExtraLen(extraLen(value)).bytes()
+    fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize {
+        require(offsetOfExtra() % AValueHeader.ALIGN == 0) {
+            "extra must be aligned"
+        }
+        val baseSize = AlignedSize.alignUp(offsetOfExtra())
+        val minAllocSize = MIN_ALLOC
+        val extraSize = AlignedSize.alignUp(
+            offsetOfExtra() + (extraLen * AValueHeader.ALIGN)
+        )
+        return ValueAllocSize.new(
+            maxOf(baseSize, minAllocSize, extraSize)
+        )
     }
 
-    // unsafe fn heap_freeze<'fv>(me: *mut AValueRepr<Self::StarlarkValue>, freezer: &Freezer<'fv>) -> FreezeResult<FrozenValue>
+    /**
+     * The memory that should be charged to this value in a profile.
+     *
+     * Both the size of the value itself and anything it references.
+     *
+     * This existing is a bit of a hack to let statically allocated values set this to zero.
+     */
+    fun totalMemoryForProfile(value: StarlarkValue): Int {
+        val allocSize = allocSizeForExtraLen(extraLen(value))
+        val allocBytes = allocSize.bytes().toInt()
+        return allocBytes
+    }
+
     /** Freeze this value on the heap. */
     fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue>
 
-    // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
     /** Copy this value on the heap during GC. */
     fun heapCopy(tracer: Tracer): Value
 
@@ -72,96 +81,73 @@ internal interface AValue {
     fun unpack(): StarlarkValue
 }
 
-/// A value with extended (`AValue`) vtable methods.
-// #[repr(C)]
-// pub(crate) struct AValueImpl<'v, T: AValue<'v>>(PhantomData<T>, pub(crate) T::StarlarkValue);
+/** A value with extended ([AValue]) vtable methods. */
+// Rust: #[repr(C)] pub(crate) struct AValueImpl<'v, T: AValue<'v>>
 internal class AValueImpl<T : AValue>(
     internal val value: StarlarkValue,
 ) {
-    // impl<'v, T: AValue<'v>> AValueImpl<'v, T>
-
     companion object {
-        // pub(crate) const fn new(value: T::StarlarkValue) -> Self
         fun <T : AValue> new(value: StarlarkValue): AValueImpl<T> {
             return AValueImpl(value)
         }
     }
 }
 
-/// If `A` provides a statically allocated frozen value,
-/// replace object with the forward to that frozen value instead of using default freeze.
-// pub(super) unsafe fn try_freeze_directly<'v, A>(...)
+/**
+ * If `A` provides a statically allocated frozen value,
+ * replace object with the forward to that frozen value instead of using default freeze.
+ *
+ * @return `null` if the value does not support direct freezing,
+ *   otherwise the [FreezeResult] of the frozen value.
+ */
 internal fun tryFreezeDirectly(
     payload: StarlarkValue,
     freezer: Freezer,
 ): FreezeResult<FrozenValue>? {
-    // unsafe {
-    //     let f = match (*me).payload.try_freeze_directly(freezer)? {
-    //         Ok(x) => x,
-    //         Err(e) => return Some(Err(e)),
-    //     };
-    //     drop(AValueHeader::overwrite_with_forward::<A::StarlarkValue>(
-    //         me, ForwardPtr::new_frozen(f),
-    //     ));
-    //     Some(Ok(f))
-    // }
-    val result = payload.tryFreezeDirectly(freezer) ?: return null
-    return result.map { f ->
-        // In Rust: overwrite with forward pointer.
-        // In Kotlin: GC manages references; no forwarding needed.
-        f
+    val f = payload.tryFreezeDirectly(freezer) ?: return null
+    return when {
+        f.isSuccess -> {
+            val frozenValue = f.getOrThrow()
+            // Rust: drop(AValueHeader::overwrite_with_forward(me, ForwardPtr::new_frozen(f)))
+            // Kotlin GC manages references; no forwarding needed.
+            Result.success(frozenValue)
+        }
+        else -> f
     }
 }
 
-/// `heap_freeze` implementation for simple `StarlarkValue` and `StarlarkFloat`.
-// pub(super) unsafe fn heap_freeze_simple_impl<'v, A>(...)
+/**
+ * `heap_freeze` implementation for simple [StarlarkValue] and `StarlarkFloat`.
+ *
+ * (`StarlarkFloat` is logically a simple type, but it is not considered simple type.)
+ */
 internal fun heapFreezeSimpleImpl(
     value: StarlarkValue,
     freezer: Freezer,
 ): FreezeResult<FrozenValue> {
-    // unsafe {
-    //     let (fv, r) = freezer.reserve::<A>();
-    //     let x = AValueHeader::overwrite_with_forward::<A::StarlarkValue>(
-    //         me, ForwardPtr::new_frozen(fv),
-    //     );
-    //     r.fill(x);
-    //     Ok(fv)
-    // }
-    // Kotlin: No raw memory manipulation.
-    // Simple freeze: allocate on frozen heap and return the frozen value.
-    return value.freeze(freezer)
+    val (fv, r) = freezer.reserve<AValue>()
+    r.fill(value)
+    return Result.success(fv)
 }
 
-/// Common `heap_copy` implementation for types without extra.
-// pub(super) unsafe fn heap_copy_impl<'v, A>(...)
+/** Common `heap_copy` implementation for types without extra. */
 internal fun heapCopyImpl(
     value: StarlarkValue,
     tracer: Tracer,
     trace: (StarlarkValue, Tracer) -> Unit,
 ): Value {
-    // unsafe {
-    //     let (v, r) = tracer.reserve::<A>();
-    //     let mut x = AValueHeader::overwrite_with_forward::<A::StarlarkValue>(
-    //         me, ForwardPtr::new_unfrozen(v),
-    //     );
-    //     trace(&mut x, tracer);
-    //     r.fill(x);
-    //     v
-    // }
-    // Kotlin: No raw memory manipulation.
-    // Copy: trace the value and return the traced copy.
+    val (v, r) = tracer.reserve<AValue>()
+    // We have to put the forwarding node in _before_ we trace in case there are cycles
     trace(value, tracer)
-    return value.toValue()
+    r.fill(value)
+    return v
 }
 
-// #[derive(Debug, Display, ProvidesStaticType, Allocative)]
-// #[display("BlackHole")]
-// pub(crate) struct BlackHole(pub(crate) ValueAllocSize);
+/** Placeholder used during GC to fill space vacated by a moved object. */
+// Rust: #[derive(Debug, Display, ProvidesStaticType, Allocative)]
+// Rust: #[display("BlackHole")]
 internal class BlackHole(
     internal val size: ValueAllocSize,
 ) {
     override fun toString(): String = "BlackHole"
 }
-
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.

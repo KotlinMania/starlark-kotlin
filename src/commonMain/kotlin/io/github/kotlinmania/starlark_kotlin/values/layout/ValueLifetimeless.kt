@@ -21,9 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 
-/// Implemented by [`Value`] and [`FrozenValue`].
-// pub trait ValueLifetimeless:
-//     Sealed + Eq + Copy + Dupe + Debug + Default + Display + Serialize + Allocative + Freeze<Frozen = FrozenValue> + Sized
-// Kotlin: Marker interface. The Rust supertraits (Eq, Copy, Debug, Display, Serialize, Allocative, Freeze)
-// are either handled by Kotlin language features (equals, hashCode, toString) or by Freeze interface.
+/** Implemented by [Value] and [FrozenValue][io.github.kotlinmania.starlark_kotlin.values.FrozenValue]. */
+// Rust supertraits: Sealed + Eq + Copy + Dupe + Debug + Default + Display + Serialize + Allocative + Freeze<Frozen = FrozenValue> + Sized
+// Kotlin: Most handled by language features (equals, hashCode, toString) or by the Freeze interface.
 interface ValueLifetimeless : Freeze

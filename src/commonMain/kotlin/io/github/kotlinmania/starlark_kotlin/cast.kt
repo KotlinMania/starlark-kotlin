@@ -19,24 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.cast
  * limitations under the License.
  */
 
-// #[inline(always)]
-// pub(crate) fn ptr_to_usize<T: ?Sized>(x: &T) -> usize
-/** Convert a reference to its identity (analogous to pointer-to-usize in Rust). */
+// Rust: fn ptr_to_usize<T: ?Sized>(x: &T) -> usize
+/** Convert a reference to its identity hash (analogous to pointer-to-usize in Rust). */
 internal fun ptrToUsize(x: Any): Int {
     return x.hashCode()
 }
 
-// pub(crate) unsafe fn usize_to_ptr<'a, T>(x: usize) -> &'a T
-// Kotlin: No equivalent — Rust raw pointer cast from integer.
-// Not transliterable; Kotlin does not support pointer arithmetic.
+// Rust: unsafe fn usize_to_ptr — not transliterable (raw pointer cast from integer)
+// Rust: unsafe fn ptr_lifetime — not transliterable (lifetime re-borrowing)
 
-// pub(crate) unsafe fn ptr_lifetime<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T
-// Kotlin: No lifetime system; references are managed by GC.
-// Not transliterable; Kotlin has no lifetime annotations.
-
-// macro_rules! transmute { ... }
-// pub(crate) use transmute;
-/** Unsafe reinterpret cast. In Kotlin, use `as` or `@Suppress("UNCHECKED_CAST")`. */
+// Rust: macro_rules! transmute
+/**
+ * Unsafe reinterpret cast, analogous to `transmute!(from, to, value)` in Rust.
+ *
+ * In Kotlin, uses an unchecked cast.
+ */
 @Suppress("UNCHECKED_CAST")
 internal fun <From, To> transmute(value: From): To {
     return value as To

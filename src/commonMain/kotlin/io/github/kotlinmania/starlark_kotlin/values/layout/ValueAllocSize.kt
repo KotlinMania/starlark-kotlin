@@ -22,12 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size
 import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 
-/// Size of `AValue` with `AValueHeader` added.
-/// This is the size of the value as it is stored in the heap.
-// #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Allocative)]
-// pub(crate) struct ValueAllocSize { size: AlignedSize }
+/**
+ * Size of `AValue` with `AValueHeader` added.
+ * This is the size of the value as it is stored in the heap.
+ */
 internal data class ValueAllocSize(
-    // size: AlignedSize
     private val size: AlignedSize,
 ) : Comparable<ValueAllocSize> {
 

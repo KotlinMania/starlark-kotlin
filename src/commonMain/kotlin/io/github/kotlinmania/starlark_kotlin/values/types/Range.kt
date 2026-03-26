@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  * limitations under the License.
  */
 
-//! The range type, constructed with `range()`.
+/** The range type, constructed with `range()`. */
 
-// pub(crate) mod globals;
-// mod range_type;
-
-// pub use range_type::Range;
+// Rust mod declarations — in Kotlin, these are separate files in the range/ package.
+// mod globals
+// mod range_type
+// pub use range_type::Range

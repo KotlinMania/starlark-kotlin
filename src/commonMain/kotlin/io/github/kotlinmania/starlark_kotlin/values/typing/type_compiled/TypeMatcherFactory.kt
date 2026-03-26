@@ -55,21 +55,14 @@ internal interface TypeMatcherFactoryDyn {
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled<Value>
 }
 
-/// Boxed `TypeMatcher`.
-// #[derive(Dupe, Clone, Allocative, Debug)]
-// pub struct TypeMatcherFactory {
-//     pub(crate) factory: Arc<dyn TypeMatcherFactoryDyn>,
-// }
+/** Boxed [TypeMatcher]. */
 class TypeMatcherFactory(
-    // pub(crate) factory: Arc<dyn TypeMatcherFactoryDyn>
-    // Kotlin: Arc removed; GC manages references.
     internal val factory: TypeMatcherFactoryDyn,
 ) {
     // impl TypeMatcherFactory
 
     companion object {
-        /// Create a new `TypeMatcherFactory` from a `TypeMatcher`.
-        // pub fn new(matcher: impl TypeMatcher) -> TypeMatcherFactory
+        /** Create a new [TypeMatcherFactory] from a [TypeMatcher]. */
         fun new(matcher: TypeMatcher): TypeMatcherFactory {
             return TypeMatcherFactory(TypeMatcherFactoryImpl(matcher))
         }

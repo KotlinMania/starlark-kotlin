@@ -29,19 +29,8 @@ import io.github.kotlinmania.starlark_kotlin.values.default
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-    companion object {
-        fun default(): Span = Span()
-    }
-}
+
 class CodeMap
- {
-    fun <R> asRef(): Spanned<R> {
-        @Suppress("UNCHECKED_CAST")
-        return this as Spanned<R>
-    }
-    fun isNever(): Boolean = (node as? Ty)?.isNever() ?: false
-    override fun toString(): String = node.toString()
-}
 
 class Ty(private val repr: String = "") {
     companion object {
