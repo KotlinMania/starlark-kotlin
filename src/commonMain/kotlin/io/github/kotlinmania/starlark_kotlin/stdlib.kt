@@ -154,7 +154,7 @@ private fun breakpointGlobal(builder: GlobalsBuilder) {}
 private fun jsonJson(builder: GlobalsBuilder) {}
 private fun registerTyping(builder: GlobalsBuilder) {}
 private fun registerInternal(builder: GlobalsBuilder) {}
-private fun callStackGlobal(builder: GlobalsBuilder) {}
+// callStackGlobal is defined in CallStack.kt
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

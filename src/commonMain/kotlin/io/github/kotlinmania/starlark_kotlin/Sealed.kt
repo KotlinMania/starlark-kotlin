@@ -1,6 +1,4 @@
 // port-lint: source src/sealed.rs
-package io.github.kotlinmania.starlark_kotlin
-
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -18,7 +16,8 @@ package io.github.kotlinmania.starlark_kotlin
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // Marker for traits which should not be implemented outside of the crate.
-// In Kotlin, this is enforced by `internal` visibility on the interface.
-internal interface Sealed
+// No KDoc documentation here to trigger missing docs if this accidentally becomes visible.
+package io.github.kotlinmania.starlark_kotlin
+
+interface Sealed

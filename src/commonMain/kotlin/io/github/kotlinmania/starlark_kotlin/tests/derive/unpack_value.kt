@@ -20,16 +20,15 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  */
 
 import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.*
+import io.github.kotlinmania.starlark_kotlin.values.layout.*
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 
 sealed class EmptyEnum
 
-sealed class JustInt { data class Int(val value: kotlin.Int) : JustInt() }
+sealed class JustInt {
+    data class Int(val value: kotlin.Int) : JustInt()
+}
 
 sealed class IntOrStr {
     data class Int(val value: kotlin.Int) : IntOrStr()

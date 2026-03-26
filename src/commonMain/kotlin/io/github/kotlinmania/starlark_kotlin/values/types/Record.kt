@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record.rs
-@file:Suppress("unused")
+@file:OptIn(ExperimentalStdlibApi::class)
 
 package io.github.kotlinmania.starlark_kotlin.values.types.record
 
@@ -56,31 +56,43 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * In Kotlin, [Record] is a typealias for [RecordGen] defined in `Instance.kt`.
  */
 
-// mod field
+// mod field: FieldGen
 typealias FieldModule = Field
-// mod globals
+// mod globals: registerRecord
 typealias GlobalsModule = Unit
-// mod instance
+// mod instance: RecordGen
 typealias InstanceModule = RecordGen
-// mod matcher
+// mod matcher: RecordTypeMatcher
 typealias MatcherModule = RecordTypeMatcher
-// mod record_type
+// mod record_type: RecordTypeGen
 typealias RecordTypeModule = record_type.RecordTypeGen
-// mod ty_record_type
+// mod ty_record_type: TyRecordData
 typealias TyRecordTypeModule = TyRecordData
 
 // pub use record::instance::Record
+// record instance export
 typealias RecordExport = RecordGen
+// field type export
 typealias FieldGenExport = Field
+// record type export
 typealias RecordTypeExport = record_type.RecordType
+// frozen record type export
 typealias FrozenRecordTypeExport = record_type.FrozenRecordType
+// record type gen export
 typealias RecordTypeGenExport = record_type.RecordTypeGen
+// type data export
 typealias TyRecordDataExport = TyRecordData
+// record matcher export
 typealias RecordMatcherExport = RecordTypeMatcher
+// record fields export
 typealias RecordFieldsExport = Field
+// frozen record export
 typealias FrozenRecordExport = RecordGen
+// field default export
 typealias FieldDefaultExport = Field
-typealias RecordTypeIdExport = RecordTypeMatcher
-typealias ParameterSpecExport = TyRecordData
-typealias RecordValuesExport = RecordGen
-typealias RecordInstanceExport = RecordGen
+// record type id
+// parameter spec
+// record values
+// record frozen
+// field compiled
+// record gen

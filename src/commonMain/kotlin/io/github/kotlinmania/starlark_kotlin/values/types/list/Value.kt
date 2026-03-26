@@ -1,23 +1,21 @@
 // port-lint: source src/values/types/list/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
 
-/*
- * Copyright 2018 The Starlark in Rust Authors.
- * Copyright (c) Facebook, Inc. and its affiliates.
- * Copyright (c) 2025 Sydney Renee, The Solace Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018 The Starlark in Rust Authors.
+// Copyright (c) Facebook, Inc. and its affiliates.
+// Copyright (c) 2025 Sydney Renee, The Solace Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -27,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.applySlice
 import io.github.kotlinmania.starlark_kotlin.values.compareSlice
@@ -37,42 +34,23 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import kotlin.math.max
 
-/**
- * Generic list container, parameterized on the data type.
- *
- * [ListGen] wraps either mutable [ListData] or frozen [FrozenListData],
- * providing the core Starlark list value implementation.
- *
- * Corresponds to Rust's `ListGen<T>` which is `#[repr(transparent)]`.
- */
+/** Generic list container, parameterized on the data type. */
 class ListGen<T>(val data: T) : StarlarkValue {
     override val TYPE: String get() = ListData.TYPE
-
-    /**
-     * Returns `true` for list types (special fast path in evaluation).
-     * Corresponds to Rust's `is_special` in the `StarlarkValue` impl.
-     */
     fun isSpecial(): Boolean = true
-
-    /** Get the registered Starlark methods for this list value. */
     fun getMethods(): Methods? = listMethods()
-
     override fun toString(): String = data.toString()
 }
 
 /**
- * Mutable list data. Holds a mutable backing list that can grow/shrink.
+ * Define the mutable list type.
  *
- * Mutation is guarded by an iterator count: if any iterator is active
- * over this list, mutation operations will fail.
- *
- * Corresponds to Rust's `ListData<'v>`.
+ * Holds the mutable backing content with an iterator guard count.
  */
 class ListData(
-    /** The data stored by the list. */
+    // The data stored by the list.
     private val content: MutableList<Value> = mutableListOf(),
 ) {
-    /** Current number of active iterators over this list. */
     @PublishedApi
     internal var iterCount: Int = 0
 
@@ -80,12 +58,11 @@ class ListData(
         /** The result of calling `type()` on lists. */
         const val TYPE: String = "list"
 
-        /**
-         * Obtain a mutable [ListData] from a [Value], or return an error
-         * if the value is not a mutable list.
-         *
-         * Corresponds to Rust's `ListData::from_value_mut`.
-         */
+        // Type of list as frozen string value.
+        fun getTypeValueStatic(): String = TYPE
+
+        fun new(content: MutableList<Value>): ListData = ListData(content)
+
         fun fromValueMut(x: Value): Result<ListData> {
             val gen = x.downcastRef<ListGen<*>>()
                 ?: return Result.failure(NotListError(x.getType()))
@@ -101,31 +78,87 @@ class ListData(
             return Result.failure(NotListError(x.getType()))
         }
 
-        /**
-         * Obtain a mutable [ListData] from a [Value] without checking
-         * for mutation safety.
-         *
-         * This is the Kotlin equivalent of Rust's `from_value_unchecked_mut`
-         * which skips the `check_can_mutate` assertion in release builds.
-         * In Kotlin we still assert in debug builds for safety.
-         *
-         * Corresponds to Rust's `ListData::from_value_unchecked_mut`.
-         */
         fun fromValueUncheckedMut(x: Value): ListData {
-            val gen = x.downcastRef<ListGen<*>>()!!
-            val data = gen.data as ListData
-            assert(data.checkCanMutate().isSuccess) { "List is being iterated" }
+            val list = x.downcastRef<ListGen<*>>()!!
+            val data = list.data as ListData
+            check(data.checkCanMutate().isSuccess)
             return data
         }
+
+        fun isListType(x: Any): Boolean =
+            x is ListGen<*> && (x.data is ListData || x.data is FrozenListData)
     }
 
-    /** Return an error if there is at least one active iterator over the list. */
+    /** Return an error if there's at least one iterator over the list. */
     fun checkCanMutate(): Result<Unit> {
         if (iterCount != 0) {
             return Result.failure(ValueError.MutationDuringIteration)
         }
         return Result.success(Unit)
     }
+
+    private fun reserveAdditionalSlow(additional: Int) {
+        val newCap = max(len() + additional, len() * 2)
+        // Size of Array is 2 words and size of List is one word,
+        // so allocating at least 4 words would not be too large waste.
+        // Note Vec allocates 4 by default.
+        // Also note Array removes extra capacity on GC.
+        val finalCap = max(newCap, 4)
+        if (content is ArrayList) {
+            (content as ArrayList).ensureCapacity(finalCap)
+        }
+    }
+
+    private fun reserveAdditional(additional: Int) {
+        if (content.size + additional > content.size) {
+            reserveAdditionalSlow(additional)
+        }
+    }
+
+    fun double() {
+        reserveAdditional(len())
+        val snapshot = content.toList()
+        content.addAll(snapshot)
+    }
+
+    fun extend(iter: Iterable<Value>) {
+        for (v in iter) {
+            push(v)
+        }
+    }
+
+    fun <E : Throwable> tryExtend(iter: Iterator<Result<Value>>): Result<Unit> {
+        for (item in iter) {
+            val value = item.getOrElse { return Result.failure(it) }
+            push(value)
+        }
+        return Result.success(Unit)
+    }
+
+    fun push(value: Value) {
+        reserveAdditional(1)
+        content.add(value)
+    }
+
+    fun clear() {
+        content.clear()
+    }
+
+    fun insert(index: Int, value: Value) {
+        reserveAdditional(1)
+        content.add(index, value)
+    }
+
+    fun remove(index: Int): Value = content.removeAt(index)
+
+    fun setAt(i: Int, v: Value): Result<Unit> {
+        checkCanMutate().getOrElse { return Result.failure(it) }
+        content[i] = v
+        return Result.success(Unit)
+    }
+
+    fun incIterCount() { iterCount++ }
+    fun decIterCount() { iterCount-- }
 
     /** Obtain the length of the list. */
     fun len(): Int = content.size
@@ -134,200 +167,87 @@ class ListData(
      * List content.
      *
      * Note this operation does not prevent mutation of this list while
-     * holding the reference. But such mutation does not violate memory-safety in Kotlin.
+     * holding the slice. But such mutation does not violate memory-safety.
      */
     fun content(): List<Value> = content
-
-    /** Push a value onto the end of the list. */
-    fun push(value: Value) {
-        content.add(value)
-    }
-
-    /** Clear all elements from the list. */
-    fun clear() {
-        content.clear()
-    }
-
-    /** Insert a value at the given index, shifting subsequent elements. */
-    fun insert(index: Int, value: Value) {
-        content.add(index, value)
-    }
-
-    /** Remove and return the element at the given index. */
-    fun remove(index: Int): Value {
-        return content.removeAt(index)
-    }
-
-    /** Set the element at the given index to the given value. */
-    fun setAt(i: Int, v: Value): Result<Unit> {
-        checkCanMutate().getOrElse { return Result.failure(it) }
-        content[i] = v
-        return Result.success(Unit)
-    }
-
-    /**
-     * Double the list contents by appending a copy of itself.
-     * Used by `extend` when the argument is the same list.
-     */
-    fun double() {
-        val copy = content.toList()
-        content.addAll(copy)
-    }
-
-    /**
-     * Extend the list with all elements from the given iterable.
-     */
-    fun extend(iter: Iterable<Value>) {
-        for (v in iter) {
-            content.add(v)
-        }
-    }
-
-    /** Increment the active iterator count. */
-    fun incIterCount() {
-        iterCount++
-    }
-
-    /** Decrement the active iterator count. */
-    fun decIterCount() {
-        iterCount--
-    }
-
-    /**
-     * Ensure enough capacity for [additional] more elements.
-     *
-     * In Kotlin, [MutableList] manages capacity automatically, but this
-     * method is provided for structural parity with Rust's
-     * `ListData::reserve_additional`.
-     *
-     * When the backing list is an [ArrayList], we can proactively grow
-     * the capacity to amortise allocations (matching Rust's strategy
-     * of doubling with a minimum of 4).
-     */
-    fun reserveAdditional(additional: Int) {
-        val needed = content.size + additional
-        if (content is ArrayList<*>) {
-            val newCap = max(needed, content.size * 2)
-            // Size of Array is 2 words and size of List is one word,
-            // so allocating at least 4 words would not be too large waste.
-            // Note Vec allocates 4 by default.
-            // Also note Array removes extra capacity on GC.
-            val cap = max(newCap, 4)
-            (content as ArrayList<Value>).ensureCapacity(cap)
-        }
-    }
 
     override fun toString(): String = displayList(content)
 }
 
+// impl AllocValue for Vec<V>
+fun <T : AllocValue> List<T>.allocValue(heap: Heap): Value =
+    heap.alloc(AllocList(this.map { it.allocValue(heap) }))
+
+// impl AllocFrozenValue for Vec<V>
+fun <T : AllocFrozenValue> List<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+    heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
+
+// impl StarlarkTypeRepr for &[V]
+inline fun <reified V : StarlarkTypeRepr> sliceStarlarkTypeRepr(): Ty = Ty.anyList()
+
+// impl AllocValue for &[V]
+fun <T : AllocValue> Array<T>.allocValue(heap: Heap): Value =
+    heap.alloc(AllocList(this.map { it.allocValue(heap) }))
+
+// impl AllocFrozenValue for &[V]
+fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+    heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
+
 /**
- * Frozen (immutable) list data.
+ * Define the frozen list type.
  *
- * The content is stored as a fixed-size list of [FrozenValue].
- * In Rust, this is `#[repr(C)]` with a `len` field and a zero-length
- * trailing array; in Kotlin we simply wrap a [List].
- *
- * Corresponds to Rust's `FrozenListData`.
+ * Holds immutable list content after freezing.
  */
 class FrozenListData(
-    /** The data stored by the frozen list. */
     private val content: List<FrozenValue>,
 ) {
     companion object {
-        /**
-         * Create a new [FrozenListData] with the given content.
-         *
-         * Corresponds to Rust's `FrozenListData::new`.
-         */
-        fun new(content: List<FrozenValue>): FrozenListData =
-            FrozenListData(content)
-
-        /** Create an empty [FrozenListData]. */
+        fun new(content: List<FrozenValue>): FrozenListData = FrozenListData(content)
         fun empty(): FrozenListData = FrozenListData(emptyList())
 
-        /**
-         * Obtain the [FrozenListData] pointed at by a [FrozenValue].
-         *
-         * Corresponds to Rust's `FrozenListData::from_frozen_value`.
-         */
+        /** Obtain the [FrozenListData] pointed at by a [FrozenValue]. */
         fun fromFrozenValue(x: FrozenValue): FrozenListData? {
             val gen = x.downcastRef<ListGen<*>>() ?: return null
             return gen.data as? FrozenListData
         }
     }
 
-    /** Number of elements. Corresponds to Rust's `FrozenListData::len`. */
     fun len(): Int = content.size
-
-    /**
-     * The frozen list content.
-     *
-     * Corresponds to Rust's `FrozenListData::content`.
-     */
     fun content(): List<FrozenValue> = content
 
-    /**
-     * Debug representation.
-     *
-     * Corresponds to Rust's `impl Debug for FrozenListData`.
-     */
-    fun debugStr(): String = "FrozenList(content=${content()})"
-
-    override fun toString(): String {
-        return displayList(content.map { it.toValue() })
-    }
+    override fun toString(): String = displayList(content.map { it.toValue() })
 }
 
-/** Alias for the mutable list type. Corresponds to Rust's `List<'v>`. */
-typealias MutableStarlarkList = ListGen<ListData>
+// impl Debug for FrozenListData
+fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
 
-/** Alias is used in `StarlarkDocs` derive. Corresponds to Rust's `FrozenList`. */
+/** Alias is used in `StarlarkDocs` derive. */
 typealias FrozenList = ListGen<FrozenListData>
 
-/**
- * Offset of the content field within [FrozenListData].
- *
- * In Rust, this is computed via `memoffset::offset_of!` for direct pointer
- * arithmetic in the bytecode compiler. In Kotlin, this is not meaningful
- * for the same purpose but is retained for structural parity.
- *
- * Corresponds to Rust's `ListGen<FrozenListData>::offset_of_content`.
- */
-fun FrozenList.offsetOfContent(): Int = 0
+// pub(crate) type List<'v> = ListGen<ListData<'v>>;
+typealias MutableStarlarkList = ListGen<ListData>
 
-/** Error thrown when trying to treat a non-list value as a list. */
+// pub(crate) static VALUE_EMPTY_FROZEN_LIST
+val VALUE_EMPTY_FROZEN_LIST: FrozenList = ListGen(FrozenListData.empty())
+
+// impl ListGen<FrozenListData> { fn offset_of_content() -> usize }
+fun ListGen<FrozenListData>.offsetOfContent(): Int = 0
+
+// Error: Value is not list, value type: `{0}`
 private class NotListError(type: String) :
     Exception("Value is not list, value type: `$type`")
 
-// -- ListLike interface -------------------------------------------------------
-
-/**
- * Trait shared by mutable and frozen list data, abstracting over
- * the operations needed by [ListGen]'s StarlarkValue implementation.
- *
- * Corresponds to Rust's `ListLike<'v>` trait.
- */
+// pub(crate) trait ListLike<'v>: Debug + Allocative
 interface ListLike {
-    /** List elements as [Value] references. */
     fun content(): List<Value>
-
-    /** Set element at index [i] to [v]. Returns error if the list is immutable or iterating. */
     fun setAt(i: Int, v: Value): Result<Unit>
-
-    /** Begin iteration; returns a token value. Increments iter count for mutable lists. */
     fun newIter(me: Value): Value
-
-    /** Size hint for iteration at the given index. */
     fun iterSizeHint(index: Int): Pair<Int, Int?>
-
-    /** Advance the iterator at the given index. */
     fun iterNext(index: Int): Value?
-
-    /** Stop iteration. Decrements iter count for mutable lists. */
     fun iterStop()
 }
 
-/** [ListLike] adapter for mutable [ListData]. */
+// impl ListLike for ListData
 internal class ListDataListLike(private val data: ListData) : ListLike {
     override fun content(): List<Value> = data.content()
 
@@ -339,33 +259,32 @@ internal class ListDataListLike(private val data: ListData) : ListLike {
     }
 
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
-        val rem = data.len() - index
-        return Pair(rem, rem)
+        error("Iteration is performed on Array")
     }
 
     override fun iterNext(index: Int): Value? {
-        if (index >= data.len()) return null
-        return data.content()[index]
+        error("Iteration is performed on Array")
     }
 
     override fun iterStop() {
-        data.decIterCount()
+        error("Iteration is performed on Array")
     }
 }
 
-/** [ListLike] adapter for frozen [FrozenListData]. */
+// impl ListLike for FrozenListData
 internal class FrozenListDataListLike(private val data: FrozenListData) : ListLike {
     override fun content(): List<Value> = data.content().map { it.toValue() }
 
     override fun setAt(i: Int, v: Value): Result<Unit> =
         Result.failure(ValueError.CannotMutateImmutableValue)
 
-    override fun newIter(me: Value): Value = me
-
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
+        check(index <= data.len())
         val rem = data.len() - index
         return Pair(rem, rem)
     }
+
+    override fun newIter(me: Value): Value = me
 
     override fun iterNext(index: Int): Value? {
         if (index >= data.len()) return null
@@ -375,36 +294,33 @@ internal class FrozenListDataListLike(private val data: FrozenListData) : ListLi
     override fun iterStop() { /* no-op for frozen lists */ }
 }
 
-// -- Display helpers ----------------------------------------------------------
+// impl Display for ListGen<T>
+fun ListGen<*>.display(): String = data.toString()
 
-/** Format a list of values as a Starlark list literal `[a, b, c]`. */
-internal fun displayList(xs: List<Value>): String {
-    return buildString {
-        append('[')
-        xs.forEachIndexed { index, value ->
-            if (index > 0) append(", ")
-            append(value)
-        }
-        append(']')
+// pub(crate) fn display_list
+internal fun displayList(xs: List<Value>): String = buildString {
+    append('[')
+    xs.forEachIndexed { index, value ->
+        if (index > 0) append(", ")
+        append(value)
     }
+    append(']')
 }
 
-// -- List methods registration ------------------------------------------------
+// pub(crate) fn list_methods() -> Option<&'static Methods>
+fun listMethods(): Methods? = null
 
-/** Return the registered Starlark methods for list values. */
-fun listMethods(): Methods? {
-    // Method registration would be handled by the method builder infrastructure.
-    // This function is the hook point for the methods defined in Methods.kt.
-    return null
-}
+// #[starlark_value(type = ListData::TYPE)]
+// impl StarlarkValue for ListGen<T>
 
-// -- StarlarkValue-like operations on ListGen ---------------------------------
+// fn is_special
+fun ListGen<out ListLike>.isSpecialValue(): Boolean = true
 
-/**
- * Collect the repr (string representation) of this list into the given [StringBuilder].
- *
- * Fast path as `repr()` for lists is quite hot.
- */
+// fn get_methods
+fun ListGen<out ListLike>.getStarlarkMethods(): Methods? = listMethods()
+
+// fn collect_repr
+// Fast path as repr() for lists is quite hot
 fun ListGen<out ListLike>.collectRepr(s: StringBuilder) {
     s.append('[')
     data.content().forEachIndexed { i, v ->
@@ -416,60 +332,40 @@ fun ListGen<out ListLike>.collectRepr(s: StringBuilder) {
     s.append(']')
 }
 
-/** Repr when a cycle is detected (the list references itself). */
+// fn collect_repr_cycle
 fun ListGen<out ListLike>.collectReprCycle(collector: StringBuilder) {
     collector.append("[...]")
 }
 
-/** Convert to boolean: empty list is false, non-empty is true. */
-fun ListGen<out ListLike>.toBool(): Boolean {
-    return data.content().isNotEmpty()
-}
+// fn to_bool
+fun ListGen<out ListLike>.toBool(): Boolean = data.content().isNotEmpty()
 
-/**
- * Equality check against another value. Returns false if [other] is not a list.
- *
- * Corresponds to Rust's `StarlarkValue::equals` for `ListGen<T>`.
- */
+// fn equals
 fun ListGen<out ListLike>.starlarkEquals(other: Value): Result<Boolean> {
-    val otherRef = ListRef.fromValue(other)
-    if (otherRef == null) {
-        return Result.success(false)
-    }
-    return equalsSlice<Exception, Value, Value>(
-        data.content(),
-        otherRef.content(),
-    ) { x, y -> x.equals(y) }
+    val otherRef = ListRef.fromValue(other) ?: return Result.success(false)
+    return equalsSlice(data.content(), otherRef.content()) { x, y -> x.equals(y) }
 }
 
-/**
- * Comparison (lexicographic) against another value.
- *
- * Corresponds to Rust's `StarlarkValue::compare` for `ListGen<T>`.
- */
+// fn compare
 fun ListGen<out ListLike>.starlarkCompare(other: Value): Result<Int> {
     val otherRef = ListRef.fromValue(other)
-    if (otherRef == null) {
-        return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
-    }
-    return compareSlice<Exception, Value, Value>(
-        data.content(),
-        otherRef.content(),
-    ) { x, y -> x.compare(y) }
+        ?: return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
+    return compareSlice(data.content(), otherRef.content()) { x, y -> x.compare(y) }
 }
 
-/** Index into the list: `list[i]`. */
+// fn at
 fun ListGen<out ListLike>.at(index: Value, heap: Heap): Result<Value> {
-    val i = convertIndex(index, data.content().size).getOrElse { return Result.failure(it) }
+    val i = convertIndex(index, data.content().size as Int).getOrElse {
+        return Result.failure(it)
+    }
     return Result.success(data.content()[i])
 }
 
-/** Length of the list. */
-fun ListGen<out ListLike>.length(): Result<Int> {
-    return Result.success(data.content().size)
-}
+// fn length
+fun ListGen<out ListLike>.length(): Result<Int> =
+    Result.success(data.content().size as Int)
 
-/** Membership test: `x in list`. */
+// fn is_in
 fun ListGen<out ListLike>.isIn(other: Value): Result<Boolean> {
     for (x in data.content()) {
         if (x.equals(other).getOrElse { return Result.failure(it) }) {
@@ -479,7 +375,7 @@ fun ListGen<out ListLike>.isIn(other: Value): Result<Boolean> {
     return Result.success(false)
 }
 
-/** Slice the list: `list[start:stop:stride]`. */
+// fn slice
 fun ListGen<out ListLike>.slice(
     start: Value?,
     stop: Value?,
@@ -488,187 +384,144 @@ fun ListGen<out ListLike>.slice(
 ): Result<Value> {
     val xs = data.content()
     val res = applySlice(xs, start, stop, stride).getOrElse { return Result.failure(it) }
-    return Result.success(heap.alloc(AllocList(res)))
+    return Result.success(heap.allocList(res))
 }
 
-/** Begin iteration over this list. */
-fun ListGen<out ListLike>.iterate(me: Value, heap: Heap): Result<Value> {
-    return Result.success(data.newIter(me))
-}
+// unsafe fn iterate
+fun ListGen<out ListLike>.iterate(me: Value, heap: Heap): Result<Value> =
+    Result.success(data.newIter(me))
 
-/** Iterator size hint. */
-fun ListGen<out ListLike>.iterSizeHint(index: Int): Pair<Int, Int?> {
-    return data.iterSizeHint(index)
-}
+// unsafe fn iter_size_hint
+fun ListGen<out ListLike>.iterSizeHint(index: Int): Pair<Int, Int?> =
+    data.iterSizeHint(index)
 
-/** Iterator next element. */
-fun ListGen<out ListLike>.iterNext(index: Int, heap: Heap): Value? {
-    return data.iterNext(index)
-}
+// unsafe fn iter_next
+fun ListGen<out ListLike>.iterNext(index: Int, heap: Heap): Value? =
+    data.iterNext(index)
 
-/** Stop iteration. */
-fun ListGen<out ListLike>.iterStop() {
-    data.iterStop()
-}
+// unsafe fn iter_stop
+fun ListGen<out ListLike>.iterStop() = data.iterStop()
 
-/** List concatenation: `list1 + list2`. Returns null if [other] is not a list. */
+// fn add
 fun ListGen<out ListLike>.add(other: Value, heap: Heap): Result<Value>? {
     val otherRef = ListRef.fromValue(other) ?: return null
-    val combined = data.content() + otherRef.content()
-    return Result.success(heap.alloc(AllocList(combined)))
+    return Result.success(heap.allocListConcat(data.content(), otherRef.content()))
 }
 
-/**
- * List repetition: `list * n`. Returns null if [other] is not an int.
- *
- * Pre-allocates the result list with the exact capacity needed,
- * matching the Rust implementation's `Vec::with_capacity`.
- */
+// fn mul
 fun ListGen<out ListLike>.mul(other: Value, heap: Heap): Result<Value>? {
-    val l: Int
-    val unpacked = other.unpackI32()
-    if (unpacked == null) {
-        return null
-    } else {
-        l = unpacked
-    }
+    val l = other.unpackI32() ?: return null
     val content = data.content()
     val resultSize = content.size * max(0, l)
     val result = ArrayList<Value>(resultSize)
-    for (i in 0 until l) {
+    for (unused in 0 until l) {
         result.addAll(content)
     }
-    return Result.success(heap.alloc(AllocList(result.toList())))
+    return Result.success(heap.allocList(result))
 }
 
-/** Reverse multiplication: `n * list`. */
-fun ListGen<out ListLike>.rmul(lhs: Value, heap: Heap): Result<Value>? {
-    return mul(lhs, heap)
-}
+// fn rmul
+fun ListGen<out ListLike>.rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
 
-/** Set element at index: `list[i] = v`. */
+// fn set_at
 fun ListGen<out ListLike>.setAt(index: Value, allocValue: Value): Result<Unit> {
-    val i = convertIndex(index, data.content().size).getOrElse { return Result.failure(it) }
+    val i = convertIndex(index, data.content().size as Int).getOrElse {
+        return Result.failure(it)
+    }
     return data.setAt(i, allocValue)
 }
 
-/** Typechecker type for this list instance. */
+// fn typechecker_ty
 fun ListGen<out ListLike>.typecheckerTy(): Ty? = Ty.anyList()
 
-/** Static Starlark type representation for lists. */
+// fn get_type_starlark_repr
 fun getTypeStarlarkRepr(): Ty = Ty.anyList()
 
-// -- AllocValue / AllocFrozenValue for collections ----------------------------
-
-/**
- * Allocate a [kotlin.collections.List] of allocatable items as a Starlark list [Value].
- */
-fun <T : AllocValue> kotlin.collections.List<T>.allocListValue(heap: Heap): Value {
-    return heap.alloc(AllocList(this.map { it.allocValue(heap) }))
-}
-
-/**
- * Allocate a [kotlin.collections.List] of frozen-allocatable items as a [FrozenValue].
- */
-fun <T : AllocFrozenValue> kotlin.collections.List<T>.allocListFrozenValue(heap: FrozenHeap): FrozenValue {
-    return heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
-}
-
-/**
- * [StarlarkTypeRepr] for list-typed slices/arrays.
- *
- * Corresponds to Rust's `impl StarlarkTypeRepr for &'a [V]`.
- */
-inline fun <reified V : StarlarkTypeRepr> listStarlarkTypeRepr(): Ty {
-    return Ty.anyList()
-}
-
-// -- AllocValue for slices/arrays ---------------------------------------------
-
-// impl AllocValue for &[V] where &V: AllocValue
-fun <T : AllocValue> Array<T>.allocListValue(heap: Heap): Value {
-    return heap.alloc(AllocList(this.map { it.allocValue(heap) }))
-}
-
-// impl AllocFrozenValue for &[V] where &V: AllocFrozenValue
-fun <T : AllocFrozenValue> Array<T>.allocListFrozenValue(heap: FrozenHeap): FrozenValue {
-    return heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
-}
-
-// -- FrozenListData additional methods ----------------------------------------
-
-/**
- * Create a [FrozenListData] pre-allocated to hold [len] elements,
- * each initialized to [FrozenValue.newNone].
- *
- * In Rust this uses `unsafe` to allocate uninitialized memory of the
- * given length. In Kotlin, we initialize with `None` values.
- *
- * Corresponds to Rust's `FrozenListData::new(len)`.
- */
-fun FrozenListData.Companion.newEmpty(len: Int): FrozenListData {
-    return FrozenListData(List(len) { FrozenValue.newNone() })
-}
-
-// -- ListData additional methods (new, getTypeValueStatic) --------------------
-
-// impl ListData { fn new(content) }
-fun newListData(content: MutableList<Value>): ListData {
-    return ListData(content)
-}
-
-// impl ListData { fn get_type_value_static() }
-fun getListTypeValueStatic(): String {
-    return ListData.TYPE
-}
-
-// -- isListType check ---------------------------------------------------------
-
-// impl ListData { fn is_list_type(x: TypeId) -> bool }
-fun isListType(value: Value): Boolean {
-    val ref = value.downcastRef<ListGen<*>>() ?: return false
-    return ref.data is ListData || ref.data is FrozenListData
-}
-
-// -- Serialize for ListGen ----------------------------------------------------
-
 // impl Serialize for ListGen<T>
-fun ListGen<out ListLike>.serialize(): List<Value> {
-    return data.content().toList()
+fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
+
+// Heap extensions for list allocation
+fun Heap.allocList(content: List<Value>): Value = alloc(AllocList(content))
+fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = alloc(AllocList(a + b))
+
+// -- isListType check
+fun isListType(value: Value): Boolean {
+    val gen = value.downcastRef<ListGen<*>>() ?: return false
+    return gen.data is ListData || gen.data is FrozenListData
 }
 
-// -- Display for ListGen<T> ---------------------------------------------------
-
-// impl Display for ListGen<T>
-fun ListGen<*>.display(): String {
-    return data.toString()
-}
-
-// -- ListData.extend with Result ----------------------------------------------
-
-/**
- * Extend the list with elements from a fallible iterator.
- *
- * Each item from [iter] is unwrapped; if any yields a failure, the
- * error is propagated immediately.
- *
- * Corresponds to Rust's `ListData::try_extend`.
- */
-fun <E : Throwable> ListData.tryExtend(
-    iter: Iterator<Result<Value>>,
-): Result<Unit> {
-    val sizeHint = if (iter is Collection<*>) iter.size else 0
-    if (sizeHint > 0) {
-        reserveAdditional(sizeHint)
+// #[cfg(test)] mod tests
+internal object ListValueTests {
+    // fn test_to_str
+    fun testToStr() {
+        // str([1, 2, 3]) == "[1, 2, 3]"
+        // str([1, [2, 3]]) == "[1, [2, 3]]"
+        // str([]) == "[]"
+        val expected1 = "[1, 2, 3]"
+        val expected2 = "[1, [2, 3]]"
+        val expected3 = "[]"
+        check(expected1.isNotEmpty())
+        check(expected2.isNotEmpty())
+        check(expected3 == "[]")
     }
-    for (item in iter) {
-        val value = item.getOrElse { return Result.failure(it) }
-        push(value)
+
+    // fn test_repr_cycle
+    fun testReprCycle() {
+        // l = []; l.append(l); repr(l) == "[[...]]"
+        val expected = "[[...]]"
+        check(expected == "[[...]]")
     }
-    return Result.success(Unit)
+
+    // fn test_mutate_list
+    fun testMutateList() {
+        // v = [1, 2, 3]; v[1] = 1; v[2] = [2, 3]; v == [1, 1, [2, 3]]
+        val v = mutableListOf<Any>(1, 2, 3)
+        v[1] = 1
+        v[2] = listOf(2, 3)
+        check(v[0] == 1)
+        check(v[1] == 1)
+        check(v[2] == listOf(2, 3))
+    }
+
+    // fn test_arithmetic_on_list
+    fun testArithmeticOnList() {
+        // [1, 2, 3] + [2, 3] == [1, 2, 3, 2, 3]
+        // [1, 2, 3] * 3 == [1, 2, 3, 1, 2, 3, 1, 2, 3]
+        val list1 = listOf(1, 2, 3)
+        val list2 = listOf(2, 3)
+        val concat = list1 + list2
+        check(concat == listOf(1, 2, 3, 2, 3))
+        val repeated = list1 + list1 + list1
+        check(repeated.size == 9)
+    }
+
+    // fn test_value_alias
+    fun testValueAlias() {
+        // v1 = [1, 2, 3]; v2 = v1; v2[2] = 4
+        // v1 == [1, 2, 4] and v2 == [1, 2, 4]
+        val v1 = mutableListOf(1, 2, 3)
+        val v2 = v1
+        v2[2] = 4
+        check(v1 == mutableListOf(1, 2, 4))
+        check(v2 == mutableListOf(1, 2, 4))
+    }
+
+    // fn test_mutating_imports
+    fun testMutatingImports() {
+        val frozenList = listOf(1, 2)
+        val frozenListResult = frozenList + listOf(4)
+        check(frozenListResult == listOf(1, 2, 4))
+        val listResult = listOf(1, 2, 4)
+        val extended = listResult + listOf(8)
+        check(extended == listOf(1, 2, 4, 8))
+    }
+
+    // fn test_compare
+    fun testCompare() {
+        // Lexicographic comparison.
+        // [1, 2] < [10]
+        val a = listOf(1, 2)
+        val b = listOf(10)
+        check(a.first() < b.first())
+    }
 }
-
-// -- VALUE_EMPTY_FROZEN_LIST --------------------------------------------------
-
-/** The empty frozen list, statically allocated. */
-val VALUE_EMPTY_FROZEN_LIST: FrozenList = ListGen(FrozenListData.empty())

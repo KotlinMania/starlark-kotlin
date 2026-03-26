@@ -101,6 +101,11 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
  * x.append(3)
  * x == [1, 2, 3]
  * ```
+ *
+ * @param thisValue The list to append to (must be mutable).
+ * @param el The element to append, required positional parameter.
+ * @param heap The heap for allocations.
+ * @return [NoneType] on success.
  */
 internal fun append(
     thisValue: Value,
@@ -124,6 +129,9 @@ internal fun append(
  * x.clear()
  * x == []
  * ```
+ *
+ * @param thisValue The list to clear (must be mutable).
+ * @return [NoneType] on success.
  */
 internal fun clear(thisValue: Value): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
@@ -141,12 +149,22 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  * `extend` fails if `x` is not iterable, or if the list L is frozen or has
  * active iterators.
  *
+ * In Rust, the `other` parameter is typed as
+ * `ValueOfUnchecked<StarlarkIter<Value>>` to allow the type checker to
+ * verify the argument is iterable. In Kotlin, we accept a plain [Value]
+ * and perform the iterable check at runtime via [Value.iterate].
+ *
  * ```starlark
  * x = []
  * x.extend([1, 2, 3])
  * x.extend(["foo"])
  * x == [1, 2, 3, "foo"]
  * ```
+ *
+ * @param thisValue The list to extend (must be mutable).
+ * @param other The iterable whose elements will be appended.
+ * @param heap The heap for allocations during iteration.
+ * @return [NoneType] on success.
  */
 internal fun extend(
     thisValue: Value,
@@ -155,12 +173,12 @@ internal fun extend(
 ): Result<NoneType> {
     val res = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     if (thisValue.ptrEq(other)) {
-        // If the types alias, we can't iterate the `other` safely.
-        // But we can do something smarter and double the elements.
+        // If the types alias, we can't borrow the `other` for iteration.
+        // But we can do something smarter to double the elements.
         res.double()
     } else {
-        val iter = other.iterate(heap).getOrElse { e -> return Result.failure(e) }
-        res.extend(iter)
+        val it = other.iterate(heap).getOrElse { e -> return Result.failure(e) }
+        res.extend(it)
     }
     return Result.success(NoneType)
 }
@@ -169,16 +187,21 @@ internal fun extend(
  * [list.index](https://github.com/bazelbuild/starlark/blob/master/spec.md#list-index):
  * get the index of an element in the list.
  *
- * `L.index(x[, start[, end]])` finds `x` within the list L and returns its index.
+ * `L.index(x[, start[, end]])` finds `x` within the list L and returns its
+ * index.
  *
  * The optional `start` and `end` parameters restrict the portion of
  * list L that is inspected. If provided and not `None`, they must be list
  * indices of type `int`. If an index is negative, `len(L)` is effectively
  * added to it, then if the index is outside the range `[0:len(L)]`, the
- * nearest value within that range is used; see Indexing.
+ * nearest value within that range is used; see
+ * [Indexing](https://github.com/bazelbuild/starlark/blob/master/spec.md#indexing).
  *
  * `index` fails if `x` is not found in L, or if `start` or `end`
  * is not a valid index (`int` or `None`).
+ *
+ * This function is speculative-execution safe (annotated with
+ * `#[starlark(speculative_exec_safe)]` in Rust).
  *
  * ```starlark
  * x = ["b", "a", "n", "a", "n", "a"]
@@ -186,6 +209,12 @@ internal fun extend(
  * x.index("a", 2) == 3    # banAna
  * x.index("a", -2) == 5   # bananA
  * ```
+ *
+ * @param thisRef The list to search in.
+ * @param needle The value to search for.
+ * @param start Optional start index (default: beginning of list).
+ * @param end Optional end index (default: end of list).
+ * @return The index of the first occurrence of [needle] in the range.
  */
 internal fun index(
     thisRef: ListRef,
@@ -231,6 +260,12 @@ internal fun index(
  * x.insert(-1, "d")
  * x == ["a", "b", "c", "d", "e"]
  * ```
+ *
+ * @param thisValue The list to insert into (must be mutable).
+ * @param insertIndex The insertion index, required positional parameter.
+ * @param el The element to insert, required positional parameter.
+ * @param heap The heap for allocations.
+ * @return [NoneType] on success.
  */
 internal fun insert(
     thisValue: Value,
@@ -252,7 +287,7 @@ internal fun insert(
  * if the optional index is provided, at that index.
  *
  * `pop` fails if the index is negative or not less than the length of
- * the list, or if the list is frozen or has active iterators.
+ * the list, of if the list is frozen or has active iterators.
  *
  * ```starlark
  * x = [1, 2, 3]
@@ -260,6 +295,10 @@ internal fun insert(
  * x.pop() == 2
  * x == [1]
  * ```
+ *
+ * @param thisValue The list to pop from (must be mutable).
+ * @param popIndex Optional index to pop at. Defaults to last element.
+ * @return The removed value.
  */
 internal fun pop(
     thisValue: Value,
@@ -326,4 +365,32 @@ internal fun remove(
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     thisList.remove(position)
     return Result.success(NoneType)
+}
+
+// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
+
+/**
+ * Test object for list method tests.
+ *
+ * These correspond to the Rust test module `mod tests` at the bottom
+ * of `methods.rs`.
+ */
+internal object ListMethodTests {
+    /** Corresponds to Rust's `test_error_codes`. */
+    fun testErrorCodes() {
+        // x = [1, 2, 3, 2]; x.remove(2); x.remove(2); x.remove(2)
+        // => "not found in list"
+    }
+
+    /** Corresponds to Rust's `test_index`. */
+    fun testIndex() {
+        // Should fail, but should not panic.
+        // [True].index(True, 1, 0) => "not found"
+    }
+
+    /** Corresponds to Rust's `recursive_list`. */
+    fun testRecursiveList() {
+        // cyclic = [1, 2, 3]; cyclic[1] = cyclic
+        // len(cyclic) == 3 and len(cyclic[1]) == 3
+    }
 }

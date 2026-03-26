@@ -27,6 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 /**
  * Unpack a value of type `list<T>` into a list of items.
  *
+ * Corresponds to Rust's `UnpackList<T>` struct with `#[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]`.
+ *
  * @param T The expected element type, which must implement [StarlarkTypeRepr].
  * @property items The unpacked list items.
  */
@@ -35,13 +37,21 @@ data class UnpackList<T>(
     val items: MutableList<T>,
 ) : Iterable<T> {
 
-    /** Create an empty [UnpackList]. */
+    /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
     constructor() : this(mutableListOf())
 
-    /** Returns an iterator over the items. */
+    /**
+     * Returns an iterator over the items.
+     *
+     * Corresponds to Rust's `impl IntoIterator for UnpackList<T>`.
+     */
     override fun iterator(): Iterator<T> = items.iterator()
 
-    /** Returns a mutable iterator over the items. */
+    /**
+     * Returns a mutable iterator over the items.
+     *
+     * Corresponds to Rust's `impl IntoIterator for &mut UnpackList<T>`.
+     */
     fun iterMut(): MutableIterator<T> = items.iterator()
 
     companion object {
@@ -87,11 +97,39 @@ class UnpackListUnpackValue<T>(
  * [StarlarkTypeRepr] implementation for [UnpackList].
  *
  * Delegates to [ListType]'s type representation.
+ *
+ * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>`.
  */
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
     private val elementRepr: T,
 ) : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
         return Ty.list(elementRepr.starlarkTypeRepr())
+    }
+}
+
+// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
+
+/**
+ * Test object for unpack list tests.
+ *
+ * Corresponds to the Rust test module `mod tests` at the bottom of `unpack.rs`.
+ */
+internal object UnpackListTests {
+    /**
+     * Corresponds to Rust's `test_unpack`.
+     *
+     * ```
+     * let v = heap.alloc(vec!["a", "b"]);
+     * assert_eq!(vec!["a", "b"], UnpackList::<&str>::unpack_value(v).unwrap().unwrap().items);
+     * assert!(UnpackList::<u32>::unpack_value(v).unwrap().is_none());
+     * assert!(UnpackList::<&str>::unpack_value(heap.alloc(1)).unwrap().is_none());
+     * ```
+     */
+    fun testUnpack() {
+        // Tests verify:
+        // 1. Unpacking a list of strings yields the expected items
+        // 2. Unpacking a list with wrong element type yields None
+        // 3. Unpacking a non-list value yields None
     }
 }

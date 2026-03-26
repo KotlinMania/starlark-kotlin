@@ -23,15 +23,21 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.Heap
 
+// #[starlark_module]
 fun registerNamespace(builder: GlobalsBuilder) {
+    // #[starlark(ty_custom_function = TyNamespaceFunction, as_type = FrozenNamespace)]
     builder.setFunction("namespace") { args: Arguments, heap: Heap ->
         args.noPositionalArgs(heap)
 
-        Namespace.new(
+        NamespaceGen.new(
             args.namesMap()
                 .map { (k, v) ->
-                    Pair(k, MaybeDocHiddenValue(value = v, docHidden = false))
+                    k to MaybeDocHiddenValue(
+                        value = v,
+                        docHidden = false,
+                    )
                 }
+                .toMap()
         )
     }
 }

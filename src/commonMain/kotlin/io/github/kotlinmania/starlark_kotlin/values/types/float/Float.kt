@@ -19,32 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.*
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
-import kotlin.math.abs
-import kotlin.math.absoluteValue
-import kotlin.math.floor
-import kotlin.math.log10
-import kotlin.math.pow
-import kotlin.math.roundToLong
-import kotlin.math.sign
+import kotlin.math.*
 
 private const val WRITE_PRECISION: Int = 6
 
@@ -147,8 +135,8 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
         const val TYPE: String = "float"
 
         internal fun compareImpl(a: Double, b: Double): Int {
-            // According to the spec:
-            // All NaN values compare equal to each other, but greater than any non-NaN float value.
+            // According to the spec, all NaN values compare equal to each other,
+            // but greater than any non-NaN float value.
             return if (!a.isNaN() && !b.isNaN()) {
                 a.compareTo(b)
             } else {
@@ -156,25 +144,14 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
             }
         }
 
-        internal fun floorDivImpl(a: Double, b: Double): Result<Double> {
-            return if (b == 0.0) {
-                Result.failure(ValueError.DivisionByZero)
-            } else {
-                Result.success(floor(a / b))
-            }
-        }
+        internal fun floorDivImpl(a: Double, b: Double): Result<Double> =
+            if (b == 0.0) Result.failure(ValueError.DivisionByZero) else Result.success(floor(a / b))
 
         internal fun percentImpl(a: Double, b: Double): Result<Double> {
-            return if (b == 0.0) {
-                Result.failure(ValueError.DivisionByZero)
-            } else {
-                val r = a % b
-                if (r == 0.0) {
-                    Result.success(0.0)
-                } else {
-                    Result.success(if (b.sign != r.sign) r + b else r)
-                }
-            }
+            if (b == 0.0) return Result.failure(ValueError.DivisionByZero)
+            val r = a % b
+            return if (r == 0.0) Result.success(0.0)
+            else Result.success(if (b.sign != r.sign) r + b else r)
         }
     }
 
@@ -259,13 +236,10 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
     }
 }
 
-// impl StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-// impl AllocValue for f64
 fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-// impl AllocFrozenValue for f64
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
@@ -296,7 +270,6 @@ internal fun testWriteDecimal() {
     check(decimal(Double.NaN) == "nan")
     check(decimal(Double.POSITIVE_INFINITY) == "+inf")
     check(decimal(Double.NEGATIVE_INFINITY) == "-inf")
-
     check(decimal(0.0) == "0.000000")
     check(decimal(kotlin.math.PI) == "3.141593")
     check(decimal(-kotlin.math.E) == "-2.718282")
@@ -313,7 +286,6 @@ internal fun testWriteScientific() {
     check(scientific(Double.NaN) == "nan")
     check(scientific(Double.POSITIVE_INFINITY) == "+inf")
     check(scientific(Double.NEGATIVE_INFINITY) == "-inf")
-
     check(scientific(0.0) == "0.000000e+00")
     check(scientific(-0.0) == "-0.000000e+00")
     check(scientific(1.23e45) == "1.230000e+45")
@@ -331,7 +303,6 @@ internal fun testWriteCompact() {
     check(compact(Double.NaN) == "nan")
     check(compact(Double.POSITIVE_INFINITY) == "+inf")
     check(compact(Double.NEGATIVE_INFINITY) == "-inf")
-
     check(compact(0.0) == "0.0")
     check(compact(kotlin.math.PI) == "3.141592653589793")
     check(compact(-kotlin.math.E) == "-2.718281828459045")
@@ -342,6 +313,7 @@ internal fun testWriteCompact() {
 }
 
 internal fun testArithmeticOperators() {
+    // assert::all_true(r#"
     // +1.0 == 1.0
     // -1.0 == 0. - 1.
     // 1.0 + 2.0 == 3.0
@@ -350,17 +322,21 @@ internal fun testArithmeticOperators() {
     // 5.0 / 2.0 == 2.5
     // 5.0 % 3.0 == 2.0
     // 5.0 // 2.0 == 2.0
+    // "#)
 }
 
 internal fun testDictionaryKey() {
+    // assert::pass(r#"
     // x = {0: 123}
     // assert_eq(x[0], 123)
     // assert_eq(x[noop(0.0)], 123)
     // assert_eq(x[noop(-0.0)], 123)
     // assert_eq(1 in x, False)
+    // "#)
 }
 
 internal fun testComparisons() {
+    // a.all_true(r#"
     // +0.0 == -0.0
     // 0.0 == 0
     // 0 == 0.0
@@ -370,9 +346,12 @@ internal fun testComparisons() {
     // 1.0 > 0
     // 0.0 < float("nan")
     // float("+inf") < float("nan")
+    // "#)
 }
 
 internal fun testComparisonsBySorting() {
-    // sorted([float('inf'), float('-inf'), float('nan'), 1e300, -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'), 1e-300, -1e-300])
-    // == [float('-inf'), -1e+300, -1.0, -1, -1e-300, -1e-300, 0, 0.0, -0.0, 1e-300, 1e-300, 1.0, 1, 1e+300, float('+inf'), float('nan')]
+    // assert::eq(
+    //     "sorted([float('inf'), float('-inf'), float('nan'), 1e300, -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'), 1e-300, -1e-300])",
+    //     "[float('-inf'), -1e+300, -1.0, -1, -1e-300, -1e-300, 0, 0.0, -0.0, 1e-300, 1e-300, 1.0, 1, 1e+300, float('+inf'), float('nan')]",
+    // )
 }

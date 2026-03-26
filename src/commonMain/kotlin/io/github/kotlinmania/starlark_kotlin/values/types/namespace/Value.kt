@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.display.fmtKeyedContainer
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -122,6 +121,27 @@ fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
 // starlark_complex_value!(pub Namespace)
 typealias FrozenNamespace = NamespaceGen<FrozenValue>
 typealias Namespace = NamespaceGen<Value>
+
+// display_container::fmt_keyed_container
+private fun <K, V> fmtKeyedContainer(
+    start: String,
+    end: String,
+    sep: String,
+    iter: Sequence<Pair<K, V>>,
+): String {
+    val builder = StringBuilder()
+    builder.append(start)
+    var first = true
+    for ((k, v) in iter) {
+        if (!first) builder.append(", ")
+        builder.append(k)
+        builder.append(sep)
+        builder.append(v)
+        first = false
+    }
+    builder.append(end)
+    return builder.toString()
+}
 
 // #[cfg(test)]
 // mod tests

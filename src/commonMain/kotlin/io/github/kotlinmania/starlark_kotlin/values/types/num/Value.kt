@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
 
 import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
@@ -31,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
 /** Error type for numeric operations. */
 sealed class NumError : Exception() {
@@ -67,45 +67,40 @@ sealed class NumRef {
 
     /** Get hash of the underlying number. */
     fun getHash64(): ULong {
-        fun floatHash(f: Double): ULong {
-            return if (f.isNaN()) {
-                // all possible NaNs should hash to the same value
-                0u
-            } else if (f.isInfinite()) {
-                ULong.MAX_VALUE
-            } else if (f == 0.0) {
-                // Both 0.0 and -0.0 need the same hash, but are both equal to 0.0
-                (0.0).toBits().toULong()
-            } else {
-                f.toBits().toULong()
-            }
+        fun floatHash(f: Double): ULong = if (f.isNaN()) {
+            // all possible NaNs should hash to the same value
+            0u
+        } else if (f.isInfinite()) {
+            ULong.MAX_VALUE
+        } else if (f == 0.0) {
+            // Both 0.0 and -0.0 need the same hash, but are both equal to 0.0
+            (0.0).toBits().toULong()
+        } else {
+            f.toBits().toULong()
         }
 
-        return when (val i = asInt()) {
-            // equal ints and floats should have the same hash
-            null -> when (this) {
-                is Float -> floatHash(value.value)
-                is Int -> when (value) {
-                    is StarlarkIntRef.Small -> {
-                        // shouldn't happen - asInt() should have resulted in an int
-                        value.value.toI32().toULong()
-                    }
-                    is StarlarkIntRef.Big -> {
-                        // Not perfect, but OK: `1000000000000000000000003` and `1000000000000000000000005`
-                        // flush to the same float, and neither is exact float,
-                        // so we could use better hash for such numbers.
-                        floatHash(value.toF64())
-                    }
+        val i = asInt()
+        // equal ints and floats should have the same hash
+        if (i != null) return i.toULong()
+        return when (this) {
+            is Float -> floatHash(value.value)
+            is Int -> when (value) {
+                is StarlarkIntRef.Small -> {
+                    // shouldn't happen - asInt() should have resulted in an int
+                    value.value.toI32().toULong()
+                }
+                is StarlarkIntRef.Big -> {
+                    // Not perfect, but OK: `1000000000000000000000003` and `1000000000000000000000005`
+                    // flush to the same float, and neither is exact float,
+                    // so we could use better hash for such numbers.
+                    floatHash(value.toF64())
                 }
             }
-            else -> i.toULong()
         }
     }
 
     /** Get hash as [StarlarkHashValue]. */
-    fun getHash(): StarlarkHashValue {
-        return StarlarkHashValue.hash64(getHash64())
-    }
+    fun getHash(): StarlarkHashValue = StarlarkHashValue.hash64(getHash64())
 
     private fun toOwned(): Num = when (this) {
         is Int -> Num.Int(value.toOwned())
@@ -114,83 +109,68 @@ sealed class NumRef {
 
     /** Float division: self / other. */
     fun div(other: NumRef): Result<Double> {
-        val a = this.asFloat()
+        val a = asFloat()
         val b = other.asFloat()
         return if (b == 0.0) {
-            Result.failure(NumError.DivisionByZero(this.toOwned(), other.toOwned()))
+            Result.failure(NumError.DivisionByZero(toOwned(), other.toOwned()))
         } else {
             Result.success(a / b)
         }
     }
 
     /** Floor division: self // other. */
-    fun floorDiv(other: NumRef): Result<Num> {
-        return if (this is Int && other is Int) {
-            value.floorDiv(other.value).map { Num.Int(it) }
-        } else {
-            StarlarkFloat.floorDivImpl(this.asFloat(), other.asFloat()).map { Num.Float(it) }
-        }
+    fun floorDiv(other: NumRef): Result<Num> = if (this is Int && other is Int) {
+        value.floorDiv(other.value).map { Num.Int(it) }
+    } else {
+        StarlarkFloat.floorDivImpl(asFloat(), other.asFloat()).map { Num.Float(it) }
     }
 
     /** Percent (modulo): self % other. */
-    fun percent(other: NumRef): Result<Num> {
-        return if (this is Int && other is Int) {
-            value.percent(other.value).map { Num.Int(it) }
-        } else {
-            StarlarkFloat.percentImpl(this.asFloat(), other.asFloat()).map { Num.Float(it) }
-        }
+    fun percent(other: NumRef): Result<Num> = if (this is Int && other is Int) {
+        value.percent(other.value).map { Num.Int(it) }
+    } else {
+        StarlarkFloat.percentImpl(asFloat(), other.asFloat()).map { Num.Float(it) }
     }
 
     // This is total eq per starlark spec, not Kotlin's partial eq.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NumRef) return false
-
         return if (this is Int && other is Int) {
             value == other.value
         } else {
-            StarlarkFloat.compareImpl(this.asFloat(), other.asFloat()) == 0
+            StarlarkFloat.compareImpl(asFloat(), other.asFloat()) == 0
         }
     }
 
-    override fun hashCode(): kotlin.Int {
-        return getHash64().hashCode()
-    }
+    override fun hashCode(): kotlin.Int = getHash64().hashCode()
 
     /** Ord impl: total ordering for Starlark values. */
-    operator fun compareTo(other: NumRef): kotlin.Int {
-        return if (this is Int && other is Int) {
-            value.compareTo(other.value)
-        } else {
-            StarlarkFloat.compareImpl(this.asFloat(), other.asFloat())
-        }
+    operator fun compareTo(other: NumRef): kotlin.Int = if (this is Int && other is Int) {
+        value.compareTo(other.value)
+    } else {
+        StarlarkFloat.compareImpl(asFloat(), other.asFloat())
     }
 
     /** Add operator. */
-    operator fun plus(rhs: NumRef): Num {
-        return if (this is Int && rhs is Int) {
-            Num.Int(value + rhs.value)
-        } else {
-            Num.Float(this.asFloat() + rhs.asFloat())
-        }
+    operator fun plus(rhs: NumRef): Num = if (this is Int && rhs is Int) {
+        Num.Int(value + rhs.value)
+    } else {
+        Num.Float(asFloat() + rhs.asFloat())
     }
 
     /** Sub operator. */
-    operator fun minus(rhs: NumRef): Num {
-        return if (this is Int && rhs is Int) {
-            Num.Int(value - rhs.value)
-        } else {
-            Num.Float(this.asFloat() - rhs.asFloat())
-        }
+    operator fun minus(rhs: NumRef): Num = if (this is Int && rhs is Int) {
+        Num.Int(value - rhs.value)
+    } else {
+        Num.Float(asFloat() - rhs.asFloat())
     }
 
     /** Mul operator. */
-    operator fun times(rhs: NumRef): Num {
-        return if (this is Int && rhs is Int) {
-            Num.Int(value * rhs.value)
-        } else {
-            Num.Float(this.asFloat() * rhs.asFloat())
-        }
+    operator fun times(rhs: NumRef): Num = if (this is Int && rhs is Int) {
+        Num.Int(value * rhs.value)
+    } else {
+        Num.Float(asFloat() * rhs.asFloat())
     }
 
     companion object {
@@ -200,18 +180,12 @@ sealed class NumRef {
         }
 
         /** From f64. */
-        fun from(f: Double): NumRef {
-            return Float(StarlarkFloat(f))
-        }
+        fun from(f: Double): NumRef = Float(StarlarkFloat(f))
 
         /** Unpack a [NumRef] from a [Value]. */
         fun <V> unpackValue(value: Value<V>): Result<NumRef?> {
-            StarlarkIntRef.unpack(value)?.let {
-                return Result.success(Int(it))
-            }
-            value.downcastRef<StarlarkFloat>()?.let {
-                return Result.success(Float(it))
-            }
+            StarlarkIntRef.unpack(value)?.let { return Result.success(Int(it)) }
+            value.downcastRef<StarlarkFloat>()?.let { return Result.success(Float(it)) }
             return Result.success(null)
         }
     }
@@ -227,24 +201,18 @@ sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
         override fun toString(): String = StarlarkFloat(value).toString()
     }
 
-    override fun starlarkTypeRepr(): Ty {
-        return when (this) {
-            is Int -> Ty.int()
-            is Float -> Ty.float()
-        }
+    override fun starlarkTypeRepr(): Ty = when (this) {
+        is Int -> Ty.int()
+        is Float -> Ty.float()
     }
 
-    override fun <V> allocValue(heap: Heap<V>): Value<V> {
-        return when (this) {
-            is Int -> value.allocValue(heap)
-            is Float -> StarlarkFloat(value).allocValue(heap)
-        }
+    override fun <V> allocValue(heap: Heap<V>): Value<V> = when (this) {
+        is Int -> value.allocValue(heap)
+        is Float -> StarlarkFloat(value).allocValue(heap)
     }
 
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        return when (this) {
-            is Int -> heap.alloc(value)
-            is Float -> heap.alloc(StarlarkFloat(value))
-        }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
+        is Int -> heap.alloc(value)
+        is Float -> heap.alloc(StarlarkFloat(value))
     }
 }

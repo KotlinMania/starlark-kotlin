@@ -94,7 +94,12 @@ class ListRef private constructor(
     /** Get the element at the given index, or null if out of bounds. */
     operator fun get(index: Int): Value? = elements.getOrNull(index)
 
-    /** Get a sublist for the given range, or null if the range is invalid. */
+    /**
+     * Get a sublist for the given range, or null if the range is invalid.
+     *
+     * In Rust, this delegates to slice indexing: `this.get(start..end)`.
+     * In Kotlin, we clamp and return a subList.
+     */
     fun get(range: IntRange): List<Value>? {
         val start = maxOf(0, range.first)
         val end = minOf(elements.size, range.last + 1)
@@ -102,6 +107,19 @@ class ListRef private constructor(
         return elements.subList(start, end)
     }
 
+    /**
+     * Returns a [List] view of this reference's content.
+     *
+     * This is the Kotlin equivalent of Rust's `impl Deref for ListRef`
+     * where `type Target = [Value<'v>]`.
+     */
+    fun asList(): List<Value> = elements
+
+    /**
+     * Display implementation.
+     *
+     * Corresponds to Rust's `impl Display for ListRef`.
+     */
     override fun toString(): String = displayList(elements)
 }
 
@@ -158,7 +176,64 @@ class FrozenListRef private constructor(
     /** Iterate over the frozen list elements. */
     fun iter(): Iterator<FrozenValue> = elements.iterator()
 
+    /**
+     * Returns a [List] view of this reference's content.
+     *
+     * This is the Kotlin equivalent of Rust's `impl Deref for FrozenListRef`
+     * where `type Target = [FrozenValue]`.
+     */
+    fun asList(): List<FrozenValue> = elements
+
+    /**
+     * Display implementation.
+     *
+     * Corresponds to Rust's `impl Display for FrozenListRef`.
+     */
     override fun toString(): String = displayList(elements.map { it.toValue() })
+}
+
+// -- Deref implementations (structural equivalents) ---------------------------
+
+/**
+ * Represents the `impl Deref for ListRef` in Rust.
+ *
+ * In Rust, `ListRef` implements `Deref<Target = [Value]>` so it can
+ * be used directly as a slice. In Kotlin, the equivalent is calling
+ * [ListRef.asList] or [ListRef.content].
+ */
+object ListRefDeref {
+    /** The target type is `List<Value>`. */
+    fun deref(ref: ListRef): List<Value> = ref.content()
+}
+
+/**
+ * Represents the `impl Deref for FrozenListRef` in Rust.
+ *
+ * In Rust, `FrozenListRef` implements `Deref<Target = [FrozenValue]>`.
+ */
+object FrozenListRefDeref {
+    /** The target type is `List<FrozenValue>`. */
+    fun deref(ref: FrozenListRef): List<FrozenValue> = ref.content()
+}
+
+// -- Display implementations (structural equivalents) -------------------------
+
+/**
+ * Represents the `impl Display for ListRef` in Rust.
+ *
+ * Formats the list reference as a Starlark list literal `[a, b, c]`.
+ */
+object ListRefDisplay {
+    fun fmt(ref: ListRef): String = displayList(ref.content())
+}
+
+/**
+ * Represents the `impl Display for FrozenListRef` in Rust.
+ *
+ * Formats the frozen list reference as a Starlark list literal.
+ */
+object FrozenListRefDisplay {
+    fun fmt(ref: FrozenListRef): String = displayList(ref.content().map { it.toValue() })
 }
 
 // -- StarlarkTypeRepr implementations -----------------------------------------

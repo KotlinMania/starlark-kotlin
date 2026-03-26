@@ -31,5 +31,5 @@ import io.github.kotlinmania.starlark_kotlin.values.*
 /** Implemented by [Value] and [FrozenValue]. */
 interface ValueLifetimeless : Sealed, Freeze<FrozenValue>
 
-// Freeze<Frozen = FrozenValue> is encoded in the Freeze<FrozenValue> supertype.
+// Freeze<Frozen = FrozenValue>
 typealias FrozenLifetimeless = FrozenValue

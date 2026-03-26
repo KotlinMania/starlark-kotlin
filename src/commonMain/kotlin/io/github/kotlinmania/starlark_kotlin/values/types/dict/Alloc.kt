@@ -25,10 +25,9 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 
 /**
  * Utility to allocate a dict from iterator.
@@ -36,49 +35,26 @@ import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
  * Iterator must be a list of pairs (key, value).
  * Duplicate keys are allowed, last key wins.
  *
- * # Panics
- *
  * Panics if a key is not hashable.
  *
- * # Example
- *
+ * Example:
  * ```
- * use starlark::values::dict::AllocDict;
- *
- * # use starlark::values::{FrozenHeap, Heap};
- * # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
- * let l = heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
- * let ls = frozen_heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
- * # }
+ * val l = heap.alloc(AllocDict(listOf("a" to 1, "b" to 2, "c" to 3)))
+ * val ls = frozenHeap.alloc(AllocDict(listOf("a" to 1, "b" to 2, "c" to 3)))
  * ```
  */
-data class AllocDict<D>(val d: D)
-
-/**
- * Implementation for AllocDict<iter::Empty<(FrozenValue, FrozenValue)>>
- */
-object AllocDictEmpty {
-    /**
-     * Allocate an empty dict.
-     */
-    val EMPTY: AllocDict<Sequence<Pair<FrozenValue, FrozenValue>>> = AllocDict(emptySequence())
+data class AllocDict<D>(val d: D) {
+    companion object {
+        /** Allocate an empty dict. */
+        val EMPTY: AllocDict<Sequence<Pair<FrozenValue, FrozenValue>>> = AllocDict(emptySequence())
+    }
 }
 
-/**
- * Implementation of StarlarkTypeRepr for AllocDict<D>
- * where D: IntoIterator<Item = (K, V)>, K: StarlarkTypeRepr, V: StarlarkTypeRepr
- */
-inline fun <reified D, reified K, reified V> allocDictStarlarkTypeRepr(): Ty
-    where D : Iterable<Pair<K, V>>,
-          K : StarlarkTypeRepr,
-          V : StarlarkTypeRepr {
-    return DictType.starlarkTypeRepr<K, V>()
-}
+/** StarlarkTypeRepr for AllocDict. */
+inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> allocDictStarlarkTypeRepr(): Ty =
+    DictType.starlarkTypeRepr<K, V>()
 
-/**
- * Implementation of AllocValue<V_> for AllocDict<D>
- * where D: IntoIterator<Item = (K, V)>, K: AllocValue<V_>, V: AllocValue<V_>
- */
+/** AllocValue for AllocDict where D: Iterable<Pair<K, V>>, K: AllocValue, V: AllocValue. */
 fun <V_, D, K, V> AllocDict<D>.allocValue(heap: Heap<V_>): Value<V_>
     where D : Iterable<Pair<K, V>>,
           K : AllocValue<V_>,
@@ -91,13 +67,10 @@ fun <V_, D, K, V> AllocDict<D>.allocValue(heap: Heap<V_>): Value<V_>
             v.allocValue(heap)
         )
     }
-    return DictAllocValue.allocValue(Dict.new(map), heap)
+    return Dict.new(map).allocValue(heap)
 }
 
-/**
- * Implementation of AllocFrozenValue for AllocDict<D>
- * where D: IntoIterator<Item = (K, V)>, K: AllocFrozenValue, V: AllocFrozenValue
- */
+/** AllocFrozenValue for AllocDict where D: Iterable<Pair<K, V>>, K: AllocFrozenValue, V: AllocFrozenValue. */
 fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where D : Iterable<Pair<K, V>>,
           K : AllocFrozenValue,
@@ -110,5 +83,5 @@ fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
             v.allocFrozenValue(heap)
         )
     }
-    return FrozenDictDataAllocFrozenValue.allocFrozenValue(FrozenDictData(content = map), heap)
+    return FrozenDictData(content = map).allocFrozenValue(heap)
 }

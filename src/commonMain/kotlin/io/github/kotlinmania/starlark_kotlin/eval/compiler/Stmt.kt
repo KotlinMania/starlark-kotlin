@@ -69,13 +69,6 @@ internal sealed class AssignModifyLhs {
     data class Local(val slot: IrSpanned<LocalSlotId>) : AssignModifyLhs()
     data class LocalCaptured(val slot: IrSpanned<LocalCapturedSlotId>) : AssignModifyLhs()
     data class Module(val slot: IrSpanned<ModuleSlotId>) : AssignModifyLhs()
-
-    // fn optimize(&self, ctx: &mut OptCtx) -> AssignModifyLhs
-    fun optimize(ctx: OptCtx): AssignModifyLhs = when (this) {
-        is Dot -> Dot(expr.optimize(ctx), name)
-        is Array -> Array(expr.optimize(ctx), index.optimize(ctx))
-        is Local, is LocalCaptured, is Module -> this
-    }
 }
 
 // #[derive(Clone, Debug)]
@@ -108,6 +101,33 @@ internal sealed class StmtCompiled {
     data object Continue : StmtCompiled()
 }
 
+// #[derive(Debug, Default)]
+// pub(crate) struct StmtCompileContext
+internal data class StmtCompileContext(
+    /** Current function has return type. */
+    val hasReturnType: Boolean = false,
+)
+
+// pub(crate) struct OptimizeOnFreezeContext<'v, 'a>
+internal class OptimizeOnFreezeContext(
+    val module: FrozenModuleData,
+    /**
+     * Nothing useful should be left in the heap after the freeze,
+     * but having a heap is useful to allocate objects temporarily
+     * (when invoking operations which require heap).
+     */
+    val heap: Heap,
+    val frozenHeap: FrozenHeap,
+)
+
+// impl AssignModifyLhs
+// fn optimize(&self, ctx: &mut OptCtx) -> AssignModifyLhs
+internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs = when (this) {
+    is AssignModifyLhs.Dot -> AssignModifyLhs.Dot(expr.optimize(ctx), name)
+    is AssignModifyLhs.Array -> AssignModifyLhs.Array(expr.optimize(ctx), index.optimize(ctx))
+    is AssignModifyLhs.Local, is AssignModifyLhs.LocalCaptured, is AssignModifyLhs.Module -> this
+}
+
 // impl IrSpanned<StmtCompiled>
 // fn optimize(&self, ctx: &mut OptCtx) -> StmtsCompiled
 internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled = when (val s = this.node) {
@@ -131,25 +151,6 @@ internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled = when
         span = span, node = StmtCompiled.AssignModify(s.lhs.optimize(ctx), s.op, s.rhs.optimize(ctx)),
     ))
 }
-
-// #[derive(Debug, Default)]
-// pub(crate) struct StmtCompileContext
-internal data class StmtCompileContext(
-    /** Current function has return type. */
-    val hasReturnType: Boolean = false,
-)
-
-// pub(crate) struct OptimizeOnFreezeContext<'v, 'a>
-internal class OptimizeOnFreezeContext(
-    val module: FrozenModuleData,
-    /**
-     * Nothing useful should be left in the heap after the freeze,
-     * but having a heap is useful to allocate objects temporarily
-     * (when invoking operations which require heap).
-     */
-    val heap: Heap,
-    val frozenHeap: FrozenHeap,
-)
 
 // #[derive(Clone, Debug)]
 // pub(crate) struct StmtsCompiled(SmallVec1<IrSpanned<StmtCompiled>>)
@@ -287,12 +288,13 @@ internal sealed class AssignCompiledValue {
     data class Local(val slot: LocalSlotId) : AssignCompiledValue()
     data class LocalCaptured(val slot: LocalCapturedSlotId) : AssignCompiledValue()
     data class Module(val slot: ModuleSlotId, val name: String) : AssignCompiledValue()
+}
 
-    /** Assignment to a local non-captured variable. */
-    fun asLocalNonCaptured(): LocalSlotId? = when (this) {
-        is Local -> slot
-        else -> null
-    }
+// impl AssignCompiledValue
+/** Assignment to a local non-captured variable. */
+internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? = when (this) {
+    is AssignCompiledValue.Local -> slot
+    else -> null
 }
 
 // impl IrSpanned<AssignCompiledValue>
@@ -414,8 +416,8 @@ internal fun possibleGc(eval: io.github.kotlinmania.starlark_kotlin.eval.runtime
     }
 }
 
-/// Implement lhs |= rhs, which is special in Starlark, because dicts are mutated,
-/// while all other types are not.
+/** Implement lhs |= rhs, which is special in Starlark, because dicts are mutated,
+ * while all other types are not. */
 internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> = runCatching {
     // The Starlark spec says dict |= mutates, while nothing else does.
     // When mutating, be careful if they alias, so we don't have `lhs`
@@ -438,8 +440,8 @@ internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> = ru
     }
 }
 
-/// Implement lhs += rhs, which is special in Starlark, because lists are mutated,
-/// while all other types are not.
+/** Implement lhs += rhs, which is special in Starlark, because lists are mutated,
+ * while all other types are not. */
 internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     // Checking whether a value is an integer or a string is cheap (no virtual call),
     // and `Value::add` has optimizations for these types, so check them first

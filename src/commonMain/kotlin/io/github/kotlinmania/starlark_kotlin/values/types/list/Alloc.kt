@@ -29,38 +29,68 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
- * Utility to allocate a list from iterator.
+ * Utility to allocate a list from an iterable.
+ *
+ * Corresponds to Rust's `pub struct AllocList<L>(pub L)`.
  *
  * # Example
  *
  * ```kotlin
+ * // Allocate on the mutable heap:
  * val l = heap.alloc(AllocList(listOf(1, 2, 3)))
+ *
+ * // Allocate on the frozen heap:
  * val ls = frozenHeap.alloc(AllocList(listOf(1, 2, 3)))
  * ```
+ *
+ * @param L The type of the backing iterable.
+ * @property items The items to allocate into the new list.
  */
 class AllocList<L>(val items: L) {
     companion object {
-        /** Allocate an empty list. */
+        /**
+         * Allocate an empty list.
+         *
+         * Corresponds to Rust's `AllocList::<iter::Empty<FrozenValue>>::EMPTY`.
+         */
         val EMPTY: AllocList<List<FrozenValue>> = AllocList(emptyList())
     }
 }
 
-// impl StarlarkTypeRepr for AllocList<L>
-// where L: IntoIterator, L::Item: StarlarkTypeRepr
+/**
+ * [StarlarkTypeRepr] for [AllocList].
+ *
+ * Corresponds to Rust's `impl StarlarkTypeRepr for AllocList<L>
+ * where L: IntoIterator, L::Item: StarlarkTypeRepr`.
+ */
 fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
     where L : Iterable<Item> {
     return Ty.anyList()
 }
 
-// impl AllocValue for AllocList<L>
-// where L: IntoIterator, L::Item: AllocValue
+/**
+ * Allocate this [AllocList] as a mutable [Value] on the given [heap].
+ *
+ * Each item is allocated individually via [AllocValue.allocValue], then
+ * the resulting values are collected into a new list.
+ *
+ * Corresponds to Rust's `impl AllocValue for AllocList<L>
+ * where L: IntoIterator, L::Item: AllocValue`.
+ */
 fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
     where L : Iterable<Item> {
     return heap.alloc(AllocList(items.map { x -> x.allocValue(heap) }))
 }
 
-// impl AllocFrozenValue for AllocList<L>
-// where L: IntoIterator, L::Item: AllocFrozenValue
+/**
+ * Allocate this [AllocList] as a [FrozenValue] on the given frozen [heap].
+ *
+ * Each item is allocated individually via [AllocFrozenValue.allocFrozenValue],
+ * then the resulting values are collected into a new frozen list.
+ *
+ * Corresponds to Rust's `impl AllocFrozenValue for AllocList<L>
+ * where L: IntoIterator, L::Item: AllocFrozenValue`.
+ */
 fun <L, Item : AllocFrozenValue> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where L : Iterable<Item> {
     return heap.alloc(AllocList(items.map { x -> x.allocFrozenValue(heap) }))

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/namespace.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.namespace
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
 
 /** Provides the `namespace` type and global. */
 
-// Rust mod declarations — in Kotlin, these are separate files in the namespace/ package.
-// mod globals
+// pub(crate) mod globals
 // mod typing
-// mod value
+// pub(crate) mod value
+
 // pub use value::FrozenNamespace
 // pub use value::Namespace
