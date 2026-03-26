@@ -130,14 +130,14 @@ private fun <P> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
                 @Suppress("UNCHECKED_CAST")
                 when (p) {
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.NoArgs<*>,
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
@@ -221,7 +221,7 @@ private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
         is StmtP.Return<*> -> (s.expr as AstExpr?)?.let(f)
         is StmtP.Assign<*> -> {
             visitAssignTargetExprs(s.assign.lhs.node, f)
-            s.assign.ty?.let { f(it.expr as AstExpr) }
+            s.assign.ty?.let { f(it.node.expr as AstExpr) }
             f(s.assign.rhs as AstExpr)
         }
         is StmtP.AssignModify<*> -> {
@@ -247,20 +247,20 @@ private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
                 val p = param.node
                 when (p) {
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> -> {
-                        p.typ?.expr?.let { f(it as AstExpr) }
+                        p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.NoArgs<*>,
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
                 }
             }
-            s.defStmt.returnType?.let { f(it.expr as AstExpr) }
+            s.defStmt.returnType?.let { f(it.node.expr as AstExpr) }
             (s.defStmt.body as AstStmt).visitExprs(f)
         }
         is StmtP.Load<*, *> -> { /* no expressions */ }

@@ -20,55 +20,112 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-// fn min_max_iter<'v>(...) -> crate::Result<Value<'v>>
+// fn min_max_iter<'v>(
+//     mut it: impl Iterator<Item = Value<'v>>,
+//     key: Option<Value<'v>>,
+//     eval: &mut Evaluator<'v, '_, '_>,
+//     min: bool,
+// ) -> crate::Result<Value<'v>>
+/**
+ * Shared iterator-based implementation for both `min` and `max`.
+ *
+ * Iterates over [it], tracking the best (minimum or maximum) element seen so far.
+ * When [key] is provided, it is invoked on each element to obtain a comparison proxy.
+ *
+ * @param it Iterator of values to compare.
+ * @param key Optional key function applied to each element before comparison.
+ * @param eval Current evaluator, used to invoke the key function.
+ * @param min If `true`, select the minimum; if `false`, select the maximum.
+ * @return The minimum or maximum value, or a failure if the iterator is empty.
+ */
 private fun minMaxIter(
     it: Iterator<Value>,
     key: Value?,
     eval: Evaluator,
+    // Select min on true, max on false.
     min: Boolean,
 ): Value {
-    var max = if (it.hasNext()) {
+    // let mut max = match it.next() {
+    //     Some(x) => x,
+    //     None => { return Err(...) }
+    // };
+    var best = if (it.hasNext()) {
         it.next()
     } else {
         error("Argument is an empty iterable, max() expect a non empty iterable")
     }
-    // Select min on true, max on false.
-    val updateMaxOrdering = if (min) 1 else -1 // Ordering::Greater = 1, Ordering::Less = -1
+    // let update_max_ordering = if min { Ordering::Greater } else { Ordering::Less };
+    // Ordering::Greater maps to positive (> 0), Ordering::Less maps to negative (< 0).
+    // When finding min, we update when best > candidate (compare returns positive).
+    // When finding max, we update when best < candidate (compare returns negative).
+    val updateMaxOrdering = if (min) 1 else -1
+    // match key { None => { ... }, Some(key) => { ... } }
     when (key) {
         null -> {
+            // for i in it {
+            //     if max.compare(i)? == update_max_ordering { max = i; }
+            // }
             for (i in it) {
-                if (max.compare(i) == updateMaxOrdering) {
-                    max = i
+                if (best.compare(i).getOrThrow() == updateMaxOrdering) {
+                    best = i
                 }
             }
         }
         else -> {
-            var cached = key.invokePos(listOf(max), eval)
+            // let mut cached = key.invoke_pos(&[max], eval)?;
+            var cached = key.invokePos(listOf(best), eval).getOrThrow()
+            // for i in it { ... }
             for (i in it) {
-                val keyi = key.invokePos(listOf(i), eval)
-                if (cached.compare(keyi) == updateMaxOrdering) {
-                    max = i
+                // let keyi = key.invoke_pos(&[i], eval)?;
+                val keyi = key.invokePos(listOf(i), eval).getOrThrow()
+                // if cached.compare(keyi)? == update_max_ordering { ... }
+                if (cached.compare(keyi).getOrThrow() == updateMaxOrdering) {
+                    best = i
                     cached = keyi
                 }
             }
         }
     }
-    return max
+    // Ok(max)
+    return best
 }
 
-/** Common implementation of `min` and `max`. */
-// fn min_max<'v>(...) -> crate::Result<Value<'v>>
+// fn min_max<'v>(
+//     mut args: UnpackTuple<Value<'v>>,
+//     key: Option<Value<'v>>,
+//     eval: &mut Evaluator<'v, '_, '_>,
+//     min: bool,
+// ) -> crate::Result<Value<'v>>
+/**
+ * Common implementation of `min` and `max`.
+ *
+ * When called with a single argument, iterates over that argument as an iterable.
+ * When called with multiple arguments, compares the arguments directly.
+ *
+ * @param args Positional arguments, either a single iterable or multiple values.
+ * @param key Optional key function applied to each element before comparison.
+ * @param eval Current evaluator, used to invoke the key function and access the heap.
+ * @param min If `true`, select the minimum; if `false`, select the maximum.
+ * @return The minimum or maximum value.
+ */
 private fun minMax(
     args: List<Value>,
     key: Value?,
     eval: Evaluator,
+    // Select min on true, max on false.
     min: Boolean,
 ): Value {
+    // if args.items.len() == 1 {
+    //     let it = args.items.swap_remove(0).iterate(eval.heap())?;
+    //     min_max_iter(it, key, eval, min)
+    // } else {
+    //     min_max_iter(args.items.into_iter(), key, eval, min)
+    // }
     return if (args.size == 1) {
-        val it = args[0].iterate(eval.heap())
+        val it = args[0].iterate(eval.heap()).getOrThrow()
         minMaxIter(it, key, eval, min)
     } else {
         minMaxIter(args.iterator(), key, eval, min)
@@ -77,9 +134,16 @@ private fun minMax(
 
 // #[starlark_module]
 // pub(crate) fn register_min_max(globals: &mut GlobalsBuilder)
+/**
+ * Register the `min` and `max` builtin functions with the given [GlobalsBuilder].
+ *
+ * Both functions accept either a single iterable argument or multiple positional
+ * arguments, along with an optional `key` function for comparison.
+ */
 internal fun registerMinMax(globals: GlobalsBuilder) {
     /**
-     * [max](https://github.com/bazelbuild/starlark/blob/master/spec.md#max): returns the maximum of a sequence.
+     * [max](https://github.com/bazelbuild/starlark/blob/master/spec.md#max):
+     * returns the maximum of a sequence.
      *
      * `max(x)` returns the greatest element in the iterable sequence x.
      *
@@ -91,12 +155,16 @@ internal fun registerMinMax(globals: GlobalsBuilder) {
      *
      * ```
      * max([3, 1, 4, 1, 5, 9])               == 9
-     * max("two", "three", "four")           == "two"    # the lexicographically greatest
-     * max("two", "three", "four", key=len)  == "three"  # the longest
+     * max("two", "three", "four")           == "two"    // the lexicographically greatest
+     * max("two", "three", "four", key=len)  == "three"  // the longest
      * ```
      */
     // #[starlark(speculative_exec_safe)]
-    // fn max<'v>(args: UnpackTuple<Value<'v>>, key: Option<Value<'v>>, eval: ...) -> ...
+    // fn max<'v>(
+    //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
+    //     key: Option<Value<'v>>,
+    //     eval: &mut Evaluator<'v, '_, '_>,
+    // ) -> starlark::Result<Value<'v>>
     globals.setFunction("max", speculativeExecSafe = true) { eval, callArgs ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<Value>("key")
@@ -104,21 +172,29 @@ internal fun registerMinMax(globals: GlobalsBuilder) {
     }
 
     /**
-     * [min](https://github.com/bazelbuild/starlark/blob/master/spec.md#min): returns the minimum of a sequence.
+     * [min](https://github.com/bazelbuild/starlark/blob/master/spec.md#min):
+     * returns the minimum of a sequence.
      *
      * `min(x)` returns the least element in the iterable sequence x.
      *
      * It is an error if any element does not support ordered comparison,
      * or if the sequence is empty.
      *
+     * The optional named parameter `key` specifies a function to be applied
+     * to each element prior to comparison.
+     *
      * ```
      * min([3, 1, 4, 1, 5, 9])                 == 1
-     * min("two", "three", "four")             == "four"  # the lexicographically least
-     * min("two", "three", "four", key=len)    == "two"   # the shortest
+     * min("two", "three", "four")             == "four"  // the lexicographically least
+     * min("two", "three", "four", key=len)    == "two"   // the shortest
      * ```
      */
     // #[starlark(speculative_exec_safe)]
-    // fn min<'v>(args: UnpackTuple<Value<'v>>, key: Option<Value<'v>>, eval: ...) -> ...
+    // fn min<'v>(
+    //     #[starlark(args)] args: UnpackTuple<Value<'v>>,
+    //     key: Option<Value<'v>>,
+    //     eval: &mut Evaluator<'v, '_, '_>,
+    // ) -> starlark::Result<Value<'v>>
     globals.setFunction("min", speculativeExecSafe = true) { eval, callArgs ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<Value>("key")
