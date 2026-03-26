@@ -26,22 +26,26 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
+import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.BuiltinFn
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LambdaP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
@@ -152,60 +156,56 @@ internal sealed class Builtin1 {
 // ---------------------------------------------------------------------------
 
 /** Builtin function with two arguments. */
-internal enum class Builtin2 {
+internal sealed class Builtin2 {
     /** `a == b`. */
-    Equals,
+    data object Equals : Builtin2()
     /** `a in b`. */
-    In,
+    data object In : Builtin2()
     /** `a - b`. */
-    Sub,
+    data object Sub : Builtin2()
     /** `a + b`. */
-    Add,
+    data object Add : Builtin2()
     /** `a * b`. */
-    Multiply,
+    data object Multiply : Builtin2()
     /** `a % b`. */
-    Percent,
+    data object Percent : Builtin2()
     /** `a / b`. */
-    Divide,
+    data object Divide : Builtin2()
     /** `a // b`. */
-    FloorDivide,
+    data object FloorDivide : Builtin2()
     /** `a & b`. */
-    BitAnd,
+    data object BitAnd : Builtin2()
     /** `a | b`. */
-    BitOr,
+    data object BitOr : Builtin2()
     /** `a ^ b`. */
-    BitXor,
+    data object BitXor : Builtin2()
     /** `a << b`. */
-    LeftShift,
+    data object LeftShift : Builtin2()
     /** `a >> b`. */
-    RightShift,
+    data object RightShift : Builtin2()
+    /** `a <=> b`. */
+    data class Compare(val op: CompareOp) : Builtin2()
     /** `a[b]`. */
-    ArrayIndex;
+    data object ArrayIndex : Builtin2()
 
     internal fun eval(a: Value, b: Value, heap: Heap): Result<Value> {
         return when (this) {
-            Equals -> a.equals(b).map { Value.newBool(it) }
-            In -> b.isIn(a).map { Value.newBool(it) }
-            Sub -> a.sub(b, heap)
-            Add -> a.add(b, heap)
-            Multiply -> a.mul(b, heap)
-            Percent -> a.percent(b, heap)
-            Divide -> a.div(b, heap)
-            FloorDivide -> a.floorDiv(b, heap)
-            BitAnd -> a.bitAnd(b, heap)
-            BitOr -> a.bitOr(b, heap)
-            BitXor -> a.bitXor(b, heap)
-            LeftShift -> a.leftShift(b, heap)
-            RightShift -> a.rightShift(b, heap)
-            ArrayIndex -> a.at(b, heap)
+            is Equals -> a.equals(b).map { Value.newBool(it) }
+            is Compare -> a.compare(b).map { Value.newBool(op.apply(it)) }
+            is In -> b.isIn(a).map { Value.newBool(it) }
+            is Sub -> a.sub(b, heap)
+            is Add -> a.add(b, heap)
+            is Multiply -> a.mul(b, heap)
+            is Percent -> a.percent(b, heap)
+            is Divide -> a.div(b, heap)
+            is FloorDivide -> a.floorDiv(b, heap)
+            is BitAnd -> a.bitAnd(b, heap)
+            is BitOr -> a.bitOr(b, heap)
+            is BitXor -> a.bitXor(b, heap)
+            is LeftShift -> a.leftShift(b, heap)
+            is RightShift -> a.rightShift(b, heap)
+            is ArrayIndex -> a.at(b, heap)
         }
-    }
-}
-
-/** Builtin2 with an embedded [CompareOp]. */
-internal data class Builtin2Compare(val op: CompareOp) {
-    fun eval(a: Value, b: Value): Result<Value> {
-        return a.compare(b).map { Value.newBool(op.apply(it)) }
     }
 }
 
@@ -374,7 +374,7 @@ internal sealed class ExprCompiled {
     private fun isDefinitelyBool(): Boolean = when (this) {
         is ValueExpr -> value.unpackBool() != null
         is Builtin1Expr -> op is Builtin1.Not || op is Builtin1.TypeIs
-        is Builtin2Expr -> op == Builtin2.In || op == Builtin2.Equals
+        is Builtin2Expr -> op is Builtin2.In || op is Builtin2.Equals || op is Builtin2.Compare
         else -> false
     }
 

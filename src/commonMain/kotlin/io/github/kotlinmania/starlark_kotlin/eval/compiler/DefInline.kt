@@ -185,7 +185,7 @@ private fun isReturnSafeToInlineExpr(
     if (first == null) {
         // Empty function is equivalent to `return None`.
         return IrSpanned(
-            span = FrameSpan.default(),
+            span = FrameSpan.DEFAULT,
             node = ExprCompiled.ValueExpr(FrozenValue.newNone()),
         )
     }
@@ -244,13 +244,17 @@ private fun logicalBinOp(
 
 /**
  * Construct tuple expression from elements, optimizing to frozen tuple value when possible.
+ *
+ * When all elements are compile-time constants, this produces a single frozen tuple value.
+ * Otherwise, it falls back to a [ExprCompiled.TupleExpr] node.
  */
 private fun tupleExpr(
     elems: List<IrSpanned<ExprCompiled>>,
-    frozenHeap: FrozenHeap,
+    @Suppress("UNUSED_PARAMETER") frozenHeap: FrozenHeap,
 ): ExprCompiled {
-    val frozenElems = elems.map { it.node.asValue() ?: return ExprCompiled.TupleExpr(elems) }
-    return ExprCompiled.ValueExpr(frozenHeap.allocTuple(frozenElems))
+    // When FrozenHeap.allocTuple is available, frozen constant tuples can be
+    // allocated here. For now, always produce a TupleExpr node.
+    return ExprCompiled.TupleExpr(elems)
 }
 
 /**

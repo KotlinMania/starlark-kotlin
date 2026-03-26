@@ -23,37 +23,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * Instruction arguments.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddrOffset
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddrOffsetNeg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcPtrAddr
+import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsFull
 import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsPos
-import io.github.kotlinmania.starlark_kotlin.eval.bc.for_loop.LoopDepth
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrDefData
-import io.github.kotlinmania.starlark_kotlin.eval.bc.native_function.BcNativeFunction
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcodeHandler
-import io.github.kotlinmania.starlark_kotlin.eval.bc.slow_arg.BcInstrEndArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlot
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRangeFrom
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
 

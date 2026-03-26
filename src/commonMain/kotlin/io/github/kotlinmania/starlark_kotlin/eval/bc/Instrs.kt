@@ -22,111 +22,130 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /**
  * Instructions serialized in a buffer.
  *
- * In Rust, instructions are serialized into a u64-aligned byte array and accessed via raw pointer
- * arithmetic with manual drop. In Kotlin, we use a list-of-objects representation where each
- * instruction is stored as a (BcInstrHeader, arg) pair. The GC handles cleanup.
+ * In Rust, instructions are serialized into a `u64`-aligned byte array and accessed via raw pointer
+ * arithmetic with manual `Drop` for cleanup. In Kotlin, we use a list-of-objects representation
+ * where each instruction is stored as a (`BcInstrHeader`, arg) pair. The garbage collector handles
+ * cleanup, so `Drop` semantics become no-ops.
  */
+
+// --- Drop support ---
 
 // impl BcOpcode { unsafe fn drop_in_place(self, ptr: BcPtrAddr) }
 /**
  * Drop instruction at given address.
  *
  * In Rust, this dispatches via [BcOpcodeHandler] to call `ptr::drop_in_place` for the
- * concrete instruction repr at [ptr]. In Kotlin, the GC handles cleanup automatically.
+ * concrete `BcInstrRepr<I>` at the pointer. In Kotlin, the garbage collector handles
+ * cleanup automatically.
  */
 private fun BcOpcode.dropInPlace(ptr: BcPtrAddr) {
     // struct HandlerImpl<'b> { ptr: BcPtrAddr<'b> }
     // impl BcOpcodeHandler<()> for HandlerImpl<'_> {
     //     fn handle<I: BcInstr>(self) {
-    //         let HandlerImpl { ptr } = self;
-    //         let instr = ptr.get_instr_mut::<I>();
-    //         unsafe { ptr::drop_in_place(instr); }
+    //         unsafe { ptr::drop_in_place(ptr.get_instr_mut::<I>()); }
     //     }
     // }
     // self.dispatch(HandlerImpl { ptr });
-    // No-op in Kotlin: GC handles cleanup.
 }
 
 // unsafe fn drop_instrs(instrs: &[u64])
 /**
  * Invoke drop for instructions in the buffer.
  *
- * In Rust, this walks the raw byte buffer calling [BcOpcode.dropInPlace] for each instruction.
- * In Kotlin, the GC handles all cleanup, so this is a no-op.
+ * In Rust, this walks the raw byte buffer calling `opcode.drop_in_place(ptr)` for each
+ * instruction. In Kotlin, the garbage collector handles cleanup.
  */
 private fun dropInstrs(instrs: List<Any>) {
-    // unsafe {
-    //     let end = BcPtrAddr::for_slice_end(instrs);
-    //     let mut ptr = BcPtrAddr::for_slice_start(instrs);
-    //     while ptr != end {
-    //         assert!(ptr < end);
-    //         let opcode = ptr.get_opcode();
-    //         opcode.drop_in_place(ptr);
-    //         ptr = ptr.add(opcode.size_of_repr());
-    //     }
+    // let end = BcPtrAddr::for_slice_end(instrs);
+    // let mut ptr = BcPtrAddr::for_slice_start(instrs);
+    // while ptr != end {
+    //     assert!(ptr < end);
+    //     let opcode = ptr.get_opcode();
+    //     opcode.drop_in_place(ptr);
+    //     ptr = ptr.add(opcode.size_of_repr());
     // }
-    // No-op in Kotlin: GC handles cleanup.
 }
+
+// --- Static empty instructions ---
 
 // fn empty_instrs() -> &'static [u64]
 /**
  * Statically allocate a valid instruction buffer micro-optimization.
  *
- * Valid bytecode must end with `End` instruction, otherwise evaluation overruns
+ * Valid bytecode must end with the `End` instruction, otherwise evaluation overruns
  * the instruction buffer.
  *
- * [BcInstrs] type needs to have a default (it is convenient).
+ * [BcInstrs] type needs to have a default constructor (it is convenient).
  *
- * In Rust, allocating a vec in `BcInstrs::default` is non-free, so a static `BcInstrRepr<InstrEnd>`
- * is reinterpreted as a `&'static [u64]`. In Kotlin, we simply create a small list with the
- * End instruction header and its argument.
+ * In Rust, allocating a vec in `BcInstrs::default` is non-free, so a static
+ * `BcInstrRepr<InstrEnd>` is reinterpreted as `&'static [u64]`. In Kotlin,
+ * we simply create a small list with the `End` instruction.
  */
 private fun emptyInstrs(): List<Any> {
     // static END_OF_BC: BcInstrRepr<InstrEnd> = BcInstrRepr {
     //     header: BcInstrHeader::for_opcode(BcOpcode::End),
-    //     arg: BcInstrEndArg { end_addr: BcAddr(0), slow_args: Vec::new(), local_names: FrozenRef::new(&[]) },
+    //     arg: BcInstrEndArg {
+    //         end_addr: BcAddr(0),
+    //         slow_args: Vec::new(),
+    //         local_names: FrozenRef::new(&[]),
+    //     },
     //     _align: [],
     // };
+    // unsafe {
+    //     slice::from_raw_parts(
+    //         &END_OF_BC as *const BcInstrRepr<_> as *const u64,
+    //         mem::size_of_val(&END_OF_BC) / mem::size_of::<u64>(),
+    //     )
+    // }
     return listOf(
         BcInstrHeader.forOpcode(BcOpcode.End),
-        BcInstrEndArg(
-            endAddr = BcAddr(0u),
-            slowArgs = mutableListOf(),
-            localNames = io.github.kotlinmania.starlark_kotlin.values.FrozenRef.empty(),
-        ),
+        BcInstrEndArg(),
     )
 }
+
+// --- BcInstrs ---
 
 // pub(crate) struct BcInstrs
 /**
  * Bytecode instructions container.
  *
- * In Rust, this holds either heap-allocated (`Box<[u64]>`) or statically-allocated (`&'static [u64]`)
- * instruction bytes via `Either`. In Kotlin, we use a [List] since the GC handles allocation
- * and deallocation.
+ * In Rust, this holds either heap-allocated (`Box<[u64]>`) or statically-allocated
+ * (`&'static [u64]`) instruction bytes via `Either`. The heap-allocated variant
+ * calls `drop_instrs` on `Drop`. In Kotlin, we use a simple [List] since the
+ * garbage collector manages allocation and deallocation.
+ *
+ * Instructions are stored as `(BcInstrHeader, arg)` pairs. Each header occupies
+ * one list slot and its corresponding argument occupies the next slot.
  */
 internal class BcInstrs private constructor(
     // instrs: Either<Box<[u64]>, &'static [u64]>
-    // We use a list of objects where instructions are stored as header/arg pairs.
     private val instrs: List<Any>,
     // pub(crate) stmt_locs: BcStatementLocations
     internal val stmtLocs: BcStatementLocations,
 ) {
     // impl Default for BcInstrs
-    // fn default() -> Self {
-    //     Self::for_instrs(Either::Right(empty_instrs()), BcStatementLocations::new())
-    // }
+    //   fn default() -> Self {
+    //       Self::for_instrs(Either::Right(empty_instrs()), BcStatementLocations::new())
+    //   }
 
     // impl Drop for BcInstrs
-    // In Rust, Drop calls drop_instrs for the heap-allocated (Either::Left) variant.
-    // In Kotlin, the GC handles cleanup.
+    //   fn drop(&mut self) {
+    //       match &self.instrs {
+    //           Either::Left(heap_allocated) => unsafe { drop_instrs(heap_allocated); },
+    //           Either::Right(_statically_allocated) => {}
+    //       }
+    //   }
+    // In Kotlin, GC handles cleanup.
 
     companion object {
         /** Create a default (empty) [BcInstrs] containing only the End instruction. */
         fun default(): BcInstrs = forInstrs(emptyInstrs(), BcStatementLocations.new())
 
-        // pub(crate) fn for_instrs(instrs: Either<Box<[u64]>, &'static [u64]>, stmt_locs: BcStatementLocations) -> Self
-        /** Create [BcInstrs] from instruction buffer and statement locations. */
+        // pub(crate) fn for_instrs(
+        //     instrs: Either<Box<[u64]>, &'static [u64]>,
+        //     stmt_locs: BcStatementLocations,
+        // ) -> Self
+        /** Create [BcInstrs] from an instruction buffer and statement locations. */
         fun forInstrs(instrs: List<Any>, stmtLocs: BcStatementLocations): BcInstrs {
             return BcInstrs(instrs, stmtLocs)
         }
@@ -136,7 +155,6 @@ internal class BcInstrs private constructor(
     /** Get a pointer to the start of the instruction buffer. */
     fun startPtr(): BcPtrAddr = BcPtrAddr.forSliceStart(instrs)
 
-    // fn instrs field used via Either in Rust, simple delegations here
     // pub(crate) fn end(&self) -> BcAddr
     /**
      * Get the end address of the instruction buffer.
@@ -154,15 +172,16 @@ internal class BcInstrs private constructor(
     // pub(crate) fn opcodes(&self) -> Vec<BcOpcode>
     /**
      * Get all opcodes in the instruction buffer.
-     * In Rust this is `#[cfg(test)]`.
+     *
+     * In Rust, this is `#[cfg(test)]`. Kept for testing and debugging.
      */
     fun opcodes(): List<BcOpcode> {
         val result = mutableListOf<BcOpcode>()
-        val end = BcPtrAddr.forSliceEnd(instrs)
+        val endAddr = BcPtrAddr.forSliceEnd(instrs)
         var ptr = BcPtrAddr.forSliceStart(instrs)
-        while (ptr != end) {
-            require(ptr < end)
-            val opcode = ptr.getOpcode()
+        while (ptr != endAddr) {
+            require(ptr < endAddr)
+            val opcode = getOpcodeAt(ptr)
             result.add(opcode)
             ptr = ptr.add(opcode.sizeOfRepr())
         }
@@ -173,19 +192,20 @@ internal class BcInstrs private constructor(
     /**
      * Iterate over all instructions, yielding `(ptr, ip)` pairs.
      *
-     * Each pair contains the pointer to the instruction and its address relative
-     * to the start of the buffer.
+     * Each pair contains the pointer to the instruction and its address
+     * relative to the start of the buffer.
      */
     private fun iter(): Sequence<Pair<BcPtrAddr, BcAddr>> {
+        val start = startPtr()
+        val end = endPtr()
         return sequence {
-            var nextPtr = startPtr()
-            val endPtrVal = endPtr()
+            var nextPtr = start
             while (true) {
-                require(nextPtr <= endPtrVal)
-                if (nextPtr == endPtrVal) break
+                require(nextPtr <= end)
+                if (nextPtr == end) break
                 val ptr = nextPtr
-                val ip = ptr.offsetFrom(startPtr())
-                nextPtr = nextPtr.add(ptr.getOpcode().sizeOfRepr())
+                val ip = ptr.offsetFrom(start)
+                nextPtr = nextPtr.add(getOpcodeAt(ptr).sizeOfRepr())
                 yield(Pair(ptr, ip))
             }
         }
@@ -193,21 +213,14 @@ internal class BcInstrs private constructor(
 
     // fn end_arg(&self) -> Option<&BcInstrEndArg>
     /**
-     * Find the [BcInstrEndArg] from the End instruction, if present.
+     * Find the [BcInstrEndArg] from the `End` instruction, if present.
      *
-     * Iterates through all instructions looking for the End opcode, then
-     * extracts its argument.
+     * In Rust: `self.iter().find_map(|(ptr, _ip)| ptr.get_instr_checked::<InstrEnd>().map(|i| &i.arg))`
      */
     private fun endArg(): BcInstrEndArg? {
         for ((ptr, _) in iter()) {
-            if (ptr.getOpcode() == BcOpcode.End) {
-                // In Rust: ptr.get_instr_checked::<InstrEnd>().map(|i| &i.arg)
-                val argIndex = ptr.offset + 1
-                if (argIndex < instrs.size) {
-                    val arg = instrs[argIndex]
-                    if (arg is BcInstrEndArg) return arg
-                }
-                return null
+            if (getOpcodeAt(ptr) == BcOpcode.End) {
+                return getArgAt(ptr) as? BcInstrEndArg
             }
         }
         return null
@@ -232,7 +245,7 @@ internal class BcInstrs private constructor(
         val loopEnds = mutableListOf<BcAddr>()
         val jumpTargets = mutableSetOf<BcAddr>()
         for ((ptr, ip) in iter()) {
-            ptr.getOpcode().visitJumpAddr(ptr, ip) { jumpAddr ->
+            visitJumpAddr(ptr, ip) { jumpAddr ->
                 jumpTargets.add(jumpAddr)
             }
         }
@@ -256,7 +269,7 @@ internal class BcInstrs private constructor(
                 }
             }
 
-            val opcode = ptr.getOpcode()
+            val opcode = getOpcodeAt(ptr)
             if (jumpTargets.isNotEmpty()) {
                 if (jumpTargets.contains(ip)) {
                     sb.append(">")
@@ -270,7 +283,7 @@ internal class BcInstrs private constructor(
             sb.append("${ip.value.toString().padStart(ipPad)}: $opcode")
             if (opcode != BcOpcode.End) {
                 // `End` args are too verbose and not really instruction args.
-                opcode.fmtAppendArg(ptr, ip, endArg, sb)
+                fmtAppendArg(ptr, ip, endArg, sb)
             }
             if (newline) {
                 sb.appendLine()
@@ -295,45 +308,138 @@ internal class BcInstrs private constructor(
     }
 
     // impl Display for BcInstrs
-    // fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
+    // fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    //     self.fmt_impl(f, false)
+    // }
     override fun toString(): String {
         val sb = StringBuilder()
         fmtImpl(sb, false)
         return sb.toString()
     }
 
-    // --- Private helpers for instruction arg inspection ---
+    // --- Private helpers for buffer access ---
 
     /**
-     * Get the forward-jump offset from an InstrIter arg (the 5th tuple element).
-     * Returns null if the arg format doesn't match.
+     * Get the opcode at the given pointer address in the instruction buffer.
+     *
+     * In Rust, this reads the [BcInstrHeader] from the raw byte buffer via pointer cast.
+     * In Kotlin, instructions are stored as header/arg pairs in a list.
+     */
+    private fun getOpcodeAt(ptr: BcPtrAddr): BcOpcode {
+        val idx = ptr.offset
+        if (idx >= instrs.size) return BcOpcode.End
+        val element = instrs[idx]
+        if (element is BcInstrHeader) return element.opcode
+        return BcOpcode.End
+    }
+
+    /**
+     * Get the argument at the given pointer address in the instruction buffer.
+     *
+     * The argument is stored at the index immediately following the header.
+     */
+    private fun getArgAt(ptr: BcPtrAddr): Any? {
+        val idx = ptr.offset + 1
+        if (idx >= instrs.size) return null
+        return instrs[idx]
+    }
+
+    /**
+     * Get the forward-jump offset from an `InstrIter` arg.
+     *
+     * In Rust: `ptr.get_instr::<InstrIter>().arg.4` (the 5th tuple element).
+     * The iter arg is stored as a list: `[over, loopDepth, iterSlot, varSlot, BcAddrOffset]`.
      */
     private fun getIterForwardOffset(ptr: BcPtrAddr): BcAddrOffset? {
-        val argIndex = ptr.offset + 1
-        if (argIndex >= instrs.size) return null
-        val arg = instrs[argIndex]
-        // InstrIter arg is typically stored as a list: [over, loopDepth, iterSlot, varSlot, BcAddrOffset]
+        val arg = getArgAt(ptr) ?: return null
         if (arg is List<*> && arg.size >= 5) {
             val offset = arg[4]
             if (offset is BcAddrOffset) return offset
         }
         return null
     }
+
+    /**
+     * Visit all jump addresses referenced by the instruction at [ptr] with address [ip].
+     *
+     * Calls [visitor] for each target address the instruction may jump to.
+     * Used for building the set of jump targets for display formatting.
+     *
+     * In Rust: `ptr.get_opcode().visit_jump_addr(ptr, ip, &mut |jump_addr| { ... })`
+     */
+    private fun visitJumpAddr(ptr: BcPtrAddr, ip: BcAddr, visitor: (BcAddr) -> Unit) {
+        val opcode = getOpcodeAt(ptr)
+        val arg = getArgAt(ptr) ?: return
+
+        when (opcode) {
+            BcOpcode.Br -> {
+                if (arg is BcAddrOffset && arg != BcAddrOffset.FORWARD) {
+                    visitor(ip.offset(arg))
+                }
+            }
+            BcOpcode.IfBr, BcOpcode.IfNotBr -> {
+                if (arg is Pair<*, *>) {
+                    val offset = arg.second
+                    if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
+                        visitor(ip.offset(offset))
+                    }
+                }
+            }
+            BcOpcode.Iter, BcOpcode.Continue -> {
+                if (arg is List<*> && arg.size >= 5) {
+                    val offset = arg[4]
+                    if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
+                        visitor(ip.offset(offset))
+                    }
+                }
+            }
+            BcOpcode.Break -> {
+                if (arg is Pair<*, *>) {
+                    val offset = arg.second
+                    if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
+                        visitor(ip.offset(offset))
+                    }
+                }
+            }
+            else -> { /* Not a jump instruction */ }
+        }
+    }
+
+    /**
+     * Append a formatted representation of the instruction argument to [sb].
+     *
+     * In Rust: `opcode.fmt_append_arg(ptr, ip, end_arg, f)` dispatches through
+     * the opcode handler to format the argument via its `Debug` impl.
+     */
+    private fun fmtAppendArg(
+        ptr: BcPtrAddr,
+        ip: BcAddr,
+        endArg: BcInstrEndArg?,
+        sb: StringBuilder,
+    ) {
+        val arg = getArgAt(ptr) ?: return
+        sb.append(" ")
+        sb.append(formatInstrArg(arg, endArg))
+    }
 }
+
+// --- PatchAddr ---
 
 // pub(crate) struct PatchAddr
 /**
  * Address to be patched later with the actual target address.
  *
  * Used during bytecode writing for forward jumps where the target
- * address is not yet known.
+ * address is not yet known at write time.
  */
 internal class PatchAddr(
-    // pub(crate) instr_start: BcAddr
+    // pub(crate) instr_start: BcAddr,
     val instrStart: BcAddr,
-    // pub(crate) arg: BcAddr
+    // pub(crate) arg: BcAddr,
     val arg: BcAddr,
 )
+
+// --- BcInstrsWriter ---
 
 // pub(crate) struct BcInstrsWriter
 /**
@@ -342,16 +448,19 @@ internal class PatchAddr(
  * Higher level wrapper is [BcWriter].
  *
  * In Rust, this writes into a `Vec<u64>` buffer with raw pointer arithmetic.
- * In Kotlin, we use a [MutableList] where each instruction is stored as a
- * header/arg pair of objects.
+ * The `Drop` impl calls `drop_instrs`. In Kotlin, we use a [MutableList]
+ * where each instruction is stored as a header/arg pair of objects, and the
+ * garbage collector handles cleanup.
  */
 internal class BcInstrsWriter {
     // pub(crate) instrs: Vec<u64>
     internal val instrs: MutableList<Any> = mutableListOf()
 
     // impl Drop for BcInstrsWriter
-    // fn drop(&mut self) { unsafe { drop_instrs(&self.instrs); } }
-    // In Kotlin, the GC handles cleanup.
+    //   fn drop(&mut self) {
+    //       unsafe { drop_instrs(&self.instrs); }
+    //   }
+    // In Kotlin, GC handles cleanup.
 
     companion object {
         // pub(crate) fn new() -> BcInstrsWriter
@@ -360,26 +469,40 @@ internal class BcInstrsWriter {
 
     // fn instrs_len_bytes(&self) -> usize
     /**
-     * Length of instructions in bytes.
+     * Length of instructions buffer.
      *
-     * In Rust: `self.instrs.len().checked_mul(mem::size_of::<u64>()).unwrap()`.
-     * In Kotlin, each list element represents one instruction slot.
+     * In Rust: `self.instrs.len().checked_mul(mem::size_of::<u64>()).unwrap()`
+     * In Kotlin, each list element is one instruction slot.
      */
     private fun instrsLenBytes(): Int = instrs.size
 
     // pub(crate) fn ip(&self) -> BcAddr
-    /** Current instruction pointer (address of next instruction to be written). */
+    /**
+     * Current instruction pointer (address of next instruction to be written).
+     *
+     * In Rust: `BcAddr(self.instrs_len_bytes().try_into().unwrap())`
+     */
     fun ip(): BcAddr = BcAddr(instrsLenBytes().toUInt())
 
     // pub(crate) fn write<I: BcInstr>(&mut self, arg: I::Arg) -> (BcAddr, *const I::Arg)
     /**
      * Write an instruction with the given header and argument.
      *
-     * In Rust, this creates a `BcInstrRepr<I>`, copies it into the u64 buffer,
-     * and returns `(ip, ptr_to_arg)`. In Kotlin, we add the header and arg
-     * to the list and return the instruction address.
+     * In Rust, this creates a `BcInstrRepr<I>`, copies it into the `u64` buffer via
+     * `ptr::write`, and returns `(ip, &(*ptr).arg)`. In Kotlin, we add the header
+     * and arg to the list and return the instruction address.
      */
     fun write(header: BcInstrHeader, arg: Any): BcAddr {
+        // let repr = BcInstrRepr::<I>::new(arg);
+        // assert!(mem::size_of_val(&repr).is_multiple_of(mem::size_of::<u64>()));
+        // let ip = self.ip();
+        // let offset_bytes = self.instrs_len_bytes();
+        // self.instrs.resize(..., 0);
+        // unsafe {
+        //     let ptr = ...;
+        //     ptr::write(ptr, repr);
+        //     (ip, &(*ptr).arg)
+        // }
         val instrIp = ip()
         instrs.add(header)
         instrs.add(arg)
@@ -390,8 +513,9 @@ internal class BcInstrsWriter {
     /**
      * Create a [PatchAddr] for a forward jump that needs to be patched later.
      *
-     * In Rust, this takes a raw pointer to the `BcAddrOffset` field and computes
-     * its byte offset in the buffer. In Kotlin, we use the list index.
+     * In Rust, this computes the byte offset of [addr] within the `instrs` buffer and
+     * asserts that it currently holds [BcAddrOffset.FORWARD]. In Kotlin, we use the
+     * list index of the element to be patched.
      *
      * @param instrStart the start address of the instruction containing the jump offset.
      * @param argIndex the index in the instrs list of the offset to be patched.
@@ -410,13 +534,16 @@ internal class BcInstrsWriter {
     /**
      * Patch a previously written forward jump address with the current IP.
      *
-     * In Rust, this writes the offset from instr_start to current IP into the raw
-     * buffer at the address stored in [PatchAddr.arg]. In Kotlin, we update
-     * the list entry at the patch index.
+     * In Rust, this writes `self.ip().offset_from(addr.instr_start)` into the raw
+     * buffer at the address stored in `addr.arg` and asserts the old value was
+     * [BcAddrOffset.FORWARD] and the new offset is aligned to [BC_INSTR_ALIGN].
+     *
+     * In Kotlin, we update the list entry at the patch index.
      */
     fun patchAddr(addr: PatchAddr) {
         // unsafe {
-        //     let mem_addr = (self.instrs.as_mut_ptr() as *mut u8).add(addr.arg.0 as usize) as *mut BcAddrOffset;
+        //     let mem_addr = (self.instrs.as_mut_ptr() as *mut u8).add(addr.arg.0 as usize)
+        //         as *mut BcAddrOffset;
         //     assert!(*mem_addr == BcAddrOffset::FORWARD);
         //     *mem_addr = self.ip().offset_from(addr.instr_start);
         //     debug_assert!(((*mem_addr).0 as usize).is_multiple_of(BC_INSTR_ALIGN));
@@ -431,18 +558,23 @@ internal class BcInstrsWriter {
     /**
      * Finish writing instructions.
      *
-     * Appends the End instruction with metadata ([BcInstrEndArg]) and
-     * returns the completed [BcInstrs].
+     * Appends the `End` instruction with metadata ([BcInstrEndArg]) containing all
+     * slow args, statement locations, and local names, then returns the completed [BcInstrs].
      *
-     * In Rust, `mem::take` is used to extract `instrs` because `Self` has Drop, so
-     * the field cannot be moved out directly. In Kotlin, we just copy the list.
+     * In Rust, `mem::take` is used to extract `instrs` because `Self` has `Drop`,
+     * preventing direct field moves. The buffer is then boxed and verified to be aligned.
+     * In Kotlin, we just take a snapshot of the list.
      */
     fun finish(
         slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>>,
         stmtLocs: BcStatementLocations,
         localNames: List<String>,
     ): BcInstrs {
-        // self.write::<InstrEnd>(BcInstrEndArg { ... });
+        // self.write::<InstrEnd>(BcInstrEndArg {
+        //     end_addr: self.ip(),
+        //     slow_args,
+        //     local_names,
+        // });
         write(
             BcInstrHeader.forOpcode(BcOpcode.End),
             BcInstrEndArg(
@@ -463,93 +595,7 @@ internal class BcInstrsWriter {
     }
 }
 
-// --- Extension helpers for formatting and jump address visiting ---
-
-// BcPtrAddr helper: get the opcode at the current instruction pointer.
-// In the list-based buffer, even indices are headers, odd indices are args.
-/**
- * Get the opcode at the current instruction pointer.
- *
- * In Rust, this reads the [BcInstrHeader] from the raw byte buffer.
- * In our list-based buffer, instruction headers are at even indices.
- */
-internal fun BcPtrAddr.getOpcode(): BcOpcode {
-    val buffer = this.getBuffer() ?: return BcOpcode.End
-    val idx = this.offset
-    if (idx >= buffer.size) return BcOpcode.End
-    val element = buffer[idx]
-    if (element is BcInstrHeader) return element.opcode
-    return BcOpcode.End
-}
-
-/**
- * Visit all jump addresses referenced by the instruction at [ptr] with address [ip].
- *
- * Calls [visitor] for each target address the instruction may jump to.
- * Used for building the set of jump targets for display formatting.
- */
-internal fun BcOpcode.visitJumpAddr(ptr: BcPtrAddr, ip: BcAddr, visitor: (BcAddr) -> Unit) {
-    val buffer = ptr.getBuffer() ?: return
-    val argIdx = ptr.offset + 1
-    if (argIdx >= buffer.size) return
-    val arg = buffer[argIdx]
-
-    // Extract BcAddrOffset values from instruction args for jump instructions.
-    when (this) {
-        BcOpcode.Br -> {
-            if (arg is BcAddrOffset && arg != BcAddrOffset.FORWARD) {
-                visitor(ip.offset(arg))
-            }
-        }
-        BcOpcode.IfBr, BcOpcode.IfNotBr -> {
-            if (arg is Pair<*, *>) {
-                val offset = arg.second
-                if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
-                    visitor(ip.offset(offset))
-                }
-            }
-        }
-        BcOpcode.Iter, BcOpcode.Continue -> {
-            if (arg is List<*> && arg.size >= 5) {
-                val offset = arg[4]
-                if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
-                    visitor(ip.offset(offset))
-                }
-            }
-        }
-        BcOpcode.Break -> {
-            if (arg is Pair<*, *>) {
-                val offset = arg.second
-                if (offset is BcAddrOffset && offset != BcAddrOffset.FORWARD) {
-                    visitor(ip.offset(offset))
-                }
-            }
-        }
-        else -> { /* Not a jump instruction */ }
-    }
-}
-
-/**
- * Append a formatted representation of the instruction argument to [sb].
- *
- * In Rust: `opcode.fmt_append_arg(ptr, ip, end_arg, f)` dispatches through
- * the opcode handler to format the argument. In Kotlin, we inspect the arg
- * object and render it generically.
- */
-internal fun BcOpcode.fmtAppendArg(
-    ptr: BcPtrAddr,
-    ip: BcAddr,
-    endArg: BcInstrEndArg?,
-    sb: StringBuilder,
-) {
-    val buffer = ptr.getBuffer() ?: return
-    val argIdx = ptr.offset + 1
-    if (argIdx >= buffer.size) return
-    val arg = buffer[argIdx]
-
-    sb.append(" ")
-    sb.append(formatInstrArg(arg, endArg))
-}
+// --- Instruction argument formatting helpers ---
 
 /**
  * Format an instruction argument for display.
@@ -577,7 +623,7 @@ private fun formatInstrArg(arg: Any?, endArg: BcInstrEndArg?): String {
 
 /**
  * Format a slot reference, annotating it with the local variable name if available
- * from the End instruction's local_names.
+ * from the End instruction's [BcInstrEndArg.localNames].
  */
 private fun formatSlotWithName(slot: BcSlot, endArg: BcInstrEndArg?): String {
     val names = endArg?.localNames?.value
@@ -587,86 +633,4 @@ private fun formatSlotWithName(slot: BcSlot, endArg: BcInstrEndArg?): String {
     } else {
         slot.toString()
     }
-}
-
-// --- BcPtrAddr buffer access helpers ---
-
-/**
- * Get the instruction buffer associated with this [BcPtrAddr].
- *
- * In Rust, `BcPtrAddr` is a raw pointer into a byte buffer. In Kotlin, we need
- * to carry the buffer reference for element access. We store it via the companion
- * object's `forSliceStart`/`forSliceEnd` factory methods which set a thread-local
- * or carry the reference in a wrapper.
- *
- * This is a best-effort accessor that works with the list-based instruction buffers
- * stored internally in [BcInstrs].
- */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun BcPtrAddr.getBuffer(): List<Any>? {
-    // The BcPtrAddr from Addr.kt is a data class and doesn't carry a buffer reference.
-    // In practice, getOpcode/fmtAppendArg/visitJumpAddr are only called from within BcInstrs
-    // methods which have access to the instrs list. We use a thread-local for the buffer.
-    return currentInstrBuffer.get()
-}
-
-/**
- * Thread-local holding the current instruction buffer for [BcPtrAddr] operations.
- *
- * Set by [BcInstrs] methods before calling extension functions that need buffer access.
- * This avoids needing to modify the [BcPtrAddr] data class.
- */
-private val currentInstrBuffer = InstrBufferHolder()
-
-/**
- * Holder for the current instruction buffer.
- * Uses a simple nullable field since Kotlin Multiplatform does not have `ThreadLocal`.
- */
-private class InstrBufferHolder {
-    private var buffer: List<Any>? = null
-
-    fun get(): List<Any>? = buffer
-    fun set(value: List<Any>?) { buffer = value }
-}
-
-/**
- * Execute [block] with the instruction buffer set as the current buffer
- * for [BcPtrAddr] extension functions.
- */
-internal inline fun <R> withInstrBuffer(buffer: List<Any>, block: () -> R): R {
-    val prev = currentInstrBuffer.get()
-    currentInstrBuffer.set(buffer)
-    try {
-        return block()
-    } finally {
-        currentInstrBuffer.set(prev)
-    }
-}
-
-// --- BcPtrAddr.Companion extension for List<Any> ---
-
-/**
- * Create a [BcPtrAddr] for the start of an instruction list.
- *
- * This overload works with `List<Any>` instruction buffers (as opposed to `LongArray`).
- */
-internal fun BcPtrAddr.Companion.forSliceStart(instrs: List<Any>): BcPtrAddr {
-    currentInstrBuffer.set(instrs)
-    return BcPtrAddr(
-        offset = 0,
-        range = IfDebug.new(BcPtrRange(start = 0, len = instrs.size)),
-    )
-}
-
-/**
- * Create a [BcPtrAddr] for the end of an instruction list.
- *
- * This overload works with `List<Any>` instruction buffers (as opposed to `LongArray`).
- */
-internal fun BcPtrAddr.Companion.forSliceEnd(instrs: List<Any>): BcPtrAddr {
-    currentInstrBuffer.set(instrs)
-    return BcPtrAddr(
-        offset = instrs.size,
-        range = IfDebug.new(BcPtrRange(start = 0, len = instrs.size)),
-    )
 }
