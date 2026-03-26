@@ -742,6 +742,10 @@ internal class BcInstrEndArgInstrArg(val endArgValue: BcInstrEndArg) : BcInstrAr
 
 /**
  * Format instruction argument via opcode dispatch.
+ *
+ * In Rust, this uses a generic handler with `I::Arg::fmt_append`. In Kotlin,
+ * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
+ * [BcInstrArg] and call [BcInstrArg.fmtAppend].
  */
 internal fun BcOpcode.fmtAppendArg(
     ptr: BcPtrAddr,
@@ -750,9 +754,12 @@ internal fun BcOpcode.fmtAppendArg(
     f: StringBuilder,
 ) {
     this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle(): Unit {
-            val instr = ptr.getInstr<I>()
-            instr.arg.fmtAppend(ip, endArg, f)
+        override fun <I : BcInstr> handle(instrClass: KClass<I>) {
+            val instr = ptr.getInstr(instrClass, ptr)
+            val arg = instr.arg
+            if (arg is BcInstrArg) {
+                arg.fmtAppend(ip, endArg, f)
+            }
         }
     })
 }
@@ -761,6 +768,10 @@ internal fun BcOpcode.fmtAppendArg(
 
 /**
  * Visit jump addresses via opcode dispatch.
+ *
+ * In Rust, this uses a generic handler with `I::Arg::visit_jump_addr`. In Kotlin,
+ * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
+ * [BcInstrArg] and call [BcInstrArg.visitJumpAddr].
  */
 internal fun BcOpcode.visitJumpAddr(
     ptr: BcPtrAddr,
@@ -768,9 +779,12 @@ internal fun BcOpcode.visitJumpAddr(
     consumer: (BcAddr) -> Unit,
 ) {
     this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle() {
-            val instr = ptr.getInstr<I>()
-            instr.arg.visitJumpAddr(addr, consumer)
+        override fun <I : BcInstr> handle(instrClass: KClass<I>) {
+            val instr = ptr.getInstr(instrClass, ptr)
+            val arg = instr.arg
+            if (arg is BcInstrArg) {
+                arg.visitJumpAddr(addr, consumer)
+            }
         }
     })
 }

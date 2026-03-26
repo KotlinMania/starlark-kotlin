@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
@@ -223,6 +224,36 @@ internal fun inlineDefBody(
 internal class CannotInline : Exception()
 
 /**
+ * Construct a logical binary operation expression, with constant folding.
+ */
+private fun logicalBinOp(
+    op: ExprLogicalBinOp,
+    l: IrSpanned<ExprCompiled>,
+    r: IrSpanned<ExprCompiled>,
+): IrSpanned<ExprCompiled> {
+    val lv = l.node.isPureInfallibleToBool()
+    if (lv != null) {
+        return if (lv == (op == ExprLogicalBinOp.Or)) l else r
+    }
+    val span = l.span.merge(r.span)
+    return IrSpanned(
+        span = span,
+        node = ExprCompiled.LogicalBinOp(op, l, r),
+    )
+}
+
+/**
+ * Construct tuple expression from elements, optimizing to frozen tuple value when possible.
+ */
+private fun tupleExpr(
+    elems: List<IrSpanned<ExprCompiled>>,
+    frozenHeap: FrozenHeap,
+): ExprCompiled {
+    val frozenElems = elems.map { it.node.asValue() ?: return ExprCompiled.TupleExpr(elems) }
+    return ExprCompiled.ValueExpr(frozenHeap.allocTuple(frozenElems))
+}
+
+/**
  * Utility to inline function body at call site.
  */
 internal class InlineDefCallSite(
@@ -287,7 +318,7 @@ internal class InlineDefCallSite(
             is ExprCompiled.LogicalBinOp -> {
                 val l = inline(node.lhs)
                 val r = inline(node.rhs)
-                ExprCompiled.logicalBinOp(node.op, l, r)
+                logicalBinOp(node.op, l, r)
             }
             is ExprCompiled.ListExpr -> {
                 val xs = node.elements.map { x -> inline(x) }
@@ -300,7 +331,7 @@ internal class InlineDefCallSite(
                 val xs = node.elements.map { x -> inline(x) }
                 IrSpanned(
                     span = span,
-                    node = ExprCompiled.tuple(xs, ctx.frozenHeap()),
+                    node = tupleExpr(xs, ctx.frozenHeap()),
                 )
             }
             is ExprCompiled.DictExpr -> {
