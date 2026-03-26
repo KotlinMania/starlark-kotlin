@@ -19,6 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-// Module gateway for collections/symbol.
-// pub(crate) mod map;
-// pub(crate) mod symbol;
+// Submodules:
+// pub(crate) mod map    → symbol/map.kt (SymbolMap<T>)
+// pub(crate) mod symbol → symbol/Symbol.kt (Symbol, AlignedPaddedStr)

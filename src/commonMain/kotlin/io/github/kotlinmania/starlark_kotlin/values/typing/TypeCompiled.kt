@@ -19,11 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-// pub(crate) mod compiled;
-// pub(crate) mod factory;
-// pub(crate) mod globals;
-// pub(crate) mod matcher;
-// pub(crate) mod matchers;
-// pub(crate) mod tests;
-// pub(crate) mod type_matcher_factory;
+// Submodules:
+// pub(crate) mod alloc         → type_compiled/Alloc.kt
+// pub(crate) mod compiled      → type_compiled/Compiled.kt
+// pub(crate) mod factory       → type_compiled/Factory.kt
+// pub(crate) mod globals       → type_compiled/Globals.kt
+// pub(crate) mod matcher       → type_compiled/Matcher.kt
+// pub(crate) mod matchers      → type_compiled/Matchers.kt
+// pub(crate) mod tests         → type_compiled/Tests.kt
+// pub(crate) mod type_matcher_factory → type_compiled/TypeMatcherFactory.kt

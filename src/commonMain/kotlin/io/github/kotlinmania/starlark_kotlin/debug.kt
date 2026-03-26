@@ -1,4 +1,4 @@
-// port-lint: source debug.rs
+// port-lint: source src/debug.rs
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-
 /** Provides debug-related functionality and utilities. */
+
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // mod adapter;
 // mod evaluate;
 // mod inspect;
-//
+
 // pub use adapter::*;
 
 typealias DapAdapterClient = io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient

@@ -4,23 +4,23 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (624/470 files)
+- **Current Progress:** 100.0% (674/470 files)
 - **Matched Files:** 470
-- **Average Similarity:** 0.71
-- **Critical Issues:** 112 files with <0.60 similarity
+- **Average Similarity:** 0.69
+- **Critical Issues:** 128 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
 ### 1. layout.heap
-- **Similarity:** 0.34 (needs 51% improvement)
+- **Similarity:** 0.50 (needs 35% improvement)
 - **Dependencies:** 109
-- **Priority Score:** 72.0
+- **Priority Score:** 54.7
 - **Action:** Deep review - likely missing major functionality
 
 ### 2. assert
-- **Similarity:** 0.48 (needs 37% improvement)
+- **Similarity:** 0.51 (needs 34% improvement)
 - **Dependencies:** 84
-- **Priority Score:** 43.6
+- **Priority Score:** 40.8
 - **Action:** Deep review - likely missing major functionality
 
 ### 3. layout.value
@@ -48,9 +48,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Review and complete missing sections
 
 ### 7. typing.type_compiled
-- **Similarity:** 0.37 (needs 48% improvement)
+- **Similarity:** 0.36 (needs 49% improvement)
 - **Dependencies:** 22
-- **Priority Score:** 14.0
+- **Priority Score:** 14.1
 - **Action:** Deep review - likely missing major functionality
 
 ### 8. __derive_refs.param_spec

@@ -22,20 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 /** The dictionary type, a mutable associative-map, which iterates in insertion order. */
 
 // Rust mod declarations — in Kotlin, these are separate files in the dict/ package.
-// mod alloc;
-// mod dict_type;
-// pub(crate) mod globals;
-// pub(crate) mod methods;
-// mod refs;
-// mod traits;
-// pub(crate) mod unpack;
-// pub(crate) mod value;
+// mod alloc         -> dict/Alloc.kt
+// mod dict_type     -> dict/DictType.kt
+// mod globals       -> dict/Globals.kt
+// mod methods       -> dict/Methods.kt
+// mod refs          -> dict/Refs.kt
+// mod traits        -> dict/Traits.kt
+// mod unpack        -> dict/Unpack.kt
+// mod value         -> dict/Value.kt
 
-// Rust pub use re-exports — in Kotlin, classes are directly accessible via their package.
-// pub use alloc::AllocDict;
-// pub use dict_type::DictType;
-// pub use refs::DictMut;
-// pub use refs::DictRef;
-// pub use refs::FrozenDictRef;
-// pub use unpack::UnpackDictEntries;
-// pub use value::Dict;
+// Re-exports matching Rust `pub use` declarations.
+
+typealias AllocDict<D> = io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDict<D>
+typealias DictType<K, V> = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictType<K, V>
+typealias DictMut<V_> = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut<V_>
+typealias DictRef<V_> = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef<V_>
+typealias FrozenDictRef = io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
+typealias UnpackDictEntries<K, V> = io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries<K, V>
+typealias Dict<V_> = io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict<V_>
