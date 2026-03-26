@@ -19,13 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
+import io.github.kotlinmania.starlark_kotlin.debug.localVariables
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.read_line.ReadLine
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
 
@@ -173,15 +174,18 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
                 }
             }
         } else {
-            try {
-                val ast = AstModule.parse("interactive", readline, Dialect.AllOptionsInternal).getOrThrow()
-                val v = eval.evalBc(ast)
-                if (!v.isNone()) {
-                    rl.println(v.toString())
-                }
-            } catch (e: Exception) {
-                rl.println(e.toString())
-            }
+            val res = AstModule.parse("interactive", readline, Dialect.AllOptionsInternal)
+                .mapCatching { ast -> eval.evalStatements(ast).getOrThrow() }
+            res.fold(
+                onSuccess = { v ->
+                    if (!v.isNone()) {
+                        rl.println(v.toString())
+                    }
+                },
+                onFailure = { e ->
+                    rl.println(e.toString())
+                },
+            )
         }
     }
 }

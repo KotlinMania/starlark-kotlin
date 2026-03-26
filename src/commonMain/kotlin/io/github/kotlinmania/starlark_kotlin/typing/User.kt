@@ -114,7 +114,7 @@ class TyUserParams(
     /** Super types for this type (`base` is included in this list implicitly). */
     val supertypes: List<TyBasic> = emptyList(),
     /** Runtime type matcher for this type (use `TyStarlarkValue` matcher if not specified). */
-    val matcher: TypeMatcherFactory? = null,
+    val matcher: TypeMatcherFactoryBoxed? = null,
     /** Custom fields for this type (use `TyStarlarkValue` fields if not specified). */
     val fields: TyUserFields = TyUserFields.default(),
     /** Set if more precise callable signature is known than `base` provides. */
@@ -141,7 +141,7 @@ class TyUser private constructor(
     private val base: TyStarlarkValue,
     /** Super types for this type (`base` is included in this list implicitly). */
     private val supertypes: List<TyBasic>,
-    private val matcher: TypeMatcherFactory?,
+    private val matcher: TypeMatcherFactoryBoxed?,
     private val id: TypeInstanceId,
     private val fields: TyUserFields,
     /** Set if more precise callable signature is known than `base` provides. */
@@ -311,7 +311,7 @@ class TyUser private constructor(
 
 /** Destructuring support for [TyUserParams]. */
 private operator fun TyUserParams.component1(): List<TyBasic> = supertypes
-private operator fun TyUserParams.component2(): TypeMatcherFactory? = matcher
+private operator fun TyUserParams.component2(): TypeMatcherFactoryBoxed? = matcher
 private operator fun TyUserParams.component3(): TyUserFields = fields
 private operator fun TyUserParams.component4(): TyCallable? = callable
 private operator fun TyUserParams.component5(): TyUserIndex? = index
