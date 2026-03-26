@@ -351,24 +351,17 @@ private fun Compiler.assignModify(spanStmt: Span, lhs: CstAssignTarget, rhs: IrS
         }
         is AssignTargetP.Identifier -> {
             val (slot, captured) = this.scopeData.getAssignIdentSlot(node.ident, this.codemap)
-            when {
-                slot is Slot.Local && captured == Captured.No -> {
-                    val lhsSlot = IrSpanned(node = LocalSlotId(slot.id.value), span = spanLhs)
-                    StmtsCompiled.one(IrSpanned(span = spanStmtFrame,
-                        node = StmtCompiled.AssignModify(AssignModifyLhs.Local(lhsSlot), op, rhs)))
-                }
-                slot is Slot.Local && captured == Captured.Yes -> {
-                    val lhsSlot = IrSpanned(node = LocalCapturedSlotId(slot.id.value), span = spanLhs)
-                    StmtsCompiled.one(IrSpanned(span = spanStmtFrame,
-                        node = StmtCompiled.AssignModify(AssignModifyLhs.LocalCaptured(lhsSlot), op, rhs)))
-                }
-                slot is Slot.Module -> {
-                    val lhsSlot = IrSpanned(node = slot.id, span = spanLhs)
-                    StmtsCompiled.one(IrSpanned(span = spanStmtFrame,
-                        node = StmtCompiled.AssignModify(AssignModifyLhs.Module(lhsSlot), op, rhs)))
-                }
+            val modifyLhs = when {
+                slot is Slot.Local && captured == Captured.No ->
+                    AssignModifyLhs.Local(IrSpanned(node = LocalSlotId(slot.id.value), span = spanLhs))
+                slot is Slot.Local && captured == Captured.Yes ->
+                    AssignModifyLhs.LocalCaptured(IrSpanned(node = LocalCapturedSlotId(slot.id.value), span = spanLhs))
+                slot is Slot.Module ->
+                    AssignModifyLhs.Module(IrSpanned(node = slot.id, span = spanLhs))
                 else -> error("unreachable")
             }
+            StmtsCompiled.one(IrSpanned(span = spanStmtFrame,
+                node = StmtCompiled.AssignModify(modifyLhs, op, rhs)))
         }
         is AssignTargetP.Tuple -> error("Assign modify validates that the LHS is never a tuple")
     }
@@ -540,12 +533,10 @@ private fun Compiler.stmtDirect(stmt: CstStmt, allowGc: Boolean): StmtsCompiled 
             val st = this.stmt(node.forStmt.body, false)
             StmtsCompiled.forStmt(span, variable, overCompiled, st)
         }
-        is StmtP.Return -> if (node.expr == null) {
-            StmtsCompiled.one(IrSpanned(span = span,
-                node = StmtCompiled.Return(IrSpanned(span = span,
-                    node = ExprCompiled.ValueExpr(FrozenValue.newNone())))))
-        } else {
-            StmtsCompiled.one(IrSpanned(span = span, node = StmtCompiled.Return(this.expr(node.expr))))
+        is StmtP.Return -> {
+            val e = if (node.expr != null) this.expr(node.expr)
+                    else IrSpanned(span = span, node = ExprCompiled.ValueExpr(FrozenValue.newNone()))
+            StmtsCompiled.one(IrSpanned(span = span, node = StmtCompiled.Return(e)))
         }
         is StmtP.If -> stmtIf(span, node.cond, node.suite, allowGc)
         is StmtP.IfElse -> stmtIfElse(span, node.cond, node.suite1, node.suite2, allowGc)

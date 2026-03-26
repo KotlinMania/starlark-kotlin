@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record.rs
-@file:Suppress("unused")
+@file:OptIn(ExperimentalStdlibApi::class)
 
 package io.github.kotlinmania.starlark_kotlin.values.types.record
 
@@ -45,20 +45,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * ```
  *
  * Submodules:
- * - field: [FieldGen], the result of calling `field()`
- * - globals: [registerRecord] for global functions
- * - instance: [RecordGen] / [Record], an actual record instance
- * - matcher: [RecordTypeMatcher] for type matching
- * - record_type: [RecordTypeGen] / [RecordType], the type of records
- * - ty_record_type: [TyRecordData] for typechecking
+ * - field: [Field] / [FieldGen], the result of calling `field()`
+ * - globals: [registerRecord], registers the `record` and `field` global functions
+ * - instance: [RecordGen] / [Record] / [FrozenRecord], an actual record instance
+ * - matcher: [RecordTypeMatcher], type matcher for record instances
+ * - record_type: [RecordTypeGen] / [RecordType] / [FrozenRecordType], the type of records
+ * - ty_record_type: [TyRecordData], typechecking data for a record type
  *
  * Re-export: `pub use crate::values::record::instance::Record`
  * In Kotlin, [Record] is a typealias for [RecordGen] defined in `Instance.kt`.
  */
 
-// Submodule declarations.
-// In Rust these are `pub(crate) mod` items.
-// In Kotlin each submodule is a separate file in the record/ package.
+// Submodule declarations: In Rust these are `pub(crate) mod` items.
+// In Kotlin, each submodule is a separate file in the record/ package.
 
 // pub(crate) mod field
 typealias FieldSubmodule = Field
@@ -78,5 +77,24 @@ typealias RecordTypeSubmodule = record_type.RecordTypeGen
 // pub(crate) mod ty_record_type
 typealias TyRecordTypeSubmodule = TyRecordData
 
+// Re-exports from submodules.
 // pub use crate::values::record::instance::Record
 typealias RecordReExport = RecordGen
+// RecordType
+typealias RecordTypeReExport = record_type.RecordType
+// FrozenRecordType
+typealias FrozenRecordTypeReExport = record_type.FrozenRecordType
+// RecordTypeGen
+typealias RecordTypeGenReExport = record_type.RecordTypeGen
+// TyRecordData
+typealias TyRecordDataReExport = TyRecordData
+// RecordTypeMatcher
+typealias MatcherReExport = RecordTypeMatcher
+// recordFields
+typealias RecordFieldsReExport = Field
+// FrozenRecord
+typealias FrozenRecordReExport = RecordGen
+// FieldDefault
+typealias FieldDefaultReExport = Field
+// RecordInstance
+typealias RecordInstanceReExport = RecordGen

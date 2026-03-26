@@ -64,17 +64,14 @@ internal interface AValue {
         require(elemSize == 0 || offsetOfExtra() % elemSize == 0) {
             "extra must be aligned"
         }
+        val baseSize = AlignedSize.alignUp(offsetOfExtra())
+        val minAllocSize = MIN_ALLOC
         // Content is not necessarily aligned to end of `A`.
+        val extraSize = AlignedSize.alignUp(
+            offsetOfExtra() + (elemSize * extraLen)
+        )
         return ValueAllocSize.new(
-            maxOf(
-                maxOf(
-                    AlignedSize.alignUp(offsetOfExtra()),
-                    MIN_ALLOC,
-                ),
-                AlignedSize.alignUp(
-                    offsetOfExtra() + (elemSize * extraLen)
-                ),
-            )
+            maxOf(baseSize, minAllocSize, extraSize)
         )
     }
 
@@ -89,11 +86,13 @@ internal interface AValue {
         return allocSizeForExtraLen(extraLen(value)).bytes().toInt()
     }
 
+    /** Freeze this value on the heap. */
     fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue>
 
+    /** Copy this value on the heap. */
     fun heapCopy(tracer: Tracer): Value
 
-    /** Get the underlying [StarlarkValue]. */
+    /** Unwrapped type. */
     fun unpack(): StarlarkValue
 }
 
@@ -154,7 +153,7 @@ internal fun heapCopyImpl(
     return v
 }
 
-/** Placeholder to fill space vacated by a moved object. */
+/** Placeholder used during GC to fill space vacated by a moved object. */
 internal class BlackHole(
     internal val size: ValueAllocSize,
 ) {
@@ -165,11 +164,11 @@ internal class BlackHole(
 internal fun AValueHeader.totalMemoryForProfile(): Long =
     allocSize().bytes().toLong()
 
-/** Heap copy using the given tracer. */
+/** Copy value using the given tracer. */
 internal fun AValueHeader.heapCopy(tracer: Tracer): Value =
     unpack().heapCopy(tracer)
 
-/** Len of collection. */
+/** Len of a collection. */
 internal fun <T> size(list: List<T>): Int = list.size
 
 internal object AValueTests {

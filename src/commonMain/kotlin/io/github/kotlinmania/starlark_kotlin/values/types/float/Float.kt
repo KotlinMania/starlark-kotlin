@@ -117,7 +117,7 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
 }
 
 /** Runtime representation of Starlark `float` type. */
-data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, AllocFrozenValue, StarlarkValue {
+data class StarlarkFloat(val value: Double) : StarlarkTypeRepr {
 
     companion object {
         /** The result of calling `type()` on floats. */
@@ -143,89 +143,91 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
 
     override fun starlarkTypeRepr(): Ty = Ty.float()
 
-    override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
-
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
-
-    override val TYPE: String get() = Companion.TYPE
-
     override fun toString(): String {
         val s = StringBuilder()
         writeCompact(s, value, 'e')
         return s.toString()
     }
-
-    override fun equals(other: Value): Result<Boolean> =
-        Result.success(NumRef.Float(StarlarkFloat(value)) == other.unpackNum())
-
-    override fun collectRepr(collector: StringBuilder) { collector.append(toString()) }
-
-    override fun toBool(): Boolean = value != 0.0
-
-    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        hasher.write(NumRef.from(value).getHash64())
-        return Result.success(Unit)
-    }
-
-    override fun getHash(): Result<StarlarkHashValue> =
-        Result.success(NumRef.Float(this).getHash())
-
-    override fun plus(heap: Heap): Result<Value> = Result.success(heap.alloc(this))
-
-    override fun minus(heap: Heap): Result<Value> =
-        Result.success(heap.alloc(StarlarkFloat(-value)))
-
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val other = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) + other))
-    }
-
-    override fun sub(other: Value, heap: Heap): Result<Value> {
-        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "-", other)
-        return Result.success(heap.alloc(NumRef.Float(this) - rhs))
-    }
-
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val other = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) * other))
-    }
-
-    override fun div(other: Value, heap: Heap): Result<Value> {
-        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "/", other)
-        return NumRef.Float(this).div(rhs).map { heap.alloc(it) }
-    }
-
-    override fun percent(other: Value, heap: Heap): Result<Value> {
-        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "%", other)
-        return NumRef.Float(this).percent(rhs).map { heap.alloc(it) }
-    }
-
-    override fun floorDiv(other: Value, heap: Heap): Result<Value> {
-        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "//", other)
-        return NumRef.Float(this).floorDiv(rhs).map { heap.alloc(it) }
-    }
-
-    override fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
-        typecheckNumBinOp(NumTy.Float, op, rhs)
-
-    override fun compare(other: Value): Result<Int> {
-        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "compare", other)
-        return Result.success(NumRef.Float(this).compareTo(rhs))
-    }
 }
 
-// StarlarkTypeRepr for f64
+// impl AllocValue for StarlarkFloat
+fun StarlarkFloat.allocValue(heap: Heap): Value = heap.allocSimple(this)
+
+// impl AllocFrozenValue for StarlarkFloat
+fun StarlarkFloat.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
+
+// impl StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-// AllocValue for f64
+// impl AllocValue for f64
 fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-// AllocFrozenValue for f64
+// impl AllocFrozenValue for f64
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
 fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
     value.downcastRef<StarlarkFloat>()
+
+// impl StarlarkValue for StarlarkFloat
+
+fun StarlarkFloat.equals(other: Value): Result<Boolean> =
+    Result.success(NumRef.Float(StarlarkFloat(value)) == other.unpackNum())
+
+fun StarlarkFloat.collectRepr(s: StringBuilder) { s.append(toString()) }
+
+fun StarlarkFloat.toBool(): Boolean = value != 0.0
+
+fun StarlarkFloat.writeHash(hasher: StarlarkHasher): Result<Unit> {
+    hasher.write(NumRef.from(value).getHash64())
+    return Result.success(Unit)
+}
+
+fun StarlarkFloat.getHash(): Result<StarlarkHashValue> =
+    Result.success(NumRef.Float(this).getHash())
+
+fun StarlarkFloat.plus(heap: Heap): Result<Value> = Result.success(heap.alloc(this))
+
+fun StarlarkFloat.minus(heap: Heap): Result<Value> =
+    Result.success(heap.alloc(StarlarkFloat(-value)))
+
+fun StarlarkFloat.add(other: Value, heap: Heap): Result<Value>? {
+    val rhs = other.unpackNum() ?: return null
+    return Result.success(heap.alloc(NumRef.Float(this) + rhs))
+}
+
+fun StarlarkFloat.sub(other: Value, heap: Heap): Result<Value> {
+    val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "-", other)
+    return Result.success(heap.alloc(NumRef.Float(this) - rhs))
+}
+
+fun StarlarkFloat.mul(other: Value, heap: Heap): Result<Value>? {
+    val rhs = other.unpackNum() ?: return null
+    return Result.success(heap.alloc(NumRef.Float(this) * rhs))
+}
+
+fun StarlarkFloat.div(other: Value, heap: Heap): Result<Value> {
+    val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "/", other)
+    return NumRef.Float(this).div(rhs).map { heap.alloc(it) }
+}
+
+fun StarlarkFloat.percent(other: Value, heap: Heap): Result<Value> {
+    val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "%", other)
+    return NumRef.Float(this).percent(rhs).map { heap.alloc(it) }
+}
+
+fun StarlarkFloat.floorDiv(other: Value, heap: Heap): Result<Value> {
+    val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "//", other)
+    return NumRef.Float(this).floorDiv(rhs).map { heap.alloc(it) }
+}
+
+fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
+    typecheckNumBinOp(NumTy.Float, op, rhs)
+
+fun StarlarkFloat.compare(other: Value): Result<Int> {
+    val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "compare", other)
+    return Result.success(NumRef.Float(this).compareTo(rhs))
+}
 
 // #[cfg(test)]
 

@@ -66,6 +66,12 @@ data class UnpackList<T>(
  * Attempts to unpack a [Value] as a list, then unpacks each element
  * using the provided element unpacker.
  *
+ * Corresponds to Rust's `impl UnpackValue<'v> for UnpackList<T>`.
+ *
+ * The error type in Rust is `<T as UnpackValue>::Error`, i.e. the
+ * element unpacker's error type is propagated. In Kotlin we use
+ * `Result<UnpackList<T>?>` with standard `Throwable` errors.
+ *
  * @param T The target type for each list element.
  * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */
@@ -78,9 +84,14 @@ class UnpackListUnpackValue<T>(
     }
 
     override fun unpackValueImpl(value: Value): Result<UnpackList<T>?> {
+        // In Rust: let Some(list) = <&ListRef>::unpack_value_opt(value) else { return Ok(None) };
         val listRef = ListRef.fromValue(value) ?: return Result.success(null)
-        val items = mutableListOf<T>()
+        // Pre-allocate with capacity matching the list length.
+        // In Rust: Vec::with_capacity(list.len())
+        val capacity = listRef.len()
+        val items = ArrayList<T>(capacity)
         for (v in listRef.iter()) {
+            // In Rust: let Some(v) = T::unpack_value_impl(v)? else { return Ok(None) };
             val unpacked = elementUnpacker.unpackValueImpl(v).getOrElse {
                 return Result.failure(it)
             }
@@ -98,7 +109,8 @@ class UnpackListUnpackValue<T>(
  *
  * Delegates to [ListType]'s type representation.
  *
- * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>`.
+ * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>` where
+ * `type Canonical = <ListType<T> as StarlarkTypeRepr>::Canonical`.
  */
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
     private val elementRepr: T,
@@ -107,6 +119,22 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
         return Ty.list(elementRepr.starlarkTypeRepr())
     }
 }
+
+/**
+ * Extension for consuming an [UnpackList] into its underlying list.
+ *
+ * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
+ * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
+ */
+fun <T> UnpackList<T>.intoList(): MutableList<T> = items
+
+/**
+ * Extension for iterating an [UnpackList] by reference.
+ *
+ * Corresponds to Rust's `impl IntoIterator for &'a UnpackList<T>` where
+ * `type Item = &'a T` and `type IntoIter = slice::Iter<'a, T>`.
+ */
+fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
 
 // -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
 
