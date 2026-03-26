@@ -1,7 +1,5 @@
-// port-lint: source src/tests/derive/module.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
-
-/*
+/* port-lint: source src/tests/derive/module.rs
+ *
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
@@ -18,20 +16,13 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.github.kotlinmania.starlark_kotlin.tests.derive
 
-// mod basic;
-// mod default_value;
-// mod generic;
-// mod kwargs;
-// mod methods;
-// mod named_positional;
-// mod other_attributes;
-// mod return_impl;
-// mod special_params;
-// mod type_annotation;
-// mod unpack_value;
-
-// In Kotlin, submodules are sibling files in the same package.
-// See: Basic.kt, DefaultValue.kt, Generic.kt, Kwargs.kt, Methods.kt,
-//      NamedPositional.kt, OtherAttributes.kt, ReturnImpl.kt,
-//      SpecialParams.kt, TypeAnnotation.kt, UnpackValue.kt
+(basic);
+(defaultValue);
+(generic);
+(kwargs);
+(methods);
+(namedPositional);
+(otherAttributes);
+(returnImpl);

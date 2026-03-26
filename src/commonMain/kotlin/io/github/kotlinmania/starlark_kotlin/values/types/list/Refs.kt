@@ -21,163 +21,182 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Result
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.TYPE
-import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.Result
-import io.github.kotlinmania.starlark_kotlin.coerce
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.success
 
 /**
  * Reference to list content (mutable or frozen).
+ *
+ * Wraps a read-only view of the list elements as [Value] references.
+ * Both mutable and frozen lists can be viewed through [ListRef].
+ *
+ * Corresponds to Rust's `ListRef<'v>`.
  */
-@JvmInline
-value class ListRef<V_> internal constructor(
-    internal val content: List<Value<V_>>
-)
+class ListRef private constructor(
+    private val elements: List<Value>,
+) {
+    companion object {
+        /** `type([])`, which is `"list"`. */
+        const val TYPE: String = ListData.TYPE
 
-/**
- * Reference to frozen list content.
- */
-@JvmInline
-value class FrozenListRef internal constructor(
-    internal val content: List<FrozenValue>
-)
+        /** Create a new [ListRef] wrapping the given elements. */
+        internal fun new(slice: List<Value>): ListRef = ListRef(slice)
 
-// impl<V_> ListRef<V_>
-object ListRefImpl {
-    /**
-     * `type([])`, which is `"list"`.
-     */
-    const val TYPE: String = ListData.TYPE
+        /** Empty list reference. */
+        fun empty(): ListRef = ListRef(emptyList())
 
-    internal fun <V_> new(slice: List<Value<V_>>): ListRef<V_> = ListRef(slice)
+        /**
+         * Downcast a [Value] to a [ListRef].
+         *
+         * Works for both mutable lists ([ListGen]<[ListData]>) and
+         * frozen lists ([ListGen]<[FrozenListData]>).
+         *
+         * Returns `null` if the value is not a list.
+         *
+         * Corresponds to Rust's `ListRef::from_value`.
+         */
+        fun fromValue(x: Value): ListRef? {
+            if (x.unpackFrozen() != null) {
+                val gen = x.downcastRef<ListGen<*>>() ?: return null
+                val data = gen.data as? FrozenListData ?: return null
+                return new(data.content().map { it.toValue() })
+            } else {
+                val gen = x.downcastRef<ListGen<*>>() ?: return null
+                val data = gen.data as? ListData ?: return null
+                return new(data.content())
+            }
+        }
 
-    /**
-     * Empty list reference.
-     */
-    fun <V_> empty(): ListRef<V_> {
-        return new(emptyList())
-    }
-
-    /**
-     * Downcast the value to the list or frozen list (both are represented by `ListRef`).
-     */
-    fun <V_> fromValue(x: Value<V_>): ListRef<V_>? {
-        if (x.unpackFrozen() != null) {
-            return x.downcastRef<ListGen<FrozenListData>>()
-                ?.let { new(coerce(it.`0`.content())) }
-        } else {
-            val ptr = x.downcastRef<ListGen<ListData<V_>>>() ?: return null
-            return new(ptr.`0`.content())
+        /**
+         * Downcast a [FrozenValue] to a [ListRef].
+         *
+         * Returns `null` if the frozen value is not a list.
+         *
+         * Corresponds to Rust's `ListRef::from_frozen_value`.
+         */
+        fun fromFrozenValue(x: FrozenValue): ListRef? {
+            val gen = x.downcastRef<ListGen<*>>() ?: return null
+            val data = gen.data as? FrozenListData ?: return null
+            return new(data.content().map { it.toValue() })
         }
     }
 
-    /**
-     * Downcast the list.
-     */
-    fun <F_> fromFrozenValue(x: FrozenValue): ListRef<F_>? {
-        return x.downcastRef<ListGen<FrozenListData>>()
-            ?.let { new(coerce(it.`0`.content())) }
+    /** List elements. */
+    fun content(): List<Value> = elements
+
+    /** Number of elements. */
+    fun len(): Int = elements.size
+
+    /** Iterate over the elements in the list. */
+    fun iter(): Iterator<Value> = elements.iterator()
+
+    /** Get the element at the given index, or null if out of bounds. */
+    operator fun get(index: Int): Value? = elements.getOrNull(index)
+
+    /** Get a sublist for the given range, or null if the range is invalid. */
+    fun get(range: IntRange): List<Value>? {
+        val start = maxOf(0, range.first)
+        val end = minOf(elements.size, range.last + 1)
+        if (start > end) return null
+        return elements.subList(start, end)
     }
+
+    override fun toString(): String = displayList(elements)
 }
 
 /**
- * List elements.
+ * Reference to frozen list content.
+ *
+ * Wraps a read-only view of the frozen list elements as [FrozenValue] references.
+ *
+ * Corresponds to Rust's `FrozenListRef`.
  */
-fun <V_> ListRef<V_>.content(): List<Value<V_>> {
-    return content
-}
+class FrozenListRef private constructor(
+    private val elements: List<FrozenValue>,
+) {
+    companion object {
+        /** `type([])`, which is `"list"`. */
+        const val TYPE: String = ListRef.TYPE
 
-/**
- * Iterate over the elements in the list.
- */
-fun <V_, A_> ListRef<V_>.iter(): Iterator<Value<V_>> where 'v : 'a {
-    return content.iterator()
-}
+        /** Create a new [FrozenListRef] wrapping the given elements. */
+        internal fun new(slice: List<FrozenValue>): FrozenListRef = FrozenListRef(slice)
 
-// impl FrozenListRef
-object FrozenListRefImpl {
-    /**
-     * `type([])`, which is `"list"`.
-     */
-    val TYPE: String = ListRefImpl.TYPE
+        /**
+         * Downcast to the frozen list.
+         *
+         * This function returns `null` if the value is not a list or the list is not frozen.
+         *
+         * Corresponds to Rust's `FrozenListRef::from_value`.
+         */
+        fun fromValue(x: Value): FrozenListRef? {
+            val frozen = x.unpackFrozen() ?: return null
+            return fromFrozenValue(frozen)
+        }
 
-    internal fun new(slice: List<FrozenValue>): FrozenListRef = FrozenListRef(slice)
-
-    /**
-     * Downcast to the frozen list.
-     *
-     * This function returns `null` if the value is not a list or the list is not frozen.
-     */
-    fun fromValue(x: Value<*>): FrozenListRef? {
-        return fromFrozenValue(x.unpackFrozen() ?: return null)
+        /**
+         * Downcast to the frozen list.
+         *
+         * This function returns `null` if the value is not a frozen list.
+         * (Value cannot be a mutable list because value is frozen.)
+         *
+         * Corresponds to Rust's `FrozenListRef::from_frozen_value`.
+         */
+        fun fromFrozenValue(x: FrozenValue): FrozenListRef? {
+            val gen = x.downcastRef<ListGen<*>>() ?: return null
+            val data = gen.data as? FrozenListData ?: return null
+            return new(data.content())
+        }
     }
 
-    /**
-     * Downcast to the frozen list.
-     *
-     * This function returns `null` if the value is not a frozen list.
-     * (Value cannot be a mutable list because value is frozen.)
-     */
-    fun fromFrozenValue(x: FrozenValue): FrozenListRef? {
-        return x.downcastRef<ListGen<FrozenListData>>()
-            ?.let { new(it.`0`.content()) }
-    }
+    /** Frozen list elements. */
+    fun content(): List<FrozenValue> = elements
+
+    /** Number of elements. */
+    fun len(): Int = elements.size
+
+    /** Iterate over the frozen list elements. */
+    fun iter(): Iterator<FrozenValue> = elements.iterator()
+
+    override fun toString(): String = displayList(elements.map { it.toValue() })
 }
 
-// impl<V_> Deref for ListRef<V_>
-operator fun <V_> ListRef<V_>.getValue(thisRef: Any?, property: Any?): List<Value<V_>> {
-    return content
-}
+// -- StarlarkTypeRepr implementations -----------------------------------------
 
-// impl Deref for FrozenListRef
-operator fun FrozenListRef.getValue(thisRef: Any?, property: Any?): List<FrozenValue> {
-    return content
-}
-
-// impl<V_> Display for ListRef<V_>
-fun <V_> ListRef<V_>.fmt(): String {
-    return displayList(content)
-}
-
-// impl Display for FrozenListRef
-fun FrozenListRef.fmt(): String {
-    return displayList(coerce(content))
-}
-
-// impl<V_> StarlarkTypeRepr for &'v ListRef<V_>
+/** [StarlarkTypeRepr] for [ListRef]. Corresponds to Rust's `impl StarlarkTypeRepr for &'v ListRef<'v>`. */
 object ListRefStarlarkTypeRepr : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return VecStarlarkTypeRepr<Value<Any>>().starlarkTypeRepr()
-    }
+    override fun starlarkTypeRepr(): Ty = Ty.anyList()
 }
 
-// impl<V_> StarlarkTypeRepr for &'v FrozenListRef
+/** [StarlarkTypeRepr] for [FrozenListRef]. Corresponds to Rust's `impl StarlarkTypeRepr for &'v FrozenListRef`. */
 object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty {
-        return VecStarlarkTypeRepr<FrozenValue>().starlarkTypeRepr()
+    override fun starlarkTypeRepr(): Ty = Ty.anyList()
+}
+
+// -- UnpackValue implementations ----------------------------------------------
+
+/**
+ * [UnpackValue] for [ListRef].
+ *
+ * Corresponds to Rust's `impl UnpackValue<'v> for &'v ListRef<'v>`.
+ */
+object ListRefUnpackValue : UnpackValue<ListRef> {
+    override fun starlarkTypeRepr(): Ty = Ty.anyList()
+
+    override fun unpackValueImpl(value: Value): Result<ListRef?> {
+        return Result.success(ListRef.fromValue(value))
     }
 }
 
-// impl<V_> UnpackValue<V_> for &'v ListRef<V_>
-object ListRefUnpackValue : UnpackValue<Nothing> {
-    override fun <V_> unpackValueImpl(value: Value<V_>): Result<ListRef<V_>?> {
-        return Result.success(ListRefImpl.fromValue(value))
-    }
-}
+/**
+ * [UnpackValue] for [FrozenListRef].
+ *
+ * Corresponds to Rust's `impl UnpackValue<'v> for &'v FrozenListRef`.
+ */
+object FrozenListRefUnpackValue : UnpackValue<FrozenListRef> {
+    override fun starlarkTypeRepr(): Ty = Ty.anyList()
 
-// impl<V_> UnpackValue<V_> for &'v FrozenListRef
-object FrozenListRefUnpackValue : UnpackValue<io.github.kotlinmania.starlark_kotlin.Error> {
-    override fun <V_> unpackValueImpl(value: Value<V_>): io.github.kotlinmania.starlark_kotlin.Result<FrozenListRef?> {
-        return io.github.kotlinmania.starlark_kotlin.Result.success(FrozenListRefImpl.fromValue(value))
+    override fun unpackValueImpl(value: Value): Result<FrozenListRef?> {
+        return Result.success(FrozenListRef.fromValue(value))
     }
-}
-
-internal fun <V_> displayList(content: List<Value<V_>>): String {
-    return "[${content.joinToString(", ")}]"
 }

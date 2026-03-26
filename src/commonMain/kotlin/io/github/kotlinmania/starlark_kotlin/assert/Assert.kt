@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.assert
  * limitations under the License.
  */
 
-//! Utilities to test Starlark code execution.
+/** Utilities to test Starlark code execution. */
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
@@ -52,15 +52,24 @@ import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
-// fn mk_environment() -> GlobalsBuilder
+/** Functional type alias for value equality assertion. */
+internal typealias AssertEquals = (Value, Value) -> Result<NoneType>
+
+/** Functional type alias for value inequality assertion. */
+internal typealias AssertDifferent = (Value, Value) -> Result<NoneType>
+
+/** Functional type alias for less-than assertion. */
+internal typealias AssertLessThan = (Value, Value) -> Result<NoneType>
+
+/** Functional type alias for the asserts_star starlark module builder. */
+internal typealias AssertsStar = (GlobalsBuilder) -> Unit
+
 private fun mkEnvironment(): GlobalsBuilder {
     return GlobalsBuilder.extended().with(::testFunctions)
 }
 
-// static GLOBALS: Lazy<Globals> = Lazy::new(|| mk_environment().build())
 private val GLOBALS: Globals by lazy { mkEnvironment().build() }
 
-// static ASSERTS_STAR: Lazy<FrozenModule> = ...
 private val ASSERTS_STAR: FrozenModule by lazy {
     val g = GlobalsBuilder()
         .withNamespace("asserts", ::assertsStar)
@@ -77,7 +86,6 @@ private val ASSERTS_STAR: FrozenModule by lazy {
     }
 }
 
-// fn assert_equals<'v>(a: Value<'v>, b: Value<'v>) -> starlark::Result<NoneType>
 private fun assertEquals(a: Value, b: Value): Result<NoneType> {
     return if (!a.equals(b).getOrElse { return Result.failure(it) }) {
         Result.failure(Exception("assert_eq: expected $a, got $b"))
@@ -86,7 +94,6 @@ private fun assertEquals(a: Value, b: Value): Result<NoneType> {
     }
 }
 
-// fn assert_different<'v>(a: Value<'v>, b: Value<'v>) -> starlark::Result<NoneType>
 private fun assertDifferent(a: Value, b: Value): Result<NoneType> {
     return if (a.equals(b).getOrElse { return Result.failure(it) }) {
         Result.failure(Exception("assert_ne: but $a == $b"))
@@ -95,7 +102,6 @@ private fun assertDifferent(a: Value, b: Value): Result<NoneType> {
     }
 }
 
-// fn assert_less_than<'v>(a: Value<'v>, b: Value<'v>) -> starlark::Result<NoneType>
 private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
     val cmp = a.compareTo(b).getOrElse { return Result.failure(it) }
     return if (cmp >= 0) {
@@ -105,19 +111,20 @@ private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
     }
 }
 
-/// How often we garbage collection _should_ be transparent to the tests,
-/// so we run each test in three configurations.
-// #[derive(Clone, Copy, Dupe, Debug)]
-// enum GcStrategy
-private enum class GcStrategy {
-    Never,  // Disable GC
-    Auto,   // Use the automatic heuristics (in practice, this does almost no GC)
-    Always, // GC as aggressively as we can
+/**
+ * How often we garbage collection _should_ be transparent to the tests,
+ * so we run each test in three configurations.
+ */
+internal enum class GcStrategy {
+    /** Disable GC */
+    Never,
+    /** Use the automatic heuristics (in practice, this does almost no GC) */
+    Auto,
+    /** GC as aggressively as we can */
+    Always,
 }
 
-/// Definitions to support assert.star as used by the Go test suite
-// #[starlark_module]
-// fn asserts_star(builder: &mut GlobalsBuilder)
+/** Definitions to support assert.star as used by the Go test suite */
 private fun assertsStar(builder: GlobalsBuilder) {
     builder.setFunction("eq") { args, _ ->
         assertEquals(args.positional(0), args.positional(1))
@@ -152,7 +159,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
 
     builder.setFunction("fails") { args, eval ->
         val f = args.positional(0)
-        // val msg = args.positional(1) // We don't actually check the message
+        val _ = args.positional(1) // msg - We don't actually check the message
         when (val result = f.invokePos(emptyList(), eval)) {
             else -> if (result.isFailure) {
                 Result.success(NoneType)
@@ -163,13 +170,11 @@ private fun assertsStar(builder: GlobalsBuilder) {
     }
 }
 
-// #[starlark_module]
-// pub(crate) fn test_functions(builder: &mut GlobalsBuilder)
 internal fun testFunctions(builder: GlobalsBuilder) {
     // Used by one of the test methods in Go
     builder.setConst("fibonacci", listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89))
 
-    // Approximate version of a method used by the Go test suite
+    /** Approximate version of a method used by the Go test suite */
     builder.setFunction("hasfields") { _, _ ->
         Result.success(AllocStruct.EMPTY)
     }
@@ -216,17 +221,18 @@ internal fun testFunctions(builder: GlobalsBuilder) {
         Result.success(NoneType)
     }
 
-    /// Function which consumes arguments and that's it.
-    ///
-    /// This function is unknown to optimizer, so it can be used in optimizer tests.
+    /**
+     * Function which consumes arguments and that's it.
+     *
+     * This function is unknown to optimizer, so it can be used in optimizer tests.
+     */
     builder.setFunction("noop") { args, _ ->
         // kwargs are ignored
         Result.success(args.positionals().firstOrNull() ?: Value.newNone())
     }
 }
 
-/// Environment in which to run assertion tests.
-// pub struct Assert<'a>
+/** Environment in which to run assertion tests. */
 class Assert(
     private var dialect: Dialect = Dialect.AllOptionsInternal.copy(),
     private val modules: MutableMap<String, FrozenModule> = mutableMapOf(
@@ -235,37 +241,51 @@ class Assert(
     private var globals: Globals = GLOBALS,
     private var gcStrategy: GcStrategy? = null,
     private var setupEval: (Evaluator) -> Unit = {},
-    // Ideally `print_handler` should be set up in `setup_eval`
+    // Ideally `printHandler` should be set up in `setupEval`
     // but if you know how to do it, show me how.
     private var printHandler: PrintHandler? = null,
     private var staticTypechecking: Boolean = true,
 ) {
-    /// Disable garbage collection on the tests.
-    // pub fn disable_gc(&mut self)
+    /**
+     * Create a new assert object, which will by default use
+     * extended dialect and all library extensions,
+     * plus some additional global functions like `assert_eq`.
+     * The usual pattern is to create an `Assert`, modify some properties
+     * and then execute some tests.
+     */
+    constructor() : this(
+        dialect = Dialect.AllOptionsInternal.copy(),
+        modules = mutableMapOf("asserts.star" to ASSERTS_STAR),
+        globals = GLOBALS,
+        gcStrategy = null,
+        setupEval = {},
+        printHandler = null,
+        staticTypechecking = true,
+    )
+
+    /** Disable garbage collection on the tests. */
     fun disableGc() {
         gcStrategy = GcStrategy.Never
     }
 
-    /// Configure a callback which is used to setup evaluator before each evaluation.
-    // pub fn setup_eval(&mut self, setup: impl Fn(&mut Evaluator) + 'static)
+    /** Configure a callback which is used to setup evaluator before each evaluation. */
     fun setupEval(setup: (Evaluator) -> Unit) {
         setupEval = setup
     }
 
-    /// Configure the handler for `print` function.
-    // pub fn set_print_handler(&mut self, handler: ...)
+    /** Configure the handler for `print` function. */
     fun setPrintHandler(handler: PrintHandler) {
         printHandler = handler
     }
 
-    /// Disable static typechecking for test. It is off by default in `Evaluator`,
-    /// but on by default in `Assert`.
-    // pub fn disable_static_typechecking(&mut self)
+    /**
+     * Disable static typechecking for test. It is off by default in `Evaluator`,
+     * but on by default in `Assert`.
+     */
     fun disableStaticTypechecking() {
         staticTypechecking = false
     }
 
-    // fn with_gc<A>(&self, f: impl Fn(GcStrategy) -> A) -> A
     private fun <A> withGc(f: (GcStrategy) -> A): A {
         return when (val gc = gcStrategy) {
             null -> {
@@ -279,7 +299,6 @@ class Assert(
         }
     }
 
-    // fn execute<'v>(...)
     private fun execute(
         path: String,
         program: String,
@@ -308,7 +327,6 @@ class Assert(
         return eval.evalModule(ast, globals)
     }
 
-    // fn execute_fail<'v>(...)
     private fun executeFail(
         func: String,
         program: String,
@@ -325,7 +343,6 @@ class Assert(
         }
     }
 
-    // fn execute_unwrap<'v>(...)
     private fun executeUnwrap(
         func: String,
         path: String,
@@ -343,7 +360,6 @@ class Assert(
         }
     }
 
-    // fn execute_unwrap_true<'v>(...)
     private fun executeUnwrapTrue(
         func: String,
         program: String,
@@ -358,7 +374,6 @@ class Assert(
         }
     }
 
-    // fn execute_unwrap_false<'v>(...)
     private fun executeUnwrapFalse(
         func: String,
         program: String,
@@ -373,27 +388,33 @@ class Assert(
         }
     }
 
-    /// Set the [`Dialect`] that future tests will use.
-    // pub fn dialect(&mut self, x: &Dialect)
+    /** Set the [Dialect] that future tests will use. */
     fun dialect(x: Dialect) {
         dialect = x.copy()
     }
 
-    /// Set specific fields in the [`Dialect`] that future tests will use.
-    // pub fn dialect_set(&mut self, f: impl FnOnce(&mut Dialect))
+    /** Set specific fields in the [Dialect] that future tests will use. */
     fun dialectSet(f: (Dialect) -> Unit) {
         f(dialect)
     }
 
-    /// Add a [`FrozenModule`] to the environment that future tests can access via
-    /// `load`.
-    // pub fn module_add(&mut self, name: &str, module: FrozenModule)
+    /**
+     * Add a [FrozenModule] to the environment that future tests can access via
+     * `load`. To construct the [FrozenModule] automatically use [module].
+     */
     fun moduleAdd(name: String, module: FrozenModule) {
         modules[name] = module
     }
 
-    /// Add a module to the environment that future tests can access.
-    // pub fn module(&mut self, name: &str, program: &str) -> FrozenModule
+    /**
+     * Add a module to the environment that future tests can access.
+     *
+     * ```
+     * val a = Assert()
+     * a.module("hello.star", "hello = 'world'")
+     * a.isTrue("load('hello.star', 'hello'); hello == 'world'")
+     * ```
+     */
     fun module(name: String, program: String): FrozenModule {
         val module = withGc { gc ->
             Module.withTempHeap { module ->
@@ -405,19 +426,20 @@ class Assert(
         return module
     }
 
-    /// Set the [`Globals`] that future tests have access to.
-    // pub fn globals(&mut self, x: Globals)
+    /** Set the [Globals] that future tests have access to. */
     fun globals(x: Globals) {
         globals = x
     }
 
-    /// Modify the [`Globals`] that future tests have access to.
-    // pub fn globals_add(&mut self, f: impl FnOnce(&mut GlobalsBuilder))
+    /**
+     * Modify the [Globals] that future tests have access to.
+     * Note that this method will start from the default environment for [Assert],
+     * ignoring any previous [globals] or [globalsAdd] calls.
+     */
     fun globalsAdd(f: (GlobalsBuilder) -> Unit) {
         globals(mkEnvironment().with(f).build())
     }
 
-    // fn fails_with_name(...)
     private fun failsWithName(func: String, program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
         return withGc { gc ->
             Module.withTempHeap { moduleEnv ->
@@ -444,20 +466,43 @@ class Assert(
         }
     }
 
-    /// A program that must fail with an error message that contains a specific string.
-    // pub fn fail(&self, program: &str, msg: &str) -> crate::Error
+    /**
+     * A program that must fail with an error message that contains a specific
+     * string. Remember that the purpose of `fail` is to ensure you get
+     * the right error, not to fully specify the error - usually only one or
+     * two words will be sufficient to ensure that.
+     *
+     * ```
+     * Assert().fail("fail('hello')", "ello")
+     * ```
+     */
     fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
         return failsWithName("fail", program, listOf(msg))
     }
 
-    /// A program that must fail with an error message that contains a specific set of strings.
-    // pub fn fails(&self, program: &str, msgs: &[&str]) -> crate::Error
+    /**
+     * A program that must fail with an error message that contains a specific
+     * set of strings. Remember that the purpose of `fail` is to ensure you get
+     * the right error, not to fully specify the error - usually only one or
+     * two words will be sufficient to ensure that. The words do not have to be
+     * in order.
+     *
+     * ```
+     * Assert().fails("fail('hello')", listOf("fail", "ello"))
+     * ```
+     */
     fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
         return failsWithName("fails", program, msgs)
     }
 
-    /// A program that must execute successfully without an exception. Returns the resulting value.
-    // pub fn pass(&self, program: &str) -> OwnedFrozenValue
+    /**
+     * A program that must execute successfully without an exception. Often uses
+     * assert_eq. Returns the resulting value.
+     *
+     * ```
+     * Assert().pass("assert_eq(1, 1)")
+     * ```
+     */
     fun pass(program: String): OwnedFrozenValue {
         return withGc { gc ->
             Module.withTempHeap { env ->
@@ -470,8 +515,10 @@ class Assert(
         }
     }
 
-    /// A program that must execute successfully without an exception. Returns the frozen module.
-    // pub fn pass_module(&self, program: &str) -> FrozenModule
+    /**
+     * A program that must execute successfully without an exception. Returns the frozen module
+     * that `program` was evaluated in.
+     */
     fun passModule(program: String): FrozenModule {
         return withGc { gc ->
             Module.withTempHeap { env ->
@@ -481,24 +528,40 @@ class Assert(
         }
     }
 
-    /// A program that must evaluate to `True`.
-    // pub fn is_true(&self, program: &str)
+    /**
+     * A program that must evaluate to `True`.
+     *
+     * ```
+     * Assert().isTrue("""
+     * x = 1 + 1
+     * x == 2
+     * """)
+     * ```
+     */
     fun isTrue(program: String) {
         withGc { gc ->
             Module.withTempHeap { env -> executeUnwrapTrue("is_true", program, env, gc) }
         }
     }
 
-    /// A program that must evaluate to `False`.
-    // pub fn is_false(&self, program: &str)
+    /** A program that must evaluate to `False`. */
     fun isFalse(program: String) {
         withGc { gc ->
             Module.withTempHeap { env -> executeUnwrapFalse("is_false", program, env, gc) }
         }
     }
 
-    /// Many lines, each of which must individually evaluate to `True` (or be blank lines).
-    // pub fn all_true(&self, program: &str)
+    /**
+     * Many lines, each of which must individually evaluate to `True` (or be blank lines).
+     *
+     * ```
+     * Assert().allTrue("""
+     * 1 == 1
+     *
+     * 2 == 1 + 1
+     * """)
+     * ```
+     */
     fun allTrue(program: String) {
         withGc { gc ->
             for (s in program.lines()) {
@@ -510,8 +573,13 @@ class Assert(
         }
     }
 
-    /// Two programs that must evaluate to the same (non-error) result.
-    // pub fn eq(&self, lhs: &str, rhs: &str)
+    /**
+     * Two programs that must evaluate to the same (non-error) result.
+     *
+     * ```
+     * Assert().eq("1 + 1", "2")
+     * ```
+     */
     fun eq(lhs: String, rhs: String) {
         withGc { gc ->
             Heap.temp { heap ->
@@ -533,19 +601,16 @@ class Assert(
     }
 
     companion object {
-        /// See [`Assert::eq`].
-        // pub fn eq(lhs: &str, rhs: &str)
+        /** See [Assert.eq]. */
         fun eq(lhs: String, rhs: String) {
             Assert().eq(lhs, rhs)
         }
 
-        /// See [`Assert::fail`].
-        // pub fn fail(program: &str, msg: &str) -> crate::Error
+        /** See [Assert.fail]. */
         fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
             return Assert().fail(program, msg)
         }
 
-        // pub(crate) fn fail_golden(path: &str, program: &str) -> crate::Error
         internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error {
             val trimmed = program.trim()
             val e = fails(trimmed, emptyList())
@@ -554,62 +619,52 @@ class Assert(
             return e
         }
 
-        // pub(crate) fn fail_skip_typecheck(program: &str, msg: &str) -> crate::Error
         internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
             val a = Assert()
             a.disableStaticTypechecking()
             return a.fail(program, msg)
         }
 
-        /// See [`Assert::fails`].
-        // pub fn fails(program: &str, msgs: &[&str]) -> crate::Error
+        /** See [Assert.fails]. */
         fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
             return Assert().fails(program, msgs)
         }
 
-        // pub(crate) fn fails_skip_typecheck(program: &str, msgs: &[&str]) -> crate::Error
         internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
             val a = Assert()
             a.disableStaticTypechecking()
             return a.fails(program, msgs)
         }
 
-        /// See [`Assert::is_true`].
-        // pub fn is_true(program: &str)
+        /** See [Assert.isTrue]. */
         fun isTrue(program: String) {
             Assert().isTrue(program)
         }
 
-        /// See [`Assert::is_false`].
-        // pub fn is_false(program: &str)
+        /** See [Assert.isFalse]. */
         fun isFalse(program: String) {
             Assert().isFalse(program)
         }
 
-        // pub(crate) fn is_true_skip_typecheck(program: &str)
         internal fun isTrueSkipTypecheck(program: String) {
             val a = Assert()
             a.disableStaticTypechecking()
             a.isTrue(program)
         }
 
-        /// See [`Assert::all_true`].
-        // pub fn all_true(expressions: &str)
+        /** See [Assert.allTrue]. */
         fun allTrue(expressions: String) {
             val a = Assert()
-            // TODO(nga): fix and enable.
             a.disableStaticTypechecking()
             a.allTrue(expressions)
         }
 
-        /// See [`Assert::pass`].
-        // pub fn pass(program: &str) -> OwnedFrozenValue
+        /** See [Assert.pass]. */
         fun pass(program: String): OwnedFrozenValue {
             return Assert().pass(program)
         }
 
-        /// See [`Assert::pass_module`].
-        // pub fn pass_module(program: &str) -> FrozenModule
+        /** See [Assert.passModule]. */
         fun passModule(program: String): FrozenModule {
             return Assert().passModule(program)
         }

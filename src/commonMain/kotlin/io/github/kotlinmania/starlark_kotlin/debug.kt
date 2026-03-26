@@ -1,5 +1,5 @@
 // port-lint: source src/debug.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark_kotlin.debug
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,45 +20,6 @@ package io.github.kotlinmania.starlark_kotlin
  */
 
 /** Provides debug-related functionality and utilities. */
-
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-
-// mod adapter;
-// mod evaluate;
-// mod inspect;
-
-// pub use adapter::*;
-
-typealias DapAdapterClient = io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient
-typealias ScopesInfo = io.github.kotlinmania.starlark_kotlin.debug.ScopesInfo
-typealias Variable = io.github.kotlinmania.starlark_kotlin.debug.Variable
-typealias Scope = io.github.kotlinmania.starlark_kotlin.debug.Scope
-typealias VariablePath = io.github.kotlinmania.starlark_kotlin.debug.VariablePath
-typealias PathSegment = io.github.kotlinmania.starlark_kotlin.debug.PathSegment
-typealias StepKind = io.github.kotlinmania.starlark_kotlin.debug.StepKind
-typealias VariablesInfo = io.github.kotlinmania.starlark_kotlin.debug.VariablesInfo
-typealias InspectVariableInfo = io.github.kotlinmania.starlark_kotlin.debug.InspectVariableInfo
-typealias EvaluateExprInfo = io.github.kotlinmania.starlark_kotlin.debug.EvaluateExprInfo
-typealias DapVariable = io.github.kotlinmania.starlark_kotlin.debug.DapVariable
-typealias StackFrame = io.github.kotlinmania.starlark_kotlin.debug.StackFrame
-typealias StackTraceArguments = io.github.kotlinmania.starlark_kotlin.debug.StackTraceArguments
-typealias StackTraceResponseBody = io.github.kotlinmania.starlark_kotlin.debug.StackTraceResponseBody
-typealias SetBreakpointsArguments = io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsArguments
-typealias SourceBreakpoint = io.github.kotlinmania.starlark_kotlin.debug.SourceBreakpoint
-typealias SetBreakpointsResponseBody = io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsResponseBody
-typealias DapBreakpoint = io.github.kotlinmania.starlark_kotlin.debug.DapBreakpoint
-typealias Capabilities = io.github.kotlinmania.starlark_kotlin.debug.Capabilities
-typealias ResolvedBreakpoints = io.github.kotlinmania.starlark_kotlin.debug.ResolvedBreakpoints
-typealias DapAdapter = io.github.kotlinmania.starlark_kotlin.debug.DapAdapter
-typealias DapAdapterEvalHook = io.github.kotlinmania.starlark_kotlin.debug.DapAdapterEvalHook
-
-fun resolveBreakpoints(
-    args: SetBreakpointsArguments,
-    ast: AstModule,
-): Result<ResolvedBreakpoints> = io.github.kotlinmania.starlark_kotlin.debug.resolveBreakpoints(args, ast)
-
-fun dapCapabilities(): Capabilities = io.github.kotlinmania.starlark_kotlin.debug.dapCapabilities()
-
-fun prepareDapAdapter(
-    client: DapAdapterClient,
-): Pair<DapAdapter, DapAdapterEvalHook> = io.github.kotlinmania.starlark_kotlin.debug.prepareDapAdapter(client)
+typealias Adapter = DapAdapter
+typealias Evaluate = DapAdapterEvalHook
+typealias Inspect = InspectVariableInfo

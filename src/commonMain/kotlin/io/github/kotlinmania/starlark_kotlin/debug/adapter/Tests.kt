@@ -19,114 +19,79 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapter
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterEvalHook
-import io.github.kotlinmania.starlark_kotlin.debug.StepKind
-import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
+import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
+import io.github.kotlinmania.starlark_kotlin.debug.*
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
+import io.github.kotlinmania.starlark_kotlin.isWasm
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.Variable
-import io.github.kotlinmania.starlark_kotlin.SourceBreakpoint
-import io.github.kotlinmania.starlark_kotlin.SetBreakpointsArguments
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.start
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Source
-import io.github.kotlinmania.starlark_kotlin.assert.parse
-import io.github.kotlinmania.starlark_kotlin.resolveBreakpoints
-import io.github.kotlinmania.starlark_kotlin.prepareDapAdapter
-import io.github.kotlinmania.starlark_kotlin.isWasm
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.debug.subValues
-import io.github.kotlinmania.starlark_kotlin.debug.hasChildren
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
-import io.github.kotlinmania.starlark_kotlin.analysis.result
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
-// #[cfg(test)]
-// mod t
-
-// #[derive(Debug)]
-// struct Client
 private class Client(
     val controller: BreakpointController,
 ) : DapAdapterClient {
-    // impl DapAdapterClient for Client
-    // fn event_stopped(&self) -> crate::Result<()>
     override fun eventStopped(): Result<Unit> {
         println("stopped!")
         return controller.evalStopped()
     }
 }
 
-// #[derive(Debug, Clone, Dupe)]
-// struct BreakpointController
 private class BreakpointController {
-    /// The number of breakpoint hits or 999999 if cancelled.
-    // breakpoints_hit: Arc<AtomicUsize>
+    /** The number of breakpoint hits or 999999 if cancelled. */
     val breakpointsHit: AtomicInt = AtomicInt(0)
 
-    // fn get_client(&self) -> Box<dyn DapAdapterClient>
     fun getClient(): DapAdapterClient {
         return Client(this)
     }
 
-    // fn eval_stopped(&self) -> crate::Result<()>
     fun evalStopped(): Result<Unit> {
         while (true) {
-            val current = breakpointsHit.load()
+            val current = this.breakpointsHit.load()
             if (current == 999999) {
-                System.err.println("eval_stopped: cancelled")
+                println("eval_stopped: cancelled")
                 return Result.failure(Exception("cancelled"))
             }
-            if (breakpointsHit.compareAndSet(current, current + 1)) {
+            if (this.breakpointsHit.compareAndSet(current, current + 1)) {
                 return Result.success(Unit)
             }
         }
-        @Suppress("UNREACHABLE_CODE")
-        error("unreachable")
     }
 
-    // fn wait_for_eval_stopped(&self, breakpoint_count: usize, timeout: Duration)
     fun waitForEvalStopped(breakpointCount: Int, timeout: Duration) {
-        val start = TimeSource.Monotonic.markNow()
+        val now = TimeSource.Monotonic.markNow()
         while (true) {
-            val current = breakpointsHit.load()
+            val current = this.breakpointsHit.load()
             check(current != 999999) { "cancelled" }
             check(current <= breakpointCount)
             if (current == breakpointCount) {
                 break
             }
-            if (start.elapsedNow() > timeout) {
+            if (now.elapsedNow() > timeout) {
                 error("didn't hit expected breakpoint")
             }
-            // spin
         }
     }
 }
 
-// struct BreakpointControllerDropGuard
 private class BreakpointControllerDropGuard(
     val controller: BreakpointController,
 ) : AutoCloseable {
-    // impl Drop for BreakpointControllerDropGuard
     override fun close() {
-        System.err.println("dropping controller")
+        println("dropping controller")
         controller.breakpointsHit.store(999999)
     }
 }
 
-// fn breakpoint(line: i64, condition: Option<&str>) -> SourceBreakpoint
-private fun breakpoint(line: Long, condition: String?): SourceBreakpoint {
+private fun sourceBreakpoint(line: Long, condition: String?): SourceBreakpoint {
     return SourceBreakpoint(
         column = null,
         condition = condition,
@@ -136,10 +101,9 @@ private fun breakpoint(line: Long, condition: String?): SourceBreakpoint {
     )
 }
 
-// fn breakpoints_args(path: &str, lines: &[(i64, Option<&str>)]) -> SetBreakpointsArguments
 private fun breakpointsArgs(path: String, lines: List<Pair<Long, String?>>): SetBreakpointsArguments {
     return SetBreakpointsArguments(
-        breakpoints = lines.map { (line, condition) -> breakpoint(line, condition) },
+        breakpoints = lines.map { (line, condition) -> sourceBreakpoint(line, condition) },
         lines = null,
         source = Source(
             adapterData = null,
@@ -155,7 +119,6 @@ private fun breakpointsArgs(path: String, lines: List<Pair<Long, String?>>): Set
     )
 }
 
-// fn eval_with_hook(ast: AstModule, hook: Box<dyn DapAdapterEvalHook>) -> crate::Result<OwnedFrozenValue>
 private fun evalWithHook(
     ast: AstModule,
     hook: DapAdapterEvalHook,
@@ -179,7 +142,6 @@ private fun evalWithHook(
     }
 }
 
-// fn join_timeout<T>(waiting: ScopedJoinHandle<T>, timeout: Duration) -> T
 private fun <T> joinTimeout(waiting: Thread, result: () -> T, timeout: Duration): T {
     val start = TimeSource.Monotonic.markNow()
     while (waiting.isAlive) {
@@ -190,10 +152,8 @@ private fun <T> joinTimeout(waiting: Thread, result: () -> T, timeout: Duration)
     return result()
 }
 
-// static TIMEOUT: Duration = Duration::from_secs(10)
 private val TIMEOUT: Duration = 10.seconds
 
-// fn dap_test_template<'env, F, R>(f: F) -> crate::Result<R>
 private fun <R> dapTestTemplate(
     f: (BreakpointController, DapAdapter, DapAdapterEvalHook) -> Result<R>,
 ): Result<R> {
@@ -205,8 +165,6 @@ private fun <R> dapTestTemplate(
     }
 }
 
-// #[test]
-// fn test_breakpoint() -> crate::Result<()>
 internal fun testBreakpoint() {
     if (isWasm()) {
         return
@@ -243,8 +201,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_breakpoint_with_failing_condition() -> crate::Result<()>
 internal fun testBreakpointWithFailingCondition() {
     if (isWasm()) {
         return
@@ -275,8 +231,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_breakpoint_with_passing_condition() -> crate::Result<()>
 internal fun testBreakpointWithPassingCondition() {
     if (isWasm()) {
         return
@@ -312,8 +266,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_step_over() -> crate::Result<()>
 internal fun testStepOver() {
     if (isWasm()) {
         return
@@ -371,8 +323,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_step_into() -> crate::Result<()>
 internal fun testStepInto() {
     if (isWasm()) {
         return
@@ -452,8 +402,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_step_out() -> crate::Result<()>
 internal fun testStepOut() {
     if (isWasm()) {
         return
@@ -519,8 +467,6 @@ print(x)
     }.getOrThrow()
 }
 
-// #[test]
-// fn test_local_variables() -> crate::Result<()>
 internal fun testLocalVariables() {
     if (isWasm()) {
         return
@@ -558,10 +504,10 @@ print(do())
         }.also { it.start() }
 
         controller.waitForEvalStopped(1, TIMEOUT)
-        val variables = adapter.variables().getOrThrow()
+        val variables = adapter.variables()
         adapter.continue_().getOrThrow()
         joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
-        Result.success(variables)
+        variables.map { it }.mapCatching { it }
     }.getOrThrow()
 
     // It's easier to handle errors outside of thread::scope block as the test is quite flaky
@@ -575,12 +521,10 @@ print(do())
             Triple("empty_dict", "{}", false),
             Triple("empty_list", "[]", false),
             Triple("empty_tuple", "()", false),
-        ) == result.locals.map { v -> Triple(v.name, v.value, v.hasChildren) },
+        ) == result.locals.map { v -> Triple(v.name.toString(), v.value, v.hasChildren) },
     )
 }
 
-// #[test]
-// fn test_inspect_variables() -> crate::Result<()>
 internal fun testInspectVariables() {
     if (isWasm()) {
         return
@@ -603,7 +547,7 @@ def do():
 print(do())
         """
     val result = dapTestTemplate { controller, adapter, evalHook ->
-        val inspectResults = mutableListOf<Result<Variable>>()
+        val inspectResults = mutableListOf<Result<InspectVariableInfo>>()
         val ast = AstModule.parse(
             "test.bzl",
             fileContents,
@@ -645,8 +589,6 @@ print(do())
     assertVariable("\"b\"", "2", false, result[3].subValues[1])
 }
 
-// #[test]
-// fn test_evaluate_expression() -> crate::Result<()>
 internal fun testEvaluateExpression() {
     if (isWasm()) {
         return
@@ -668,7 +610,7 @@ def do():
 print(do())
         """
     val result = dapTestTemplate { controller, adapter, evalHook ->
-        val evalResults = mutableListOf<Result<EvaluateResult>>()
+        val evalResults = mutableListOf<Result<EvaluateExprInfo>>()
         val ast = AstModule.parse(
             "test.bzl",
             fileContents,
@@ -711,7 +653,6 @@ print(do())
     )
 }
 
-// fn assert_variable(name: &str, value: &str, has_children: bool, var: &Variable)
 private fun assertVariable(
     name: String,
     value: String,
@@ -720,12 +661,10 @@ private fun assertVariable(
 ) {
     check(
         Triple(name, value, hasChildren) ==
-            Triple(variable.name, variable.value, variable.hasChildren),
+            Triple(variable.name.toString(), variable.value, variable.hasChildren),
     )
 }
 
-// #[test]
-// pub fn test_truncate_string()
 internal fun testTruncateString() {
     check("Hello" == Variable.truncateString("Hello", 10))
     check("Hello" == Variable.truncateString("Hello", 5))

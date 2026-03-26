@@ -19,9 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-/// Provides utilities useful for implementation of the debug adapter protocol (DAP, see
-/// <https://microsoft.github.io/debug-adapter-protocol/>), primarily the DapAdapter/DapAdapterEvalHook
-/// that provide for debugging a starlark Evaluation.
+/**
+ * Provides utilities useful for implementation of the debug adapter protocol (DAP, see
+ * [DAP specification](https://microsoft.github.io/debug-adapter-protocol/)), primarily the
+ * [DapAdapter]/[DapAdapterEvalHook] that provide for debugging a starlark Evaluation.
+ */
 
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
@@ -39,62 +41,52 @@ import io.github.kotlinmania.starlark_kotlin.analysis.iter
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
-/// The DapAdapterClient is implemented by the user and provides functionality required by the DapAdapter.
+/**
+ * The DapAdapterClient is implemented by the user and provides functionality
+ * required by the [DapAdapter].
+ */
 interface DapAdapterClient {
-    /// Indicates that the evaluation stopped at a breakpoint.
+    /** Indicates that the evaluation stopped at a breakpoint. */
     fun eventStopped(): Result<Unit>
 }
 
-/// Information about the variables scopes.
+/** Information about the variables scopes. */
 data class ScopesInfo(
-    /// Number of local variables.
+    /** Number of local variables. */
     val numLocals: Int,
 )
 
-/// Information about a "structural variable" inspected by a debugger.
-/// This currently has DAP-like semantic meaning that every complex object returned
-/// by debugger from the stack or from the heap can be broken down into "variables".
-/// This is how structured data is managed by the debugger.
-/// Something similar to LLDB's SBValue.
+/**
+ * Information about a "structural variable" inspected by a debugger.
+ * This currently has DAP-like semantic meaning that every complex object returned
+ * by debugger from the stack or from the heap can be broken down into "variables".
+ * This is how structured data is managed by the debugger.
+ * Something similar to LLDB's SBValue.
+ */
 data class Variable(
-    /// Name of the variable.
+    /** Name of the variable. */
     val name: PathSegment,
-    /// The value as a String.
+    /** The value as a String. */
     val value: String,
-    /// The variables type.
+    /** The variables type. */
     val type: String,
-    /// Indicates whether there are children available for a given variable.
+    /** Indicates whether there are children available for a given variable. */
     val hasChildren: Boolean,
 ) {
     companion object {
         private fun tupleValueAsStr(v: Value): String {
-            return when (val size = v.length()) {
-                is Result -> {
-                    val len = size.getOrNull() ?: return "()"
-                    if (len > 0) "<tuple, size=$len>" else "()"
-                }
-                else -> "()"
-            }
+            val size = v.length().getOrNull()
+            return if (size != null && size > 0) "<tuple, size=$size>" else "()"
         }
 
         private fun listValueAsStr(v: Value): String {
-            return when (val size = v.length()) {
-                is Result -> {
-                    val len = size.getOrNull() ?: return "[]"
-                    if (len > 0) "<list, size=$len>" else "[]"
-                }
-                else -> "[]"
-            }
+            val size = v.length().getOrNull()
+            return if (size != null && size > 0) "<list, size=$size>" else "[]"
         }
 
         private fun dictValueAsStr(v: Value): String {
-            return when (val size = v.length()) {
-                is Result -> {
-                    val len = size.getOrNull() ?: return "{}"
-                    if (len > 0) "<dict, size=$len>" else "{}"
-                }
-                else -> "{}"
-            }
+            val size = v.length().getOrNull()
+            return if (size != null && size > 0) "<dict, size=$size>" else "{}"
         }
 
         private fun structLikeValueAsStr(v: Value): String {
@@ -105,9 +97,11 @@ data class Variable(
         internal fun truncateString(strValue: String, maxLen: Int): String {
             if (strValue.length > maxLen) {
                 // Find a valid character boundary cut-off point within max length.
-                // In Kotlin/JVM, strings are UTF-16 so all indices are valid char boundaries,
-                // but we still respect the max length constraint.
                 var cutoff = maxLen
+                // Walk back to a valid char boundary (for surrogate pairs)
+                while (cutoff > 0 && strValue[cutoff - 1].isHighSurrogate()) {
+                    cutoff -= 1
+                }
                 if (cutoff > 0) {
                     return strValue.substring(0, cutoff) + "...(truncated)"
                 }
@@ -134,7 +128,7 @@ data class Variable(
             }
         }
 
-        /// Creates a new instance of Variable from a given starlark value.
+        /** Creates a new instance of [Variable] from a given starlark value. */
         fun fromValue(name: PathSegment, v: Value): Variable {
             return Variable(
                 name = name,
@@ -156,7 +150,7 @@ data class Variable(
         }
     }
 
-    /// Helper to convert to the DAP Variable type.
+    /** Helper to convert to the DAP Variable type. */
     fun toDap(): DapVariable {
         return DapVariable(
             name = this.name.toString(),
@@ -171,28 +165,31 @@ data class Variable(
     }
 }
 
-/// Represents the scope of a variable.
+/** Represents the scope of a variable. */
 sealed class Scope {
-    /// A local variable's scope, identified by its name.
+    /** A local variable's scope, identified by its name. */
     data class Local(val name: String) : Scope()
-    /// A scope determined by a particular expression.
+
+    /** A scope determined by a particular expression. */
     data class Expr(val expression: String) : Scope()
 }
 
-/// Represents a variable's "access path" for a local variable or watch expression.
-///
-/// Examples:
-///
-/// - For path `var1.field1[0]`, the scope is `Local("var1")` and the access path is `["field1", 0]`.
-/// - For path `someObject.method().something`, the scope is `Expr("someObject.method().something")`.
-///   The access path includes segments inside the evaluated result of `someObject.method().something`
-///   if it returns a complex object.
+/**
+ * Represents a variable's "access path" for a local variable or watch expression.
+ *
+ * Examples:
+ *
+ * - For path `var1.field1[0]`, the scope is `Local("var1")` and the access path is `["field1", 0]`.
+ * - For path `someObject.method().something`, the scope is `Expr("someObject.method().something")`.
+ *   The access path includes segments inside the evaluated result of `someObject.method().something`
+ *   if it returns a complex object.
+ */
 data class VariablePath(
     val scope: Scope,
     val accessPath: List<PathSegment>,
 ) {
     companion object {
-        /// Creates new instance of VariablePath from a given expression.
+        /** Creates new instance of [VariablePath] from a given expression. */
         fun newExpression(expr: String): VariablePath {
             return VariablePath(
                 scope = Scope.Expr(expr),
@@ -200,7 +197,7 @@ data class VariablePath(
             )
         }
 
-        /// Creates new instance of VariablePath from a given local variable.
+        /** Creates new instance of [VariablePath] from a given local variable. */
         fun newLocal(scope: String): VariablePath {
             return VariablePath(
                 scope = Scope.Local(scope),
@@ -209,7 +206,7 @@ data class VariablePath(
         }
     }
 
-    /// Creates a child segment of given access path.
+    /** Creates a child segment of given access path. */
     fun makeChild(path: PathSegment): VariablePath {
         val newAccessPath = accessPath.toMutableList()
         newAccessPath.add(path)
@@ -220,15 +217,19 @@ data class VariablePath(
     }
 }
 
-/// Represents a segment in an access expression.
-///
-/// For the given expression `name.field1.array[0]`, the segments are "field1", "array", and "0".
+/**
+ * Represents a segment in an access expression.
+ *
+ * For the given expression `name.field1.array[0]`, the segments are "field1", "array", and "0".
+ */
 sealed class PathSegment {
-    /// Represents a path segment that accesses array-like types (i.e., types indexable by numbers).
+    /** Represents a path segment that accesses array-like types (i.e., types indexable by numbers). */
     data class Index(val index: Int) : PathSegment()
-    /// Represents a path segment that accesses object-like types (i.e., types keyed by strings).
+
+    /** Represents a path segment that accesses object-like types (i.e., types keyed by strings). */
     data class Attr(val name: String) : PathSegment()
-    /// Represents a path segment that accesses dict items by key.
+
+    /** Represents a path segment that accesses dict items by key. */
     data class Key(val key: String) : PathSegment()
 
     override fun toString(): String = when (this) {
@@ -246,28 +247,36 @@ sealed class PathSegment {
     }
 }
 
-/// The kind of debugger step, used for next/stepin/stepout requests.
+/** The kind of debugger step, used for next/stepin/stepout requests. */
 enum class StepKind {
-    /// Step "into" the statement. This is generally used on a function call to stop in the
-    /// function call. In practice, this will stop on the next statement.
+    /**
+     * Step "into" the statement. This is generally used on a function call to stop in the
+     * function call. In practice, this will stop on the next statement.
+     */
     Into,
-    /// Step "over" the statement. This will stop on the next statement in the current function
-    /// after the current one (so will step "over" a function call).
+
+    /**
+     * Step "over" the statement. This will stop on the next statement in the current function
+     * after the current one (so will step "over" a function call).
+     */
     Over,
-    /// Step "out" of the current function. This will stop on the next statement after this
-    /// function returns.
+
+    /**
+     * Step "out" of the current function. This will stop on the next statement after this
+     * function returns.
+     */
     Out,
 }
 
-/// Information about variables in scope.
+/** Information about variables in scope. */
 data class VariablesInfo(
-    /// Local variables.
+    /** Local variables. */
     val locals: List<Variable>,
 )
 
-/// Information about variable child "sub-values".
+/** Information about variable child "sub-values". */
 data class InspectVariableInfo(
-    /// Child variables.
+    /** Child variables. */
     val subValues: List<Variable> = emptyList(),
 ) {
     companion object {
@@ -308,7 +317,7 @@ data class InspectVariableInfo(
             }
         }
 
-        /// Trying to create InspectVariableInfo from a given starlark value.
+        /** Tries to create [InspectVariableInfo] from a given starlark value. */
         fun tryFromValue(v: Value, heap: Heap): Result<InspectVariableInfo> {
             return when (v.getType()) {
                 "dict" -> {
@@ -327,17 +336,17 @@ data class InspectVariableInfo(
     }
 }
 
-/// Information about expression evaluation result.
+/** Information about expression evaluation result. */
 data class EvaluateExprInfo(
-    /// The value as a String.
+    /** The value as a String. */
     val result: String,
-    /// The variables type.
+    /** The variables type. */
     val type: String,
-    /// Indicates whether there are children available for a given variable.
+    /** Indicates whether there are children available for a given variable. */
     val hasChildren: Boolean,
 ) {
     companion object {
-        /// Creating EvaluateExprInfo from a given starlark value.
+        /** Creates [EvaluateExprInfo] from a given starlark value. */
         fun fromValue(v: Value): EvaluateExprInfo {
             return EvaluateExprInfo(
                 result = Variable.valueAsStr(v),
@@ -348,7 +357,7 @@ data class EvaluateExprInfo(
     }
 }
 
-/// DAP Variable type for protocol compatibility.
+/** DAP Variable type for protocol compatibility. */
 data class DapVariable(
     val name: String,
     val value: String,
@@ -360,55 +369,79 @@ data class DapVariable(
     val variablesReference: Int,
 )
 
-/// DAP StackFrame type.
+/** DAP StackFrame type. */
 data class StackFrame(
     val id: Int,
     val name: String,
     val source: String?,
     val line: Int,
     val column: Int,
+    val endColumn: Int? = null,
+    val endLine: Int? = null,
+    val moduleId: String? = null,
+    val presentationHint: String? = null,
 )
 
-/// DAP StackTraceArguments.
+/** DAP StackTraceArguments. */
 data class StackTraceArguments(
     val threadId: Int,
     val startFrame: Int? = null,
     val levels: Int? = null,
 )
 
-/// DAP StackTraceResponseBody.
+/** DAP StackTraceResponseBody. */
 data class StackTraceResponseBody(
     val stackFrames: List<StackFrame>,
     val totalFrames: Int? = null,
 )
 
-/// DAP SetBreakpointsArguments.
+/** DAP SetBreakpointsArguments. */
 data class SetBreakpointsArguments(
-    val source: String,
+    val source: Source,
     val breakpoints: List<SourceBreakpoint>? = null,
+    val lines: List<Int>? = null,
+    val sourceModified: Boolean? = null,
 )
 
-/// DAP SourceBreakpoint.
+/** DAP Source. */
+data class Source(
+    val adapterData: Any? = null,
+    val checksums: List<Any>? = null,
+    val name: String? = null,
+    val origin: String? = null,
+    val path: String? = null,
+    val presentationHint: String? = null,
+    val sourceReference: Int? = null,
+    val sources: List<Source>? = null,
+)
+
+/** DAP SourceBreakpoint. */
 data class SourceBreakpoint(
-    val line: Int,
+    val line: Long,
     val column: Int? = null,
     val condition: String? = null,
+    val hitCondition: String? = null,
+    val logMessage: String? = null,
 )
 
-/// DAP SetBreakpointsResponseBody.
+/** DAP SetBreakpointsResponseBody. */
 data class SetBreakpointsResponseBody(
     val breakpoints: List<DapBreakpoint>,
 )
 
-/// DAP Breakpoint response type.
+/** DAP Breakpoint response type. */
 data class DapBreakpoint(
     val verified: Boolean,
-    val line: Int? = null,
     val column: Int? = null,
-    val source: String? = null,
+    val endColumn: Int? = null,
+    val endLine: Int? = null,
+    val id: Int? = null,
+    val line: Int? = null,
+    val message: String? = null,
+    val source: Source? = null,
 )
 
-/// DAP Capabilities.
+/** DAP Capabilities. */
 data class Capabilities(
     val supportsConfigurationDoneRequest: Boolean? = null,
     val supportsEvaluateForHovers: Boolean? = null,
@@ -422,18 +455,22 @@ internal data class Breakpoint(
     val condition: String?,
 )
 
-/// Breakpoints resolved to their spans.
+/**
+ * Breakpoints resolved to their spans.
+ */
 class ResolvedBreakpoints(
     internal val breakpoints: List<Breakpoint?>,
 ) {
-    /// Converts resolved breakpoints to a SetBreakpointsResponseBody.
-    /// The breakpoints should've been resolved from the corresponding SetBreakpointsRequest.
+    /**
+     * Converts resolved breakpoints to a [SetBreakpointsResponseBody].
+     * The breakpoints should've been resolved from the corresponding SetBreakpointsRequest.
+     */
     fun toResponse(): SetBreakpointsResponseBody {
         return implementation.resolvedBreakpointsToDap(this)
     }
 }
 
-/// Resolves the breakpoints to their FileSpan if possible.
+/** Resolves the breakpoints to their [FileSpan] if possible. */
 fun resolveBreakpoints(
     args: SetBreakpointsArguments,
     ast: AstModule,
@@ -441,66 +478,86 @@ fun resolveBreakpoints(
     return implementation.resolveBreakpoints(args, ast)
 }
 
-/// The DapAdapter accepts DAP requests and updates the hooks in the running evaluator.
+/**
+ * The [DapAdapter] accepts DAP requests and updates the hooks in the running evaluator.
+ */
 interface DapAdapter {
-    /// Sets multiple breakpoints for a file (and clears existing ones).
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_SetBreakpoints>
+    /**
+     * Sets multiple breakpoints for a file (and clears existing ones).
+     *
+     * See [SetBreakpoints](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_SetBreakpoints)
+     */
     fun setBreakpoints(
         source: String,
         breakpoints: ResolvedBreakpoints,
     ): Result<Unit>
 
-    /// Gets the top stack frame, may be null if entered from native.
+    /** Gets the top stack frame, may be null if entered from native. */
     fun topFrame(): Result<StackFrame?>
 
-    /// Gets a stacktrace from the current execution state.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StackTrace>
+    /**
+     * Gets a stacktrace from the current execution state.
+     *
+     * See [StackTrace](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StackTrace)
+     */
     fun stackTrace(args: StackTraceArguments): Result<StackTraceResponseBody>
 
-    /// Gets the variables scope for a frame.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Scopes>
+    /**
+     * Gets the variables scope for a frame.
+     *
+     * See [Scopes](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Scopes)
+     */
     fun scopes(): Result<ScopesInfo>
 
-    /// Gets variables for the current scope.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables>
+    /**
+     * Gets variables for the current scope.
+     *
+     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
+     */
     fun variables(): Result<VariablesInfo>
 
-    /// Gets all child variables for the given access path.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables>
+    /**
+     * Gets all child variables for the given access path.
+     *
+     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
+     */
     fun inspectVariable(path: VariablePath): Result<InspectVariableInfo>
 
-    /// Resumes execution.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Continue>
+    /**
+     * Resumes execution.
+     *
+     * See [Continue](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Continue)
+     */
     fun continue_(): Result<Unit>
 
-    /// Continues execution until some condition.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Next>
-    /// <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepIn>
-    /// <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepOut>
+    /**
+     * Continues execution until some condition.
+     *
+     * See [Next](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Next),
+     * [StepIn](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepIn),
+     * [StepOut](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepOut)
+     */
     fun step(kind: StepKind): Result<Unit>
 
-    /// Evaluates an expression in the context of the top-most frame.
-    ///
-    /// See <https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Evaluate>
+    /**
+     * Evaluates an expression in the context of the top-most frame.
+     *
+     * See [Evaluate](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Evaluate)
+     */
     fun evaluate(expr: String): Result<EvaluateExprInfo>
 }
 
-/// This is sort of the evaluation side of the DapAdapter. It's expected that these are on different threads
-/// (the starlark evaluation is single-threaded, so certainly the DapAdapter itself doesn't do interesting
-/// things there).
+/**
+ * This is sort of the evaluation side of the [DapAdapter]. It's expected that these are on
+ * different threads (the starlark evaluation is single-threaded, so certainly the [DapAdapter]
+ * itself doesn't do interesting things there).
+ */
 interface DapAdapterEvalHook {
-    /// Hooks the evaluator for this DapAdapter.
+    /** Hooks the evaluator for this DapAdapter. */
     fun addDapHooks(eval: Evaluator)
 }
 
-/// The DAP capabilities that the adapter supports.
+/** The DAP capabilities that the adapter supports. */
 fun dapCapabilities(): Capabilities {
     return Capabilities(
         supportsConfigurationDoneRequest = true,
@@ -511,7 +568,7 @@ fun dapCapabilities(): Capabilities {
     )
 }
 
-/// Creates a DapAdapter and corresponding DapAdapterEvalHook.
+/** Creates a [DapAdapter] and corresponding [DapAdapterEvalHook]. */
 fun prepareDapAdapter(
     client: DapAdapterClient,
 ): Pair<DapAdapter, DapAdapterEvalHook> {

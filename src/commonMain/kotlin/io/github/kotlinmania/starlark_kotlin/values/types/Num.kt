@@ -20,8 +20,3 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  */
 
 /** Helpers for numerical values. */
-
-// Rust mod declarations — in Kotlin, these are separate files in the num/ package.
-// pub(crate) mod globals
-// pub(crate) mod typecheck
-// pub(crate) mod value

@@ -20,59 +20,113 @@ package io.github.kotlinmania.starlark_kotlin.values.demand
  */
 
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
- * Taken by `StarlarkValue.provide` to provide different data depending on the type.
+ * Taken by [StarlarkValue.provide]
+ * to provide different data depending on the type.
  */
-class Demand internal constructor(
-    // Kotlin: use KClass for type identification instead of TypeId + raw pointer.
-    private val requestedType: KClass<*>,
+// pub struct Demand<'a, 'v>
+class Demand @PublishedApi internal constructor(
+    // type_id_of_t: TypeId
+    @PublishedApi internal val typeIdOfT: KClass<*>,
+    // option: *mut ()
+    @PublishedApi internal var option: Any? = null,
+    // _marker: PhantomData<&'a mut &'v ()>
+    @PublishedApi internal var filled: Boolean = false,
 ) {
-    // The provided value, if type matched.
-    internal var result: Any? = null
-    internal var filled: Boolean = false
-
-    // impl Demand
-
-    companion object {
-        // fn new<T: AnyLifetime<'v>>(option: &mut Option<T>) -> Demand<'a, 'v>
-        // Kotlin: constructors are used directly.
-    }
+    // impl<'a, 'v> Demand<'a, 'v>
 
     /**
      * Provide a value of given type.
      *
-     * If type matches the type requested from `Value.requestValue`, the value is stored
+     * If type matches the type requested from [Value.requestValue], the value is stored
      * inside the [Demand] and later returned, otherwise the value is discarded.
      */
+    // pub fn provide_value<T: AnyLifetime<'v>>(&mut self, value: T)
     fun provideValue(value: Any) {
-        if (requestedType.isInstance(value)) {
-            result = value
+        if (typeIdOfT.isInstance(value)) {
+            // SAFETY: check checked type.
+            option = value
             filled = true
         }
     }
 
-    /** Similar to [provideValue], but does not require implementing `ProvidesStaticType`. */
+    /**
+     * Similar to [provideValue], but does not require implementing `ProvidesStaticType`.
+     */
+    // pub(crate) fn provide_ref_static<T: 'static + ?Sized>(&mut self, value: &'v T)
     internal fun provideRefStatic(value: Any) {
-        if (requestedType.isInstance(value)) {
-            result = value
+        if (typeIdOfT.isInstance(value)) {
+            // SAFETY: check checked type.
+            option = value
             filled = true
         }
     }
 }
+
+// fn new<T: AnyLifetime<'v>>(option: &mut Option<T>) -> Demand<'a, 'v>
+@PublishedApi
+internal inline fun <reified T : Any> newDemand(): Demand = Demand(typeIdOfT = T::class)
 
 // pub(crate) fn request_value_impl<'v, T: AnyLifetime<'v>>(value: Value<'v>) -> Option<T>
 internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
-    val demand = Demand(T::class)
+    val demand = newDemand<T>()
     value.getRef().provide(demand)
-    return if (demand.filled) {
-        @Suppress("UNCHECKED_CAST")
-        demand.result as? T
-    } else {
-        null
+    @Suppress("UNCHECKED_CAST")
+    return if (demand.filled) demand.option as? T else null
+}
+
+// #[cfg(test)]
+// mod tests
+
+/**
+ * A trait for testing the demand/provide mechanism.
+ */
+// trait SomeTrait
+internal interface SomeTrait {
+    /** Return the payload value. */
+    // fn payload(&self) -> u32;
+    fun payload(): UInt
+}
+
+/**
+ * A test value type implementing [SomeTrait] and [StarlarkValue].
+ */
+// #[derive(ProvidesStaticType, derive_more::Display, Debug, NoSerialize, Allocative)]
+// #[display("SomeType")]
+// struct MyValue { payload: u32 }
+internal class MyValue(val payload: UInt) : StarlarkValue, SomeTrait {
+    // starlark_simple_value!(MyValue);
+    // #[starlark_value(type = "MyValue")]
+    override val TYPE: String get() = "MyValue"
+
+    // impl SomeTrait for MyValue
+    // fn payload(&self) -> u32 { self.payload }
+    override fun payload(): UInt = payload
+
+    override fun toString(): String = "SomeType"
+
+    // fn provide(&'v self, demand: &mut Demand<'_, 'v>)
+    override fun provide(demand: Demand) {
+        // demand.provide_value::<&dyn SomeTrait>(self);
+        demand.provideValue(this)
     }
 }
 
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.
+// #[test]
+// fn test_trait_downcast()
+internal fun testTraitDowncast() {
+    Heap.temp { heap ->
+        // let value = heap.alloc_simple(MyValue { payload: 17 });
+        heap.alloc(MyValue(payload = 17u)).let { value ->
+            // assert!(value.request_value::<String>().is_none());
+            check(value.requestValue<String>() == null)
+            // let some_trait = value.request_value::<&dyn SomeTrait>().unwrap();
+            // assert_eq!(17, some_trait.payload());
+            check(17u == value.requestValue<MyValue>()!!.payload())
+        }
+    }
+}

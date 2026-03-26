@@ -20,66 +20,75 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
+import starlark_map.Hashed
+import starlark_map.StarlarkHashValue
 
-/**
- * A pre-hashed string used for efficient dictionary lookup.
- *
- * In Rust, this stores the string as `Box<[usize]>` for word-aligned comparison.
- * In Kotlin, we delegate to the standard [String] implementation since the JVM
- * already optimizes string hashing and comparison.
- */
-// #[derive(Clone, Trace, Allocative)]
-// pub(crate) struct Symbol
+/** A pre-hashed string used for efficient dictionary lookup. */
 internal class Symbol private constructor(
-    /** Pre-computed hash. */
     private val hash: Long,
-    /** The string value. */
-    private val str: String,
-    /** Small hash for SmallMap compatibility. */
-    private val smallHashValue: Int,
+    private val len: Int,
+    private val payload: LongArray,
+    private val smallHash: StarlarkHashValue,
 ) {
-    // impl Symbol
 
-    constructor(x: String) : this(
-        hash = x.hashCode().toLong(),
-        str = x,
-        smallHashValue = x.hashCode(),
-    )
+    companion object {
+        fun new(x: String): Symbol {
+            return newHashed(Hashed.new(x))
+        }
 
-    // pub(crate) fn new_hashed(x: Hashed<&str>) -> Self
-    constructor(hashedStr: String, precomputedHash: Int) : this(
-        hash = precomputedHash.toLong(),
-        str = hashedStr,
-        smallHashValue = precomputedHash,
-    )
-
-    /** Get the pre-computed hash. */
-    // pub(crate) fn hash(&self) -> u64
-    fun hash(): Long = hash
-
-    /** Get the string value. */
-    // pub(crate) fn as_str(&self) -> &str
-    fun asStr(): String = str
-
-    /** Get as aligned padded string for fast comparison. */
-    // pub(crate) fn as_aligned_padded_str(&self) -> AlignedPaddedStr<'_>
-    fun asAlignedPaddedStr(): AlignedPaddedStr = AlignedPaddedStr(str)
-
-    /** Get the small hash value. */
-    // pub(crate) fn small_hash(&self) -> StarlarkHashValue
-    fun smallHash(): Int = smallHashValue
-
-    // impl Debug for Symbol
-    override fun toString(): String = str
-
-    // impl PartialEq for Symbol
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Symbol) return false
-        if (hash != other.hash) return false
-        return str == other.str
+        fun newHashed(x: Hashed<String>): Symbol {
+            val smallHash = x.hash()
+            val hash = smallHash.promote()
+            val len = x.key().length
+            val lenWords = (len + Long.SIZE_BYTES - 1) / Long.SIZE_BYTES
+            val payload = LongArray(lenWords) // 0 pad it at the end
+            val bytes = x.key().encodeToByteArray()
+            for (i in bytes.indices) {
+                payload[i / Long.SIZE_BYTES] = payload[i / Long.SIZE_BYTES] or
+                    (bytes[i].toLong() and 0xFF shl (i % Long.SIZE_BYTES * 8))
+            }
+            return Symbol(
+                hash = hash.toLong(),
+                len = len,
+                payload = payload,
+                smallHash = smallHash,
+            )
+        }
     }
 
-    // impl Eq for Symbol
+    fun hash(): Long = hash
+
+    fun asStr(): String {
+        val s = ByteArray(len)
+        for (i in 0 until len) {
+            s[i] = (payload[i / Long.SIZE_BYTES] shr (i % Long.SIZE_BYTES * 8) and 0xFF).toByte()
+        }
+        return s.decodeToString()
+    }
+
+    fun asAlignedPaddedStr(): AlignedPaddedStr {
+        return AlignedPaddedStr.new(len, payload)
+    }
+
+    fun asStrHashed(): Hashed<String> =
+        Hashed.newUnchecked(smallHash, asStr())
+
+    fun smallHash(): StarlarkHashValue = smallHash
+
+    override fun toString(): String = asStr()
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Symbol) return false
+        if (len != other.len) return false
+
+        val p1 = payload
+        val p2 = other.payload
+        // Important to use the payload len, which is in Long units, rather than len which is in u8
+        for (i in payload.indices) {
+            if (p1[i] != p2[i]) return false
+        }
+        return true
+    }
+
     override fun hashCode(): Int = hash.toInt()
 }

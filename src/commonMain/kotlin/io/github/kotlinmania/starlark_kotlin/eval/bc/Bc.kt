@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-//! Bytecode interpreter.
+/** Bytecode interpreter. */
 
-// pub(crate) mod addr;
-// pub(crate) mod bytecode;
-// pub(crate) mod call;
-// pub(crate) mod compiler;
-// pub(crate) mod definitely_assigned;
-// pub(crate) mod for_loop;
-// pub(crate) mod frame;
-// pub(crate) mod if_debug;
-// pub(crate) mod instr;
-// pub(crate) mod instr_arg;
-// pub(crate) mod instr_impl;
-// pub(crate) mod instrs;
-// pub(crate) mod native_function;
-// pub(crate) mod opcode;
-// pub(crate) mod repr;
-// pub(crate) mod slow_arg;
-// pub(crate) mod stack_ptr;
-// pub(crate) mod writer;
+typealias addr = Unit
+typealias bytecode = Unit
+typealias call = Unit
+typealias compiler = Unit
+typealias definitely_assigned = Unit
+typealias for_loop = Unit
+typealias frame = Unit
+typealias if_debug = Unit
+typealias instr = Unit
+typealias instr_arg = Unit
+typealias instr_impl = Unit
+typealias instrs = Unit
+typealias native_function = Unit
+typealias opcode = Unit
+typealias repr = Unit
+typealias slow_arg = Unit
+typealias stack_ptr = Unit
+typealias writer = Unit

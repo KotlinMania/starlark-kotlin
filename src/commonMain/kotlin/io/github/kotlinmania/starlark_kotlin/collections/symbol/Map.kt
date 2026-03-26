@@ -41,63 +41,87 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol.map
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
+import starlark_map.Hashed
 
 /**
- * A map from [Symbol] to values, using pre-computed hashes for fast lookup.
+ * A symbol map backed by a hash table of [Symbol] keys.
  *
- * In Rust, this wraps `HashTable<(Symbol, T)>` for raw hash table access.
- * In Kotlin, we use a [LinkedHashMap] for insertion-order iteration.
+ * We use a flat hash table so we can look up efficiently and easily
+ * by [Symbol] and string, without being limited by Kotlin's standard
+ * map key constraints.
  */
-// #[derive(Clone, Trace, Allocative)]
-// pub(crate) struct SymbolMap<T>(HashTable<(Symbol, T)>)
 internal class SymbolMap<T> private constructor(
-    private val table: LinkedHashMap<String, Pair<Symbol, T>>,
+    private val table: HashMap<Long, MutableList<Pair<Symbol, T>>>,
+    private var size: Int,
 ) {
-    // impl SymbolMap
 
-    constructor() : this(LinkedHashMap())
+    /** Create a new empty [SymbolMap]. */
+    constructor() : this(HashMap(), 0)
 
-    constructor(capacity: Int) : this(LinkedHashMap(capacity))
+    /** Create a new [SymbolMap] with the given [capacity]. */
+    constructor(capacity: Int) : this(HashMap(capacity), 0)
 
-    // pub(crate) fn insert(&mut self, key: &str, value: T) -> Option<T>
-    fun insert(key: String, value: T): T? {
-        val symbol = Symbol(key)
-        val old = table.put(key, Pair(symbol, value))
-        return old?.second
-    }
-
-    /** Look up by [Symbol]. */
-    // pub(crate) fn get(&self, key: &Symbol) -> Option<&T>
-    fun get(key: Symbol): T? {
-        return table[key.asStr()]?.second
-    }
-
-    /** Look up by string. */
-    // pub(crate) fn get_str(&self, key: &str) -> Option<&T>
-    fun getStr(key: String): T? {
-        return table[key]?.second
-    }
-
-    /** Number of entries. */
-    // pub(crate) fn len(&self) -> usize
-    fun len(): Int = table.size
-
-    /** Iterate over (Symbol, T) pairs. */
-    // pub(crate) fn iter(&self) -> impl ExactSizeIterator<Item = &(Symbol, T)>
-    fun iter(): List<Pair<Symbol, T>> = table.values.toList()
-
-    /** Iterate over keys. */
-    // pub(crate) fn keys(&self) -> impl ExactSizeIterator<Item = &Symbol>
-    fun keys(): List<Symbol> = table.values.map { it.first }
-
-    /** Iterate over values. */
-    // pub(crate) fn values(&self) -> impl ExactSizeIterator<Item = &T>
-    fun values(): List<T> = table.values.map { it.second }
-
-    // impl Debug for SymbolMap<T>
+    /** Debug formatting: produces `{key: value, ...}` representation. */
     override fun toString(): String {
-        return table.values.joinToString(prefix = "{", postfix = "}") { (k, v) ->
-            "$k: $v"
+        val entries = entries()
+        return entries.joinToString(prefix = "{", postfix = "}") { (k, v) -> "$k: $v" }
+    }
+
+    /** Insert a key-value pair, returning the old value if the key was already present. */
+    fun insert(key: String, value: T): T? {
+        val s = Symbol.new(key)
+        val hash = s.hash()
+        val bucket = table.getOrPut(hash) { mutableListOf() }
+        val idx = bucket.indexOfFirst { s == it.first }
+        return if (idx >= 0) {
+            val old = bucket[idx].second
+            bucket[idx] = Pair(s, value)
+            old
+        } else {
+            // This insert doesn't remove old values, so do that manually first
+            bucket.add(Pair(s, value))
+            size++
+            null
         }
     }
+
+    /** Look up a value by [Symbol] key. */
+    fun get(key: Symbol): T? {
+        val bucket = table[key.hash()] ?: return null
+        return bucket.firstOrNull { key == it.first }?.second
+    }
+
+    /** Look up a value by string key. */
+    fun getStr(key: String): T? {
+        return getHashedStr(Hashed.new(key))
+    }
+
+    /** Look up a value by pre-hashed string key. */
+    fun getHashedStr(key: Hashed<String>): T? {
+        val hash = key.hash().promote().toLong()
+        val bucket = table[hash] ?: return null
+        return bucket.firstOrNull { it.first.asStr() == key.key() }?.second
+    }
+
+    /** Look up a value by pre-hashed string value, using aligned padded string comparison. */
+    fun getHashedStringValue(key: Hashed<String>): T? {
+        val hash = key.hash().promote().toLong()
+        val bucket = table[hash] ?: return null
+        val keyAligned = Symbol.new(key.key()).asAlignedPaddedStr()
+        return bucket.firstOrNull { it.first.asAlignedPaddedStr() == keyAligned }?.second
+    }
+
+    /** Number of entries in the map. */
+    fun len(): Int = size
+
+    /** Iterate over all (Symbol, T) pairs. */
+    fun iter(): List<Pair<Symbol, T>> = entries()
+
+    /** Iterate over all keys. */
+    fun keys(): List<Symbol> = entries().map { it.first }
+
+    /** Iterate over all values. */
+    fun values(): List<T> = entries().map { it.second }
+
+    private fun entries(): List<Pair<Symbol, T>> = table.values.flatMap { it }
 }

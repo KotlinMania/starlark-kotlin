@@ -19,129 +19,217 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.call_stack
  * limitations under the License.
  */
 
-//! Implementation of `call_stack` function.
+/** Implementation of `call_stack` function. */
 
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneOr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.function
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.docs.name
-import io.github.kotlinmania.starlark_kotlin.analysis.Other
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
-import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.file
-import io.github.kotlinmania.starlark_kotlin.analysis.location
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import kotlin.test.Test
 
-// #[derive(ProvidesStaticType, Trace, Allocative, Debug, NoSerialize, Clone)]
-/// A frame of the call-stack.
-// struct StackFrame {
-//     name: String,
-//     location: Option<FileSpan>,
-// }
+/** A frame of the call-stack. */
 internal data class StackFrame(
-    /// The name of the entry on the call-stack.
+    /** The name of the entry on the call-stack. */
     val name: String,
-    /// The location of the definition, or null for native functions.
+    /** The location of the definition, or `null` for native functions. */
     val location: FileSpan?,
 ) : StarlarkValue, AllocValue {
 
-    // #[starlark_value(type = "StackFrame", StarlarkTypeRepr, UnpackValue)]
-    // impl StarlarkValue for StackFrame
-
-    // fn get_methods() -> Option<&'static Methods>
+    /** Get the methods for this value. */
     fun getMethods(): Methods? {
-        return stackFrameMethodsStatic.methods(::stackFrameMethods)
+        return RES.methods(::stackFrameMethods)
     }
 
-    // impl AllocValue for StackFrame
-    // fn alloc_value(self, heap: Heap<'v>) -> Value<'v>
-    override fun allocValue(heap: Heap): Value {
-        return heap.allocComplexNoFreeze(this)
-    }
+    /** Allocate this value on a heap. */
+    override fun allocValue(heap: Heap): Value =
+        heap.allocComplexNoFreeze(this)
 
-    // impl Display for StackFrame
+    /** Display representation. */
     override fun toString(): String = "<StackFrame ...>"
 
     companion object {
+        /** The Starlark type name. */
         const val TYPE: String = "StackFrame"
+        private val RES: MethodsStatic = MethodsStatic()
     }
 }
 
-// static RES: MethodsStatic = MethodsStatic::new();
-private val stackFrameMethodsStatic = MethodsStatic()
+/** Returns the name of the entry on the call-stack. */
+private fun funcName(thisRef: StackFrame): String =
+    thisRef.name
 
-// #[starlark_module]
-// fn stack_frame_methods(builder: &mut MethodsBuilder)
+/** Returns a path of the module, or `null` for native functions. */
+private fun modulePath(thisRef: StackFrame): NoneOr<String> =
+    when (val location = thisRef.location) {
+        null -> NoneOr.None
+        else -> NoneOr.Other(location.file.filename)
+    }
+
+/** Attribute methods for [StackFrame]. */
 private fun stackFrameMethods(builder: MethodsBuilder) {
-    /// Returns the name of the entry on the call-stack.
-    // #[starlark(attribute)]
-    // fn func_name(this: &StackFrame) -> starlark::Result<String>
-    builder.attribute("func_name") { thisValue, _ ->
-        val this = thisValue.downcast<StackFrame>()!!
-        this.name
+    /** Returns the name of the entry on the call-stack. */
+    builder.attribute("func_name") { thisValue ->
+        funcName(thisValue as StackFrame)
     }
-
-    /// Returns a path of the module from which the entry was called, or None for native functions.
-    // #[starlark(attribute)]
-    // fn module_path(this: &StackFrame) -> starlark::Result<NoneOr<String>>
-    builder.attribute("module_path") { thisValue, _ ->
-        val this = thisValue.downcast<StackFrame>()!!
-        when (val loc = this.location) {
-            null -> NoneOr.None
-            else -> NoneOr.Other(loc.file.filename())
-        }
+    /** Returns a path of the module, or `null` for native functions. */
+    builder.attribute("module_path") { thisValue ->
+        modulePath(thisValue as StackFrame)
     }
 }
 
-// #[starlark_module]
-// pub(crate) fn global(builder: &mut GlobalsBuilder)
-internal fun global(builder: GlobalsBuilder) {
-    /// Get a textual representation of the call stack.
-    ///
-    /// strip_frames will pop N frames from the top of the call stack.
-    // fn call_stack(#[starlark(require=named, default = 0)] strip_frames: u32, eval: &mut Evaluator) -> anyhow::Result<String>
-    builder.function("call_stack") { args, eval ->
-        val stripFrames = args.namedOptional<Int>("strip_frames") ?: 0
-        val stack = eval.callStack()
-        val frameCount = stack.frames.size
-        val truncateTo = maxOf(0, frameCount - stripFrames)
-        stack.frames.subList(truncateTo, frameCount).clear()
-        stack.toString()
-    }
+/**
+ * Get a textual representation of the call stack.
+ *
+ * This is intended only for debugging purposes to display to a human and
+ * should not be considered stable or parseable.
+ *
+ * [stripFrames] will pop N frames from the top of the call stack, which can
+ * be useful to hide non-interesting lines - for example, stripFrames=1
+ * will hide the call to and location of `call_stack()` itself.
+ */
+private fun callStack(stripFrames: Int, eval: Evaluator): String {
+    val stack = eval.callStack()
+    stack.frames.subList(
+        maxOf(0, stack.frames.size - stripFrames),
+        stack.frames.size,
+    ).clear()
+    return stack.toString()
+}
 
-    /// Get a structural representation of the n-th call stack frame.
-    ///
-    /// With `n=0` returns `call_stack_frame` itself.
-    /// Returns `None` if `n` is greater than or equal to the stack size.
-    // fn call_stack_frame(#[starlark(require = pos)] n: u32, eval: &mut Evaluator) -> anyhow::Result<NoneOr<StackFrame>>
-    builder.function("call_stack_frame") { args, eval ->
-        val n = args.positional<Int>(0)
-        val stack = eval.callStack()
-        if (n >= stack.frames.size) {
-            return@function NoneOr.None
-        }
-        val frame = stack.frames.getOrNull(stack.frames.size - n - 1)
-        when (frame) {
-            null -> NoneOr.None
-            else -> NoneOr.Other(
-                StackFrame(
-                    name = frame.name,
-                    location = frame.location,
-                )
+/**
+ * Get a structural representation of the n-th call stack frame.
+ *
+ * With `n=0` returns `callStackFrame` itself.
+ * Returns `None` if `n` is greater than or equal to the stack size.
+ */
+private fun callStackFrame(n: Int, eval: Evaluator): NoneOr<StackFrame> {
+    val stack = eval.callStack()
+    if (n >= stack.frames.size) {
+        return NoneOr.None
+    }
+    return when (val frame = stack.frames.getOrNull(stack.frames.size - n - 1)) {
+        null -> NoneOr.None
+        else -> NoneOr.Other(
+            StackFrame(
+                name = frame.name,
+                location = frame.location,
             )
-        }
+        )
     }
 }
 
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.
+/** Register the call_stack globals. */
+internal fun global(builder: GlobalsBuilder) {
+    builder.function("call_stack") { args, eval ->
+        val stripFrames: Int = args.namedOptional("strip_frames") ?: 0
+        callStack(stripFrames, eval)
+    }
+
+    builder.function("call_stack_frame") { args, eval ->
+        val n: Int = args.positional(0)
+        callStackFrame(n, eval)
+    }
+}
+
+/** Tests for the call_stack module. */
+internal class CallStackTests {
+    /** Test basic call stack. */
+    @Test
+    fun testSimple() {
+        val a = Assert()
+        a.globalsAdd(::global)
+        a.isTrue(
+            """
+def foo():
+    return bar()
+
+def bar():
+    s = call_stack()
+    return all([
+        "foo()" in s,
+        "bar()" in s,
+        "call_stack()" in s,
+    ])
+
+foo()
+            """.trimIndent()
+        )
+    }
+
+    /** Test strip one frame. */
+    @Test
+    fun testStripOne() {
+        val a = Assert()
+        a.globalsAdd(::global)
+        a.isTrue(
+            """
+def foo():
+    return bar()
+
+def bar():
+    s = call_stack(strip_frames=1)
+    return all([
+        "foo()" in s,
+        "bar()" in s,
+        "call_stack()" not in s,
+    ])
+
+foo()
+            """.trimIndent()
+        )
+    }
+
+    /** Test strip all frames. */
+    @Test
+    fun testStripAll() {
+        val a = Assert()
+        a.globalsAdd(::global)
+        a.isTrue(
+            """
+def foo():
+    return bar()
+
+def bar():
+    s = call_stack(strip_frames=10)
+    return not bool(s)
+
+foo()
+            """.trimIndent()
+        )
+    }
+
+    /** Test call_stack_frame. */
+    @Test
+    fun testCallStackFrame() {
+        val a = Assert()
+        a.globalsAdd(::global)
+        a.isTrue(
+            """
+def foo():
+    return bar()
+
+def bar():
+    return all([
+            "call_stack_frame" == call_stack_frame(0).func_name,
+            "assert.bzl" == call_stack_frame(0).module_path,
+            "bar" == call_stack_frame(1).func_name,
+            "assert.bzl" == call_stack_frame(1).module_path,
+            "foo" == call_stack_frame(2).func_name,
+            "assert.bzl" == call_stack_frame(2).module_path,
+            None == call_stack_frame(3),
+            None == call_stack_frame(4),
+        ])
+
+foo()
+            """.trimIndent()
+        )
+    }
+}

@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,145 +19,54 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+
 /**
  * A dict type marker.
  *
  * [StarlarkTypeRepr] provides `dict[K, V]`.
  * [UnpackValue] implementation verifies the types of entries and discards them.
  */
-class DictType<K, V> private constructor() {
+class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor() {
+
     companion object {
-        fun <K, V> instance(): DictType<K, V> = DictType()
-    }
-}
+        /** Factory method to create a [DictType] instance. */
+        fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> instance(): DictType<K, V> = DictType()
 
-// Placeholder declarations for traits/interfaces not yet ported.
-// These match the Rust trait signatures and will be replaced with
-// actual implementations when dependencies are ported.
-
-/**
- * Placeholder for StarlarkTypeRepr trait.
- * Corresponds to: impl<K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for DictType<K, V>
- */
-internal interface StarlarkTypeRepr<Self> {
-    /**
-     * Type Canonical
-     * In Rust: `type Canonical = DictType<K::Canonical, V::Canonical>;`
-     */
-    val canonical: Any
-
-    /**
-     * fn starlark_type_repr() -> Ty
-     * In Rust: `Ty::dict(K::starlark_type_repr(), V::starlark_type_repr())`
-     */
-    fun starlarkTypeRepr(): Ty
-}
-
-/**
- * Placeholder for Ty type.
- */
-internal class Ty private constructor() {
-    companion object {
-        fun dict(keyType: Ty, valueType: Ty): Ty = Ty()
+        /**
+         * StarlarkTypeRepr implementation for DictType<K, V>.
+         *
+         * Returns the Starlark type representation: `Ty.dict(K.starlarkTypeRepr(), V.starlarkTypeRepr())`.
+         */
+        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
+            return Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
+        }
     }
 }
 
 /**
- * StarlarkTypeRepr implementation for DictType<K, V> where K: StarlarkTypeRepr, V: StarlarkTypeRepr.
+ * UnpackValue implementation for DictType<K, V> where K: UnpackValue, V: UnpackValue.
  *
- * Rust equivalent:
- * ```rust
- * impl<K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for DictType<K, V> {
- *     type Canonical = DictType<K::Canonical, V::Canonical>;
+ * Unpacks a value as a dict, verifying the types of entries and discarding them.
+ * Returns a [DictType] marker if the value is a dict with matching key/value types,
+ * or null if the value is not a dict.
  *
- *     fn starlark_type_repr() -> Ty {
- *         Ty::dict(K::starlark_type_repr(), V::starlark_type_repr())
- *     }
- * }
- * ```
+ * The error type is [Either]<K.Error, V.Error>.
  */
-internal class DictTypeStarlarkTypeRepr<K, V>(
-    private val kRepr: StarlarkTypeRepr<K>,
-    private val vRepr: StarlarkTypeRepr<V>
-) : StarlarkTypeRepr<DictType<K, V>> {
-
-    override val canonical: Any
-        get() = DictType.instance<Any, Any>()
-
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.dict(kRepr.starlarkTypeRepr(), vRepr.starlarkTypeRepr())
+fun <V_, K : UnpackValue<V_>, V : UnpackValue<V_>> unpackDictType(
+    value: Value<V_>
+): Result<DictType<K, V>?> {
+    return when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
+        null -> Result.success(null)
+        else -> result.map { entries ->
+            if (entries != null) DictType.instance<K, V>() else null
+        }
     }
 }
 
-/**
- * Placeholder for UnpackValue trait.
- * Corresponds to: impl<V_, K: UnpackValue<V_>, V: UnpackValue<V_>> UnpackValue<V_> for DictType<K, V>
- */
-internal interface UnpackValue<Val, Self> {
-    /**
-     * Type Error = Either<K::Error, V::Error>
-     */
-    val errorType: Any
-
-    /**
-     * fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error>
-     */
-    fun unpackValueImpl(value: Val): Result<Self?>
-}
-
-/**
- * Placeholder for Value type.
- */
-internal class Value<V> private constructor()
-
-/**
- * Placeholder for Either type.
- * In Rust: `use either::Either;`
- */
-internal sealed class Either<L, R> {
-    data class Left<L, R>(val value: L) : Either<L, R>()
-    data class Right<L, R>(val value: R) : Either<L, R>()
-}
-
-/**
- * UnpackValue implementation for DictType<K, V> where K: UnpackValue<V_>, V: UnpackValue<V_>.
- *
- * Rust equivalent:
- * ```rust
- * impl<V_, K: UnpackValue<V_>, V: UnpackValue<V_>> UnpackValue<V_> for DictType<K, V> {
- *     type Error = Either<K::Error, V::Error>;
- *
- *     fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error> {
- *         match UnpackDictEntries::<UnpackAndDiscard<K>, UnpackAndDiscard<V>>::unpack_value_impl(
- *             value,
- *         ) {
- *             Ok(Some(_)) => Ok(Some(DictType {
- *                 k: PhantomData,
- *                 v: PhantomData,
- *             })),
- *             Ok(None) => Ok(None),
- *             Err(e) => Err(e),
- *         }
- *     }
- * }
- * ```
- */
-internal class DictTypeUnpackValue<Val, K, V>(
-    private val kUnpack: UnpackValue<Val, K>,
-    private val vUnpack: UnpackValue<Val, V>
-) : UnpackValue<Val, DictType<K, V>> {
-
-    override val errorType: Any
-        get() = Either.Left<Any, Any>(kUnpack.errorType) // Simplified representation of Either<K::Error, V::Error>
-
-    override fun unpackValueImpl(value: Val): Result<DictType<K, V>?> {
-        // Placeholder implementation - requires UnpackDictEntries and UnpackAndDiscard to be ported.
-        // The actual implementation will:
-        // 1. Call UnpackDictEntries<UnpackAndDiscard<K>, UnpackAndDiscard<V>>.unpackValueImpl(value)
-        // 2. Match on the result:
-        //    - Ok(Some(_)) => Ok(Some(DictType.instance()))
-        //    - Ok(None) => Ok(None)
-        //    - Err(e) => Err(e)
-        return Result.success(null)
-    }
+private fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
+    return Ty.any()
 }

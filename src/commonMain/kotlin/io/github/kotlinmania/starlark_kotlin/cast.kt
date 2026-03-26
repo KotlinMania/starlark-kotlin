@@ -19,22 +19,37 @@ package io.github.kotlinmania.starlark_kotlin.cast
  * limitations under the License.
  */
 
-// Rust: fn ptr_to_usize<T: ?Sized>(x: &T) -> usize
-/** Convert a reference to its identity hash (analogous to pointer-to-usize in Rust). */
-internal fun ptrToUsize(x: Any): Int {
-    return x.hashCode()
+/** Convert a reference to a usize-like integer identity. */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun ptrToUsize(x: Any): Int {
+    val ref = x as Any
+    val ptr = ref.hashCode()
+    val usize = ptr and Int.MAX_VALUE
+    return usize
 }
 
-// Rust: unsafe fn usize_to_ptr — not transliterable (raw pointer cast from integer)
-// Rust: unsafe fn ptr_lifetime — not transliterable (lifetime re-borrowing)
-
-// Rust: macro_rules! transmute
 /**
- * Unsafe reinterpret cast, analogous to `transmute!(from, to, value)` in Rust.
- *
- * In Kotlin, uses an unchecked cast.
+ * Undefined behaviour if the argument is zero, or does not satisfy the alignment
+ * of type `T`.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun <From, To> transmute(value: From): To {
+internal fun <T : Any> usizeToPtr(x: Int, lookup: (Int) -> Any): T {
+    require(x != 0) { "Zero is not a valid pointer" }
+    require(x > 0) { "Pointer is not aligned" }
+    return lookup(x) as T
+}
+
+/** Re-interpret the lifetime of a reference (identity in Kotlin). */
+@Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+internal inline fun <T> ptrLifetime(x: T): T {
+    return (x as Any) as T
+}
+
+/**
+ * `transmute!(from-type, to-type, value)` will do a [transmute][kotlin.Any],
+ * but the original and result types must be specified.
+ */
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+internal inline fun <From, To> transmute(value: From): To {
     return value as To
 }

@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.list
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,62 +19,79 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+
 /**
- * Unpack a value of type `list<T>` into a vec.
+ * Unpack a value of type `list<T>` into a list of items.
+ *
+ * @param T The expected element type, which must implement [StarlarkTypeRepr].
+ * @property items The unpacked list items.
  */
 data class UnpackList<T>(
     /** Unpacked items. */
-    val items: MutableList<T>
+    val items: MutableList<T>,
 ) : Iterable<T> {
 
-    /**
-     * Default constructor creating an empty UnpackList.
-     */
+    /** Create an empty [UnpackList]. */
     constructor() : this(mutableListOf())
 
-    /**
-     * Returns an iterator over the items.
-     * Implements IntoIterator for UnpackList<T>.
-     */
+    /** Returns an iterator over the items. */
     override fun iterator(): Iterator<T> = items.iterator()
 
-    /**
-     * Returns a mutable iterator over the items.
-     * Implements IntoIterator for &'a mut UnpackList<T>.
-     */
+    /** Returns a mutable iterator over the items. */
     fun iterMut(): MutableIterator<T> = items.iterator()
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        other as UnpackList<*>
-        return items == other.items
-    }
-
-    override fun hashCode(): Int = items.hashCode()
-
     companion object {
-        /**
-         * Creates a default empty UnpackList.
-         * Corresponds to Default::default() in Rust.
-         */
+        /** Creates a default empty [UnpackList]. */
         fun <T> default(): UnpackList<T> = UnpackList()
     }
 }
 
-/*
- * Pending trait implementations (to be added when base infrastructure is ported):
+/**
+ * [UnpackValue] implementation for [UnpackList].
  *
- * 1. StarlarkTypeRepr for UnpackList<T>:
- *    - Canonical type maps to ListType<T>.Canonical
- *    - starlarkTypeRepr() delegates to ListType.starlarkTypeRepr()
+ * Attempts to unpack a [Value] as a list, then unpacks each element
+ * using the provided element unpacker.
  *
- * 2. UnpackValue for UnpackList<T>:
- *    - Error type: T.Error
- *    - unpackValueImpl: Unpacks ListRef and iterates to unpack each element
- *    - Returns None if value is not a list or any element fails to unpack
- *    - Note: Contains TODO(nga) about avoiding allocation on first element type mismatch
- *
- * 3. Tests:
- *    - test_unpack: Verifies unpacking list of strings, type mismatch, and non-list values
+ * @param T The target type for each list element.
+ * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */
+class UnpackListUnpackValue<T>(
+    private val elementUnpacker: UnpackValue<T>,
+) : UnpackValue<UnpackList<T>> {
+
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.list(elementUnpacker.starlarkTypeRepr())
+    }
+
+    override fun unpackValueImpl(value: Value): Result<UnpackList<T>?> {
+        val listRef = ListRef.fromValue(value) ?: return Result.success(null)
+        val items = mutableListOf<T>()
+        for (v in listRef.iter()) {
+            val unpacked = elementUnpacker.unpackValueImpl(v).getOrElse {
+                return Result.failure(it)
+            }
+            if (unpacked == null) {
+                return Result.success(null)
+            }
+            items.add(unpacked)
+        }
+        return Result.success(UnpackList(items))
+    }
+}
+
+/**
+ * [StarlarkTypeRepr] implementation for [UnpackList].
+ *
+ * Delegates to [ListType]'s type representation.
+ */
+class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
+    private val elementRepr: T,
+) : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.list(elementRepr.starlarkTypeRepr())
+    }
+}

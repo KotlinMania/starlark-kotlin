@@ -20,5 +20,6 @@ package io.github.kotlinmania.starlark_kotlin
  */
 
 // Marker for code which is used in public API, but should not be used outside of the crate.
-// No KDoc documentation here intentionally — triggers missing_docs if accidentally exposed.
-class Private internal constructor()
+// No KDoc documentation here to trigger missing docs
+// if this accidentally becomes visible.
+class Private

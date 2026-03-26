@@ -42,7 +42,6 @@ import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
 import io.github.kotlinmania.starlark_kotlin.stdlib.new
 
-// pub(crate) fn to_scope_names_by_local_slot_id<'v>(x: Value<'v>) -> Option<&'v [FrozenStringValue]>
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
         return x.downcastRef<FrozenDef>()?.defInfo?.used
@@ -51,18 +50,16 @@ internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     }
 }
 
-// impl<'v> Evaluator<'v, '_, '_>
-// Extension function on Evaluator
-
-/// Obtain the local variables currently in scope. When at top-level these will be
-/// Module variables, otherwise local definitions. The precise number of variables
-/// may change over time due to optimisation. The only legitimate use of this function is for debugging.
-// pub fn local_variables(&self) -> SmallMap<String, Value<'v>>
+/**
+ * Obtain the local variables currently in scope. When at top-level these will be
+ * [Module][io.github.kotlinmania.starlark_kotlin.environment.Module] variables, otherwise local
+ * definitions. The precise number of variables may change over time due to optimisation. The only
+ * legitimate use of this function is for debugging.
+ */
 fun Evaluator.localVariables(): SmallMap<String, Value> {
     return inspectLocalVariables(this) ?: inspectModuleVariables(this)
 }
 
-// fn inspect_local_variables<'v>(eval: &Evaluator<'v, '_, '_>) -> Option<SmallMap<String, Value<'v>>>
 private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
     // First we find the first entry on the call_stack which contains a Def (and thus has locals)
     val xs = eval.callStack.toFunctionValues()
@@ -70,6 +67,7 @@ private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
         ?: return null
     val res = SmallMap<String, Value>()
     for ((slot, name) in names.withIndex()) {
+        // correctly handle captured.
         val v = eval.currentFrame.getSlotSlow(LocalSlotIdCapturedOrNot(slot.toUInt()))
         if (v != null) {
             res.insert(name.asStr(), v)
@@ -78,7 +76,6 @@ private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
     return res
 }
 
-// fn inspect_module_variables<'v>(eval: &Evaluator<'v, '_, '_>) -> SmallMap<String, Value<'v>>
 private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
     val res = SmallMap<String, Value>()
     for ((name, slot) in eval.moduleEnv.mutableNames().allNamesAndSlots()) {
@@ -90,18 +87,13 @@ private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
     return res
 }
 
-// #[cfg(test)]
-// mod tests
+// Tests
 
-// #[starlark_module]
-// fn debugger(builder: &mut GlobalsBuilder)
 private fun debuggerFunctions(builder: GlobalsBuilder) {
-    // fn debug_inspect_stack(eval: &mut Evaluator) -> anyhow::Result<Vec<String>>
     builder.setFunction("debug_inspect_stack") { eval: Evaluator ->
         Result.success(eval.callStack().intoFrames().map { it.toString() })
     }
 
-    // fn debug_inspect_variables<'v>(eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<Dict<'v>>
     builder.setFunction("debug_inspect_variables") { eval: Evaluator ->
         val sm = SmallMap<Any, Value>()
         for ((k, v) in eval.localVariables()) {
@@ -111,8 +103,6 @@ private fun debuggerFunctions(builder: GlobalsBuilder) {
     }
 }
 
-// #[test]
-// fn test_debug_stack()
 internal fun testDebugStack() {
     val a = Assert()
     a.globalsAdd(::debuggerFunctions)
@@ -131,8 +121,6 @@ g()
     )
 }
 
-// #[test]
-// fn test_debug_variables()
 internal fun testDebugVariables() {
     val a = Assert()
     a.globalsAdd(::debuggerFunctions)

@@ -22,22 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // Possible optimisations:
 // Encoding none, bool etc in the pointer of frozen value
 
-// Rust mod declarations — in Kotlin, these are separate files in the layout/ package.
-// mod aligned_size
-// mod avalue
-// mod avalues
-// mod complex
-// mod const_frozen_string
-// mod const_type_id
-// mod freezer
-// mod heap
-// mod identity
-// mod pointer
-// mod static_string
-// mod typed
-// mod value
-// mod value_alloc_size
-// mod value_captured
-// mod value_lifetimeless
-// mod value_not_special
-// mod vtable
+typealias aligned_size = Unit
+typealias avalue = Unit
+typealias avalues = Unit
+typealias complex = Unit
+typealias const_frozen_string = Unit
+typealias const_type_id = Unit
+typealias freezer = Unit
+typealias heap = Unit
+typealias identity = Unit
+typealias pointer = Unit
+typealias static_string = Unit
+typealias typed = Unit
+typealias value = Unit
+typealias value_alloc_size = Unit
+typealias value_captured = Unit
+typealias value_lifetimeless = Unit
+typealias value_not_special = Unit
+typealias vtable = Unit

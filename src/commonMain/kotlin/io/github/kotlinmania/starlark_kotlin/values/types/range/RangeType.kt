@@ -20,41 +20,24 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  */
 
 import kotlin.jvm.JvmInline
-import io.github.kotlinmania.starlark_kotlin.values.types.string.start
-import io.github.kotlinmania.starlark_kotlin.values.length
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.toBool
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.convertIndex
+import io.github.kotlinmania.starlark_kotlin.values.convertSliceIndices
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
-/**
- * Kotlin equivalent of Rust's NonZeroI32.
- * Represents a non-zero 32-bit integer.
- */
 @JvmInline
 value class NonZeroI32 private constructor(val value: Int) {
     companion object {
-        /**
-         * Creates a new NonZeroI32 if the value is not zero, returns null otherwise.
-         */
-        fun new(value: Int): NonZeroI32? {
-            return if (value != 0) NonZeroI32(value) else null
-        }
-
-        /**
-         * Creates a new NonZeroI32, throwing an exception if the value is zero.
-         * Used in contexts where we know the value is non-zero.
-         */
-        fun newUnchecked(value: Int): NonZeroI32 {
-            require(value != 0) { "NonZeroI32 value cannot be zero" }
-            return NonZeroI32(value)
-        }
+        fun new(value: Int): NonZeroI32? =
+            if (value != 0) NonZeroI32(value) else null
     }
 
     fun get(): Int = value
 }
 
-/**
- * Representation of `range()` type.
- */
+/** Representation of `range()` type. */
 data class Range(
     val start: Int,
     val stop: Int,
@@ -64,101 +47,85 @@ data class Range(
         /** The result of calling `type()` on a range. */
         const val TYPE: String = "range"
 
-        /**
-         * Create a new [Range].
-         */
+        /** Create a new [Range]. */
         fun new(start: Int, stop: Int, step: NonZeroI32): Range {
             return Range(start, stop, step)
         }
     }
 
     override fun toString(): String {
-        return when {
-            step.get() != 1 -> "range($start, $stop, ${step.get()})"
-            start != 0 -> "range($start, $stop)"
-            else -> "range($stop)"
+        if (step.get() != 1) {
+            return "range($start, $stop, ${step.get()})"
+        } else if (start != 0) {
+            return "range($start, $stop)"
+        } else {
+            return "range($stop)"
         }
     }
 
-    private fun equalsRange(other: Range): Result<Boolean> = runCatching {
-        val selfLength = length().getOrThrow()
-        val otherLength = other.length().getOrThrow()
+    private fun equalsRange(other: Range): Boolean {
+        val selfLength = length()
+        val otherLength = other.length()
         if (selfLength == 0 || otherLength == 0) {
-            return@runCatching selfLength == otherLength
+            return selfLength == otherLength
         }
         if (start != other.start) {
-            return@runCatching false
+            return false
         }
         if (selfLength == 1 || otherLength == 1) {
-            return@runCatching selfLength == otherLength
+            return selfLength == otherLength
         }
         check(selfLength > 1)
         check(otherLength > 1)
         if (step.get() == other.step.get()) {
-            return@runCatching selfLength == otherLength
+            return selfLength == otherLength
         } else {
-            return@runCatching false
+            return false
         }
     }
 
-    private fun remRangeAtIter(index: ULong): Range? {
-        // Convert index to i64 if possible
-        if (index > Long.MAX_VALUE.toULong()) {
-            return null
-        }
-        val indexI64 = index.toLong()
+    internal fun remRangeAtIter(index: Int): Range? {
+        val index = index.toLong()
+        val step = this.step.get().toLong()
 
-        // Saturating multiplication and addition
-        val stepI64 = step.get().toLong()
-        val product = when {
-            indexI64 > 0 && stepI64 > 0 && indexI64 > Long.MAX_VALUE / stepI64 -> Long.MAX_VALUE
-            indexI64 > 0 && stepI64 < 0 && indexI64 > Long.MIN_VALUE / stepI64 -> Long.MIN_VALUE
-            indexI64 < 0 && stepI64 > 0 && indexI64 < Long.MIN_VALUE / stepI64 -> Long.MIN_VALUE
-            indexI64 < 0 && stepI64 < 0 && indexI64 < Long.MAX_VALUE / stepI64 -> Long.MAX_VALUE
-            else -> indexI64 * stepI64
+        // saturating_mul then saturating_add
+        var product = index * step
+        if (index != 0L && product / index != step) {
+            product = if ((index xor step) >= 0) Long.MAX_VALUE else Long.MIN_VALUE
+        }
+        var start = this.start.toLong() + product
+        if ((product > 0 && start < this.start.toLong()) || (product < 0 && start > this.start.toLong())) {
+            start = if (product > 0) Long.MAX_VALUE else Long.MIN_VALUE
         }
 
-        val startI64 = start.toLong()
-        val newStartI64 = when {
-            product > 0 && startI64 > Long.MAX_VALUE - product -> Long.MAX_VALUE
-            product < 0 && startI64 < Long.MIN_VALUE - product -> Long.MIN_VALUE
-            else -> startI64 + product
-        }
-
-        // Try to convert back to i32
-        if (newStartI64 !in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) {
+        if (start < Int.MIN_VALUE.toLong() || start > Int.MAX_VALUE.toLong()) {
             return null
         }
 
         return Range(
-            start = newStartI64.toInt(),
-            stop = stop,
-            step = step
+            start = start.toInt(),
+            stop = this.stop,
+            step = this.step
         )
     }
 
-    /**
-     * Returns true if the range is non-empty.
-     */
     fun toBool(): Boolean {
-        return (start < stop && step.get() > 0) || (start > stop && step.get() < 0)
+        return (start < stop && step.get() > 0)
+            || (start > stop && step.get() < 0)
     }
 
-    /**
-     * Returns the length of the range.
-     */
-    fun length(): Result<Int> = runCatching {
+    fun length(): Int {
         if (start == stop) {
-            return@runCatching 0
+            return 0
         }
 
         // If step is into opposite direction of stop, then length is zero.
         if ((stop >= start) != (step.get() > 0)) {
-            return@runCatching 0
+            return 0
         }
 
-        // Convert range and step to `ULong`
-        val (dist, stepUnsigned) = if (step.get() >= 0) {
+        // Convert range and step to unsigned
+        val (dist, step) = if (step.get() >= 0) {
             Pair(
                 (stop - start).toULong(),
                 step.get().toULong()
@@ -169,98 +136,57 @@ data class Range(
                 (-step.get()).toULong()
             )
         }
-        val i = ((dist - 1u) / stepUnsigned + 1u).toInt()
+        val i = ((dist - 1u) / step + 1u).toInt()
         if (i >= 0) {
-            i
+            return i
         } else {
             throw ValueError.IntegerOverflow
         }
     }
 
-    /**
-     * Gets the element at the specified index.
-     */
-    fun at(index: Value<*>, heap: Heap<*>): Result<Value<*>> = runCatching {
-        val idx = convertIndex(index, length().getOrThrow()).getOrThrow()
+    fun at(index: Value, heap: Heap): Value {
+        val index = convertIndex(index, length()).getOrThrow()
         // Must not overflow if `length` is computed correctly
-        heap.alloc(start + step.get() * idx)
+        return heap.alloc(start + step.get() * index)
     }
 
-    /**
-     * Checks equality with another value.
-     */
-    fun equals(other: Value<*>): Result<Boolean> = runCatching {
-        val otherRange = other.downcastRef<Range>()
-        if (otherRange != null) {
-            equalsRange(otherRange).getOrThrow()
+    fun equals(other: Value): Boolean {
+        val other = other.downcastRef<Range>()
+        return if (other != null) {
+            equalsRange(other)
         } else {
             false
         }
     }
 
-    /**
-     * Creates a sliced range.
-     */
     fun slice(
-        start: Value<*>?,
-        stop: Value<*>?,
-        stride: Value<*>?,
-        heap: Heap<*>
-    ): Result<Value<*>> = runCatching {
-        val (sliceStart, sliceStop, sliceStep) = convertSliceIndices(
-            length().getOrThrow(),
-            start,
-            stop,
-            stride
-        ).getOrThrow()
-
-        val newStart = (sliceStart.toLong() * this.step.get().toLong()).let { product ->
-            (this.start.toLong() + product).let { sum ->
-                if (sum in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) {
-                    sum.toInt()
-                } else {
-                    throw ValueError.IntegerOverflow
-                }
-            }
-        }
-
-        val newStop = (sliceStop.toLong() * this.step.get().toLong()).let { product ->
-            (this.start.toLong() + product).let { sum ->
-                if (sum in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) {
-                    sum.toInt()
-                } else {
-                    throw ValueError.IntegerOverflow
-                }
-            }
-        }
-
-        val newStep = (sliceStep.toLong() * this.step.get().toLong()).let { product ->
-            if (product in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) {
-                NonZeroI32.new(product.toInt())
-                    ?: throw IllegalStateException("Step cannot be zero after multiplication")
-            } else {
-                throw ValueError.IntegerOverflow
-            }
-        }
-
-        heap.alloc(Range(
-            start = newStart,
-            stop = newStop,
-            step = newStep
+        start: Value?,
+        stop: Value?,
+        stride: Value?,
+        heap: Heap
+    ): Value {
+        val (start, stop, step) = convertSliceIndices(length(), start, stop, stride).getOrThrow()
+        return heap.alloc(Range(
+            start = this.start
+                .checkedAdd(
+                    start
+                        .checkedMul(this.step.get())
+                ),
+            stop = this.start
+                .checkedAdd(
+                    stop.checkedMul(this.step.get())
+                ),
+            step = NonZeroI32.new(
+                step.checkedMul(this.step.get())
+            )!!
         ))
     }
 
-    /**
-     * Returns the iterator value (the range itself).
-     */
-    fun iterate(me: Value<*>, heap: Heap<*>): Result<Value<*>> {
-        return Result.success(me)
+    fun iterate(me: Value, heap: Heap): Value {
+        return me
     }
 
-    /**
-     * Returns the next value in the iteration.
-     */
-    fun iterNext(index: ULong, heap: Heap<*>): Value<*>? {
+    fun iterNext(index: Int, heap: Heap): Value? {
         val remRange = remRangeAtIter(index) ?: return null
 
         if (!remRange.toBool()) {
@@ -270,76 +196,54 @@ data class Range(
         return heap.alloc(remRange.start)
     }
 
-    /**
-     * Returns the size hint for the iterator.
-     */
-    fun iterSizeHint(index: ULong): Pair<ULong, ULong?> {
-        val remRange = remRangeAtIter(index) ?: return Pair(0u, 0u)
-
-        return remRange.length().fold(
-            onSuccess = { len -> Pair(len.toULong(), len.toULong()) },
-            onFailure = { Pair(0u, null) }
-        )
+    fun iterSizeHint(index: Int): Pair<Int, Int?> {
+        val remRange = remRangeAtIter(index) ?: return Pair(0, 0)
+        return try {
+            val length = remRange.length()
+            Pair(length, length)
+        } catch (_: Exception) {
+            Pair(0, null)
+        }
     }
 
-    /**
-     * Called when iteration stops (no-op for Range).
-     */
-    fun iterStop() {
-        // No-op
-    }
+    fun iterStop() {}
 
-    /**
-     * Checks if a value is in the range.
-     */
-    fun isIn(other: Value<*>): Result<Boolean> = runCatching {
-        val otherInt = other.unpackNum()?.asInt() ?: run {
+    fun isIn(other: Value): Boolean {
+        val other = other.unpackNum()?.asInt() ?: run {
             // Consider `"a" in range(3)`
             //
             // Should we error or return false?
             // Go Starlark errors. Python returns false.
             // Discussion at https://github.com/bazelbuild/starlark/issues/175
-            return@runCatching false
+            return false
         }
-
         if (!toBool()) {
-            return@runCatching false
+            return false
         }
-        if (start == otherInt) {
-            return@runCatching true
+        if (start == other) {
+            return true
         }
         if (step.get() > 0) {
-            if (otherInt < start || otherInt >= stop) {
-                return@runCatching false
+            if (other < start || other >= stop) {
+                return false
             }
-            // Use wrapping_sub semantics - convert to unsigned for safe subtraction
-            val diff = (otherInt - start).toUInt().toULong()
-            val stepUnsigned = step.get().toUInt().toULong()
-            diff % stepUnsigned == 0uL
+            return (other - start).toULong() % step.get().toULong() == 0uL
         } else {
-            if (otherInt > start || otherInt <= stop) {
-                return@runCatching false
+            if (other > start || other <= stop) {
+                return false
             }
-            // Use wrapping_sub and wrapping_neg semantics
-            val diff = (start - otherInt).toUInt().toULong()
-            val stepNegated = (-step.get()).toUInt().toULong()
-            diff % stepNegated == 0uL
+            return (start - other).toULong() % (-step.get()).toULong() == 0uL
         }
     }
 
-    /**
-     * Returns the Starlark type representation.
-     */
     fun getTypeStarlarkRepr(): Ty {
         return Ty.starlarkValue<Range>()
     }
 
-    /**
-     * Equals implementation for tests.
-     */
+    /** For tests. */
     override fun equals(other: Any?): Boolean {
         if (other !is Range) return false
-        return equalsRange(other).getOrDefault(false)
+        return equalsRange(other)
     }
 
     override fun hashCode(): Int {
@@ -350,49 +254,97 @@ data class Range(
     }
 }
 
-// Placeholder types - these need to be properly imported/defined elsewhere
-typealias Value<V> = Any
-typealias Heap<V> = Any
-typealias Ty = Any
-
-// Placeholder functions - these need to be properly implemented elsewhere
-fun convertIndex(value: Value<*>, len: Int): Result<Int> {
-    throw NotImplementedError("convertIndex needs to be implemented")
+private fun Int.checkedMul(other: Int): Int {
+    val result = this.toLong() * other.toLong()
+    if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) throw ValueError.IntegerOverflow
+    return result.toInt()
 }
 
-fun convertSliceIndices(
-    len: Int,
-    start: Value<*>?,
-    stop: Value<*>?,
-    stride: Value<*>?
-): Result<Triple<Int, Int, Int>> {
-    throw NotImplementedError("convertSliceIndices needs to be implemented")
+private fun Int.checkedAdd(other: Int): Int {
+    val result = this.toLong() + other.toLong()
+    if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) throw ValueError.IntegerOverflow
+    return result.toInt()
 }
 
-fun Value<*>.downcastRef<T>(): T? {
-    throw NotImplementedError("downcastRef needs to be implemented")
+// Tests
+
+private fun range(start: Int, stop: Int, step: Int): Range {
+    return Range(start, stop, NonZeroI32.new(step)!!)
 }
 
-fun Value<*>.unpackNum(): Num? {
-    throw NotImplementedError("unpackNum needs to be implemented")
+private fun rangeStartStop(start: Int, stop: Int): Range {
+    return range(start, stop, 1)
 }
 
-interface Num {
-    fun asInt(): Int?
+private fun rangeStop(stop: Int): Range {
+    return rangeStartStop(0, stop)
 }
 
-fun Heap<*>.alloc(value: Int): Value<*> {
-    throw NotImplementedError("Heap.alloc(Int) needs to be implemented")
+internal fun testLengthStop() {
+    check(0 == rangeStop(0).length())
+    check(17 == rangeStop(17).length())
 }
 
-fun Heap<*>.alloc(value: Range): Value<*> {
-    throw NotImplementedError("Heap.alloc(Range) needs to be implemented")
+internal fun testLengthStartStop() {
+    check(20 == rangeStartStop(10, 30).length())
+    check(0 == rangeStartStop(10, -30).length())
+    check(Int.MAX_VALUE == rangeStartStop(0, Int.MAX_VALUE).length())
+    check(runCatching { rangeStartStop(-1, Int.MAX_VALUE).length() }.isFailure)
 }
 
-object ValueError {
-    object IntegerOverflow : Throwable("Integer overflow")
+internal fun testLengthStartStopStep() {
+    check(5 == range(0, 10, 2).length())
+    check(5 == range(0, 9, 2).length())
+    check(0 == range(0, 10, -2).length())
+    check(5 == range(10, 0, -2).length())
+    check(5 == range(9, 0, -2).length())
+    check(1 == range(4, 14, 10).length())
 }
 
-inline fun <reified T> Ty.Companion.starlarkValue(): Ty {
-    throw NotImplementedError("Ty.starlarkValue needs to be implemented")
+internal fun testEq() {
+    check(rangeStop(0) == range(2, 1, 3))
+}
+
+internal fun testRangeExhaustive() {
+    // The range implementation is fairly hairy. Lots of corner cases etc.
+    // Especially around equality, length.
+    // Therefore, generate ranges exhaustively over a very small range
+    // and test lots of properties about them.
+    val ranges = mutableListOf<Range>()
+    for (start in -3..3) {
+        for (stop in -3..3) {
+            for (step in -3..2) {
+                val step = if (step >= 0) step + 1 else step
+                ranges.add(range(start, stop, step))
+            }
+        }
+    }
+    check(ranges.size == 294) // Assert we don't accidentally take too long
+
+    for (x in ranges) {
+        val full = iterateRange(x)
+        check(x.length() == full.size)
+        for ((i, v) in full.withIndex()) {
+            check(x.start + x.step.get() * i == v)
+        }
+    }
+
+    // Takes 294^2 steps - but completes instantly
+    for (x in ranges) {
+        for (y in ranges) {
+            check((x == y) == (iterateRange(x) == iterateRange(y)))
+        }
+    }
+}
+
+private fun iterateRange(r: Range): List<Int> {
+    val result = mutableListOf<Int>()
+    var index = 0
+    while (true) {
+        val rem = r.remRangeAtIter(index) ?: break
+        if (!rem.toBool()) break
+        result.add(rem.start)
+        index++
+    }
+    return result
 }

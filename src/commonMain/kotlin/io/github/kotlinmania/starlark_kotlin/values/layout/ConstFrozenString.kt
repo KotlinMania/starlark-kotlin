@@ -19,45 +19,58 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.stdlib.fromString
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 
-/**
- * Kotlin equivalent of Rust's `const_frozen_string!` macro.
- *
- * In Rust, this macro creates compile-time static frozen string values using `StarlarkStrNRepr`.
- * Kotlin has no macro system, so this is implemented as a function that interns/caches
- * frozen string values for identity-based comparison.
- */
-
-/** Cache for frequently used frozen strings. */
-private val frozenStringCache = HashMap<String, FrozenStringValue>()
-
-/**
- * Create a [FrozenStringValue] from a string literal.
- *
- * This is the Kotlin equivalent of Rust's `const_frozen_string!` macro.
- * In Rust, this creates compile-time static frozen string values.
- * In Kotlin, we cache the values for identity-based comparison.
- */
+/** Create a [FrozenStringValue]. */
 fun constFrozenString(s: String): FrozenStringValue {
-    return frozenStringCache.getOrPut(s) {
-        constantString(s) ?: FrozenStringValue.fromString(s)
+    return constantString(s) ?: run {
+        // `s.len() <= 1`, `StarlarkStrNRepr::new` should not be called
+        // because it fails and it should be handled by `constant_string`.
+        // But we still have to put something in `static`.
+        // so for `s.len() <= 1` we put dummy string of length 2 there,
+        // and `N == 1` in that case.
+        val unreachable: Boolean = s.length <= 1
+        val n: Int = if (unreachable) {
+            1
+        } else {
+            StarlarkStr.payloadLenForLen(s.length)
+        }
+        val x: StarlarkStrNRepr =
+            StarlarkStrNRepr.new(if (unreachable) "xx" else s)
+        if (unreachable) {
+            error("unreachable")
+        } else {
+            x.erase()
+        }
     }
 }
 
-/**
- * Try to get a pre-allocated constant string value.
- * Returns null if the string is not a known constant.
- */
-internal fun constantString(s: String): FrozenStringValue? {
-    // Rust: handles empty string and single-char strings as pre-allocated constants.
-    return when {
-        s.isEmpty() -> FrozenStringValue.emptyString()
-        s.length == 1 -> FrozenStringValue.singleChar(s[0])
-        else -> null
+// #[cfg(test)]
+internal object ConstFrozenStringTests {
+
+    private fun assertStr(expected: String, s: String) {
+        check(expected == constFrozenString(s).asStr())
+    }
+
+    fun testConstFrozenStringForShortStrings() {
+        check(constFrozenString("a") === constFrozenString("a"))
+        check(constFrozenString("a") === constFrozenString("a"))
+        check(constFrozenString("a") === constFrozenString("a"))
+    }
+
+    fun testConstFrozenString() {
+        assertStr("", "")
+        assertStr("a", "a")
+        assertStr("ab", "ab")
+        assertStr("abc", "abc")
+        assertStr("abcd", "abcd")
+        assertStr("abcde", "abcde")
+        assertStr("abcdef", "abcdef")
+        assertStr("abcdefg", "abcdefg")
+        assertStr("abcdefgh", "abcdefgh")
+        assertStr("abcdefghi", "abcdefghi")
+        assertStr("abcdefghij", "abcdefghij")
+        assertStr("abcdefghijk", "abcdefghijk")
     }
 }
-
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.

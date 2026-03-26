@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.num
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,28 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import kotlin.math.floor
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toI32
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.toF64
-import io.github.kotlinmania.starlark_kotlin.values.percent
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.toOwned
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
+/** Error type for numeric operations. */
 sealed class NumError : Exception() {
+    /** Float division by zero: {a} / {b}. */
     data class DivisionByZero(val a: Num, val b: Num) : NumError() {
         override val message: String = "float division by zero: $a / $b"
     }
@@ -58,25 +53,19 @@ sealed class NumRef {
     // `StarlarkFloat` not `Double` here because `Double` unpacks from `int` too.
     data class Float(val value: StarlarkFloat) : NumRef()
 
-    /**
-     * Get underlying value as float
-     */
+    /** Get underlying value as float. */
     fun asFloat(): Double = when (this) {
         is Int -> value.toF64()
         is Float -> value.value
     }
 
-    /**
-     * Get underlying value as int (if it can be precisely expressed as int)
-     */
+    /** Get underlying value as int (if it can be precisely expressed as int). */
     fun asInt(): kotlin.Int? = when (this) {
         is Int -> value.toI32()
         is Float -> f64ToI32Exact(value.value)
     }
 
-    /**
-     * Get hash of the underlying number
-     */
+    /** Get hash of the underlying number. */
     fun getHash64(): ULong {
         fun floatHash(f: Double): ULong {
             return if (f.isNaN()) {
@@ -86,7 +75,7 @@ sealed class NumRef {
                 ULong.MAX_VALUE
             } else if (f == 0.0) {
                 // Both 0.0 and -0.0 need the same hash, but are both equal to 0.0
-                0.0.toBits().toULong()
+                (0.0).toBits().toULong()
             } else {
                 f.toBits().toULong()
             }
@@ -113,6 +102,7 @@ sealed class NumRef {
         }
     }
 
+    /** Get hash as [StarlarkHashValue]. */
     fun getHash(): StarlarkHashValue {
         return StarlarkHashValue.hash64(getHash64())
     }
@@ -122,6 +112,7 @@ sealed class NumRef {
         is Float -> Num.Float(value.value)
     }
 
+    /** Float division: self / other. */
     fun div(other: NumRef): Result<Double> {
         val a = this.asFloat()
         val b = other.asFloat()
@@ -132,6 +123,7 @@ sealed class NumRef {
         }
     }
 
+    /** Floor division: self // other. */
     fun floorDiv(other: NumRef): Result<Num> {
         return if (this is Int && other is Int) {
             value.floorDiv(other.value).map { Num.Int(it) }
@@ -140,6 +132,7 @@ sealed class NumRef {
         }
     }
 
+    /** Percent (modulo): self % other. */
     fun percent(other: NumRef): Result<Num> {
         return if (this is Int && other is Int) {
             value.percent(other.value).map { Num.Int(it) }
@@ -148,6 +141,7 @@ sealed class NumRef {
         }
     }
 
+    // This is total eq per starlark spec, not Kotlin's partial eq.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NumRef) return false
@@ -163,6 +157,7 @@ sealed class NumRef {
         return getHash64().hashCode()
     }
 
+    /** Ord impl: total ordering for Starlark values. */
     operator fun compareTo(other: NumRef): kotlin.Int {
         return if (this is Int && other is Int) {
             value.compareTo(other.value)
@@ -171,6 +166,7 @@ sealed class NumRef {
         }
     }
 
+    /** Add operator. */
     operator fun plus(rhs: NumRef): Num {
         return if (this is Int && rhs is Int) {
             Num.Int(value + rhs.value)
@@ -179,6 +175,7 @@ sealed class NumRef {
         }
     }
 
+    /** Sub operator. */
     operator fun minus(rhs: NumRef): Num {
         return if (this is Int && rhs is Int) {
             Num.Int(value - rhs.value)
@@ -187,6 +184,7 @@ sealed class NumRef {
         }
     }
 
+    /** Mul operator. */
     operator fun times(rhs: NumRef): Num {
         return if (this is Int && rhs is Int) {
             Num.Int(value * rhs.value)
@@ -201,12 +199,25 @@ sealed class NumRef {
             return if (i.toDouble() == f) i else null
         }
 
+        /** From f64. */
         fun from(f: Double): NumRef {
             return Float(StarlarkFloat(f))
+        }
+
+        /** Unpack a [NumRef] from a [Value]. */
+        fun <V> unpackValue(value: Value<V>): Result<NumRef?> {
+            StarlarkIntRef.unpack(value)?.let {
+                return Result.success(Int(it))
+            }
+            value.downcastRef<StarlarkFloat>()?.let {
+                return Result.success(Float(it))
+            }
+            return Result.success(null)
         }
     }
 }
 
+/** Owned numeric value (int or float). */
 sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
     data class Int(val value: StarlarkInt) : Num() {
         override fun toString(): String = value.toString()
@@ -236,19 +247,4 @@ sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
             is Float -> heap.alloc(StarlarkFloat(value))
         }
     }
-}
-
-// UnpackValue implementation for NumRef
-fun <V> NumRef.Companion.unpackValue(value: Value<V>): Result<NumRef?> {
-    // Try to unpack as StarlarkIntRef first
-    StarlarkIntRef.unpack(value)?.let {
-        return Result.success(NumRef.Int(it))
-    }
-
-    // Try to unpack as StarlarkFloat
-    value.downcastRef<StarlarkFloat>()?.let {
-        return Result.success(NumRef.Float(it))
-    }
-
-    return Result.success(null)
 }

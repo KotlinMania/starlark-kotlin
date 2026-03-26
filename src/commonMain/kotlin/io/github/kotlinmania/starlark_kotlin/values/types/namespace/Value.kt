@@ -19,187 +19,139 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-import kotlinx.serialization.Serializable
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.display.fmtKeyedContainer
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
 
-/**
- * Internal helper to wrap a value with doc visibility metadata.
- */
+// #[derive(Clone, Coerce, Debug, Trace, Freeze, Allocative)]
 data class MaybeDocHiddenValue<V>(
     val value: V,
-    val docHidden: Boolean
+    val docHidden: Boolean,
 )
 
-/**
- * The return value of `namespace()`
- */
-@Serializable
+/** The return value of `namespace()` */
+// #[derive(Clone, Debug, Trace, Freeze, ProvidesStaticType, Allocative)]
 data class NamespaceGen<V>(
-    private val fields: Map<String, MaybeDocHiddenValue<V>>
-) {
+    val fields: SmallMap<String, MaybeDocHiddenValue<V>>
+) : StarlarkValue {
+
+    override val TYPE: String get() = "namespace"
+
     companion object {
-        fun <V> new(fields: Map<String, MaybeDocHiddenValue<V>>): NamespaceGen<V> {
-            return NamespaceGen(fields)
-        }
+        fun <V> new(fields: SmallMap<String, MaybeDocHiddenValue<V>>): NamespaceGen<V> =
+            NamespaceGen(fields)
     }
 
-    fun get(key: String): V? {
-        return fields[key]?.value
-    }
+    fun get(key: String): V? =
+        fields.getHashedByValue(Hashed.new(key))?.value
 
-    /**
-     * Returns the string representation of this namespace.
-     */
-    override fun toString(): String {
-        val items = fields.entries.map { (k, v) ->
-            "$k=${v.value}"
-        }
-        return "namespace(${items.joinToString(", ")})"
-    }
+    // unsafe impl Coerce<NamespaceGen<Value>> for NamespaceGen<FrozenValue>
 
-    /**
-     * Collect representation for cyclic references.
-     */
-    fun collectReprCycle(collector: StringBuilder) {
+    // starlark_complex_value!(pub Namespace)
+
+    // impl Display for NamespaceGen
+    override fun toString(): String =
+        fmtKeyedContainer(
+            "namespace(",
+            ")",
+            "=",
+            fields.iter().map { (k, v) -> k to v.value },
+        )
+
+    // #[starlark_value(type = "namespace")]
+    // impl StarlarkValue for NamespaceGen
+
+    override fun collectReprCycle(collector: StringBuilder) {
         collector.append("namespace(...)")
     }
 
-    /**
-     * Get attribute value by name.
-     * Returns null if the attribute doesn't exist.
-     */
-    fun getAttr(attribute: String): V? {
-        return fields[attribute]?.value
-    }
+    override fun getAttr(attribute: String, heap: Heap): Value? =
+        getAttrHashed(Hashed.new(attribute), heap)
 
-    /**
-     * Get attribute value by hashed name.
-     * Returns null if the attribute doesn't exist.
-     */
-    fun getAttrHashed(attribute: String): V? {
-        return fields[attribute]?.value
-    }
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? =
+        fields.getHashedByValue(attribute)?.value?.toValue()
 
-    /**
-     * Return a list of attribute names (directory).
-     */
-    fun dirAttr(): List<String> {
-        return fields.keys.toList()
-    }
+    override fun dirAttr(): List<String> =
+        fields.keys().map { x -> x }.toList()
 
-    /**
-     * Generate documentation for this namespace.
-     */
-    fun documentation(): DocItem {
-        val members = fields.entries
-            .filter { (_, v) -> !v.docHidden }
-            .associate { (k, v) ->
-                k to DocItem.Member(DocMember.Property(DocProperty(
-                    docs = null,
-                    typ = Ty.ofValue(v.value)
-                )))
-            }
-
-        return DocItem.Module(DocModule(
+    override fun documentation(): DocItem =
+        DocItem.Module(DocModule(
             docs = null,
-            members = members
+            members = fields.iter()
+                .filter { (_, v) -> !v.docHidden }
+                .associate { (k, v) -> k to v.value.toValue().documentation() },
         ))
-    }
 
-    /**
-     * Get the type representation for this namespace type (static).
-     */
-    fun getTypeStarlarkRepr(): Ty {
-        return Ty.custom(TyNamespace(
-            fields = emptyMap(),
-            extra = true
+    override fun getTypeStarlarkRepr(): Ty =
+        Ty.custom(TyNamespace(
+            fields = sortedMapOf(),
+            extra = true,
         ))
-    }
 
-    /**
-     * Get the runtime type representation for this specific instance.
-     */
-    fun typecheckerTy(): Ty? {
-        val typeFields = fields.entries.associate { (name, value) ->
-            ArcStr.from(name) to Ty.ofValue(value.value)
-        }
-        return Ty.custom(TyNamespace(
-            fields = typeFields,
-            extra = false
+    override fun typecheckerTy(): Ty? =
+        Ty.custom(TyNamespace(
+            fields = fields.iter()
+                .associate { (name, value) ->
+                    ArcStr.from(name) to Ty.ofValue(value.value.toValue())
+                }
+                .toSortedMap(),
+            extra = false,
         ))
-    }
+
+    // impl Serialize for NamespaceGen
+    fun serialize(): Map<String, V> =
+        fields.iter().associate { (k, v) -> k to v.value }
 }
 
-/**
- * Alias for the frozen (immutable) namespace type.
- */
+// unsafe impl Coerce<NamespaceGen<Value>> for NamespaceGen<FrozenValue>
+@Suppress("UNCHECKED_CAST")
+fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
+    frozen as NamespaceGen<Value>
+
+// starlark_complex_value!(pub Namespace)
 typealias FrozenNamespace = NamespaceGen<FrozenValue>
+typealias Namespace = NamespaceGen<Value>
 
-/**
- * Alias for the mutable namespace type.
- */
-typealias Namespace<V> = NamespaceGen<V>
+// #[cfg(test)]
+// mod tests
 
-/**
- * Serialize implementation for NamespaceGen.
- * Serializes as a map of field names to values, excluding doc_hidden metadata.
- */
-fun <V> NamespaceGen<V>.serialize(): Map<String, V> {
-    return fields.mapValues { (_, v) -> v.value }
-}
-
-// Note: The starlark_complex_value! macro from Rust would generate type aliases
-// and coercion implementations. In Kotlin, we handle this through type aliases
-// and explicit coercion functions where needed.
-
-// Test functions (ported from Rust tests)
-// These would typically go in a separate test file, but included here for reference
-
-/**
- * Test representation of namespace
- */
 internal fun testRepr() {
-    // assert::eq("repr(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'");
-    // assert::eq("str(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'");
+    Assert.eq("repr(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'")
+    Assert.eq("str(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'")
 }
 
-/**
- * Test representation with cycles
- */
 internal fun testReprCycle() {
-    // assert::eq(
-    //     "l = []; s = namespace(f=l); l.append(s); repr(s)",
-    //     "'namespace(f=[namespace(...)])'",
-    // );
-    // assert::eq(
-    //     "l = []; s = namespace(f=l); l.append(s); str(s)",
-    //     "'namespace(f=[namespace(...)])'",
-    // );
+    Assert.eq(
+        "l = []; s = namespace(f=l); l.append(s); repr(s)",
+        "'namespace(f=[namespace(...)])'",
+    )
+    Assert.eq(
+        "l = []; s = namespace(f=l); l.append(s); str(s)",
+        "'namespace(f=[namespace(...)])'",
+    )
 }
 
-/**
- * Test JSON encoding with cycles (should fail)
- */
 internal fun testToJsonCycle() {
-    // assert::fail(
-    //     "l = []; s = namespace(f=l); l.append(s); json.encode(s)",
-    //     "Cycle detected when serializing value of type `namespace` to JSON",
-    // );
+    Assert.fail(
+        "l = []; s = namespace(f=l); l.append(s); json.encode(s)",
+        "Cycle detected when serializing value of type `namespace` to JSON",
+    )
 }
 
-/**
- * Test kwargs in namespace creation
- */
 internal fun testKwargs() {
-    // assert::eq(
-    //     "d = {'b': 2}; s = namespace(a=1, **d); str(s)",
-    //     "'namespace(a=1, b=2)'",
-    // );
+    Assert.eq(
+        "d = {'b': 2}; s = namespace(a=1, **d); str(s)",
+        "'namespace(a=1, b=2)'",
+    )
 }

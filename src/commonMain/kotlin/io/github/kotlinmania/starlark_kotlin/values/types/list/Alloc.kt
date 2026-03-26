@@ -24,59 +24,44 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
  * Utility to allocate a list from iterator.
  *
  * # Example
  *
- * ```
- * use starlark::values::list::AllocList;
- *
- * # use starlark::values::{FrozenHeap, Heap};
- * # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
- * let l = heap.alloc(AllocList([1, 2, 3]));
- * let ls = frozen_heap.alloc(AllocList([1, 2, 3]));
- * # }
+ * ```kotlin
+ * val l = heap.alloc(AllocList(listOf(1, 2, 3)))
+ * val ls = frozenHeap.alloc(AllocList(listOf(1, 2, 3)))
  * ```
  */
-data class AllocList<L>(val value: L) {
+class AllocList<L>(val items: L) {
     companion object {
-        /**
-         * Allocate an empty list.
-         */
-        val EMPTY: AllocList<Sequence<FrozenValue>> = AllocList(emptySequence())
+        /** Allocate an empty list. */
+        val EMPTY: AllocList<List<FrozenValue>> = AllocList(emptyList())
     }
 }
 
-/**
- * Implementation of StarlarkTypeRepr for AllocList<L>
- * where L: IntoIterator, L::Item: StarlarkTypeRepr.
- */
-inline fun <reified L, reified Item> allocListStarlarkTypeRepr(): Ty
-    where Item : StarlarkTypeRepr {
-    return listStarlarkTypeRepr<Item>()
+// impl StarlarkTypeRepr for AllocList<L>
+// where L: IntoIterator, L::Item: StarlarkTypeRepr
+fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
+    where L : Iterable<Item> {
+    return Ty.anyList()
 }
 
-/**
- * Implementation of AllocValue for AllocList<L>
- * where L: IntoIterator, L::Item: AllocValue<V_>.
- */
-fun <V, L, Item> AllocList<L>.allocValue(heap: Heap<V>): Value<V>
-    where L : Iterable<Item>,
-          Item : AllocValue<V> {
-    return heap.allocListIter(value.asSequence().map { x -> x.allocValue(heap) })
+// impl AllocValue for AllocList<L>
+// where L: IntoIterator, L::Item: AllocValue
+fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
+    where L : Iterable<Item> {
+    return heap.alloc(AllocList(items.map { x -> x.allocValue(heap) }))
 }
 
-/**
- * Implementation of AllocFrozenValue for AllocList<L>
- * where L: IntoIterator, L::Item: AllocFrozenValue.
- */
-fun <L, Item> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
-    where L : Iterable<Item>,
-          Item : AllocFrozenValue {
-    return heap.allocListIter(value.asSequence().map { x -> x.allocFrozenValue(heap) })
+// impl AllocFrozenValue for AllocList<L>
+// where L: IntoIterator, L::Item: AllocFrozenValue
+fun <L, Item : AllocFrozenValue> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+    where L : Iterable<Item> {
+    return heap.alloc(AllocList(items.map { x -> x.allocFrozenValue(heap) }))
 }

@@ -19,41 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-import io.github.kotlinmania.starlark_kotlin.isWasm
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.topFrameDefInfoForDebugger
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.topFrameDefFrozenModule
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.environment.getSlot
-import io.github.kotlinmania.starlark_kotlin.assert.disableGc
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
-import io.github.kotlinmania.starlark_kotlin.analysis.globals
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
 
-// impl<'v> Evaluator<'v, '_, '_>
-// Extension function on Evaluator
-
-/// Evaluate statements in the existing context. This function is designed for debugging,
-/// not production use.
-///
-/// There are lots of health warnings on this code. Might not work with frozen modules, unassigned variables,
-/// nested definitions etc. It would be a bad idea to rely on the results of continued execution
-/// after evaluating stuff randomly.
-// pub fn eval_statements(&mut self, statements: AstModule) -> crate::Result<Value<'v>>
+/**
+ * Evaluate statements in the existing context. This function is designed for debugging,
+ * not production use.
+ *
+ * There are lots of health warnings on this code. Might not work with frozen modules,
+ * unassigned variables, nested definitions etc. It would be a bad idea to rely on the
+ * results of continued execution after evaluating stuff randomly.
+ */
 fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     // We are doing a lot of funky stuff here. It's amazing anything works, so let's not push our luck with GC.
     disableGc()
@@ -111,14 +92,14 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
         }
         for ((name, slot) in moduleEnv.mutableNames().allNamesAndSlots()) {
             val original = originalModule.get(name)
-            if (original == null) {
-                // Name wasn't in original module
-                if (!originalModule.containsKey(name)) {
+            when {
+                original == null && !originalModule.containsKey(name) -> {
                     moduleEnv.mutableNames().hideName(name)
                 }
+                original != null -> {
+                    moduleEnv.slots().setSlot(slot, original)
+                }
                 // else: No way to unassign a previously assigned value yet
-            } else {
-                moduleEnv.slots().setSlot(slot, original)
             }
         }
     }
@@ -126,21 +107,15 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     return res
 }
 
-// #[cfg(test)]
-// mod tests
+// Tests
 
-// #[starlark_module]
-// fn debugger(builder: &mut GlobalsBuilder)
 private fun debuggerFunctions(builder: GlobalsBuilder) {
-    // fn debug_evaluate<'v>(code: String, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<Value<'v>>
     builder.setFunction("debug_evaluate") { code: String, eval: Evaluator ->
         val ast = AstModule.parse("interactive", code, Dialect.AllOptionsInternal).getOrThrow()
         eval.evalStatements(ast).getOrThrow().let { Result.success(it) }
     }
 }
 
-// #[test]
-// fn test_debug_evaluate()
 internal fun testDebugEvaluate() {
     if (isWasm()) {
         return

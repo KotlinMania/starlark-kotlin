@@ -19,6 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-// Submodules:
-// pub(crate) mod map    → symbol/map.kt (SymbolMap<T>)
-// pub(crate) mod symbol → symbol/Symbol.kt (Symbol, AlignedPaddedStr)
+/** Re-export of [io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap]. */
+internal typealias SymbolMap<T> = io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap<T>
+
+/** Re-export of [io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol]. */
+internal typealias Symbol = io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol

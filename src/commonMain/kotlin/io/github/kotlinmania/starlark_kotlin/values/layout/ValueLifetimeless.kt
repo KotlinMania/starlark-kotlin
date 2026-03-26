@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.sealed.Sealed
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import kotlin.reflect.*
+import kotlin.text.*
+import kotlinx.serialization.*
+import kotlin.collections.*
+import kotlin.comparisons.*
+import kotlin.ranges.*
+import io.github.kotlinmania.starlark_kotlin.`sealed`.*
+import io.github.kotlinmania.starlark_kotlin.values.*
 
-/**
- * Implemented by [Value] and [FrozenValue].
- *
- * Rust supertrait bounds (for reference):
- * `Sealed + Eq + Copy + Dupe + Debug + Default + Display + Serialize + Allocative + Freeze<Frozen = FrozenValue> + Sized`
- *
- * In Kotlin, `Eq` maps to `equals`/`hashCode`, `Debug`/`Display` map to `toString`,
- * `Copy`/`Dupe`/`Sized` are implicit. `Serialize` and `Allocative` are handled separately.
- */
-interface ValueLifetimeless : Sealed, Freeze
+/** Implemented by [Value] and [FrozenValue]. */
+interface ValueLifetimeless : Sealed, Freeze<FrozenValue>
+
+// Freeze<Frozen = FrozenValue> is encoded in the Freeze<FrozenValue> supertype.
+typealias FrozenLifetimeless = FrozenValue
