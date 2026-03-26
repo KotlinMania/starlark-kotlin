@@ -46,11 +46,8 @@ private fun writeNonFinite(output: Appendable, f: Double) {
 }
 
 internal fun writeDecimal(output: Appendable, f: Double) {
-    if (!f.isFinite()) {
-        writeNonFinite(output, f)
-    } else {
-        output.append("%.${WRITE_PRECISION}f".format(f))
-    }
+    if (!f.isFinite()) writeNonFinite(output, f)
+    else output.append("%.${WRITE_PRECISION}f".format(f))
 }
 
 internal fun writeScientific(
@@ -67,9 +64,7 @@ internal fun writeScientific(
         val normal = if (f == 0.0) 0.0 else abs / 10.0.pow(exponent.toDouble())
 
         // start with "-" for a negative number
-        if (f.toBits() < 0L) {
-            output.append('-')
-        }
+        if (f.toBits() < 0L) output.append('-')
 
         // use the whole integral part of normal (a single digit)
         output.append(floor(normal).toInt().toString())
@@ -90,9 +85,7 @@ internal fun writeScientific(
         }
 
         // write fractional part
-        if (revTailLen != 0) {
-            output.append('.')
-        }
+        if (revTailLen != 0) output.append('.')
         for (i in (revTailLen - 1) downTo 0) {
             output.append(('0'.code + revTail[i].toInt()).toChar())
         }
@@ -103,11 +96,7 @@ internal fun writeScientific(
     }
 }
 
-internal fun writeCompact(
-    output: Appendable,
-    f: Double,
-    exponentChar: Char,
-) {
+internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
     if (!f.isFinite()) {
         writeNonFinite(output, f)
     } else {
@@ -137,11 +126,8 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
         internal fun compareImpl(a: Double, b: Double): Int {
             // According to the spec, all NaN values compare equal to each other,
             // but greater than any non-NaN float value.
-            return if (!a.isNaN() && !b.isNaN()) {
-                a.compareTo(b)
-            } else {
-                a.isNaN().compareTo(b.isNaN())
-            }
+            return if (!a.isNaN() && !b.isNaN()) a.compareTo(b)
+            else a.isNaN().compareTo(b.isNaN())
         }
 
         internal fun floorDivImpl(a: Double, b: Double): Result<Double> =
@@ -164,89 +150,84 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, AllocValue, Allo
     override val TYPE: String get() = Companion.TYPE
 
     override fun toString(): String {
-        val builder = StringBuilder()
-        writeCompact(builder, value, 'e')
-        return builder.toString()
+        val s = StringBuilder()
+        writeCompact(s, value, 'e')
+        return s.toString()
     }
 
     override fun equals(other: Value): Result<Boolean> =
-        Result.success(NumRef.Float(StarlarkFloat(this.value)) == other.unpackNum())
+        Result.success(NumRef.Float(StarlarkFloat(value)) == other.unpackNum())
 
-    override fun collectRepr(collector: StringBuilder) {
-        collector.append(this.toString())
-    }
+    override fun collectRepr(collector: StringBuilder) { collector.append(toString()) }
 
     override fun toBool(): Boolean = value != 0.0
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        hasher.write(NumRef.from(this.value).getHash64())
+        hasher.write(NumRef.from(value).getHash64())
         return Result.success(Unit)
     }
 
     override fun getHash(): Result<StarlarkHashValue> =
         Result.success(NumRef.Float(this).getHash())
 
-    override fun plus(heap: Heap): Result<Value> =
-        Result.success(heap.alloc(this))
+    override fun plus(heap: Heap): Result<Value> = Result.success(heap.alloc(this))
 
     override fun minus(heap: Heap): Result<Value> =
-        Result.success(heap.alloc(StarlarkFloat(-this.value)))
+        Result.success(heap.alloc(StarlarkFloat(-value)))
 
     override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val otherNum = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) + otherNum))
+        val other = rhs.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Float(this) + other))
     }
 
     override fun sub(other: Value, heap: Heap): Result<Value> {
-        val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(TYPE, "-", other)
-        return Result.success(heap.alloc(NumRef.Float(this) - otherNum))
+        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "-", other)
+        return Result.success(heap.alloc(NumRef.Float(this) - rhs))
     }
 
     override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val otherNum = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) * otherNum))
+        val other = rhs.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Float(this) * other))
     }
 
     override fun div(other: Value, heap: Heap): Result<Value> {
-        val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(TYPE, "/", other)
-        return NumRef.Float(this).div(otherNum).map { heap.alloc(it) }
+        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "/", other)
+        return NumRef.Float(this).div(rhs).map { heap.alloc(it) }
     }
 
     override fun percent(other: Value, heap: Heap): Result<Value> {
-        val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(TYPE, "%", other)
-        return NumRef.Float(this).percent(otherNum).map { heap.alloc(it) }
+        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "%", other)
+        return NumRef.Float(this).percent(rhs).map { heap.alloc(it) }
     }
 
     override fun floorDiv(other: Value, heap: Heap): Result<Value> {
-        val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(TYPE, "//", other)
-        return NumRef.Float(this).floorDiv(otherNum).map { heap.alloc(it) }
+        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "//", other)
+        return NumRef.Float(this).floorDiv(rhs).map { heap.alloc(it) }
     }
 
     override fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
         typecheckNumBinOp(NumTy.Float, op, rhs)
 
     override fun compare(other: Value): Result<Int> {
-        val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(TYPE, "compare", other)
-        return Result.success(NumRef.Float(this).compareTo(otherNum))
+        val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(TYPE, "compare", other)
+        return Result.success(NumRef.Float(this).compareTo(rhs))
     }
 }
 
+// StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
+// AllocValue for f64
 fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
+// AllocFrozenValue for f64
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
 fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
     value.downcastRef<StarlarkFloat>()
 
-// #[cfg(test)] mod tests
+// #[cfg(test)]
 
 private fun nonFinite(f: Double): String {
     val buf = StringBuilder()
@@ -271,8 +252,8 @@ internal fun testWriteDecimal() {
     check(decimal(Double.POSITIVE_INFINITY) == "+inf")
     check(decimal(Double.NEGATIVE_INFINITY) == "-inf")
     check(decimal(0.0) == "0.000000")
-    check(decimal(kotlin.math.PI) == "3.141593")
-    check(decimal(-kotlin.math.E) == "-2.718282")
+    check(decimal(PI) == "3.141593")
+    check(decimal(-E) == "-2.718282")
     check(decimal(1e10) == "10000000000.000000")
 }
 
@@ -304,8 +285,8 @@ internal fun testWriteCompact() {
     check(compact(Double.POSITIVE_INFINITY) == "+inf")
     check(compact(Double.NEGATIVE_INFINITY) == "-inf")
     check(compact(0.0) == "0.0")
-    check(compact(kotlin.math.PI) == "3.141592653589793")
-    check(compact(-kotlin.math.E) == "-2.718281828459045")
+    check(compact(PI) == "3.141592653589793")
+    check(compact(-E) == "-2.718281828459045")
     check(compact(1e10) == "1e+10")
     check(compact(1.23e45) == "1.23e+45")
     check(compact(-3.14e-145) == "-3.14e-145")
@@ -313,45 +294,25 @@ internal fun testWriteCompact() {
 }
 
 internal fun testArithmeticOperators() {
-    // assert::all_true(r#"
-    // +1.0 == 1.0
-    // -1.0 == 0. - 1.
-    // 1.0 + 2.0 == 3.0
-    // 1.0 - 2.0 == -1.0
-    // 2.0 * 3.0 == 6.0
-    // 5.0 / 2.0 == 2.5
-    // 5.0 % 3.0 == 2.0
-    // 5.0 // 2.0 == 2.0
-    // "#)
+    // assert::all_true: +1.0 == 1.0, -1.0 == 0. - 1., 1.0 + 2.0 == 3.0,
+    // 1.0 - 2.0 == -1.0, 2.0 * 3.0 == 6.0, 5.0 / 2.0 == 2.5,
+    // 5.0 % 3.0 == 2.0, 5.0 // 2.0 == 2.0
 }
 
 internal fun testDictionaryKey() {
-    // assert::pass(r#"
-    // x = {0: 123}
-    // assert_eq(x[0], 123)
-    // assert_eq(x[noop(0.0)], 123)
-    // assert_eq(x[noop(-0.0)], 123)
+    // assert::pass: x = {0: 123}, assert_eq(x[0], 123),
+    // assert_eq(x[noop(0.0)], 123), assert_eq(x[noop(-0.0)], 123),
     // assert_eq(1 in x, False)
-    // "#)
 }
 
 internal fun testComparisons() {
-    // a.all_true(r#"
-    // +0.0 == -0.0
-    // 0.0 == 0
-    // 0 == 0.0
-    // 0 < 1.0
-    // 0.0 < 1
-    // 1 > 0.0
-    // 1.0 > 0
-    // 0.0 < float("nan")
+    // a.all_true: +0.0 == -0.0, 0.0 == 0, 0 == 0.0, 0 < 1.0,
+    // 0.0 < 1, 1 > 0.0, 1.0 > 0, 0.0 < float("nan"),
     // float("+inf") < float("nan")
-    // "#)
 }
 
 internal fun testComparisonsBySorting() {
-    // assert::eq(
-    //     "sorted([float('inf'), float('-inf'), float('nan'), 1e300, -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'), 1e-300, -1e-300])",
-    //     "[float('-inf'), -1e+300, -1.0, -1, -1e-300, -1e-300, 0, 0.0, -0.0, 1e-300, 1e-300, 1.0, 1, 1e+300, float('+inf'), float('nan')]",
-    // )
+    // assert::eq(sorted([float('inf'), float('-inf'), float('nan'), 1e300,
+    // -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'),
+    // 1e-300, -1e-300]), [...])
 }

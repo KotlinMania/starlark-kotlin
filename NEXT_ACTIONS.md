@@ -39,7 +39,7 @@ Based on AST analysis, here are the concrete next steps.
 ### 5. values.trace
 - **Similarity:** 0.80 (needs 5% improvement)
 - **Dependencies:** 52
-- **Priority Score:** 10.5
+- **Priority Score:** 10.4
 - **Action:** Minor refinements needed
 
 ### 6. debug
@@ -66,11 +66,11 @@ Based on AST analysis, here are the concrete next steps.
 - **Priority Score:** 6.1
 - **Action:** Minor refinements needed
 
-### 10. layout.freezer
-- **Similarity:** 0.84 (needs 1% improvement)
-- **Dependencies:** 36
+### 10. collections.symbol
+- **Similarity:** 0.62 (needs 23% improvement)
+- **Dependencies:** 15
 - **Priority Score:** 5.7
-- **Action:** Minor refinements needed
+- **Action:** Review and complete missing sections
 
 ## Priority 2: Port Missing High-Value Files
 

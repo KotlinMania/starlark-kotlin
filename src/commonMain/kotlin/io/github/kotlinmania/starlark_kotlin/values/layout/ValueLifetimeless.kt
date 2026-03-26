@@ -33,3 +33,5 @@ interface ValueLifetimeless : Sealed, Freeze<FrozenValue>
 
 // Freeze<Frozen = FrozenValue>
 typealias FrozenLifetimeless = FrozenValue
+typealias DebugRepr = String
+typealias DisplayRepr = String

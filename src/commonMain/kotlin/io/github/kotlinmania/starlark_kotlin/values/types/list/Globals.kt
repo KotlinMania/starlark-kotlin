@@ -92,6 +92,12 @@ private val LIST_FUNCTION: TyFunction by lazy {
  * list((1,2,3)) == [1, 2, 3]
  * ```
  *
+ * Calling `list()` on a non-iterable type yields an error:
+ *
+ * ```starlark
+ * list("strings are not iterable")  # error: not supported on type
+ * ```
+ *
  * Corresponds to Rust's `register_list` function with `#[starlark_module]`.
  */
 internal fun registerList(globals: GlobalsBuilder) {
@@ -107,26 +113,30 @@ internal fun registerList(globals: GlobalsBuilder) {
 /**
  * Implementation of the `list()` built-in function.
  *
+ * The function is annotated in Rust with:
+ * - `as_type = FrozenList` (establishes the canonical type)
+ * - `speculative_exec_safe` (safe for speculative evaluation)
+ * - `special_builtin_function = SpecialBuiltinFunction::List`
+ * - `ty_custom_function = ListType`
+ *
+ * The return type in Rust is `ValueOfUnchecked<&ListRef>`, wrapping
+ * the newly allocated list. In Kotlin we return a plain `Result<Value>`.
+ *
  * @param a Optional iterable argument. If `null`, returns an empty list.
  * @param heap The heap on which to allocate the new list.
  * @return A new list value.
  */
 internal fun listBuiltin(a: Value?, heap: Heap): Result<Value> {
-    if (a == null) {
+    if (a != null) {
+        // If the argument is already a list, copy its contents directly.
+        val xs = ListRef.fromValue(a)
+        if (xs != null) {
+            return Result.success(heap.alloc(AllocList(xs.content())))
+        }
+        // Otherwise, iterate the argument and collect elements into a new list.
+        val it = a.iterate(heap).getOrElse { return Result.failure(it) }
+        return Result.success(heap.alloc(AllocList(it)))
+    } else {
         return Result.success(heap.alloc(AllocList.EMPTY))
     }
-
-    // If the argument is already a list, copy its contents directly.
-    val xs = ListRef.fromValue(a)
-    if (xs != null) {
-        return Result.success(heap.alloc(AllocList(xs.content())))
-    }
-
-    // Otherwise, iterate the argument and collect elements into a new list.
-    val elements = a.iterate(heap).getOrElse { return Result.failure(it) }
-    val items = mutableListOf<Value>()
-    for (v in elements) {
-        items.add(v)
-    }
-    return Result.success(heap.alloc(AllocList(items)))
 }

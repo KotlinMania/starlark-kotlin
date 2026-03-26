@@ -28,45 +28,45 @@ import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunct
 
 private fun <V_> unpackPair(pair: Value<V_>, heap: Heap<V_>): Result<Pair<Value<V_>, Value<V_>>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
-    val first = it.next() ?: return Result.failure(
-        IllegalArgumentException("Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}")
+    val first = it.next()
+    if (first != null) {
+        val second = it.next()
+        if (second != null && it.next() == null) {
+            return Result.success(Pair(first, second))
+        }
+    }
+    return Result.failure(
+        IllegalArgumentException(
+            "Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}"
+        )
     )
-    val second = it.next() ?: return Result.failure(
-        IllegalArgumentException("Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}")
-    )
-    if (it.next() != null) return Result.failure(
-        IllegalArgumentException("Found a non-pair element in the positional argument of dict(): ${pair.toRepr()}")
-    )
-    return Result.success(Pair(first, second))
 }
 
-/// [dict](https://github.com/bazelbuild/starlark/blob/master/spec.md#dict): creates a dictionary.
-///
-/// `dict` creates a dictionary. It accepts up to one positional argument,
-/// which is interpreted as an iterable of two-element sequences
-/// (pairs), each specifying a key/value pair in the
-/// resulting dictionary.
-///
-/// `dict` also accepts any number of keyword arguments, each of which
-/// specifies a key/value pair in the resulting dictionary; each keyword
-/// is treated as a string.
-///
-/// ```
-/// dict() == {}
-/// dict(**{'a': 1}) == {'a': 1}
-/// dict({'a': 1}) == {'a': 1}
-/// dict([(1, 2), (3, 4)]) == {1: 2, 3: 4}
-/// dict([(1, 2), ['a', 'b']]) == {1: 2, 'a': 'b'}
-/// dict(one=1, two=2) == {'one': 1, 'two': 2}
-/// dict([(1, 2)], x=3) == {1: 2, 'x': 3}
-/// dict([('x', 2)], x=3) == {'x': 3}
-/// ```
-///
-/// ```
-/// x = {'a': 1}
-/// y = dict([('x', 2)], **x)
-/// x == {'a': 1} and y == {'x': 2, 'a': 1}
-/// ```
+/**
+ * [dict](https://github.com/bazelbuild/starlark/blob/master/spec.md#dict): creates a dictionary.
+ *
+ * `dict` creates a dictionary. It accepts up to one positional argument,
+ * which is interpreted as an iterable of two-element sequences
+ * (pairs), each specifying a key/value pair in the resulting dictionary.
+ *
+ * `dict` also accepts any number of keyword arguments, each of which
+ * specifies a key/value pair in the resulting dictionary; each keyword
+ * is treated as a string.
+ *
+ * ```
+ * dict() == {}
+ * dict(**{'a': 1}) == {'a': 1}
+ * dict({'a': 1}) == {'a': 1}
+ * dict([(1, 2), (3, 4)]) == {1: 2, 3: 4}
+ * dict([(1, 2), ['a', 'b']]) == {1: 2, 'a': 'b'}
+ * dict(one=1, two=2) == {'one': 1, 'two': 2}
+ * dict([(1, 2)], x=3) == {1: 2, 'x': 3}
+ * dict([('x', 2)], x=3) == {'x': 3}
+ * x = {'a': 1}
+ * y = dict([('x', 2)], **x)
+ * x == {'a': 1} and y == {'x': 2, 'a': 1}
+ * ```
+ */
 internal fun <V_> registerDict(globals: GlobalsBuilder) {
     globals.set("dict", FrozenDict::class, SpecialBuiltinFunction.Dict) { args: Arguments<V_, *>, heap: Heap<V_> ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
@@ -75,34 +75,31 @@ internal fun <V_> registerDict(globals: GlobalsBuilder) {
         // It might have one positional argument, which could be a dict or an array of pairs.
         // It might have named/kwargs arguments, which we copy over (afterwards).
 
-        val pos = args.optional1(heap).getOrElse { return@set Result.failure(it) }
-        val kwargs = args.names().getOrElse { return@set Result.failure(it) }
+        val pos = args.optional1(heap).getOrThrow()
+        val kwargs = args.names().getOrThrow()
 
-        when (pos) {
-            null -> Result.success(kwargs)
-            else -> {
-                val result: Dict<V_> = run {
-                    val dictRef = dictRefFromValue(pos)
-                    if (dictRef != null) {
-                        val cloned = dictRef.deref().clone()
-                        cloned.reserve(kwargs.len())
-                        cloned
-                    } else {
-                        val it = pos.iterate(heap).getOrElse { return@set Result.failure(it) }
-                        val map = SmallMap.withCapacity<Value<V_>, Value<V_>>(it.sizeHint().first + kwargs.len())
-                        for (el in it) {
-                            val (k, v) = unpackPair(el, heap).getOrElse { return@set Result.failure(it) }
-                            val kh = k.getHashed().getOrElse { return@set Result.failure(it) }
-                            map.insertHashed(kh, v)
-                        }
-                        Dict.new(map)
+        if (pos == null) {
+            kwargs
+        } else {
+            val result: Dict<V_> = run {
+                val ref = dictRefFromValue(pos)
+                if (ref != null) {
+                    val d = ref.deref()
+                    d.clone().also { it.reserve(kwargs.len()) }
+                } else {
+                    val it = pos.iterate(heap).getOrThrow()
+                    val map = SmallMap.withCapacity<Value<V_>, Value<V_>>(it.sizeHint().first + kwargs.len())
+                    for (el in it) {
+                        val (k, v) = unpackPair(el, heap).getOrThrow()
+                        map.insertHashed(k.getHashed().getOrThrow(), v)
                     }
+                    Dict.new(map)
                 }
-                for ((k, v) in kwargs.iterHashed()) {
-                    result.insertHashed(k, v)
-                }
-                Result.success(result)
             }
+            for ((k, v) in kwargs.iterHashed()) {
+                result.insertHashed(k, v)
+            }
+            result
         }
     }
 }

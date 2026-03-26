@@ -39,9 +39,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.value.ListData
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 internal interface AValue {
 
-    /** Unwrapped type. */
-    fun starlarkValue(): StarlarkValue = unpack()
-
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array
      * placed in a heap after `Self`. This is the type of an element of that array.
@@ -54,7 +51,7 @@ internal interface AValue {
     /**
      * Offset of field holding content, in bytes.
      *
-     * Return `mem::size_of::<Self>()` if there's no extra content.
+     * Return size of self if there's no extra content.
      */
     fun offsetOfExtra(): Int
 
@@ -67,14 +64,17 @@ internal interface AValue {
         require(elemSize == 0 || offsetOfExtra() % elemSize == 0) {
             "extra must be aligned"
         }
-        val baseSize = AlignedSize.alignUp(offsetOfExtra())
-        val minAllocSize = MIN_ALLOC
         // Content is not necessarily aligned to end of `A`.
-        val extraSize = AlignedSize.alignUp(
-            offsetOfExtra() + (elemSize * extraLen)
-        )
         return ValueAllocSize.new(
-            maxOf(baseSize, minAllocSize, extraSize)
+            maxOf(
+                maxOf(
+                    AlignedSize.alignUp(offsetOfExtra()),
+                    MIN_ALLOC,
+                ),
+                AlignedSize.alignUp(
+                    offsetOfExtra() + (elemSize * extraLen)
+                ),
+            )
         )
     }
 
@@ -109,7 +109,7 @@ internal class AValueImpl<T : AValue>(
 }
 
 /**
- * If [A] provides a statically allocated frozen value,
+ * If `A` provides a statically allocated frozen value,
  * replace object with the forward to that frozen value instead of using default freeze.
  */
 internal fun tryFreezeDirectly(
@@ -154,31 +154,24 @@ internal fun heapCopyImpl(
     return v
 }
 
-/** Placeholder used during GC to fill space vacated by a moved object. */
+/** Placeholder to fill space vacated by a moved object. */
 internal class BlackHole(
     internal val size: ValueAllocSize,
 ) {
     override fun toString(): String = "BlackHole"
 }
 
-/** Total memory for profile, delegating to the vtable. */
-internal fun AValueHeader.totalMemoryForProfile(): Long {
-    return allocSize().bytes().toLong()
-}
+/** Total memory for profile. */
+internal fun AValueHeader.totalMemoryForProfile(): Long =
+    allocSize().bytes().toLong()
 
-/** Copy value behind this header using the given tracer. */
-internal fun AValueHeader.heapCopy(tracer: Tracer): Value {
-    return unpack().heapCopy(tracer)
-}
+/** Heap copy using the given tracer. */
+internal fun AValueHeader.heapCopy(tracer: Tracer): Value =
+    unpack().heapCopy(tracer)
 
-/** Return the length of a list (maps Rust `len()` to Kotlin `size`). */
+/** Len of collection. */
 internal fun <T> size(list: List<T>): Int = list.size
 
-/** Return the length of an array. */
-internal fun <T> size(array: Array<T>): Int = array.size
-
-// #[cfg(test)]
-// mod tests
 internal object AValueTests {
 
     fun tupleCycleFreeze() {
@@ -196,6 +189,7 @@ internal object AValueTests {
     fun testTryFreezeDirectly() {
         // `try_freeze_directly` is only implemented for `dict` at the moment of writing,
         // so use it for the test.
+
         Module.withTempHeap { module ->
             val d0 = module.heap().alloc(AllocDictEmpty.EMPTY)
             val d1 = module.heap().alloc(AllocDictEmpty.EMPTY)
@@ -204,9 +198,9 @@ internal object AValueTests {
 
             module.setExtraValue(module.heap().allocTuple(listOf(d0, d1)))
 
-            val frozenModule = module.freeze().getOrThrow()
-            val extraValue = frozenModule.extraValue()!!.toValue()
-            val (fd0, fd1) = UnpackValue.unpackValuePair<Value, Value>(extraValue)
+            val frozen = module.freeze().getOrThrow()
+            val extra = frozen.extraValue()!!.toValue()
+            val (fd0, fd1) = UnpackValue.unpackValuePair<Value, Value>(extra)
             // Pointers are equal.
             check(fd0 === fd1)
             Result.success(Unit)

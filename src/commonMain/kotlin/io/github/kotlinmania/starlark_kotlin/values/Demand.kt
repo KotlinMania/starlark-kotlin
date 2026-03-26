@@ -75,20 +75,24 @@ class Demand @PublishedApi internal constructor(
             this.filled = true
         }
     }
+
+    companion object {
+        // fn new<T: AnyLifetime<'v>>(option: &mut Option<T>) -> Demand<'a, 'v>
+        // Demand { type_id_of_t: T::static_type_id(), option: option as *mut _ as *mut (), _marker: PhantomData }
+        @PublishedApi
+        internal inline fun <reified T : Any> new(): Demand {
+            return Demand(typeIdOfT = T::class, option = null, filled = false)
+        }
+    }
 }
 
-// fn new<T: AnyLifetime<'v>>(option: &mut Option<T>) -> Demand<'a, 'v>
-// Demand { type_id_of_t: T::static_type_id(), option: option as *mut _ as *mut (), _marker: PhantomData }
-@PublishedApi
-internal inline fun <reified T : Any> demandNew(): Demand = Demand(T::class)
-
 // pub(crate) fn request_value_impl<'v, T: AnyLifetime<'v>>(value: Value<'v>) -> Option<T>
-// let mut option = None;
-// value.get_ref().provide(&mut Demand::new(&mut option));
-// option
 @PublishedApi
 internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
-    val demand: Demand = demandNew<T>()
+    // let mut option = None;
+    // value.get_ref().provide(&mut Demand::new(&mut option));
+    // option
+    val demand: Demand = Demand.new<T>()
     value.getRef().provide(demand)
     @Suppress("UNCHECKED_CAST")
     return if (demand.filled) demand.option as? T else null
@@ -107,9 +111,7 @@ internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
 // use crate::values::StarlarkValue;
 // use crate::values::demand::Demand;
 
-/**
- * A trait for testing the demand/provide mechanism.
- */
+/** A trait for testing the demand/provide mechanism. */
 // trait SomeTrait { fn payload(&self) -> u32; }
 internal interface SomeTrait {
     fun payload(): UInt
@@ -137,7 +139,9 @@ internal class MyValue(val payload: UInt) : StarlarkValue, SomeTrait {
     override val TYPE: String get() = "MyValue"
     override fun payload(): UInt = this.payload
     override fun toString(): String = "SomeType"
-    override fun provide(demand: Demand) = demand.provideValue(this)
+    override fun provide(demand: Demand) {
+        demand.provideValue(this as SomeTrait)
+    }
 }
 
 // #[test]
@@ -150,12 +154,13 @@ internal class MyValue(val payload: UInt) : StarlarkValue, SomeTrait {
 //     });
 // }
 internal fun testTraitDowncast() {
-    Heap.temp { heap ->
+    Heap.temp { heap: Heap ->
         val value: Value = heap.alloc(MyValue(payload = 17u))
-        check(value.requestValue<String>() == null)
-        val someTrait: SomeTrait = value.requestValue<MyValue>()
-            ?: error("expected MyValue via request_value")
-        check(someTrait.payload() == 17u)
+        val stringRequest: String? = value.requestValue<String>()
+        check(stringRequest == null)
+        val someTrait: SomeTrait = value.requestValue<MyValue>()!!
+        val payloadResult: UInt = someTrait.payload()
+        check(payloadResult == 17u)
     }
 }
 

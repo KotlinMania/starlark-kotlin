@@ -30,9 +30,17 @@ import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 
 // -- Index conversion helpers (from starlark_syntax::convert_indices) ----------
+//
+// These functions are ported from `starlark_syntax::convert_indices` which
+// provides index conversion utilities shared across list and string types.
 
 /**
  * Clamp [value] into the range `[0, limit]`.
+ *
+ * This is a helper used by [convertIndices] and [convertIndex] to ensure
+ * adjusted indices stay within valid bounds.
+ *
+ * Corresponds to Rust's `bound` function in `convert_indices.rs`.
  */
 private fun bound(value: Int, limit: Int): Int {
     return when {
@@ -47,6 +55,17 @@ private fun bound(value: Int, limit: Int): Int {
  *
  * Negative indices are adjusted by adding [len]. Resulting values are
  * clamped to `[0, len]`.
+ *
+ * Used by [index] to resolve the `start` and `end` parameters that
+ * restrict the search range.
+ *
+ * Corresponds to Rust's `convert_indices` function in
+ * `starlark_syntax::convert_indices`.
+ *
+ * @param len The length of the sequence being indexed.
+ * @param start Optional start index; `null` means 0.
+ * @param end Optional end index; `null` means [len].
+ * @return A pair of `(start, end)` clamped to `[0, len]`.
  */
 internal fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
     val rawStart = start ?: 0
@@ -60,6 +79,15 @@ internal fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
  * Convert an insertion index, clamping to `[0, len]`.
  *
  * Negative indices are adjusted by adding [len].
+ *
+ * Used by [insert] to resolve the insertion position.
+ *
+ * Corresponds to Rust's `convert_index` function in
+ * `starlark_syntax::convert_indices`.
+ *
+ * @param len The length of the sequence being indexed.
+ * @param index The raw index to convert.
+ * @return The adjusted index clamped to `[0, len]`.
  */
 internal fun convertIndex(len: Int, index: Int): Int {
     val adjusted = if (index < 0) index + len else index
@@ -227,12 +255,12 @@ internal fun index(
         start.intoOption(),
         end.intoOption(),
     )
-    val content = thisRef.content()
-    if (startIdx <= endIdx && startIdx < content.size) {
-        val haystack = content.subList(startIdx, minOf(endIdx, content.size))
+    // In Rust: if let Some(haystack) = this.get(start..end)
+    val haystack = thisRef.get(startIdx until endIdx)
+    if (haystack != null) {
         for ((i, x) in haystack.withIndex()) {
             if (x.equals(needle).getOrElse { return Result.failure(it) }) {
-                return Result.success(i + startIdx)
+                return Result.success((i + startIdx))
             }
         }
     }
@@ -339,6 +367,10 @@ internal fun pop(
  * x.remove(2)
  * x.remove(2)  # error: not found
  * ```
+ *
+ * @param thisValue The list to remove from (must be mutable).
+ * @param needle The value to search for and remove, required positional parameter.
+ * @return [NoneType] on success.
  */
 internal fun remove(
     thisValue: Value,

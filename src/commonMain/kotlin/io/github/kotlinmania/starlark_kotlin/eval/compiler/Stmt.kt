@@ -201,11 +201,9 @@ internal class StmtsCompiled private constructor(
             return when (val node = condBool.node) {
                 is ExprCompiledBool.Const -> if (node.value) t else f
                 is ExprCompiledBool.Expr -> when (val condExpr = node.expr) {
-                    is ExprCompiled.Builtin1Expr -> if (condExpr.op is Builtin1.Not) {
-                        ifStmt(span, condExpr.expr, f, t)
-                    } else {
-                        ifStmtDefault(span, condExpr, t, f)
-                    }
+                    is ExprCompiled.Builtin1Expr ->
+                        if (condExpr.op is Builtin1.Not) ifStmt(span, condExpr.expr, f, t)
+                        else ifStmtDefault(span, condExpr, t, f)
                     is ExprCompiled.Seq -> {
                         val stmt = empty()
                         stmt.extend(expr(condExpr.first))

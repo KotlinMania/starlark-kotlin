@@ -48,7 +48,7 @@ class ListGen<T>(val data: T) : StarlarkValue {
  * Holds the mutable backing content with an iterator guard count.
  */
 class ListData(
-    // The data stored by the list.
+    /** The data stored by the list. */
     private val content: MutableList<Value> = mutableListOf(),
 ) {
     @PublishedApi
@@ -58,7 +58,7 @@ class ListData(
         /** The result of calling `type()` on lists. */
         const val TYPE: String = "list"
 
-        // Type of list as frozen string value.
+        /** Type of list as frozen string value. */
         fun getTypeValueStatic(): String = TYPE
 
         fun new(content: MutableList<Value>): ListData = ListData(content)
@@ -199,6 +199,7 @@ fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenVa
  * Holds immutable list content after freezing.
  */
 class FrozenListData(
+    /** The data stored by the tuple. */
     private val content: List<FrozenValue>,
 ) {
     companion object {

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record.rs
-@file:OptIn(ExperimentalStdlibApi::class)
+@file:Suppress("unused")
 
 package io.github.kotlinmania.starlark_kotlin.values.types.record
 
@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 /**
  * A `record` type, comprising of a fixed set of fields.
  *
- * Calling `record()` produces a `RecordType`. Calling `RecordType` produces a [Record].
+ * Calling `record()` produces a [RecordType]. Calling [RecordType] produces a [Record].
  * The field names of the record are only stored once, potentially reducing memory usage.
  * Created in Starlark using the `record()` function, which accepts keyword arguments.
  * The keys become field names, and values are the types. Calling the resulting
@@ -56,43 +56,27 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * In Kotlin, [Record] is a typealias for [RecordGen] defined in `Instance.kt`.
  */
 
-// mod field: FieldGen
-typealias FieldModule = Field
-// mod globals: registerRecord
-typealias GlobalsModule = Unit
-// mod instance: RecordGen
-typealias InstanceModule = RecordGen
-// mod matcher: RecordTypeMatcher
-typealias MatcherModule = RecordTypeMatcher
-// mod record_type: RecordTypeGen
-typealias RecordTypeModule = record_type.RecordTypeGen
-// mod ty_record_type: TyRecordData
-typealias TyRecordTypeModule = TyRecordData
+// Submodule declarations.
+// In Rust these are `pub(crate) mod` items.
+// In Kotlin each submodule is a separate file in the record/ package.
 
-// pub use record::instance::Record
-// record instance export
-typealias RecordExport = RecordGen
-// field type export
-typealias FieldGenExport = Field
-// record type export
-typealias RecordTypeExport = record_type.RecordType
-// frozen record type export
-typealias FrozenRecordTypeExport = record_type.FrozenRecordType
-// record type gen export
-typealias RecordTypeGenExport = record_type.RecordTypeGen
-// type data export
-typealias TyRecordDataExport = TyRecordData
-// record matcher export
-typealias RecordMatcherExport = RecordTypeMatcher
-// record fields export
-typealias RecordFieldsExport = Field
-// frozen record export
-typealias FrozenRecordExport = RecordGen
-// field default export
-typealias FieldDefaultExport = Field
-// record type id
-// parameter spec
-// record values
-// record frozen
-// field compiled
-// record gen
+// pub(crate) mod field
+typealias FieldSubmodule = Field
+
+// pub(crate) mod globals
+typealias GlobalsSubmodule = Unit
+
+// pub(crate) mod instance
+typealias InstanceSubmodule = RecordGen
+
+// pub(crate) mod matcher
+typealias MatcherSubmodule = RecordTypeMatcher
+
+// pub(crate) mod record_type
+typealias RecordTypeSubmodule = record_type.RecordTypeGen
+
+// pub(crate) mod ty_record_type
+typealias TyRecordTypeSubmodule = TyRecordData
+
+// pub use crate::values::record::instance::Record
+typealias RecordReExport = RecordGen
