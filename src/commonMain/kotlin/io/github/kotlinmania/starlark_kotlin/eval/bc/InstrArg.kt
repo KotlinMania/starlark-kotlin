@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod

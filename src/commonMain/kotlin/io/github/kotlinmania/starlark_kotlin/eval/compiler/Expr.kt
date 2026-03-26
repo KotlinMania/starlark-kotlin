@@ -1287,11 +1287,13 @@ private fun <P : AstPayload> reducesToString(
 // ---------------------------------------------------------------------------
 
 private fun getAttrNoAttrError(x: Value, attribute: Symbol): Exception {
-    val suggestion = didYouMean(attribute.asStr(), x.dirAttr().map { it.asStr() })
+    val attrStr = attribute.asStr()
+    val candidates = x.dirAttr().map { it.asStr() }
+    val suggestion = didYouMean(attrStr, candidates.asSequence())
     return if (suggestion == null) {
-        ValueError.NoAttr(x.getType(), attribute.asStr())
+        ValueError.NoAttr(x.getType(), attrStr)
     } else {
-        ValueError.NoAttrDidYouMean(x.getType(), attribute.asStr(), suggestion)
+        ValueError.NoAttrDidYouMean(x.getType(), attrStr, suggestion)
     }
 }
 
@@ -1685,12 +1687,4 @@ internal fun Compiler.exprs(
  */
 private fun parsePercentSOne(s: String): Pair<String, String>? {
     return io.github.kotlinmania.starlark_kotlin.values.types.string.interpolation.parsePercentSOne(s)
-}
-
-// ---------------------------------------------------------------------------
-// Helpers: didYouMean
-// ---------------------------------------------------------------------------
-
-private fun didYouMean(target: String, candidates: List<String>): String? {
-    return io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean(target, candidates)
 }
