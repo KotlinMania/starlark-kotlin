@@ -41,10 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
 import kotlin.math.max
 
-// #[derive(Debug)]
-// pub(crate) struct BcStmtLoc
 internal class BcStmtLoc(
-    // pub(crate) span: FrameSpan,
     val span: FrameSpan,
 )
 
@@ -54,34 +51,24 @@ internal class BcStmtLoc(
  * do a lookup for every instruction) and so it is implemented as a vec of statements and then a vec of
  * statement indexes for each possible BcAddr in a bytecode Bc.
  */
-// pub(crate) struct BcStatementLocations
 internal class BcStatementLocations(
-    // pub(crate) locs: Vec<BcStmtLoc>,
     val locs: MutableList<BcStmtLoc> = mutableListOf(),
     /** Map bytecode offset to index in [locs]. */
-    // pub(crate) stmts: Vec<u32>,
     val stmts: MutableList<UInt> = mutableListOf(),
 ) {
-    // impl BcStatementLocations
-
     companion object {
-        // const CONTINUED_BIT: u32 = 1 << 31;
         const val CONTINUED_BIT: UInt = 1u shl 31
-
         val NO_STMT: UInt = UInt.MAX_VALUE
 
-        // pub(crate) fn new() -> Self
         fun new(): BcStatementLocations = BcStatementLocations()
     }
 
-    // fn idx_for(addr: BcAddr) -> usize
     private fun idxFor(addr: BcAddr): Int {
         val addrVal = addr.value.toInt()
         check(addrVal % BC_INSTR_ALIGN == 0)
         return addrVal / BC_INSTR_ALIGN
     }
 
-    // fn push(&mut self, addr: BcAddr, span: BcStmtLoc)
     fun push(addr: BcAddr, span: BcStmtLoc) {
         val idx = idxFor(addr)
         val stmtIdx = locs.size.toUInt()
@@ -95,7 +82,6 @@ internal class BcStatementLocations(
         stmts[idx] = stmtIdx
     }
 
-    // fn last_stmt_idx(&self) -> Option<u32>
     private fun lastStmtIdx(): UInt? {
         for (stmtIdx in stmts.asReversed()) {
             if (stmtIdx != NO_STMT) {
@@ -105,7 +91,6 @@ internal class BcStatementLocations(
         return null
     }
 
-    // fn push_prev(&mut self, addr: BcAddr)
     fun pushPrev(addr: BcAddr) {
         val stmtIdx = lastStmtIdx() ?: return
         val idx = idxFor(addr)
@@ -121,7 +106,6 @@ internal class BcStatementLocations(
         }
     }
 
-    // pub(crate) fn stmt_at(&self, offset: BcAddr) -> Option<(&BcStmtLoc, bool)>
     fun stmtAt(offset: BcAddr): Pair<BcStmtLoc, Boolean>? {
         val idx = idxFor(offset)
         if (idx >= stmts.size) return null
@@ -133,73 +117,45 @@ internal class BcStatementLocations(
     }
 }
 
-/**
- * For loop during bytecode write.
- */
-// struct BcWriterForLoop
+/** For loop during bytecode write. */
 private class BcWriterForLoop(
     /** Iterator variable. */
-    // iter: BcSlotIn,
     val iter: BcSlotIn,
     /** Variable to store the next value in. */
-    // var: BcSlotOut,
     val variable: BcSlotOut,
     /** Address of the first instruction in the loop body. */
-    // inner_addr: BcAddr,
     val innerAddr: BcAddr,
     /** Addresses to patch with the address of the instruction after the loop. */
-    // end_addrs_to_patch: Vec<PatchAddr>,
     val endAddrsToPatch: MutableList<PatchAddr>,
 )
 
-/**
- * Write bytecode here.
- */
-// pub(crate) struct BcWriter<'f>
+/** Write bytecode here. */
 internal class BcWriter(
     /** Serialized instructions. */
-    // instrs: BcInstrsWriter,
     private val instrs: BcInstrsWriter,
     /** Instruction spans, used for errors. */
-    // slow_args: Vec<(BcAddr, BcInstrSlowArg)>,
     private val slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>>,
     /** For each statement, will store the span for the first instruction and any instruction after a call. */
-    // stmt_locs: BcStatementLocations,
     private val stmtLocs: BcStatementLocations,
     /** The last-written opcode. */
-    // last_opcode: BcOpcode,
     private var lastOpcode: BcOpcode,
     /** Current stack size. */
-    // stack_size: u32,
     private var stackSize: UInt,
     /** Local slot count. */
-    // local_names: FrozenRef<'f, [FrozenStringValue]>,
     private val localNames: FrozenRef<List<FrozenStringValue>>,
     /** Local variables which are known to be definitely assigned at current program point. */
-    // definitely_assigned: BcDefinitelyAssigned,
     private var definitelyAssigned: BcDefinitelyAssigned,
     /** Max observed stack size. */
-    // max_stack_size: u32,
     private var maxStackSize: UInt,
     /** Current loop depth. */
-    // for_loops: Vec<BcWriterForLoop>,
     private val forLoops: MutableList<BcWriterForLoop>,
     /** Max observed loop depth. */
-    // max_loop_depth: LoopDepth,
     private var maxLoopDepth: LoopDepth,
     /** Allocate various objects here. */
-    // pub(crate) heap: &'f FrozenHeap,
     val heap: FrozenHeap,
 ) {
-    // impl<'f> BcWriter<'f>
-
     companion object {
         /** Empty. */
-        // pub(crate) fn new(
-        //     local_names: FrozenRef<'f, [FrozenStringValue]>,
-        //     param_count: u32,
-        //     heap: &'f FrozenHeap,
-        // ) -> BcWriter<'f>
         fun new(
             localNames: FrozenRef<List<FrozenStringValue>>,
             paramCount: UInt,
@@ -227,7 +183,6 @@ internal class BcWriter(
     }
 
     /** Finish writing the bytecode. */
-    // pub(crate) fn finish(self) -> Bc
     fun finish(): Bc {
         check(stackSize == 0u)
         check(forLoops.isEmpty())
@@ -239,21 +194,12 @@ internal class BcWriter(
         )
     }
 
-    // fn local_count(&self) -> u32
     private fun localCount(): UInt = localNames.value.size.toUInt()
 
     /** Current offset. */
-    // fn ip(&self) -> BcAddr
     private fun ip(): BcAddr = instrs.ip()
 
-    /**
-     * Version of instruction write with explicit slow arg.
-     */
-    // fn do_write_generic_explicit<I: BcInstr>(
-    //     &mut self,
-    //     slow_arg: BcInstrSlowArg,
-    //     arg: I::Arg,
-    // ) -> (BcAddr, *const I::Arg)
+    /** Version of instruction write with explicit slow arg. */
     private fun doWriteGenericExplicit(
         instrName: String,
         slowArg: BcInstrSlowArg,
@@ -273,19 +219,11 @@ internal class BcWriter(
         return instrIp to instrs.instrs.size - 1
     }
 
-    // pub(crate) fn mark_before_stmt(&mut self, span: FrameSpan)
     fun markBeforeStmt(span: FrameSpan) {
         stmtLocs.push(ip(), BcStmtLoc(span))
     }
 
-    /**
-     * Write an instruction, return address and argument.
-     */
-    // fn write_instr_ret_arg_explicit<I: BcInstr>(
-    //     &mut self,
-    //     slow_arg: BcInstrSlowArg,
-    //     arg: I::Arg,
-    // ) -> (BcAddr, *const I::Arg)
+    /** Write an instruction, return address and argument. */
     private fun writeInstrRetArgExplicit(
         instrName: String,
         slowArg: BcInstrSlowArg,
@@ -294,11 +232,6 @@ internal class BcWriter(
         return doWriteGenericExplicit(instrName, slowArg, arg)
     }
 
-    // fn write_instr_ret_arg<I: BcInstr>(
-    //     &mut self,
-    //     span: FrameSpan,
-    //     arg: I::Arg,
-    // ) -> (BcAddr, *const I::Arg)
     private fun writeInstrRetArg(
         instrName: String,
         span: FrameSpan,
@@ -311,11 +244,6 @@ internal class BcWriter(
         )
     }
 
-    // pub(crate) fn write_instr_explicit<I: BcInstr>(
-    //     &mut self,
-    //     slow_arg: BcInstrSlowArg,
-    //     arg: I::Arg,
-    // )
     fun writeInstrExplicit(
         instrName: String,
         slowArg: BcInstrSlowArg,
@@ -325,7 +253,6 @@ internal class BcWriter(
     }
 
     /** Write an instruction. */
-    // pub(crate) fn write_instr<I: BcInstr>(&mut self, span: FrameSpan, arg: I::Arg)
     fun writeInstr(instrName: String, span: FrameSpan, arg: Any) {
         writeInstrExplicit(
             instrName,
@@ -335,7 +262,6 @@ internal class BcWriter(
     }
 
     /** Write load constant instruction. */
-    // pub(crate) fn write_const(&mut self, span: FrameSpan, value: FrozenValue, slot: BcSlotOut)
     fun writeConst(span: FrameSpan, value: FrozenValue, slot: BcSlotOut) {
         check(slot.get().value < localCount() + stackSize)
 
@@ -343,12 +269,6 @@ internal class BcWriter(
     }
 
     /** Write load local instruction. */
-    // pub(crate) fn write_load_local(
-    //     &mut self,
-    //     span: FrameSpan,
-    //     slot: LocalSlotId,
-    //     target: BcSlotOut,
-    // )
     fun writeLoadLocal(
         span: FrameSpan,
         slot: LocalSlotId,
@@ -364,12 +284,6 @@ internal class BcWriter(
         }
     }
 
-    // pub(crate) fn write_load_local_captured(
-    //     &mut self,
-    //     span: FrameSpan,
-    //     source: LocalCapturedSlotId,
-    //     target: BcSlotOut,
-    // )
     fun writeLoadLocalCaptured(
         span: FrameSpan,
         source: LocalCapturedSlotId,
@@ -380,7 +294,6 @@ internal class BcWriter(
         writeInstrRetArg("InstrLoadLocalCaptured", span, source to target)
     }
 
-    // pub(crate) fn write_mov(&mut self, span: FrameSpan, source: BcSlotIn, target: BcSlotOut)
     fun writeMov(span: FrameSpan, source: BcSlotIn, target: BcSlotOut) {
         check(source.get().value < localCount() + stackSize)
         check(target.get().value < localCount() + stackSize)
@@ -395,12 +308,6 @@ internal class BcWriter(
         writeInstrRetArg("InstrMov", span, source to target)
     }
 
-    // pub(crate) fn write_store_local_captured(
-    //     &mut self,
-    //     span: FrameSpan,
-    //     source: BcSlotIn,
-    //     target: LocalCapturedSlotId,
-    // )
     fun writeStoreLocalCaptured(
         span: FrameSpan,
         source: BcSlotIn,
@@ -412,12 +319,10 @@ internal class BcWriter(
     }
 
     /** Patch previously written address with current IP. */
-    // pub(crate) fn patch_addr(&mut self, addr: PatchAddr)
     fun patchAddr(addr: PatchAddr) {
         instrs.patchAddr(addr)
     }
 
-    // pub(crate) fn patch_addrs(&mut self, addrs: Vec<PatchAddr>)
     fun patchAddrs(addrs: List<PatchAddr>) {
         for (addr in addrs) {
             patchAddr(addr)
@@ -425,14 +330,12 @@ internal class BcWriter(
     }
 
     /** Write branch. */
-    // pub(crate) fn write_br(&mut self, span: FrameSpan) -> PatchAddr
     fun writeBr(span: FrameSpan): PatchAddr {
         val (addr, argIndex) = writeInstrRetArg("InstrBr", span, BcAddrOffset.FORWARD)
         return instrs.addrToPatch(addr, argIndex)
     }
 
     /** Write conditional branch. */
-    // pub(crate) fn write_if_not_br(&mut self, cond: BcSlotIn, span: FrameSpan) -> PatchAddr
     fun writeIfNotBr(cond: BcSlotIn, span: FrameSpan): PatchAddr {
         val (addr, argIndex) =
             writeInstrRetArg("InstrIfNotBr", span, cond to BcAddrOffset.FORWARD)
@@ -440,20 +343,12 @@ internal class BcWriter(
     }
 
     /** Write conditional branch. */
-    // pub(crate) fn write_if_br(&mut self, cond: BcSlotIn, span: FrameSpan) -> PatchAddr
     fun writeIfBr(cond: BcSlotIn, span: FrameSpan): PatchAddr {
         val (addr, argIndex) =
             writeInstrRetArg("InstrIfBr", span, cond to BcAddrOffset.FORWARD)
         return instrs.addrToPatch(addr, argIndex)
     }
 
-    // fn write_if_else_impl(
-    //     &mut self,
-    //     cond: BcSlotIn,
-    //     span: FrameSpan,
-    //     then_block: impl FnOnce(&mut Self),
-    //     else_block: impl FnOnce(&mut Self),
-    // )
     private fun writeIfElseImpl(
         cond: BcSlotIn,
         span: FrameSpan,
@@ -476,14 +371,6 @@ internal class BcWriter(
     }
 
     /** Write if-else block. */
-    // pub(crate) fn write_if_else(
-    //     &mut self,
-    //     cond: BcSlotIn,
-    //     maybe_not: MaybeNot,
-    //     span: FrameSpan,
-    //     then_block: impl FnOnce(&mut Self),
-    //     else_block: impl FnOnce(&mut Self),
-    // )
     fun writeIfElse(
         cond: BcSlotIn,
         maybeNot: MaybeNot,
@@ -497,7 +384,6 @@ internal class BcWriter(
         }
     }
 
-    // pub(crate) fn write_continue(&mut self, span: FrameSpan)
     fun writeContinue(span: FrameSpan) {
         val loopDepth = LoopDepth(forLoops.size - 1)
         val forLoop = forLoops.last()
@@ -512,7 +398,6 @@ internal class BcWriter(
         forLoops.last().endAddrsToPatch.add(endPatch)
     }
 
-    // pub(crate) fn write_break(&mut self, span: FrameSpan)
     fun writeBreak(span: FrameSpan) {
         val forLoop = forLoops.last()
         val (addr, argIndex) =
@@ -522,13 +407,6 @@ internal class BcWriter(
     }
 
     /** Write for loop. */
-    // pub(crate) fn write_for(
-    //     &mut self,
-    //     over: BcSlotIn,
-    //     var: BcSlotOut,
-    //     span: FrameSpan,
-    //     body: impl FnOnce(&mut BcWriter),
-    // )
     fun writeFor(
         over: BcSlotIn,
         variable: BcSlotOut,
@@ -572,7 +450,6 @@ internal class BcWriter(
      * Write instructions to stop all current iterations.
      * This is done before `return`.
      */
-    // pub(crate) fn write_iter_stop(&mut self, span: FrameSpan)
     fun writeIterStop(span: FrameSpan) {
         // We can stop iteration in any order, but for consistency stop them in reverse order.
         for (depth in (0 until forLoops.size).reversed()) {
@@ -581,13 +458,11 @@ internal class BcWriter(
         }
     }
 
-    // fn stack_add(&mut self, add: u32)
     private fun stackAdd(add: UInt) {
         stackSize += add
         maxStackSize = max(maxStackSize, stackSize)
     }
 
-    // fn stack_sub(&mut self, sub: u32)
     private fun stackSub(sub: UInt) {
         check(stackSize >= sub)
         stackSize -= sub
@@ -597,7 +472,6 @@ internal class BcWriter(
      * Convert local variable to BC slot if it is known to be definitely assigned
      * at this execution point.
      */
-    // pub(crate) fn try_definitely_assigned(&self, local: LocalSlotId) -> Option<BcSlotIn>
     fun tryDefinitelyAssigned(local: LocalSlotId): BcSlotIn? {
         check(local.value < localCount())
         return if (definitelyAssigned.isDefinitelyAssigned(local)) {
@@ -607,17 +481,14 @@ internal class BcWriter(
         }
     }
 
-    // pub(crate) fn mark_definitely_assigned(&mut self, local: LocalSlotId)
     fun markDefinitelyAssigned(local: LocalSlotId) {
         definitelyAssigned.markDefinitelyAssigned(local)
     }
 
-    // pub(crate) fn save_definitely_assigned(&self) -> BcDefinitelyAssigned
     fun saveDefinitelyAssigned(): BcDefinitelyAssigned {
         return definitelyAssigned.copy()
     }
 
-    // pub(crate) fn restore_definitely_assigned(&mut self, saved: BcDefinitelyAssigned)
     fun restoreDefinitelyAssigned(saved: BcDefinitelyAssigned) {
         saved.assertSmallerThan(definitelyAssigned)
         definitelyAssigned = saved
@@ -628,7 +499,6 @@ internal class BcWriter(
      *
      * The slot is valid during the callback run, and can be reused later.
      */
-    // pub(crate) fn alloc_slot<R>(&mut self, k: impl FnOnce(BcSlot, &mut BcWriter) -> R) -> R
     fun <R> allocSlot(k: (BcSlot, BcWriter) -> R): R {
         val slot = BcSlot(localCount() + stackSize)
         stackAdd(1u)
@@ -638,11 +508,6 @@ internal class BcWriter(
     }
 
     /** Allocate several slots for the duration of callback run. */
-    // pub(crate) fn alloc_slots<R>(
-    //     &mut self,
-    //     count: u32,
-    //     k: impl FnOnce(BcSlotRange, &mut BcWriter) -> R,
-    // ) -> R
     fun <R> allocSlots(count: UInt, k: (BcSlotRange, BcWriter) -> R): R {
         val slots = BcSlotRange(
             start = BcSlot(localCount() + stackSize),
@@ -655,31 +520,16 @@ internal class BcWriter(
     }
 
     /** Allocate several slots. */
-    // pub(crate) fn alloc_slots_c<const N: usize, R>(
-    //     &mut self,
-    //     k: impl FnOnce(BcSlotsN<N>, &mut BcWriter) -> R,
-    // ) -> R
     fun <R> allocSlotsC(n: Int, k: (BcSlotsN, BcWriter) -> R): R {
         return allocSlots(n.toUInt()) { slots, bc ->
             k(BcSlotsN.fromRange(n, slots), bc)
         }
     }
 
-    /**
-     * Allocate several slots for typical compilation of several expressions.
-     */
-    // pub(crate) fn alloc_slots_for_exprs<K, R>(
-    //     &mut self,
-    //     exprs: impl IntoIterator<Item = K>,
-    //     mut expr: impl FnMut(BcSlot, K, &mut BcWriter),
-    //     k: impl FnOnce(BcSlotInRange, &mut BcWriter) -> R,
-    // ) -> R
+    /** Allocate several slots for typical compilation of several expressions. */
     fun <K, R> allocSlotsForExprs(
-        // Iterate over the elements.
         exprs: Iterable<K>,
-        // Invoke a callback which fills the slots.
         expr: (BcSlot, K, BcWriter) -> Unit,
-        // And then invoke a callback which consumes all the slots again together.
         k: (BcSlotInRange, BcWriter) -> R,
     ): R {
         val start = BcSlot(localCount() + stackSize)
@@ -705,7 +555,6 @@ internal class BcWriter(
         return r
     }
 
-    // pub(crate) fn alloc_file_span(&self, span: FrameSpan) -> FrozenRef<'static, FrameSpan>
     fun allocFileSpan(span: FrameSpan): FrozenRef<FrameSpan> {
         return FrozenRef.new(span)
     }

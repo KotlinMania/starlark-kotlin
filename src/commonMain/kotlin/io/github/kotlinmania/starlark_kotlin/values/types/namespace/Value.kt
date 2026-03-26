@@ -33,14 +33,12 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
 
-// #[derive(Clone, Coerce, Debug, Trace, Freeze, Allocative)]
 data class MaybeDocHiddenValue<V>(
     val value: V,
     val docHidden: Boolean,
 )
 
 /** The return value of `namespace()` */
-// #[derive(Clone, Debug, Trace, Freeze, ProvidesStaticType, Allocative)]
 data class NamespaceGen<V>(
     val fields: SmallMap<String, MaybeDocHiddenValue<V>>
 ) : StarlarkValue {
@@ -55,11 +53,6 @@ data class NamespaceGen<V>(
     fun get(key: String): V? =
         fields.getHashedByValue(Hashed.new(key))?.value
 
-    // unsafe impl Coerce<NamespaceGen<Value>> for NamespaceGen<FrozenValue>
-
-    // starlark_complex_value!(pub Namespace)
-
-    // impl Display for NamespaceGen
     override fun toString(): String =
         fmtKeyedContainer(
             "namespace(",
@@ -67,9 +60,6 @@ data class NamespaceGen<V>(
             "=",
             fields.iter().map { (k, v) -> k to v.value },
         )
-
-    // #[starlark_value(type = "namespace")]
-    // impl StarlarkValue for NamespaceGen
 
     override fun collectReprCycle(collector: StringBuilder) {
         collector.append("namespace(...)")
@@ -108,21 +98,17 @@ data class NamespaceGen<V>(
             extra = false,
         ))
 
-    // impl Serialize for NamespaceGen
     fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }
 }
 
-// unsafe impl Coerce<NamespaceGen<Value>> for NamespaceGen<FrozenValue>
 @Suppress("UNCHECKED_CAST")
 fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
     frozen as NamespaceGen<Value>
 
-// starlark_complex_value!(pub Namespace)
 typealias FrozenNamespace = NamespaceGen<FrozenValue>
 typealias Namespace = NamespaceGen<Value>
 
-// display_container::fmt_keyed_container
 private fun <K, V> fmtKeyedContainer(
     start: String,
     end: String,
@@ -142,9 +128,6 @@ private fun <K, V> fmtKeyedContainer(
     builder.append(end)
     return builder.toString()
 }
-
-// #[cfg(test)]
-// mod tests
 
 internal fun testRepr() {
     Assert.eq("repr(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'")

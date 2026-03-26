@@ -21,13 +21,12 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -36,8 +35,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.longOrNull
 
 // ---- JsonNumber: analogous to serde_json::Number ----
 
@@ -104,9 +101,9 @@ object JsonNumberTypeRepr : StarlarkTypeRepr {
  * then falls back to BigInt for arbitrarily large integers.
  */
 fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
-    number.asU64()?.let { return heap.alloc(it) }
-    number.asI64()?.let { return heap.alloc(it) }
-    number.asF64()?.let { return heap.alloc(it) }
+    number.asU64()?.let { return heap.alloc(StarlarkInt.from(it)) }
+    number.asI64()?.let { return heap.alloc(StarlarkInt.from(it)) }
+    number.asF64()?.let { return heap.alloc(StarlarkFloat(it)) }
     val bigStr = number.toString()
     val big = StarlarkInt.fromStrRadix(bigStr, 10)
     if (big.isSuccess) return heap.alloc(big.getOrThrow())
@@ -124,9 +121,9 @@ fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
  * Same conversion logic as [allocJsonNumber], but on a [FrozenHeap].
  */
 fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
-    number.asU64()?.let { return heap.alloc(it) }
-    number.asI64()?.let { return heap.alloc(it) }
-    number.asF64()?.let { return heap.alloc(it) }
+    number.asU64()?.let { return heap.alloc(StarlarkInt.from(it)) }
+    number.asI64()?.let { return heap.alloc(StarlarkInt.from(it)) }
+    number.asF64()?.let { return heap.alloc(StarlarkFloat(it)) }
     val bigStr = number.toString()
     val big = StarlarkInt.fromStrRadix(bigStr, 10)
     if (big.isSuccess) return heap.alloc(big.getOrThrow())

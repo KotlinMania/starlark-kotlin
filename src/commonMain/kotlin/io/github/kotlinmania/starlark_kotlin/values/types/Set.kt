@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/set.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.set
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,14 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-//! The set type
+/**
+ * The set type.
+ *
+ * Submodules:
+ * - [methods][io.github.kotlinmania.starlark_kotlin.values.types.set.Methods] - set methods
+ * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.set.Refs] - set references (SetRef, SetMut)
+ * - [set][io.github.kotlinmania.starlark_kotlin.values.types.set.Set] - set globals
+ * - [value][io.github.kotlinmania.starlark_kotlin.values.types.set.Value] - set value type
+ */
 
-// pub(crate) mod methods;
-// pub(crate) mod refs;
-// pub(crate) mod set;
-// pub(crate) mod value;
-// Submodules: methods, refs, set, value
-
-// pub use crate::values::set::refs::SetMut;
-// pub use crate::values::set::refs::SetRef;
-// Re-exports handled by Kotlin package visibility.
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias SetMutExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetMut
+internal typealias SetRefExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
