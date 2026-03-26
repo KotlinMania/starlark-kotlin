@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.visitSpans
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumType
