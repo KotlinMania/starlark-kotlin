@@ -23,6 +23,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefBody
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefCallSite
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.localAsValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
@@ -221,12 +223,13 @@ internal class CallCompiled(
 
                 val inlinedExpr = IrSpanned(span, expr.node.copy())
                 val spanAlloc = InlinedFrameAlloc.new(ctx.frozenHeap())
-                inlinedExpr.visitSpans { exprSpan ->
+                inlinedExpr.visitSpans { exprSpan: FrameSpan ->
                     exprSpan.inlinedFrames.inlineInto(
                         span,
                         frozenDef.value.toFrozenValue(),
                         spanAlloc,
                     )
+                    exprSpan
                 }
                 InlineDefCallSite(ctx, frozenSlots).inline(inlinedExpr).getOrNull()
             }
