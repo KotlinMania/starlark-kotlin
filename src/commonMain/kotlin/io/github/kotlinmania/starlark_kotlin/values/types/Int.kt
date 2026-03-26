@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,16 +22,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 /**
  * The integer type.
  *
- * For small values, we try not to allocate on the [Heap],
+ * For small values, we try not to allocate on the [Heap][io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap],
  * but instead use special values. If the value doesn't fit in the special representation,
  * we use BigInt to store it.
+ *
+ * Submodules:
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.int.Globals] - global int functions
+ * - [i32][io.github.kotlinmania.starlark_kotlin.values.types.int.I32] - 32-bit int operations
+ * - [inlineInt][io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt] - inline int representation
+ * - [intOrBig][io.github.kotlinmania.starlark_kotlin.values.types.int.IntOrBig] - int or big int union
+ * - [pointerI32][io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32] - pointer-based i32
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the int/ package.
-// pub(crate) mod globals
-// mod i32
-// pub(crate) mod inline_int
-// pub(crate) mod int_or_big
-// pub(crate) mod pointer_i32
-// mod tests
-// pub use INT_TYPE
+// Re-export public API (mirrors Rust's `pub use pointer_i32::INT_TYPE`)
+internal val INT_TYPE = io.github.kotlinmania.starlark_kotlin.values.types.int.INT_TYPE

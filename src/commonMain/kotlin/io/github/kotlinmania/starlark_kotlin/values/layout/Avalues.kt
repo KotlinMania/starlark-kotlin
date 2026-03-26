@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the avalues/ package.
-// pub(crate) mod array
-// pub(crate) mod complex
-// pub(crate) mod list
-// pub(crate) mod simple
-// pub(crate) mod static_
-// pub(crate) mod str_
-// pub(crate) mod tuple
+/**
+ * Allocated value implementations.
+ *
+ * Submodules:
+ * - [array][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Array] - array avalue
+ * - [complex][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Complex] - complex avalue
+ * - [list][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.List] - list avalue
+ * - [simple][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Simple] - simple avalue
+ * - [static_][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Static] - static avalue
+ * - [str_][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Str] - string avalue
+ * - [tuple][io.github.kotlinmania.starlark_kotlin.values.layout.avalues.Tuple] - tuple avalue
+ */

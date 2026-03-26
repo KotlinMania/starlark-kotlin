@@ -1,5 +1,5 @@
 // port-lint: source src/values/types.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark_kotlin.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,31 +19,35 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the types/ package.
-// pub mod any
-// pub mod any_array
-// pub mod any_complex
-// pub mod array
-// pub mod bigint
-// pub mod bool
-// pub mod dict
-// pub(crate) mod ellipsis
-// pub mod enumeration
-// pub mod float
-// pub mod function
-// pub mod int
-// pub(crate) mod known_methods
-// pub mod list
-// pub mod list_or_tuple
-// pub mod namespace
-// pub mod none
-// pub(crate) mod num
-// pub mod range
-// pub mod record
-// pub mod set
-// pub mod starlark_value_as_type
-// pub mod string
-// pub mod structs
-// pub mod tuple
-// pub(crate) mod type_instance_id
-// pub(crate) mod unbound
+/**
+ * Built-in Starlark value types.
+ *
+ * Submodules:
+ * - [any][io.github.kotlinmania.starlark_kotlin.values.types.any] - any type
+ * - [anyArray][io.github.kotlinmania.starlark_kotlin.values.types.any] - any array type
+ * - [anyComplex][io.github.kotlinmania.starlark_kotlin.values.types.any] - any complex type
+ * - [array][io.github.kotlinmania.starlark_kotlin.values.types.array] - array type
+ * - [bigint][io.github.kotlinmania.starlark_kotlin.values.types.bigint] - big integer type
+ * - [bool][io.github.kotlinmania.starlark_kotlin.values.types.bool] - boolean type
+ * - [dict][io.github.kotlinmania.starlark_kotlin.values.types.dict] - dictionary type
+ * - [ellipsis][io.github.kotlinmania.starlark_kotlin.values.types.ellipsis] - ellipsis type
+ * - [enumeration][io.github.kotlinmania.starlark_kotlin.values.types.enumeration] - enumeration type
+ * - [float][io.github.kotlinmania.starlark_kotlin.values.types.float] - float type
+ * - [function][io.github.kotlinmania.starlark_kotlin.values.types.function] - function types
+ * - [int][io.github.kotlinmania.starlark_kotlin.values.types.int] - integer type
+ * - [knownMethods] - known methods registry
+ * - [list][io.github.kotlinmania.starlark_kotlin.values.types.list] - list type
+ * - [listOrTuple][io.github.kotlinmania.starlark_kotlin.values.types.list] - list or tuple union
+ * - [namespace][io.github.kotlinmania.starlark_kotlin.values.types.namespace] - namespace type
+ * - [none][io.github.kotlinmania.starlark_kotlin.values.types.none] - none type
+ * - [num][io.github.kotlinmania.starlark_kotlin.values.types.num] - numeric helpers
+ * - [range][io.github.kotlinmania.starlark_kotlin.values.types.range] - range type
+ * - [record][io.github.kotlinmania.starlark_kotlin.values.types.record] - record type
+ * - [set][io.github.kotlinmania.starlark_kotlin.values.types.set] - set type
+ * - [starlarkValueAsType] - starlark value as type
+ * - [string][io.github.kotlinmania.starlark_kotlin.values.types.string] - string type
+ * - [structs][io.github.kotlinmania.starlark_kotlin.values.types.structs] - struct type
+ * - [tuple][io.github.kotlinmania.starlark_kotlin.values.types.tuple] - tuple type
+ * - [typeInstanceId] - type instance identifiers
+ * - [unbound] - unbound values
+ */

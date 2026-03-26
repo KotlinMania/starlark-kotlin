@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark_kotlin.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,29 +19,27 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-/** Typechecker-related types. */
+/**
+ * Typechecker-related types.
+ *
+ * Submodules:
+ * - [any][io.github.kotlinmania.starlark_kotlin.values.typing.Any] - any type
+ * - [callable][io.github.kotlinmania.starlark_kotlin.values.typing.Callable] - callable types
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.typing.Globals] - typing globals
+ * - [iter][io.github.kotlinmania.starlark_kotlin.values.typing.Iter] - iterator types
+ * - [macroRefs][io.github.kotlinmania.starlark_kotlin.values.typing.MacroRefs] - macro references
+ * - [never][io.github.kotlinmania.starlark_kotlin.values.typing.Never] - never type
+ * - [ty][io.github.kotlinmania.starlark_kotlin.values.typing.Ty] - type representation
+ * - [typeCompiled][io.github.kotlinmania.starlark_kotlin.values.typing.TypeCompiled] - compiled types
+ * - [typeType][io.github.kotlinmania.starlark_kotlin.values.typing.TypeType] - type type
+ */
 
-// Rust mod declarations — in Kotlin, these are separate files in the typing/ package.
-// pub(crate) mod any
-// pub(crate) mod callable
-// pub(crate) mod globals
-// pub(crate) mod iter
-// pub mod macro_refs
-// pub(crate) mod never
-// pub(crate) mod ty
-// pub(crate) mod type_compiled
-// pub(crate) mod type_type
-// pub use TypeInstanceId
-// pub use FrozenStarlarkCallable
-// pub use StarlarkCallable
-// pub use StarlarkCallableChecked
-// pub use StarlarkCallableParamAny
-// pub use StarlarkCallableParamSpec
-// pub use StarlarkIter
-// pub use StarlarkNever
-// pub use TypeCompiled
-// pub use TypeCompiledImplAsStarlarkValue
-// pub use TypeMatcher
-// pub use TypeMatcherRegistered
-// pub use TypeMatcherFactory
-// pub use TypeType
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias TypeInstanceIdExport = io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+internal typealias StarlarkCallableExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable
+internal typealias StarlarkIterExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+internal typealias StarlarkNeverExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
+internal typealias TypeCompiledExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeCompiled
+internal typealias TypeMatcherExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeMatcher
+internal typealias TypeMatcherFactoryExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeMatcherFactory
+internal typealias TypeTypeExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeType

@@ -19,18 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import kotlin.reflect.*
-import kotlin.text.*
-import kotlinx.serialization.*
-import kotlin.collections.*
-import kotlin.comparisons.*
-import kotlin.ranges.*
-import io.github.kotlinmania.starlark_kotlin.`sealed`.*
-import io.github.kotlinmania.starlark_kotlin.values.*
+import io.github.kotlinmania.starlark_kotlin.`sealed`.Sealed
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 
-/** Implemented by [Value] and [FrozenValue]. */
+/**
+ * Implemented by [Value] and [FrozenValue].
+ */
 interface ValueLifetimeless : Sealed, Freeze<FrozenValue>
-
-// Freeze<Frozen = FrozenValue>
-typealias FrozenLifetimeless = FrozenValue
-typealias DebugRepr = String

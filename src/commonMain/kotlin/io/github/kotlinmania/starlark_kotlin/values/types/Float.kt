@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/float.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.float
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,11 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-/** The floating point number type (3.14, 4e2). */
+/**
+ * The floating point number type (3.14, 4e2).
+ *
+ * Submodules:
+ * - [float][io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat] - StarlarkFloat type
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.float.Globals] - global float functions
+ * - [unpack][io.github.kotlinmania.starlark_kotlin.values.types.float.Unpack] - float unpacking
+ */
 
-// Rust mod declarations — in Kotlin, these are separate files in the float/ package.
-// pub(crate) mod float
-// pub(crate) mod globals
-// pub(crate) mod unpack
-// pub use StarlarkFloat
-// pub use UnpackFloat
+// Re-exports (mirrors Rust's `pub use` declarations)
+internal typealias StarlarkFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+internal typealias UnpackFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.UnpackFloat

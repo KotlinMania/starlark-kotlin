@@ -20,28 +20,39 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  */
 
 import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.values.*
-import io.github.kotlinmania.starlark_kotlin.values.layout.*
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 
+// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
+// enum EmptyEnum {}
 sealed class EmptyEnum
 
-sealed class JustInt {
-    data class Int(val value: kotlin.Int) : JustInt()
-}
+// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
+// enum JustInt { Int(i32) }
+sealed class JustInt
+data class JustIntVariantInt(val value: Int) : JustInt()
 
-sealed class IntOrStr {
-    data class Int(val value: kotlin.Int) : IntOrStr()
-    data class Str(val value: String) : IntOrStr()
-}
+// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
+// enum IntOrStr { Int(i32), Str(String) }
+sealed class IntOrStr
+data class IntOrStrVariantInt(val value: Int) : IntOrStr()
+data class IntOrStrVariantStr(val value: String) : IntOrStr()
 
-sealed class WithLifetime {
-    data class Int(val value: kotlin.Int) : WithLifetime()
-    data class Str(val value: String) : WithLifetime()
-}
+// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
+// enum WithLifetime<'v> { Int(i32), Str(&'v str) }
+sealed class WithLifetime
+data class WithLifetimeVariantInt(val value: Int) : WithLifetime()
+data class WithLifetimeVariantStr(val value: String) : WithLifetime()
 
+// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
+// struct TransparentIntOrStr(IntOrStr)
 data class TransparentIntOrStr(val inner: IntOrStr)
 
+// #[test]
 fun testStarlarkTypeRepr() {
     assert(StarlarkNever.starlarkTypeRepr() == EmptyEnum.starlarkTypeRepr())
     assert(kotlin.Int.starlarkTypeRepr() == JustInt.starlarkTypeRepr())
@@ -50,11 +61,12 @@ fun testStarlarkTypeRepr() {
     assert(IntOrStr.starlarkTypeRepr() == TransparentIntOrStr.starlarkTypeRepr())
 }
 
+// #[test]
 fun testUnpackValue() {
-    assert(JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow() == JustInt.Int(17))
-    assert(IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == IntOrStr.Int(19))
-    assert(IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow() == IntOrStr.Str("abc"))
-    assert(WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow() == WithLifetime.Int(23))
-    assert(WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow() == WithLifetime.Str("def"))
-    assert(TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == TransparentIntOrStr(IntOrStr.Int(19)))
+    assert(JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow() == JustIntVariantInt(17))
+    assert(IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == IntOrStrVariantInt(19))
+    assert(IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow() == IntOrStrVariantStr("abc"))
+    assert(WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow() == WithLifetimeVariantInt(23))
+    assert(WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow() == WithLifetimeVariantStr("def"))
+    assert(TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == TransparentIntOrStr(IntOrStrVariantInt(19)))
 }

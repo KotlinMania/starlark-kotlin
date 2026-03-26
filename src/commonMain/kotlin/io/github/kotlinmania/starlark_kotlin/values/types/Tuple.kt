@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-/** The tuple type, an immutable sequence of values. */
+/**
+ * The tuple type, an immutable sequence of values.
+ *
+ * Submodules:
+ * - [alloc][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Alloc] - allocation helpers
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Globals] - global tuple functions
+ * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Refs] - tuple references
+ * - [rustTuple][io.github.kotlinmania.starlark_kotlin.values.types.tuple.RustTuple] - Kotlin tuple bridge
+ * - [unpack][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Unpack] - unpacking helpers
+ * - [value][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Value] - tuple value type
+ */
 
-// Rust mod declarations — in Kotlin, these are separate files in the tuple/ package.
-// pub(crate) mod alloc
-// pub(crate) mod globals
-// pub(crate) mod refs
-// pub(crate) mod rust_tuple
-// pub(crate) mod unpack
-// pub(crate) mod value
-// pub use AllocTuple
-// pub use FrozenTupleRef
-// pub use TupleRef
-// pub use UnpackTuple
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias AllocTupleExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.AllocTuple
+internal typealias FrozenTupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
+internal typealias TupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
+internal typealias UnpackTupleExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTuple

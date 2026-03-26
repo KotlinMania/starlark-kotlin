@@ -19,94 +19,59 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-//! Defines a runtime Starlark value ([Value]) and traits for defining custom values ([StarlarkValue]).
-//!
-//! This module contains code for working with Starlark values:
-//!
-//! * Most code dealing with Starlark will use [Value], as it represents the fundamental values used in
-//!   Starlark. When frozen, they become [FrozenValue].
-//! * Values are garbage-collected, so a given [Value] lives on a [Heap].
-//! * Rust values (e.g. String, Vec) can be added to the [Heap] with [AllocValue],
-//!   and deconstructed from a [Value] with [UnpackValue]
-//!   (or specialised methods like [Value.unpackStr]).
-//! * To define your own data type that can live in a [Value] it must implement the [StarlarkValue]
-//!   trait.
-//! * All the nested modules represent the built-in Starlark values.
+/**
+ * Defines a runtime Starlark value ([Value]) and traits for defining custom values ([StarlarkValue]).
+ *
+ * This module contains code for working with Starlark values:
+ *
+ * * Most code dealing with Starlark will use [Value], as it represents the fundamental values used in
+ *   Starlark. When frozen, they become [FrozenValue].
+ * * Values are garbage-collected, so a given [Value] lives on a [Heap].
+ * * Kotlin values (e.g. [String], [List]) can be added to the [Heap] with [AllocValue],
+ *   and deconstructed from a [Value] with [UnpackValue]
+ *   (or specialised methods like [Value.unpackStr]).
+ * * To define your own data type that can live in a [Value] it must implement the [StarlarkValue]
+ *   interface.
+ * * All the nested modules represent the built-in Starlark values. These are all defined using
+ *   [StarlarkValue], so may serve as interesting inspiration for writing your own values, in
+ *   addition to occurring in Starlark programs.
+ */
 
-// Re-exports from values subpackages.
-// In Kotlin, these types are accessed directly from their defining packages:
-//
-// pub use owned_frozen_ref::OwnedFrozenRef
-// pub use owned_frozen_ref::OwnedRefFrozenRef
-// pub use alloc_value::AllocFrozenValue
-// pub use alloc_value::AllocValue
-// pub use demand::Demand
-// pub use error::ValueError
-// pub use freeze::Freeze
-// pub use freeze_error::FreezeError
-// pub use freeze_error::FreezeErrorContext
-// pub use freeze_error::FreezeResult
-// pub use frozen_ref::FrozenRef
-// pub use iter::StarlarkIterator
-// pub use layout::avalues::static_::AllocStaticSimple
-// pub use layout::complex::ValueTypedComplex
-// pub use layout::freezer::Freezer
-// pub use layout::heap::heap_type::FrozenHeap
-// pub use layout::heap::heap_type::FrozenHeapRef
-// pub use layout::heap::heap_type::Heap
-// pub use layout::heap::heap_type::Tracer
-// pub use layout::heap::send::DynStarlark
-// pub use layout::heap::send::HeapSendable
-// pub use layout::identity::ValueIdentity
-// pub use layout::static_string::StarlarkStrNRepr
-// pub use layout::static_string::constant_string
-// pub use layout::typed::FrozenValueTyped
-// pub use layout::typed::ValueTyped
-// pub use layout::typed::string::FrozenStringValue
-// pub use layout::typed::string::StringValue
-// pub use layout::typed::string::StringValueLike
-// pub use layout::value::FrozenValue
-// pub use layout::value::Value
-// pub use layout::value::ValueLike
-// pub use layout::value_lifetimeless::ValueLifetimeless
-// pub use owned::OwnedFrozenValue
-// pub use owned::OwnedFrozenValueTyped
-// pub use thin_box_slice_frozen_value::packed_impl::ThinBoxSliceFrozenValue
-// pub use trace::Trace
-// pub use traits::ComplexValue
-// pub use traits::StarlarkValue
-// pub use unpack::UnpackValue
-// pub use unpack::UnpackValueError
-// pub use unpack::UnpackValueErrorInfallible
-// pub use unpack_and_discard::UnpackAndDiscard
-// pub use value_of::ValueOf
-// pub use value_of_unchecked::FrozenValueOfUnchecked
-// pub use value_of_unchecked::ValueOfUnchecked
-// pub use value_of_unchecked::ValueOfUncheckedGeneric
-//
-// Submodules:
-// mod alloc_value
-// mod comparison
-// pub(crate) mod demand
-// pub(crate) mod error
-// mod freeze
-// mod freeze_error
-// pub(crate) mod frozen_ref
-// mod index
-// pub(crate) mod iter
-// pub(crate) mod layout
-// mod owned
-// pub(crate) mod owned_frozen_ref
-// pub(crate) mod recursive_repr_or_json_guard
-// mod stack_guard
-// pub(crate) mod starlark_type_id
-// pub(crate) mod thin_box_slice_frozen_value
-// mod trace
-// pub(crate) mod traits
-// pub mod type_repr
-// pub(crate) mod types
-// pub mod typing
-// mod unpack
-// mod unpack_and_discard
-// pub(crate) mod value_of
-// pub(crate) mod value_of_unchecked
+// Re-exports from derive macros equivalent
+// In Kotlin, these are interfaces/annotations defined in the values package
+
+// Re-exports from values subpackages (mirrors Rust's extensive pub use block)
+internal typealias OwnedFrozenRefExport = io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenRef
+internal typealias AllocValueExport = io.github.kotlinmania.starlark_kotlin.values.AllocValue
+internal typealias DemandExport = io.github.kotlinmania.starlark_kotlin.values.Demand
+internal typealias ValueErrorExport = io.github.kotlinmania.starlark_kotlin.values.ValueError
+internal typealias FreezeExport = io.github.kotlinmania.starlark_kotlin.values.Freeze
+internal typealias FreezeErrorExport = io.github.kotlinmania.starlark_kotlin.values.FreezeError
+internal typealias FreezeResultExport<T> = io.github.kotlinmania.starlark_kotlin.values.FreezeResult<T>
+internal typealias FrozenRefExport = io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+internal typealias StarlarkIteratorExport = io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
+internal typealias FreezerExport = io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+internal typealias FrozenHeapExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+internal typealias HeapExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+internal typealias TracerExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+internal typealias ValueIdentityExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueIdentity
+internal typealias FrozenValueTypedExport = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+internal typealias ValueTypedExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+internal typealias FrozenValueExport = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+internal typealias ValueExport = io.github.kotlinmania.starlark_kotlin.values.layout.Value
+internal typealias ValueLikeExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
+internal typealias ValueLifetimelessExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
+internal typealias OwnedFrozenValueExport = io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
+internal typealias TraceExport = io.github.kotlinmania.starlark_kotlin.values.Trace
+internal typealias ComplexValueExport = io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+internal typealias StarlarkValueExport = io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+internal typealias UnpackValueExport = io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+internal typealias ValueOfExport = io.github.kotlinmania.starlark_kotlin.values.ValueOf
+internal typealias ValueOfUncheckedExport = io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+
+// Submodules (in Kotlin, these are separate packages under values/)
+// alloc_value, comparison, demand, error, freeze, freeze_error,
+// frozen_ref, index, iter, layout, owned, owned_frozen_ref,
+// recursive_repr_or_json_guard, stack_guard, starlark_type_id,
+// thin_box_slice_frozen_value, trace, traits, type_repr, types,
+// typing, unpack, unpack_and_discard, value_of, value_of_unchecked

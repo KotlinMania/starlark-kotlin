@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,18 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-/** The string type. All strings must be valid UTF8. */
+/**
+ * The string type. All strings must be valid UTF8.
+ *
+ * Submodules:
+ * - [allocUnpack][io.github.kotlinmania.starlark_kotlin.values.types.string.AllocUnpack] - alloc/unpack helpers
+ * - [dotFormat][io.github.kotlinmania.starlark_kotlin.values.types.string.DotFormat] - dot format implementation
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.string.Globals] - global string functions
+ * - [intern][io.github.kotlinmania.starlark_kotlin.values.types.string.Intern] - string interning
+ * - [interpolation][io.github.kotlinmania.starlark_kotlin.values.types.string.Interpolation] - string interpolation
+ * - [iter][io.github.kotlinmania.starlark_kotlin.values.types.string.Iter] - string iteration
+ * - [methods][io.github.kotlinmania.starlark_kotlin.values.types.string.Methods] - string methods
+ * - [repr][io.github.kotlinmania.starlark_kotlin.values.types.string.Repr] - string repr formatting
+ * - [simd][io.github.kotlinmania.starlark_kotlin.values.types.string.Simd] - SIMD-like operations
+ * - [strType][io.github.kotlinmania.starlark_kotlin.values.types.string.StrType] - StarlarkStr type
+ */
 
-// Rust mod declarations — in Kotlin, these are separate files in the string/ package.
-// mod alloc_unpack
-// pub(crate) mod dot_format
-// pub(crate) mod globals
-// pub(crate) mod intern
-// pub(crate) mod interpolation
-// pub(crate) mod iter
-// pub(crate) mod methods
-// pub(crate) mod repr
-// pub(crate) mod simd
-// pub(crate) mod str_type
-// pub use STRING_TYPE
-// pub use StarlarkStr
+// Re-exports (mirrors Rust's `pub use str_type::STRING_TYPE` and `pub use str_type::StarlarkStr`)
+internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark_kotlin.values.types.string.STRING_TYPE
+internal typealias StarlarkStrExport = io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr

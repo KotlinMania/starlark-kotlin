@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/range.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.range
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  * limitations under the License.
  */
 
-/** The range type, constructed with `range()`. */
+/**
+ * The range type, constructed with `range()`.
+ *
+ * Submodules:
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.range.Globals] - global range functions
+ * - [rangeType][io.github.kotlinmania.starlark_kotlin.values.types.range.RangeType] - Range type implementation
+ */
 
-// Rust mod declarations — in Kotlin, these are separate files in the range/ package.
-// mod globals
-// mod range_type
-// pub use range_type::Range
+// Re-export (mirrors Rust's `pub use range_type::Range`)
+internal typealias RangeExport = io.github.kotlinmania.starlark_kotlin.values.types.range.Range

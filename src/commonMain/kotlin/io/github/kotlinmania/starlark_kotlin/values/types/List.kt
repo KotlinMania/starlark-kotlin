@@ -24,8 +24,8 @@ private fun init() {
     val refs = FrozenListRef::class
     val unpack = UnpackList::class
     val value = ListGen::class
-    val useAllocList = AllocList
-    val useListType = ListType
-    val useListRef = ListRef
-    val useUnpackList = UnpackList
+    val pubAllocList = io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList::class
+    val pubListType = io.github.kotlinmania.starlark_kotlin.values.types.list.ListType::class
+    val pubListRef = io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef::class
+    val pubUnpackList = io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList::class
 }

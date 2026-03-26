@@ -19,17 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.errors
  * limitations under the License.
  */
 
-//! Error types used by Starlark.
+/**
+ * Error types used by Starlark.
+ *
+ * Re-exports:
+ * - [Frame][io.github.kotlinmania.starlark_kotlin.syntax.Frame] - stack frame
+ * - [EvalMessage][io.github.kotlinmania.starlark_kotlin.analysis.EvalMessage] - evaluation message
+ * - [EvalSeverity][io.github.kotlinmania.starlark_kotlin.analysis.EvalSeverity] - evaluation severity
+ * - [Lint][io.github.kotlinmania.starlark_kotlin.analysis.Lint] - lint result
+ *
+ * Submodules:
+ * - [didYouMean][io.github.kotlinmania.starlark_kotlin.errors.DidYouMean] - "did you mean" suggestions
+ */
 
-// pub use starlark_syntax::frame::Frame;
-// Kotlin: Frame is in the syntax package.
-// Re-export is not needed in Kotlin; import directly from the source package.
-
-// pub use crate::analysis::EvalMessage;
-// pub use crate::analysis::EvalSeverity;
-// pub use crate::analysis::Lint;
-// Kotlin: These types are in the analysis package.
-// Re-export is not needed in Kotlin; import directly from the source package.
-
-// pub(crate) mod did_you_mean;
-// Kotlin: corresponds to errors/did_you_mean.kt in the errors/ directory.
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias FrameExport = io.github.kotlinmania.starlark_kotlin.syntax.Frame
+internal typealias EvalMessageExport = io.github.kotlinmania.starlark_kotlin.analysis.EvalMessage
+internal typealias EvalSeverityExport = io.github.kotlinmania.starlark_kotlin.analysis.EvalSeverity
+internal typealias LintExport = io.github.kotlinmania.starlark_kotlin.analysis.Lint

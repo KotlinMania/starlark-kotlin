@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/num.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.num
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,4 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
-/** Helpers for numerical values. */
+/**
+ * Helpers for numerical values.
+ *
+ * Submodules:
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.num.Globals] - global num functions
+ * - [typecheck][io.github.kotlinmania.starlark_kotlin.values.types.num.Typecheck] - numeric type checking
+ * - [value][io.github.kotlinmania.starlark_kotlin.values.types.num.Value] - numeric value types
+ */

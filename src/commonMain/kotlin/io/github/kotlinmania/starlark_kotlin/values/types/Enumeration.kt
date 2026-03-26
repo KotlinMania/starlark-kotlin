@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -37,15 +37,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  * assert_eq(Colors.type, "Colors")
  * assert_eq([v.value for v in Colors], ["Red", "Green", "Blue"])
  * ```
+ *
+ * Submodules:
+ * - [enumType][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumType] - enum type definition
+ * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Globals] - global enum functions
+ * - [matcher][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Matcher] - enum matcher
+ * - [tyEnumType][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumType] - enum typing
+ * - [value][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Value] - enum value
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the enumeration/ package.
-// pub(crate) mod enum_type
-// pub(crate) mod globals
-// pub(crate) mod matcher
-// pub(crate) mod ty_enum_type
-// pub(crate) mod value
-// pub use EnumType
-// pub use FrozenEnumType
-// pub use EnumValue
-// pub use FrozenEnumValue
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias EnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumType
+internal typealias FrozenEnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumType
+internal typealias EnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumValue
+internal typealias FrozenEnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumValue

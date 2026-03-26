@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark_kotlin.eval
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,18 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the runtime/ package.
-// pub(crate) mod arguments
-// pub(crate) mod before_stmt
-// pub(crate) mod cheap_call_stack
-// pub(crate) mod evaluator
-// pub(crate) mod file_loader
-// pub(crate) mod frame_span
-// pub(crate) mod frozen_file_span
-// pub(crate) mod inlined_frame
-// pub(crate) mod params
-// pub(crate) mod profile
-// pub(crate) mod rust_loc
-// pub(crate) mod slots
-// pub(crate) mod small_duration
-// pub(crate) mod visit_span
+/**
+ * Runtime evaluation support.
+ *
+ * Submodules:
+ * - [arguments][io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments] - argument handling
+ * - [beforeStmt][io.github.kotlinmania.starlark_kotlin.eval.runtime.BeforeStmt] - pre-statement hooks
+ * - [cheapCallStack][io.github.kotlinmania.starlark_kotlin.eval.runtime.CheapCallStack] - lightweight call stack
+ * - [evaluator][io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator] - main evaluator
+ * - [fileLoader][io.github.kotlinmania.starlark_kotlin.eval.runtime.FileLoader] - file loading
+ * - [frameSpan][io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan] - frame span tracking
+ * - [frozenFileSpan][io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan] - frozen file spans
+ * - [inlinedFrame][io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrame] - inlined frame support
+ * - [params][io.github.kotlinmania.starlark_kotlin.eval.runtime.Params] - parameter handling
+ * - [profile][io.github.kotlinmania.starlark_kotlin.eval.runtime.Profile] - profiling support
+ * - [rustLoc][io.github.kotlinmania.starlark_kotlin.eval.runtime.RustLoc] - source location
+ * - [slots][io.github.kotlinmania.starlark_kotlin.eval.runtime.Slots] - variable slots
+ * - [smallDuration][io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration] - small duration type
+ * - [visitSpan][io.github.kotlinmania.starlark_kotlin.eval.runtime.VisitSpan] - span visitor
+ */

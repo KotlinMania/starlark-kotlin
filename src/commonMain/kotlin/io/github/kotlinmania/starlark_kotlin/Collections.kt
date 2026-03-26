@@ -1,5 +1,5 @@
 // port-lint: source src/collections.rs
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark_kotlin
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,19 +24,19 @@ package io.github.kotlinmania.starlark_kotlin.collections
  *
  * These structures use vector backed storage if there are only a few elements, and an index
  * for larger collections. The API mirrors standard Kotlin collections.
+ *
+ * Submodules:
+ * - [alignedPaddedStr][io.github.kotlinmania.starlark_kotlin.collections.AlignedPaddedStr] - aligned padded string
+ * - [alloca][io.github.kotlinmania.starlark_kotlin.collections.Alloca] - stack allocator
+ * - [maybeUninitBackport][io.github.kotlinmania.starlark_kotlin.collections.MaybeUninitBackport] - maybe uninit
+ * - [stringPool][io.github.kotlinmania.starlark_kotlin.collections.StringPool] - string pool
+ * - [symbol][io.github.kotlinmania.starlark_kotlin.collections.Symbol] - symbol table
  */
 
-// Rust re-exports from starlark_map — in Kotlin, we use standard library collections.
-// pub use Equivalent
-// pub use Hashed
-// pub use StarlarkHashValue
-// pub use StarlarkHasher
-// pub use SmallMap
-// pub use SmallSet
-
-// Rust mod declarations — in Kotlin, these are separate files in the collections/ package.
-// pub(crate) mod aligned_padded_str
-// pub(crate) mod alloca
-// pub(crate) mod maybe_uninit_backport
-// pub(crate) mod string_pool
-// pub(crate) mod symbol
+// Re-exports from starlark_map equivalent (mirrors Rust's pub use starlark_map::*)
+internal typealias EquivalentExport = io.github.kotlinmania.starlark_kotlin.collections.Equivalent
+internal typealias HashedExport = io.github.kotlinmania.starlark_kotlin.collections.Hashed
+internal typealias StarlarkHashValueExport = io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+internal typealias StarlarkHasherExport = io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+internal typealias SmallMapExport<K, V> = io.github.kotlinmania.starlark_kotlin.collections.SmallMap<K, V>
+internal typealias SmallSetExport<T> = io.github.kotlinmania.starlark_kotlin.collections.SmallSet<T>

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.structs
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
 /**
  * The struct type, an associative-map created with `struct()`.
  *
- * This struct type is related to both the dictionary and the
- * record types, all being associative maps.
+ * This struct type is related to both the [dictionary][io.github.kotlinmania.starlark_kotlin.values.types.dict]
+ * and the [record][io.github.kotlinmania.starlark_kotlin.values.types.record] types, all being associative maps.
  *
  * * Like a record, a struct is immutable, fields can be referred to with `struct.field`, and
  *   it uses strings for keys.
@@ -36,14 +36,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * ip_address = struct(host='localhost', port=80)
  * ip_address.port == 80
  * ```
+ *
+ * Submodules:
+ * - [alloc][io.github.kotlinmania.starlark_kotlin.values.types.structs.Alloc] - allocation helpers
+ * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.structs.Refs] - struct references
+ * - [structs][io.github.kotlinmania.starlark_kotlin.values.types.structs.Structs] - struct implementation
+ * - [unorderedHasher][io.github.kotlinmania.starlark_kotlin.values.types.structs.UnorderedHasher] - hash support
+ * - [value][io.github.kotlinmania.starlark_kotlin.values.types.structs.Value] - StarlarkStruct value
  */
 
-// Rust mod declarations — in Kotlin, these are separate files in the structs/ package.
-// pub(crate) mod alloc
-// pub(crate) mod refs
-// pub(crate) mod structs
-// pub(crate) mod unordered_hasher
-// pub(crate) mod value
-// pub use AllocStruct
-// pub use FrozenStructRef
-// pub use StructRef
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias AllocStructExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
+internal typealias FrozenStructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStructRef
+internal typealias StructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef

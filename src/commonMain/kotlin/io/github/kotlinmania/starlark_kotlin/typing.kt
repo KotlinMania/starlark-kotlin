@@ -1,5 +1,5 @@
 // port-lint: source src/typing.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark_kotlin
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,53 +19,53 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-//! Types required to support the [`typecheck`] function.
+// Notes:
+//   We deal with list.append/list.extend/list.insert, which mutate their list argument
+//   We ignore dict.setdefault/dict.update, as these are pretty complex functions
+//   We consider "non-sensical" operations like list.remove and == to have implied types
+//   that make them meaningful even if they don't fail when doing something silly
 
-// pub(crate) mod arc_ty;
-// pub(crate) mod basic;
-// pub(crate) mod bindings;
-// pub(crate) mod call_args;
-// pub(crate) mod callable;
-// pub(crate) mod callable_param;
-// pub(crate) mod ctx;
-// pub(crate) mod custom;
-// pub(crate) mod error;
-// pub(crate) mod fill_types_for_lint;
-// pub(crate) mod function;
-// pub(crate) mod interface;
-// pub(crate) mod mode;
-// pub(crate) mod oracle;
-// pub(crate) mod small_arc_vec;
-// pub(crate) mod small_arc_vec_or_static;
-// pub(crate) mod starlark_value;
-// pub(crate) mod structs;
-// pub(crate) mod tuple;
-// pub(crate) mod ty;
-// pub(crate) mod typecheck;
-// pub(crate) mod user;
-// pub mod macro_support;
-// Submodules: arc_ty, basic, bindings, call_args, callable, callable_param, ctx, custom,
-//   error, fill_types_for_lint, function, interface, mode, oracle, small_arc_vec,
-//   small_arc_vec_or_static, starlark_value, structs, tuple, ty, typecheck, user, macro_support
+/**
+ * Types required to support the [typecheck][io.github.kotlinmania.starlark_kotlin.syntax.AstModule] function.
+ *
+ * Submodules:
+ * - arcTy - arc-wrapped type references
+ * - basic - [TyBasic][io.github.kotlinmania.starlark_kotlin.typing.TyBasic]
+ * - bindings - type bindings
+ * - callArgs - call argument types
+ * - callable - [TyCallable][io.github.kotlinmania.starlark_kotlin.typing.TyCallable]
+ * - callableParam - [ParamSpec][io.github.kotlinmania.starlark_kotlin.typing.ParamSpec]
+ * - ctx - typing context
+ * - custom - custom type support
+ * - error - typing errors
+ * - fillTypesForLint - lint type filling
+ * - function - [TyFunction][io.github.kotlinmania.starlark_kotlin.typing.TyFunction]
+ * - interface - [Interface][io.github.kotlinmania.starlark_kotlin.typing.Interface]
+ * - mode - typing mode
+ * - oracle - typing oracle
+ * - smallArcVec - small arc vector
+ * - smallArcVecOrStatic - small arc vector or static
+ * - starlarkValue - [TyStarlarkValue][io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue]
+ * - structs - [TyStruct][io.github.kotlinmania.starlark_kotlin.typing.TyStruct]
+ * - tuple - tuple typing
+ * - ty - [Ty][io.github.kotlinmania.starlark_kotlin.typing.Ty]
+ * - typecheck - [AstModuleTypecheck][io.github.kotlinmania.starlark_kotlin.typing.AstModuleTypecheck]
+ * - user - [TyUser][io.github.kotlinmania.starlark_kotlin.typing.TyUser]
+ * - macroSupport - macro support utilities
+ */
 
-// Re-exports handled by Kotlin package visibility.
-// pub use basic::TyBasic;
-// pub use callable::TyCallable;
-// pub use callable_param::ParamIsRequired;
-// pub use callable_param::ParamSpec;
-// pub use function::TyFunction;
-// pub use interface::Interface;
-// pub use oracle::ctx::TypingOracleCtx;
-// pub use oracle::traits::TypingBinOp;
-// pub use oracle::traits::TypingUnOp;
-// pub use starlark_value::TyStarlarkValue;
-// pub use structs::TyStruct;
-// pub use ty::Approximation;
-// pub use ty::Ty;
-// pub use ty::TypeRenderConfig;
-// pub use typecheck::AstModuleTypecheck;
-// pub use typecheck::TypeMap;
-// pub use user::TyUser;
-// pub use user::TyUserFields;
-// pub use user::TyUserIndex;
-// pub use user::TyUserParams;
+// Re-exports (mirrors Rust's pub use declarations)
+internal typealias TyBasicExport = io.github.kotlinmania.starlark_kotlin.typing.TyBasic
+internal typealias TyCallableExport = io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+internal typealias ParamSpecExport = io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
+internal typealias TyFunctionExport = io.github.kotlinmania.starlark_kotlin.typing.TyFunction
+internal typealias InterfaceExport = io.github.kotlinmania.starlark_kotlin.typing.Interface
+internal typealias TypingBinOpExport = io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
+internal typealias TypingUnOpExport = io.github.kotlinmania.starlark_kotlin.typing.TypingUnOp
+internal typealias TyStarlarkValueExport = io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+internal typealias TyStructExport = io.github.kotlinmania.starlark_kotlin.typing.TyStruct
+internal typealias TyExport = io.github.kotlinmania.starlark_kotlin.typing.Ty
+internal typealias TyUserExport = io.github.kotlinmania.starlark_kotlin.typing.TyUser
+internal typealias TyUserFieldsExport = io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
+internal typealias TyUserIndexExport = io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
+internal typealias TyUserParamsExport = io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
