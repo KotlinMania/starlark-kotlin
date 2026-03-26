@@ -25,7 +25,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParametersCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtsCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.acceptsPositional
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.CallCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.LocalAsValue
@@ -63,7 +65,7 @@ internal sealed class InlineDefBody {
  */
 private fun isReturnTypeIs(stmt: StmtsCompiled): FrozenStringValue? {
     val first = stmt.first() ?: return null
-    val returnExpr = (first.node as? io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled.Return)?.expr
+    val returnExpr = (first.node as? StmtCompiled.Return)?.expr
         ?: return null
     val (x, t) = returnExpr.node.asTypeIs() ?: return null
     return when (x.node) {
@@ -186,7 +188,7 @@ private fun isReturnSafeToInlineExpr(
             node = ExprCompiled.ValueExpr(FrozenValue.newNone()),
         )
     }
-    val returnNode = first.node as? io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled.Return
+    val returnNode = first.node as? StmtCompiled.Return
         ?: return null
     val expr = returnNode.expr
     return if (IsSafeToInlineExpr(paramCount).isSafeToInlineExpr(expr.node)) {
@@ -270,7 +272,7 @@ internal class InlineDefCallSite(
                 val value = slots[node.slot.value.toInt()]
                 val local = FrozenValueTyped.new<LocalAsValue>(value)
                 val inlinedExpr = if (local != null) {
-                    ExprCompiled.Local(local.value.local)
+                    ExprCompiled.Local(local.asRef().local)
                 } else {
                     ExprCompiled.ValueExpr(value)
                 }
