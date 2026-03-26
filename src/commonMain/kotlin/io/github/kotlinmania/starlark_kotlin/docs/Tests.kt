@@ -1,5 +1,5 @@
 // port-lint: source src/docs/tests.rs
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark_kotlin.docs.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,6 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-// Submodules:
-// mod markdown  -> docs.tests.markdown (Markdown.kt)
-// mod rustdocs  -> docs.tests.rustdocs (Rustdocs.kt)
+// Rust mod declarations — in Kotlin, tests are in commonTest.
+// mod markdown
+// mod rustdocs

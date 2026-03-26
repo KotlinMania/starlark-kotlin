@@ -19,21 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.eval
  * limitations under the License.
  */
 
-
-/// Deprecation handler provided by a user.
-// pub trait SoftErrorHandler
+/** Deprecation handler provided by a user. */
 interface SoftErrorHandler {
-    /// Handle deprecation error. If this function returns successfully, error will be ignored,
-    /// otherwise error will be propagated.
-    // fn soft_error(&self, category: &str, error: crate::Error) -> Result<(), crate::Error>
-    fun softError(category: String, error: Error)
+    /**
+     * Handle deprecation error. If this function returns normally, the error will be ignored,
+     * otherwise the error will be propagated.
+     */
+    fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error)
 }
 
-/// Default handler: warnings are treated as errors.
-// pub(crate) struct HardErrorSoftErrorHandler
+/** Default handler: warnings are treated as errors. */
 internal object HardErrorSoftErrorHandler : SoftErrorHandler {
-    // fn soft_error(&self, _category: &str, error: crate::Error) -> Result<(), crate::Error>
-    override fun softError(category: String, error: Error) {
+    override fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error) {
         throw error
     }
 }

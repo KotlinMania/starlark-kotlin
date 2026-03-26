@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-// Module gateway for stdlib/funcs submodules:
-//   funcs.globals
-//   funcs.min_max
-//   funcs.other
-//   funcs.zip
+// Rust mod declarations — in Kotlin, these are separate files in the funcs/ package.
+// pub(crate) mod globals
+// pub(crate) mod min_max
+// pub(crate) mod other
+// pub(crate) mod zip

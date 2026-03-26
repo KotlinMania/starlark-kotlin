@@ -1,9 +1,6 @@
 // port-lint: source src/values/layout/identity.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
-import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
-
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -22,25 +19,18 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
  * limitations under the License.
  */
 
-
-/// An opaque value representing the identity of a given Value. Two values have the same identity
-/// if and only if `Value.ptrEq` would return `true` on them.
-// pub struct ValueIdentity<'v>
-class ValueIdentity private constructor(
-    private val identity: Any,
+/**
+ * An opaque value representing the identity of a given Value. Two values have the same identity
+ * if and only if [Value.ptrEq] would return `true` on them.
+ */
+data class ValueIdentity internal constructor(
+    private val identity: RawPointer,
 ) {
+    // impl ValueIdentity
+
     companion object {
-        // pub(crate) fn new(value: Value<'v>) -> ValueIdentity<'v>
         internal fun new(value: Value): ValueIdentity {
             return ValueIdentity(value.ptrValue())
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ValueIdentity) return false
-        return identity === other.identity
-    }
-
-    override fun hashCode(): Int = System.identityHashCode(identity)
 }

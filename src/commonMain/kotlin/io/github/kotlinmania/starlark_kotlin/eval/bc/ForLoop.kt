@@ -19,16 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-/// Depth of the loop. For example,
-///
-/// ```text
-/// def foo():
-///   for i in range(10): # depth 0
-///     for j in range(20): # depth 1
-///       pass
-/// ```
-@JvmInline
-value class LoopDepth(val value: UInt = 0u) : Comparable<LoopDepth> {
-    override fun compareTo(other: LoopDepth): Int = value.compareTo(other.value)
-    override fun toString(): String = value.toString()
+/**
+ * Depth of the loop. For example,
+ *
+ * ```text
+ * def foo():
+ *   for i in range(10): # depth 0
+ *     for j in range(20): # depth 1
+ *       pass
+ * ```
+ */
+internal data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
+    override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
+    override fun toString(): String = depth.toString()
 }

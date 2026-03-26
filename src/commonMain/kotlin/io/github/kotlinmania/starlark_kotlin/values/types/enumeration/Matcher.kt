@@ -19,15 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
 
-data class EnumTypeMatcher(
+internal data class EnumTypeMatcher(
     val id: TypeInstanceId,
 ) : TypeMatcher {
+    // impl TypeMatcher for EnumTypeMatcher
     override fun matches(value: Value): Boolean {
         val en = EnumValue.fromValue(value) ?: return false
         return en.id == id

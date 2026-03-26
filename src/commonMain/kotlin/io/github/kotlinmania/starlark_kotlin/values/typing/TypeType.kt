@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_type
+package io.github.kotlinmania.starlark_kotlin.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,33 +22,22 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_type
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.AbstractType
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
 
-/// Represent a type of type. (For example, an expression `int` is valid for this type.)
-// pub struct TypeType(());
-class TypeType private constructor() : StarlarkTypeRepr {
-
+/** Represent a type of type. (For example, an expression `int` is valid for this type.) */
+class TypeType private constructor() : StarlarkTypeRepr, UnpackValue {
     // impl StarlarkTypeRepr for TypeType
-    // type Canonical = AbstractType;
-    // fn starlark_type_repr() -> Ty
+
     override fun starlarkTypeRepr(): Ty {
         return AbstractType.starlarkTypeRepr()
     }
 
     companion object {
-        // static starlark_type_repr
-        fun starlarkTypeRepr(): Ty {
-            return AbstractType.starlarkTypeRepr()
-        }
-
-        /// Validate the value is type.
-        // impl UnpackValue for TypeType
-        // fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error>
-        fun unpackValueImpl(value: Value): TypeType? {
-            return if (TyStarlarkValue.isTypeFromVtable(value)) {
+        /** Validate the value is a type. */
+        fun unpackValue(value: Value): TypeType? {
+            return if (TyStarlarkValue.isTypeFromVtable(value.vtable().starlarkValue)) {
                 TypeType()
             } else {
                 null

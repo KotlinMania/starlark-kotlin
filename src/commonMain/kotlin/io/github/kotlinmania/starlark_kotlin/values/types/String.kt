@@ -19,20 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-//! The string type. All strings must be valid UTF8.
+/** The string type. All strings must be valid UTF8. */
 
-// mod alloc_unpack;
-// pub(crate) mod dot_format;
-// pub(crate) mod globals;
-// pub(crate) mod intern;
-// pub(crate) mod interpolation;
-// pub(crate) mod iter;
-// pub(crate) mod methods;
-// pub(crate) mod repr;
-// pub(crate) mod simd;
-// pub(crate) mod str_type;
-// Submodules: alloc_unpack, dot_format, globals, intern, interpolation, iter, methods, repr, simd, str_type
-
-// pub use crate::values::types::string::str_type::STRING_TYPE;
-// pub use crate::values::types::string::str_type::StarlarkStr;
-// Re-exports handled by Kotlin package visibility.
+// Rust mod declarations — in Kotlin, these are separate files in the string/ package.
+// mod alloc_unpack
+// pub(crate) mod dot_format
+// pub(crate) mod globals
+// pub(crate) mod intern
+// pub(crate) mod interpolation
+// pub(crate) mod iter
+// pub(crate) mod methods
+// pub(crate) mod repr
+// pub(crate) mod simd
+// pub(crate) mod str_type
+// pub use STRING_TYPE
+// pub use StarlarkStr

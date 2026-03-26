@@ -19,24 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
  * limitations under the License.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class GlobalsBuilder {
-    fun const(name: String, value: NoneType)
-}
-
-expect class NoneType
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 /**
- * Register None constant to global scope.
+ * Register the `None` constant in globals.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
- * The macro in Rust generates code to register these globals; in Kotlin, we
- * implement this explicitly as a regular function.
+ * The `None` value, used to represent nothing.
+ * Implicitly returned from functions that don't have an explicit return.
  */
 internal fun registerNone(globals: GlobalsBuilder) {
-    /**
-     * The `None` value, used to represent nothing.
-     * Implicitly returned from functions that don't have an explicit return.
-     */
-    globals.const("None", NoneType)
+    globals.setConst("None", NoneType)
 }

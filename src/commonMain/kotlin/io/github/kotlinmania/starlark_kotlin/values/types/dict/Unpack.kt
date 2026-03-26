@@ -1,12 +1,8 @@
 // port-lint: source src/values/types/dict/unpack.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-
-
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -23,78 +19,31 @@ import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+
 /**
  * Unpack `dict`.
  *
- * There's `impl` [UnpackValue] for [SmallMap](starlark_map::small_map::SmallMap)
- * but this can be used when hashing of unpacked keys is not needed.
+ * This can be used when hashing of unpacked keys is not needed.
  */
-data class UnpackDictEntries<K, V>(
+class UnpackDictEntries<K, V>(
     /** Entries of the dictionary. */
-    val entries: MutableList<Pair<K, V>> = mutableListOf()
-)
-
-// StarlarkTypeRepr implementation for UnpackDictEntries<K, V>
-internal fun <K, V> starlarkTypeReprForUnpackDictEntries(): StarlarkTypeRepr<UnpackDictEntries<K, V>> {
-    return object : StarlarkTypeRepr<UnpackDictEntries<K, V>> {
-        override fun starlarkTypeRepr(): Ty {
-            return DictType.starlarkTypeRepr<K, V>()
+    val entries: MutableList<Pair<K, V>> = mutableListOf(),
+) {
+    companion object {
+        fun <K : Any, V : Any> unpackValue(value: Value): UnpackDictEntries<K, V>? {
+            val dict = DictRef.unpackValueOpt(value) ?: return null
+            val entries = mutableListOf<Pair<K, V>>()
+            for ((k, v) in dict) {
+                @Suppress("UNCHECKED_CAST")
+                val key = UnpackValue.unpackValueImpl<K>(k) ?: return null
+                @Suppress("UNCHECKED_CAST")
+                val value = UnpackValue.unpackValueImpl<V>(v) ?: return null
+                entries.add(Pair(key, value))
+            }
+            return UnpackDictEntries(entries)
         }
     }
-}
-
-// UnpackValue implementation for UnpackDictEntries<K, V>
-internal fun <K, V> unpackValueImplForUnpackDictEntries(
-    value: Value<*>,
-    kUnpack: (Value<*>) -> Result<K?>,
-    vUnpack: (Value<*>) -> Result<V?>
-): Result<UnpackDictEntries<K, V>?> {
-    val dict = DictRef.unpackValueOpt(value) ?: return Result.success(null)
-
-    val entries = mutableListOf<Pair<K, V>>()
-
-    for ((k, v) in dict.iter()) {
-        val unpackedK = kUnpack(k).mapCatching { it }.getOrElse { error ->
-            return Result.failure(Either.Left<Any, Any>(error))
-        } ?: return Result.success(null)
-
-        val unpackedV = vUnpack(v).mapCatching { it }.getOrElse { error ->
-            return Result.failure(Either.Right<Any, Any>(error))
-        } ?: return Result.success(null)
-
-        entries.add(Pair(unpackedK, unpackedV))
-    }
-
-    return Result.success(UnpackDictEntries(entries))
-}
-
-// Placeholder types for dependencies that will be ported later
-
-internal interface StarlarkTypeRepr<T> {
-    fun starlarkTypeRepr(): Ty
-}
-
-internal class Ty private constructor() {
-    companion object {
-        fun dict(keyTy: Ty, valueTy: Ty): Ty = Ty()
-    }
-}
-
-internal class Value<V> private constructor()
-
-internal class DictRef<V> private constructor() {
-    fun iter(): List<Pair<Value<*>, Value<*>>> = emptyList()
-
-    companion object {
-        fun <V> unpackValueOpt(value: Value<V>): DictRef<V>? = null
-    }
-}
-
-internal object DictType {
-    fun <K, V> starlarkTypeRepr(): Ty = Ty()
-}
-
-internal sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
 }

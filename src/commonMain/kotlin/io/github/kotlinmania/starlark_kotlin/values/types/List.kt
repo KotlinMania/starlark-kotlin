@@ -19,19 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-//! The list type, a mutable sequence of values.
+/** The list type, a mutable sequence of values. */
 
-// pub(crate) mod alloc;
-// pub(crate) mod globals;
-// mod list_type;
-// pub(crate) mod methods;
-// mod refs;
-// pub(crate) mod unpack;
-// pub(crate) mod value;
-// Submodules: alloc, globals, list_type, methods, refs, unpack, value
-
-// pub use crate::values::types::list::alloc::AllocList;
-// pub use crate::values::types::list::list_type::ListType;
-// pub use crate::values::types::list::refs::ListRef;
-// pub use crate::values::types::list::unpack::UnpackList;
-// Re-exports handled by Kotlin package visibility.
+// Rust mod declarations — in Kotlin, these are separate files in the list/ package.
+// pub(crate) mod alloc
+// pub(crate) mod globals
+// mod list_type
+// pub(crate) mod methods
+// mod refs
+// pub(crate) mod unpack
+// pub(crate) mod value
+// pub use AllocList
+// pub use ListType
+// pub use ListRef
+// pub use UnpackList

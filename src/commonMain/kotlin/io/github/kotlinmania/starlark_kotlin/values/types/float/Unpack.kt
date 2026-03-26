@@ -1,14 +1,8 @@
 // port-lint: source src/values/types/float/unpack.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.float
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.value_of.unpackValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.types.num.asFloat
-import io.github.kotlinmania.starlark_kotlin.tests.assert
-import io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard.unpackValueImpl
-
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -25,70 +19,18 @@ import io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard.unpackVal
  * limitations under the License.
  */
 
-/**
- * Unpack `int` or `float` into `f64`.
- */
-@JvmInline
-value class UnpackFloat(val value: Double)
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.num.value.NumRef
 
-// Extension functions implementing trait-like behavior for UnpackFloat
-
-/**
- * StarlarkTypeRepr implementation for UnpackFloat.
- * Canonical type is Num::Canonical, delegates to Num's type representation.
- */
-internal fun UnpackFloat.Companion.starlarkTypeRepr(): Ty =
-    Num.Companion.canonical().starlarkTypeRepr()
-
-/**
- * UnpackValue implementation for UnpackFloat.
- * Unpacks NumRef and converts to f64 via as_float().
- */
-internal fun UnpackFloat.Companion.unpackValueImpl(value: Value<*>): Result<UnpackFloat?> {
-    val num = NumRef.Companion.unpackValueImpl(value).getOrNull()
-        ?: return Result.success(null)
-    return Result.success(num?.let { UnpackFloat(it.asFloat()) })
-}
-
-// Placeholder types for dependencies that will be ported later
-internal class Ty private constructor()
-internal class Value<V> private constructor() {
+/** Unpack `int` or `float` into `Double`. */
+class UnpackFloat(val value: Double) {
     companion object {
-        fun testingNewInt(i: Int): Value<*> = Value()
-    }
-}
-internal class NumRef<V> private constructor() {
-    fun asFloat(): Double = 0.0
-    companion object {
-        fun unpackValueImpl(value: Value<*>): Result<NumRef<*>?> = Result.success(null)
-    }
-}
-internal class Num private constructor() {
-    companion object {
-        fun canonical(): StarlarkTypeRepr = object : StarlarkTypeRepr {
-            override fun starlarkTypeRepr(): Ty = Ty()
+        fun unpackValue(value: Value): UnpackFloat? {
+            val num = NumRef.unpackValueImpl(value) ?: return null
+            return UnpackFloat(num.asFloat())
         }
     }
 }
-internal interface StarlarkTypeRepr {
-    fun starlarkTypeRepr(): Ty
-}
-internal class Heap private constructor() {
-    fun alloc(value: Double): Value<*> = Value()
-    companion object {
-        fun <T> temp(block: (Heap) -> T): T = block(Heap())
-    }
-}
 
-// Tests
-internal fun testUnpackFloat() {
-    Heap.temp { heap ->
-        val test1 = UnpackFloat.unpackValueImpl(Value.testingNewInt(1))
-            .getOrNull()
-        assert(test1?.value == 1.0)
-
-        val test2 = UnpackFloat.unpackValueImpl(heap.alloc(1.0))
-            .getOrNull()
-        assert(test2?.value == 1.0)
-    }
-}
+// #[cfg(test)] mod tests
+// Tests are in commonTest, not here.

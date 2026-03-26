@@ -1,5 +1,5 @@
 // port-lint: source src/values/types.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,31 +19,31 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-// Module gateway: sub-modules
-// any
-// any_array
-// any_complex
-// array
-// bigint
-// bool
-// dict
-// ellipsis
-// enumeration
-// float
-// function
-// int
-// known_methods
-// list
-// list_or_tuple
-// namespace
-// none
-// num
-// range
-// record
-// set
-// starlark_value_as_type
-// string
-// structs
-// tuple
-// type_instance_id
-// unbound
+// Rust mod declarations — in Kotlin, these are separate files in the types/ package.
+// pub mod any
+// pub mod any_array
+// pub mod any_complex
+// pub mod array
+// pub mod bigint
+// pub mod bool
+// pub mod dict
+// pub(crate) mod ellipsis
+// pub mod enumeration
+// pub mod float
+// pub mod function
+// pub mod int
+// pub(crate) mod known_methods
+// pub mod list
+// pub mod list_or_tuple
+// pub mod namespace
+// pub mod none
+// pub(crate) mod num
+// pub mod range
+// pub mod record
+// pub mod set
+// pub mod starlark_value_as_type
+// pub mod string
+// pub mod structs
+// pub mod tuple
+// pub(crate) mod type_instance_id
+// pub(crate) mod unbound

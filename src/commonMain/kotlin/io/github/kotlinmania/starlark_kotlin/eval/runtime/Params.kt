@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/params.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark_kotlin.eval.runtime.params
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-//! Function parameters.
+/** Function parameters. */
 
-// pub(crate) mod display;
-// pub(crate) mod parser;
-// pub(crate) mod spec;
+// Rust mod declarations — in Kotlin, these are separate files in the params/ package.
+// pub(crate) mod display
+// pub(crate) mod parser
+// pub(crate) mod spec

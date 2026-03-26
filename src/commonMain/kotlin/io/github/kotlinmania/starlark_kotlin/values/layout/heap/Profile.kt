@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  * limitations under the License.
  */
 
-/// Summary of heap allocations and function times with stacks.
+/** Summary of heap allocations and function times with stacks. */
 
-// Module gateway: sub-modules
-// aggregated
-// alloc_counts
-// by_type
-// string_index
-// summary_by_function
+// Rust mod declarations — in Kotlin, these are separate files in the profile/ package.
+// pub(crate) mod aggregated
+// pub(crate) mod alloc_counts
+// pub(crate) mod by_type
+// pub(crate) mod string_index
+// mod summary_by_function

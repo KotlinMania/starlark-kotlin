@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,18 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-//! The tuple type, an immutable sequence of values.
-//
-// Module gateway: submodules
-// - alloc
-// - globals
-// - refs
-// - rust_tuple
-// - unpack
-// - value
-//
-// Public re-exports:
-// - AllocTuple (from alloc)
-// - FrozenTupleRef (from refs)
-// - TupleRef (from refs)
-// - UnpackTuple (from unpack)
+/** The tuple type, an immutable sequence of values. */
+
+// Rust mod declarations — in Kotlin, these are separate files in the tuple/ package.
+// pub(crate) mod alloc
+// pub(crate) mod globals
+// pub(crate) mod refs
+// pub(crate) mod rust_tuple
+// pub(crate) mod unpack
+// pub(crate) mod value
+// pub use AllocTuple
+// pub use FrozenTupleRef
+// pub use TupleRef
+// pub use UnpackTuple

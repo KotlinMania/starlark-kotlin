@@ -20,38 +20,35 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocTupleIter
 
-/// [tuple](
-/// https://github.com/bazelbuild/starlark/blob/master/spec.md#tuple
-/// ): returns a tuple containing the elements of the iterable x.
-///
-/// With no arguments, `tuple()` returns the empty tuple.
-///
-/// ```
-/// tuple() == ()
-/// tuple([1,2,3]) == (1, 2, 3)
-/// ```
-fun tuple(
-    a: ValueOfUnchecked<StarlarkIter<Value>>? = null,
-    heap: Heap,
-): Result<ValueOfUnchecked<TupleRef>> {
-    if (a != null) {
-        if (TupleRef.fromValue(a.get()) != null) {
-            return Result.success(ValueOfUnchecked.new(a.get()))
+/**
+ * Register the `tuple` builtin function.
+ *
+ * [tuple](
+ * https://github.com/bazelbuild/starlark/blob/master/spec.md#tuple
+ * ): returns a tuple containing the elements of the iterable x.
+ *
+ * With no arguments, `tuple()` returns the empty tuple.
+ *
+ * ```
+ * tuple() == ()
+ * tuple([1,2,3]) == (1, 2, 3)
+ * ```
+ */
+internal fun registerTuple(globals: GlobalsBuilder) {
+    globals.setFunction("tuple") { a: Value?, heap: Heap ->
+        if (a == null) {
+            heap.allocTuple(emptyList())
+        } else {
+            val tupleRef = TupleRef.fromValue(a)
+            if (tupleRef != null) {
+                a
+            } else {
+                val it = a.iterate(heap)
+                heap.allocTupleIter(it)
+            }
         }
-
-        val it = a.get().iterate(heap)
-        return Result.success(ValueOfUnchecked.new(heap.allocTupleIter(it)))
-    } else {
-        return Result.success(ValueOfUnchecked.new(heap.alloc(AllocTuple.EMPTY)))
     }
-}
-
-fun registerTuple(globals: GlobalsBuilder) {
-    globals.set("tuple", ::tuple)
 }

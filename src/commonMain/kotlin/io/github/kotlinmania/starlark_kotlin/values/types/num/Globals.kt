@@ -20,34 +20,26 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import kotlin.math.abs
+import io.github.kotlinmania.starlark_kotlin.values.types.num.value.Num
+import io.github.kotlinmania.starlark_kotlin.values.types.num.value.NumRef
 
-/// #[starlark_module]
-/// pub(crate) fn register_num(globals: &mut GlobalsBuilder)
+/**
+ * Register numerical global functions.
+ *
+ * ```
+ * abs(0)   == 0
+ * abs(-10) == 10
+ * abs(10)  == 10
+ * abs(10.0) == 10.0
+ * abs(-12.34) == 12.34
+ * ```
+ */
 internal fun registerNum(globals: GlobalsBuilder) {
-    /// Take the absolute value of an int.
-    ///
-    /// ```
-    /// abs(0)   == 0
-    /// abs(-10) == 10
-    /// abs(10)  == 10
-    /// abs(10.0) == 10.0
-    /// abs(-12.34) == 12.34
-    /// ```
-    ///
-    /// fn abs(#[starlark(require = pos)] x: NumRef) -> anyhow::Result<Num>
-    fun abs(x: NumRef): Num {
-        return when (x) {
+    /** Take the absolute value of an int. */
+    globals.setFunction("abs") { x: NumRef ->
+        when (x) {
             is NumRef.Int -> Num.Int(x.value.abs())
-            is NumRef.Float -> Num.Float(abs(x.value.value))
+            is NumRef.Float -> Num.Float(kotlin.math.abs(x.value))
         }
-    }
-
-    globals.setFunction(
-        name = "abs",
-        positional = 1,
-    ) { args, _ ->
-        val x = args.first() as NumRef
-        Result.success(abs(x))
     }
 }

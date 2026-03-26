@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/value_captured.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.value_captured
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,64 +19,108 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.value_captured
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+/**
+ * Special value which holds a reference to actual value.
+ * This is used to implement variable capture by nested functions.
+ *
+ * [Value] holding [ValueCaptured] is equivalent to `Box<Option<Value>>`.
+ */
 
-/// Special value which holds a reference to actual value.
-/// This is used to implement variable capture by nested functions.
-///
-/// `Value` holding `ValueCaptured` is equivalent to `Box<Option<Value>>`.
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
+// #[display("{:?}", self)] // This type should never be user visible
+// #[repr(transparent)]
+// #[allocative(skip)]
 // pub(crate) struct ValueCaptured<'v>(Cell<Option<Value<'v>>>);
-// Kotlin: single class, no lifetime. Mutable var for Cell semantics.
-internal class ValueCaptured(
-    private var payload: Value?,
-) : StarlarkValue {
+internal class ValueCaptured private constructor(
+    @Volatile private var payload: Value?,
+) : StarlarkValue, Trace, Freeze<FrozenValueCaptured> {
 
+    override val TYPE: String get() = "value_captured"
+
+    // #[display("{:?}", self)]
+    override fun toString(): String = "ValueCaptured($payload)"
+
+    // impl Trace for ValueCaptured
+    override fun trace(tracer: Tracer) {
+        payload?.let { value ->
+            payload = tracer.trace(value)
+        }
+    }
+
+    // impl ValueCaptured
     companion object {
         // pub(crate) fn new(payload: Option<Value<'v>>) -> ValueCaptured<'v>
-        fun new(payload: Value?): ValueCaptured {
+        internal fun new(payload: Value?): ValueCaptured {
+            if (payload != null) {
+                assert(payload.downcastRef<ValueCaptured>() == null)
+                assert(payload.downcastRef<FrozenValueCaptured>() == null)
+            }
             return ValueCaptured(payload)
         }
     }
 
+    // impl ValueCaptured
     // pub(crate) fn set(&self, value: Value<'v>)
-    fun set(value: Value) {
-        payload = value
+    internal fun set(value: Value) {
+        assert(value.downcastRef<ValueCaptured>() == null)
+        assert(value.downcastRef<FrozenValueCaptured>() == null)
+        this.payload = value
     }
 
     // Cell::get equivalent
-    fun get(): Value? {
+    internal fun get(): Value? {
         return payload
     }
 
-    // #[starlark_value(type = "value_captured")]
-    // impl StarlarkValue for ValueCaptured
-
-    // #[display("{:?}", self)]
-    override fun toString(): String {
-        return "ValueCaptured($payload)"
+    // impl Freeze for ValueCaptured
+    // type Frozen = FrozenValueCaptured;
+    // fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValueCaptured>
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenValueCaptured> {
+        val frozenPayload: FrozenValue? = if (payload != null) {
+            val result = payload!!.freeze(freezer)
+            if (result.isFailure) {
+                @Suppress("UNCHECKED_CAST")
+                return result as FreezeResult<FrozenValueCaptured>
+            }
+            result.getOrThrow()
+        } else {
+            null
+        }
+        return Result.success(FrozenValueCaptured(frozenPayload))
     }
 }
 
 // #[derive(Debug, ProvidesStaticType, Display, NoSerialize, Allocative)]
+// #[display("{:?}", self)] // Type is not user visible
+// #[repr(transparent)]
 // pub(crate) struct FrozenValueCaptured(Option<FrozenValue>);
 internal class FrozenValueCaptured(
-    internal val inner: FrozenValue?,
+    private val payload: FrozenValue?,
 ) : StarlarkValue {
 
-    // #[starlark_value(type = "value_captured")]
-    // impl StarlarkValue for FrozenValueCaptured
+    override val TYPE: String get() = "value_captured"
 
     // #[display("{:?}", self)]
-    override fun toString(): String {
-        return "FrozenValueCaptured($inner)"
+    override fun toString(): String = "FrozenValueCaptured($payload)"
+
+    internal fun get(): FrozenValue? {
+        return payload
     }
 }
+
+// #[starlark_value(type = "value_captured")]
+// impl<'v> StarlarkValue<'v> for ValueCaptured<'v> {}
+
+// #[starlark_value(type = "value_captured")]
+// impl<'v> StarlarkValue<'v> for FrozenValueCaptured {
+//     type Canonical = ValueCaptured<'v>;
+// }
 
 // pub(crate) fn value_captured_get<'v>(value_captured: Value<'v>) -> Option<Value<'v>>
 internal fun valueCapturedGet(valueCaptured: Value): Value? {
@@ -84,7 +128,7 @@ internal fun valueCapturedGet(valueCaptured: Value): Value? {
     if (frozen != null) {
         val frozenCaptured = frozen.downcastRef<FrozenValueCaptured>()
             ?: error("not a ValueCaptured")
-        return frozenCaptured.inner?.toValue()
+        return frozenCaptured.get()?.toValue()
     } else {
         val captured = valueCaptured.downcastRef<ValueCaptured>()
             ?: error("not a ValueCaptured")

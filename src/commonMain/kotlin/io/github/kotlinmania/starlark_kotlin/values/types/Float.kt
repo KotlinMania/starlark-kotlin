@@ -19,13 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-//! The floating point number type (3.14, 4e2).
+/** The floating point number type (3.14, 4e2). */
 
-// pub(crate) mod float;
-// pub(crate) mod globals;
-// pub(crate) mod unpack;
-// Submodules: float, globals, unpack
-
-// pub use crate::values::types::float::float::StarlarkFloat;
-// pub use crate::values::types::float::unpack::UnpackFloat;
-// Re-exports handled by Kotlin package visibility.
+// Rust mod declarations — in Kotlin, these are separate files in the float/ package.
+// pub(crate) mod float
+// pub(crate) mod globals
+// pub(crate) mod unpack
+// pub use StarlarkFloat
+// pub use UnpackFloat

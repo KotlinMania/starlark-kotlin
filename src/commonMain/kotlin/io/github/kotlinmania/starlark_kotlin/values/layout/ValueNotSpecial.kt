@@ -20,18 +20,16 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.stack_guard.stackGuard
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.isStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.unpackHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
+import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 
-/// `FrozenValue` which is not `i32` or `str`.
-// #[derive(Copy, Clone, Dupe, Debug, Display)]
-// pub(crate) struct FrozenValueNotSpecial(FrozenValue)
+/** [FrozenValue] which is not `i32` or `str`. */
 internal class FrozenValueNotSpecial private constructor(
     private val value: FrozenValue,
 ) {
+    // impl FrozenValueNotSpecial
+
     companion object {
-        // pub(crate) fn new(value: FrozenValue) -> Option<FrozenValueNotSpecial>
         fun new(value: FrozenValue): FrozenValueNotSpecial? {
             return if (value.isStr() || value.unpackInlineInt() != null) {
                 null
@@ -41,18 +39,17 @@ internal class FrozenValueNotSpecial private constructor(
         }
     }
 
-    // pub(crate) fn to_frozen_value(self) -> FrozenValue
     fun toFrozenValue(): FrozenValue = value
 
-    // pub(crate) fn to_value(self) -> Value
     fun toValue(): Value = value.toValue()
 
-    // fn get_ref(self) -> AValueDyn
     private fun getRef(): AValueDyn {
-        return value.unpackPtrNoIntNoStr()!!.unpackHeader().unpack()
+        return value.ptr
+            .unpackPtrNoIntNoStrUnchecked()
+            .unpackHeaderUnchecked()
+            .unpack()
     }
 
-    // pub(crate) fn equals(self, other: Value) -> Result<bool>
     fun equals(other: Value): Result<Boolean> {
         return if (toValue().ptrEq(other)) {
             Result.success(true)
@@ -61,10 +58,13 @@ internal class FrozenValueNotSpecial private constructor(
         }
     }
 
-    // fn equals_not_ptr_eq(self, other: Value) -> Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
-        stackGuard()
-        return getRef().equals(other)
+        val guard = stackGuard()
+        return try {
+            getRef().equals(other)
+        } finally {
+            guard.close()
+        }
     }
 
     override fun toString(): String = value.toString()

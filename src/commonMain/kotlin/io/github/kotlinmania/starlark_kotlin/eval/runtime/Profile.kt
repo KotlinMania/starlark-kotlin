@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-// pub(crate) mod bc;
-// pub(crate) mod csv;
-// pub(crate) mod data;
-// pub(crate) mod flamegraph;
-// pub(crate) mod heap;
-// pub(crate) mod instant;
-// pub(crate) mod mode;
-// pub(crate) mod or_instrumentation;
-// pub(crate) mod profiler_type;
-// pub(crate) mod stmt;
-// pub(crate) mod tests;
-// pub(crate) mod time_flame;
-// pub(crate) mod typecheck;
+// Rust mod declarations — in Kotlin, these are separate files in the profile/ package.
+// pub(crate) mod bc
+// pub(crate) mod csv
+// pub(crate) mod data
+// pub(crate) mod flamegraph
+// pub(crate) mod heap
+// pub(crate) mod instant
+// pub(crate) mod mode
+// pub(crate) mod or_instrumentation
+// pub(crate) mod profiler_type
+// pub(crate) mod stmt
+// pub(crate) mod tests
+// pub(crate) mod time_flame
+// pub(crate) mod typecheck

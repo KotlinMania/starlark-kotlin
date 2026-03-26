@@ -19,39 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeAnyOfTwo
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.fromTy
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
 
-// #[derive(Debug, thiserror::Error)]
-// enum TypingMacroRefsError
-private sealed class TypingMacroRefsError(message: String) : Exception(message) {
-    // #[error("LHS is not a type: `{0}`")]
-    // LhsNotType(String)
-    class LhsNotType(repr: String) : TypingMacroRefsError("LHS is not a type: `$repr`")
-}
+private class TypingMacroRefsError(repr: String) : Exception("LHS is not a type: \`$repr\`")
 
-/// Implementation of `bit_or` for `StarlarkValue` implementations which are types.
-// pub fn starlark_value_bit_or_for_type<'v, S: StarlarkValue<'v>>(
-//     this: &S,
-//     other: Value<'v>,
-//     heap: Heap<'v>,
-// ) -> crate::Result<Value<'v>>
+/** Implementation of `bitOr` for [StarlarkValue] implementations which are types. */
 fun starlarkValueBitOrForType(
     thisValue: StarlarkValue,
     other: Value,
     heap: Heap,
 ): Result<Value> {
-    val thisType = thisValue.evalType()
-    if (thisType == null) {
-        val repr = buildString { thisValue.collectRepr(this) }
-        return Result.failure(TypingMacroRefsError.LhsNotType(repr))
-    }
-    val thisCompiled = TypeCompiled.fromTy(thisType, heap)
-    val otherCompiled = TypeCompiled.new(other, heap).getOrElse { return Result.failure(it) }
+    val evalType = thisValue.evalType()
+        ?: run {
+            val repr = buildString { thisValue.collectRepr(this) }
+            return Result.failure(TypingMacroRefsError(repr))
+        }
+    val thisCompiled = TypeCompiled.fromTy(evalType, heap)
+    val otherCompiled = TypeCompiled.new(other, heap).getOrThrow()
     return Result.success(TypeCompiled.typeAnyOfTwo(thisCompiled, otherCompiled, heap).toInner())
 }

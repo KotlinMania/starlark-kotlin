@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark_kotlin.values.types.structs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,31 +19,31 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/// The struct type, an associative-map created with `struct()`.
-///
-/// This struct type is related to both the dictionary and the
-/// record types, all being associative maps.
-///
-/// * Like a record, a struct is immutable, fields can be referred to with `struct.field`, and
-///   it uses strings for keys.
-/// * Like a dictionary, the struct is untyped, and manipulating structs from Kotlin is ergonomic.
-///
-/// The `struct()` function creates a struct. It accepts keyword arguments, keys become
-/// struct field names, and values become field values.
-///
-/// ```
-/// val ipAddress = struct(host = "localhost", port = 80)
-/// ipAddress.port == 80
-/// ```
-///
-/// Submodules:
-///  - structs/Alloc.kt (alloc)
-///  - structs/Refs.kt (refs)
-///  - structs/Structs.kt (structs)
-///  - structs/UnorderedHasher.kt (unordered_hasher)
-///  - structs/Value.kt (value)
+/**
+ * The struct type, an associative-map created with `struct()`.
+ *
+ * This struct type is related to both the dictionary and the
+ * record types, all being associative maps.
+ *
+ * * Like a record, a struct is immutable, fields can be referred to with `struct.field`, and
+ *   it uses strings for keys.
+ * * Like a dictionary, the struct is untyped, and manipulating structs from Kotlin is ergonomic.
+ *
+ * The `struct()` function creates a struct. It accepts keyword arguments, keys become
+ * struct field names, and values become field values.
+ *
+ * ```
+ * ip_address = struct(host='localhost', port=80)
+ * ip_address.port == 80
+ * ```
+ */
 
-// Re-exports:
-// pub use crate::values::types::structs::alloc::AllocStruct
-// pub use crate::values::types::structs::refs::FrozenStructRef
-// pub use crate::values::types::structs::refs::StructRef
+// Rust mod declarations — in Kotlin, these are separate files in the structs/ package.
+// pub(crate) mod alloc
+// pub(crate) mod refs
+// pub(crate) mod structs
+// pub(crate) mod unordered_hasher
+// pub(crate) mod value
+// pub use AllocStruct
+// pub use FrozenStructRef
+// pub use StructRef

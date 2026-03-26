@@ -19,29 +19,27 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 
-/// Slow instruction arg: stored in the end of bytecode,
-/// expensive to access. Used to implement errors.
-// #[derive(Default, Debug)]
-// pub(crate) struct BcInstrSlowArg
+/**
+ * Slow instruction arg: stored in the end of bytecode,
+ * expensive to access. Used to implement errors.
+ */
 internal data class BcInstrSlowArg(
-    /// Instruction code span.
-    var span: FrameSpan = FrameSpan(),
-    /// Spans when an instruction needs multiple spans.
-    var spans: MutableList<FrameSpan> = mutableListOf(),
+    /** Instruction code span. */
+    val span: FrameSpan = FrameSpan.default(),
+    /** Spans when an instruction needs multiple spans. */
+    val spans: MutableList<FrameSpan> = mutableListOf(),
 )
 
-// #[derive(Debug, Default)]
-// pub(crate) struct BcInstrEndArg
 internal data class BcInstrEndArg(
-    /// Offset of end instruction.
-    var endAddr: BcAddr = BcAddr(0),
-    /// Spans of all instructions.
-    var slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>> = mutableListOf(),
-    /// Frame local names.
-    var localNames: FrozenRef<List<FrozenStringValue>> = FrozenRef(emptyList()),
+    /** Offset of end instruction. */
+    val endAddr: BcAddr = BcAddr.default(),
+    /** Spans of all instructions. */
+    val slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>> = mutableListOf(),
+    /** Frame local names. */
+    val localNames: FrozenRef<List<FrozenStringValue>> = FrozenRef.empty(),
 )

@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/const_type_id.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,41 +21,26 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id
 
 import kotlin.reflect.KClass
 
-/// `TypeId` wrapper/provider until `const_type_id` feature is stabilized.
-// #[derive(Copy, Clone, Dupe, Allocative)]
-// pub(crate) struct ConstTypeId {
-//     #[cfg(rust_nightly)]
-//     type_id: TypeId,
-//     #[cfg(not(rust_nightly))]
-//     type_id_fn: fn() -> TypeId,
-// }
-// Kotlin: KClass serves as the type identifier.
-internal class ConstTypeId(
-    private val typeId: KClass<*>,
+/**
+ * `TypeId` wrapper/provider.
+ *
+ * Kotlin: Uses [KClass] for type identification instead of Rust's `TypeId`.
+ */
+internal data class ConstTypeId(
+    private val klass: KClass<*>,
 ) {
+    // impl ConstTypeId
+
+    /** Get the underlying [KClass]. */
+    fun get(): KClass<*> = klass
+
     companion object {
-        // pub(crate) const fn of<T: ?Sized + 'static>() -> ConstTypeId
-        inline fun <reified T : Any> of(): ConstTypeId {
-            return ConstTypeId(T::class)
-        }
+        // const fn of<T: ?Sized + 'static>() -> ConstTypeId
+        inline fun <reified T : Any> of(): ConstTypeId = ConstTypeId(T::class)
     }
 
-    // #[inline]
-    // pub(crate) fn get(self) -> TypeId
-    fun get(): KClass<*> = typeId
-
-    // impl Debug for ConstTypeId
-    override fun toString(): String {
-        return "ConstTypeId(type_id=$typeId)"
-    }
-
-    // impl PartialEq for ConstTypeId
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ConstTypeId) return false
-        return typeId == other.typeId
-    }
-
-    // impl Hash for ConstTypeId
-    override fun hashCode(): Int = typeId.hashCode()
+    // Debug is handled by data class toString()
+    // PartialEq is handled by data class equals()
+    // Eq is handled by data class equals()
+    // Hash is handled by data class hashCode()
 }

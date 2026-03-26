@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark_kotlin.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,31 +19,29 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-//! Typechecker-related types.
+/** Typechecker-related types. */
 
-// Rust module declarations — in Kotlin these are packages under values/typing/
-// pub(crate) mod any;
-// pub(crate) mod callable;
-// pub(crate) mod globals;
-// pub(crate) mod iter;
-// pub mod macro_refs;
-// pub(crate) mod never;
-// pub(crate) mod ty;
-// pub(crate) mod type_compiled;
-// pub(crate) mod type_type;
-
-// Re-exports — in Kotlin these are available via their respective packages:
-// pub use TypeInstanceId           -> values.types.type_instance_id.TypeInstanceId
-// pub use FrozenStarlarkCallable   -> values.typing.callable.FrozenStarlarkCallable
-// pub use StarlarkCallable         -> values.typing.callable.StarlarkCallable
-// pub use StarlarkCallableChecked  -> values.typing.callable.StarlarkCallableChecked
-// pub use StarlarkCallableParamAny -> values.typing.callable.param.StarlarkCallableParamAny
-// pub use StarlarkCallableParamSpec -> values.typing.callable.param.StarlarkCallableParamSpec
-// pub use StarlarkIter             -> values.typing.iter.StarlarkIter
-// pub use StarlarkNever            -> values.typing.never.StarlarkNever
-// pub use TypeCompiled             -> values.typing.type_compiled.compiled.TypeCompiled
-// pub use TypeCompiledImplAsStarlarkValue -> values.typing.type_compiled.compiled.TypeCompiledImplAsStarlarkValue
-// pub use TypeMatcher              -> values.typing.type_compiled.matcher.TypeMatcher
-// pub use TypeMatcherRegistered    -> values.typing.type_compiled.matcher.TypeMatcherRegistered
-// pub use TypeMatcherFactory       -> values.typing.type_compiled.type_matcher_factory.TypeMatcherFactory
-// pub use TypeType                 -> values.typing.type_type.TypeType
+// Rust mod declarations — in Kotlin, these are separate files in the typing/ package.
+// pub(crate) mod any
+// pub(crate) mod callable
+// pub(crate) mod globals
+// pub(crate) mod iter
+// pub mod macro_refs
+// pub(crate) mod never
+// pub(crate) mod ty
+// pub(crate) mod type_compiled
+// pub(crate) mod type_type
+// pub use TypeInstanceId
+// pub use FrozenStarlarkCallable
+// pub use StarlarkCallable
+// pub use StarlarkCallableChecked
+// pub use StarlarkCallableParamAny
+// pub use StarlarkCallableParamSpec
+// pub use StarlarkIter
+// pub use StarlarkNever
+// pub use TypeCompiled
+// pub use TypeCompiledImplAsStarlarkValue
+// pub use TypeMatcher
+// pub use TypeMatcherRegistered
+// pub use TypeMatcherFactory
+// pub use TypeType

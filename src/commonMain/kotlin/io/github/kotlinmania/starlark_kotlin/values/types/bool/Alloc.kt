@@ -19,27 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-/**
- * Implementation of [AllocValue] for [Boolean].
- *
- * In Kotlin, we use an extension function to provide the equivalent of Rust's trait implementation.
- */
-fun <V> Boolean.allocValue(heap: Heap<V>): Value<V> {
+// impl AllocValue for Boolean
+internal fun Boolean.allocValue(heap: Heap): Value {
     return Value.newBool(this)
 }
 
-/**
- * Implementation of [AllocFrozenValue] for [Boolean].
- *
- * In Kotlin, we use an extension function to provide the equivalent of Rust's trait implementation.
- */
-fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue {
+// impl AllocFrozenValue for Boolean
+internal fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue {
     return FrozenValue.newBool(this)
 }

@@ -20,15 +20,18 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.registerEvalType
+import io.github.kotlinmania.starlark_kotlin.values.typing.any.TypingAny
+import io.github.kotlinmania.starlark_kotlin.values.typing.callable.TypingCallable
+import io.github.kotlinmania.starlark_kotlin.values.typing.iter.TypingIterable
+import io.github.kotlinmania.starlark_kotlin.values.typing.never.TypingNever
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.globals.registerEvalType
 
-// pub(crate) fn register_typing(globals: &mut GlobalsBuilder)
 internal fun registerTyping(globals: GlobalsBuilder) {
     registerEvalType(globals)
-    globals.namespace("typing") { globals ->
-        globals.set("Any", TypingAny())
-        globals.set("Never", TypingNever())
-        globals.set("Callable", TypingCallable())
-        globals.set("Iterable", TypingIterable())
+    globals.namespace("typing") { ns ->
+        ns.set("Any", TypingAny)
+        ns.set("Never", TypingNever)
+        ns.set("Callable", TypingCallable)
+        ns.set("Iterable", TypingIterable)
     }
 }

@@ -19,18 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-/// The boolean type (`False` and `True`).
-///
-/// Can be created with `Value.newBool` and unwrapped with `Value.unpackBool`.
-/// Unlike most Starlark values, these aren't actually allocated on the `Heap`,
-/// but as special values.
+/**
+ * The boolean type (`False` and `True`).
+ *
+ * Can be created with [Value.newBool]
+ * and unwrapped with [Value.unpackBool].
+ * Unlike most Starlark values, these aren't actually allocated on the [Heap],
+ * but as special values.
+ */
 
-// mod alloc;
-// pub(crate) mod globals;
-// mod type_repr;
-// mod unpack;
-// pub(crate) mod value;
-// Submodules: alloc, globals, type_repr, unpack, value
-
-// pub use value::BOOL_TYPE;
-// pub use value::StarlarkBool;
+// Rust mod declarations — in Kotlin, these are separate files in the bool/ package.
+// mod alloc
+// pub(crate) mod globals
+// mod type_repr
+// mod unpack
+// pub(crate) mod value
+// pub use BOOL_TYPE
+// pub use StarlarkBool

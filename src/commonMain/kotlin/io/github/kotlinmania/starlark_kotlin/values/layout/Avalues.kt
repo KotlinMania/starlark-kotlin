@@ -19,13 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-/// AValue implementations for various Starlark types.
-///
-/// Submodules (Kotlin files in this package):
-/// - array: AValue for Array and AnyArray types
-/// - complex: AValue for ComplexValue types
-/// - list: AValue for List type
-/// - simple: AValue for simple (non-complex) types
-/// - static_: AValue for statically allocated values
-/// - str_: AValue for StarlarkStr type
-/// - tuple: AValue for Tuple type
+// Rust mod declarations — in Kotlin, these are separate files in the avalues/ package.
+// pub(crate) mod array
+// pub(crate) mod complex
+// pub(crate) mod list
+// pub(crate) mod simple
+// pub(crate) mod static_
+// pub(crate) mod str_
+// pub(crate) mod tuple

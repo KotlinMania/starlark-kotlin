@@ -21,15 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.eval
 
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.newParts
 
-/// Build both [`ParametersSpec`] (for parsing) and [`ParamSpec`] (for typechecking)
-/// from a list of parameters.
-// pub fn param_specs<'a, V: Copy>(...)
+/**
+ * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)
+ * from a list of parameters.
+ */
 fun <V> paramSpecs(
     functionName: String,
     posOnly: List<Triple<String, ParametersSpecParam<V>, Ty>>,
@@ -37,7 +33,7 @@ fun <V> paramSpecs(
     args: Ty?,
     namedOnly: List<Triple<String, ParametersSpecParam<V>, Ty>>,
     kwargs: Ty?,
-): Result<Pair<ParametersSpec<V>, ParamSpec>> {
+): Pair<ParametersSpec<V>, ParamSpec> {
     val parametersSpec = ParametersSpec.newParts(
         functionName,
         posOnly.map { (name, param, _) -> Pair(name, param) },
@@ -49,11 +45,11 @@ fun <V> paramSpecs(
 
     val paramSpec = ParamSpec.newParts(
         posOnly.map { (_, param, ty) -> Pair(param.isRequired(), ty) },
-        posOrNamed.map { (name, param, ty) -> Triple(ArcStr.from(name), param.isRequired(), ty) },
+        posOrNamed.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
         args,
-        namedOnly.map { (name, param, ty) -> Triple(ArcStr.from(name), param.isRequired(), ty) },
+        namedOnly.map { (name, param, ty) -> Triple(name, param.isRequired(), ty) },
         kwargs,
-    ).getOrElse { return Result.failure(it) }
+    )
 
-    return Result.success(Pair(parametersSpec, paramSpec))
+    return Pair(parametersSpec, paramSpec)
 }

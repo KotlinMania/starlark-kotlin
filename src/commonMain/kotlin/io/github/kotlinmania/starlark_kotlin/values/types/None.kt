@@ -19,9 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
  * limitations under the License.
  */
 
-/// The `None` type.
-// pub(crate) mod globals;
-// mod none_or;
-// pub(crate) mod none_type;
-// pub use none_or::NoneOr;
-// pub use none_type::NoneType;
+/** The `None` type. */
+
+// Rust mod declarations — in Kotlin, these are separate files in the none/ package.
+// pub(crate) mod globals
+// mod none_or
+// pub(crate) mod none_type
+// pub use NoneOr
+// pub use NoneType

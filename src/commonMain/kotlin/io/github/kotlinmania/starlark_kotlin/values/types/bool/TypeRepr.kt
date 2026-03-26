@@ -19,67 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-// Placeholder declarations for dependencies not yet ported.
-// These will be removed when the actual implementations from
-// src/typing/ty.rs and src/values/type_repr.rs are ported.
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
 
-/**
- * Placeholder for Ty until typing/ty.rs is ported.
- */
-internal class Ty private constructor()
-
-/**
- * Placeholder for StarlarkTypeRepr until values/type_repr.rs is ported.
- */
-internal interface StarlarkTypeRepr {
-    val canonical: StarlarkTypeRepr
-    fun starlarkTypeRepr(): Ty
-}
-
-/**
- * StarlarkTypeRepr implementation for Boolean.
- *
- * In Rust, this is implemented as:
- * ```rust
- * impl StarlarkTypeRepr for bool {
- *     type Canonical = <StarlarkBool as StarlarkTypeRepr>::Canonical;
- *
- *     fn starlark_type_repr() -> Ty {
- *         StarlarkBool::get_type_starlark_repr()
- *     }
- * }
- * ```
- *
- * This provides the Starlark type representation for Kotlin's Boolean type,
- * delegating to StarlarkBool's implementation via [getTypeStarlarkRepr].
- */
-internal object BoolStarlarkTypeRepr : StarlarkTypeRepr {
-    /**
-     * The canonical type is the same as StarlarkBool's canonical type.
-     * In Rust: `type Canonical = <StarlarkBool as StarlarkTypeRepr>::Canonical;`
-     */
-    override val canonical: StarlarkTypeRepr
-        get() = StarlarkBoolStarlarkTypeRepr.canonical
-
-    /**
-     * Returns the Starlark type representation for bool.
-     * Delegates to StarlarkBool's type representation.
-     * In Rust: `StarlarkBool::get_type_starlark_repr()`
-     */
-    override fun starlarkTypeRepr(): Ty {
-        return getTypeStarlarkRepr()
-    }
-}
-
-/**
- * Helper object to access StarlarkBool's StarlarkTypeRepr implementation.
- * This represents the `StarlarkBool as StarlarkTypeRepr` part from the Rust code.
- */
-private object StarlarkBoolStarlarkTypeRepr : StarlarkTypeRepr {
-    override val canonical: StarlarkTypeRepr
-        get() = this
-
-    override fun starlarkTypeRepr(): Ty {
-        return getTypeStarlarkRepr()
-    }
+// impl StarlarkTypeRepr for Boolean
+// Kotlin: Boolean type repr delegates to StarlarkBool.
+internal fun boolStarlarkTypeRepr(): Ty {
+    return StarlarkBool.getTypeStarlarkRepr()
 }

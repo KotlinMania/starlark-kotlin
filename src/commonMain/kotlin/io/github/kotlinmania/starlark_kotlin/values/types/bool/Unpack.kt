@@ -19,12 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 
-class BooleanUnpackValue<V> : UnpackValue<V, Boolean, Nothing> {
-    override fun unpackValueImpl(value: Value<V>): Result<Boolean?> {
-        return Result.success(value.unpackBool())
-    }
+// impl UnpackValue for Boolean
+internal fun unpackBool(value: Value): Boolean? {
+    return value.unpackBool()
 }

@@ -19,34 +19,30 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_
  * limitations under the License.
  */
 
-/// Map strings to integers 0, 1, 2, ...
-// #[derive(Default, Clone, Allocative)]
-// pub(crate) struct StringIndex { strings: SmallSet<ArcStr> }
+/** Map strings to integers 0, 1, 2, ... */
 internal class StringIndex {
-    private val strings: MutableList<String> = mutableListOf()
-    private val indexMap: MutableMap<String, Int> = mutableMapOf()
+    // Kotlin: LinkedHashSet preserves insertion order, equivalent to SmallSet.
+    private val strings: LinkedHashSet<String> = linkedSetOf()
 
-    // pub(crate) fn index(&mut self, s: &str) -> StringId
+    // impl StringIndex
+
     fun index(s: String): StringId {
-        val existing = indexMap[s]
-        if (existing != null) {
+        val list = strings.toList()
+        val existing = list.indexOf(s)
+        if (existing >= 0) {
             return StringId(existing)
         }
-        val id = strings.size
+
         strings.add(s)
-        indexMap[s] = id
-        return StringId(id)
+        return StringId(strings.size - 1)
     }
 
-    // pub(crate) fn get(&self, id: StringId) -> &ArcStr
     fun get(id: StringId): String {
-        return strings[id.index]
+        return strings.toList()[id.index]
     }
 }
 
-// #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq, Hash, Allocative)]
-// pub(crate) struct StringId(pub(crate) usize);
+/** Index in strings index. */
 internal data class StringId(
-    /// Index in strings index.
     val index: Int,
 )

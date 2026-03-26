@@ -1,10 +1,6 @@
 // port-lint: source src/analysis/lint_message.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
-import io.github.kotlinmania.starlark_kotlin.docs.name
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
-
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -23,28 +19,39 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.
  * limitations under the License.
  */
 
-/// A JSON-deriving type that gives a stable interface to downstream types.
-/// Do NOT change this type, change Message instead.
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
+/**
+ * A JSON-deriving type that gives a stable interface to downstream types.
+ * Do NOT change this type, change Message instead.
+ *
+ * [Linter JSON format](https://www.internalfb.com/intern/wiki/Linting/adding-linters/).
+ */
 // #[derive(Debug, Clone, Serialize)]
 // pub struct LintMessage
-class LintMessage(
+@Serializable
+data class LintMessage(
     val path: String,
     val line: Int?,
-    val char_: Int?,
+    val char: Int?,
     val code: String,
     val severity: EvalSeverity,
     val name: String,
     val description: String?,
     val original: String?,
 ) {
+    // impl LintMessage
     companion object {
-        /// Construct from an [`EvalMessage`].
+        /**
+         * Construct from an [EvalMessage].
+         */
         // pub fn new(x: EvalMessage) -> Self
         fun new(x: EvalMessage): LintMessage {
             return LintMessage(
                 path = x.path,
-                line = x.span?.begin?.line?.plus(1),
-                char_ = x.span?.begin?.column?.plus(1),
+                line = x.span?.span?.begin?.line?.plus(1),
+                char = x.span?.span?.begin?.column?.plus(1),
                 code = "STARLARK",
                 severity = x.severity,
                 name = x.name,
@@ -52,34 +59,5 @@ class LintMessage(
                 original = x.original,
             )
         }
-    }
-
-    override fun toString(): String {
-        return "LintMessage(path=$path, line=$line, char=$char_, code=$code, severity=$severity, name=$name)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is LintMessage) return false
-        return path == other.path &&
-            line == other.line &&
-            char_ == other.char_ &&
-            code == other.code &&
-            severity == other.severity &&
-            name == other.name &&
-            description == other.description &&
-            original == other.original
-    }
-
-    override fun hashCode(): Int {
-        var result = path.hashCode()
-        result = 31 * result + (line ?: 0)
-        result = 31 * result + (char_ ?: 0)
-        result = 31 * result + code.hashCode()
-        result = 31 * result + severity.hashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + (original?.hashCode() ?: 0)
-        return result
     }
 }

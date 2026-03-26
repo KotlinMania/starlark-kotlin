@@ -1,5 +1,5 @@
 // port-lint: source src/values/stack_guard.rs
-package io.github.kotlinmania.starlark_kotlin.values.stack_guard
+package io.github.kotlinmania.starlark_kotlin.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.stack_guard
  * limitations under the License.
  */
 
-//! Guard to check we don't recurse too deeply with nested operations like Equals.
+/** Guard to check we don't recurse too deeply with nested operations like Equals. */
 
-import io.github.kotlinmania.starlark_kotlin.values.ControlError
+import io.github.kotlinmania.starlark_kotlin.hint.unlikely
+import io.github.kotlinmania.starlark_kotlin.values.error.ControlError
 
 // Maximum recursion level for comparison
-// TODO(dmarting): those are rather short, maybe make it configurable?
-// #[cfg(debug_assertions)]
-// const MAX_RECURSION: u32 = 200;
-// #[cfg(not(debug_assertions))]
-// const MAX_RECURSION: u32 = 3000;
 private const val MAX_RECURSION: Int = 3000
 
 // A thread-local counter is used to detect too deep recursion.
@@ -36,54 +32,50 @@ private const val MAX_RECURSION: Int = 3000
 // Thread-local is chosen instead of explicit function "recursion" parameter
 // for two reasons:
 // * It's possible to propagate stack depth across external functions like
-//   `Display::to_string` where passing a stack depth parameter is hard
+//   `Display.toString` where passing a stack depth parameter is hard
 // * We need to guarantee that stack depth is not lost in complex invocation
 //   chains like function calls compare which calls native function which calls
 //   starlark function which calls to_str. We could change all evaluation stack
 //   signatures to accept some "context" parameters, but passing it as
 //   thread-local is easier.
-// thread_local! { static STACK_DEPTH: Cell<u32> = const { Cell::new(0) }; }
-// Kotlin: simple mutable var; single-threaded Starlark evaluation.
-private var stackDepth: Int = 0
+private val STACK_DEPTH: ThreadLocal<Int> = ThreadLocal.withInitial { 0 }
 
-/// Stored previous stack depth before calling `try_inc`.
-///
-/// Stores that previous stack depths back to thread-local on drop.
-// #[must_use]
-// pub struct StackGuard { prev_depth: u32 }
+/**
+ * Stored previous stack depth before calling [stackGuard].
+ *
+ * Stores the previous stack depth back to thread-local on [close].
+ */
 class StackGuard internal constructor(
     private val prevDepth: Int,
 ) : AutoCloseable {
     // impl Drop for StackGuard
-    // fn drop(&mut self)
     override fun close() {
-        stackDepth = prevDepth
+        STACK_DEPTH.set(prevDepth)
     }
 }
 
-/// Increment stack depth.
-// fn inc() -> StackGuard
+/** Increment stack depth. */
 private fun inc(): StackGuard {
-    val prevDepth = stackDepth
-    stackDepth = prevDepth + 1
+    val prevDepth = STACK_DEPTH.get()
+    STACK_DEPTH.set(prevDepth + 1)
     return StackGuard(prevDepth)
 }
 
-/// Check stack depth does not exceed configured max stack depth.
-// fn check() -> anyhow::Result<()>
+/** Check stack depth does not exceed configured max stack depth. */
 private fun check() {
-    if (stackDepth >= MAX_RECURSION) {
-        throw ControlError.TooManyRecursionLevel.toException()
+    if (unlikely(STACK_DEPTH.get() >= MAX_RECURSION)) {
+        throw ControlError.TooManyRecursionLevel
     }
 }
 
-/// Try increment stack depth.
-///
-/// Return opaque object which resets stack to previous value
-/// on [close][StackGuard.close].
-///
-/// If stack depth exceeds configured limit, throw error.
-// pub(crate) fn stack_guard() -> anyhow::Result<StackGuard>
+/**
+ * Try increment stack depth.
+ *
+ * Return opaque object which resets stack to previous value
+ * on [AutoCloseable.close].
+ *
+ * If stack depth exceeds configured limit, throws error.
+ */
 internal fun stackGuard(): StackGuard {
     check()
     return inc()

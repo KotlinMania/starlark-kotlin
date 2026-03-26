@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.writeHash
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
-/// The result of `field()`.
+/**
+ * The result of `field()`.
+ */
 // #[derive(Clone, Debug, Dupe, Trace, Freeze, NoSerialize, ProvidesStaticType, Allocative)]
 // pub struct FieldGen<V: ValueLifetimeless> {
 //     pub(crate) typ: TypeCompiled<V>,
@@ -40,15 +40,17 @@ class Field internal constructor(
     internal val default: Value?,
 ) : StarlarkValue {
 
+    // impl FieldGen
+
     companion object {
         // pub(crate) fn new(typ, default) -> Self
-        fun new(typ: TypeCompiled, default: Value?): Field {
+        internal fun new(typ: TypeCompiled, default: Value?): Field {
             return Field(typ = typ, default = default)
         }
     }
 
     // pub(crate) fn ty(&self) -> Ty
-    fun ty(): Ty {
+    internal fun ty(): Ty {
         return typ.asTy()
     }
 
@@ -56,10 +58,13 @@ class Field internal constructor(
     // impl StarlarkValue for FieldGen
 
     // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    override fun writeHash(hasher: StarlarkHasher) {
-        typ.writeHash(hasher)
-        hasher.writeBoolean(default != null)
-        default?.writeHash(hasher)
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+        typ.writeHash(hasher).getOrElse { return Result.failure(it) }
+        hasher.writeU8(if (default != null) 1u else 0u)
+        if (default != null) {
+            default.writeHash(hasher).getOrElse { return Result.failure(it) }
+        }
+        return Result.success(Unit)
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>

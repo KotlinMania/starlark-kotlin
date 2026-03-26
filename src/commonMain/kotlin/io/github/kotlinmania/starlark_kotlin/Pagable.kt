@@ -1,5 +1,5 @@
 // port-lint: source src/pagable.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark_kotlin.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,22 +19,14 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-/// Support for serialization and deserialization of Starlark values (pagable).
-///
-/// This module provides the infrastructure needed to serialize and deserialize
-/// Starlark heaps and values.
-///
-/// ## Challenge: Type Inventory Registration
-///
-/// During deserialization, we need to know which deserialization function to use
-/// for each Starlark value type. In Rust this is solved by using the `inventory`
-/// crate to register a mapping from type identifiers to vtables at compile time.
-/// In Kotlin, we use a runtime registry instead.
-///
-/// The type identifier is the qualified class name for the Kotlin type that
-/// defines the Starlark value.
-///
-/// Submodules:
-///  - pagable/Error.kt (error)
-///  - pagable/VtableRegistry.kt (vtable_registry)
-///  - pagable/VtableRegister.kt (vtable_register)
+/**
+ * Support for serialization and deserialization of Starlark values (pagable).
+ *
+ * This module provides the infrastructure needed to serialize and deserialize
+ * Starlark heaps and values.
+ */
+
+// Rust mod declarations — in Kotlin, these are separate files in the pagable/ package.
+// pub(crate) mod error (cfg feature = "pagable")
+// pub(crate) mod vtable_registry (cfg feature = "pagable")
+// pub(crate) mod vtable_register

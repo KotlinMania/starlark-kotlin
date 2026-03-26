@@ -19,6 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
  * limitations under the License.
  */
 
-// pub(crate) mod packed_impl;
-// mod thin_box;
-// Submodules: packed_impl, thin_box
+// Rust mod declarations — in Kotlin, these are separate files in the thin_box_slice_frozen_value/ package.
+// pub(crate) mod packed_impl
+// mod thin_box

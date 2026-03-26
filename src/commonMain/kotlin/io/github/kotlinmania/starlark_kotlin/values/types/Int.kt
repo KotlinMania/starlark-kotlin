@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-//! The integer type.
-//!
-//! For small values, we try not to allocate on the Heap,
-//! but instead use special values. If the value doesn't fit in the special representation,
-//! we use BigInteger to store it.
+/**
+ * The integer type.
+ *
+ * For small values, we try not to allocate on the [Heap],
+ * but instead use special values. If the value doesn't fit in the special representation,
+ * we use BigInt to store it.
+ */
 
-// pub(crate) mod globals;
-// mod i32;
-// pub(crate) mod inline_int;
-// pub(crate) mod int_or_big;
-// pub(crate) mod pointer_i32;
-// mod tests;
-// Submodules: globals, i32, inline_int, int_or_big, pointer_i32
-
-// pub use pointer_i32::INT_TYPE;
-// Re-exports handled by Kotlin package visibility.
+// Rust mod declarations — in Kotlin, these are separate files in the int/ package.
+// pub(crate) mod globals
+// mod i32
+// pub(crate) mod inline_int
+// pub(crate) mod int_or_big
+// pub(crate) mod pointer_i32
+// mod tests
+// pub use INT_TYPE

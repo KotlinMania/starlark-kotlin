@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap
+package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-/// Module gateway for heap allocator components.
-///
-/// In Rust this is a `mod.rs` file declaring submodules:
-/// - `alloc` — [io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc]
-/// - `api` — [io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ArenaAllocator]
-/// - `bumpalo` — Bumpalo-based allocator variant
+// Rust mod declarations — in Kotlin, these are separate files in the allocator/ package.
+// pub(crate) mod alloc
+// pub(crate) mod api
+// pub(crate) mod bumpalo

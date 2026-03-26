@@ -24,11 +24,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.types.string.format
 
-/// impl FrozenModule
+// impl FrozenModule
 
-/// Print a lot of module internals for debugging.
-///
-/// pub fn dump_debug(&self) -> String
+/** Print a lot of module internals for debugging. */
 fun FrozenModule.dumpDebug(): String {
     return buildString {
         appendLine("Eval duration: ${"%.3f".format(evalDuration.inWholeMilliseconds / 1000.0)}s")
@@ -48,9 +46,8 @@ fun FrozenModule.dumpDebug(): String {
     }
 }
 
-/// impl FrozenHeapRef
+// impl FrozenHeapRef
 
-/// fn dump_debug(&self) -> String
 private fun FrozenHeapRef.dumpDebug(): String {
     return buildString {
         appendLine("Allocated bytes: ${allocatedBytes()}")

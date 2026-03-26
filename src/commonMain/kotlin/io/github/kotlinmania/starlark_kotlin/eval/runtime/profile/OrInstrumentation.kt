@@ -19,32 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-
-// #[derive(Debug, Default, Clone, Dupe, Eq, PartialEq)]
-// pub(crate) enum ProfileOrInstrumentationMode
-internal enum class ProfileOrInstrumentationMode {
-    // #[default] None
-    None,
-    // Profile(ProfileMode)
-    // Note: requires wrapping in a separate holder
-    ;
-
-    companion object {
-        fun profile(mode: ProfileMode): ProfileOrInstrumentationModeValue =
-            ProfileOrInstrumentationModeValue.Profile(mode)
-
-        fun collected(): ProfileOrInstrumentationModeValue =
-            ProfileOrInstrumentationModeValue.Collected
-    }
-}
-
-// Sealed class version to hold the actual variant data
-internal sealed class ProfileOrInstrumentationModeValue {
-    // None
-    data object None : ProfileOrInstrumentationModeValue()
-    // Profile(ProfileMode)
-    data class Profile(val mode: ProfileMode) : ProfileOrInstrumentationModeValue()
-    // Collected
-    data object Collected : ProfileOrInstrumentationModeValue()
+internal sealed class ProfileOrInstrumentationMode {
+    data object None : ProfileOrInstrumentationMode()
+    data class Profile(val mode: ProfileMode) : ProfileOrInstrumentationMode()
+    data object Collected : ProfileOrInstrumentationMode()
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string/intern.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,5 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-// This file corresponds to the Rust module declaration in intern.rs
-// which declares the `interner` submodule. In Kotlin, the package structure
-// (io.github.kotlinmania.starlark_kotlin.values.types.string.intern)
-// serves the same organizational purpose.
+// Rust mod declarations — in Kotlin, these are separate files in the intern/ package.
+// pub(crate) mod interner

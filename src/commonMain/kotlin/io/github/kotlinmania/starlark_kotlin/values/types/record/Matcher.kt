@@ -19,17 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
 
-/// #[derive(Hash, Debug, Eq, PartialEq, Clone, Dupe, Allocative)]
-/// pub(crate) struct RecordTypeMatcher { pub(crate) id: TypeInstanceId }
-data class RecordTypeMatcher(
+internal data class RecordTypeMatcher(
     val id: TypeInstanceId,
 ) : TypeMatcher {
-    /// #[type_matcher]
-    /// impl TypeMatcher for RecordTypeMatcher
+    // impl TypeMatcher for RecordTypeMatcher
     override fun matches(value: Value): Boolean {
         val record = Record.fromValue(value) ?: return false
         return record.recordTypeId() == id

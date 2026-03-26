@@ -1,5 +1,5 @@
 // port-lint: source src/tests.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-// Rust module declarations — in Kotlin these are packages under tests/
-// mod basic;
-// mod bc;
-// mod before_stmt;
-// mod call;
-// mod comprehension;
-// mod def;
-// mod derive;
-// mod for_loop;
-// mod freeze_access_value;
-// mod fstring;
-// mod go;
-// mod opt;
-// mod replace_binary;
-// mod runtime;
-// mod type_annot;
-// mod uncategorized;
-// pub(crate) mod util;
+// Rust mod declarations — in Kotlin, tests are in commonTest.
+// mod basic
+// mod bc
+// mod before_stmt
+// mod call
+// mod comprehension
+// mod def
+// mod derive
+// mod for_loop
+// mod freeze_access_value
+// mod fstring
+// mod go
+// mod opt
+// mod replace_binary
+// mod runtime
+// mod type_annot
+// mod uncategorized
+// pub(crate) mod util

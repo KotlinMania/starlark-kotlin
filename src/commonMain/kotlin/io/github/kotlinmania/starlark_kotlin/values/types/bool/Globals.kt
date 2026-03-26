@@ -19,64 +19,40 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class GlobalsBuilder {
-    fun const(name: String, value: Boolean)
-    fun <T : Any> function(
-        name: String,
-        asType: kotlin.reflect.KClass<T>,
-        speculativeExecSafe: Boolean,
-        fn: (Value?) -> Result<Boolean>
-    )
-}
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-expect class Value {
-    fun toBool(): Boolean
-}
-
-expect class StarlarkBool
-
-/**
- * Register boolean-related global functions and constants.
- *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
- * The macro in Rust generates code to register these globals; in Kotlin, we
- * implement this explicitly as a regular function.
- */
 internal fun registerBool(globals: GlobalsBuilder) {
-    // A boolean representing true.
-    globals.const("True", true)
+    /** A boolean representing true. */
+    globals.setConst("True", true)
 
-    // A boolean representing false.
-    globals.const("False", false)
+    /** A boolean representing false. */
+    globals.setConst("False", false)
 
-    // [bool](
-    // https://github.com/bazelbuild/starlark/blob/master/spec.md#bool
-    // ): returns the truth value of any starlark value.
-    //
-    // ```
-    // # starlark::assert::all_true(r#"
-    // bool() == False
-    // bool([]) == False
-    // bool([1]) == True
-    // bool(True) == True
-    // bool(False) == False
-    // bool(None) == False
-    // bool(bool) == True
-    // bool(1) == True
-    // bool(0) == False
-    // bool({}) == False
-    // bool({1:2}) == True
-    // bool(()) == False
-    // bool((1,)) == True
-    // bool("") == False
-    // bool("1") == True
-    // # "#);
-    // ```
-    globals.function("bool", asType = StarlarkBool::class, speculativeExecSafe = true) { x: Value? ->
-        when (x) {
-            null -> Result.success(false)
-            else -> Result.success(x.toBool())
-        }
+    /**
+     * [bool](
+     * https://github.com/bazelbuild/starlark/blob/master/spec.md#bool
+     * ): returns the truth value of any starlark value.
+     *
+     * ```
+     * bool() == False
+     * bool([]) == False
+     * bool([1]) == True
+     * bool(True) == True
+     * bool(False) == False
+     * bool(None) == False
+     * bool(bool) == True
+     * bool(1) == True
+     * bool(0) == False
+     * bool({}) == False
+     * bool({1:2}) == True
+     * bool(()) == False
+     * bool((1,)) == True
+     * bool("") == False
+     * bool("1") == True
+     * ```
+     */
+    globals.setFunction("bool") { x: Value? ->
+        x?.toBool() ?: false
     }
 }
