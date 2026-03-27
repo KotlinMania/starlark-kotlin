@@ -57,7 +57,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 // ---------------------------------------------------------------------------
 // MaybeNot

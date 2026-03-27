@@ -19,57 +19,76 @@ package io.github.kotlinmania.starlark_kotlin.util.arc_or_static
  * limitations under the License.
  */
 
-/**
- * A value that is either reference-counted or a static reference.
- *
- * In Rust, this is `Arc<T>` or `&'static T`. In Kotlin, we don't need the distinction
- * since garbage collection handles reference counting. We keep the wrapper for
- * API parity and to document the ownership semantics.
- */
 // #[derive(Debug, Allocative)]
-// pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>)
-internal class ArcOrStatic<T> private constructor(
-    private val value: T,
-) {
-    // impl ArcOrStatic
+// enum Inner<T: ?Sized + 'static> {
+//     Arc(Arc<T>),
+//     Static(&'static T),
+// }
+internal sealed interface Inner<T : Any> {
+    data class Arc<T : Any>(
+        val value: T,
+    ) : Inner<T>
 
-    // pub(crate) fn new_static(a: &'static T) -> Self
-    // pub(crate) fn new_arc(a: Arc<T>) -> Self
-    // pub(crate) fn new(a: T) -> Self
+    data class Static<T : Any>(
+        val value: T,
+    ) : Inner<T>
+}
 
-    /** Get the contained value. */
-    fun get(): T = value
-
+// #[derive(Debug, Allocative)]
+// pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>);
+internal class ArcOrStatic<T : Any> private constructor(
+    private val inner: Inner<T>,
+) : Comparable<ArcOrStatic<T>> {
     companion object {
-        /** Create from a static reference. */
-        fun <T> newStatic(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(a)
+        // pub(crate) fn new_static(a: &'static T) -> Self
+        fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
+            return ArcOrStatic(Inner.Static(a))
         }
 
-        /** Create from a new value (would be Arc-wrapped in Rust). */
-        fun <T> new(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(a)
+        // pub(crate) fn new_arc(a: Arc<T>) -> Self
+        fun <T : Any> newArc(a: T): ArcOrStatic<T> {
+            return ArcOrStatic(Inner.Arc(a))
+        }
+
+        // pub(crate) fn new(a: T) -> Self
+        fun <T : Any> new(a: T): ArcOrStatic<T> {
+            return newArc(a)
         }
     }
 
-    // impl Deref for ArcOrStatic<T>
-    // In Kotlin, use get() instead.
-
-    // impl Display for ArcOrStatic<T>
-    override fun toString(): String = value.toString()
+    // impl Deref for ArcOrStatic
+    // fn deref(&self) -> &T
+    fun deref(): T {
+        return when (val inner = inner) {
+            is Inner.Arc -> inner.value
+            is Inner.Static -> inner.value
+        }
+    }
 
     // impl Clone for ArcOrStatic<T>
-    // In Kotlin, ArcOrStatic is effectively immutable and shareable.
+    fun clone(): ArcOrStatic<T> {
+        return when (val inner = inner) {
+            is Inner.Arc -> ArcOrStatic(Inner.Arc(inner.value))
+            is Inner.Static -> ArcOrStatic(Inner.Static(inner.value))
+        }
+    }
 
-    // impl PartialEq for ArcOrStatic<T>
+    // impl Display for ArcOrStatic
+    override fun toString(): String = deref().toString()
+
+    // impl PartialEq for ArcOrStatic
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ArcOrStatic<*>) return false
-        return value == other.value
+        return deref() == other.deref()
     }
 
-    // impl Hash for ArcOrStatic<T>
-    override fun hashCode(): Int = value.hashCode()
+    // impl Hash for ArcOrStatic
+    override fun hashCode(): Int = deref().hashCode()
 
-    // impl PartialOrd + Ord are available via Comparable if T is Comparable.
+    // impl Ord for ArcOrStatic
+    @Suppress("UNCHECKED_CAST")
+    override fun compareTo(other: ArcOrStatic<T>): Int {
+        return (deref() as Comparable<T>).compareTo(other.deref())
+    }
 }

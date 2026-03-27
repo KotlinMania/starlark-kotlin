@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTy
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

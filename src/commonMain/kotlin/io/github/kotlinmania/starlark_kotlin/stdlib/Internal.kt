@@ -19,32 +19,35 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.internal
  * limitations under the License.
  */
 
-/**
- * Expose starlark-rust internals in starlark.
- *
- * None of this code is meant to be used in production. Can be changed any time.
- */
+/// Expose starlark-rust internals in starlark.
+///
+/// None of this code is meant to be used in production. Can be changed any time.
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-
-// #[starlark_module]
-// fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
-private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
-    // fn ty_of_value_debug(value: Value) -> anyhow::Result<String>
-    globals.setFunction("ty_of_value_debug") { eval, args ->
-        val value = args.positional<Value>(0)
-        Ty.ofValue(value).toString()
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+class InternalValue {
+    companion object {
+        fun tyOfValue(value: InternalValue): InternalTy = InternalTy()
     }
 }
+class InternalTy {
+    override fun toString(): String = "Ty(..)"
+}
+class InternalGlobalsBuilder {
+    fun set(name: String, value: Any) {}
+    fun namespaceNoDocs(name: String, init: (InternalGlobalsBuilder) -> Unit) {}
+}
 
-// pub(crate) fn register_internal(globals: &mut GlobalsBuilder)
-internal fun registerInternal(globals: GlobalsBuilder) {
+private fun starlarkRustInternalMembers(globals: InternalGlobalsBuilder) {
+    globals.set("ty_of_value_debug", object : Any() {
+        fun invoke(value: InternalValue): Result<String> {
+            return Result.success(InternalValue.tyOfValue(value).toString())
+        }
+    })
+}
+
+fun registerInternal(globals: InternalGlobalsBuilder) {
     globals.namespaceNoDocs("starlark_rust_internal") { s ->
         starlarkRustInternalMembers(s)
     }
 }
-
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.

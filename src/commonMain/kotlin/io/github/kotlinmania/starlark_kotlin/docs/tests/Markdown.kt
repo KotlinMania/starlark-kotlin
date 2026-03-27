@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage

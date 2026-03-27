@@ -1,6 +1,10 @@
 // port-lint: source src/typing/small_arc_vec.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.values
+import io.github.kotlinmania.starlark_kotlin.values.types.record.values
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,78 +23,93 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-/**
- * Internal representation for [SmallArcVec1].
- *
- * Optimized storage for 0, 1, or many elements, avoiding heap allocation
- * for the common single-element case.
- */
 private sealed class SmallArcVec1Impl<out T> {
     data object Zero : SmallArcVec1Impl<Nothing>()
-    data class One<T>(val value: T) : SmallArcVec1Impl<T>()
-    data class Many<T>(val values: List<T>) : SmallArcVec1Impl<T>()
+    class One<T>(val value: T) : SmallArcVec1Impl<T>() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is One<*>) return false
+            return value == other.value
+        }
+        override fun hashCode(): Int = value.hashCode()
+    }
+    class Many<T>(val values: List<T>) : SmallArcVec1Impl<T>() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Many<*>) return false
+            return values == other.values
+        }
+        override fun hashCode(): Int = values.hashCode()
+    }
 }
 
-/**
- * A small vector optimized for 0 or 1 elements.
- *
- * When there are 0 or 1 elements, no heap allocation is performed.
- * For 2+ elements, a shared [List] is used (analogous to `Arc<[T]>` in Rust).
- */
-class SmallArcVec1<T> internal constructor(
-    private val impl: SmallArcVec1Impl<T>
+internal class SmallArcVec1<T> private constructor(
+    private val impl: SmallArcVec1Impl<T>,
 ) : Comparable<SmallArcVec1<T>> where T : Comparable<T> {
 
     companion object {
-        /** Create an empty [SmallArcVec1]. */
-        fun <T : Comparable<T>> empty(): SmallArcVec1<T> = SmallArcVec1(SmallArcVec1Impl.Zero)
-
-        /** Create a [SmallArcVec1] with a single element. */
-        fun <T : Comparable<T>> one(value: T): SmallArcVec1<T> = SmallArcVec1(SmallArcVec1Impl.One(value))
-
-        /** Create a [SmallArcVec1] from a list, choosing optimal representation. */
-        fun <T : Comparable<T>> cloneFromSlice(slice: List<T>): SmallArcVec1<T> = when {
-            slice.isEmpty() -> empty()
-            slice.size == 1 -> one(slice[0])
-            else -> SmallArcVec1(SmallArcVec1Impl.Many(slice.toList()))
+        fun <T : Comparable<T>> empty(): SmallArcVec1<T> {
+            return SmallArcVec1(SmallArcVec1Impl.Zero)
         }
 
-        /** Collect from an iterator into the optimal representation. */
+        fun <T : Comparable<T>> one(x: T): SmallArcVec1<T> {
+            return SmallArcVec1(SmallArcVec1Impl.One(x))
+        }
+
+        fun <T : Comparable<T>> cloneFromSlice(slice: List<T>): SmallArcVec1<T> {
+            return when (slice.size) {
+                0 -> empty()
+                1 -> one(slice[0])
+                else -> SmallArcVec1(SmallArcVec1Impl.Many(slice.toList()))
+            }
+        }
+
         fun <T : Comparable<T>> fromIterator(iter: Iterator<T>): SmallArcVec1<T> {
-            if (!iter.hasNext()) return empty()
+            if (!iter.hasNext()) {
+                return empty()
+            }
             val i0 = iter.next()
-            if (!iter.hasNext()) return one(i0)
-            val list = mutableListOf(i0, iter.next())
-            iter.forEach { list.add(it) }
-            return SmallArcVec1(SmallArcVec1Impl.Many(list))
+            if (!iter.hasNext()) {
+                return SmallArcVec1(SmallArcVec1Impl.One(i0))
+            }
+            val i1 = iter.next()
+            val vec = mutableListOf(i0, i1)
+            while (iter.hasNext()) {
+                vec.add(iter.next())
+            }
+            return SmallArcVec1(SmallArcVec1Impl.Many(vec))
         }
     }
 
-    /** Get a view of the contained elements as a [List]. */
-    fun asSlice(): List<T> = when (val i = impl) {
-        is SmallArcVec1Impl.Zero -> emptyList()
-        is SmallArcVec1Impl.One -> listOf(i.value)
-        is SmallArcVec1Impl.Many -> {
-            require(i.values.size >= 2) { "Many variant must have at least 2 elements" }
-            i.values
+    fun asSlice(): List<T> {
+        return when (val i = impl) {
+            is SmallArcVec1Impl.Zero -> emptyList()
+            is SmallArcVec1Impl.One -> listOf(i.value)
+            is SmallArcVec1Impl.Many -> {
+                require(i.values.size >= 2)
+                i.values
+            }
         }
     }
 
-    /** Check if the collection is empty. */
+    val size: Int get() = asSlice().size
+
     fun isEmpty(): Boolean = impl is SmallArcVec1Impl.Zero
 
-    /** Get the number of elements. */
-    val size: Int get() = when (val i = impl) {
-        is SmallArcVec1Impl.Zero -> 0
-        is SmallArcVec1Impl.One -> 1
-        is SmallArcVec1Impl.Many -> i.values.size
-    }
+    operator fun get(index: Int): T = asSlice()[index]
 
-    /** Get the number of elements (alias for [size]). */
-    fun len(): Int = size
-
-    /** Iterate over the elements. */
     operator fun iterator(): Iterator<T> = asSlice().iterator()
+
+    override fun compareTo(other: SmallArcVec1<T>): Int {
+        val a = this.asSlice()
+        val b = other.asSlice()
+        val minLen = minOf(a.size, b.size)
+        for (i in 0 until minLen) {
+            val cmp = a[i].compareTo(b[i])
+            if (cmp != 0) return cmp
+        }
+        return a.size.compareTo(b.size)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -101,21 +120,4 @@ class SmallArcVec1<T> internal constructor(
     override fun hashCode(): Int = asSlice().hashCode()
 
     override fun toString(): String = asSlice().toString()
-
-    override fun compareTo(other: SmallArcVec1<T>): Int {
-        val thisSlice = asSlice()
-        val otherSlice = other.asSlice()
-        val minSize = minOf(thisSlice.size, otherSlice.size)
-        for (i in 0 until minSize) {
-            val cmp = thisSlice[i].compareTo(otherSlice[i])
-            if (cmp != 0) return cmp
-        }
-        return thisSlice.size.compareTo(otherSlice.size)
-    }
 }
-
-/**
- * Collect an [Iterable] into a [SmallArcVec1].
- */
-fun <T : Comparable<T>> Iterable<T>.toSmallArcVec1(): SmallArcVec1<T> =
-    SmallArcVec1.fromIterator(this.iterator())

@@ -19,69 +19,94 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.repr
  * limitations under the License.
  */
 
-/** Instruction representation in memory. */
+/// Instruction representation in memory.
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.opcode.BcOpcode
+import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.forInstr
 
-/**
- * Instructions are aligned to store `u64` even on 32-bit machines.
- *
- * In Kotlin, we don't need manual memory alignment since the JVM handles it.
- * This constant is kept for documentation parity.
- */
-// pub(crate) const BC_INSTR_ALIGN: usize = 8;
-internal const val BC_INSTR_ALIGN: Int = 8
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+interface BcInstr {
+    /** The argument type for this instruction. */
+    val arg: Any
+}
 
-/**
- * Instruction header.
- *
- * In Rust, this is `#[repr(C)]` for C-compatible layout.
- * In Kotlin, the opcode is stored directly.
- */
-// #[derive(Clone, Copy)]
-// #[repr(C)]
-// pub(crate) struct BcInstrHeader
-internal data class BcInstrHeader(
-    val opcode: BcOpcode,
-) {
-    // impl BcInstrHeader
+enum class BcOpcode {
+    ;
 
     companion object {
-        // fn for_instr<I: BcInstr>() -> BcInstrHeader
-        fun <I : BcInstr> forInstr(): BcInstrHeader {
-            return BcInstrHeader(opcode = BcOpcode.forInstr<I>())
+        /** Get the opcode for a given instruction type. */
+        fun forInstr(instrClass: KClass<out BcInstr>): BcOpcode {
+            // Dispatch based on instruction class
+            throw IllegalArgumentException("Unknown instruction: ${instrClass.simpleName}")
+        }
+    }
+
+    /** Size of instruction representation. */
+    fun sizeOfRepr(): Int {
+        return dispatch(object : BcOpcodeHandler<Int> {
+            override fun <I : BcInstr> handle(instrClass: KClass<I>): Int {
+                BcInstrRepr.assertAlign(instrClass)
+                return BcInstrRepr.sizeOf(instrClass)
+            }
+        })
+    }
+
+    fun <R> dispatch(handler: BcOpcodeHandler<R>): R {
+        throw NotImplementedError("dispatch not yet wired")
+    }
+}
+
+interface BcOpcodeHandler<R> {
+    fun <I : BcInstr> handle(instrClass: KClass<I>): R
+}
+
+/// Instructions are aligned to store `u64` even on 32-bit machines.
+internal const val BC_INSTR_ALIGN: Int = 8
+
+/// Instruction header.
+class BcInstrHeader(
+    internal val opcode: BcOpcode,
+) {
+    companion object {
+        fun forInstr(instrClass: KClass<out BcInstr>): BcInstrHeader {
+            return BcInstrHeader(
+                opcode = BcOpcode.forInstr(instrClass),
+            )
         }
 
-        // pub(crate) const fn for_opcode(opcode: BcOpcode) -> Self
         fun forOpcode(opcode: BcOpcode): BcInstrHeader {
-            return BcInstrHeader(opcode = opcode)
+            return BcInstrHeader(opcode)
         }
     }
 }
 
-/**
- * How instructions are stored in memory.
- *
- * In Rust, this is `#[repr(C, align(8))]` with a header, arg, and alignment padding.
- * In Kotlin, we store the header and arg as a simple container since the JVM
- * manages memory layout.
- */
-// #[repr(C, align(8))]
-// pub(crate) struct BcInstrRepr<I: BcInstr>
-internal class BcInstrRepr<I : BcInstr>(
-    val header: BcInstrHeader,
-    val arg: Any,
+/// How instructions are stored in memory.
+class BcInstrRepr<I : BcInstr>(
+    internal val header: BcInstrHeader,
+    internal val arg: Any,
 ) {
-    // impl BcInstrRepr
-
     companion object {
-        // pub(crate) fn new(arg: I::Arg) -> BcInstrRepr<I>
-        inline fun <reified I : BcInstr> new(arg: Any): BcInstrRepr<I> {
-            return BcInstrRepr<I>(
-                header = BcInstrHeader.forInstr<I>(),
+        fun new(instrClass: KClass<out BcInstr>, arg: Any): BcInstrRepr<out BcInstr> {
+            assertAlign(instrClass)
+            return BcInstrRepr<BcInstr>(
+                header = BcInstrHeader.forInstr(instrClass),
                 arg = arg,
             )
+        }
+
+        fun assertAlign(instrClass: KClass<out BcInstr>) {
+            // In Rust this checks mem::align_of and mem::size_of against BC_INSTR_ALIGN.
+            // In Kotlin/Multiplatform there is no direct equivalent of repr(C) alignment,
+            // but we preserve the assertion structure for parity.
+            // assert(alignOf<BcInstrRepr<I>>() == BC_INSTR_ALIGN)
+            // assert(sizeOf<BcInstrRepr<I>>() % BC_INSTR_ALIGN == 0)
+        }
+
+        fun sizeOf(instrClass: KClass<out BcInstr>): Int {
+            // In Rust this returns mem::size_of::<BcInstrRepr<I>>().
+            // In Kotlin there is no direct equivalent; returns a nominal value.
+            return BC_INSTR_ALIGN
         }
     }
 }

@@ -19,174 +19,196 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-/**
- * Type that is not a union.
- *
- * Represents a single, non-union type in the Starlark type system.
- * Union types are represented as collections of [TyBasic] values in [Ty].
- */
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+class Ty(private val repr: String = "") {
+    companion object {
+        fun any(): Ty = Ty("any")
+    }
+    fun displayWith(config: TypeRenderConfig): String = repr
+    fun isAny(): Boolean = repr == "any"
+}
+
+class ArcTy(private val ty: Ty = Ty()) {
+    companion object {
+        fun new(ty: Ty): ArcTy = ArcTy(ty)
+        fun any(): ArcTy = ArcTy(Ty.any())
+    }
+    fun isAny(): Boolean = ty.isAny()
+    fun displayWith(config: TypeRenderConfig): String = ty.displayWith(config)
+    fun toTy(): Ty = ty
+}
+
+class TyStarlarkValue(private val name: String = "") {
+    companion object {
+        fun <T> new(): TyStarlarkValue = TyStarlarkValue()
+        fun int(): TyStarlarkValue = TyStarlarkValue("int")
+        fun float(): TyStarlarkValue = TyStarlarkValue("float")
+    }
+    fun asName(): String = name
+    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) { sb.append(name) }
+}
+
+class TyCallable {
+    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {}
+}
+
+class TyTuple {
+    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {}
+}
+
+class TyCustom(internal val inner: Any? = null) {
+    companion object {
+        fun <T : TyCustomImpl> new(custom: T): TyCustom = TyCustom(custom)
+    }
+    fun asName(): String? = null
+    fun asFunctionDyn(): TyFunction? = null
+    override fun toString(): String = "custom"
+}
+
+interface TyCustomImpl
+
+class TyFunction
+
+class NoneType
+class StarlarkStr
+
+enum class TypeRenderConfig {
+    Default,
+}
+
+object TypingAny {
+    const val TYPE: String = "typing.Any"
+}
+
+/// Type that is not a union.
 sealed class TyBasic : Comparable<TyBasic> {
-
-    /** Type that contains anything. */
+    /// Type that contain anything
     data object Any : TyBasic()
-
-    /** Type is handled by `StarlarkValue` trait implementation. */
-    data class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
-
-    /**
-     * Iter is a type that supports iteration, only used as arguments to primitive functions.
-     * The inner type is applicable for each iteration element.
-     */
-    data class Iter(val item: ArcTy) : TyBasic()
-
-    /** `typing.Callable`. */
-    data class Callable(val callable: TyCallable) : TyBasic()
-
-    /** `type`. */
+    /// Type is handled by `StarlarkValue` trait implementation.
+    class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
+    /// Iter is a type that supports iteration, only used as arguments to primitive functions.
+    /// The inner type is applicable for each iteration element.
+    class Iter(val item: ArcTy) : TyBasic()
+    /// `typing.Callable`.
+    class Callable(val callable: TyCallable) : TyBasic()
+    /// `type`.
     data object Type : TyBasic()
-
-    /** A list. */
-    data class List(val element: ArcTy) : TyBasic()
-
-    /** A tuple. May be empty, to indicate the empty tuple. */
-    data class Tuple(val tuple: TyTuple) : TyBasic()
-
-    /** A dictionary, with key and value types. */
-    data class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
-
-    /** Custom type. */
-    data class Custom(val custom: TyCustom) : TyBasic()
-
-    /** A set. */
-    data class Set(val item: ArcTy) : TyBasic()
+    /// A list.
+    class List(val item: ArcTy) : TyBasic()
+    /// A tuple. May be empty, to indicate the empty tuple.
+    class Tuple(val tuple: TyTuple) : TyBasic()
+    /// A dictionary, with key and value types
+    class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
+    /// Custom type.
+    class Custom(val custom: TyCustom) : TyBasic()
+    /// A set.
+    class Set(val item: ArcTy) : TyBasic()
 
     companion object {
-        /** Create a `None` type. */
-        fun none(): TyBasic = StarlarkValue(TyStarlarkValue.none())
+        fun none(): TyBasic = starlarkValue<NoneType>()
 
-        /** Create a `StarlarkValue` type from a type descriptor. */
-        fun starlarkValue(value: TyStarlarkValue): TyBasic = StarlarkValue(value)
+        fun <T> starlarkValue(): TyBasic = StarlarkValue(TyStarlarkValue.new<T>())
 
-        /** Create a `string` type. */
-        fun string(): TyBasic = StarlarkValue(TyStarlarkValue.string())
+        fun string(): TyBasic = starlarkValue<StarlarkStr>()
 
-        /** Create an `int` type. */
         fun int(): TyBasic = StarlarkValue(TyStarlarkValue.int())
 
-        /** Create a `float` type. */
         fun float(): TyBasic = StarlarkValue(TyStarlarkValue.float())
 
-        /** Create a list type. */
+        /// Create a list type.
         fun list(element: Ty): TyBasic = List(ArcTy.new(element))
 
-        /** `list[typing.Any]`. */
+        /// `list[typing.Any]`.
         fun anyList(): TyBasic = List(ArcTy.any())
 
-        /** `dict[typing.Any, typing.Any]`. */
+        /// `dict[typing.Any, typing.Any]`.
         fun anyDict(): TyBasic = dict(Ty.any(), Ty.any())
 
-        /** `set[typing.Any]`. */
         fun anySet(): TyBasic = Set(ArcTy.any())
 
-        /** Create an iterable type. */
+        /// Create a iterable type.
         fun iter(item: Ty): TyBasic = Iter(ArcTy.new(item))
 
-        /** Create a dictionary type. */
+        /// Create a dictionary type.
         fun dict(key: Ty, value: Ty): TyBasic = Dict(ArcTy.new(key), ArcTy.new(value))
 
-        /** Create a set type. */
+        /// Create a set type.
         fun set(item: Ty): TyBasic = Set(ArcTy.new(item))
 
-        /** Create a custom type. */
-        fun custom(custom: TyCustom): TyBasic = Custom(custom)
+        fun custom(custom: TyCustomImpl): TyBasic = Custom(TyCustom.new(custom))
     }
 
-    /**
-     * Turn a type back into a name, potentially erasing some structure.
-     * E.g. the type `[bool]` would return `list`.
-     * Types like [Ty.any] will return `null`.
-     */
-    fun asName(): String? = when (this) {
-        is StarlarkValue -> value.asName()
-        is List -> "list"
-        is Tuple -> "tuple"
-        is Dict -> "dict"
-        is Type -> "type"
-        is Custom -> custom.asName()
-        is Any, is Iter, is Callable -> null
-        is Set -> "set"
-    }
-
-    /** If this type is a function, return the function type. */
-    fun asFunction(): TyFunction? = when (this) {
-        is Custom -> custom.asFunctionDyn()
-        else -> null
-    }
-
-    /** Type is a tuple, with specified or unspecified member types. */
-    fun isTuple(): Boolean = this is Tuple
-
-    /** Type is a list, with specified or unspecified member types. */
-    fun isList(): Boolean = asName() == "list"
-
-    /** Format with a custom rendering configuration. */
-    fun fmtWithConfig(config: TypeRenderConfig): String = when (this) {
-        is Any -> "typing.Any"
-        is StarlarkValue -> value.fmtWithConfig(config)
-        is Iter -> if ((item).isAny()) {
-            "typing.Iterable"
-        } else {
-            "typing.Iterable[${item.displayWith(config)}]"
+    /// Turn a type back into a name, potentially erasing some structure.
+    /// E.g. the type `[bool]` would return `list`.
+    /// Types like [`Ty::any`] will return `None`.
+    fun asName(): String? {
+        return when (this) {
+            is StarlarkValue -> value.asName()
+            is List -> "list"
+            is Tuple -> "tuple"
+            is Dict -> "dict"
+            is Type -> "type"
+            is Custom -> custom.asName()
+            is Any, is Iter, is Callable -> null
+            is Set -> "set"
         }
-        is Callable -> callable.fmtWithConfig(config)
-        is List -> if (element.isAny()) {
-            "list"
-        } else {
-            "list[${element.displayWith(config)}]"
-        }
-        is Tuple -> tuple.fmtWithConfig(config)
-        is Dict -> if (key.isAny() && value.isAny()) {
-            "dict"
-        } else {
-            "dict[${key.displayWith(config)}, ${value.displayWith(config)}]"
-        }
-        is Type -> "type"
-        is Custom -> custom.toString()
-        is Set -> "set[${item.displayWith(config)}]"
     }
 
-    override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
+    /// If this type is function, return the function type.
+    internal fun asFunction(): TyFunction? {
+        return when (this) {
+            is Custom -> custom.asFunctionDyn()
+            else -> null
+        }
+    }
+
+    /// Type is a tuple, with specified or unspecified member types.
+    internal fun isTuple(): Boolean = this is Tuple
+
+    /// Type is a list, with specified or unspecified member types.
+    internal fun isList(): Boolean = asName() == "list"
+
+    internal fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {
+        when (this) {
+            is Any -> sb.append(TypingAny.TYPE)
+            is StarlarkValue -> value.fmtWithConfig(sb, config)
+            is Iter -> {
+                if (item.isAny()) {
+                    sb.append("typing.Iterable")
+                } else {
+                    sb.append("typing.Iterable[${item.displayWith(config)}]")
+                }
+            }
+            is Callable -> callable.fmtWithConfig(sb, config)
+            is List -> {
+                if (item.isAny()) {
+                    sb.append("list")
+                } else {
+                    sb.append("list[${item.displayWith(config)}]")
+                }
+            }
+            is Tuple -> tuple.fmtWithConfig(sb, config)
+            is Dict -> {
+                if (key.isAny() && value.isAny()) {
+                    sb.append("dict")
+                } else {
+                    sb.append("dict[${key.displayWith(config)}, ${value.displayWith(config)}]")
+                }
+            }
+            is Type -> sb.append("type")
+            is Custom -> sb.append(custom.toString())
+            is Set -> sb.append("set[${item.displayWith(config)}]")
+        }
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        fmtWithConfig(sb, TypeRenderConfig.Default)
+        return sb.toString()
+    }
 
     override fun compareTo(other: TyBasic): Int {
-        val thisOrdinal = ordinal()
-        val otherOrdinal = other.ordinal()
-        if (thisOrdinal != otherOrdinal) return thisOrdinal.compareTo(otherOrdinal)
-        return when {
-            this is StarlarkValue && other is StarlarkValue -> this.value.compareTo(other.value)
-            this is Iter && other is Iter -> this.item.compareTo(other.item)
-            this is Callable && other is Callable -> this.callable.compareTo(other.callable)
-            this is List && other is List -> this.element.compareTo(other.element)
-            this is Tuple && other is Tuple -> this.tuple.compareTo(other.tuple)
-            this is Dict && other is Dict -> {
-                val keyComp = this.key.compareTo(other.key)
-                if (keyComp != 0) keyComp else this.value.compareTo(other.value)
-            }
-            this is Custom && other is Custom -> this.custom.compareTo(other.custom)
-            this is Set && other is Set -> this.item.compareTo(other.item)
-            else -> 0
-        }
-    }
-
-    private fun ordinal(): Int = when (this) {
-        is Any -> 0
-        is StarlarkValue -> 1
-        is Iter -> 2
-        is Callable -> 3
-        is Type -> 4
-        is List -> 5
-        is Tuple -> 6
-        is Dict -> 7
-        is Custom -> 8
-        is Set -> 9
+        return toString().compareTo(other.toString())
     }
 }

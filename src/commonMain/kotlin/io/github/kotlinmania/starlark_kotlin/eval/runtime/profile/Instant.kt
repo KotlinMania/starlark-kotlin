@@ -20,45 +20,71 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  */
 
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.toDuration
 
-/** Real `Instant` for production code. */
+/// Real `Instant` for production code, thread-local counter for tests.
+// #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Allocative)]
+// pub(crate) struct ProfilerInstant(
+//     #[cfg(not(test))] std::time::Instant,
+//     #[cfg(test)] u64, // Millis.
+// );
+// Kotlin: uses kotlin.time.TimeSource.Monotonic for real time.
 internal class ProfilerInstant private constructor(
     private val nanos: Long,
 ) : Comparable<ProfilerInstant> {
 
-    override fun compareTo(other: ProfilerInstant): Int {
-        return nanos.compareTo(other.nanos)
+    companion object {
+        // #[cfg(test)]
+        // pub(crate) const TEST_TICK_MILLIS: u64 = 7;
+        const val TEST_TICK_MILLIS: Long = 7L
+
+        private val epoch: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
+
+        // #[inline]
+        // pub(crate) fn now() -> Self
+        fun now(): ProfilerInstant {
+            val elapsed = epoch.elapsedNow()
+            return ProfilerInstant(elapsed.inWholeNanoseconds)
+        }
     }
 
-    override fun equals(other: Any?): Boolean =
-        other is ProfilerInstant && nanos == other.nanos
-
-    override fun hashCode(): Int = nanos.hashCode()
-
-    /** Duration since an earlier instant. */
+    // #[inline]
+    // pub(crate) fn duration_since(&self, earlier: ProfilerInstant) -> Duration
     fun durationSince(earlier: ProfilerInstant): Duration {
-        return (nanos - earlier.nanos).milliseconds
+        val diffNanos = nanos - earlier.nanos
+        require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
+        return diffNanos.toDuration(DurationUnit.NANOSECONDS)
     }
 
-    /** Duration since this instant was recorded. */
+    // #[inline]
+    // pub(crate) fn elapsed(&self) -> Duration
     fun elapsed(): Duration {
         return now().durationSince(this)
     }
 
-    /** Subtract two instants to get a [Duration]. */
+    // impl Sub for ProfilerInstant
+    // fn sub(self, rhs: Self) -> Duration
     operator fun minus(rhs: ProfilerInstant): Duration {
         return durationSince(rhs)
     }
 
-    companion object {
-        private val timeSource = TimeSource.Monotonic
-        private val startMark = timeSource.markNow()
-
-        fun now(): ProfilerInstant {
-            val elapsed = startMark.elapsedNow()
-            return ProfilerInstant(elapsed.inWholeNanoseconds)
-        }
+    // impl Ord for ProfilerInstant
+    override fun compareTo(other: ProfilerInstant): Int {
+        return nanos.compareTo(other.nanos)
     }
+
+    // impl PartialEq for ProfilerInstant
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ProfilerInstant) return false
+        return nanos == other.nanos
+    }
+
+    // impl Hash for ProfilerInstant
+    override fun hashCode(): Int = nanos.hashCode()
+
+    // impl Debug for ProfilerInstant
+    override fun toString(): String = "ProfilerInstant(nanos=$nanos)"
 }

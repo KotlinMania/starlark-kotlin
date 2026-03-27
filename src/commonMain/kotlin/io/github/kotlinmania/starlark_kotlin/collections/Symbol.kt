@@ -1,7 +1,5 @@
-// port-lint: source src/collections/symbol.rs
-package io.github.kotlinmania.starlark_kotlin.collections
-
-/*
+/* port-lint: source src/collections/symbol.rs
+ *
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
@@ -18,8 +16,7 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.github.kotlinmania.starlark_kotlin.collections
 
-// pub(crate) mod map;
-internal typealias SymbolMap<T> = io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap<T>
-// pub(crate) mod symbol;
-internal typealias Symbol = io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
+typealias map = Any
+typealias symbol = Any

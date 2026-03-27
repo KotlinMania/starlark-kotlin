@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCall
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

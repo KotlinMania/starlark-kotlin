@@ -19,9 +19,37 @@ package io.github.kotlinmania.starlark_kotlin.errors
  * limitations under the License.
  */
 
-/** Spelling suggestions. */
+//! Spelling suggestions.
 
-/** Find a suggestion for a typo. */
+// use strsim::levenshtein;
+// Kotlin: inline Levenshtein distance (replaces strsim crate).
+private fun levenshtein(a: String, b: String): Int {
+    val m = a.length
+    val n = b.length
+    if (m == 0) return n
+    if (n == 0) return m
+
+    val dp = Array(m + 1) { IntArray(n + 1) }
+    for (i in 0..m) dp[i][0] = i
+    for (j in 0..n) dp[0][j] = j
+    for (i in 1..m) {
+        for (j in 1..n) {
+            val cost = if (a[i - 1] == b[j - 1]) 0 else 1
+            dp[i][j] = minOf(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost,
+            )
+        }
+    }
+    return dp[m][n]
+}
+
+/// Find a suggestion for a typo.
+// pub(crate) fn did_you_mean<'a>(
+//     value: &str,
+//     variants: impl IntoIterator<Item = &'a str>,
+// ) -> Option<&'a str>
 internal fun didYouMean(value: String, variants: Iterable<String>): String? {
     if (value.isEmpty()) {
         return null
@@ -41,29 +69,5 @@ internal fun didYouMean(value: String, variants: Iterable<String>): String? {
         ?.first
 }
 
-/** Compute the Levenshtein distance between two strings. */
-private fun levenshtein(a: String, b: String): Int {
-    if (a.isEmpty()) return b.length
-    if (b.isEmpty()) return a.length
-
-    val m = a.length
-    val n = b.length
-    var prev = IntArray(n + 1) { it }
-    var curr = IntArray(n + 1)
-
-    for (i in 1..m) {
-        curr[0] = i
-        for (j in 1..n) {
-            val cost = if (a[i - 1] == b[j - 1]) 0 else 1
-            curr[j] = minOf(
-                prev[j] + 1,      // deletion
-                curr[j - 1] + 1,  // insertion
-                prev[j - 1] + cost // substitution
-            )
-        }
-        val tmp = prev
-        prev = curr
-        curr = tmp
-    }
-    return prev[n]
-}
+// #[cfg(test)] mod tests
+// Tests are in commonTest, not here.

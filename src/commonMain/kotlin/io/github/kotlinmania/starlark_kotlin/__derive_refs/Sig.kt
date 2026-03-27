@@ -19,23 +19,29 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.newParts
 
+// pub enum NativeSigArg
 sealed class NativeSigArg {
     data class Required(val name: String) : NativeSigArg()
     data class Optional(val name: String) : NativeSigArg()
     data class Defaulted(val name: String, val value: FrozenValue) : NativeSigArg()
 
-    fun param(): Pair<String, ParametersSpecParam<FrozenValue>> = when (this) {
-        is Required -> Pair(name, ParametersSpecParam.Required)
-        is Optional -> Pair(name, ParametersSpecParam.Optional)
-        is Defaulted -> Pair(name, ParametersSpecParam.Defaulted(value))
+    // impl NativeSigArg
+
+    // fn param(&self) -> (&str, ParametersSpecParam<FrozenValue>)
+    internal fun param(): Pair<String, ParametersSpecParam<FrozenValue>> {
+        return when (this) {
+            is Required -> Pair(name, ParametersSpecParam.Required())
+            is Optional -> Pair(name, ParametersSpecParam.Optional())
+            is Defaulted -> Pair(name, ParametersSpecParam.Defaulted(value))
+        }
     }
 }
 
+// pub fn parameter_spec(...)
 fun parameterSpec(
     name: String,
     posOnly: List<NativeSigArg>,
@@ -45,16 +51,17 @@ fun parameterSpec(
     kwargs: Boolean,
 ): ParametersSpec<FrozenValue> {
     return ParametersSpec.newParts(
-        name = name,
-        posOnly = posOnly.map { it.param() },
-        posOrNamed = posOrNamed.map { it.param() },
-        args = args,
-        namedOnly = namedOnly.map { it.param() },
-        kwargs = kwargs,
+        name,
+        posOnly.map { it.param() },
+        posOrNamed.map { it.param() },
+        args,
+        namedOnly.map { it.param() },
+        kwargs,
     )
 }
 
-/// `ParametersSpec` for a function which accepts `&Arguments`.
+/** [ParametersSpec] for a function which accepts `&Arguments`. */
+// pub fn parameter_spec_for_arguments(name: &'static str) -> ParametersSpec<FrozenValue>
 fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> {
     return parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)
 }

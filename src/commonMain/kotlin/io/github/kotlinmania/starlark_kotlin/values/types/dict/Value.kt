@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import kotlin.reflect.KClass
 

@@ -19,25 +19,47 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
+import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-/** Pointer to a native function optimized for bytecode execution. */
-internal class BcNativeFunction(
-    private val function: FrozenValueTyped<NativeFunction>,
+/// Pointer to a native function optimized for bytecode execution.
+// #[derive(Copy, Clone, Dupe, Allocative)]
+// pub(crate) struct BcNativeFunction {
+//     fun: FrozenValueTyped<'static, NativeFunction>,
+//     imp: &'static NativeFunc,
+// }
+internal class BcNativeFunction private constructor(
+    private val func: FrozenValueTyped<NativeFunction>,
+    /// Copy function here from `fun` to avoid extra dereference when calling.
+    private val imp: NativeFunc,
 ) {
-    /** Copy function here from `fun` to avoid extra dereference when calling. */
-    private val imp: NativeFunc = function.asRef().function
+    // impl BcNativeFunction
 
-    fun function(): FrozenValueTyped<NativeFunction> = function
+    companion object {
+        // pub(crate) fn new(fun: FrozenValueTyped<'static, NativeFunction>) -> BcNativeFunction
+        fun new(func: FrozenValueTyped<NativeFunction>): BcNativeFunction {
+            return BcNativeFunction(
+                func = func,
+                imp = func.asRef().function,
+            )
+        }
+    }
 
-    fun toValue(): Value = function.toValue()
+    // #[inline]
+    // pub(crate) fn fun(&self) -> FrozenValueTyped<'static, NativeFunction>
+    fun func(): FrozenValueTyped<NativeFunction> = func
 
-    fun invoke(args: Arguments, eval: Evaluator): Result<Value> {
+    // #[inline]
+    // pub(crate) fn to_value<'v>(&self) -> Value<'v>
+    fun toValue(): Value = func.toValue()
+
+    // #[inline]
+    // pub(crate) fn invoke<'v>(&self, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
+    fun invoke(args: Arguments, eval: Evaluator): Value {
         return imp.invoke(eval, args)
     }
 }

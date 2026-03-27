@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTup
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneOr
 import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkFunction
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

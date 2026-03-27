@@ -25,16 +25,51 @@ import starlark_map.StarlarkHashValue
 
 /** A pre-hashed string used for efficient dictionary lookup. */
 internal class Symbol private constructor(
-    private val hash: Long,
-    private val len: Int,
+    private val hash: ULong,
+    private val len: UInt,
     private val payload: LongArray,
     private val smallHash: StarlarkHashValue,
 ) {
 
-    companion object {
-        fun new(x: String): Symbol {
-            return newHashed(Hashed.new(x))
+    override fun toString(): String = asStr()
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Symbol) return false
+        if (this.len != other.len) return false
+        val p1 = this.payload
+        val p2 = other.payload
+        // Important to use the payload len, which is in u64 units, rather than len which is in u8
+        for (i in 0 until this.payload.size) {
+            if (p1[i] != p2[i]) {
+                return false
+            }
         }
+        return true
+    }
+
+    override fun hashCode(): Int = hash.toInt()
+
+    fun hash(): ULong = hash
+
+    fun asStr(): String {
+        // All safe because we promise we started out with a str
+        val bytes = ByteArray(len.toInt())
+        for (i in 0 until len.toInt()) {
+            bytes[i] = (payload[i / Long.SIZE_BYTES] shr (i % Long.SIZE_BYTES * 8)).toByte()
+        }
+        return bytes.decodeToString()
+    }
+
+    fun asAlignedPaddedStr(): AlignedPaddedStr =
+        AlignedPaddedStr(asStr())
+
+    fun asStrHashed(): Hashed<String> =
+        Hashed.newUnchecked(smallHash, asStr())
+
+    fun smallHash(): StarlarkHashValue = smallHash
+
+    companion object {
+        fun new(x: String): Symbol = newHashed(Hashed.new(x))
 
         fun newHashed(x: Hashed<String>): Symbol {
             val smallHash = x.hash()
@@ -43,52 +78,16 @@ internal class Symbol private constructor(
             val lenWords = (len + Long.SIZE_BYTES - 1) / Long.SIZE_BYTES
             val payload = LongArray(lenWords) // 0 pad it at the end
             val bytes = x.key().encodeToByteArray()
-            for (i in bytes.indices) {
+            for (i in 0 until len) {
                 payload[i / Long.SIZE_BYTES] = payload[i / Long.SIZE_BYTES] or
                     (bytes[i].toLong() and 0xFF shl (i % Long.SIZE_BYTES * 8))
             }
             return Symbol(
-                hash = hash.toLong(),
-                len = len,
+                hash = hash,
+                len = len.toUInt(),
                 payload = payload,
                 smallHash = smallHash,
             )
         }
     }
-
-    fun hash(): Long = hash
-
-    fun asStr(): String {
-        val s = ByteArray(len)
-        for (i in 0 until len) {
-            s[i] = (payload[i / Long.SIZE_BYTES] shr (i % Long.SIZE_BYTES * 8) and 0xFF).toByte()
-        }
-        return s.decodeToString()
-    }
-
-    fun asAlignedPaddedStr(): AlignedPaddedStr {
-        return AlignedPaddedStr.new(len, payload)
-    }
-
-    fun asStrHashed(): Hashed<String> =
-        Hashed.newUnchecked(smallHash, asStr())
-
-    fun smallHash(): StarlarkHashValue = smallHash
-
-    override fun toString(): String = asStr()
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Symbol) return false
-        if (len != other.len) return false
-
-        val p1 = payload
-        val p2 = other.payload
-        // Important to use the payload len, which is in Long units, rather than len which is in u8
-        for (i in payload.indices) {
-            if (p1[i] != p2[i]) return false
-        }
-        return true
-    }
-
-    override fun hashCode(): Int = hash.toInt()
 }

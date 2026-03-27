@@ -19,7 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-/** Trait used to convert error returned from native function into starlark Error. */
+import io.github.kotlinmania.starlark_kotlin.errors.StarlarkError
+
+// pub trait InvokeMacroError {
+//     fn into_starlark_error(self) -> crate::Error;
+// }
+/**
+ * Trait used to convert error returned from native function into [StarlarkError].
+ *
+ * In Kotlin, this is an interface that throwables can implement to provide
+ * custom conversion to a Starlark error.
+ */
 interface InvokeMacroError {
-    fun intoStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error
+    fun intoStarlarkError(): StarlarkError
+}
+
+// impl InvokeMacroError for anyhow::Error
+/**
+ * Default conversion: wraps any [Throwable] as a native [StarlarkError].
+ *
+ * Starlark native functions should not return generic exceptions;
+ * this exists as a fallback for external integrations.
+ */
+fun Throwable.intoStarlarkError(): StarlarkError {
+    return StarlarkError.newNative(this)
 }

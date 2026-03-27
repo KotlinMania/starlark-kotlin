@@ -1,6 +1,4 @@
 // port-lint: source src/typing/macro_support.rs
-@file:Suppress("unused")
-
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*
@@ -21,31 +19,44 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-// #![doc(hidden)]
+// doc(hidden)
 
-// pub(crate) fn unpack_args_item_ty(ty: Ty) -> Ty
-/**
- * Given a type representing `*args`, extract the item type.
- *
- * For tuple types, returns the item type; otherwise returns [Ty.any].
- */
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+class Ty {
+    companion object {
+        fun any(): Ty = Ty()
+        fun unions(tys: List<Ty>): Ty = Ty()
+    }
+
+    fun iterUnion(): List<TyBasic> = emptyList()
+}
+
+sealed class TyBasic {
+    class Tuple(val item: TupleItem) : TyBasic()
+    class Dict(val key: Any, val value: DictValue) : TyBasic()
+    class Other : TyBasic()
+}
+
+class TupleItem {
+    fun itemTy(): Ty = Ty()
+}
+
+class DictValue {
+    fun toTy(): Ty = Ty()
+}
+
 internal fun unpackArgsItemTy(ty: Ty): Ty {
     return Ty.unions(
         ty.iterUnion().map { basic ->
             when (basic) {
-                is TyBasic.Tuple -> basic.itemTy()
+                is TyBasic.Tuple -> basic.item.itemTy()
                 else -> Ty.any()
             }
         }
     )
 }
 
-// pub(crate) fn unpack_kwargs_value_ty(ty: Ty) -> Ty
-/**
- * Given a type representing `**kwargs`, extract the value type.
- *
- * For dict types, returns the value type; otherwise returns [Ty.any].
- */
 internal fun unpackKwargsValueTy(ty: Ty): Ty {
     return Ty.unions(
         ty.iterUnion().map { basic ->

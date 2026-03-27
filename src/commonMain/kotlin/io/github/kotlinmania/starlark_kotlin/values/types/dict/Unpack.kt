@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 
 /**
  * Unpack `dict`.

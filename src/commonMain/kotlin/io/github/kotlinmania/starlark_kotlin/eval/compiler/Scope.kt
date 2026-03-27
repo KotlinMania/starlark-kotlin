@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
@@ -52,7 +52,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
 import io.github.kotlinmania.starlark_kotlin.analysis.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.default
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload

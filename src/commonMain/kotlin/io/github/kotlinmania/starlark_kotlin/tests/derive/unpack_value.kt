@@ -19,54 +19,75 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum EmptyEnum {}
-sealed class EmptyEnum
+sealed class EmptyEnum { companion object }
+fun EmptyEnum.Companion.starlarkTypeRepr(): Ty = StarlarkNever.starlarkTypeRepr()
+fun EmptyEnum.Companion.unpackValue(value: Value): Result<EmptyEnum?> = Result.success(null)
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum JustInt { Int(i32) }
-sealed class JustInt
-data class JustIntVariantInt(val value: Int) : JustInt()
+sealed class JustInt { companion object }
+data class JustIntInt(val value: Int) : JustInt()
+fun JustInt.Companion.starlarkTypeRepr(): Ty = Ty.int()
+fun JustInt.Companion.unpackValue(value: Value): Result<JustInt?> =
+    Result.success(value.unpackI32()?.let(::JustIntInt))
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum IntOrStr { Int(i32), Str(String) }
-sealed class IntOrStr
-data class IntOrStrVariantInt(val value: Int) : IntOrStr()
-data class IntOrStrVariantStr(val value: String) : IntOrStr()
+sealed class IntOrStr { companion object }
+data class IntOrStrInt(val value: Int) : IntOrStr()
+data class IntOrStrStr(val value: String) : IntOrStr()
+fun IntOrStr.Companion.starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
+fun IntOrStr.Companion.unpackValue(value: Value): Result<IntOrStr?> =
+    Result.success(value.unpackI32()?.let(::IntOrStrInt) ?: value.unpackStr()?.let(::IntOrStrStr))
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// enum WithLifetime<'v> { Int(i32), Str(&'v str) }
-sealed class WithLifetime
-data class WithLifetimeVariantInt(val value: Int) : WithLifetime()
-data class WithLifetimeVariantStr(val value: String) : WithLifetime()
+sealed class WithLifetime { companion object }
+data class WithLifetimeInt(val value: Int) : WithLifetime()
+data class WithLifetimeStr(val value: String) : WithLifetime()
+fun WithLifetime.Companion.starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
+fun WithLifetime.Companion.unpackValue(value: Value): Result<WithLifetime?> =
+    Result.success(value.unpackI32()?.let(::WithLifetimeInt) ?: value.unpackStr()?.let(::WithLifetimeStr))
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-// struct TransparentIntOrStr(IntOrStr)
-data class TransparentIntOrStr(val inner: IntOrStr)
+data class TransparentIntOrStr(val inner: IntOrStr) { companion object }
+fun TransparentIntOrStr.Companion.starlarkTypeRepr(): Ty = IntOrStr.starlarkTypeRepr()
+fun TransparentIntOrStr.Companion.unpackValue(value: Value): Result<TransparentIntOrStr?> =
+    IntOrStr.unpackValue(value).map { it?.let(::TransparentIntOrStr) }
 
 // #[test]
 fun testStarlarkTypeRepr() {
-    assert(StarlarkNever.starlarkTypeRepr() == EmptyEnum.starlarkTypeRepr())
-    assert(kotlin.Int.starlarkTypeRepr() == JustInt.starlarkTypeRepr())
-    assert(Either.starlarkTypeRepr<kotlin.Int, String>() == IntOrStr.starlarkTypeRepr())
-    assert(Either.starlarkTypeRepr<kotlin.Int, String>() == WithLifetime.starlarkTypeRepr())
-    assert(IntOrStr.starlarkTypeRepr() == TransparentIntOrStr.starlarkTypeRepr())
+    val never = StarlarkNever.starlarkTypeRepr()
+    val empty = EmptyEnum.starlarkTypeRepr()
+    val intTy = Ty.int()
+    val justIntTy = JustInt.starlarkTypeRepr()
+    val union = Ty.union2(Ty.int(), Ty.string())
+    val intOrStrTy = IntOrStr.starlarkTypeRepr()
+    val withLifetimeTy = WithLifetime.starlarkTypeRepr()
+    val transparentTy = TransparentIntOrStr.starlarkTypeRepr()
+    assert(never == empty)
+    assert(intTy == justIntTy)
+    assert(union == intOrStrTy)
+    assert(union == withLifetimeTy)
+    assert(intOrStrTy == transparentTy)
 }
 
 // #[test]
 fun testUnpackValue() {
-    assert(JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow() == JustIntVariantInt(17))
-    assert(IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == IntOrStrVariantInt(19))
-    assert(IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow() == IntOrStrVariantStr("abc"))
-    assert(WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow() == WithLifetimeVariantInt(23))
-    assert(WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow() == WithLifetimeVariantStr("def"))
-    assert(TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow() == TransparentIntOrStr(IntOrStrVariantInt(19)))
+    val r1 = JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow()
+    val r2 = IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
+    val r3 = IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow()
+    val r4 = WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow()
+    val r5 = WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow()
+    val r6 = TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
+    assert(r1 == JustIntInt(17))
+    assert(r2 == IntOrStrInt(19))
+    assert(r3 == IntOrStrStr("abc"))
+    assert(r4 == WithLifetimeInt(23))
+    assert(r5 == WithLifetimeStr("def"))
+    assert(r6 == TransparentIntOrStr(IntOrStrInt(19)))
 }

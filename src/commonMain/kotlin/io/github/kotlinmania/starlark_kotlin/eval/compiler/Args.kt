@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 // #[derive(Default, Clone, Debug, VisitSpanMut)]
 // pub(crate) struct ArgsCompiledValue {

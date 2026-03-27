@@ -19,14 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def
  * limitations under the License.
  */
 
-/** Compile def. */
+/// Compile def.
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrDefData
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.ParametersCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrDefData
+import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toOut
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.mapExpr
+import io.github.kotlinmania.starlark_kotlin.analysis.iter
 
 // impl DefCompiled
 
@@ -41,25 +45,27 @@ internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
 // pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
 internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWriter) {
     val functionName = this.functionName
-    val (paramList, indices) = this.params
+    val paramList = this.params.params
+    val indices = this.params.indices
 
-    val howManySlotsWeNeed = params.countExprs()
+    val howManySlotsWeNeed = this.params.countExprs()
 
-    bc.allocSlots(howManySlotsWeNeed) { slots, bcWriter ->
-        val slotsIter = slots.iterator()
+    bc.allocSlots(howManySlotsWeNeed, fun(slots, bc2) {
+        val slotsIter = slots.iter().iterator()
         var valueCount = 0
-        val params = paramList.map { p ->
-            p.map { inner ->
-                inner.mapExpr { e ->
-                    e.writeBc(slotsIter.next().toOut(), bcWriter)
+        val mappedParams = paramList.map { p ->
+            p.map { pc ->
+                pc.mapExpr { e ->
+                    e.writeBc(slotsIter.next().toOut(), bc2)
+                    val idx = valueCount
                     valueCount += 1
-                    valueCount - 1
+                    idx
                 }
             }
         }
 
         val compiledParams = ParametersCompiled(
-            params = params,
+            params = mappedParams,
             indices = indices,
         )
         val instrDefData = InstrDefData(
@@ -71,6 +77,6 @@ internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWrite
 
         check(!slotsIter.hasNext())
 
-        bcWriter.writeInstr<InstrDefData>(span, Triple(slots.toIn(), instrDefData, target))
-    }
+        bc2.writeInstr("InstrDef", span, listOf(slots.toIn(), instrDefData, target))
+    })
 }

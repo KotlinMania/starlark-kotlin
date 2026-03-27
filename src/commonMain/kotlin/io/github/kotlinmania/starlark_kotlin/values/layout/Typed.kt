@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frame_span.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
 

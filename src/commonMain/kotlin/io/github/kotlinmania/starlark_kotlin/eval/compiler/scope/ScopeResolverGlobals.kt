@@ -20,25 +20,38 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.owned.toFrozenValue
 
+// pub(crate) struct ScopeResolverGlobals {
+//     pub(crate) globals: Option<FrozenRef<'static, Globals>>,
+// }
 internal class ScopeResolverGlobals(
-    /** `null` if unknown. */
-    val globals: Globals?,
+    /// None if unknown.
+    val globals: FrozenRef<Globals>?,
 ) {
-    companion object {
-        fun unknown(): ScopeResolverGlobals = ScopeResolverGlobals(globals = null)
-    }
+    // impl ScopeResolverGlobals
 
-    fun getGlobal(name: String): FrozenValue? {
-        return when (globals) {
-            null -> constFrozenString("unknown-global").toFrozenValue()
-            else -> globals.getFrozen(name)
+    companion object {
+        // pub(crate) fn unknown() -> ScopeResolverGlobals
+        fun unknown(): ScopeResolverGlobals {
+            return ScopeResolverGlobals(globals = null)
         }
     }
 
+    // pub(crate) fn get_global(&self, name: &str) -> Option<FrozenValue>
+    fun getGlobal(name: String): FrozenValue? {
+        return when (val g = globals) {
+            null -> constFrozenString("unknown-global").toFrozenValue()
+            else -> g.value.getFrozen(name)
+        }
+    }
+
+    // pub(crate) fn names(&self) -> Option<Vec<String>>
     fun names(): List<String>? {
-        return globals?.names()?.asSequence()?.map { it.asStr() }?.toList()
+        return globals?.value?.names()?.map { it }
     }
 }

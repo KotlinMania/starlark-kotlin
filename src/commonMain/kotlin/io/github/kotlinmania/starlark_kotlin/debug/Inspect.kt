@@ -24,12 +24,12 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
 import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
 import io.github.kotlinmania.starlark_kotlin.util.asStr

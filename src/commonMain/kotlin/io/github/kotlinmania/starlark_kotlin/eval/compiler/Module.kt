@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleVarTypes
 import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.LoadP
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.stdlib.new

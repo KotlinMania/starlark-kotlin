@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import kotlin.time.Duration
 import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.RetainedHeapProfile
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
@@ -46,7 +46,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapName
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer

@@ -1,6 +1,8 @@
 // port-lint: source src/typing/callable.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,78 +21,118 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-private data class TyCallableInner(
-    val params: ParamSpec,
-    val result: Ty,
-) : Comparable<TyCallableInner> {
-    override fun compareTo(other: TyCallableInner): Int {
-        val paramsComp = params.compareTo(other.params)
-        if (paramsComp != 0) return paramsComp
-        return result.compareTo(other.result)
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+class ParamSpec(private val params: Any? = null, private val isAnyFlag: Boolean = false) {
+    companion object {
+        fun any(): ParamSpec = ParamSpec(isAnyFlag = true)
     }
+    fun isAny(): Boolean = isAnyFlag
+    fun allRequiredPosOnly(): List<Ty>? = null
+    fun displayWith(config: TypeRenderConfig): String = ""
+    override fun equals(other: Any?): Boolean =
+        other is ParamSpec && params == other.params && isAnyFlag == other.isAnyFlag
+    override fun hashCode(): Int = (params?.hashCode() ?: 0) * 31 + isAnyFlag.hashCode()
+}
+class Ty(private val repr: String = "") {
+    companion object {
+        fun any(): Ty = Ty("any")
+    }
+    fun displayWith(config: TypeRenderConfig): String = repr
+    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) { sb.append(repr) }
+    override fun equals(other: Any?): Boolean = other is Ty && repr == other.repr
+    override fun hashCode(): Int = repr.hashCode()
+}
+class TypingOracleCtx {
+    fun validateFnCall(span: Span, callable: TyCallable, args: TyCallArgs): Result<Ty> =
+        Result.success(Ty.any())
+}
+class TyCallArgs
+sealed class TypingOrInternalError {
+    class Typing(val error: Any) : TypingOrInternalError()
+    class Internal(val error: Any) : TypingOrInternalError()
+}
+enum class TypeRenderConfig {
+    Default,
 }
 
 /// `typing.Callable`.
 class TyCallable private constructor(
-    private val inner: TyCallableInner
+    private val params: ParamSpec,
+    private val result: Ty,
 ) : Comparable<TyCallable> {
-
     companion object {
-        /** Create a new callable type. */
-        fun new(params: ParamSpec, result: Ty): TyCallable =
-            TyCallable(TyCallableInner(params, result))
-
-        private val ANY_INSTANCE: TyCallable by lazy {
-            TyCallable(TyCallableInner(ParamSpec.any(), Ty.any()))
+        /// Create a new callable type.
+        fun new(params: ParamSpec, result: Ty): TyCallable {
+            return TyCallable(params, result)
         }
 
-        fun any(): TyCallable = ANY_INSTANCE
+        private val ANY: TyCallable by lazy {
+            TyCallable(ParamSpec.any(), Ty.any())
+        }
+
+        internal fun any(): TyCallable = ANY
     }
 
-    fun validateCall(args: TyCallArgs): Result<Ty> {
-        // In Rust: oracle.validate_fn_call(span, self, args)
-        return Result.success(inner.result)
+    internal fun validateCall(
+        span: Span,
+        args: TyCallArgs,
+        oracle: TypingOracleCtx,
+    ): Result<Ty> {
+        return oracle.validateFnCall(span, this, args)
     }
 
-    fun params(): ParamSpec = inner.params
+    internal fun params(): ParamSpec = params
 
-    fun result(): Ty = inner.result
+    internal fun result(): Ty = result
 
-    fun fmtWithConfig(config: TypeRenderConfig): String {
-        return if (params() == ParamSpec.any() && result() == Ty.any()) {
-            "typing.Callable"
+    internal fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {
+        if (params() == ParamSpec.any() && result() == Ty.any()) {
+            sb.append("typing.Callable")
         } else {
-            buildString {
-                append("typing.Callable[")
-                if (params().isAny()) {
-                    append("...")
-                } else {
-                    val posOnly = params().allRequiredPosOnly()
-                    if (posOnly != null) {
-                        append("[")
-                        posOnly.forEachIndexed { i, p ->
-                            if (i != 0) append(", ")
-                            append(p.fmtWithConfig(config))
+            sb.append("typing.Callable[")
+            if (params().isAny()) {
+                sb.append("...")
+            } else {
+                val pos = params().allRequiredPosOnly()
+                if (pos != null) {
+                    sb.append("[")
+                    for ((i, p) in pos.withIndex()) {
+                        if (i != 0) {
+                            sb.append(", ")
                         }
-                        append("]")
-                    } else {
-                        append("\"${params().displayWith(config)}\"")
+                        p.fmtWithConfig(sb, config)
                     }
+                    sb.append("]")
+                } else {
+                    sb.append("\"${params().displayWith(config)}\"")
                 }
-                append(", ${result().fmtWithConfig(config)}]")
             }
+            sb.append(", ${result().displayWith(config)}]")
         }
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        fmtWithConfig(sb, TypeRenderConfig.Default)
+        return sb.toString()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyCallable) return false
-        return inner == other.inner
+        return params == other.params && result == other.result
     }
 
-    override fun hashCode(): Int = inner.hashCode()
+    override fun hashCode(): Int {
+        var h = params.hashCode()
+        h = h * 31 + result.hashCode()
+        return h
+    }
 
-    override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
-
-    override fun compareTo(other: TyCallable): Int = inner.compareTo(other.inner)
+    override fun compareTo(other: TyCallable): Int {
+        val cmp = params.hashCode().compareTo(other.params.hashCode())
+        if (cmp != 0) return cmp
+        return result.hashCode().compareTo(other.result.hashCode())
+    }
 }

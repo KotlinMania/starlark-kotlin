@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.repr.AValueHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

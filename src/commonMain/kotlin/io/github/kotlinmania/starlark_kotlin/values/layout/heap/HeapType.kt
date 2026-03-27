@@ -36,8 +36,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.fast_cell.FastCe
 import kotlin.math.max
 import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.StringValueInterner
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValueInterner
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValueInterner
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
@@ -46,7 +46,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSumm
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptr

@@ -28,10 +28,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
 import kotlin.time.Duration
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 

@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 import starlark_map.Hashed
 import starlark_map.small_set.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

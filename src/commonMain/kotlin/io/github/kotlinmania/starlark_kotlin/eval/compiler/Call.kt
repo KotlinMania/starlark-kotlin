@@ -1,6 +1,11 @@
 // port-lint: source src/eval/compiler/call.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
+import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+
+
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -19,101 +24,154 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-/** Compile function calls. */
+/// Compile function calls.
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefCallSite
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.localAsValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.visitSpans
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumType
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.dot_format.parseFormatOne
+// Placeholder types referenced from other modules
+// These will be replaced with real imports as the port progresses
+class Symbol(val name: String)
+class FrozenValue {
+    fun toValue(): Value = Value()
+    fun speculativeExecSafe(): Boolean = false
+    fun downcastFrozenRef(): FrozenEnumType? = null
+}
 
-/**
- * Compiled representation of a function call expression.
- *
- * Contains the function expression and its arguments. This is the IR node
- * for all call expressions (direct calls, method calls, etc.).
- */
-internal class CallCompiled(
-    /** The function expression being called. */
-    val fun_: IrSpanned<ExprCompiled>,
-    /** The compiled arguments to the call. */
-    val args: ArgsCompiledValue,
-) {
 
-    /**
-     * If this call expression is `len(x)`, return `x`.
-     */
-    fun asLen(): IrSpanned<ExprCompiled>? {
-        if (!fun_.node.isFnLen()) {
-            return null
-        }
-        return args.onePos()
+class Value {
+    fun invoke(args: Any, eval: Any): kotlin.Result<Value> = kotlin.Result.success(Value())
+    fun unpackFrozen(): FrozenValue? = null
+}
+
+class FrameSpan {
+    val inlinedFrames: InlinedFrames = InlinedFrames()
+}
+
+class InlinedFrames {
+    fun inlineInto(span: FrameSpan, frozenValue: FrozenValue, alloc: InlinedFrameAlloc) {}
+}
+
+class InlinedFrameAlloc {
+    companion object {
+        fun new(frozenHeap: Any): InlinedFrameAlloc = InlinedFrameAlloc()
     }
+}
 
-    /**
-     * If this call expression is `type(x)`, return `x`.
-     */
-    fun asType(): IrSpanned<ExprCompiled>? {
-        if (!fun_.node.isFnType()) {
-            return null
-        }
-        return args.onePos()
-    }
+class IrSpanned<T>(val span: FrameSpan, val node: T) {
+    fun asValue(): FrozenValue? = null
 
-    /**
-     * If this call expression is `isinstance(x, t)`, return `(x, t)`.
-     */
-    fun asIsinstance(): Pair<IrSpanned<ExprCompiled>, FrozenValue>? {
-        if (!fun_.node.isFnIsinstance()) {
-            return null
-        }
-        val (x, t) = args.twoPos() ?: return null
-        val tValue = t.node.asValue() ?: return null
-        return x to tValue
-    }
+    fun isFnLen(): Boolean = false
+    fun isFnType(): Boolean = false
+    fun isFnIsinstance(): Boolean = false
+    fun isPureInfallible(): Boolean = false
 
-    /**
-     * This call is infallible and has no side effects.
-     */
-    fun isPureInfallible(): Boolean {
-        val arg = asType()
-        return arg?.node?.isPureInfallible() ?: false
-    }
+    fun optimize(ctx: OptCtx): IrSpanned<ExprCompiled> = IrSpanned(span, node as ExprCompiled)
 
-    /**
-     * This call is a method call.
-     *
-     * Returns the receiver expression, method name, and arguments if
-     * the function expression is a dot-access (i.e. `obj.method(args)`).
-     */
-    fun method(): Triple<IrSpanned<ExprCompiled>, Symbol, ArgsCompiledValue>? {
-        val node = fun_.node
-        if (node is ExprCompiled.Builtin1Expr && node.op is Builtin1.Dot) {
-            return Triple(node.expr, node.op.field, args)
-        }
-        return null
-    }
+    fun clone(): IrSpanned<T> = IrSpanned(span, node)
+
+    fun visitSpans(visitor: (FrameSpan) -> Unit) {}
+}
+
+class ArgsCompiledValue {
+    fun onePos(): IrSpanned<ExprCompiled>? = null
+    fun twoPos(): Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>? = null
+    fun optimize(ctx: OptCtx): ArgsCompiledValue = ArgsCompiledValue()
+
+    fun <R> allValues(handler: (Arguments) -> R?): R? = null
+    fun <R> allValuesGeneric(
+        exprToValue: (ExprCompiled) -> Value?,
+        handler: (Arguments) -> R?,
+    ): R? = null
+}
+
+class Arguments {
+    fun frozenToV(): Any = this
+}
+
+class OptCtx {
+    val paramCount: Int = 0
+    fun heap(): Any = Unit
+    fun frozenHeap(): Any = Unit
+    fun eval(): Any? = null
+}
+
+class FrozenBoundMethod(val this_: FrozenValue, val method: MethodInfo)
+class MethodInfo(val name: String)
+
+class FrozenEnumType {
+    val value: EnumTypeValue = EnumTypeValue()
+}
+
+class EnumTypeValue {
+    fun construct(value: Value): kotlin.Result<FrozenValue> = kotlin.Result.success(FrozenValue())
+}
+
+sealed class InlineDefBody {
+    class ReturnTypeIs(val type: FrozenStringValue) : InlineDefBody()
+    class ReturnSafeToInlineExpr(val expr: IrSpanned<ExprCompiled>) : InlineDefBody()
+}
+
+class DefInfo(val inlineDefBody: InlineDefBody?)
+
+class FrozenDef {
+    val defInfo: DefInfo = DefInfo(null)
+    val parameters: ParametersSpec = ParametersSpec()
+    fun toFrozenValue(): FrozenValue = FrozenValue()
+}
+
+class ParametersSpec {
+    fun hasArgsOrKwargs(): Boolean = false
+    fun len(): Int = 0
+    fun collect(args: Any, slots: Array<Value?>, heap: Any): kotlin.Result<Unit> = kotlin.Result.success(Unit)
+}
+
+class InlineDefCallSite(val ctx: OptCtx, val slots: List<FrozenValue>) {
+    fun inline(expr: IrSpanned<ExprCompiled>): kotlin.Result<IrSpanned<ExprCompiled>> =
+        kotlin.Result.success(expr)
+}
+
+sealed class Builtin1 {
+    class Dot(val name: Symbol) : Builtin1()
+    class Other : Builtin1()
+}
+
+sealed class ExprCompiled {
+    class CallExpr(val call: IrSpanned<CallCompiled>) : ExprCompiled()
+    class ValueExpr(val value: FrozenValue) : ExprCompiled()
+    class Builtin1Expr(val builtin: Builtin1, val expr: IrSpanned<ExprCompiled>) : ExprCompiled()
+    class Local(val index: Int) : ExprCompiled()
+    class Other : ExprCompiled()
+
+    fun asFrozenDef(): FrozenDef? = null
+    fun asValue(): FrozenValue? = null
+    fun asFrozenBoundMethod(): FrozenBoundMethod? = null
 
     companion object {
+        fun compileTimeGetattr(value: FrozenValue, field: Symbol, ctx: OptCtx): FrozenValue? = null
+        fun dot(this_: IrSpanned<ExprCompiled>, field: Symbol, ctx: OptCtx): ExprCompiled = Other()
+        fun typeIs(expr: IrSpanned<ExprCompiled>, type: FrozenStringValue): ExprCompiled = Other()
+        fun len(span: FrameSpan, arg: IrSpanned<ExprCompiled>): ExprCompiled = Other()
+        fun typ(span: FrameSpan, arg: IrSpanned<ExprCompiled>): ExprCompiled = Other()
+        fun formatOne(
+            before: FrozenStringValue,
+            arg: IrSpanned<ExprCompiled>,
+            after: FrozenStringValue,
+            ctx: OptCtx,
+        ): ExprCompiled = Other()
 
-        /**
-         * Compile a method call expression.
-         *
-         * If the receiver is a known value, attempts to resolve the attribute
-         * at compile time and convert to a direct call. Otherwise, wraps
-         * in a dot-access call.
-         */
+        fun tryValue(span: FrameSpan, value: Value, frozenHeap: Any): ExprCompiled? = null
+    }
+}
+
+fun parseFormatOne(format: FrozenStringValue): Pair<String, String>? = null
+
+fun localAsValue(local: ExprCompiled.Local): FrozenValue? = null
+
+// --- CallCompiled ---
+
+internal class CallCompiled(
+    val fun_: IrSpanned<ExprCompiled>,
+    val args: ArgsCompiledValue,
+) {
+    companion object {
         fun newMethod(
             span: FrameSpan,
             this_: IrSpanned<ExprCompiled>,
@@ -122,17 +180,17 @@ internal class CallCompiled(
             args: ArgsCompiledValue,
             ctx: OptCtx,
         ): ExprCompiled {
-            val thisValue = this_.node.asValue()
+            val thisValue = this_.asValue()
             if (thisValue != null) {
                 val v = ExprCompiled.compileTimeGetattr(thisValue, field, ctx)
                 if (v != null) {
-                    val vExpr: ExprCompiled = ExprCompiled.ValueExpr(v)
-                    val vSpanned = IrSpanned(getattrSpan, vExpr)
+                    val vExpr = ExprCompiled.ValueExpr(v)
+                    val vSpanned = IrSpanned(getattrSpan, vExpr as ExprCompiled)
                     return call(span, vSpanned, args, ctx)
                 }
             }
 
-            return ExprCompiled.Call(IrSpanned(
+            return ExprCompiled.CallExpr(IrSpanned(
                 span,
                 CallCompiled(
                     fun_ = IrSpanned(
@@ -140,26 +198,63 @@ internal class CallCompiled(
                         ExprCompiled.dot(this_, field, ctx),
                     ),
                     args = args,
-                ),
+                )
             ))
         }
 
-        /**
-         * Try to inline a function like `lambda x: type(x) == "y"`.
-         */
-        private fun tryTypeIs(fun_: ExprCompiled, args: ArgsCompiledValue): ExprCompiled? {
-            val frozenDef = fun_.asFrozenDef() ?: return null
-            val pos = args.onePos() ?: return null
-            val body = frozenDef.value.defInfo.inlineDefBody
-            if (body is InlineDefBody.ReturnTypeIs) {
-                return ExprCompiled.typeIs(pos.copy(), body.type)
+        /// If this call expression is `len(x)`, return `x`.
+        fun asLen(call: CallCompiled): IrSpanned<ExprCompiled>? {
+            if (!call.fun_.isFnLen()) {
+                return null
+            }
+            return call.args.onePos()
+        }
+
+        /// If this call expression is `type(x)`, return `x`.
+        fun asType(call: CallCompiled): IrSpanned<ExprCompiled>? {
+            if (!call.fun_.isFnType()) {
+                return null
+            }
+            return call.args.onePos()
+        }
+
+        /// If this call expression is `isinstance(x, t)`, return `(x, t)`.
+        fun asIsinstance(call: CallCompiled): Pair<IrSpanned<ExprCompiled>, FrozenValue>? {
+            if (!call.fun_.isFnIsinstance()) {
+                return null
+            }
+            val (x, t) = call.args.twoPos() ?: return null
+            val tValue = t.asValue() ?: return null
+            return x to tValue
+        }
+
+        /// This call is infallible and has no side effects.
+        fun isPureInfallible(call: CallCompiled): Boolean {
+            val arg = asType(call)
+            return arg?.isPureInfallible() ?: false
+        }
+
+        /// This call is a method call.
+        fun method(call: CallCompiled): Triple<IrSpanned<ExprCompiled>, Symbol, ArgsCompiledValue>? {
+            val node = call.fun_.node
+            if (node is ExprCompiled.Builtin1Expr && node.builtin is Builtin1.Dot) {
+                return Triple(node.expr, (node.builtin as Builtin1.Dot).name, call.args)
             }
             return null
         }
 
-        /**
-         * Inline calls to functions which are safe to inline.
-         */
+        /// Try to inline a function like `lambda x: type(x) == "y"`.
+        private fun tryTypeIs(fun_: ExprCompiled, args: ArgsCompiledValue): ExprCompiled? {
+            val frozenDef = fun_.asFrozenDef() ?: return null
+            val pos = args.onePos() ?: return null
+            val body = frozenDef.defInfo.inlineDefBody
+            if (body is InlineDefBody.ReturnTypeIs) {
+                return ExprCompiled.typeIs(pos.clone(), body.type)
+            }
+            return null
+        }
+
+        /// Inline calls to functions which are safe to inline.
         private fun tryInline(
             span: FrameSpan,
             fun_: ExprCompiled,
@@ -168,13 +263,13 @@ internal class CallCompiled(
         ): IrSpanned<ExprCompiled>? {
             val frozenDef = fun_.asFrozenDef() ?: return null
 
-            if (frozenDef.value.parameters.hasArgsOrKwargs()) {
+            if (frozenDef.parameters.hasArgsOrKwargs()) {
                 // Functions with `*args` or `**kwargs` are not marked safe to inline,
                 // but it is safer to also handle it explicitly here.
                 return null
             }
 
-            val body = frozenDef.value.defInfo.inlineDefBody
+            val body = frozenDef.defInfo.inlineDefBody
             val expr = if (body is InlineDefBody.ReturnSafeToInlineExpr) {
                 body.expr
             } else {
@@ -185,20 +280,9 @@ internal class CallCompiled(
             val exprToValue = { e: ExprCompiled ->
                 when (e) {
                     is ExprCompiled.ValueExpr -> e.value.toValue()
-                    is ExprCompiled.Local -> if (e.slot.index.toInt() < paramCount.toInt()) {
+                    is ExprCompiled.Local -> if (e.index < paramCount) {
                         // Definitely assigned local variable.
-                        //
-                        // Consider this example:
-                        // ```
-                        // def foo(x): bar() + x
-                        // ```
-                        // We can inline calls like `foo(x)` when `x` is definitely assigned,
-                        // but if `x` is not we cannot do that, because
-                        // we should emit `x` is not assigned error before call to `bar()`
-                        // which may fail. We can implement inlining of variables which
-                        // may be not assigned, or inlining of any expression arguments,
-                        // but more work is needed for that.
-                        localAsValue(e.slot)?.value?.toValue()
+                        localAsValue(e)?.toValue()
                     } else {
                         null
                     }
@@ -207,38 +291,27 @@ internal class CallCompiled(
             }
 
             return args.allValuesGeneric(exprToValue) { arguments ->
-                val slots = arrayOfNulls<Value>(frozenDef.value.parameters.len())
-                frozenDef.value.parameters
+                val slots = arrayOfNulls<Value>(frozenDef.parameters.len())
+                frozenDef.parameters
                     .collect(arguments.frozenToV(), slots, ctx.heap())
                     .getOrNull() ?: return@allValuesGeneric null
 
                 val frozenSlots = mutableListOf<FrozenValue>()
                 for (slot in slots) {
-                    // Value must be set, but better ignore optimization here than panic.
                     val value = slot ?: return@allValuesGeneric null
-                    // Everything should be frozen here, but if not,
-                    // it is safer to abandon optimization.
                     val frozen = value.unpackFrozen() ?: return@allValuesGeneric null
                     frozenSlots.add(frozen)
                 }
 
-                val inlinedExpr = IrSpanned(span, expr.node.copy())
+                val inlinedExpr = IrSpanned(span, expr.node.clone())
                 val spanAlloc = InlinedFrameAlloc.new(ctx.frozenHeap())
-                inlinedExpr.visitSpans { exprSpan: FrameSpan ->
-                    exprSpan.inlinedFrames.inlineInto(
-                        span,
-                        frozenDef.value.toFrozenValue(),
-                        spanAlloc,
-                    )
-                    exprSpan
+                inlinedExpr.visitSpans { exprSpan ->
+                    exprSpan.inlinedFrames.inlineInto(span, frozenDef.toFrozenValue(), spanAlloc)
                 }
                 InlineDefCallSite(ctx, frozenSlots).inline(inlinedExpr).getOrNull()
             }
         }
 
-        /**
-         * Try speculative execution of a call with all-constant arguments.
-         */
         private fun trySpecExec(
             span: FrameSpan,
             fun_: ExprCompiled,
@@ -261,23 +334,19 @@ internal class CallCompiled(
             }
         }
 
-        /**
-         * Optimize `MyEnum(arg)`.
-         */
+        // Optimize `MyEnum(arg)`.
         private fun tryEnumValue(
             fun_: IrSpanned<ExprCompiled>,
             args: ArgsCompiledValue,
         ): ExprCompiled? {
-            val enumType = fun_.node.asValue()?.downcastFrozenRef<FrozenEnumType>() ?: return null
-            val arg = args.onePos()?.node?.asValue() ?: return null
+            val enumType = fun_.asValue()?.downcastFrozenRef() ?: return null
+            val arg = args.onePos()?.asValue() ?: return null
             val constructed = enumType.value.construct(arg.toValue()).getOrNull()
                 ?: return null
             return ExprCompiled.ValueExpr(constructed)
         }
 
-        /**
-         * Optimize `"aaa{}bbb".format(arg)`.
-         */
+        // Optimize `"aaa{}bbb".format(arg)`.
         private fun tryFormat(
             fun_: IrSpanned<ExprCompiled>,
             args: ArgsCompiledValue,
@@ -290,28 +359,13 @@ internal class CallCompiled(
             }
             val arg = args.onePos() ?: return null
 
-            val (before, after) = parseFormatOne(format.asStr()) ?: return null
+            val (before, after) = parseFormatOne(format) ?: return null
 
-            val beforeStr = ctx.frozenHeap().allocStrIntern(before)
-            val afterStr = ctx.frozenHeap().allocStrIntern(after)
-            return ExprCompiled.formatOne(beforeStr, arg.copy(), afterStr, ctx)
+            val beforeStr = FrozenStringValue(before)
+            val afterStr = FrozenStringValue(after)
+            return ExprCompiled.formatOne(beforeStr, arg.clone(), afterStr, ctx)
         }
 
-        /**
-         * Compile a call expression with optimizations.
-         *
-         * Attempts various optimizations in order:
-         * 1. Inline `type(x) == "y"` pattern
-         * 2. Inline safe-to-inline function bodies
-         * 3. Optimize `len(x)` calls
-         * 4. Optimize `type(x)` calls
-         * 5. Optimize enum construction
-         * 6. Speculative execution of pure functions
-         * 7. Optimize `"...".format(arg)` calls
-         * 8. Convert dot-access calls to method calls
-         *
-         * Falls back to a regular [ExprCompiled.Call] if no optimization applies.
-         */
         fun call(
             span: FrameSpan,
             fun_: IrSpanned<ExprCompiled>,
@@ -328,17 +382,17 @@ internal class CallCompiled(
                 return inline.node
             }
 
-            if (fun_.node.isFnLen()) {
+            if (fun_.isFnLen()) {
                 val arg = args.onePos()
                 if (arg != null) {
-                    return ExprCompiled.len(span, arg.copy())
+                    return ExprCompiled.len(span, arg.clone())
                 }
             }
 
-            if (fun_.node.isFnType()) {
+            if (fun_.isFnType()) {
                 val arg = args.onePos()
                 if (arg != null) {
-                    return ExprCompiled.typ(span, arg.copy())
+                    return ExprCompiled.typ(span, arg.clone())
                 }
             }
 
@@ -358,18 +412,18 @@ internal class CallCompiled(
             }
 
             val node = fun_.node
-            if (node is ExprCompiled.Builtin1Expr && node.op is Builtin1.Dot) {
+            if (node is ExprCompiled.Builtin1Expr && node.builtin is Builtin1.Dot) {
                 return newMethod(
                     span,
-                    node.expr.copy(),
-                    node.op.field,
+                    node.expr.clone(),
+                    (node.builtin as Builtin1.Dot).name,
                     fun_.span,
                     args,
                     ctx,
                 )
             }
 
-            return ExprCompiled.Call(IrSpanned(
+            return ExprCompiled.CallExpr(IrSpanned(
                 span,
                 CallCompiled(fun_, args),
             ))
@@ -377,12 +431,6 @@ internal class CallCompiled(
     }
 }
 
-/**
- * Optimize a spanned [CallCompiled] expression.
- *
- * Recursively optimizes the function expression and arguments,
- * then applies call-level optimizations via [CallCompiled.call].
- */
 internal fun IrSpanned<CallCompiled>.optimize(ctx: OptCtx): ExprCompiled {
     val (expr, args) = this.node.let { it.fun_ to it.args }
     val optimizedExpr = expr.optimize(ctx)

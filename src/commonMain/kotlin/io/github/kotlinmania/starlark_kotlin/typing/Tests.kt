@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.typing..Interface
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect

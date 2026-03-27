@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef

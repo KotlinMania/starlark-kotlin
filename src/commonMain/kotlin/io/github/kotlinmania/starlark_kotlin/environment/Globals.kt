@@ -44,7 +44,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.MaybeDocHiddenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>

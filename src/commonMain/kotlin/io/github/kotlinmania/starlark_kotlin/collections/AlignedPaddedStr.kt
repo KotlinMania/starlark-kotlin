@@ -19,37 +19,65 @@ package io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str
  * limitations under the License.
  */
 
-/**
- * String which is `usize` aligned with zeros padding in the end.
- *
- * In Rust, this is a low-level optimization that compares strings word-by-word
- * using aligned pointer access. In Kotlin, we wrap a regular [String] since
- * Kotlin/JVM strings are already interned and efficiently compared.
- *
- * The Rust implementation uses raw pointer arithmetic for SIMD-style comparison;
- * in Kotlin we delegate to the standard string equality which is already optimized
- * by the JVM/native runtime.
- */
+/// String which is `Long`-aligned with zeros padding in the end.
 // #[derive(Copy, Clone, Dupe)]
-// pub(crate) struct AlignedPaddedStr<'a>
+// pub(crate) struct AlignedPaddedStr<'a> {
+//     len: usize,
+//     data: *const usize,
+//     _marker: PhantomData<&'a str>,
+// }
+// Kotlin: uses LongArray as word-aligned storage. Index simulates pointer offset.
 internal class AlignedPaddedStr(
-    /** The string data. */
-    val str: String,
+    /// In bytes.
+    private val len: Int,
+    /// Data containing `len` bytes and zero padding in the end.
+    private val data: LongArray,
+    /// Offset into data array (simulates pointer).
+    private val offset: Int = 0,
 ) {
-    // impl AlignedPaddedStr
 
-    /** Length of the string in bytes. */
-    val len: Int get() = str.length
+    companion object {
+        // sizeof<usize> equivalent for Long = 8 bytes
+        private const val WORD_SIZE: Int = Long.SIZE_BYTES
 
-    // In Rust: unsafe fn new(len: usize, data: *const usize) -> AlignedPaddedStr
-    // In Kotlin, we construct from a String directly.
+        // unsafe fn new(len: usize, data: *const usize) -> AlignedPaddedStr
+        fun new(len: Int, data: LongArray, offset: Int = 0): AlignedPaddedStr {
+            return AlignedPaddedStr(len = len, data = data, offset = offset)
+        }
+    }
+
+    /// Len of string in words.
+    // fn len_words(self) -> usize
+    private fun lenWords(): Int {
+        return (len + WORD_SIZE - 1) / WORD_SIZE
+    }
 
     // impl PartialEq for AlignedPaddedStr
+    // fn eq(&self, other: &Self) -> bool
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AlignedPaddedStr) return false
-        return str == other.str
+        if (len != other.len) {
+            return false
+        }
+
+        // We know strings are aligned, zero-padded and short,
+        // so we can do better than generic SIMD-optimized `memcmp`
+        val lenWords = lenWords()
+        for (i in 0 until lenWords) {
+            if (data[offset + i] != other.data[other.offset + i]) {
+                return false
+            }
+        }
+        return true
     }
 
-    override fun hashCode(): Int = str.hashCode()
+    override fun hashCode(): Int {
+        var result = len
+        val lenWords = lenWords()
+        for (i in 0 until lenWords) {
+            result = 31 * result + data[offset + i].hashCode()
+        }
+        return result
+    }
 }

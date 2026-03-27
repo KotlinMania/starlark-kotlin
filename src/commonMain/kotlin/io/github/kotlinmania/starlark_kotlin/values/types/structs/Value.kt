@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
 import kotlinx.serialization.Serializable
 import io.github.kotlinmania.starlark_kotlin.values.typing.TyStruct
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Ty
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed

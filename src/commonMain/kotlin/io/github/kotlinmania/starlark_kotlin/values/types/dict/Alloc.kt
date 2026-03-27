@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.type_repr.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 
 /**
  * Utility to allocate a dict from iterator.

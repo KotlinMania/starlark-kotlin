@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStrN
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr

@@ -19,30 +19,33 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.iterate
+import io.github.kotlinmania.starlark_kotlin.typing.iterItem
+import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.stdlib.add
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
-// #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Allocative)]
-// struct ZipType;
-private object ZipType : TyCustomFunctionImpl {
-
-    // impl TyCustomFunctionImpl for ZipType
-
-    // fn as_callable(&self) -> TyCallable
+class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {
-        return TyCallable(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
+        return TyCallable.new(ParamSpec.args(Ty.iter(Ty.any())), Ty.list(Ty.any()))
     }
 
-    // fn validate_call(...)
     override fun validateCall(
         span: Span,
         args: TyCallArgs,
@@ -50,7 +53,7 @@ private object ZipType : TyCustomFunctionImpl {
     ): Result<Ty> {
         val iterItemTypes = mutableListOf<Ty>()
         for (pos in args.pos) {
-            val itemTy = oracle.iterItem(pos)
+            val itemTy = oracle.iterItem(pos.asRef())
             iterItemTypes.add(itemTy)
         }
         return if (args.args != null) {
@@ -59,51 +62,53 @@ private object ZipType : TyCustomFunctionImpl {
             Result.success(Ty.list(Ty.tuple(iterItemTypes)))
         }
     }
+
+    override fun equals(other: Any?): Boolean = other is ZipType
+    override fun hashCode(): Int = javaClass.hashCode()
+    override fun toString(): String = "ZipType"
 }
 
-/**
- * [zip](https://github.com/bazelbuild/starlark/blob/master/spec.md#zip): zip several iterables together.
- *
- * `zip()` returns a new list of n-tuples formed from corresponding
- * elements of each of the n iterable sequences provided as arguments to
- * `zip`. That is, the first tuple contains the first element of each of
- * the sequences, the second element contains the second element of each
- * of the sequences, and so on. The result list is only as long as the
- * shortest of the input sequences.
- *
- * ```
- * zip()                           == []
- * zip(range(5))                   == [(0,), (1,), (2,), (3,), (4,)]
- * zip(range(5), "abc".elems())    == [(0, "a"), (1, "b"), (2, "c")]
- * ```
- */
-// #[starlark_module]
-// pub(crate) fn register_zip(globals: &mut GlobalsBuilder)
-internal fun registerZip(globals: GlobalsBuilder) {
-    // #[starlark(speculative_exec_safe, ty_custom_function = ZipType)]
-    // fn zip<'v>(args: UnpackTuple<...>, heap: Heap<'v>) -> starlark::Result<Vec<Value<'v>>>
-    globals.setFunction("zip", speculativeExecSafe = true, tyCustomFunction = ZipType) { eval, args ->
-        val argsList = args.positionalAll()
-        val heap = eval.heap()
-        val v = mutableListOf<Value>()
-        var first = true
-        for (arg in argsList) {
-            var idx = 0
-            for (e in arg.iterate(heap)) {
-                if (first) {
-                    v.add(heap.alloc(listOf(e)))
-                    idx += 1
-                } else if (idx < v.size) {
-                    v[idx] = v[idx].add(heap.alloc(listOf(e)), heap)
-                    idx += 1
-                }
+/// [zip](
+/// https://github.com/bazelbuild/starlark/blob/master/spec.md#zip
+/// ): zip several iterables together
+///
+/// `zip()` returns a new list of n-tuples formed from corresponding
+/// elements of each of the n iterable sequences provided as arguments to
+/// `zip`.  That is, the first tuple contains the first element of each of
+/// the sequences, the second element contains the second element of each
+/// of the sequences, and so on.  The result list is only as long as the
+/// shortest of the input sequences.
+///
+/// ```
+/// zip()                           == []
+/// zip(range(5))                   == [(0,), (1,), (2,), (3,), (4,)]
+/// zip(range(5), "abc".elems())    == [(0, "a"), (1, "b"), (2, "c")]
+/// ```
+fun zip(
+    args: UnpackTuple<ValueOfUnchecked<StarlarkIter<FrozenValue>>>,
+    heap: Heap,
+): Result<List<Value>> {
+    val v = mutableListOf<Value>()
+    var first = true
+    for (arg in args.items) {
+        var idx = 0
+        for (e in arg.get().iterate(heap)) {
+            if (first) {
+                v.add(heap.alloc(listOf(e)))
+                idx += 1
+            } else if (idx < v.size) {
+                v[idx] = v[idx].add(heap.alloc(listOf(e)), heap)
+                idx += 1
             }
-            // Truncate to shortest
-            while (v.size > idx) {
-                v.removeAt(v.size - 1)
-            }
-            first = false
         }
-        heap.allocList(v)
+        if (v.size > idx) {
+            v.subList(idx, v.size).clear()
+        }
+        first = false
     }
+    return Result.success(v)
+}
+
+fun registerZip(globals: GlobalsBuilder) {
+    globals.set("zip", ::zip)
 }

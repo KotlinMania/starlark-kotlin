@@ -582,7 +582,7 @@ internal class BcInstrsWriter {
                 slowArgs = slowArgs,
                 localNames = io.github.kotlinmania.starlark_kotlin.values.FrozenRef.new(
                     localNames.map {
-                        io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValue(it)
+                        io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue(it)
                     }
                 ),
             ),
