@@ -20,33 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  */
 
 /**
- * A typing operation wasn't able to produce a precise result,
- * so made some kind of approximation.
- */
-// TODO: stub - Approximation needs real import
-data class Approximation(
-    /** The category of the approximation, e.g. `"Unknown type"`. */
-    val category: String,
-    /** The precise details of this approximation, e.g. which type was unknown. */
-    val message: String,
-) : Comparable<Approximation> {
-
-    companion object {
-        /** Create a new [Approximation]. */
-        fun new(category: String, message: Any): Approximation =
-            Approximation(category = category, message = message.toString())
-    }
-
-    override fun compareTo(other: Approximation): Int {
-        val catComp = category.compareTo(other.category)
-        if (catComp != 0) return catComp
-        return message.compareTo(other.message)
-    }
-
-    override fun toString(): String = "Approximation: $category = \"$message\""
-}
-
-/**
  * Configuration for rendering types.
  *
  * Corresponds to Rust's `TypeRenderConfig` enum.

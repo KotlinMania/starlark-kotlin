@@ -21,46 +21,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class ParamSpec(private val params: Any? = null, private val isAnyFlag: Boolean = false) {
-    companion object {
-        fun any(): ParamSpec = ParamSpec(isAnyFlag = true)
-    }
-    fun isAny(): Boolean = isAnyFlag
-    fun allRequiredPosOnly(): List<Ty>? = null
-    fun displayWith(config: TypeRenderConfig): String = ""
-    override fun equals(other: Any?): Boolean =
-        other is ParamSpec && params == other.params && isAnyFlag == other.isAnyFlag
-    override fun hashCode(): Int = (params?.hashCode() ?: 0) * 31 + isAnyFlag.hashCode()
-}
-class Ty(private val repr: String = "") {
-    companion object {
-        fun any(): Ty = Ty("any")
-    }
-    fun displayWith(config: TypeRenderConfig): String = repr
-    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) { sb.append(repr) }
-    override fun equals(other: Any?): Boolean = other is Ty && repr == other.repr
-    override fun hashCode(): Int = repr.hashCode()
-}
-// TODO: stub - TypingOracleCtx needs real import
-class TypingOracleCtx {
-    fun validateFnCall(span: Span, callable: TyCallable, args: TyCallArgs): Result<Ty> =
-        Result.success(Ty.any())
-}
-class TyCallArgs
-// TODO: stub - TypingOrInternalError needs real import
-sealed class TypingOrInternalError {
-    class Typing(val error: Any) : TypingOrInternalError()
-    class Internal(val error: Any) : TypingOrInternalError()
-}
-// TODO: stub - TypeRenderConfig needs real import
-enum class TypeRenderConfig {
-    Default,
-}
-
 /// `typing.Callable`.
-// TODO: stub - TyCallable needs real import
 class TyCallable private constructor(
     private val params: ParamSpec,
     private val result: Ty,

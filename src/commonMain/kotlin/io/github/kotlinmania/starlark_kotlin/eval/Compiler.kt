@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopeData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeNames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.syntax.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 
 /**

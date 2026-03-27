@@ -61,7 +61,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
         asType = FrozenSet::class,
         speculativeExecSafe = true,
         specialBuiltinFunction = SpecialBuiltinFunction.Set
-    ) { arg: ValueOfUnchecked<StarlarkIter<Value<*>>>?, heap: Heap<*> ->
+    ) { arg: ValueOfUnchecked<StarlarkIter<Value>>?, heap: Heap ->
         val set = when (arg) {
             null -> SetData.default()
             else -> {

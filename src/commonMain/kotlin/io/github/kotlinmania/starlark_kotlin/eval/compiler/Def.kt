@@ -33,9 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.InlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.inlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
@@ -50,12 +47,12 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrN
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.arguments.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.bc.bytecode.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
-import io.github.kotlinmania.starlark_kotlin.syntax.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParam
 import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParamIndices
 import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParamKind
@@ -229,7 +226,6 @@ internal fun <T> ParameterCompiled<T>.isStarOrStarStar(): Boolean {
 /**
  * All compiled parameters for a function definition.
  */
-// TODO: stub - ParametersCompiled needs real import
 internal data class ParametersCompiled<T>(
     val params: List<IrSpanned<ParameterCompiled<T>>>,
     val indices: DefParamIndices,

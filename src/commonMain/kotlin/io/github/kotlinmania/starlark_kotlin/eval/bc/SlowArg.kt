@@ -28,14 +28,14 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
  * Slow instruction arg: stored in the end of bytecode,
  * expensive to access. Used to implement errors.
  */
-internal data class BcInstrSlowArg(
+data class BcInstrSlowArg(
     /** Instruction code span. */
     val span: FrameSpan = FrameSpan.default(),
     /** Spans when an instruction needs multiple spans. */
     val spans: MutableList<FrameSpan> = mutableListOf(),
 )
 
-internal data class BcInstrEndArg(
+data class BcInstrEndArg(
     /** Offset of end instruction. */
     val endAddr: BcAddr = BcAddr.default(),
     /** Spans of all instructions. */

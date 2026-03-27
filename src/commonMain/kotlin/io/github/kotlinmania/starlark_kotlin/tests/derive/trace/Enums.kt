@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 @Suppress("unused")
 private sealed class TestEnumForTrace {
     // Foo(String)
-    // TODO: stub - Foo needs real import
     class Foo(val value: String) : TestEnumForTrace()
     // Bar(i32, Value<'v>)
     class Bar(val intValue: Int, val value: Value) : TestEnumForTrace()

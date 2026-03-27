@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.unpackNamedParam

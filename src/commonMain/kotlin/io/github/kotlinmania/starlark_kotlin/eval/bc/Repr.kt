@@ -22,48 +22,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.repr
 /// Instruction representation in memory.
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.forInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcodeHandler
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - BcInstr needs real import
 interface BcInstr {
     /** The argument type for this instruction. */
     val arg: Any
 }
 
-enum class BcOpcode {
-    ;
-
-    companion object {
-        /** Get the opcode for a given instruction type. */
-        fun forInstr(instrClass: KClass<out BcInstr>): BcOpcode {
-            // Dispatch based on instruction class
-            throw IllegalArgumentException("Unknown instruction: ${instrClass.simpleName}")
-        }
-    }
-
-    /** Size of instruction representation. */
-    fun sizeOfRepr(): Int {
-        return dispatch(object : BcOpcodeHandler<Int> {
-            override fun <I : BcInstr> handle(instrClass: KClass<I>): Int {
-                BcInstrRepr.assertAlign(instrClass)
-                return BcInstrRepr.sizeOf(instrClass)
-            }
-        })
-    }
-
-    fun <R> dispatch(handler: BcOpcodeHandler<R>): R {
-        throw NotImplementedError("dispatch not yet wired")
-    }
-}
-
-interface BcOpcodeHandler<R> {
-    fun <I : BcInstr> handle(instrClass: KClass<I>): R
-}
-
 /// Instructions are aligned to store `u64` even on 32-bit machines.
-internal const val BC_INSTR_ALIGN: Int = 8
+const val BC_INSTR_ALIGN: Int = 8
 
 /// Instruction header.
 class BcInstrHeader(

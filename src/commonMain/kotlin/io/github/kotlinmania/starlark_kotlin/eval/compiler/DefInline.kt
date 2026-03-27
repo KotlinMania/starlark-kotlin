@@ -1,10 +1,14 @@
 // port-lint: source src/eval/compiler/def_inline.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline
+package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-import io.github.kotlinmania.starlark_kotlin.analysis.node
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.LocalAsValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-
+import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,227 +28,33 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
  * limitations under the License.
  */
 
-/// Inline functions.
+/** Inline functions. */
 
-// Sub-module: local_as_value
-
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - FrozenValue needs real import
-class FrozenValue {
-    companion object {
-        fun newNone(): FrozenValue = FrozenValue()
-    }
-}
-// TODO: stub - FrozenValueTyped needs real import
-class FrozenValueTyped<T>(val value: T) {
-    companion object {
-        fun <T : Any> new(value: FrozenValue): FrozenValueTyped<T>? = null
-    }
-}
-// TODO: stub - IrSpanned needs real import
-class IrSpanned<T>(
-    val span: FrameSpan,
-    val node: T,
-) {
-    fun clone(): IrSpanned<T> = IrSpanned(span, node)
-}
-class FrameSpan {
-    companion object {
-        fun default(): FrameSpan = FrameSpan()
-    }
-}
-// TODO: stub - LocalSlotId needs real import
-class LocalSlotId(val index: Int)
-
-class LocalAsValue(val local: LocalSlotId)
-
-sealed class ExprCompiled {
-    // TODO: stub - Value needs real import
-    data class Value(val value: FrozenValue) : ExprCompiled()
-    data class Local(val slot: LocalSlotId) : ExprCompiled()
-    data class LocalCaptured(val slot: LocalSlotId) : ExprCompiled()
-    data class Module(val slot: Int) : ExprCompiled()
-    // TODO: stub - Def needs real import
-    class Def : ExprCompiled()
-    data class Call(val call: IrSpanned<CallCompiled>) : ExprCompiled()
-    class Compr : ExprCompiled()
-    data class Slice(val args: SliceArgs) : ExprCompiled()
-    // TODO: stub - Builtin2 needs real import
-    data class Builtin2(val op: Builtin2Op, val args: Builtin2Args) : ExprCompiled()
-    data class Index2(val args: Index2Args) : ExprCompiled()
-    // TODO: stub - Builtin1 needs real import
-    data class Builtin1(val op: Builtin1Op, val arg: IrSpanned<ExprCompiled>) : ExprCompiled()
-    // TODO: stub - Tuple needs real import
-    data class Tuple(val elems: List<IrSpanned<ExprCompiled>>) : ExprCompiled()
-    // TODO: stub - List needs real import
-    data class List(val elems: List<IrSpanned<ExprCompiled>>) : ExprCompiled()
-    // TODO: stub - Dict needs real import
-    data class Dict(val entries: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>) : ExprCompiled()
-    data class If(val args: IfArgs) : ExprCompiled()
-    data class LogicalBinOp(val op: ExprLogicalBinOp, val args: LogicalBinOpArgs) : ExprCompiled()
-    data class Seq(val args: SeqArgs) : ExprCompiled()
-
-    companion object {
-        fun ifExpr(
-            c: IrSpanned<ExprCompiled>,
-            t: IrSpanned<ExprCompiled>,
-            f: IrSpanned<ExprCompiled>,
-        ): IrSpanned<ExprCompiled> {
-            return IrSpanned(c.span, If(IfArgs(c, t, f)))
-        }
-
-        fun logicalBinOp(
-            op: ExprLogicalBinOp,
-            l: IrSpanned<ExprCompiled>,
-            r: IrSpanned<ExprCompiled>,
-        ): IrSpanned<ExprCompiled> {
-            return IrSpanned(l.span, LogicalBinOp(op, LogicalBinOpArgs(l, r)))
-        }
-
-        fun tuple(xs: kotlin.collections.List<IrSpanned<ExprCompiled>>, frozenHeap: Any?): ExprCompiled {
-            return Tuple(xs)
-        }
-
-        fun binOp(
-            op: Builtin2Op,
-            l: IrSpanned<ExprCompiled>,
-            r: IrSpanned<ExprCompiled>,
-            ctx: OptCtx,
-        ): ExprCompiled {
-            return Builtin2(op, Builtin2Args(l, r))
-        }
-
-        fun unOp(
-            span: FrameSpan,
-            op: Builtin1Op,
-            x: IrSpanned<ExprCompiled>,
-            ctx: OptCtx,
-        ): ExprCompiled {
-            return Builtin1(op, x)
-        }
-
-        fun seq(
-            a: IrSpanned<ExprCompiled>,
-            b: IrSpanned<ExprCompiled>,
-        ): IrSpanned<ExprCompiled> {
-            return IrSpanned(a.span, Seq(SeqArgs(a, b)))
-        }
-    }
-}
-
-class SliceArgs(
-    val obj: IrSpanned<ExprCompiled>,
-    val start: IrSpanned<ExprCompiled>?,
-    val stop: IrSpanned<ExprCompiled>?,
-    val step: IrSpanned<ExprCompiled>?,
-)
-
-class Builtin2Op
-class Builtin2Args(
-    val left: IrSpanned<ExprCompiled>,
-    val right: IrSpanned<ExprCompiled>,
-)
-
-class Index2Args(
-    val obj: IrSpanned<ExprCompiled>,
-    val index0: IrSpanned<ExprCompiled>,
-    val index1: IrSpanned<ExprCompiled>,
-)
-
-class Builtin1Op
-
-class IfArgs(
-    val cond: IrSpanned<ExprCompiled>,
-    val thenExpr: IrSpanned<ExprCompiled>,
-    val elseExpr: IrSpanned<ExprCompiled>,
-)
-
-// TODO: stub - ExprLogicalBinOp needs real import
-class ExprLogicalBinOp
-
-class LogicalBinOpArgs(
-    val left: IrSpanned<ExprCompiled>,
-    val right: IrSpanned<ExprCompiled>,
-)
-
-class SeqArgs(
-    val first: IrSpanned<ExprCompiled>,
-    val second: IrSpanned<ExprCompiled>,
-)
-
-class CallCompiled(
-    val funExpr: IrSpanned<ExprCompiled>,
-    val args: ArgsCompiledValue,
-) {
-    companion object {
-        fun call(
-            span: FrameSpan,
-            funExpr: IrSpanned<ExprCompiled>,
-            args: ArgsCompiledValue,
-            ctx: OptCtx,
-        ): ExprCompiled {
-            return ExprCompiled.Call(IrSpanned(span, CallCompiled(funExpr, args)))
-        }
-    }
-}
-
-class ArgsCompiledValue {
-    fun argExprs(): List<IrSpanned<ExprCompiled>> = emptyList()
-
-    fun mapExprs(
-        transform: (IrSpanned<ExprCompiled>) -> IrSpanned<ExprCompiled>,
-    ): ArgsCompiledValue {
-        return ArgsCompiledValue()
-    }
-}
-
-// TODO: stub - OptCtx needs real import
-class OptCtx {
-    fun frozenHeap(): Any? = null
-}
-
-// TODO: stub - StmtCompiled needs real import
-class StmtCompiled {
-    class Return(val expr: IrSpanned<ExprCompiled>)
-}
-
-class StmtsCompiled {
-    fun first(): IrSpanned<StmtCompiled>? = null
-}
-
-class ParametersCompiled<T> {
-    val params: List<ParamCompiled> = emptyList()
-    fun hasArgsOrKwargs(): Boolean = false
-    fun countParamVariables(): Int = 0
-}
-
-class ParamCompiled {
-    fun acceptsPositional(): Boolean = false
-}
-
-/// Function body suitable for inlining.
-sealed class InlineDefBody {
-    /// Function body is `return type(x) == "y"`
+/** Function body suitable for inlining. */
+internal sealed class InlineDefBody {
+    /** Function body is `return type(x) == "y"`. */
     class ReturnTypeIs(val type: FrozenStringValue) : InlineDefBody()
 
-    /// Any expression which can be safely inlined.
+    /** Any expression which can be safely inlined. */
     class ReturnSafeToInlineExpr(val expr: IrSpanned<ExprCompiled>) : InlineDefBody()
 }
 
-/// If a statement is `return type(x) == "y"` where `x` is a first slot.
+/** If a statement is `return type(x) == "y"` where `x` is a first slot. */
 private fun isReturnTypeIs(stmt: StmtsCompiled): FrozenStringValue? {
     val first = stmt.first() ?: return null
-    // first.asReturn()?.asTypeIs() would give (x, t)
-    // Check if slot is LocalSlotId(0) — the first function parameter
-    return null
+    val ret = first.node as? StmtCompiled.Return ?: return null
+    val typeIs = ret.expr.node.asTypeIs() ?: return null
+    val (x, t) = typeIs
+    val local = x.node.asLocalNonCaptured() ?: return null
+    if (local.index != 0) return null
+    return t
 }
 
 private class IsSafeToInlineExpr(
-    /// Function parameter count.
+    /** Function parameter count. */
     private val paramCount: Int,
 ) {
-    /// How many expressions we visited already.
+    /** How many expressions we visited already. */
     private var counter: Int = 0
 
     fun isSafeToInlineOptExpr(expr: IrSpanned<ExprCompiled>?): Boolean {
@@ -255,7 +65,7 @@ private class IsSafeToInlineExpr(
         }
     }
 
-    /// Expression which has no access to locals or globals.
+    /** Expression which has no access to locals or globals. */
     fun isSafeToInlineExpr(expr: ExprCompiled): Boolean {
         // Do not inline too large functions.
         if (counter > 100) {
@@ -263,7 +73,7 @@ private class IsSafeToInlineExpr(
         }
         counter += 1
         return when (expr) {
-            is ExprCompiled.Value -> true
+            is ExprCompiled.ValueExpr -> true
             is ExprCompiled.LocalCaptured,
             is ExprCompiled.Module,
             is ExprCompiled.Def -> false
@@ -272,59 +82,59 @@ private class IsSafeToInlineExpr(
                 expr.slot.index < paramCount
             }
             is ExprCompiled.Call -> {
-                isSafeToInlineExpr(expr.call.node.funExpr.node)
+                isSafeToInlineExpr(expr.call.node.fun_.node)
                     && expr.call.node.args.argExprs().all { isSafeToInlineExpr(it.node) }
             }
             is ExprCompiled.Compr -> {
                 false
             }
             is ExprCompiled.Slice -> {
-                isSafeToInlineExpr(expr.args.obj.node)
-                    && isSafeToInlineOptExpr(expr.args.start)
-                    && isSafeToInlineOptExpr(expr.args.stop)
-                    && isSafeToInlineOptExpr(expr.args.step)
+                isSafeToInlineExpr(expr.obj.node)
+                    && isSafeToInlineOptExpr(expr.start)
+                    && isSafeToInlineOptExpr(expr.stop)
+                    && isSafeToInlineOptExpr(expr.step)
             }
-            is ExprCompiled.Builtin2 -> {
-                isSafeToInlineExpr(expr.args.left.node)
-                    && isSafeToInlineExpr(expr.args.right.node)
+            is ExprCompiled.Builtin2Expr -> {
+                isSafeToInlineExpr(expr.lhs.node)
+                    && isSafeToInlineExpr(expr.rhs.node)
             }
             is ExprCompiled.Index2 -> {
-                isSafeToInlineExpr(expr.args.obj.node)
-                    && isSafeToInlineExpr(expr.args.index0.node)
-                    && isSafeToInlineExpr(expr.args.index1.node)
+                isSafeToInlineExpr(expr.obj.node)
+                    && isSafeToInlineExpr(expr.index0.node)
+                    && isSafeToInlineExpr(expr.index1.node)
             }
-            is ExprCompiled.Builtin1 -> {
-                isSafeToInlineExpr(expr.arg.node)
+            is ExprCompiled.Builtin1Expr -> {
+                isSafeToInlineExpr(expr.expr.node)
             }
-            is ExprCompiled.Tuple -> {
-                expr.elems.all { isSafeToInlineExpr(it.node) }
+            is ExprCompiled.TupleExpr -> {
+                expr.elements.all { isSafeToInlineExpr(it.node) }
             }
-            is ExprCompiled.List -> {
-                expr.elems.all { isSafeToInlineExpr(it.node) }
+            is ExprCompiled.ListExpr -> {
+                expr.elements.all { isSafeToInlineExpr(it.node) }
             }
-            is ExprCompiled.Dict -> {
+            is ExprCompiled.DictExpr -> {
                 expr.entries.all { (x, y) ->
                     isSafeToInlineExpr(x.node) && isSafeToInlineExpr(y.node)
                 }
             }
             is ExprCompiled.If -> {
-                isSafeToInlineExpr(expr.args.cond.node)
-                    && isSafeToInlineExpr(expr.args.thenExpr.node)
-                    && isSafeToInlineExpr(expr.args.elseExpr.node)
+                isSafeToInlineExpr(expr.cond.node)
+                    && isSafeToInlineExpr(expr.thenBranch.node)
+                    && isSafeToInlineExpr(expr.elseBranch.node)
             }
             is ExprCompiled.LogicalBinOp -> {
-                isSafeToInlineExpr(expr.args.left.node)
-                    && isSafeToInlineExpr(expr.args.right.node)
+                isSafeToInlineExpr(expr.lhs.node)
+                    && isSafeToInlineExpr(expr.rhs.node)
             }
             is ExprCompiled.Seq -> {
-                isSafeToInlineExpr(expr.args.first.node)
-                    && isSafeToInlineExpr(expr.args.second.node)
+                isSafeToInlineExpr(expr.first.node)
+                    && isSafeToInlineExpr(expr.second.node)
             }
         }
     }
 }
 
-/// Function body is a `return` safe to inline expression (as defined above).
+/** Function body is a `return` safe to inline expression (as defined above). */
 private fun isReturnSafeToInlineExpr(
     stmts: StmtsCompiled,
     paramCount: Int,
@@ -334,14 +144,19 @@ private fun isReturnSafeToInlineExpr(
         // Empty function is equivalent to `return None`.
         return IrSpanned(
             FrameSpan.default(),
-            ExprCompiled.Value(FrozenValue.newNone()),
+            ExprCompiled.ValueExpr(FrozenValue.newNone()),
         )
     }
-    // match &stmt.node { StmtCompiled::Return(expr) if safe => Some(expr.clone()) }
-    return null
+    val ret = first.node as? StmtCompiled.Return ?: return null
+    val checker = IsSafeToInlineExpr(paramCount)
+    return if (checker.isSafeToInlineExpr(ret.expr.node)) {
+        ret.expr
+    } else {
+        null
+    }
 }
 
-fun inlineDefBody(
+internal fun inlineDefBody(
     params: ParametersCompiled<IrSpanned<ExprCompiled>>,
     body: StmtsCompiled,
 ): InlineDefBody? {
@@ -363,11 +178,10 @@ fun inlineDefBody(
     return null
 }
 
-class CannotInline : Exception()
+internal class CannotInline : Exception()
 
-/// Utility to inline function body at call site.
-// TODO: stub - InlineDefCallSite needs real import
-class InlineDefCallSite(
+/** Utility to inline function body at call site. */
+internal class InlineDefCallSite(
     val ctx: OptCtx,
     // Values in the slots are either real frozen values
     // or `LocalAsValue` which are the parameters to be substituted with caller locals.
@@ -390,7 +204,7 @@ class InlineDefCallSite(
         call: IrSpanned<CallCompiled>,
     ): IrSpanned<ExprCompiled> {
         val span = call.span
-        val funExpr = inline(call.node.funExpr)
+        val funExpr = inline(call.node.fun_)
         val args = inlineArgs(call.node.args)
         return IrSpanned(
             span,
@@ -403,65 +217,65 @@ class InlineDefCallSite(
     ): IrSpanned<ExprCompiled> {
         val span = expr.span
         return when (val node = expr.node) {
-            is ExprCompiled.Value -> IrSpanned(span, node)
+            is ExprCompiled.ValueExpr -> IrSpanned(span, node)
             is ExprCompiled.Local -> {
                 val value = slots[node.slot.index]
                 val localAsValue = FrozenValueTyped.new<LocalAsValue>(value)
                 val inlinedExpr = if (localAsValue != null) {
                     ExprCompiled.Local(localAsValue.value.local)
                 } else {
-                    ExprCompiled.Value(value)
+                    ExprCompiled.ValueExpr(value)
                 }
                 IrSpanned(span, inlinedExpr)
             }
             is ExprCompiled.If -> {
-                val c = inline(node.args.cond)
-                val t = inline(node.args.thenExpr)
-                val f = inline(node.args.elseExpr)
+                val c = inline(node.cond)
+                val t = inline(node.thenBranch)
+                val f = inline(node.elseBranch)
                 ExprCompiled.ifExpr(c, t, f)
             }
             is ExprCompiled.LogicalBinOp -> {
-                val l = inline(node.args.left)
-                val r = inline(node.args.right)
+                val l = inline(node.lhs)
+                val r = inline(node.rhs)
                 ExprCompiled.logicalBinOp(node.op, l, r)
             }
-            is ExprCompiled.List -> {
-                val xs = node.elems.map { inline(it) }
-                IrSpanned(span, ExprCompiled.List(xs))
+            is ExprCompiled.ListExpr -> {
+                val xs = node.elements.map { inline(it) }
+                IrSpanned(span, ExprCompiled.ListExpr(xs))
             }
-            is ExprCompiled.Tuple -> {
-                val xs = node.elems.map { inline(it) }
+            is ExprCompiled.TupleExpr -> {
+                val xs = node.elements.map { inline(it) }
                 IrSpanned(span, ExprCompiled.tuple(xs, ctx.frozenHeap()))
             }
-            is ExprCompiled.Dict -> {
+            is ExprCompiled.DictExpr -> {
                 val xs = node.entries.map { (x, y) -> Pair(inline(x), inline(y)) }
-                IrSpanned(span, ExprCompiled.Dict(xs))
+                IrSpanned(span, ExprCompiled.DictExpr(xs))
             }
-            is ExprCompiled.Builtin2 -> {
-                val l = inline(node.args.left)
-                val r = inline(node.args.right)
+            is ExprCompiled.Builtin2Expr -> {
+                val l = inline(node.lhs)
+                val r = inline(node.rhs)
                 IrSpanned(span, ExprCompiled.binOp(node.op, l, r, ctx))
             }
             is ExprCompiled.Index2 -> {
-                val a = inline(node.args.obj)
-                val i0 = inline(node.args.index0)
-                val i1 = inline(node.args.index1)
-                IrSpanned(span, ExprCompiled.Index2(Index2Args(a, i0, i1)))
+                val a = inline(node.obj)
+                val i0 = inline(node.index0)
+                val i1 = inline(node.index1)
+                IrSpanned(span, ExprCompiled.index2(a, i0, i1))
             }
-            is ExprCompiled.Builtin1 -> {
-                val x = inline(node.arg)
+            is ExprCompiled.Builtin1Expr -> {
+                val x = inline(node.expr)
                 IrSpanned(span, ExprCompiled.unOp(span, node.op, x, ctx))
             }
             is ExprCompiled.Slice -> {
-                val l = inline(node.args.obj)
-                val a = inlineOpt(node.args.start)
-                val b = inlineOpt(node.args.stop)
-                val c = inlineOpt(node.args.step)
-                IrSpanned(span, ExprCompiled.Slice(SliceArgs(l, a, b, c)))
+                val l = inline(node.obj)
+                val a = inlineOpt(node.start)
+                val b = inlineOpt(node.stop)
+                val c = inlineOpt(node.step)
+                IrSpanned(span, ExprCompiled.Slice(l, a, b, c))
             }
             is ExprCompiled.Seq -> {
-                val a = inline(node.args.first)
-                val b = inline(node.args.second)
+                val a = inline(node.first)
+                val b = inline(node.second)
                 ExprCompiled.seq(a, b)
             }
             is ExprCompiled.Call -> return inlineCall(node.call)

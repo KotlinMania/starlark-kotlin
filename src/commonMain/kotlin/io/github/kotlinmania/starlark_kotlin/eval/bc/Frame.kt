@@ -202,8 +202,7 @@ internal fun BcFrame.trace(tracer: Tracer) {
 // pub(crate) struct BcFramePtr<'v> {
 //     slots_ptr: *mut Option<Value<'v>>,
 // }
-// TODO: stub - BcFramePtr needs real import
-internal class BcFramePtr(
+class BcFramePtr(
     private var frame: BcFrame?,
 ) {
     companion object {

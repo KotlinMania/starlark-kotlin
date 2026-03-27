@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.typing.iterItem
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef

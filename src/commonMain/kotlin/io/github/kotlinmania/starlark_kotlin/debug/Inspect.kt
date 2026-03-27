@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
 import io.github.kotlinmania.starlark_kotlin.coerce
 import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {

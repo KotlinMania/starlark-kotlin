@@ -23,38 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
  * limitations under the License.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class GlobalsBuilder
-
-expect class StringValue {
-    fun asStr(): String
-    fun toValue(): Value
-
-    companion object {
-        fun new(value: Value): StringValue?
-    }
-}
-
-expect class Value {
-    fun collectRepr(buffer: StringBuilder)
-    fun toRepr(): String
-}
-
-expect class StringPool {
-    fun alloc(): StringBuilder
-    fun release(buffer: StringBuilder)
-}
-
-expect class Heap {
-    fun allocStr(str: String): StringValue
-}
-
-expect class Evaluator {
-    val stringPool: StringPool
-    fun heap(): Heap
-}
-
-expect class StarlarkStr
+// Real types should be imported from their respective packages
 
 // Extension functions for GlobalsBuilder to register different function types
 // These will be implemented when the actual GlobalsBuilder is ported

@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.Fla
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
@@ -59,7 +59,6 @@ internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
 private sealed class FlameProfileError(message: String) : Exception(message) {
     // #[error("Flame profile not enabled")]
     // NotEnabled
-    // TODO: stub - NotEnabled needs real import
     class NotEnabled : FlameProfileError("Flame profile not enabled")
 }
 

@@ -56,8 +56,8 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
  *
  * The error type is [Either]<K.Error, V.Error>.
  */
-fun <V_, K : UnpackValue<V_>, V : UnpackValue<V_>> unpackDictType(
-    value: Value<V_>
+fun <K : UnpackValue, V : UnpackValue> unpackDictType(
+    value: Value
 ): Result<DictType<K, V>?> {
     return when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
         null -> Result.success(null)

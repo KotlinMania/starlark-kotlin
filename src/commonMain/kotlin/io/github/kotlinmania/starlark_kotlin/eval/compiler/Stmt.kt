@@ -29,9 +29,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.small_vec_1.SmallVec1
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
@@ -39,8 +36,8 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.List
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
@@ -52,12 +49,10 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.GC_THRESHOLD
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ExprCompiledBool
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.bc.LocalCapturedSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -69,7 +64,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.values.index
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.fromValue
 import io.github.kotlinmania.starlark_kotlin.analysis.def
 import io.github.kotlinmania.starlark_kotlin.analysis.Tuple
@@ -97,15 +91,15 @@ import io.github.kotlinmania.starlark_kotlin.values.op
 import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.isStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.garbageCollect
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocatedBytes
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Pass
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.IfElse
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.If
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Continue
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Break
+import io.github.kotlinmania.starlark_kotlin.typing.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.Pass
+import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.typing.IfElse
+import io.github.kotlinmania.starlark_kotlin.typing.If
+import io.github.kotlinmania.starlark_kotlin.typing.For
+import io.github.kotlinmania.starlark_kotlin.typing.CstExpr
+import io.github.kotlinmania.starlark_kotlin.typing.Continue
+import io.github.kotlinmania.starlark_kotlin.typing.Break
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.assignP
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
@@ -113,9 +107,7 @@ import io.github.kotlinmania.starlark_kotlin.pagable.vtable
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.nextGcLevel
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.forP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.exprForType
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.isIterableEmpty
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.listToTuple
 import io.github.kotlinmania.starlark_kotlin.assert.disableGc
 import io.github.kotlinmania.starlark_kotlin.analysis.stmts
 import io.github.kotlinmania.starlark_kotlin.analysis.rhs
@@ -273,7 +265,6 @@ internal class OptimizeOnFreezeContext(
 
 // #[derive(Clone, Debug)]
 // pub(crate) struct StmtsCompiled(SmallVec1<IrSpanned<StmtCompiled>>)
-// TODO: stub - StmtsCompiled needs real import
 internal class StmtsCompiled(
     private val stmts: SmallVec1<IrSpanned<StmtCompiled>>,
 ) {
@@ -481,7 +472,6 @@ internal class AssignError {
 internal sealed class AssignCompiledValue {
     data class Dot(val obj: IrSpanned<ExprCompiled>, val field: String) : AssignCompiledValue()
     data class Index(val array: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignCompiledValue()
-    // TODO: stub - Tuple needs real import
     data class Tuple(val elements: List<IrSpanned<AssignCompiledValue>>) : AssignCompiledValue()
     data class Local(val slot: LocalSlotId) : AssignCompiledValue()
     data class LocalCaptured(val slot: LocalCapturedSlotId) : AssignCompiledValue()

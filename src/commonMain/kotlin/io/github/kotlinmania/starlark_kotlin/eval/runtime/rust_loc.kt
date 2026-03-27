@@ -21,8 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 
 /** Initialize a `FrozenRef<FrameSpan>` with Kotlin file and line number. */

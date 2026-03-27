@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.PatchAddr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.PatchAddr
 import io.github.kotlinmania.starlark_kotlin.values.op
 import io.github.kotlinmania.starlark_kotlin.analysis.arg
 

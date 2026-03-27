@@ -22,14 +22,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.string.registerFunctio
  * limitations under the License.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class GlobalsBuilder
-
-expect class Range {
-    companion object {
-        fun new(start: Int, stop: Int, step: Int): Range
-    }
-}
+// Real types should be imported from their respective packages
 
 /**
  * Register range-related global functions.
@@ -87,7 +80,7 @@ internal fun registerRange(globals: GlobalsBuilder) {
                 IllegalArgumentException("Third argument of range (step) cannot be zero")
             )
         } else {
-            Result.success(Range.new(start, stop, actualStep))
+            Result.success(Range.new(start, stop, NonZeroI32.new(actualStep)!!))
         }
     }
 }

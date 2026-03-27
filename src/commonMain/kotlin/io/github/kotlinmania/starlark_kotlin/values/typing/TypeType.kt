@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
@@ -37,7 +36,7 @@ class TypeType private constructor() : StarlarkTypeRepr, UnpackValue {
     companion object {
         /** Validate the value is a type. */
         fun unpackValue(value: Value): TypeType? {
-            return if (TyStarlarkValue.isTypeFromVtable(value.vtable().starlarkValue)) {
+            return if (value.vtable().hasEvalType) {
                 TypeType()
             } else {
                 null

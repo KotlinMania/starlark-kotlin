@@ -31,78 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
  * Based on https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
  */
 
-// Placeholder types until the actual implementations are ported
-expect class Value {
-    fun unpackStr(): String?
-    fun collectRepr(buffer: StringBuilder)
-    fun unpackNum(): NumRef?
-}
-
-expect sealed class NumRef {
-    // TODO: stub - Int needs real import
-    class Int(val value: StarlarkIntRef) : NumRef()
-    // TODO: stub - Float needs real import
-    class Float(val value: StarlarkFloat) : NumRef()
-
-    fun asFloat(): Double
-    fun asInt(): kotlin.Int?
-
-    companion object {
-        fun unpackParam(value: Value): Result<NumRef>
-    }
-}
-
-expect sealed class StarlarkIntRef {
-    // TODO: stub - Small needs real import
-    class Small(val value: StarlarkIntSmall) : StarlarkIntRef()
-    // TODO: stub - Big needs real import
-    class Big(val value: StarlarkBigInt) : StarlarkIntRef()
-}
-
-expect class StarlarkIntSmall {
-    fun toI32(): kotlin.Int
-}
-
-expect class StarlarkBigInt {
-    fun get(): BigInt
-}
-
-expect class BigInt {
-    fun isNegative(): Boolean
-    fun abs(): BigInt
-    override fun toString(): String
-}
-
-expect class StarlarkFloat {
-    val value: Double
-    constructor(value: Double)
-}
-
-expect class Tuple {
-    fun content(): Array<Value>
-
-    companion object {
-        fun fromValue(value: Value): Tuple?
-    }
-}
-
-expect class StringValue {
-    companion object {
-        fun new(value: Value): StringValue?
-    }
-}
-
-expect class Heap {
-    fun allocStrConcat3(before: String, middle: String, after: String): StringValue
-}
-
-expect object FloatFormatting {
-    fun writeScientific(buffer: StringBuilder, value: Double, exponentChar: Char, forceSign: Boolean)
-    fun writeDecimal(buffer: StringBuilder, value: Double)
-    fun writeCompact(buffer: StringBuilder, value: Double, exponentChar: Char)
-}
-
-expect fun formatOne(before: String, value: Value, after: String, heap: Heap): StringValue
+// Real types should be imported from their respective packages
 
 // `i32::abs(i32::MIN)` panics as `i32::MIN` has no corresponding
 // positive value that fits inside `i32`. For this edge case,
@@ -139,7 +68,6 @@ sealed class PercentSFormat {
     /** `%E`. */
     object ExpUpper : PercentSFormat()
     /** `%f` or `%F`. */
-    // TODO: stub - Float needs real import
     object Float : PercentSFormat()
     /** `%g`. */
     object FloatCompact : PercentSFormat()
@@ -484,10 +412,7 @@ fun percentSOne(
     }
 }
 
-// Placeholder for ValueError
-expect object ValueError {
-    class UnsupportedType(value: Value, operation: String) : Exception
-}
+// ValueError should be imported from its real package
 
 // Extension for Double.truncateToInt()
 private fun Double.truncateToInt(): kotlin.Int {

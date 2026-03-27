@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.util.refcell
  * limitations under the License.
  */
 
-// TODO: stub - RefCell needs real import
 internal class RefCell<T>(
     private val value: T,
 ) {
@@ -61,7 +60,6 @@ internal class RefCell<T>(
     }
 }
 
-// TODO: stub - Ref needs real import
 internal class Ref<T> internal constructor(
     private val refCell: RefCell<T>,
     private val value: T,

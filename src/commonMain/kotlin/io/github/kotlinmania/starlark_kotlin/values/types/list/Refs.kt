@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
  *
  * Corresponds to Rust's `ListRef<'v>`.
  */
-// TODO: stub - ListRef needs real import
 class ListRef private constructor(
     private val elements: List<Value>,
 ) {

@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse

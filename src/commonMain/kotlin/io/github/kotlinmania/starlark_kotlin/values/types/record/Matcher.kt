@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
 
-internal data class RecordTypeMatcher(
+data class RecordTypeMatcher(
     val id: TypeInstanceId,
 ) : TypeMatcher {
     // impl TypeMatcher for RecordTypeMatcher

@@ -36,10 +36,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
  */
 // #[must_use]
 // pub(crate) enum InstrControl<'v, 'b>
-internal sealed class InstrControl {
+sealed class InstrControl {
     /** Go to address. */
     // Next(BcPtrAddr<'b>)
-    // TODO: stub - Next needs real import
     data class Next(val ip: BcPtrAddr) : InstrControl()
 
     /** Return from the function. */
@@ -61,7 +60,7 @@ internal sealed class InstrControl {
  * and its execution behavior.
  */
 // pub(crate) trait BcInstr: Sized + 'static
-internal interface BcInstr {
+interface BcInstr {
     /**
      * Fixed instruction argument (which may encode additional arguments
      * pushed or popped from the stack by the instruction implementation).

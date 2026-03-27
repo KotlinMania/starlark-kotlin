@@ -23,7 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 

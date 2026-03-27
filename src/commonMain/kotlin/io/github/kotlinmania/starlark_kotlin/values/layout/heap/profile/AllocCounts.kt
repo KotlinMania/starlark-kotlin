@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_c
  */
 
 /** Allocations counters. */
-internal data class AllocCounts(
+data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
 ) {

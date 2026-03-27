@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.DEFAULT_STACK_SIZE
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
 import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
@@ -44,7 +44,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny

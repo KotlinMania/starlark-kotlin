@@ -28,10 +28,8 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 @Suppress("unused")
 private sealed class TestFreezeEnum<out V> {
     // A
-    // TODO: stub - A needs real import
     data object A : TestFreezeEnum<Nothing>()
     // B()
-    // TODO: stub - B needs real import
     class B : TestFreezeEnum<Nothing>()
     // C(V)
     class C<V>(val value: V) : TestFreezeEnum<V>()

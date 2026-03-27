@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.isWasm
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds

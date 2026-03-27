@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import kotlin.time.Duration
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
@@ -65,7 +65,6 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
 private sealed class TypecheckProfileError(message: String) : Exception(message) {
     // #[error("Typecheck profile not enabled")]
     // NotEnabled
-    // TODO: stub - NotEnabled needs real import
     class NotEnabled : TypecheckProfileError("Typecheck profile not enabled")
 }
 

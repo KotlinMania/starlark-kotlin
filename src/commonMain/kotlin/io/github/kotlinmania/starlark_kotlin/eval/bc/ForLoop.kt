@@ -29,7 +29,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  *       pass
  * ```
  */
-internal data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
+data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
     override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
     override fun toString(): String = depth.toString()
 }

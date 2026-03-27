@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.args
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.expr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
@@ -50,7 +50,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
  * Contains positional and named arguments, plus optional star-args
  * and star-star-kwargs expressions.
  */
-// TODO: stub - ArgsCompiledValue needs real import
 internal class ArgsCompiledValue(
     /** Positional and named argument expressions concatenated. */
     val posNamed: MutableList<IrSpanned<ExprCompiled>> = mutableListOf(),

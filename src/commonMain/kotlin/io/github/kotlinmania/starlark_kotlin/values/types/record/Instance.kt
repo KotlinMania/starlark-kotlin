@@ -30,12 +30,11 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.FrozenRecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed
+import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.tests.freeze
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.writeHash
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.recordFields
 import io.github.kotlinmania.starlark_kotlin.values.layout.getStarlarkValue

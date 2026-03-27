@@ -1,11 +1,11 @@
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.eval.bc.over
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.expr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,163 +25,104 @@ import io.github.kotlinmania.starlark_kotlin.analysis.expr
  * limitations under the License.
  */
 
-/// List/dict/set comprehension evaluation.
+/** List/dict/set comprehension evaluation. */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - IrSpanned needs real import
-class IrSpanned<T>(val node: T, val span: Span = Span()) {
-    fun optimize(ctx: OptCtx): IrSpanned<T> = this
-    fun isIterableEmpty(): Boolean = false
-    fun intoExpr(): IrSpanned<ExprCompiled> {
-        @Suppress("UNCHECKED_CAST")
-        return this as IrSpanned<ExprCompiled>
-    }
+internal fun listToTuple(expr: CstExpr): CstExpr = expr
+
+internal fun Compiler.listComprehension(
+    x: CstExpr,
+    for_: ForClauseP,
+    clauses: List<ClauseP>,
+): Result<ExprCompiled> {
+    val compiledClauses = compileClauses(for_, clauses)
+    if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
+    val compiledX = this.expr(x).getOrElse { return Result.failure(it) }
+    return Result.success(ExprCompiled.Compr(ComprCompiled.List(
+        compiledX,
+        compiledClauses.getOrThrow(),
+    )))
 }
 
-class CstExpr
-class CstPayload
-
+internal fun Compiler.dictComprehension(
+    k: CstExpr,
+    v: CstExpr,
+    for_: ForClauseP,
+    clauses: List<ClauseP>,
+): Result<ExprCompiled> {
+    val compiledClauses = compileClauses(for_, clauses)
+    if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
+    val compiledK = this.expr(k).getOrElse { return Result.failure(it) }
+    val compiledV = this.expr(v).getOrElse { return Result.failure(it) }
+    return Result.success(ExprCompiled.Compr(ComprCompiled.Dict(
+        Pair(compiledK, compiledV),
+        compiledClauses.getOrThrow(),
+    )))
 }
 
-// TODO: stub - ExprCompiled needs real import
-class ExprCompiled {
-    companion object {
-        fun compr(compr: ComprCompiled): ExprCompiled = ExprCompiled()
-    }
-}
-
-sealed class ExprCompiledBool {
-    class Const(val value: Boolean) : ExprCompiledBool()
-    // TODO: stub - Other needs real import
-    class Other(val expr: IrSpanned<ExprCompiled>) : ExprCompiledBool()
-
-    companion object {
-        fun new(expr: IrSpanned<ExprCompiled>): IrSpanned<ExprCompiledBool> =
-            IrSpanned(Other(expr))
-    }
-
-    fun intoExpr(): IrSpanned<ExprCompiled> {
-        return when (this) {
-            is Other -> expr
-            is Const -> IrSpanned(ExprCompiled())
-        }
-    }
-}
-
-// TODO: stub - AssignCompiledValue needs real import
-class AssignCompiledValue
-
-// TODO: stub - CompilerInternalError needs real import
-class CompilerInternalError(message: String = "") : Exception(message)
-
-// TODO: stub - OptCtx needs real import
-class OptCtx
-
-fun listToTuple(expr: CstExpr): CstExpr = expr
-
-class Compiler {
-    fun expr(x: CstExpr): IrSpanned<ExprCompiled> = IrSpanned(ExprCompiled())
-    fun exprTruth(x: CstExpr): IrSpanned<ExprCompiledBool> = IrSpanned(ExprCompiledBool.Const(true))
-    fun assignTarget(x: CstExpr): IrSpanned<AssignCompiledValue> = IrSpanned(AssignCompiledValue())
-
-    fun listComprehension(
-        x: CstExpr,
-        for_: ForClauseP,
-        clauses: List<ClauseP>,
-    ): Result<ExprCompiled> {
-        val compiledClauses = compileClauses(for_, clauses)
-        if (compiledClauses.isFailure) return compiledClauses.map { ExprCompiled() }
-        val compiledX = expr(x)
-        return Result.success(ExprCompiled.compr(ComprCompiled.List(
-            compiledX,
-            compiledClauses.getOrThrow(),
-        )))
-    }
-
-    fun dictComprehension(
-        k: CstExpr,
-        v: CstExpr,
-        for_: ForClauseP,
-        clauses: List<ClauseP>,
-    ): Result<ExprCompiled> {
-        val compiledClauses = compileClauses(for_, clauses)
-        if (compiledClauses.isFailure) return compiledClauses.map { ExprCompiled() }
-        val compiledK = expr(k)
-        val compiledV = expr(v)
-        return Result.success(ExprCompiled.compr(ComprCompiled.Dict(
-            Pair(compiledK, compiledV),
-            compiledClauses.getOrThrow(),
-        )))
-    }
-
-    /// Peel the final if's from clauses, and return them (in the order they started), plus the next for you get to
-    private fun compileIfs(
-        clauses: MutableList<ClauseP>,
-    ): Result<Pair<ForClauseP?, List<IrSpanned<ExprCompiled>>>> {
-        val ifs = mutableListOf<IrSpanned<ExprCompiled>>()
-        while (clauses.isNotEmpty()) {
-            when (val x = clauses.removeAt(clauses.lastIndex)) {
-                is ClauseP.For -> {
-                    ifs.reverse()
-                    return Result.success(Pair(x.clause, ifs))
-                }
-                is ClauseP.If -> {
-                    val compiled = exprTruth(x.expr)
-                    if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
-                        // If the condition is always true, skip the clause.
-                        continue
-                    }
-                    ifs.add(compiled.node.intoExpr())
-                }
+/** Peel the final if's from clauses, and return them (in the order they started), plus the next for you get to. */
+private fun Compiler.compileIfs(
+    clauses: MutableList<ClauseP>,
+): Result<Pair<ForClauseP?, List<IrSpanned<ExprCompiled>>>> {
+    val ifs = mutableListOf<IrSpanned<ExprCompiled>>()
+    while (clauses.isNotEmpty()) {
+        when (val x = clauses.removeAt(clauses.lastIndex)) {
+            is ClauseP.For -> {
+                ifs.reverse()
+                return Result.success(Pair(x.clause, ifs))
             }
-        }
-        ifs.reverse()
-        return Result.success(Pair(null, ifs))
-    }
-
-    private fun compileClauses(
-        for_: ForClauseP,
-        clauses: List<ClauseP>,
-    ): Result<ClausesCompiled> {
-        // The first for.over is scoped before we enter the list comp
-        val over = expr(listToTuple(for_.over))
-
-        val clausesMut = clauses.toMutableList()
-
-        // Now we want to group them into a `for`, followed by any number of `if`.
-        // The evaluator wants to use pop to consume them, so reverse the order.
-        val res = mutableListOf<ClauseCompiled>()
-        while (true) {
-            val result = compileIfs(clausesMut)
-            if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
-            val (nextFor, ifs) = result.getOrThrow()
-            if (nextFor == null) {
-                val last = ClauseCompiled(
-                    variable = assignTarget(for_.variable),
-                    over = over,
-                    ifs = ifs,
-                )
-                return Result.success(ClausesCompiled.new(res, last))
-            } else {
-                res.add(ClauseCompiled(
-                    over = expr(nextFor.over),
-                    variable = assignTarget(nextFor.variable),
-                    ifs = ifs,
-                ))
+            is ClauseP.If -> {
+                val compiled = this.exprTruth(x.expr)
+                if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
+                    // If the condition is always true, skip the clause.
+                    continue
+                }
+                ifs.add(compiled.intoExpr())
             }
         }
     }
+    ifs.reverse()
+    return Result.success(Pair(null, ifs))
 }
 
-sealed class ComprCompiled {
-    // TODO: stub - List needs real import
+private fun Compiler.compileClauses(
+    for_: ForClauseP,
+    clauses: List<ClauseP>,
+): Result<ClausesCompiled> {
+    // The first for.over is scoped before we enter the list comp
+    val over = this.expr(listToTuple(for_.over)).getOrElse { return Result.failure(it) }
+
+    val clausesMut = clauses.toMutableList()
+
+    // Now we want to group them into a `for`, followed by any number of `if`.
+    // The evaluator wants to use pop to consume them, so reverse the order.
+    val res = mutableListOf<ClauseCompiled>()
+    while (true) {
+        val result = compileIfs(clausesMut)
+        if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
+        val (nextFor, ifs) = result.getOrThrow()
+        if (nextFor == null) {
+            val last = ClauseCompiled(
+                variable = this.assignTarget(for_.variable),
+                over = over,
+                ifs = ifs,
+            )
+            return Result.success(ClausesCompiled.new(res, last))
+        } else {
+            res.add(ClauseCompiled(
+                over = this.expr(nextFor.over).getOrElse { return Result.failure(it) },
+                variable = this.assignTarget(nextFor.variable),
+                ifs = ifs,
+            ))
+        }
+    }
+}
+
+internal sealed class ComprCompiled {
     class List(
         val x: IrSpanned<ExprCompiled>,
         val clauses: ClausesCompiled,
     ) : ComprCompiled()
 
-    // TODO: stub - Dict needs real import
     class Dict(
         val kv: Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>,
         val clauses: ClausesCompiled,
@@ -198,12 +139,12 @@ sealed class ComprCompiled {
         return when (this) {
             is List -> {
                 val optimizedClauses = clauses.optimize(ctx)
-                ExprCompiled.compr(List(x.optimize(ctx), optimizedClauses))
+                ExprCompiled.Compr(List(x.optimize(ctx), optimizedClauses))
             }
             is Dict -> {
                 val (k, v) = kv
                 val optimizedClauses = clauses.optimize(ctx)
-                ExprCompiled.compr(Dict(
+                ExprCompiled.Compr(Dict(
                     Pair(k.optimize(ctx), v.optimize(ctx)),
                     optimizedClauses.optimize(ctx),
                 ))
@@ -212,32 +153,34 @@ sealed class ComprCompiled {
     }
 }
 
-class ClauseCompiled(
-    internal val variable: IrSpanned<AssignCompiledValue>,
-    internal val over: IrSpanned<ExprCompiled>,
-    internal val ifs: List<IrSpanned<ExprCompiled>>,
+internal class ClauseCompiled(
+    val variable: IrSpanned<AssignCompiledValue>,
+    val over: IrSpanned<ExprCompiled>,
+    val ifs: List<IrSpanned<ExprCompiled>>,
 ) {
     fun optimize(ctx: OptCtx): ClauseCompiled {
         return ClauseCompiled(
-            variable = variable.optimize(ctx),
+            variable = variable.map { it },
             over = over.optimize(ctx),
             ifs = ifs.mapNotNull { e ->
                 val optimized = e.optimize(ctx)
                 val asBool = ExprCompiledBool.new(optimized)
                 when (val node = asBool.node) {
-                    is ExprCompiledBool.Const -> if (node.value) null else node.intoExpr()
-                    else -> node.intoExpr()
+                    is ExprCompiledBool.Const -> if (node.value) null else IrSpanned(span = asBool.span, node = node.intoExpr())
+                    else -> IrSpanned(span = asBool.span, node = node.intoExpr())
                 }
             },
         )
     }
 }
 
-/// All clauses in a comprehension. Never empty.
-class ClausesCompiled private constructor(
-    /// Not empty.
-    ///
-    /// Clauses are in reverse order, i. e. the first executed clause is the last in the list.
+/** All clauses in a comprehension. Never empty. */
+internal class ClausesCompiled private constructor(
+    /**
+     * Not empty.
+     *
+     * Clauses are in reverse order, i.e. the first executed clause is the last in the list.
+     */
     private val clauses: List<ClauseCompiled>,
 ) {
     companion object {
@@ -247,7 +190,7 @@ class ClausesCompiled private constructor(
         }
     }
 
-    /// Clauses are definitely no-op, i. e. zero iterations, and no side effects of iteration.
+    /** Clauses are definitely no-op, i.e. zero iterations, and no side effects of iteration. */
     fun isNop(): Boolean {
         // NOTE(nga): if the first loop argument is empty collection, clauses are definitely no-op.
         //   But this is not true for the rest of loops: if inner loop collection is empty,
@@ -255,10 +198,10 @@ class ClausesCompiled private constructor(
         //   There are missing optimizations here:
         //   * we could separate effects and emit empty list/dict.
         //   * or at least do not generate comprehension terminator.
-        return splitLast().first.over.isIterableEmpty()
+        return splitLast().first.over.node.isIterableEmpty()
     }
 
-    /// Last clause is the one which is executed first.
+    /** Last clause is the one which is executed first. */
     fun splitLast(): Pair<ClauseCompiled, List<ClauseCompiled>> {
         return Pair(clauses.last(), clauses.dropLast(1))
     }

@@ -140,7 +140,6 @@ fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
  */
 sealed class JsonValue {
     data object Null : JsonValue()
-    // TODO: stub - Bool needs real import
     data class Bool(val value: Boolean) : JsonValue()
     data class Number(val value: JsonNumber) : JsonValue()
     data class Str(val value: String) : JsonValue()

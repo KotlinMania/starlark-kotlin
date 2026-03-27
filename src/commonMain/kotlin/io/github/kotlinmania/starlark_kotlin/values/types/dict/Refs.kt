@@ -32,47 +32,46 @@ sealed class Either<out L, out R> {
 }
 
 /** Borrowed `Dict`. */
-// TODO: stub - DictRef needs real import
-class DictRef<V_> internal constructor(
-    internal val aref: Either<Ref<Dict<V_>>, Dict<V_>>
+class DictRef internal constructor(
+    internal val aref: Either<Ref<Dict>, Dict>
 )
 
-fun <V_> DictRef<V_>.clone(): DictRef<V_> = when (val ref = this.aref) {
+fun DictRef.clone(): DictRef = when (val ref = this.aref) {
     is Either.Left -> DictRef(Either.Left(ref.value.clone()))
     is Either.Right -> DictRef(Either.Right(ref.value))
 }
 
 /** Downcast the value to a dict. */
-fun <V_> dictRefFromValue(x: Value<V_>): DictRef<V_>? =
+fun dictRefFromValue(x: Value): DictRef? =
     if (x.unpackFrozen() != null) {
         x.downcastRef<DictGen<FrozenDictData>>()
             ?.let { DictRef(Either.Right(coerce(it.inner))) }
     } else {
-        val ptr = x.downcastRef<DictGen<AtomicRef<Dict<V_>>>>() ?: return null
+        val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
         DictRef(Either.Left(ptr.inner.borrow()))
     }
 
 /** Deref: access the underlying Dict from a DictRef. */
-operator fun <V_> DictRef<V_>.getValue(thisRef: Any?, property: Any?): Dict<V_> = when (val ref = aref) {
+operator fun DictRef.getValue(thisRef: Any?, property: Any?): Dict = when (val ref = aref) {
     is Either.Left -> ref.value.value
     is Either.Right -> ref.value
 }
 
 /** Mutably borrowed `Dict`. */
-class DictMut<V_>(
+class DictMut(
     /** Mutable reference to the dict. */
-    val aref: RefMut<Dict<V_>>
+    val aref: RefMut<Dict>
 )
 
 /** Downcast the value to a mutable dict reference. */
-fun <V_> dictMutFromValue(x: Value<V_>): Result<DictMut<V_>> {
+fun dictMutFromValue(x: Value): Result<DictMut> {
     class NotDictError(typeName: String) : Exception("Value is not dict, value type: `$typeName`")
 
-    fun error(x: Value<V_>): Throwable =
+    fun error(x: Value): Throwable =
         if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue()
         else NotDictError(x.getType())
 
-    val ptr = x.downcastRef<DictGen<AtomicRef<Dict<V_>>>>() ?: return Result.failure(error(x))
+    val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
         null -> Result.failure(ValueError.MutationDuringIteration())
         else -> Result.success(DictMut(borrowed))
@@ -102,7 +101,7 @@ object DictRefStarlarkTypeRepr : StarlarkTypeRepr {
 
 /** UnpackValue for DictRef. */
 object DictRefUnpackValue : UnpackValue<Nothing> {
-    override fun <V_> unpackValueImpl(value: Value<V_>): Result<DictRef<V_>?> =
+    override fun unpackValueImpl(value: Value): Result<DictRef?> =
         Result.success(dictRefFromValue(value))
 }
 
@@ -113,5 +112,5 @@ class Ref<T>(val value: T) {
 class RefMut<T>(val value: T)
 
 @Suppress("UNCHECKED_CAST")
-private fun <V_> coerce(data: FrozenDictData): Dict<V_> =
-    Dict(data.content as SmallMap<Value<V_>, Value<V_>>)
+private fun coerce(data: FrozenDictData): Dict =
+    Dict(data.content as SmallMap<Value, Value>)

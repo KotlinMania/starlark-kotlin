@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
@@ -142,7 +142,7 @@ class MethodsBuilder private constructor(
         fun new(): MethodsBuilder {
             return MethodsBuilder(
                 heap = FrozenHeap.new(),
-                members = SymbolMap.new(),
+                members = SymbolMap(),
                 docstring = null,
             )
         }

@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // pub(crate) struct HeapAllocatedProfilerType
-internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -55,7 +55,7 @@ internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInf
 }
 
 // pub(crate) struct HeapRetainedProfilerType
-internal object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -72,7 +72,7 @@ internal object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo
 }
 
 // pub(crate) struct HeapSummaryAllocatedProfilerType
-internal object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapSummaryAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -89,7 +89,7 @@ internal object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapPro
 }
 
 // pub(crate) struct HeapFlameAllocatedProfilerType
-internal object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapFlameAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -106,7 +106,7 @@ internal object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfi
 }
 
 // pub(crate) struct HeapSummaryRetainedProfilerType
-internal object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapSummaryRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -123,7 +123,7 @@ internal object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProf
 }
 
 // pub(crate) struct HeapFlameRetainedProfilerType
-internal object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val PROFILE_MODE: ProfileMode = ProfileMode.HeapFlameRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -141,7 +141,7 @@ internal object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfil
 
 // #[derive(Copy, Clone, Dupe, Debug, Allocative)]
 // pub(crate) enum RetainedHeapProfileMode
-internal enum class RetainedHeapProfileMode {
+enum class RetainedHeapProfileMode {
     Flame,
     Summary,
     FlameAndSummary,
@@ -149,7 +149,7 @@ internal enum class RetainedHeapProfileMode {
 
 // #[derive(Debug, thiserror::Error)]
 // enum HeapProfileError
-internal sealed class HeapProfileError : Exception() {
+sealed class HeapProfileError : Exception() {
     // #[error("heap profile not enabled")]
     data object NotEnabled : HeapProfileError() {
         override val message: String get() = "heap profile not enabled"
@@ -158,14 +158,14 @@ internal sealed class HeapProfileError : Exception() {
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) enum HeapProfileFormat
-internal enum class HeapProfileFormat {
+enum class HeapProfileFormat {
     FlameGraph,
     Summary,
     FlameGraphAndSummary,
 }
 
 // pub(crate) struct HeapProfile
-internal class HeapProfile(
+class HeapProfile(
     private var enabled: Boolean = false,
 ) {
     // pub(crate) fn enable(&mut self)
@@ -230,7 +230,7 @@ internal class HeapProfile(
 // --- Tests ---
 
 // #[test] fn test_profiling()
-internal fun testProfiling() {
+fun testProfiling() {
     val ast = AstModule.parse(
         "foo.bzl",
         """

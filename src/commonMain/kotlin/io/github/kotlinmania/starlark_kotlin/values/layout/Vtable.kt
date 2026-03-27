@@ -34,8 +34,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.Valu
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
@@ -80,6 +80,13 @@ class AValueVTable(
 
     // StarlarkValue dispatch
     private val starlarkValue: StarlarkValue,
+
+    /// Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
+    /// These indicate which StarlarkValue trait methods are meaningfully implemented.
+    val hasInvoke: Boolean = false,
+    val hasEvalType: Boolean = false,
+    val hasIterate: Boolean = false,
+    val hasEquals: Boolean = false,
 
     // Display/Debug
     private val displayFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },

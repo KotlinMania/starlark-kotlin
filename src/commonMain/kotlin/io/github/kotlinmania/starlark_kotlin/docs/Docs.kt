@@ -1,5 +1,5 @@
 // port-lint: source src/docs.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark_kotlin.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -39,7 +39,9 @@ class DocString(
     val details: String? = null,
     /// Examples provided as a part of the doc string. It's separated by a 'Examples:' string
     val examples: String? = null,
-)
+) {
+    companion object
+}
 
 /// The documentation for a module/namespace.
 ///
@@ -78,6 +80,7 @@ class DocFunction(
     /// Details about what this function returns.
     val ret: DocReturn = DocReturn(),
 ) {
+    companion object
     /// Used by LSP. Return starred name and the doc.
     // pub fn find_param_with_name(&self, param_name: &str) -> Option<(String, &DocParam)>
     fun findParamWithName(paramName: String): Pair<String, DocParam>? {
@@ -189,7 +192,6 @@ sealed class DocMember {
     // Property(DocProperty)
     class Property(val property: DocProperty) : DocMember()
     // Function(DocFunction)
-    // TODO: stub - Function needs real import
     class Function(val function: DocFunction) : DocMember()
 
     /// Get the underlying [DocString] for this item, if it exists.

@@ -8,12 +8,12 @@ import io.github.kotlinmania.starlark_kotlin.entries
 import io.github.kotlinmania.starlark_kotlin.analysis.ident
 import io.github.kotlinmania.starlark_kotlin.analysis.expr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.analysis.visitStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
 import io.github.kotlinmania.starlark_kotlin.analysis.statement

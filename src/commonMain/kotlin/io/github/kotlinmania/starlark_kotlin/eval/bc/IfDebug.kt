@@ -44,7 +44,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 //     _marker: marker::PhantomData<T>,
 // }
 // Kotlin: no cfg-based conditional compilation; always store the value.
-internal class IfDebug<T> private constructor(
+class IfDebug<T> private constructor(
     private val value: T?,
 ) : Comparable<IfDebug<T>> {
 

@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  *
  * Kotlin: Uses [KClass] for type identification instead of Rust's `TypeId`.
  */
-internal data class ConstTypeId(
+data class ConstTypeId(
     private val klass: KClass<*>,
 ) {
     // impl ConstTypeId
@@ -37,6 +37,8 @@ internal data class ConstTypeId(
     companion object {
         // const fn of<T: ?Sized + 'static>() -> ConstTypeId
         inline fun <reified T : Any> of(): ConstTypeId = ConstTypeId(T::class)
+
+        fun of(klass: KClass<*>): ConstTypeId = ConstTypeId(klass)
     }
 
     // Debug is handled by data class toString()

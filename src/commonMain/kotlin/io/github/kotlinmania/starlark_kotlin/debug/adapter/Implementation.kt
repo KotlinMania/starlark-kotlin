@@ -39,7 +39,7 @@ import io.github.kotlinmania.starlark_kotlin.debug.StepKind
 import io.github.kotlinmania.starlark_kotlin.debug.Variable
 import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
 import io.github.kotlinmania.starlark_kotlin.debug.VariablesInfo
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size

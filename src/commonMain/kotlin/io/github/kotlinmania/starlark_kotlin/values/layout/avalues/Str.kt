@@ -36,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.values.types.string.UNINIT_HASH
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.types.string.payloadLenForLen
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.intern
 import io.github.kotlinmania.starlark_kotlin.values.types.array.len

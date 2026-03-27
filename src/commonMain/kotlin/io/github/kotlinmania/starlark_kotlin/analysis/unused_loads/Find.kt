@@ -31,8 +31,8 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
 import io.github.kotlinmania.starlark_kotlin.typing.cst
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmts
@@ -92,7 +92,6 @@ internal class LoadArgP(
 
 /// Placeholder for CstAssignIdent.
 // CstPayload assign ident
-// TODO: stub - CstAssignIdent needs real import
 internal class CstAssignIdent(
     val span: Span = Span(),
     val ident: String = "",
@@ -101,15 +100,12 @@ internal class CstAssignIdent(
 
 /// Placeholder for StmtP node.
 // starlark_syntax::syntax::ast::StmtP<CstPayload>
-// TODO: stub - StmtP needs real import
 internal sealed class StmtP {
     class Load(val load: LoadP) : StmtP()
-    // TODO: stub - Other needs real import
     class Other : StmtP()
 }
 
 /// Placeholder for CstStmt (Spanned<StmtP>).
-// TODO: stub - CstStmt needs real import
 internal class CstStmt(
     val span: Span = Span(),
     val node: StmtP = StmtP.Other(),

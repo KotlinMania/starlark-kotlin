@@ -19,9 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-// TODO: stub - Ty needs real import
 class Ty {
     fun isAny(): Boolean = false
     fun isStarlarkValue(): TyStarlarkValue? = null
@@ -30,24 +31,15 @@ class Ty {
 }
 
 sealed class TyBasic {
-    // TODO: stub - Any needs real import
     data object Any : TyBasic()
-    // TODO: stub - StarlarkValue needs real import
     class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
-    // TODO: stub - List needs real import
     class List(val item: Ty) : TyBasic()
-    // TODO: stub - Tuple needs real import
     class Tuple(val tuple: TyTuple) : TyBasic()
-    // TODO: stub - Dict needs real import
     class Dict(val key: Ty, val value: Ty) : TyBasic()
-    // TODO: stub - Iter needs real import
     class Iter(val item: Ty) : TyBasic()
-    // TODO: stub - Callable needs real import
     class Callable(val callable: TyCallable) : TyBasic()
     data object Type : TyBasic()
-    // TODO: stub - Custom needs real import
     class Custom(val custom: TyCustom) : TyBasic()
-    // TODO: stub - Set needs real import
     class Set(val item: Ty) : TyBasic()
 
     companion object {
@@ -56,39 +48,42 @@ sealed class TyBasic {
     }
 }
 
-// TODO: stub - TyStarlarkValue needs real import
 class TyStarlarkValue(val name: String = "") {
     fun isStr(): Boolean = name == "string"
     fun isInt(): Boolean = name == "int"
+    fun starlarkTypeId(): String = name
     fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.alloc(StarlarkTypeIdMatcher.new(this))
 }
-// TODO: stub - TyTuple needs real import
+
 class TyTuple {
     fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
-// TODO: stub - TyCallable needs real import
+
 class TyCallable
-// TODO: stub - TyCustom needs real import
+
 class TyCustom {
     fun <R> matcherWithTypeCompiledFactory(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
-// TODO: stub - TypeMatcherFactory needs real import
+
 class TypeMatcherFactory {
     fun <R> typeCompiled(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
 
+/// Runtime type matcher interface.
+///
+/// Implementations check whether a [Value] matches a particular Starlark type at runtime.
 interface TypeMatcher {
-    fun matches(value: Any): Boolean
+    fun matches(value: Value): Boolean
     fun isWildcard(): Boolean = false
 }
 
 class TypeMatcherBoxAlloc : TypeMatcherAlloc<TypeMatcher> {
     override fun alloc(matcher: TypeMatcher): TypeMatcher = matcher
     override fun custom(custom: TyCustom): TypeMatcher = object : TypeMatcher {
-        override fun matches(value: Any) = false
+        override fun matches(value: Value) = false
     }
     override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcher = object : TypeMatcher {
-        override fun matches(value: Any) = false
+        override fun matches(value: Value) = false
     }
 
     companion object : TypeMatcherAlloc<TypeMatcher> {
@@ -96,87 +91,6 @@ class TypeMatcherBoxAlloc : TypeMatcherAlloc<TypeMatcher> {
         override fun custom(custom: TyCustom): TypeMatcher = TypeMatcherBoxAlloc().custom(custom)
         override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcher =
             TypeMatcherBoxAlloc().fromTypeMatcherFactory(factory)
-    }
-}
-
-// Matcher types
-// TODO: stub - IsAny needs real import
-class IsAny : TypeMatcher {
-    override fun matches(value: Any) = true
-    override fun isWildcard() = true
-}
-// TODO: stub - IsNever needs real import
-class IsNever : TypeMatcher {
-    override fun matches(value: Any) = false
-}
-// TODO: stub - IsNone needs real import
-class IsNone : TypeMatcher {
-    override fun matches(value: Any) = value == Unit
-}
-// TODO: stub - IsBool needs real import
-class IsBool : TypeMatcher {
-    override fun matches(value: Any) = value is Boolean
-}
-// TODO: stub - IsInt needs real import
-class IsInt : TypeMatcher {
-    override fun matches(value: Any) = value is Int || value is Long
-}
-// TODO: stub - IsStr needs real import
-class IsStr : TypeMatcher {
-    override fun matches(value: Any) = value is String
-}
-// TODO: stub - IsList needs real import
-class IsList : TypeMatcher {
-    override fun matches(value: Any) = value is kotlin.collections.List<*>
-}
-// TODO: stub - IsDict needs real import
-class IsDict : TypeMatcher {
-    override fun matches(value: Any) = value is Map<*, *>
-}
-// TODO: stub - IsSet needs real import
-class IsSet : TypeMatcher {
-    override fun matches(value: Any) = value is kotlin.collections.Set<*>
-}
-// TODO: stub - IsCallable needs real import
-class IsCallable : TypeMatcher {
-    override fun matches(value: Any) = false
-}
-// TODO: stub - IsIterable needs real import
-class IsIterable : TypeMatcher {
-    override fun matches(value: Any) = value is Iterable<*>
-}
-// TODO: stub - IsType needs real import
-class IsType : TypeMatcher {
-    override fun matches(value: Any) = false
-}
-class IsListOf(val item: TypeMatcher) : TypeMatcher {
-    override fun matches(value: Any): Boolean {
-        if (value !is kotlin.collections.List<*>) return false
-        return value.all { it != null && item.matches(it) }
-    }
-}
-class IsDictOf(val key: TypeMatcher, val valueMatcher: TypeMatcher) : TypeMatcher {
-    override fun matches(value: Any): Boolean {
-        if (value !is Map<*, *>) return false
-        return value.all { (k, v) -> k != null && v != null && key.matches(k) && valueMatcher.matches(v) }
-    }
-}
-class IsSetOf(val item: TypeMatcher) : TypeMatcher {
-    override fun matches(value: Any): Boolean {
-        if (value !is kotlin.collections.Set<*>) return false
-        return value.all { it != null && item.matches(it) }
-    }
-}
-class IsAnyOfTwo(val m0: TypeMatcher, val m1: TypeMatcher) : TypeMatcher {
-    override fun matches(value: Any) = m0.matches(value) || m1.matches(value)
-}
-class IsAnyOf(val matchers: kotlin.collections.List<TypeMatcher>) : TypeMatcher {
-    override fun matches(value: Any) = matchers.any { it.matches(value) }
-}
-class StarlarkTypeIdMatcher(val ty: TyStarlarkValue) : TypeMatcher {
-    override fun matches(value: Any) = false
-    companion object {
-        fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher = StarlarkTypeIdMatcher(ty)
     }
 }
 
@@ -194,22 +108,22 @@ interface TypeMatcherAlloc<R> {
     }
 
     /// `typing.Any`.
-    fun any(): R = alloc(IsAny())
+    fun any(): R = alloc(IsAny)
 
     /// `typing.Never`.
-    fun never(): R = alloc(IsNever())
+    fun never(): R = alloc(IsNever)
 
     /// `None`.
-    fun none(): R = alloc(IsNone())
+    fun none(): R = alloc(IsNone)
 
     /// `bool`.
-    fun bool(): R = alloc(IsBool())
+    fun bool(): R = alloc(IsBool)
 
     /// `int`.
-    fun int(): R = alloc(IsInt())
+    fun int(): R = alloc(IsInt)
 
     /// `str`.
-    fun str(): R = alloc(IsStr())
+    fun str(): R = alloc(IsStr)
 
     fun ty(ty: Ty): R {
         val union = ty.iterUnion()
@@ -261,37 +175,37 @@ interface TypeMatcherAlloc<R> {
             is TyBasic.List -> listOf(ty.item)
             is TyBasic.Tuple -> ty.tuple.matcher(this)
             is TyBasic.Dict -> dictOf(ty.key, ty.value)
-            is TyBasic.Iter -> alloc(IsIterable())
-            is TyBasic.Callable -> alloc(IsCallable())
-            is TyBasic.Type -> alloc(IsType())
+            is TyBasic.Iter -> alloc(IsIterable)
+            is TyBasic.Callable -> alloc(IsCallable)
+            is TyBasic.Type -> alloc(IsType)
             is TyBasic.Custom -> custom(ty.custom)
             is TyBasic.Set -> setOf(ty.item)
         }
     }
 
-    fun callable(): R = alloc(IsCallable())
+    fun callable(): R = alloc(IsCallable)
 
     /// `A | None`.
     fun noneOrStarlarkValue(ty: TyStarlarkValue): R {
         return when {
-            ty.isStr() -> alloc(IsAnyOfTwo(IsNone(), IsStr()))
-            ty.isInt() -> alloc(IsAnyOfTwo(IsNone(), IsInt()))
-            else -> alloc(IsAnyOfTwo(IsNone(), StarlarkTypeIdMatcher.new(ty)))
+            ty.isStr() -> alloc(IsAnyOfTwo(IsNone, IsStr))
+            ty.isInt() -> alloc(IsAnyOfTwo(IsNone, IsInt))
+            else -> alloc(IsAnyOfTwo(IsNone, StarlarkTypeIdMatcher.new(ty)))
         }
     }
 
     /// `A | None`.
     fun noneOrBasic(ty: TyBasic): R {
         return when {
-            ty is TyBasic.Any -> alloc(IsNone())
-            ty == TyBasic.anyList() -> alloc(IsAnyOfTwo(IsNone(), IsList()))
+            ty is TyBasic.Any -> alloc(IsNone)
+            ty == TyBasic.anyList() -> alloc(IsAnyOfTwo(IsNone, IsList))
             ty is TyBasic.StarlarkValue -> noneOrStarlarkValue(ty.value)
-            else -> alloc(IsAnyOfTwo(IsNone(), TypeMatcherBoxAlloc.tyBasic(ty)))
+            else -> alloc(IsAnyOfTwo(IsNone, TypeMatcherBoxAlloc.tyBasic(ty)))
         }
     }
 
     /// `list`.
-    fun list(): R = alloc(IsList())
+    fun list(): R = alloc(IsList)
 
     /// `list[Item]`.
     fun listOfMatcher(item: TypeMatcher): R {
@@ -305,7 +219,7 @@ interface TypeMatcherAlloc<R> {
     /// `list[Item]`.
     fun listOfStarlarkValue(item: TyStarlarkValue): R {
         return if (item.isStr()) {
-            listOfMatcher(IsStr())
+            listOfMatcher(IsStr)
         } else {
             listOfMatcher(StarlarkTypeIdMatcher.new(item))
         }
@@ -333,14 +247,14 @@ interface TypeMatcherAlloc<R> {
     }
 
     /// `dict`.
-    fun dict(): R = alloc(IsDict())
+    fun dict(): R = alloc(IsDict)
 
     /// `dict[Key, Value]`.
     fun dictOfMatcher(k: TypeMatcher, v: TypeMatcher): R {
         return when {
             k.isWildcard() && v.isWildcard() -> dict()
-            k.isWildcard() -> alloc(IsDictOf(IsAny(), v))
-            v.isWildcard() -> alloc(IsDictOf(k, IsAny()))
+            k.isWildcard() -> alloc(IsDictOf(IsAny, v))
+            v.isWildcard() -> alloc(IsDictOf(k, IsAny))
             else -> alloc(IsDictOf(k, v))
         }
     }
@@ -349,7 +263,7 @@ interface TypeMatcherAlloc<R> {
     fun dictOfStarlarkValueToSomething(k: TyStarlarkValue, v: Ty): R {
         return if (k.isStr()) {
             // Optimize matchers for common types like `dict[str, something]`.
-            dictOfMatcher(IsStr(), TypeMatcherBoxAlloc.ty(v))
+            dictOfMatcher(IsStr, TypeMatcherBoxAlloc.ty(v))
         } else {
             dictOfMatcher(StarlarkTypeIdMatcher.new(k), TypeMatcherBoxAlloc.ty(v))
         }
@@ -369,7 +283,7 @@ interface TypeMatcherAlloc<R> {
     }
 
     /// `set`.
-    fun set(): R = alloc(IsSet())
+    fun set(): R = alloc(IsSet)
 
     /// `set[Item]`.
     fun setOfMatcher(item: TypeMatcher): R {
@@ -383,7 +297,7 @@ interface TypeMatcherAlloc<R> {
     /// `set[Item]`.
     fun setOfStarlarkValue(item: TyStarlarkValue): R {
         return if (item.isStr()) {
-            setOfMatcher(IsStr())
+            setOfMatcher(IsStr)
         } else {
             setOfMatcher(StarlarkTypeIdMatcher.new(item))
         }

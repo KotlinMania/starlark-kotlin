@@ -19,37 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - Value needs real import
-class Value {
-    fun unpackFrozen(): FrozenValue? = null
-    companion object
-}
-// TODO: stub - FrozenValue needs real import
-class FrozenValue {
-    fun toValue(): Value = Value()
-    fun <T : Any> downcastRef(): T? = null
-    companion object
-}
-class Tuple {
-    fun content(): List<Value> = emptyList()
-    companion object {
-        fun fromValue(value: Value): Tuple? = null
-    }
-}
-class FrozenTuple {
-    fun content(): List<FrozenValue> = emptyList()
-    companion object {
-        const val TYPE: String = "tuple"
-    }
-}
-// TODO: stub - Ty needs real import
-class Ty {
-    companion object {
-        fun anyTuple(): Ty = Ty()
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /// Reference to tuple data in Starlark heap.
 class TupleRef(
@@ -66,7 +38,7 @@ class TupleRef(
 
     companion object {
         /// `type(())`, which is `"tuple"`.
-        const val TYPE: String = FrozenTuple.TYPE
+        const val TYPE: String = TupleGen.TYPE
 
         private fun new(slice: List<Value>): TupleRef = TupleRef(slice)
 
@@ -100,7 +72,7 @@ class FrozenTupleRef(
 
     companion object {
         /// `type(())`, which is `"tuple"`.
-        const val TYPE: String = FrozenTuple.TYPE
+        const val TYPE: String = TupleGen.TYPE
 
         private fun new(slice: List<FrozenValue>): FrozenTupleRef = FrozenTupleRef(slice)
 

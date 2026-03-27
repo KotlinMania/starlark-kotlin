@@ -39,14 +39,14 @@ import io.github.kotlinmania.starlark_kotlin.util.asStr
 
 /// Call arguments.
 // pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg
-internal interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
+interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
     // fn pop_from_stack<'a, 'v>(&'a self, frame: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>;
     fun popFromStack(frame: BcFramePtr): ArgumentsFull<S>
 }
 
 /// Call arguments for `def` call.
 // pub(crate) trait BcCallArgsForDef: BcInstrArg
-internal interface BcCallArgsForDef : BcInstrArg {
+interface BcCallArgsForDef : BcInstrArg {
     // type Args<'v, 'a>: ArgumentsImpl<'v, 'a, ArgSymbol = ResolvedArgName>
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> Self::Args<'v, 'a>;
     fun popFromStack(stack: BcFramePtr): ArgumentsImpl<ResolvedArgName>
@@ -55,7 +55,7 @@ internal interface BcCallArgsForDef : BcInstrArg {
 /// Full call arguments: positional, named, star and star-star. All taken from the stack.
 // #[derive(Debug)]
 // pub(crate) struct BcCallArgsFull<S: ArgSymbol>
-internal class BcCallArgsFull<S : ArgSymbol>(
+class BcCallArgsFull<S : ArgSymbol>(
     val posNamed: BcSlotInRange,
     val names: List<Pair<S, FrozenStringValue>>,
     val args: BcSlotIn?,
@@ -98,7 +98,7 @@ internal class BcCallArgsFull<S : ArgSymbol>(
 /// Positional-only call arguments, from stack.
 // #[derive(Debug)]
 // pub(crate) struct BcCallArgsPos
-internal class BcCallArgsPos(
+class BcCallArgsPos(
     /// Range of positional arguments.
     val pos: BcSlotInRange,
 )
@@ -106,7 +106,7 @@ internal class BcCallArgsPos(
 // impl BcCallArgsFull<Symbol>
 /// Resolve symbol-based call args to resolved arg names for a specific def.
 // pub(crate) fn resolve(self, def: &FrozenDef) -> BcCallArgsFull<ResolvedArgName>
-internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
+fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
     return BcCallArgsFull(
         posNamed = posNamed,
         names = names.map { (name, value) ->
@@ -119,7 +119,7 @@ internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<Reso
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsFull<S>
 /// Pop full call arguments from the stack frame.
-internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
+class BcCallArgsFullCallArgs<S : ArgSymbol>(
     private val full: BcCallArgsFull<S>,
 ) : BcCallArgs<S> {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
@@ -146,7 +146,7 @@ internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsPos
 /// Pop positional-only call arguments from the stack frame.
-internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
+class BcCallArgsPosCallArgs<S : ArgSymbol>(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgs<S> {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
@@ -168,7 +168,7 @@ internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
 
 // impl BcCallArgsForDef for BcCallArgsFull<ResolvedArgName>
 /// Full call arguments for def calls, popping from the stack frame.
-internal class BcCallArgsFullForDef(
+class BcCallArgsFullForDef(
     private val full: BcCallArgsFull<ResolvedArgName>,
 ) : BcCallArgsForDef {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, ResolvedArgName>
@@ -195,7 +195,7 @@ internal class BcCallArgsFullForDef(
 
 // impl BcCallArgsForDef for BcCallArgsPos
 /// Positional-only call arguments for def calls, popping from the stack frame.
-internal class BcCallArgsPosForDef(
+class BcCallArgsPosForDef(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgsForDef {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsPos<'v, 'a, ResolvedArgName>

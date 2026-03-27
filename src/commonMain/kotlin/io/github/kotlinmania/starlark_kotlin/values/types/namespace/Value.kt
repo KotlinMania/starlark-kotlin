@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
+import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 
 data class MaybeDocHiddenValue<V>(
     val value: V,

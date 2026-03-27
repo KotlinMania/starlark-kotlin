@@ -34,15 +34,11 @@ import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
 // }
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
-    // TODO: stub - Any needs real import
     data object Any : ArcTyInner()
     data object Never : ArcTyInner()
     data object Str : ArcTyInner()
-    // TODO: stub - Int needs real import
     data object Int : ArcTyInner()
-    // TODO: stub - Bool needs real import
     data object Bool : ArcTyInner()
-    // TODO: stub - None needs real import
     data object None : ArcTyInner()
     /// Default implementation.
     // Arc(Arc<Ty>)

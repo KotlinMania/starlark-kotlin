@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 /// Node in flamegraph tree.
 // #[derive(Debug, Clone, Default, PartialEq, Eq)]
 // pub(crate) struct FlameGraphNode
-// TODO: stub - FlameGraphNode needs real import
 internal class FlameGraphNode(
     val children: MutableMap<ArcStr, FlameGraphNode> = mutableMapOf(),
     var value: ULong? = null,
@@ -81,7 +80,6 @@ internal class FlameGraphNode(
 /// Can be written to `flamegraph.pl` format.
 // #[derive(Debug, Clone, Default, PartialEq, Eq)]
 // pub(crate) struct FlameGraphData
-// TODO: stub - FlameGraphData needs real import
 internal class FlameGraphData(
     val root: FlameGraphNode = FlameGraphNode(),
 ) {

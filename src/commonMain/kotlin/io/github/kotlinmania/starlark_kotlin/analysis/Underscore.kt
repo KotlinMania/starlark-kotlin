@@ -1,7 +1,6 @@
 // port-lint: source src/analysis/underscore.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
@@ -16,7 +15,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
 import io.github.kotlinmania.starlark_kotlin.entries
 import io.github.kotlinmania.starlark_kotlin.docs.args
-import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Ident
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
@@ -52,16 +51,13 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 /// An assign LHS target.
 // use starlark_syntax::syntax::ast::AssignTarget;
 private sealed class AssignTarget {
-    // TODO: stub - Tuple needs real import
     class Tuple(val elements: List<AssignTarget>) : AssignTarget()
     class Index(val array: Any, val index: Any) : AssignTarget()
     class Dot(val obj: Any, val field: Any) : AssignTarget()
-    // TODO: stub - Identifier needs real import
     class Identifier(val ident: CstAssignIdent) : AssignTarget()
 }
 
 /// A variable identifier in an assign LHS.
-// TODO: stub - CstAssignIdent needs real import
 private class CstAssignIdent(
     val ident: String,
     val span: Span = Span(),

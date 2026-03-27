@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
+import com.ionspin.kotlin.bignum.integer.Sign
 import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
 import io.github.kotlinmania.starlark_kotlin.analysis.dubious.NumRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher

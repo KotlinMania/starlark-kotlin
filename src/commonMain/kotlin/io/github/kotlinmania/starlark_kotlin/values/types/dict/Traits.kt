@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 // SmallMap
 
 /** AllocValue for SmallMap<K, V>. */
-fun <V_, K : AllocValue<V_>, T : AllocValue<V_>> SmallMap<K, T>.allocValue(heap: Heap<V_>): Value<V_> =
+fun <K : AllocValue, T : AllocValue> SmallMap<K, T>.allocValue(heap: Heap): Value =
     AllocDict(this).allocValue(heap)
 
 /** AllocFrozenValue for SmallMap<K, V>. */
@@ -41,8 +41,8 @@ fun <K : AllocFrozenValue, V : AllocFrozenValue> SmallMap<K, V>.allocFrozenValue
     AllocDict(this).allocFrozenValue(heap)
 
 /** AllocValue for &SmallMap<K, V>. */
-fun <V_, K : StarlarkTypeRepr, T : StarlarkTypeRepr> SmallMap<K, T>.allocValueRef(heap: Heap<V_>): Value<V_>
-    where K : AllocValue<V_>, T : AllocValue<V_> =
+fun <K : StarlarkTypeRepr, T : StarlarkTypeRepr> SmallMap<K, T>.allocValueRef(heap: Heap): Value
+    where K : AllocValue, T : AllocValue =
     AllocDict(this).allocValue(heap)
 
 /** AllocFrozenValue for &SmallMap<K, V>. */
@@ -64,7 +64,7 @@ object SmallMapStarlarkTypeRepr {
 
 /** UnpackValue for SmallMap<K, V> where K: UnpackValue + Hash + Eq, V: UnpackValue. */
 object SmallMapUnpackValue {
-    fun <V_, K : Any, T : Any> unpackValueImpl(value: Value<V_>): Result<SmallMap<K, T>?> {
+    fun <K : Any, T : Any> unpackValueImpl(value: Value): Result<SmallMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
         val it = dict.deref().iter()
         val r = SmallMap.withCapacity<K, T>(dict.deref().len())
@@ -82,8 +82,8 @@ object SmallMapUnpackValue {
 // BTreeMap (sorted map in Kotlin)
 
 /** AllocValue for BTreeMap<K, V>. */
-fun <V_, K, T> Map<K, T>.allocValueBTreeMap(heap: Heap<V_>): Value<V_>
-    where K : Comparable<K>, K : AllocValue<V_>, T : AllocValue<V_> =
+fun <K, T> Map<K, T>.allocValueBTreeMap(heap: Heap): Value
+    where K : Comparable<K>, K : AllocValue, T : AllocValue =
     AllocDict(this.entries).allocValue(heap)
 
 /** AllocFrozenValue for BTreeMap<K, V>. */
@@ -92,8 +92,8 @@ fun <K, V> Map<K, V>.allocFrozenValueBTreeMap(heap: FrozenHeap): FrozenValue
     AllocDict(this.entries).allocFrozenValue(heap)
 
 /** AllocValue for &BTreeMap<K, V>. */
-fun <V_, K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap<V_>): Value<V_>
-    where K : Comparable<K>, K : StarlarkTypeRepr, K : AllocValue<V_>, T : StarlarkTypeRepr, T : AllocValue<V_> =
+fun <K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap): Value
+    where K : Comparable<K>, K : StarlarkTypeRepr, K : AllocValue, T : StarlarkTypeRepr, T : AllocValue =
     AllocDict(this.entries).allocValue(heap)
 
 /** AllocFrozenValue for &BTreeMap<K, V>. */
@@ -117,7 +117,7 @@ object BTreeMapStarlarkTypeRepr {
 
 /** UnpackValue for BTreeMap<K, V> where K: UnpackValue + Ord, V: UnpackValue. */
 object BTreeMapUnpackValue {
-    fun <V_, K : Comparable<K>, T : Any> unpackValueImpl(value: Value<V_>): Result<MutableMap<K, T>?> {
+    fun <K : Comparable<K>, T : Any> unpackValueImpl(value: Value): Result<MutableMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
         val r = sortedMapOf<K, T>()
         for ((k, v) in dict.deref().iter()) {
@@ -131,7 +131,7 @@ object BTreeMapUnpackValue {
     }
 }
 
-private fun <V_> DictRef<V_>.deref(): Dict<V_> = when (val ref = aref) {
+private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Left -> ref.value.value
     is Either.Right -> ref.value
 }

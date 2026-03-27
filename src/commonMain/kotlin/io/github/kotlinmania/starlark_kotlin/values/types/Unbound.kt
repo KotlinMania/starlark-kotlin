@@ -24,10 +24,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue

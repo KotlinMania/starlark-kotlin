@@ -22,13 +22,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def
 /// Compile def.
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.ParametersCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrDefData
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toOut
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.mapExpr
 import io.github.kotlinmania.starlark_kotlin.analysis.iter
 

@@ -35,22 +35,21 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.unpackValueErr
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.typing.hasInvoke
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ofValue
+import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // Submodules:

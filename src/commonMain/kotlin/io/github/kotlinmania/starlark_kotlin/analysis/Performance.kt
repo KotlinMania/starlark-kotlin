@@ -1,11 +1,10 @@
 // port-lint: source src/analysis/performance.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.docs.args
-import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size

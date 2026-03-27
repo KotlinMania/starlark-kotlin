@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
 import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
@@ -57,7 +56,6 @@ internal data class InlinedFrame(
 /// Stack of inlined frames (maybe empty).
 // #[derive(Copy, Clone, Dupe, Debug, Default)]
 // pub(crate) struct InlinedFrames
-// TODO: stub - InlinedFrames needs real import
 internal data class InlinedFrames(
     /// Linked list.
     var frames: FrozenRef<InlinedFrame>? = null,
@@ -113,7 +111,6 @@ internal data class InlinedFrames(
 
 /// Heap allocator for `InlinedFrame` which attempts to reuse previous allocation.
 // pub(crate) struct InlinedFrameAlloc<'f>
-// TODO: stub - InlinedFrameAlloc needs real import
 internal class InlinedFrameAlloc(
     private val frozenHeap: FrozenHeap,
 ) {

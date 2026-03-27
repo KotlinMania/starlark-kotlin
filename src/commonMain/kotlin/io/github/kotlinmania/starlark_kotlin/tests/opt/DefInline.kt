@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefGen
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.values.types.list.display
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.bc

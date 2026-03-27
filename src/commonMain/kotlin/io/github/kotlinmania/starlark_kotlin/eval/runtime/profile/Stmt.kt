@@ -26,14 +26,13 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.analysis.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
@@ -357,9 +356,9 @@ internal fun testEmpty() {
 
 // #[test] fn test_merge()
 internal fun testMerge() {
-    val x = CodeMap.new("x.star", "def a(): pass")
-    val y = CodeMap.new("y.star", "def b(): pass")
-    val z = CodeMap.new("z.star", "def c(): pass")
+    val x = CodeMap("x.star", "def a(): pass")
+    val y = CodeMap("y.star", "def b(): pass")
+    val z = CodeMap("z.star", "def c(): pass")
 
     val allFiles = CodeMaps()
     allFiles.add(x)
@@ -370,11 +369,11 @@ internal fun testMerge() {
     a.enable()
     a.beforeStmt(FileSpanRef(
         file = x,
-        span = Span.new(Pos.new(1u), Pos.new(2u)),
+        span = Span(Pos(1u), Pos(2u)),
     ))
     a.beforeStmt(FileSpanRef(
         file = y,
-        span = Span.new(Pos.new(2u), Pos.new(4u)),
+        span = Span(Pos(2u), Pos(4u)),
     ))
     val aData = a.gen()
 
@@ -382,11 +381,11 @@ internal fun testMerge() {
     b.enable()
     b.beforeStmt(FileSpanRef(
         file = y,
-        span = Span.new(Pos.new(2u), Pos.new(4u)),
+        span = Span(Pos(2u), Pos(4u)),
     ))
     b.beforeStmt(FileSpanRef(
         file = z,
-        span = Span.new(Pos.new(3u), Pos.new(5u)),
+        span = Span(Pos(3u), Pos(5u)),
     ))
     val bData = b.gen()
 
@@ -396,11 +395,11 @@ internal fun testMerge() {
 
     val expected = StmtProfileData(
         stmts = mutableMapOf(
-            FileSpan(file = x, span = Span.new(Pos.new(1u), Pos.new(2u))) to
+            FileSpan(file = x, span = Span(Pos(1u), Pos(2u))) to
                 Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS)),
-            FileSpan(file = y, span = Span.new(Pos.new(2u), Pos.new(4u))) to
+            FileSpan(file = y, span = Span(Pos(2u), Pos(4u))) to
                 Pair(2, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS * 2)),
-            FileSpan(file = z, span = Span.new(Pos.new(3u), Pos.new(5u))) to
+            FileSpan(file = z, span = Span(Pos(3u), Pos(5u))) to
                 Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS)),
         ),
     )

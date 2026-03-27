@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * multiple Rust types can share the same `StarlarkTypeId`.
  * For example, mutable and frozen list share the same `StarlarkTypeId`.
  */
-internal data class StarlarkTypeId(
+data class StarlarkTypeId(
     // ConstTypeId
     private val typeId: ConstTypeId,
 ) {
@@ -61,7 +61,7 @@ internal data class StarlarkTypeId(
  *
  * In Kotlin, there are no alignment concerns; this is a simple wrapper.
  */
-internal data class StarlarkTypeIdAligned(
+data class StarlarkTypeIdAligned(
     private val starlarkTypeId: StarlarkTypeId,
 ) {
     // impl StarlarkTypeIdAligned

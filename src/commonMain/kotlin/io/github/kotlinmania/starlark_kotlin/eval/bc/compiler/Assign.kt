@@ -30,8 +30,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrStoreModule
 import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrUnpack
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.AssignCompiledValue
 
 // impl AssignCompiledValue

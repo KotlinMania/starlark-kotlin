@@ -31,7 +31,7 @@ import kotlin.jvm.JvmInline
  */
 // Rust: pub struct InlineInt(i32)
 @JvmInline
-internal value class InlineInt private constructor(private val value: Int) : Comparable<InlineInt> {
+value class InlineInt private constructor(private val value: Int) : Comparable<InlineInt> {
 
     companion object {
         // Rust: const fn min_max_for_bits(bits: usize) -> (i32, i32)

@@ -32,9 +32,9 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

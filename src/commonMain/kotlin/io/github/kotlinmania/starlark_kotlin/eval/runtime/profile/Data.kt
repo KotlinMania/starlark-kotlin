@@ -42,7 +42,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profile
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileDataError
-internal sealed class ProfileDataError : Exception() {
+sealed class ProfileDataError : Exception() {
     // #[error("Empty profile list cannot be merged")]
     data object EmptyProfileList : ProfileDataError() {
         override val message: String get() = "Empty profile list cannot be merged"
@@ -55,9 +55,8 @@ internal sealed class ProfileDataError : Exception() {
 
 // #[derive(Clone, Debug)]
 // pub(crate) enum ProfileDataImpl
-internal sealed class ProfileDataImpl {
+sealed class ProfileDataImpl {
     // Bc(Box<BcProfileData>)
-    // TODO: stub - Bc needs real import
     data class Bc(val data: BcProfileData) : ProfileDataImpl()
     // BcPairs(BcPairsProfileData)
     data class BcPairs(val data: BcPairsProfileData) : ProfileDataImpl()
@@ -75,7 +74,6 @@ internal sealed class ProfileDataImpl {
     data class HeapSummaryAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
     /// Flame graph data is in milliseconds.
     // TimeFlameProfile(FlameGraphData)
-    // TODO: stub - TimeFlameProfile needs real import
     data class TimeFlameProfile(val data: FlameGraphData) : ProfileDataImpl()
     // Statement(StmtProfileData)
     data class Statement(val data: StmtProfileData) : ProfileDataImpl()
@@ -84,7 +82,6 @@ internal sealed class ProfileDataImpl {
     // Typecheck(TypecheckProfileData)
     data class Typecheck(val data: TypecheckProfileData) : ProfileDataImpl()
     // None
-    // TODO: stub - None needs real import
     data object None : ProfileDataImpl()
 
     // pub(crate) fn profile_mode(&self) -> ProfileMode

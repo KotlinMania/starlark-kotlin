@@ -25,23 +25,16 @@ import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotsN
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.AssignModifyLhs
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toOut
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.docs.Module
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.array
 import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.field
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeStoreLocalCaptured
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeMov
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeLoadLocalCaptured
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeLoadLocal
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.writeInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toIn
 import io.github.kotlinmania.starlark_kotlin.analysis.local
 
 // trait AssignOnWriteBc

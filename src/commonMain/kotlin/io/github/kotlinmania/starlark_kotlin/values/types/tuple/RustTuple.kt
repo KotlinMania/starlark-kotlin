@@ -21,33 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 /// Bindings to/from tuple types.
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - Ty needs real import
-class Ty {
-    companion object {
-        fun tuple(elems: List<Ty>): Ty = Ty()
-        fun tuple2(a: Ty, b: Ty): Ty = Ty()
-    }
-}
-// TODO: stub - Value needs real import
-open class Value
-// TODO: stub - FrozenValue needs real import
-class FrozenValue : Value()
-// TODO: stub - Heap needs real import
-class Heap {
-    fun allocTuple(values: List<Value>): Value = Value()
-}
-class FrozenHeap {
-    fun allocTuple(values: List<FrozenValue>): FrozenValue = FrozenValue()
-}
-
-class Tuple(private val content: List<Value>) {
-    fun content(): List<Value> = content
-    companion object {
-        fun fromValue(v: Value): Tuple? = null
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 
 /// AllocValue for 1-element tuple.
 fun <T1> allocTuple1(t1: T1, heap: Heap, alloc1: (T1, Heap) -> Value): Value {

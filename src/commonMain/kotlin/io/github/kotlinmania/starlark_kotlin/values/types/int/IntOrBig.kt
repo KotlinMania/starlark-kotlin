@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.value
 import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
 import com.ionspin.kotlin.bignum.integer.BigInteger
+import com.ionspin.kotlin.bignum.integer.Sign
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
 import io.github.kotlinmania.starlark_kotlin.values.types.string.BigInt
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
@@ -154,9 +155,7 @@ sealed class StarlarkInt {
  * Reference to a StarlarkInt that can be either a small inline value or a reference to a big integer.
  */
 sealed class StarlarkIntRef {
-    // TODO: stub - Small needs real import
     data class Small(val value: InlineInt) : StarlarkIntRef()
-    // TODO: stub - Big needs real import
     data class Big(val value: StarlarkBigInt) : StarlarkIntRef()
 
     fun toOwned(): StarlarkInt = when (this) {
@@ -421,7 +420,7 @@ sealed class StarlarkIntRef {
     }
 
     companion object {
-        fun unpack(value: Value<*>): StarlarkIntRef? {
+        fun unpack(value: Value): StarlarkIntRef? {
             value.unpackInlineInt()?.let { return Small(it) }
             value.downcastRef<StarlarkBigInt>()?.let { return Big(it) }
             return null

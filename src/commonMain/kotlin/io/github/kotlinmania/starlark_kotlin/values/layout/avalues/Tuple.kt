@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.types.any_array.offsetOfContent
 import io.github.kotlinmania.starlark_kotlin.values.types.array.len
 import io.github.kotlinmania.starlark_kotlin.values.types.array.contentMut

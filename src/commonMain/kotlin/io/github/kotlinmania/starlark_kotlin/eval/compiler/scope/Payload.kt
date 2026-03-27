@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
-import io.github.kotlinmania.starlark_kotlin.typing..Interface
+import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP

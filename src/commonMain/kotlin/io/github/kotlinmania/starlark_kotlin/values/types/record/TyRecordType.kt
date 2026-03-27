@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 
 /// Data associated with a record type for typechecking.
 ///

@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.span.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypeCompiled
 
 /** IR expression in type position. */

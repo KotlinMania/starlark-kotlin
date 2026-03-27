@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
 import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
@@ -32,8 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 //     fun: FrozenValueTyped<'static, NativeFunction>,
 //     imp: &'static NativeFunc,
 // }
-// TODO: stub - BcNativeFunction needs real import
-internal class BcNativeFunction private constructor(
+class BcNativeFunction private constructor(
     private val func: FrozenValueTyped<NativeFunction>,
     /// Copy function here from `fun` to avoid extra dereference when calling.
     private val imp: NativeFunc,

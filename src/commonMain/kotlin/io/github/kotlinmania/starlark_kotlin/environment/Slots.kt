@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Allocative, Hash)]
 // pub(crate) struct ModuleSlotId(pub(crate) u32);
-internal data class ModuleSlotId(val index: Int) {
+data class ModuleSlotId(val index: Int) {
 
     // impl ModuleSlotId
 
@@ -39,7 +39,7 @@ internal data class ModuleSlotId(val index: Int) {
 /// Indexed slots of a module. May contain unassigned values as `None`.
 // #[derive(Debug)]
 // pub(crate) struct MutableSlots<'v>(RefCell<Vec<Option<Value<'v>>>>);
-internal class MutableSlots {
+class MutableSlots {
     // RefCell<Vec<Option<Value>>> → mutable list
     private val slots: MutableList<Value?> = mutableListOf()
 
@@ -106,7 +106,7 @@ internal class MutableSlots {
 /// Indexed slots of a frozen module. May contain unassigned values as `null`.
 // #[derive(Debug, Allocative)]
 // pub(crate) struct FrozenSlots(Vec<Option<FrozenValue>>);
-internal class FrozenSlots(
+class FrozenSlots(
     private val slots: List<FrozenValue?>,
 ) {
     // impl FrozenSlots

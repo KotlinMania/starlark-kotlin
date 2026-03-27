@@ -30,8 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 /// The low-level pointer tagging and alignment concerns from Rust are not
 /// applicable; the JVM handles object layout and GC.
 // pub(crate) struct AValueHeader
-// TODO: stub - AValueHeader needs real import
-internal class AValueHeader(
+class AValueHeader(
     val vtable: AValueVTable,
 ) {
     /// Unpack the header into its dynamic value accessor.
@@ -63,7 +62,7 @@ internal class AValueHeader(
 /// In Kotlin, this is simplified: the JVM manages object layout,
 /// so we just pair the header with its payload.
 // pub(crate) struct AValueRepr<T>
-internal class AValueRepr<T>(
+class AValueRepr<T>(
     val header: AValueHeader,
     /// Payload of the object, i.e. the StarlarkValue.
     val payload: T,
@@ -74,8 +73,7 @@ internal class AValueRepr<T>(
 /// In Kotlin, where the JVM handles GC, this is a simplified wrapper
 /// that stores a reference to the moved value.
 // pub(crate) struct ForwardPtr
-// TODO: stub - ForwardPtr needs real import
-internal class ForwardPtr private constructor(
+class ForwardPtr private constructor(
     private val target: Any?,
 ) {
     companion object {
@@ -103,7 +101,7 @@ internal class ForwardPtr private constructor(
 ///
 /// In Kotlin this is a simplified data holder since we don't overwrite memory.
 // pub(crate) struct AValueForward
-internal class AValueForward(
+class AValueForward(
     /// The forward pointer to the moved object.
     private val forward: ForwardPtr,
     /// Size of the original allocation.
@@ -121,7 +119,7 @@ internal class AValueForward(
 
 /// Object on the heap, either a real object or a forward.
 // pub(crate) union AValueOrForward
-internal sealed class AValueOrForward {
+sealed class AValueOrForward {
     class Header(val header: AValueHeader) : AValueOrForward()
     class Forward(val forward: AValueForward) : AValueOrForward()
 
@@ -153,7 +151,7 @@ internal sealed class AValueOrForward {
 
 /// AValueOrForward as enum.
 // pub(crate) enum AValueOrForwardUnpack<'a>
-internal sealed class AValueOrForwardUnpack {
+sealed class AValueOrForwardUnpack {
     class Header(val header: AValueHeader) : AValueOrForwardUnpack()
     class Forward(val forward: AValueForward) : AValueOrForwardUnpack()
 }

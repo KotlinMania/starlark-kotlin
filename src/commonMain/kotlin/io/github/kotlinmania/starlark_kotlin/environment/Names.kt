@@ -45,7 +45,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 /// before (apart from the total) number of slots required.
 // #[derive(Debug)]
 // pub(crate) struct MutableNames(RefCell<SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>>);
-internal class MutableNames {
+class MutableNames {
     // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap()
 
@@ -130,7 +130,7 @@ internal class MutableNames {
 /// Frozen (immutable) form of [MutableNames].
 // #[derive(Debug, Allocative)]
 // pub(crate) struct FrozenNames(SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>);
-internal class FrozenNames(
+class FrozenNames(
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>>,
 ) {
     // impl FrozenNames

@@ -26,108 +26,14 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_co
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class ProfileData(val profile: ProfileDataImpl)
-// TODO: stub - ProfileDataImpl needs real import
-sealed class ProfileDataImpl {
-    class HeapRetained(val info: AggregateHeapProfileInfo) : ProfileDataImpl()
-    class HeapFlameRetained(val info: AggregateHeapProfileInfo) : ProfileDataImpl()
-    class HeapSummaryRetained(val info: AggregateHeapProfileInfo) : ProfileDataImpl()
-}
-class FlameGraphData {
-    fun root(): FlameGraphNode = FlameGraphNode()
-    fun write(): String = ""
-}
-class FlameGraphNode {
-    fun child(name: String): FlameGraphNode = FlameGraphNode()
-    fun add(bytes: Long) {}
-}
-// TODO: stub - HeapKind needs real import
-enum class HeapKind { Unfrozen, Frozen }
-// TODO: stub - RetainedHeapProfileMode needs real import
-enum class RetainedHeapProfileMode { FlameAndSummary, Flame, Summary }
-class ProfilerInstant {
-    fun durationSince(other: ProfilerInstant): SmallDuration = SmallDuration(0L)
-    companion object {
-        fun now(): ProfilerInstant = ProfilerInstant()
-    }
-}
-class SmallDuration(val nanos: Long) {
-    operator fun plus(other: SmallDuration): SmallDuration = SmallDuration(nanos + other.nanos)
-    operator fun plusAssign(other: SmallDuration) {}
-    companion object {
-        fun default(): SmallDuration = SmallDuration(0L)
-    }
-}
-// TODO: stub - Value needs real import
-class Value {
-    fun ptrValue(): Long = 0L
-    fun toStr(): String = ""
-    fun vtable(): Vtable = Vtable()
-    fun getRef(): ValueRef = ValueRef()
-}
-class Vtable {
-    val typeName: String = ""
-}
-class ValueRef {
-    fun totalMemoryForProfile(): Long = 0L
-}
-// TODO: stub - Heap needs real import
-class Heap {
-    fun visitArena(kind: HeapKind, visitor: ArenaVisitor) {}
-}
-// TODO: stub - ArenaVisitor needs real import
-interface ArenaVisitor {
-    fun enterBump() {}
-    fun regularValue(value: AValueOrForward) {}
-    fun callEnter(function: Value, time: ProfilerInstant) {}
-    fun callExit(time: ProfilerInstant) {}
-}
-// TODO: stub - AValueOrForward needs real import
-class AValueOrForward {
-    fun unpack(): AValueOrForwardUnpack = AValueOrForwardUnpack.Header(AValueHeader())
-}
-sealed class AValueOrForwardUnpack {
-    class Header(val header: AValueHeader) : AValueOrForwardUnpack()
-    class Forward(val forward: ForwardPtr) : AValueOrForwardUnpack()
-}
-class AValueHeader {
-    fun unpackValue(kind: HeapKind): Value = Value()
-}
-class ForwardPtr {
-    fun forwardPtr(): AValueHeader = AValueHeader()
-}
-
-class HeapSummary {
-    val summary: MutableMap<String, AllocCounts> = mutableMapOf()
-    fun add(typeName: String, counts: AllocCounts) {}
-    fun clone(): HeapSummary = HeapSummary()
-    fun total(): AllocCounts = AllocCounts(0, 0)
-    companion object {
-        fun default(): HeapSummary = HeapSummary()
-        fun merge(summaries: Iterable<HeapSummary>): HeapSummary = HeapSummary()
-    }
-}
-class StringId(val id: Int)
-// TODO: stub - StringIndex needs real import
-class StringIndex {
-    fun index(s: String): StringId = StringId(0)
-    fun get(id: StringId): String = ""
-    companion object {
-        fun default(): StringIndex = StringIndex()
-    }
-}
-class HeapSummaryByFunction {
-    fun genCsv(): String = ""
-    fun info(): List<Pair<String, HeapSummaryByFunctionInfo>> = emptyList()
-    companion object {
-        fun init(info: AggregateHeapProfileInfo): HeapSummaryByFunction = HeapSummaryByFunction()
-    }
-}
-class HeapSummaryByFunctionInfo {
-    val alloc: HeapSummary = HeapSummary()
-}
+// Real types should be imported from their respective packages:
+// ProfileData, ProfileDataImpl → eval.runtime.profile.data
+// FlameGraphData, FlameGraphNode → eval.runtime.profile.flamegraph
+// HeapKind → values.layout.heap
+// SmallDuration → eval.runtime
+// Value → values.layout
+// Heap → values.layout.heap
+// StringId, StringIndex → values.layout.heap.profile.string_index
 class SmallMap<K, V> {
     private val map: MutableMap<K, V> = mutableMapOf()
     fun entry(key: K): SmallMapEntry<K, V> = SmallMapEntry(map, key)

@@ -25,7 +25,7 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * [DapAdapter]/[DapAdapterEvalHook] that provide for debugging a starlark Evaluation.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.values.dirAttr
 import io.github.kotlinmania.starlark_kotlin.values.at
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.getAttrError
+import io.github.kotlinmania.starlark_kotlin.typing.getAttrError
 import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation
 import io.github.kotlinmania.starlark_kotlin.analysis.iter
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
@@ -230,7 +230,6 @@ sealed class PathSegment {
     data class Attr(val name: String) : PathSegment()
 
     /** Represents a path segment that accesses dict items by key. */
-    // TODO: stub - Key needs real import
     data class Key(val key: String) : PathSegment()
 
     override fun toString(): String = when (this) {

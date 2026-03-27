@@ -44,8 +44,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.allocTuple

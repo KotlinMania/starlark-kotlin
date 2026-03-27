@@ -21,8 +21,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
 class EvalException(val message: String, cause: Throwable? = null) : Exception(message, cause) {
     companion object {
         fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException {
@@ -47,8 +45,6 @@ class StarlarkError(message: String, cause: Throwable? = null) : Exception(messa
     }
 }
 
-
-class CodeMap
 
 class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
     fun <R> map(f: (T) -> R): WithDiagnostic<R> {

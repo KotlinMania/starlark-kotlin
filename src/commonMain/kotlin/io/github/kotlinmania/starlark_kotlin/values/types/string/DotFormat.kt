@@ -19,25 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-// Placeholder types until dependencies are ported
-
-expect class StringPool { fun alloc(): String; fun release(s: String) }
-expect class Heap<V> {
-    fun allocStr(s: String): StringValue<V>
-    fun allocStrConcat3(before: String, middle: String, after: String): StringValue<V>
-}
-expect class Value<V> {
-    fun collectRepr(result: StringBuilder)
-    fun collectStr(result: StringBuilder)
-}
-expect class StringValue<V> {
-    companion object { fun <V> new(value: Value<V>): StringValue<V>? }
-}
-expect sealed class ValueError : Throwable {
-    class IndexOutOfBound(index: Int) : ValueError
-    class KeyNotFound(key: String) : ValueError
-}
-expect class Dict<V> { fun getStr(field: String): Value<V>? }
+// Real types should be imported from their respective packages
 
 /**
  * Try parse `"aaa{}bbb"` and return `("aaa", "bbb")`.

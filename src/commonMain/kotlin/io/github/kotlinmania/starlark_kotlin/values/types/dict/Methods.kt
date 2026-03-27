@@ -33,15 +33,15 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 internal fun dictMethods(registry: MethodsBuilder) {
-    registry.method("clear") { thisValue: Value<*> -> clear(thisValue) }
-    registry.method("get") { thisRef: DictRef<*>, key: Value<*>, default: Value<*>? -> get(thisRef, key, default) }
-    registry.method("items") { thisRef: DictRef<*>, heap: Heap<*> -> items(thisRef, heap) }
-    registry.method("keys") { thisRef: DictRef<*>, heap: Heap<*> -> keys(thisRef, heap) }
-    registry.method("pop") { thisValue: Value<*>, key: Value<*>, default: Value<*>? -> pop(thisValue, key, default) }
-    registry.method("popitem") { thisValue: Value<*> -> popitem(thisValue) }
-    registry.method("setdefault") { thisValue: Value<*>, key: Value<*>, default: Value<*>? -> setdefault(thisValue, key, default) }
-    registry.method("update") { thisValue: Value<*>, pairs: ValueOfUnchecked<*, Either<DictRef<*>, StarlarkIter<Pair<Value<*>, Value<*>>>>>?, kwargs: DictRef<*>, heap: Heap<*> -> update(thisValue, pairs, kwargs, heap) }
-    registry.method("values") { thisRef: DictRef<*>, heap: Heap<*> -> values(thisRef, heap) }
+    registry.method("clear") { thisValue: Value -> clear(thisValue) }
+    registry.method("get") { thisRef: DictRef, key: Value, default: Value? -> get(thisRef, key, default) }
+    registry.method("items") { thisRef: DictRef, heap: Heap -> items(thisRef, heap) }
+    registry.method("keys") { thisRef: DictRef, heap: Heap -> keys(thisRef, heap) }
+    registry.method("pop") { thisValue: Value, key: Value, default: Value? -> pop(thisValue, key, default) }
+    registry.method("popitem") { thisValue: Value -> popitem(thisValue) }
+    registry.method("setdefault") { thisValue: Value, key: Value, default: Value? -> setdefault(thisValue, key, default) }
+    registry.method("update") { thisValue: Value, pairs: ValueOfUnchecked<Either<DictRef, StarlarkIter<Pair<Value, Value>>>>?, kwargs: DictRef, heap: Heap -> update(thisValue, pairs, kwargs, heap) }
+    registry.method("values") { thisRef: DictRef, heap: Heap -> values(thisRef, heap) }
 }
 
 /**
@@ -57,7 +57,7 @@ internal fun dictMethods(registry: MethodsBuilder) {
  * x == {}
  * ```
  */
-internal fun <V_> clear(thisValue: Value<V_>): Result<NoneType> {
+internal fun clear(thisValue: Value): Result<NoneType> {
     val mut = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     mut.aref.value.clear()
     return Result.success(NoneType)
@@ -81,11 +81,11 @@ internal fun <V_> clear(thisValue: Value<V_>): Result<NoneType> {
  * x.get("three", 0) == 0
  * ```
  */
-internal fun <V_> get(
-    thisRef: DictRef<V_>,
-    key: Value<V_>,
-    default: Value<V_>? = null
-): Result<Value<V_>> {
+internal fun get(
+    thisRef: DictRef,
+    key: Value,
+    default: Value? = null
+): Result<Value> {
     val dict = thisRef.deref()
     return when (val result = dict.get(key).getOrElse { return Result.failure(it) }) {
         null -> Result.success(default ?: Value.newNone())
@@ -105,10 +105,10 @@ internal fun <V_> get(
  * x.items() == [("one", 1), ("two", 2)]
  * ```
  */
-internal fun <V_> items(
-    thisRef: DictRef<V_>,
-    heap: Heap<V_>
-): Result<ValueOfUnchecked<V_, UnpackList<Pair<Value<V_>, Value<V_>>>>> =
+internal fun items(
+    thisRef: DictRef,
+    heap: Heap
+): Result<ValueOfUnchecked<UnpackList<Pair<Value, Value>>>> =
     Result.success(heap.allocTypedUnchecked(AllocList(thisRef.deref().iter())).cast())
 
 /**
@@ -123,10 +123,10 @@ internal fun <V_> items(
  * x.keys() == ["one", "two"]
  * ```
  */
-internal fun <V_> keys(
-    thisRef: DictRef<V_>,
-    heap: Heap<V_>
-): Result<ValueOfUnchecked<V_, ListRef<V_>>> =
+internal fun keys(
+    thisRef: DictRef,
+    heap: Heap
+): Result<ValueOfUnchecked<ListRef>> =
     Result.success(ValueOfUnchecked.new(heap.alloc(AllocList(thisRef.deref().keys()))))
 
 /**
@@ -154,11 +154,11 @@ internal fun <V_> keys(
  * {'one': 1}.pop('four')   # error: not found
  * ```
  */
-internal fun <V_> pop(
-    thisValue: Value<V_>,
-    key: Value<V_>,
-    default: Value<V_>? = null
-): Result<Value<V_>> {
+internal fun pop(
+    thisValue: Value,
+    key: Value,
+    default: Value? = null
+): Result<Value> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = key.getHashed().getOrElse { return Result.failure(it) }
     return when (val x = me.aref.value.removeHashed(hashed)) {
@@ -192,7 +192,7 @@ internal fun <V_> pop(
  * {}.popitem()   # error: empty dict
  * ```
  */
-internal fun <V_> popitem(thisValue: Value<V_>): Result<Pair<Value<V_>, Value<V_>>> {
+internal fun popitem(thisValue: Value): Result<Pair<Value, Value>> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     // This implementation is O(N).
     return when (val result = me.aref.value.content.shiftRemoveIndex(0)) {
@@ -222,11 +222,11 @@ internal fun <V_> popitem(thisValue: Value<V_>): Result<Pair<Value<V_>, Value<V_
  * x == {"one": 1, "two": 2, "three": 0, "four": None}
  * ```
  */
-internal fun <V_> setdefault(
-    thisValue: Value<V_>,
-    key: Value<V_>,
-    default: Value<V_>? = null
-): Result<Value<V_>> {
+internal fun setdefault(
+    thisValue: Value,
+    key: Value,
+    default: Value? = null
+): Result<Value> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val keyHashed = key.getHashed().getOrElse { return Result.failure(it) }
     return when (val entry = me.aref.value.content.entryHashed(keyHashed)) {
@@ -266,11 +266,11 @@ internal fun <V_> setdefault(
  * x == {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}
  * ```
  */
-internal fun <V_> update(
-    thisValue: Value<V_>,
-    pairs: ValueOfUnchecked<V_, Either<DictRef<V_>, StarlarkIter<Pair<Value<V_>, Value<V_>>>>>? = null,
-    kwargs: DictRef<V_>,
-    heap: Heap<V_>
+internal fun update(
+    thisValue: Value,
+    pairs: ValueOfUnchecked<Either<DictRef, StarlarkIter<Pair<Value, Value>>>>? = null,
+    kwargs: DictRef,
+    heap: Heap
 ): Result<NoneType> {
     val pairsValue = if (pairs?.get()?.ptrEq(thisValue) == true) {
         // someone has done `x.update(x)` - that isn't illegal, but we will have issues
@@ -324,13 +324,13 @@ internal fun <V_> update(
  * x.values() == [1, 2]
  * ```
  */
-internal fun <V_> values(
-    thisRef: DictRef<V_>,
-    heap: Heap<V_>
-): Result<ValueOfUnchecked<V_, ListRef<V_>>> =
+internal fun values(
+    thisRef: DictRef,
+    heap: Heap
+): Result<ValueOfUnchecked<ListRef>> =
     Result.success(ValueOfUnchecked.new(heap.allocListIter(thisRef.deref().values())))
 
-private fun <V_> DictRef<V_>.deref(): Dict<V_> = when (val ref = aref) {
+private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Left -> ref.value.value
     is Either.Right -> ref.value
 }

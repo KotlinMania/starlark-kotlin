@@ -9,7 +9,6 @@ import io.github.kotlinmania.starlark_kotlin.values.next
 import io.github.kotlinmania.starlark_kotlin.values.layout.toValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyString
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positions
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.range
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 import io.github.kotlinmania.starlark_kotlin.values.default
 
@@ -36,25 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.values.default
  * Methods for the `string` type.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class MethodsBuilder
-expect class Arguments
-expect class Evaluator {
-    val stringPool: StringPool
-    val moduleEnv: ModuleEnv
-}
-expect class ModuleEnv {
-    fun heap(): Heap
-}
-expect class UnpackValue
-expect class ValueOfUnchecked<T>
-expect class AllocList
-expect class UnpackList<T>
-expect class NoneOr<T> {
-    fun intoOption(): T?
-}
-expect class StarlarkIter<T>
-expect class StarlarkTypeRepr
+// Real types should be imported from their respective packages
 
 // This does not exist in Kotlin stdlib, split would cut the string incorrectly and
 // split on whitespace cannot take a maxsplit parameter.
@@ -112,9 +93,7 @@ private fun rsplitnWhitespace(s: String, maxsplit: Int): List<String> {
 }
 
 sealed class StringOrTuple {
-    // TODO: stub - String needs real import
     data class String(val value: kotlin.String) : StringOrTuple()
-    // TODO: stub - Tuple needs real import
     data class Tuple(val items: List<kotlin.String>) : StringOrTuple()
 }
 

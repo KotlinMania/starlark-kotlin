@@ -53,7 +53,7 @@ class UnpackDictEntries<K, V>(
          * Returns null if the value is not a dict. Returns the [UnpackDictEntries] with
          * all key/value pairs unpacked, or null if any key or value fails type checking.
          */
-        fun <K : Any, V : Any> unpackValue(value: Value<*>): Result<UnpackDictEntries<K, V>?>? {
+        fun <K : Any, V : Any> unpackValue(value: Value): Result<UnpackDictEntries<K, V>?>? {
             val dict = dictRefFromValue(value) ?: return Result.success(null)
             val entries = mutableListOf<Pair<K, V>>()
             for ((k, v) in dict.iter()) {
@@ -68,11 +68,11 @@ class UnpackDictEntries<K, V>(
     }
 }
 
-private fun <V_> dictRefFromValue(value: Value<V_>): DictRef<V_>? {
+private fun dictRefFromValue(value: Value): DictRef? {
     return io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue(value)
 }
 
-private fun <V_> DictRef<V_>.iter(): Sequence<Pair<Value<V_>, Value<V_>>> {
+private fun DictRef.iter(): Sequence<Pair<Value, Value>> {
     val dict = when (val ref = aref) {
         is Either.Left -> ref.value.value
         is Either.Right -> ref.value

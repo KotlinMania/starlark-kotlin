@@ -24,11 +24,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.function
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.fromValue
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
 

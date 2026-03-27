@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer

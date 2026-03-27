@@ -65,21 +65,4 @@ internal fun <V : ValueLike<V>> StringIterableGen<V>.iterate(
     return Result.success(iter)
 }
 
-// Placeholder types for dependencies
-expect interface ValueLike<V>
-expect class Value
-expect interface ProvidesStaticType
-expect class StarlarkIter<T>
-
-expect class ValueOfUnchecked<T> {
-    companion object {
-        fun <T> new(value: Value): ValueOfUnchecked<T>
-    }
-}
-
-expect class Heap {
-    fun allocComplex(value: Any): Value
-    fun allocTupleIter(items: Sequence<Value>): Value
-    fun alloc(c: Char): Value
-    fun alloc(i: UInt): Value
-}
+// Real types should be imported from their respective packages

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_m
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiledFactory
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
@@ -50,7 +50,7 @@ private class TypeMatcherFactoryImpl(
 //     fn matcher_box(&self) -> TypeMatcherBox;
 //     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled<Value<'v>>;
 // }
-internal interface TypeMatcherFactoryDyn {
+interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled<Value>
 }

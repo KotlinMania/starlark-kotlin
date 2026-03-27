@@ -38,14 +38,14 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.typing..Interface
+import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmtFromAst
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
@@ -68,13 +68,12 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.CstExpr
+import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.typing.For
+import io.github.kotlinmania.starlark_kotlin.typing.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.typing.CstExpr
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.forStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
 import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.payload
 import io.github.kotlinmania.starlark_kotlin.analysis.node
@@ -1000,7 +999,6 @@ internal enum class InLoop {
 /// Storage of objects referenced by AST.
 // #[derive(Default)]
 // pub(crate) struct ModuleScopeData
-// TODO: stub - ModuleScopeData needs real import
 internal class ModuleScopeData(
     /// Bindings by id.
     private val bindings: MutableList<Binding> = mutableListOf(),
@@ -1089,7 +1087,6 @@ internal sealed class BindingSource {
 /// In code `x = 1; def f(): x = 2`, there are two bindings for name `x`.
 // #[derive(Debug)]
 // pub(crate) struct Binding
-// TODO: stub - Binding needs real import
 internal class Binding(
     val name: FrozenStringValue,
     val source: BindingSource,
@@ -1141,9 +1138,7 @@ internal data class ScopeId(val id: Int) {
 
 // #[derive(Debug, Clone, Dupe, Copy)]
 // pub(crate) enum ResolvedIdent
-// TODO: stub - ResolvedIdent needs real import
 internal sealed class ResolvedIdent {
-    // TODO: stub - Slot needs real import
     data class Slot(val slot: io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot, val bindingId: BindingId) : ResolvedIdent()
     data class Global(val value: FrozenValue) : ResolvedIdent()
 }

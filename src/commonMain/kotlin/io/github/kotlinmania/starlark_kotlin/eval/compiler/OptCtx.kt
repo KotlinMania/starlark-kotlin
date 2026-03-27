@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.OptimizeOnFreezeContext
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 
 /**
  * Trait for optimization context evaluation.

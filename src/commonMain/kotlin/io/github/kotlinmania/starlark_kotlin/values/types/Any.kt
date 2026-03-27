@@ -27,26 +27,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 /// To use this type, usually you will return a [StarlarkAny] from a module function,
 /// and consume it in another.
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - Value needs real import
-open class Value {
-    fun toValue(): Value = this
-    fun <T> downcastRef(): T? = null
-}
-// TODO: stub - FrozenValue needs real import
-class FrozenValue : Value()
-// TODO: stub - Heap needs real import
-class Heap {
-    fun <T> allocSimple(value: T): Value = Value()
-}
-class FrozenHeap {
-    fun <T> allocSimpleTypedStatic(value: T): FrozenRef<T> = FrozenRef(value)
-}
-class FrozenRef<T>(val value: T) {
-    fun asFrozenRef(): FrozenRef<T> = this
-    fun <R> map(transform: (T) -> R): FrozenRef<R> = FrozenRef(transform(value))
-}
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 
 /// A type that can be passed around as a Starlark [Value], but in most
 /// ways is uninteresting/opaque to Starlark. Constructed with

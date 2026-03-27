@@ -1,5 +1,5 @@
-// port-lint: source src/eval/compiler/error.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+// port-lint: source equivalent (external crate)
+package starlark_map
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,14 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
-
-class CompilerInternalError(private val exception: EvalException) {
-    companion object {
-        fun fromEvalException(e: EvalException): CompilerInternalError {
-            return CompilerInternalError(e.intoInternalError())
-        }
-    }
-
-    fun intoEvalException(): EvalException = exception
+/**
+ * Port of the Rust `Equivalent` trait from the `equivalent` crate.
+ *
+ * This trait allows heterogeneous key lookups in hash maps and sets.
+ * A type `Q` implementing `Equivalent<K>` can be used to look up entries
+ * keyed by `K`, without requiring `Q` and `K` to be the same type.
+ *
+ * In Rust:
+ * ```rust
+ * pub trait Equivalent<K: ?Sized> {
+ *     fn equivalent(&self, key: &K) -> bool;
+ * }
+ * ```
+ */
+fun interface Equivalent<in K> {
+    /**
+     * Compare this value with a key for equivalence.
+     *
+     * Returns `true` if this value is equivalent to the given key.
+     */
+    fun equivalent(key: K): Boolean
 }

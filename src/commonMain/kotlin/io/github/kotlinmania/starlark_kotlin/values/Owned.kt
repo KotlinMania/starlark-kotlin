@@ -207,21 +207,3 @@ private object NoneAllocFrozenValue : AllocFrozenValue {
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
 }
 
-// Placeholder for FrozenValueTyped — represents a typed wrapper around FrozenValue.
-// Will be replaced with the real implementation from values/layout.
-// TODO: stub - FrozenValueTyped needs real import
-class FrozenValueTyped<T : StarlarkValue>(
-    private val frozenValue: FrozenValue,
-    private val ref: T,
-) {
-    companion object {
-        inline fun <reified T : StarlarkValue> new(value: FrozenValue): FrozenValueTyped<T>? {
-            val ref = value.downcastRef<T>() ?: return null
-            return FrozenValueTyped(value, ref)
-        }
-    }
-
-    fun toFrozenValue(): FrozenValue = frozenValue
-    fun toValue(): Value = frozenValue.toValue()
-    fun asRef(): T = ref
-}

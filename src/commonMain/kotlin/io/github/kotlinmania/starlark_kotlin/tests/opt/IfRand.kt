@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import kotlin.random.Random
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.extra
@@ -96,7 +96,6 @@ private sealed class TestExpr {
 
     /// Binary operation.
     // BinOp(TestBinOp, Box<(TestExpr, TestExpr)>)
-    // TODO: stub - BinOp needs real import
     class BinOp(val op: TestBinOp, val lhs: TestExpr, val rhs: TestExpr) : TestExpr()
 
     /// `not` operation.

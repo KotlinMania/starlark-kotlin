@@ -32,16 +32,6 @@ class StarlarkStr(val value: String) {
     }
 }
 
-// TODO: stub - Value needs real import
-open class Value {
-    fun toValue(): Value = this
-    fun unpackFrozen(): FrozenValue? = null
-    fun getHash(): Int = hashCode()
-}
-// TODO: stub - FrozenValue needs real import
-class FrozenValue : Value() {
-    fun toFrozenValue(): FrozenValue = this
-}
 class Hashed<T>(val hash: Int, val value: T) {
     companion object {
         fun <T> newUnchecked(hash: Int, value: T): Hashed<T> = Hashed(hash, value)
@@ -55,7 +45,6 @@ class Freezer {
 ///
 /// We use `FrozenStringValue` often, but also we define more operations
 /// on `FrozenStringValue` than on generic `FrozenValueTyped<T>`.
-// TODO: stub - FrozenStringValue needs real import
 class FrozenStringValue(
     private val str: StarlarkStr,
     private val frozenValue: FrozenValue = FrozenValue(),
@@ -112,7 +101,6 @@ class FrozenStringValue(
 ///
 /// We use `StringValue` often, but also we define more operations
 /// on `StringValue` than on generic `ValueTyped<T>`.
-// TODO: stub - StringValue needs real import
 class StringValue(
     private val str: StarlarkStr,
     private val value: Value = Value(),

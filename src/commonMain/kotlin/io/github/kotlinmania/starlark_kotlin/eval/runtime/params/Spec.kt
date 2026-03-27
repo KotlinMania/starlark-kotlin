@@ -28,8 +28,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.FunctionError
 import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamFmt
@@ -85,7 +85,7 @@ sealed class ParametersSpecParam<out V> {
 // #[derive(Debug, Copy, Clone, Dupe, Coerce, PartialEq, Trace, Freeze, Allocative)]
 // #[repr(C)]
 // pub(crate) enum ParameterKind<V>
-internal sealed class ParameterKind<out V> {
+sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
     /// When optional parameter is not supplied, there's no error,
     /// but the slot remains `None`.
@@ -112,7 +112,7 @@ private enum class CurrentParameterStyle {
 
 /// Builder for [`ParametersSpec`]
 // pub(crate) struct ParametersSpecBuilder<V>
-internal class ParametersSpecBuilder<V>(
+class ParametersSpecBuilder<V>(
     private val functionName: String,
     private val params: MutableList<Pair<String, ParameterKind<V>>> = mutableListOf(),
     private val names: SymbolMap<UInt> = SymbolMap(),
@@ -262,7 +262,6 @@ internal class ParametersSpecBuilder<V>(
 // #[derive(Debug, Clone, Trace, Freeze, Allocative)]
 // #[repr(C)]
 // pub struct ParametersSpec<V>
-// TODO: stub - ParametersSpec needs real import
 class ParametersSpec<V>(
     /// Only used in error messages
     internal val functionName: String,

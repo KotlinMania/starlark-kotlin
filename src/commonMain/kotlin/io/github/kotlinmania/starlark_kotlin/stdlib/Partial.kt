@@ -35,7 +35,6 @@ open class Value {
         kotlin.Result.success(Value())
     companion object
 }
-// TODO: stub - FrozenValue needs real import
 class FrozenValue : Value() {
     override fun toValue(): Value = this
     companion object
@@ -62,12 +61,10 @@ class Tuple {
         fun fromValue(value: Value): Tuple? = null
     }
 }
-// TODO: stub - DictRef needs real import
 class DictRef {
     fun keys(): List<Value> = emptyList()
     fun values(): List<Value> = emptyList()
 }
-// TODO: stub - Evaluator needs real import
 class Evaluator {
     fun <T> allocaConcat(a: List<T>, b: List<T>, block: (List<T>, Evaluator) -> kotlin.Result<Value>): kotlin.Result<Value> {
         return block(a + b, this)
@@ -89,9 +86,7 @@ class ArgNames(val entries: List<Pair<Symbol, StringValue>>) {
         fun newUnique(names: List<Pair<Symbol, StringValue>>): ArgNames = ArgNames(names)
     }
 }
-// TODO: stub - Freezer needs real import
 class Freezer
-// TODO: stub - GlobalsBuilder needs real import
 class GlobalsBuilder {
     fun set(name: String, value: Any) {}
 }

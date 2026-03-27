@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 
 /** [FrozenValue] which is not `i32` or `str`. */
-// TODO: stub - FrozenValueNotSpecial needs real import
 internal class FrozenValueNotSpecial private constructor(
     private val value: FrozenValue,
 ) {

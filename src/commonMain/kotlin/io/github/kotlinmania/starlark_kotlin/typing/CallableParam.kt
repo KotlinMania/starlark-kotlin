@@ -158,7 +158,6 @@ data class ParamSpecSplit(
 /**
  * Callable parameter specification (e.g. positional only followed by `**kwargs`).
  */
-// TODO: stub - ParamSpec needs real import
 class ParamSpec private constructor(
     private val params: List<Param>,
     private val numPositional: Int,

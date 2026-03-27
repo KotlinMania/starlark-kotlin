@@ -426,7 +426,6 @@ class BTreeMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
 internal fun testCanConvert() {
     // #[derive(Debug, PartialEq, ProvidesStaticType)]
     // struct Value<'a>(&'a str);
-    // TODO: stub - Value needs real import
     data class Value(val value: String) : ProvidesStaticType, AnyLifetime {
         override val staticType: KClass<*> get() = Value::class
         override fun staticTypeId(): KClass<*> = Value::class

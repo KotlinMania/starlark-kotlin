@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.Froze
 import io.github.kotlinmania.starlark_kotlin.codemap.DEFAULT
 
 /** Span of the call frame (including inlined call frames). */
-internal data class FrameSpan(
+data class FrameSpan(
     val span: FrozenFileSpan,
     /** Parent frames. */
     val inlinedFrames: InlinedFrames,

@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.allocStringValue
 import io.github.kotlinmania.starlark_kotlin.tests.assert
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
@@ -81,16 +80,16 @@ inline fun <reified K, reified V, reified S> allocStructStarlarkTypeRepr(): Ty
 
 /**
  * Implementation of AllocValue for AllocStruct<S>
- * where S: IntoIterator, S::Item = (K, V), K: AllocStringValue<V_>, V: AllocValue<V_>.
+ * where S: IntoIterator, S::Item = (K, V), K: AllocStringValue, V: AllocValue.
  */
-fun <V_, K, V, S> AllocStruct<S>.allocValue(heap: Heap<V_>): Value<V_>
+fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
     where S : Iterable<Pair<K, V>>,
-          K : AllocStringValue<V_>,
-          V : AllocValue<V_> {
+          K : AllocStringValue,
+          V : AllocValue {
     val iter = value.iterator()
     // size_hint().0 in Rust returns the lower bound of the iterator's size hint
     val sizeHint = if (value is Collection<*>) value.size else 0
-    val fields = SmallMap.withCapacity<String, Value<V_>>(sizeHint)
+    val fields = SmallMap.withCapacity<String, Value>(sizeHint)
 
     for ((k, v) in iter) {
         val k = k.allocStringValue(heap)
@@ -99,7 +98,7 @@ fun <V_, K, V, S> AllocStruct<S>.allocValue(heap: Heap<V_>): Value<V_>
         assert(prev == null) { "non-unique key: $k" }
     }
 
-    return Struct.new(fields).allocValue(heap)
+    return Struct(fields).allocValue(heap)
 }
 
 /**
@@ -122,5 +121,5 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
         assert(prev == null) { "non-unique key: $k" }
     }
 
-    return heap.alloc(FrozenStruct.new(fields))
+    return heap.alloc(FrozenStruct(fields))
 }

@@ -30,11 +30,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeFor
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeIfThen
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
 import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ClauseCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.ComprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.MaybeNot
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ClauseCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ComprCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 
 /**
  * Compiles a single comprehension clause to bytecode.

@@ -27,9 +27,9 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
@@ -115,7 +114,7 @@ private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
  * How often we garbage collection _should_ be transparent to the tests,
  * so we run each test in three configurations.
  */
-internal enum class GcStrategy {
+enum class GcStrategy {
     /** Disable GC */
     Never,
     /** Use the automatic heuristics (in practice, this does almost no GC) */
@@ -170,7 +169,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
     }
 }
 
-internal fun testFunctions(builder: GlobalsBuilder) {
+fun testFunctions(builder: GlobalsBuilder) {
     // Used by one of the test methods in Go
     builder.setConst("fibonacci", listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89))
 

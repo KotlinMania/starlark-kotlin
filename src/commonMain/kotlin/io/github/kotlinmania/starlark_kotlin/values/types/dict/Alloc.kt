@@ -55,12 +55,12 @@ inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> allocDic
     DictType.starlarkTypeRepr<K, V>()
 
 /** AllocValue for AllocDict where D: Iterable<Pair<K, V>>, K: AllocValue, V: AllocValue. */
-fun <V_, D, K, V> AllocDict<D>.allocValue(heap: Heap<V_>): Value<V_>
+fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     where D : Iterable<Pair<K, V>>,
-          K : AllocValue<V_>,
-          V : AllocValue<V_> {
+          K : AllocValue,
+          V : AllocValue {
     val iter = this.d.iterator()
-    val map = SmallMap.withCapacity<Value<V_>, Value<V_>>((this.d as? Collection<*>)?.size ?: 0)
+    val map = SmallMap.withCapacity<Value, Value>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
         map.insertHashed(
             k.allocValue(heap).getHashed()!!,

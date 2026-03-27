@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.SmallDuration
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
@@ -74,8 +74,7 @@ internal data class FuncInfo(
 /// However, we are always updating the top of the call stack,
 /// so pull out top_stack/top_info as a cache.
 // pub(crate) struct HeapSummaryByFunction
-// TODO: stub - HeapSummaryByFunction needs real import
-internal class HeapSummaryByFunction(
+class HeapSummaryByFunction(
     /// Information about all functions.
     private val info: MutableMap<String, FuncInfo> = mutableMapOf(),
 ) {

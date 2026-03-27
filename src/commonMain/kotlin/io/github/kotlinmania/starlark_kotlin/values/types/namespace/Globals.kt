@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.Heap
 
 // #[starlark_module]

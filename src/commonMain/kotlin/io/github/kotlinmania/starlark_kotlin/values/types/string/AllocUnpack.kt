@@ -33,18 +33,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * - impl AllocFrozenStringValue for String
  * - impl<A_> AllocFrozenValue for &'a str
  * - impl<A_> AllocFrozenStringValue for &'a str
- * - impl<V_> AllocValue<V_> for String
- * - impl<V_> AllocStringValue<V_> for String
+ * - impl AllocValue for String
+ * - impl AllocStringValue for String
  * - impl StarlarkTypeRepr for char
- * - impl<V_> AllocValue<V_> for char
- * - impl<V_> AllocStringValue<V_> for char
+ * - impl AllocValue for char
+ * - impl AllocStringValue for char
  * - impl StarlarkTypeRepr for &'_ String
- * - impl<V_> AllocValue<V_> for &'_ String
- * - impl<V_> AllocStringValue<V_> for &'_ String
- * - impl<V_> AllocValue<V_> for &'_ str
- * - impl<V_> AllocStringValue<V_> for &'_ str
- * - impl<V_> UnpackValue<V_> for &'v str
- * - impl<V_> UnpackValue<V_> for String
+ * - impl AllocValue for &'_ String
+ * - impl AllocStringValue for &'_ String
+ * - impl AllocValue for &'_ str
+ * - impl AllocStringValue for &'_ str
+ * - impl UnpackValue for &'v str
+ * - impl UnpackValue for String
  *
  * Kotlin adaptations:
  * - String is already a reference type in Kotlin, so we don't need separate
@@ -95,16 +95,16 @@ fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue {
 // impl<A_> AllocFrozenStringValue for &'a str
 // Kotlin note: String is already a reference type, covered by the above implementations
 
-// impl<V_> AllocValue<V_> for String
-// impl<V_> AllocStringValue<V_> for String
+// impl AllocValue for String
+// impl AllocStringValue for String
 
 /**
  * Allocates a [String] on a heap.
  *
  * Corresponds to Rust:
  * ```rust
- * impl<V_> AllocValue<V_> for String {
- *     fn alloc_value(self, heap: Heap<V_>) -> Value<V_> {
+ * impl AllocValue for String {
+ *     fn alloc_value(self, heap: Heap) -> Value {
  *         self.alloc_string_value(heap).to_value()
  *     }
  * }
@@ -143,16 +143,16 @@ fun <V> String.allocStringValue(heap: Heap<V>): StringValue<V> {
  */
 // Kotlin note: Associated types will be handled differently when StarlarkTypeRepr is fully ported
 
-// impl<V_> AllocValue<V_> for char
-// impl<V_> AllocStringValue<V_> for char
+// impl AllocValue for char
+// impl AllocStringValue for char
 
 /**
  * Allocates a [Char] on a heap as a single-character string.
  *
  * Corresponds to Rust:
  * ```rust
- * impl<V_> AllocValue<V_> for char {
- *     fn alloc_value(self, heap: Heap<V_>) -> Value<V_> {
+ * impl AllocValue for char {
+ *     fn alloc_value(self, heap: Heap) -> Value {
  *         self.alloc_string_value(heap).to_value()
  *     }
  * }
@@ -171,24 +171,24 @@ fun <V> Char.allocStringValue(heap: Heap<V>): StringValue<V> {
 */
 
 // impl StarlarkTypeRepr for &'_ String
-// impl<V_> AllocValue<V_> for &'_ String
-// impl<V_> AllocStringValue<V_> for &'_ String
-// impl<V_> AllocValue<V_> for &'_ str
-// impl<V_> AllocStringValue<V_> for &'_ str
+// impl AllocValue for &'_ String
+// impl AllocStringValue for &'_ String
+// impl AllocValue for &'_ str
+// impl AllocStringValue for &'_ str
 // Kotlin note: String is already a reference type in Kotlin, so all string reference
 // implementations are covered by the String extension functions above
 
-// impl<V_> UnpackValue<V_> for &'v str
+// impl UnpackValue for &'v str
 
 /**
  * Unpacks a borrowed string from a [Value].
  *
  * Corresponds to Rust:
  * ```rust
- * impl<V_> UnpackValue<V_> for &'v str {
+ * impl UnpackValue for &'v str {
  *     type Error = Infallible;
  *
- *     fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error> {
+ *     fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error> {
  *         Ok(value.unpack_str())
  *     }
  * }
@@ -205,17 +205,17 @@ fun <V> unpackValueImplBorrowedString(value: Value<V>): Result<String?> {
 }
 */
 
-// impl<V_> UnpackValue<V_> for String
+// impl UnpackValue for String
 
 /**
  * Unpacks an owned string from a [Value].
  *
  * Corresponds to Rust:
  * ```rust
- * impl<V_> UnpackValue<V_> for String {
+ * impl UnpackValue for String {
  *     type Error = Infallible;
  *
- *     fn unpack_value_impl(value: Value<V_>) -> Result<Option<Self>, Self::Error> {
+ *     fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error> {
  *         Ok(value.unpack_str().map(ToOwned::to_owned))
  *     }
  * }

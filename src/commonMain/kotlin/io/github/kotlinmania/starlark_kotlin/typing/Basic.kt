@@ -19,108 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-// TODO: stub - Ty needs real import
-class Ty(private val repr: String = "") {
-    companion object {
-        fun any(): Ty = Ty("any")
-    }
-    fun displayWith(config: TypeRenderConfig): String = repr
-    fun isAny(): Boolean = repr == "any"
-}
-
-class ArcTy(private val ty: Ty = Ty()) {
-    companion object {
-        fun new(ty: Ty): ArcTy = ArcTy(ty)
-        fun any(): ArcTy = ArcTy(Ty.any())
-    }
-    fun isAny(): Boolean = ty.isAny()
-    fun displayWith(config: TypeRenderConfig): String = ty.displayWith(config)
-    fun toTy(): Ty = ty
-}
-
-class TyStarlarkValue(private val name: String = "") {
-    companion object {
-        fun <T> new(): TyStarlarkValue = TyStarlarkValue()
-        fun int(): TyStarlarkValue = TyStarlarkValue("int")
-        fun float(): TyStarlarkValue = TyStarlarkValue("float")
-    }
-    fun asName(): String = name
-    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) { sb.append(name) }
-}
-
-// TODO: stub - TyCallable needs real import
-class TyCallable {
-    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {}
-}
-
-// TODO: stub - TyTuple needs real import
-class TyTuple {
-    fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {}
-}
-
-// TODO: stub - TyCustom needs real import
-class TyCustom(internal val inner: Any? = null) {
-    companion object {
-        fun <T : TyCustomImpl> new(custom: T): TyCustom = TyCustom(custom)
-    }
-    fun asName(): String? = null
-    fun asFunctionDyn(): TyFunction? = null
-    override fun toString(): String = "custom"
-}
-
-// TODO: stub - TyCustomImpl needs real import
-interface TyCustomImpl
-
-class TyFunction
-
-// TODO: stub - NoneType needs real import
-class NoneType
-// TODO: stub - StarlarkStr needs real import
-class StarlarkStr
-
-// TODO: stub - TypeRenderConfig needs real import
-enum class TypeRenderConfig {
-    Default,
-}
-
-// TODO: stub - TypingAny needs real import
-object TypingAny {
-    const val TYPE: String = "typing.Any"
-}
-
 /// Type that is not a union.
 sealed class TyBasic : Comparable<TyBasic> {
     /// Type that contain anything
-    // TODO: stub - Any needs real import
     data object Any : TyBasic()
     /// Type is handled by `StarlarkValue` trait implementation.
-    // TODO: stub - StarlarkValue needs real import
     class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
     /// Iter is a type that supports iteration, only used as arguments to primitive functions.
     /// The inner type is applicable for each iteration element.
-    // TODO: stub - Iter needs real import
     class Iter(val item: ArcTy) : TyBasic()
     /// `typing.Callable`.
-    // TODO: stub - Callable needs real import
     class Callable(val callable: TyCallable) : TyBasic()
     /// `type`.
     data object Type : TyBasic()
     /// A list.
-    // TODO: stub - List needs real import
     class List(val item: ArcTy) : TyBasic()
     /// A tuple. May be empty, to indicate the empty tuple.
-    // TODO: stub - Tuple needs real import
     class Tuple(val tuple: TyTuple) : TyBasic()
     /// A dictionary, with key and value types
-    // TODO: stub - Dict needs real import
     class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
     /// Custom type.
-    // TODO: stub - Custom needs real import
     class Custom(val custom: TyCustom) : TyBasic()
     /// A set.
-    // TODO: stub - Set needs real import
     class Set(val item: ArcTy) : TyBasic()
 
     companion object {

@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.UnpackListOrTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test

@@ -50,7 +50,7 @@ import starlark_map.Hashed
  * by [Symbol] and string, without being limited by Kotlin's standard
  * map key constraints.
  */
-internal class SymbolMap<T> private constructor(
+class SymbolMap<T> private constructor(
     private val table: HashMap<Long, MutableList<Pair<Symbol, T>>>,
     private var size: Int,
 ) {

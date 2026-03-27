@@ -22,18 +22,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Unsorted/core interpreter stuff.
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.End
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
 
 /// Ready to execute bytecode.
 // #[derive(Default)]
 // pub(crate) struct Bc
-// TODO: stub - Bc needs real import
-internal class Bc(
+class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /// Number of local variable slots.
     val localCount: UInt = 0u,
@@ -123,7 +121,7 @@ private fun step(
 
 /// Execute the code block, either a module or a function body.
 // pub(crate) fn run_block<'v, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, mut ip: BcPtrAddr) -> Result<Value, EvalException>
-internal fun runBlock(
+fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,
     startIp: BcPtrAddr,

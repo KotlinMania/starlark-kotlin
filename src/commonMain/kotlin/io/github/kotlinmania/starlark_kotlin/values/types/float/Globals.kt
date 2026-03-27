@@ -19,41 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-// Placeholder types until the actual implementations are ported
-expect class GlobalsBuilder
-
-expect class StarlarkFloat
-
-expect class NumRef {
-    fun asFloat(): Double
-}
-
-expect class StringRepr {
-    companion object {
-        fun stringRepr(s: String, buffer: StringBuilder)
-    }
-}
+// Real types should be imported from their respective packages
 
 /**
  * Sealed class representing the type hierarchy for float() parameter.
  * This mimics Rust's `Either<Either<NumRef, bool>, &str>` type.
  */
 sealed class FloatParam {
-    // TODO: stub - Num needs real import
     data class Num(val value: NumRef) : FloatParam()
-    // TODO: stub - Bool needs real import
     data class Bool(val value: Boolean) : FloatParam()
     data class Str(val value: String) : FloatParam()
 }
-
-// Extension functions for GlobalsBuilder to register functions
-expect fun GlobalsBuilder.function(
-    name: String,
-    asType: kotlin.reflect.KClass<*>,
-    speculativeExecSafe: Boolean = false,
-    requirePos: Boolean = false,
-    impl: (FloatParam?) -> Result<Double>
-)
 
 /**
  * Register float-related global functions.

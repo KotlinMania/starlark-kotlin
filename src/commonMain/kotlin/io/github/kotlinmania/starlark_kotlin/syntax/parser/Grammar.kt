@@ -1,11 +1,11 @@
 package io.github.kotlinmania.starlark_kotlin.syntax.parser
 
 object Grammar {
-    fun __action(state: Short, integer: Int): Short {
-        return GrammarState.ACTION[(state.toInt()) * 66 + integer]
+    fun __action(state: Int, integer: Int): Int {
+        return GrammarState.ACTION[state * 66 + integer].toInt()
     }
 
-    fun __goto(state: Short, nt: Int): Short {
+    fun __goto(state: Int, nt: Int): Int {
         
         return when (nt) {
             3 -> when (state) {
@@ -256,7 +256,7 @@ object Grammar {
         return 0
     }
 
-    fun __expected_tokens(__state: Short): List<String> {
+    fun __expected_tokens(__state: Int): List<String> {
         
         return emptyList()
     }

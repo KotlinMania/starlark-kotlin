@@ -30,21 +30,19 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either as DictEither
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import starlark_map.vec_map.insertHashedUniqueUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.length
 import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
 import io.github.kotlinmania.starlark_kotlin.coerce
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
-// TODO: stub - FunctionError needs real import
-internal sealed class FunctionError(
+sealed class FunctionError(
     private val text: String,
 ) : Exception() {
     override val message: String
@@ -97,7 +95,7 @@ internal sealed class FunctionError(
 
 /** An object accompanying argument name for faster argument resolution. */
 // pub(crate) trait ArgSymbol: Debug + Coerce<Self> + 'static
-internal interface ArgSymbol {
+interface ArgSymbol {
     // fn get_index_from_param_spec<'v, V: ValueLike<'v>>(&self, ps: &ParametersSpec<V>) -> Option<usize>
     fun <V : ValueLike> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
 
@@ -110,7 +108,7 @@ internal interface ArgSymbol {
  */
 // #[derive(Debug)]
 // pub(crate) struct ResolvedArgName
-internal data class ResolvedArgName(
+data class ResolvedArgName(
     /** Hash of the argument name. */
     val hash: StarlarkHashValue,
     /** Parameter index or `null` if the argument should go to kwargs. */
@@ -133,8 +131,7 @@ internal data class ResolvedArgName(
 
 // #[derive(Debug, Clone_, Dupe_)]
 // pub(crate) struct ArgNames<'a, 'v, S: ArgSymbol>
-// TODO: stub - ArgNames needs real import
-internal class ArgNames<S : ArgSymbol>(
+class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
     private val names_: List<Pair<S, StringValue>>,
 ) {
@@ -182,7 +179,7 @@ internal class ArgNames<S : ArgSymbol>(
 
 /** Either full arguments, or short arguments for positional-only calls. */
 // pub(crate) trait ArgumentsImpl<'v, 'a>: Debug
-internal interface ArgumentsImpl<S : ArgSymbol> {
+interface ArgumentsImpl<S : ArgSymbol> {
     // type ArgSymbol: ArgSymbol
     // fn pos(&self) -> &[Value<'v>]
     fun pos(): List<Value>
@@ -202,7 +199,7 @@ internal interface ArgumentsImpl<S : ArgSymbol> {
  */
 // #[derive(Clone_, Dupe_, Debug)]
 // pub(crate) struct ArgumentsFull<'v, 'a, S: ArgSymbol>
-internal class ArgumentsFull<S : ArgSymbol>(
+class ArgumentsFull<S : ArgSymbol>(
     /** Positional arguments. */
     var pos: List<Value> = emptyList(),
     /** Named arguments. */
@@ -234,7 +231,7 @@ internal class ArgumentsFull<S : ArgSymbol>(
  */
 // #[derive(Debug)]
 // pub(crate) struct ArgumentsPos<'v, 'a, S: ArgSymbol>
-internal class ArgumentsPos<S : ArgSymbol>(
+class ArgumentsPos<S : ArgSymbol>(
     val pos: List<Value>,
 ) : ArgumentsImpl<S> {
     // impl<'a, 'v, S: ArgSymbol> ArgumentsImpl<'v, 'a> for ArgumentsPos<'v, 'a, S>

@@ -49,6 +49,39 @@ import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 import io.github.kotlinmania.starlark_kotlin.values.default
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+// Types from values.layout
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+// Types from values.layout.typed
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.Hashed
+// Types from values.layout.heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+// Types from values.layout.heap.profile
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfilerInstant
+// Types from eval.runtime
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
+// Types from eval.bc.frame (sub-package)
+import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
+// Types from values.types.dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+// Types from eval.runtime.params.spec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+// Types from values.types.list
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
+// Types from values
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+// Types from values.typing.type_compiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+// Types from collections.symbol
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -70,280 +103,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 
 /// Instruction implementations.
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Evaluator {
-    fun getSlotLocal(frame: BcFramePtr, source: LocalSlotId): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun getSlotLocalCaptured(source: LocalCapturedSlotId): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun getSlotModule(source: ModuleSlotId): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun setSlotLocalCaptured(target: LocalCapturedSlotId, value: Value) {}
-    fun setSlotModule(target: ModuleSlotId, value: Value) {}
-    fun heap(): Heap = Heap()
-    fun reportForwardProgress(): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    fun checkReturnType(value: Value): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    val typecheckProfile: TypecheckProfile = TypecheckProfile()
-    fun withCallStack(value: Value, location: FrameSpan?, block: (Evaluator) -> kotlin.Result<Value>): kotlin.Result<Value> =
-        block(this)
-}
-class BcFramePtr {
-    fun getBcSlot(slot: BcSlotIn): Value = Value()
-    fun setBcSlot(slot: BcSlotOut, value: Value) {}
-    fun getBcSlotRange(range: BcSlotInRange): List<Value> = emptyList()
-    fun setIterIndex(depth: LoopDepth, index: Int) {}
-    fun getIterIndex(depth: LoopDepth): Int = 0
-}
-open class Value {
-    fun toValue(): Value = this
-    fun toBool(): Boolean = false
-    fun length(): kotlin.Result<Int> = kotlin.Result.success(0)
-    fun at(index: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun setAt(index: Value, value: Value): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    fun getHashed(): kotlin.Result<HashedValue> = kotlin.Result.success(HashedValue(this))
-    fun iterate(heap: Heap): kotlin.Result<Iterator<Value>> =
-        kotlin.Result.success(emptyList<Value>().iterator())
-    fun equals(other: Value): kotlin.Result<Boolean> = kotlin.Result.success(this == other)
-    fun compare(other: Value): kotlin.Result<Int> = kotlin.Result.success(0)
-    fun add(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun sub(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun mul(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun percent(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun div(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun floorDiv(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun bitAnd(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun bitOr(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun bitXor(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun leftShift(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun rightShift(other: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun isIn(other: Value): kotlin.Result<Boolean> = kotlin.Result.success(false)
-    fun plus(heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun minus(heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun bitNot(heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun getTypeValue(): FrozenStringValue = FrozenStringValue()
-    fun ptrEq(other: Value): Boolean = this === other
-    fun unpackIntValue(): PointerI32? = null
-    fun getRef(): StarlarkValueRef = StarlarkValueRef()
-    fun slice(start: Value?, stop: Value?, step: Value?, heap: Heap): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun exportAs(name: String, eval: Evaluator): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    fun invokeWithLoc(location: FrameSpan?, args: Arguments, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun setAttr(name: String, value: Value): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    fun vtable(): Vtable = Vtable()
-    companion object {
-        fun newBool(b: Boolean): Value = Value()
-    }
-}
-class FrozenValue : Value() {
-    fun toFrozenValue(): FrozenValue = this
-    companion object {
-        fun newNone(): FrozenValue = FrozenValue()
-    }
-}
-// TODO: stub - StringValue needs real import
-class StringValue {
-    companion object {
-        fun new(v: Value): StringValue? = null
-    }
-}
-class FrozenValueTyped<T>(val value: T) {
-    fun toValue(): Value = Value()
-    fun asRef(): T = Value
-    companion object {
-        fun <T : Any> new(v: FrozenValue): FrozenValueTyped<T>? = null
-    }
-}
-class FrozenValueNotSpecial {
-    fun equals(other: Value): kotlin.Result<Boolean> = kotlin.Result.success(false)
-}
-class PointerI32 {
-    fun asRef(): PointerI32 = this
-}
-class HashedValue(val key: Value) {
-    override fun toString(): String = key.toString()
-}
-// TODO: stub - Heap needs real import
-class Heap {
-    fun alloc(value: Any): Value = Value()
-    fun allocTuple(items: List<Value>): Value = Value()
-    fun allocList(items: List<Value>): Value = Value()
-}
-// TODO: stub - BcSlotIn needs real import
-class BcSlotIn(val index: Int)
-// TODO: stub - BcSlotOut needs real import
-class BcSlotOut(val index: Int)
-class BcSlotInRange(val start: Int, val count: Int)
-// TODO: stub - BcSlotInRangeFrom needs real import
-class BcSlotInRangeFrom(val start: Int) {
-    fun toRange(count: Int): BcSlotInRange = BcSlotInRange(start, count)
-}
-class BcPtrAddr {
-    fun <T> addInstr(): BcPtrAddr = BcPtrAddr()
-    fun addRel(offset: BcAddrOffset): BcPtrAddr = BcPtrAddr()
-    fun addRelNeg(offset: BcAddrOffsetNeg): BcPtrAddr = BcPtrAddr()
-}
-// TODO: stub - BcAddrOffset needs real import
-class BcAddrOffset
-// TODO: stub - BcAddrOffsetNeg needs real import
-class BcAddrOffsetNeg
-// TODO: stub - LocalSlotId needs real import
-class LocalSlotId(val index: Int)
-// TODO: stub - LocalCapturedSlotId needs real import
-class LocalCapturedSlotId(val index: Int)
-// TODO: stub - ModuleSlotId needs real import
-class ModuleSlotId(val index: Int)
-// TODO: stub - Symbol needs real import
-class Symbol {
-    fun asStr(): String = ""
-}
-// TODO: stub - LoopDepth needs real import
-class LoopDepth(val depth: Int)
-class FrameSpan {
-    companion object {
-        fun default(): FrameSpan = FrameSpan()
-    }
-}
-// TODO: stub - Arguments needs real import
-class Arguments
-// TODO: stub - TypeCompiled needs real import
-class TypeCompiled {
-    fun matches(value: Value): Boolean = false
-    fun checkType(value: Value, name: String?): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-}
-// TODO: stub - TypecheckProfile needs real import
-class TypecheckProfile {
-    val enabled: Boolean = false
-    fun add(name: FrozenStringValue, elapsed: Long) {}
-}
-class ProfilerInstant {
-    fun elapsed(): Long = 0L
-    companion object {
-        fun now(): ProfilerInstant = ProfilerInstant()
-    }
-}
-// TODO: stub - SmallMap needs real import
-class SmallMap<K, V> {
-    companion object {
-        fun <K, V> withCapacity(capacity: Int): SmallMap<K, V> = SmallMap()
-    }
-    fun insertHashed(key: HashedValue, value: Value): Value? = null
-}
-class Dict {
-    companion object {
-        fun new(map: SmallMap<*, *>): Dict = Dict()
-        fun default(): Dict = Dict()
-    }
-    fun insertHashed(key: HashedValue, value: Value) {}
-}
-// TODO: stub - FrozenRef needs real import
-class FrozenRef<T>(val value: T)
-// TODO: stub - Hashed needs real import
-class Hashed<T>(val key: T)
-class Bc {
-    companion object {
-        fun slowArgAtPtr(ip: BcPtrAddr): BcSlowArg = BcSlowArg()
-    }
-}
-class BcSlowArg {
-    val spans: List<FrameSpan> = emptyList()
-}
-class BcInstrEndArg
-class BcNativeFunction {
-    fun toValue(): Value = Value()
-    fun invoke(args: Arguments, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-}
-class BcCallArgsFull<T>
-class BcCallArgsPos
-class ResolvedArgName
-class Def {
-    companion object {
-        fun new(
-            params: Any,
-            parameterTypes: List<Any>,
-            returnType: TypeCompiled?,
-            info: Any,
-            eval: Evaluator,
-        ): kotlin.Result<Def> = kotlin.Result.success(Def())
-    }
-}
-class FrozenDef {
-    fun invoke(value: Value, args: Arguments, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    fun invokeWithArgs(value: Value, args: Any, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-}
-class DefInfo
-class ParametersSpec {
-    companion object {
-        fun withCapacity(name: String, capacity: Int): ParametersSpec = ParametersSpec()
-    }
-    fun noMorePositionalOnlyArgs() {}
-    fun noMorePositionalArgs() {}
-    fun required(name: String) {}
-    fun defaulted(name: String, value: Value) {}
-    fun args() {}
-    fun kwargs() {}
-    fun finish(): ParametersSpec = this
-}
-// TODO: stub - ParameterCompiled needs real import
-class ParameterCompiled {
-    class Normal(val name: ParamName, val ty: TypeCompiled?, val defaultSlot: Int?)
-    class Args(val name: ParamName, val ty: TypeCompiled?)
-    class KwArgs(val name: ParamName, val ty: TypeCompiled?)
-}
-class ParamName(val name: String)
-// TODO: stub - ParametersCompiled needs real import
-class ParametersCompiled {
-    val params: List<ParamCompiledEntry> = emptyList()
-    val indices: ParamIndices = ParamIndices()
-}
-class ParamCompiledEntry {
-    val node: Any? = null
-    val span: FrameSpan = FrameSpan.default()
-    fun isStarOrStarStar(): Boolean = false
-    fun nameTy(): Pair<ParamName, TypeCompiled?> = Pair(ParamName(""), null)
-}
-class ParamIndices {
-    val numPositionalOnly: Int = 0
-    val numPositional: Int = 0
-}
-class ListData {
-    companion object {
-        fun fromValueUncheckedMut(value: Value): ListData = ListData()
-    }
-    fun push(item: Value, heap: Heap) {}
-}
-class KnownMethod {
-    val typeMethods: Any? = null
-    fun toValue(): Value = Value()
-    fun invokeMethod(thisValue: Value, args: Arguments, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-}
-class StarlarkValueRef {
-    fun iterate(value: Value, heap: Heap): kotlin.Result<Value> = kotlin.Result.success(Value())
-    fun iterNext(index: Int, heap: Heap): Value? = null
-    fun iterStop() {}
-    fun at2(index0: Value, index1: Value, heap: Heap): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-}
-class Vtable {
-    fun methods(): Any? = null
-}
-// TODO: stub - EvalException needs real import
-class EvalException(message: String) : Exception(message) {
-    fun intoError(): Exception = this
-}
-// TODO: stub - AssignError needs real import
-class AssignError {
-    class IncorrectNumberOfValueToUnpack(expected: Int, actual: Int) : Exception()
-}
-class EvalError {
-    class DuplicateDictionaryKey(key: String) : Exception()
-}
-
 fun addSpanToExprError(e: Exception, span: FrameSpan, eval: Evaluator): EvalException =
     EvalException(e.message ?: "")
 fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
@@ -361,25 +120,8 @@ fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.R
     kotlin.Result.success(StringValue())
 fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue()
 
-class MethodValue {
-    fun invoke(
-        thisValue: Value,
-        span: FrameSpan,
-        arguments: Arguments,
-        eval: Evaluator,
-    ): kotlin.Result<Value> = kotlin.Result.success(Value())
-}
-
 /// Instructions which either fail or proceed to the following instruction,
 /// and it returns error with span.
-// TODO: stub - InstrControl needs real import
-sealed class InstrControl {
-    // TODO: stub - Next needs real import
-    class Next(val ip: BcPtrAddr) : InstrControl()
-    class Return(val value: Value) : InstrControl()
-    class Err(val error: Exception) : InstrControl()
-}
-
 /// Instructions which either fail or proceed to the following instruction.
 interface InstrNoFlowImpl {
     fun runWithArgs(

@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
  * Size of `AValue` with `AValueHeader` added.
  * This is the size of the value as it is stored in the heap.
  */
-internal data class ValueAllocSize(
+data class ValueAllocSize(
     private val size: AlignedSize,
 ) : Comparable<ValueAllocSize> {
 

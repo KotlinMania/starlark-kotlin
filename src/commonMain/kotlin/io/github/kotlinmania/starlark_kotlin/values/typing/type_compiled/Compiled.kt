@@ -27,97 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.set
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Ty {
-    fun clone(): Ty = this
-    override fun toString(): String = "Ty"
-    companion object {
-        fun any(): Ty = Ty()
-        fun none(): Ty = Ty()
-        fun list(item: Ty): Ty = Ty()
-        fun set(item: Ty): Ty = Ty()
-        fun union2(a: Ty, b: Ty): Ty = Ty()
-        fun unions(tys: List<Ty>): Ty = Ty()
-        fun dict(key: Ty, value: Ty): Ty = Ty()
-        fun tuple(elems: List<Ty>): Ty = Ty()
-    }
-}
-class Heap {
-    fun <T> allocSimple(value: T): Value = Value()
-    companion object {
-        fun <R> temp(block: (Heap) -> R): R = block(Heap())
-    }
-}
-class FrozenHeap {
-    fun <T> allocSimple(value: T): FrozenValue = FrozenValue()
-}
-open class Value {
-    fun toValue(): Value = this
-    fun toStr(): String = ""
-    fun getType(): String = ""
-    fun toRepr(): String = ""
-    fun isNone(): Boolean = false
-    fun unpackStr(): String? = null
-    fun unpackFrozen(): FrozenValue? = null
-    fun getHash(): kotlin.Result<Int> = kotlin.Result.success(0)
-    fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> = kotlin.Result.success(Unit)
-    fun equals(other: Value): kotlin.Result<Boolean> = kotlin.Result.success(this == other)
-    fun getRef(): StarlarkValueRef = StarlarkValueRef()
-    fun getAttr(name: String, heap: Heap): kotlin.Result<Value?> = kotlin.Result.success(null)
-    fun <T> requestValue(): T? = null
-    fun <T> downcastRef(): T? = null
-}
-// TODO: stub - FrozenValue needs real import
-class FrozenValue : Value() {
-    fun toFrozenValue(): FrozenValue = this
-}
-class StarlarkHasher
-// TODO: stub - StarlarkValueRef needs real import
-class StarlarkValueRef {
-    fun typeMatchesValue(value: Value): Boolean = false
-    fun evalType(): Ty? = null
-}
-// TODO: stub - StringValue needs real import
-class StringValue {
-    companion object {
-        fun new(value: Value): StringValue? = null
-    }
-    override fun toString(): String = ""
-}
-class Tuple {
-    fun content(): List<Value> = emptyList()
-    companion object {
-        fun fromValue(v: Value): Tuple? = null
-    }
-}
-class ListRef {
-    fun content(): List<Value> = emptyList()
-    companion object {
-        fun fromValue(v: Value): ListRef? = null
-    }
-}
-class DictRef {
-    companion object {
-        fun fromValue(v: Value): DictRef? = null
-    }
-}
-// TODO: stub - NoneType needs real import
-class NoneType {
-    companion object {
-        val INSTANCE: NoneType = NoneType()
-    }
-}
-class Methods
-class MethodsBuilder
-// TODO: stub - MethodsStatic needs real import
-class MethodsStatic {
-    fun methods(init: (MethodsBuilder) -> Unit): Methods? = null
-}
-class AllocStaticSimple<T>(val value: T) {
-    fun toFrozenValue(): FrozenValue = FrozenValue()
-}
-class Demand
+// Real types should be imported from their respective packages
 
 sealed class TypingError(message: String) : Exception(message) {
     /// The value does not have the specified type
@@ -131,10 +41,8 @@ sealed class TypingError(message: String) : Exception(message) {
     /// The given type annotation does not represent a type
     class InvalidTypeAnnotation(val typeName: String) : TypingError("Type `$typeName` is not a valid type annotation")
 
-    // TODO: stub - Dict needs real import
     data object Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
 
-    // TODO: stub - List needs real import
     data object List : TypingError("`[X]` cannot be used as type, perhaps you meant `list[X]`")
 
     /// The given type annotation does not exist, but the user might have forgotten quotes around it
@@ -162,7 +70,6 @@ interface TypeCompiledDyn {
 }
 
 /// A compiled type expression wrapped as a Starlark value with a type matcher.
-// TODO: stub - TypeCompiledImplAsStarlarkValue needs real import
 class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     internal val typeCompiledImpl: T,
     internal val ty: Ty,
@@ -253,7 +160,6 @@ fun typeCompiledMethods(methods: MethodsBuilder) {
 }
 
 /// Wrapper for a [Value] that acts like a runtime type matcher.
-// TODO: stub - TypeCompiled needs real import
 class TypeCompiled(
     /// Value is `TypeCompiledImplAsStarlarkValue`.
     private val inner: Value,

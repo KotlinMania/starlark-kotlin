@@ -39,12 +39,10 @@ sealed class TyTuple : Comparable<TyTuple> {
 
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
     // Elems(Arc<[Ty]>)
-    // TODO: stub - Elems needs real import
     data class Elems(val elems: List<Ty>) : TyTuple()
 
     /** `tuple[T, ...]` -- a tuple where all elements have the same type. */
     // Of(ArcTy)
-    // TODO: stub - Of needs real import
     data class Of(val item: ArcTy) : TyTuple()
 
     // pub(crate) fn get(&self, i: usize) -> Option<&Ty>

@@ -19,22 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.Bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.bc.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtsCompiled
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.StmtCompileContext
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.AssignCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.MaybeNot
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.bc.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.PossibleGc
 import io.github.kotlinmania.starlark_kotlin.analysis.If
@@ -46,18 +46,17 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.values.op
 import io.github.kotlinmania.starlark_kotlin.values.layout.newNone
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.If
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ExprP
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Continue
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Break
+import io.github.kotlinmania.starlark_kotlin.typing.If
+import io.github.kotlinmania.starlark_kotlin.typing.For
+import io.github.kotlinmania.starlark_kotlin.typing.ExprP
+import io.github.kotlinmania.starlark_kotlin.typing.Continue
+import io.github.kotlinmania.starlark_kotlin.typing.Break
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.asLocalNonCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.variable
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.asValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.toBcSlot
 import io.github.kotlinmania.starlark_kotlin.eval.bc.over
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.docs.ty

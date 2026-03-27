@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it

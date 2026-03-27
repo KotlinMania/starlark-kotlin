@@ -85,18 +85,6 @@ class Param(
     fun nameDisplay(): String = name() ?: "<unnamed>"
 }
 
-// TODO: stub - ParamMode needs real import
-sealed class ParamMode {
-    class PosOnly(val required: ParamIsRequired) : ParamMode()
-    class PosOrName(val name: String, val required: ParamIsRequired) : ParamMode()
-    class NameOnly(val name: String, val required: ParamIsRequired) : ParamMode()
-    data object Args : ParamMode()
-    data object Kwargs : ParamMode()
-}
-
-// TODO: stub - ParamIsRequired needs real import
-enum class ParamIsRequired { Yes, No }
-
 class TyCallArgs(
     val pos: MutableList<Spanned<Ty>> = mutableListOf(),
     val named: MutableList<Spanned<Pair<String, Ty>>> = mutableListOf(),
@@ -112,24 +100,24 @@ class TyCallable(private val params: ParamSpec = ParamSpec(), private val result
 }
 
 sealed class TyBasic {
-    // TODO: stub - Any needs real import
+
     data object Any : TyBasic()
-    // TODO: stub - StarlarkValue needs real import
+
     class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
-    // TODO: stub - Iter needs real import
+
     class Iter(val item: ArcTy) : TyBasic()
-    // TODO: stub - Callable needs real import
+
     class Callable(val callable: TyCallable) : TyBasic()
     data object Type : TyBasic()
-    // TODO: stub - List needs real import
+
     class List(val item: ArcTy) : TyBasic()
-    // TODO: stub - Tuple needs real import
+
     class Tuple(val tuple: TyTuple) : TyBasic()
-    // TODO: stub - Dict needs real import
+
     class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
-    // TODO: stub - Custom needs real import
+
     class Custom(val custom: TyCustom) : TyBasic()
-    // TODO: stub - Set needs real import
+
     class Set(val item: ArcTy) : TyBasic()
 
     companion object {
@@ -142,16 +130,6 @@ sealed class TyBasic {
     fun dupe(): TyBasic = this
     fun isTuple(): Boolean = this is Tuple
     fun isList(): Boolean = this is List
-}
-
-// TODO: stub - ArcTy needs real import
-class ArcTy(private val ty: Ty = Ty()) {
-    companion object {
-        fun any(): ArcTy = ArcTy(Ty.any())
-    }
-    fun toTy(): Ty = ty
-    fun dupe(): ArcTy = this
-    override fun toString(): String = ty.toString()
 }
 
 class TyStarlarkValue(private val name: String = "") {
@@ -176,16 +154,6 @@ class TyStarlarkValue(private val name: String = "") {
     fun isType(): Boolean = name == "type"
 }
 
-// TODO: stub - TyTuple needs real import
-class TyTuple {
-    fun get(i: Int): Ty? = null
-    fun itemTy(): Ty = Ty.any()
-    companion object {
-        fun intersects(x: TyTuple, y: TyTuple, oracle: TypingOracleCtx): kotlin.Result<Boolean> =
-            kotlin.Result.success(true)
-    }
-}
-
 class TyCustom(internal val inner: Any? = null) {
     fun intersectsWith(y: TyBasic, oracle: TypingOracleCtx): kotlin.Result<Boolean> =
         kotlin.Result.success(false)
@@ -202,45 +170,7 @@ class MutableDictType
 class TupleType
 class MutableSetType
 
-// TODO: stub - TypingError needs real import
-class TypingError(val message: String = "") {
-    companion object {
-        fun newAnyhow(err: Any, span: Span, codemap: CodeMap): TypingError = TypingError(err.toString())
-        fun msg(msg: Any, span: Span, codemap: CodeMap): TypingError = TypingError(msg.toString())
-    }
-}
-
-// TODO: stub - InternalError needs real import
-class InternalError(val message: String = "") {
-    companion object {
-        fun msg(msg: Any, span: Span, codemap: CodeMap): InternalError = InternalError(msg.toString())
-    }
-}
-
-// TODO: stub - TypingOrInternalError needs real import
-sealed class TypingOrInternalError {
-    class Typing(val error: TypingError) : TypingOrInternalError()
-    class Internal(val error: InternalError) : TypingOrInternalError()
-}
-
 object TypingNoContextError : Exception()
-
-// TODO: stub - TypingNoContextOrInternalError needs real import
-sealed class TypingNoContextOrInternalError {
-    data object Typing : TypingNoContextOrInternalError()
-    class Internal(val error: InternalError) : TypingNoContextOrInternalError()
-}
-
-// TODO: stub - TypingBinOp needs real import
-enum class TypingBinOp {
-    Less, In, Add, Mul, Sub, Percent, Div, FloorDiv,
-    BitAnd, BitOr, BitXor, LeftShift, RightShift;
-
-    fun alwaysBool(): Boolean = this == Less || this == In
-}
-
-// TODO: stub - TypingUnOp needs real import
-enum class TypingUnOp { Plus, Minus, BitNot }
 
 enum class BinOp {
     And, Or, Equal, NotEqual, In, NotIn,
@@ -291,7 +221,6 @@ sealed class TypingOracleCtxError : Exception() {
 /// Oracle reference with utility methods.
 ///
 /// This type is stateless.
-// TODO: stub - TypingOracleCtx needs real import
 class TypingOracleCtx(
     internal val codemap: CodeMap,
 ) {

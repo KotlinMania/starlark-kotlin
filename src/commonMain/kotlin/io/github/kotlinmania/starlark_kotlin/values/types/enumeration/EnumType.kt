@@ -35,11 +35,11 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_matcher_factory.TypeMatcherFactory
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
@@ -53,7 +53,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
 import io.github.kotlinmania.starlark_kotlin.values.owned.downcast

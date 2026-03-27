@@ -22,12 +22,15 @@ package io.github.kotlinmania.starlark_kotlin.environment
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
+import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecBuilder
 import io.github.kotlinmania.starlark_kotlin.stdlib.LibraryExtension
 import io.github.kotlinmania.starlark_kotlin.stdlib.standardEnvironment
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -45,6 +48,10 @@ import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.MaybeDocHiddenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
@@ -112,7 +119,7 @@ class Globals internal constructor(
         val v = getFrozen(name) ?: return null
         // Safety: We know the heap this is allocated in.
         // In Kotlin, FrozenHeapRef is already a reference type (no dupe needed).
-        return OwnedFrozenValue.new(heap(), v)
+        return OwnedFrozenValue(heap(), v)
     }
 
     /** Get all the names defined in this environment. */
@@ -159,7 +166,7 @@ class Globals internal constructor(
     }
 }
 
-internal class GlobalsData(
+class GlobalsData(
     val heap: FrozenHeapRef,
     val variables: SymbolMap<GlobalValue>,
     val variableNames: List<FrozenStringValue>,
@@ -173,7 +180,6 @@ internal class GlobalsData(
  *   FIXME(JakobDegen): This should probably be removed. Having a docstring on a `GlobalsBuilder`
  *   doesn't really make sense, because there's no good way to combine multiple docstrings.
  */
-// TODO: stub - GlobalsBuilder needs real import
 class GlobalsBuilder private constructor(
     /** The heap everything is allocated in. */
     private val heap: FrozenHeap,
@@ -189,7 +195,7 @@ class GlobalsBuilder private constructor(
         fun new(): GlobalsBuilder {
             return GlobalsBuilder(
                 heap = FrozenHeap.new(),
-                variables = SymbolMap.new(),
+                variables = SymbolMap(),
                 namespaceFields = mutableListOf(),
                 docstring = null,
             )
@@ -329,6 +335,44 @@ class GlobalsBuilder private constructor(
         )
     }
 
+    /**
+     * Convenience overload: register a simple function by name with a lambda.
+     * The lambda receives (Arguments, Evaluator) and the result is auto-wrapped.
+     */
+    fun setFunction(
+        name: String,
+        speculativeExecSafe: Boolean = false,
+        f: (io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments,
+            io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator) -> Any?,
+    ) {
+        val sig = io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+            .withCapacity<FrozenValue>(name).finish()
+        val nativeFn: NativeFuncFn = { eval, _, args ->
+            @Suppress("UNCHECKED_CAST")
+            val result = f(args, eval)
+            when (result) {
+                is io.github.kotlinmania.starlark_kotlin.values.layout.Value ->
+                    kotlin.Result.success(result)
+                is kotlin.Result<*> ->
+                    result as kotlin.Result<io.github.kotlinmania.starlark_kotlin.values.layout.Value>
+                else ->
+                    kotlin.Result.success(io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone())
+            }
+        }
+        set(
+            name,
+            NativeFunction(
+                function = NativeFunc(nativeFn, sig),
+                name = name,
+                speculativeExecSafe = speculativeExecSafe,
+                asType = null,
+                ty = Ty.any(),
+                docs = DocItem.Member(DocMember.Function(DocFunction())),
+                specialBuiltinFunction = null,
+            ),
+        )
+    }
+
     /** Heap where globals are allocated. Can be used to allocate additional values. */
     fun frozenHeap(): FrozenHeap {
         return heap
@@ -403,7 +447,7 @@ class GlobalsStatic {
     }
 }
 
-internal fun commonDocumentation(
+fun commonDocumentation(
     docstring: String?,
     members: Iterable<Pair<String, FrozenValue>>,
 ): Pair<DocString?, Map<String, DocItem>> {

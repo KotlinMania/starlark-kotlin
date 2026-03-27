@@ -44,18 +44,18 @@ import io.github.kotlinmania.starlark_kotlin.value
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.variable
 import io.github.kotlinmania.starlark_kotlin.eval.bc.over
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
 import io.github.kotlinmania.starlark_kotlin.docs.ty
-import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ListComprehension
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DictComprehension
+import io.github.kotlinmania.starlark_kotlin.typing.ListComprehension
+import io.github.kotlinmania.starlark_kotlin.typing.DictComprehension
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
@@ -169,7 +169,6 @@ private class ScopeState {
 }
 
 /// The state we use when scanning the variables.
-// TODO: stub - State needs real import
 private class State(
     val codemap: CodeMap,
     /// Those that are set in the global scope.

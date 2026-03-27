@@ -45,7 +45,7 @@ internal val MIN_ALLOC: AlignedSize = AlignedSize.ofBytes(16)
 /// Reservation is morally a Reservation<T>, but we treat is as an
 /// existential. Tied to the lifetime of the heap.
 // pub(crate) struct Reservation<'v, T: AValue<'v>>
-internal class Reservation<T : AValue>(
+class Reservation<T : AValue>(
     private val repr: AValueRepr<StarlarkValue>,
 ) {
     // pub(crate) fn fill(self, x: T::StarlarkValue)
@@ -60,7 +60,7 @@ internal class Reservation<T : AValue>(
 }
 
 // pub(crate) trait ArenaVisitor<'v>
-internal interface ArenaVisitor {
+interface ArenaVisitor {
     // fn enter_bump(&mut self)
     fun enterBump()
     // fn regular_value(&mut self, value: &'v AValueOrForward)
@@ -74,7 +74,7 @@ internal interface ArenaVisitor {
 // #[derive(Default)]
 // pub(crate) struct Arena<A: ArenaAllocator>
 // Kotlin: GC handles memory. Arena is a simple list of allocated values.
-internal class Arena {
+class Arena {
     /// Arena for things which don't need dropping (e.g. strings).
     // non_drop: A,
     private val nonDrop: MutableList<AValueOrForward> = mutableListOf()

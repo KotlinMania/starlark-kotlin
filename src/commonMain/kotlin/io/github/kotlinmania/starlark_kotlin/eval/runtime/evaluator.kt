@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.SoftErrorHandler
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcStatementLocations
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.CopySlotFromParent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefInfo
@@ -50,7 +50,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.ValueC
 import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.typing.error.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.stdlib.StderrPrintHandler
 import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfile
@@ -59,8 +59,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfileOrInstr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcProfile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.FileLoader
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
+import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.TypecheckProfile
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
 import io.github.kotlinmania.starlark_kotlin.eval.HardErrorSoftErrorHandler
@@ -85,9 +85,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.newFrozen
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.mode
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.exportAs
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.stmtLocs
 import io.github.kotlinmania.starlark_kotlin.eval.bc.startPtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.checkReturnType
 import io.github.kotlinmania.starlark_kotlin.environment.getSlotName
@@ -123,13 +122,13 @@ private sealed class EvaluatorError(override val message: String) : Exception(me
 }
 
 /** Number of bytes to allocate between GC's. */
-internal const val GC_THRESHOLD: Int = 100000
+const val GC_THRESHOLD: Int = 100000
 
 /** Number of instructions to execute before running "infrequent" checks */
 private const val INFREQUENT_INSTRUCTION_CHECK_PERIOD: UInt = 1000u
 
 /** Default value for max starlark stack size */
-internal const val DEFAULT_STACK_SIZE: Int = 50
+const val DEFAULT_STACK_SIZE: Int = 50
 
 // Rust uses `_check_variance`/`check_covariant_a` to validate lifetime variance on `Evaluator`.
 // Kotlin has no equivalent lifetime system, so these remain explicit no-op parity markers.
@@ -144,7 +143,7 @@ private fun checkCovariantA() {
 }
 
 /** Just holds things that require using EvaluationCallbacksEnabled so that we can cache whether that needs to be enabled or not. */
-internal class EvaluationInstrumentation {
+class EvaluationInstrumentation {
     // Bytecode profile.
     var bcProfile: BcProfile = BcProfile()
     // Extra functions to run on each statement, usually empty
@@ -167,7 +166,6 @@ internal class EvaluationInstrumentation {
 /**
  * Holds everything about an ongoing evaluation (local variables, globals, module resolution etc).
  */
-// TODO: stub - Evaluator needs real import
 class Evaluator(
     // The module that is being used for this evaluation
     internal val moduleEnv: Module,
@@ -855,7 +853,7 @@ class Evaluator(
     }
 }
 
-internal interface EvaluationCallbacks {
+interface EvaluationCallbacks {
     fun beforeInstr(
         eval: Evaluator,
         ip: BcPtrAddr,
@@ -863,7 +861,7 @@ internal interface EvaluationCallbacks {
     )
 }
 
-internal object EvalCallbacksDisabled : EvaluationCallbacks {
+object EvalCallbacksDisabled : EvaluationCallbacks {
     override fun beforeInstr(
         eval: Evaluator,
         ip: BcPtrAddr,
@@ -873,12 +871,12 @@ internal object EvalCallbacksDisabled : EvaluationCallbacks {
     }
 }
 
-internal enum class EvalCallbacksMode {
+enum class EvalCallbacksMode {
     BcProfile,
     BeforeStmt,
 }
 
-internal class EvalCallbacksEnabled(
+class EvalCallbacksEnabled(
     val mode: EvalCallbacksMode,
     val stmtLocs: BcStatementLocations,
     val bcStartPtr: BcPtrAddr,
@@ -908,7 +906,7 @@ internal class EvalCallbacksEnabled(
 // The purposes are GC, profiling and debugging.
 //
 // This function is called only if `before_stmt` is set before compilation start.
-internal fun beforeStmtFn(
+fun beforeStmtFn(
     span: FrameSpan,
     continued: Boolean,
     eval: Evaluator,

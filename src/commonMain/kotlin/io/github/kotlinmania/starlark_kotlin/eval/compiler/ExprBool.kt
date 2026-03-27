@@ -21,12 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 /// Boolean expression.
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr.isPureInfallibleToBool
 import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Boolean expression.

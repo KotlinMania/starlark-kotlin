@@ -21,9 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.fuzz.fuzz_targets
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.stdlib.new
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
@@ -33,7 +32,7 @@ private fun runArbitraryStarlarkErr(content: String): Result<String> {
         .getOrElse { return Result.failure(it) }
     val globals = Globals.standard()
     return Module.withTempHeap { module ->
-        val eval = Evaluator.new(module)
+        val eval = Evaluator(module)
         val value = eval.evalModule(ast, globals)
             .getOrElse { return@withTempHeap Result.failure(it) }
         Result.success(value.toString())

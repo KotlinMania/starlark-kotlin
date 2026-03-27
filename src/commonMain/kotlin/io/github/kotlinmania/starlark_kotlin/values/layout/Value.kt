@@ -56,8 +56,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.Pointer
 import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
@@ -114,7 +114,7 @@ private class ValueValueError {
 // #[derive(thiserror::Error, Debug)]
 // #[error("Integer value is too big to fit in {integer_type}: {value}")]
 // pub(crate) struct IntegerTooBigError { ... }
-internal class IntegerTooBigError(
+class IntegerTooBigError(
     val integerType: String,
     val value: String,
 ) : Exception("Integer value is too big to fit in $integerType: $value")
@@ -720,7 +720,7 @@ class Value internal constructor(
      */
     // fn check_callable(self) -> crate::Result<()>
     private fun checkCallable(): Result<Unit> {
-        if (!vtable().starlarkValue.hasInvoke) {
+        if (!vtable().hasInvoke) {
             return Result.failure(
                 IllegalStateException("Value is not callable: ${toStringForTypeError()}")
             )
@@ -1461,7 +1461,7 @@ class FrozenValue internal constructor(
         // Note `int` is not `ptr_eq` because `int` can be equal to `float`.
 
         // If a value does not override equality, it is `ptr_eq`.
-        if (!toValue().getRef().vtable().starlarkValue.hasEquals) {
+        if (!toValue().getRef().vtable().hasEquals) {
             return true
         }
         // Strings of length <= 1 are statically allocated.
@@ -1685,11 +1685,11 @@ private fun splitAtSafe(s: String, index: Int): Pair<String, String> {
 // In Rust these are: VALUE_NONE, VALUE_FALSE_TRUE, VALUE_EMPTY_STRING,
 // VALUE_EMPTY_TUPLE, VALUE_EMPTY_FROZEN_LIST, VALUE_EMPTY_FROZEN_DICT
 
-internal interface StaticValue {
+interface StaticValue {
     fun toFrozenValue(): FrozenValue
 }
 
-internal interface StaticStringValue {
+interface StaticStringValue {
     fun unpack(): FrozenValue
 }
 

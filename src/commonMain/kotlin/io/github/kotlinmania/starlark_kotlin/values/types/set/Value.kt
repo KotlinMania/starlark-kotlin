@@ -61,7 +61,7 @@ value class SetGen<T>(val inner: T)
 /**
  * Define the mutable set type.
  *
- * Corresponds to Rust's `SetData<V_>`.
+ * Corresponds to Rust's `SetData`.
  */
 class SetData<V> {
     /** The data stored by the set. */
@@ -160,7 +160,7 @@ private val RES = MethodsStatic.new()
 /**
  * Trait for set-like operations.
  *
- * Corresponds to Rust's `SetLike<V_>` trait.
+ * Corresponds to Rust's `SetLike` trait.
  */
 interface SetLike<V> {
     fun content(): SmallSet<Value<V>>

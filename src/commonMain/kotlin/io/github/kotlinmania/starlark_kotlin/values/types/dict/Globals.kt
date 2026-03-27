@@ -21,12 +21,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
 
-private fun <V_> unpackPair(pair: Value<V_>, heap: Heap<V_>): Result<Pair<Value<V_>, Value<V_>>> {
+private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
     val first = it.next()
     if (first != null) {
@@ -67,8 +67,8 @@ private fun <V_> unpackPair(pair: Value<V_>, heap: Heap<V_>): Result<Pair<Value<
  * x == {'a': 1} and y == {'x': 2, 'a': 1}
  * ```
  */
-internal fun <V_> registerDict(globals: GlobalsBuilder) {
-    globals.set("dict", FrozenDict::class, SpecialBuiltinFunction.Dict) { args: Arguments<V_, *>, heap: Heap<V_> ->
+internal fun registerDict(globals: GlobalsBuilder) {
+    globals.set("dict", FrozenDict::class, SpecialBuiltinFunction.Dict) { args: Arguments, heap: Heap ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.
         // Therefore we make it take the raw Arguments.
@@ -81,14 +81,14 @@ internal fun <V_> registerDict(globals: GlobalsBuilder) {
         if (pos == null) {
             kwargs
         } else {
-            val result: Dict<V_> = run {
+            val result: Dict = run {
                 val ref = dictRefFromValue(pos)
                 if (ref != null) {
                     val d = ref.deref()
                     d.clone().also { it.reserve(kwargs.len()) }
                 } else {
                     val it = pos.iterate(heap).getOrThrow()
-                    val map = SmallMap.withCapacity<Value<V_>, Value<V_>>(it.sizeHint().first + kwargs.len())
+                    val map = SmallMap.withCapacity<Value, Value>(it.sizeHint().first + kwargs.len())
                     for (el in it) {
                         val (k, v) = unpackPair(el, heap).getOrThrow()
                         map.insertHashed(k.getHashed().getOrThrow(), v)
@@ -104,9 +104,9 @@ internal fun <V_> registerDict(globals: GlobalsBuilder) {
     }
 }
 
-private fun <V_> DictRef<V_>.deref(): Dict<V_> = when (val ref = aref) {
+private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Left -> ref.value.value
     is Either.Right -> ref.value
 }
 
-private fun <V_> Dict<V_>.clone(): Dict<V_> = Dict(content.clone())
+private fun Dict.clone(): Dict = Dict(content.clone())

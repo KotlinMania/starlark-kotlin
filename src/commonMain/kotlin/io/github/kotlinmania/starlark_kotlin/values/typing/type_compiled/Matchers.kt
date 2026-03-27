@@ -21,9 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 /// TypeMatcher implementations for runtime type checking.
 
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeIdAligned
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
@@ -33,15 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.fromValue
-import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
-import io.github.kotlinmania.starlark_kotlin.pagable.vtable
-import io.github.kotlinmania.starlark_kotlin.tests.b
-import io.github.kotlinmania.starlark_kotlin.tests.a
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
 // pub(crate) struct IsAny;
@@ -88,13 +77,12 @@ internal object IsList : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of<FrozenList>()
+        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenList::class)
     }
 }
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsListOf<I: TypeMatcher>(pub(crate) I);
-// TODO: stub - IsListOf needs real import
 internal class IsListOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
@@ -133,7 +121,7 @@ internal class IsTupleElems(
         val tuple = Tuple.fromValue(value) ?: return false
         val content = tuple.content()
         if (content.size != elems.size) return false
-        return content.zip(elems).all { (v, t) -> t.matchesDyn(v) }
+        return content.zip(elems).all { (v, t) -> t.matches(v) }
     }
 }
 
@@ -189,13 +177,12 @@ internal object IsDict : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of<FrozenDict>()
+        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenDict::class)
     }
 }
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsDictOf<K: TypeMatcher, V: TypeMatcher>(pub(crate) K, pub(crate) V);
-// TODO: stub - IsDictOf needs real import
 internal class IsDictOf(
     val key: TypeMatcher,
     val valueMatcher: TypeMatcher,
@@ -216,13 +203,12 @@ internal object IsSet : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of<FrozenSet>()
+        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenSet::class)
     }
 }
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsSetOf<I: TypeMatcher>(pub(crate) I);
-// TODO: stub - IsSetOf needs real import
 internal class IsSetOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
@@ -237,7 +223,6 @@ internal class IsSetOf(
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsAnyOfTwo<A: TypeMatcher, B: TypeMatcher>(pub(crate) A, pub(crate) B);
-// TODO: stub - IsAnyOfTwo needs real import
 internal class IsAnyOfTwo(
     val a: TypeMatcher,
     val b: TypeMatcher,
@@ -252,9 +237,8 @@ internal class IsAnyOfTwo(
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsAnyOf(pub(crate) Vec<TypeMatcherBox>);
-// TODO: stub - IsAnyOf needs real import
 internal class IsAnyOf(
-    val matchers: List<TypeMatcherBox>,
+    val matchers: List<TypeMatcher>,
 ) : TypeMatcher {
     // impl TypeMatcher for IsAnyOf
 
@@ -271,7 +255,7 @@ internal object IsCallable : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.vtable().starlarkValue.hasInvoke
+        return value.vtable().hasInvoke
     }
 }
 
@@ -282,7 +266,7 @@ internal object IsType : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return TyStarlarkValue.isTypeFromVtable(value.vtable().starlarkValue)
+        return value.vtable().hasEvalType
     }
 }
 
@@ -293,7 +277,7 @@ internal object IsIterable : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return TyStarlarkValue.isIterable(value.vtable().starlarkValue)
+        return value.vtable().hasIterate
     }
 }
 
@@ -334,15 +318,20 @@ internal object IsNone : TypeMatcher {
 // pub(crate) struct StarlarkTypeIdMatcher {
 //     starlark_type_id: StarlarkTypeIdAligned,
 // }
-// TODO: stub - StarlarkTypeIdMatcher needs real import
+/// Matches a value by its Starlark type name.
+///
+/// In Rust, this compares [StarlarkTypeId] values directly. In Kotlin, the typing system
+/// uses string-based type names while the runtime uses [KClass]-based IDs. We bridge
+/// this by comparing the type name from [AValueVTable.typeName] against the type name
+/// from [TyStarlarkValue.starlarkTypeId].
 internal class StarlarkTypeIdMatcher(
-    private val starlarkTypeId: StarlarkTypeIdAligned,
+    private val expectedTypeName: String,
 ) : TypeMatcher {
     companion object {
         // pub(crate) fn new(ty: TyStarlarkValue) -> StarlarkTypeIdMatcher
         fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher {
             return StarlarkTypeIdMatcher(
-                starlarkTypeId = StarlarkTypeIdAligned.new(ty.starlarkTypeId()),
+                expectedTypeName = ty.starlarkTypeId(),
             )
         }
     }
@@ -351,6 +340,6 @@ internal class StarlarkTypeIdMatcher(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == starlarkTypeId.get()
+        return value.vtable().typeName == expectedTypeName
     }
 }

@@ -19,26 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Value(private val repr: String = "") {
-    override fun toString(): String = repr
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> = Result.success(Unit)
-    fun serialize(serializer: Any): Result<Any> = Result.success(repr)
-    fun toValue(): Value = this
-}
-
-// TODO: stub - Ty needs real import
-class Ty {
-    fun dupe(): Ty = this
-}
-
-class StarlarkHasher
-
-// TODO: stub - TypeInstanceId needs real import
-class TypeInstanceId
-
-class TyEnumData(val name: String, val tyEnumValue: Ty)
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 
 class EnumType(val value: Value) {
     fun tyEnumData(): TyEnumData? = null
@@ -55,16 +43,6 @@ class FrozenEnumType {
 sealed class EnumTypeRef {
     class Unfrozen(val value: EnumType) : EnumTypeRef()
     class Frozen(val value: FrozenEnumType) : EnumTypeRef()
-}
-
-class Methods
-class MethodsBuilder
-// TODO: stub - MethodsStatic needs real import
-class MethodsStatic {
-    companion object {
-        fun new(): MethodsStatic = MethodsStatic()
-    }
-    fun methods(init: (MethodsBuilder) -> Unit): Methods? = null
 }
 
 /// A value from an enumeration.
@@ -102,7 +80,7 @@ class EnumValueGen(
     }
 
     fun getMethods(): Methods? {
-        val res = MethodsStatic.new()
+        val res = MethodsStatic()
         return res.methods(::enumValueMethods)
     }
 
@@ -112,7 +90,7 @@ class EnumValueGen(
             is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData() ?: return null
             null -> return null
         }
-        return tyEnumType.tyEnumValue.dupe()
+        return tyEnumType.tyEnumValue
     }
 
     fun serialize(serializer: Any): Result<Any> {

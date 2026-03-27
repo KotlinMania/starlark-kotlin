@@ -85,7 +85,6 @@ private class OwnedHeap(
 }
 
 /// A heap on which Values can be allocated. The values will be annotated with the heap lifetime.
-// TODO: stub - Heap needs real import
 class Heap internal constructor(
     private val owned: OwnedHeap,
 ) {
@@ -296,7 +295,6 @@ class Heap internal constructor(
 
 /// A heap on which FrozenValues can be allocated.
 /// Can be kept alive by a FrozenHeapRef.
-// TODO: stub - FrozenHeap needs real import
 class FrozenHeap(
     /// My memory.
     private val arena: Arena = Arena(),

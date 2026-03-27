@@ -44,8 +44,8 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.intoError
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.fillTypesForLintTypechecker
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ModuleVarTypes
+import io.github.kotlinmania.starlark_kotlin.typing.fillTypesForLintTypechecker
+import io.github.kotlinmania.starlark_kotlin.typing.ModuleVarTypes
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.TypingContext
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
 import io.github.kotlinmania.starlark_kotlin.analysis.types

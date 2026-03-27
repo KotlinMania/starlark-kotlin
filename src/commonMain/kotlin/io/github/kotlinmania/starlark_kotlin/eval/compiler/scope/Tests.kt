@@ -43,23 +43,22 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.Slot
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.For
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compr.variable
+import io.github.kotlinmania.starlark_kotlin.typing.Slot
+import io.github.kotlinmania.starlark_kotlin.typing.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.typing.For
 import io.github.kotlinmania.starlark_kotlin.analysis.visitLvalue
 import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.bindingId
 import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.analysis.lhs
 import io.github.kotlinmania.starlark_kotlin.analysis.ident
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.ForP
-import io.github.kotlinmania.starlark_kotlin.typing.fill_types_for_lint.DefP
+import io.github.kotlinmania.starlark_kotlin.typing.ForP
+import io.github.kotlinmania.starlark_kotlin.typing.DefP
 import io.github.kotlinmania.starlark_kotlin.docs.params
 import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.codemap
+import io.github.kotlinmania.starlark_kotlin.codemap.*
 
 // fn test_with_module(program: &str, expected: &str, module: &MutableNames)
 private fun testWithModule(program: String, expected: String, module: MutableNames) {
