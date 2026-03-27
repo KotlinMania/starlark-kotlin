@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 /// The low-level pointer tagging and alignment concerns from Rust are not
 /// applicable; the JVM handles object layout and GC.
 // pub(crate) struct AValueHeader
+// TODO: stub - AValueHeader needs real import
 internal class AValueHeader(
     val vtable: AValueVTable,
 ) {
@@ -73,6 +74,7 @@ internal class AValueRepr<T>(
 /// In Kotlin, where the JVM handles GC, this is a simplified wrapper
 /// that stores a reference to the moved value.
 // pub(crate) struct ForwardPtr
+// TODO: stub - ForwardPtr needs real import
 internal class ForwardPtr private constructor(
     private val target: Any?,
 ) {

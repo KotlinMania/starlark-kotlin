@@ -66,7 +66,9 @@ sealed class Either<out L, out R> {
  * This mimics Rust's `NumRef<V_>` enum.
  */
 sealed class NumRefValue<V_> {
+    // TODO: stub - Int needs real import
     data class Int<V_>(val value: Value<V_>) : NumRefValue<V_>()
+    // TODO: stub - Float needs real import
     data class Float<V_>(val value: StarlarkFloat) : NumRefValue<V_>()
 }
 

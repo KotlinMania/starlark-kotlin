@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
  *
  * For intermediate representation.
  */
+// TODO: stub - IrSpanned needs real import
 data class IrSpanned<T>(
     val span: FrameSpan,
     val node: T,

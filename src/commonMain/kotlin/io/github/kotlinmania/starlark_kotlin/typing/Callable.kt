@@ -43,20 +43,24 @@ class Ty(private val repr: String = "") {
     override fun equals(other: Any?): Boolean = other is Ty && repr == other.repr
     override fun hashCode(): Int = repr.hashCode()
 }
+// TODO: stub - TypingOracleCtx needs real import
 class TypingOracleCtx {
     fun validateFnCall(span: Span, callable: TyCallable, args: TyCallArgs): Result<Ty> =
         Result.success(Ty.any())
 }
 class TyCallArgs
+// TODO: stub - TypingOrInternalError needs real import
 sealed class TypingOrInternalError {
     class Typing(val error: Any) : TypingOrInternalError()
     class Internal(val error: Any) : TypingOrInternalError()
 }
+// TODO: stub - TypeRenderConfig needs real import
 enum class TypeRenderConfig {
     Default,
 }
 
 /// `typing.Callable`.
+// TODO: stub - TyCallable needs real import
 class TyCallable private constructor(
     private val params: ParamSpec,
     private val result: Ty,

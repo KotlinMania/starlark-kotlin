@@ -293,6 +293,7 @@ internal sealed class ExprCompiled {
 
     data class Call(val call: IrSpanned<CallCompiled>) : ExprCompiled()
 
+    // TODO: stub - Def needs real import
     data class Def(val def: DefCompiled) : ExprCompiled()
 
     // -----------------------------------------------------------------------
@@ -1043,6 +1044,7 @@ internal sealed class ExprCompiled {
 
 private sealed class ExprShortList {
     class Exprs(val exprs: List<IrSpanned<ExprCompiled>>) : ExprShortList()
+    // TODO: stub - Constants needs real import
     class Constants(val constants: List<FrozenValue>) : ExprShortList()
 }
 

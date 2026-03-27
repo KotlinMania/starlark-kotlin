@@ -28,7 +28,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Symbol needs real import
 class Symbol(val name: String)
+// TODO: stub - FrozenValue needs real import
 class FrozenValue {
     fun toValue(): Value = Value()
     fun speculativeExecSafe(): Boolean = false
@@ -36,11 +38,13 @@ class FrozenValue {
 }
 
 
+// TODO: stub - Value needs real import
 class Value {
     fun invoke(args: Any, eval: Any): kotlin.Result<Value> = kotlin.Result.success(Value())
     fun unpackFrozen(): FrozenValue? = null
 }
 
+// TODO: stub - FrameSpan needs real import
 class FrameSpan {
     val inlinedFrames: InlinedFrames = InlinedFrames()
 }
@@ -104,6 +108,7 @@ class EnumTypeValue {
     fun construct(value: Value): kotlin.Result<FrozenValue> = kotlin.Result.success(FrozenValue())
 }
 
+// TODO: stub - InlineDefBody needs real import
 sealed class InlineDefBody {
     class ReturnTypeIs(val type: FrozenStringValue) : InlineDefBody()
     class ReturnSafeToInlineExpr(val expr: IrSpanned<ExprCompiled>) : InlineDefBody()
@@ -111,12 +116,14 @@ sealed class InlineDefBody {
 
 class DefInfo(val inlineDefBody: InlineDefBody?)
 
+// TODO: stub - FrozenDef needs real import
 class FrozenDef {
     val defInfo: DefInfo = DefInfo(null)
     val parameters: ParametersSpec = ParametersSpec()
     fun toFrozenValue(): FrozenValue = FrozenValue()
 }
 
+// TODO: stub - ParametersSpec needs real import
 class ParametersSpec {
     fun hasArgsOrKwargs(): Boolean = false
     fun len(): Int = 0
@@ -128,8 +135,10 @@ class InlineDefCallSite(val ctx: OptCtx, val slots: List<FrozenValue>) {
         kotlin.Result.success(expr)
 }
 
+// TODO: stub - Builtin1 needs real import
 sealed class Builtin1 {
     class Dot(val name: Symbol) : Builtin1()
+    // TODO: stub - Other needs real import
     class Other : Builtin1()
 }
 
@@ -138,6 +147,7 @@ sealed class ExprCompiled {
     class ValueExpr(val value: FrozenValue) : ExprCompiled()
     class Builtin1Expr(val builtin: Builtin1, val expr: IrSpanned<ExprCompiled>) : ExprCompiled()
     class Local(val index: Int) : ExprCompiled()
+    // TODO: stub - Other needs real import
     class Other : ExprCompiled()
 
     fun asFrozenDef(): FrozenDef? = null

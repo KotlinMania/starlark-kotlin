@@ -167,6 +167,7 @@ internal class EvaluationInstrumentation {
 /**
  * Holds everything about an ongoing evaluation (local variables, globals, module resolution etc).
  */
+// TODO: stub - Evaluator needs real import
 class Evaluator(
     // The module that is being used for this evaluation
     internal val moduleEnv: Module,

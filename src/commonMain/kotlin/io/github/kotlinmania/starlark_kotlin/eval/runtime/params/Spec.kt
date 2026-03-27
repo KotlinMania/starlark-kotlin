@@ -262,6 +262,7 @@ internal class ParametersSpecBuilder<V>(
 // #[derive(Debug, Clone, Trace, Freeze, Allocative)]
 // #[repr(C)]
 // pub struct ParametersSpec<V>
+// TODO: stub - ParametersSpec needs real import
 class ParametersSpec<V>(
     /// Only used in error messages
     internal val functionName: String,

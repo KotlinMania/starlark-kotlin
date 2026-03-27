@@ -229,6 +229,7 @@ internal fun <T> ParameterCompiled<T>.isStarOrStarStar(): Boolean {
 /**
  * All compiled parameters for a function definition.
  */
+// TODO: stub - ParametersCompiled needs real import
 internal data class ParametersCompiled<T>(
     val params: List<IrSpanned<ParameterCompiled<T>>>,
     val indices: DefParamIndices,

@@ -122,9 +122,13 @@ sealed class ParameterP<P : AstPayload> {
 }
 
 sealed class AstLiteral {
+    // TODO: stub - Int needs real import
     data class Int(val value: AstInt) : AstLiteral()
+    // TODO: stub - Float needs real import
     data class Float(val value: AstFloat) : AstLiteral()
+    // TODO: stub - String needs real import
     data class String(val value: AstString) : AstLiteral()
+    // TODO: stub - Ellipsis needs real import
     object Ellipsis : AstLiteral()
 }
 
@@ -146,6 +150,7 @@ data class LambdaP<P : AstPayload, DP>(
 data class CallArgsP<P : AstPayload>(val args: List<AstArgumentP<P>>)
 
 sealed class ExprP<P : AstPayload> {
+    // TODO: stub - Tuple needs real import
     data class Tuple<P : AstPayload>(val elements: List<AstExprP<P>>) : ExprP<P>()
     data class Dot<P : AstPayload>(val expr: AstExprP<P>, val field: AstString) : ExprP<P>()
     data class Call<P : AstPayload>(val expr: AstExprP<P>, val args: CallArgsP<P>) : ExprP<P>()
@@ -157,6 +162,7 @@ sealed class ExprP<P : AstPayload> {
         val stop: AstExprP<P>?,
         val step: AstExprP<P>?
     ) : ExprP<P>()
+    // TODO: stub - Identifier needs real import
     data class Identifier<P : AstPayload, IP>(val ident: AstIdentP<P, IP>) : ExprP<P>()
     data class Lambda<P : AstPayload, DP>(val lambda: LambdaP<P, DP>) : ExprP<P>()
     data class Literal<P : AstPayload>(val literal: AstLiteral) : ExprP<P>()
@@ -168,6 +174,7 @@ sealed class ExprP<P : AstPayload> {
     // Order: condition, v1, v2 <=> v1 if condition else v2
     data class If<P : AstPayload>(val cond: AstExprP<P>, val v1: AstExprP<P>, val v2: AstExprP<P>) : ExprP<P>()
     data class ListExpr<P : AstPayload>(val elements: List<AstExprP<P>>) : ExprP<P>()
+    // TODO: stub - Dict needs real import
     data class Dict<P : AstPayload>(val elements: List<Pair<AstExprP<P>, AstExprP<P>>>) : ExprP<P>()
     data class ListComprehension<P : AstPayload>(val expr: AstExprP<P>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
     data class DictComprehension<P : AstPayload>(val key: AstExprP<P>, val value: AstExprP<P>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
@@ -180,9 +187,11 @@ data class TypeExprP<P : AstPayload, TEP>(
 )
 
 sealed class AssignTargetP<P : AstPayload> {
+    // TODO: stub - Tuple needs real import
     data class Tuple<P : AstPayload>(val elements: List<AstAssignTargetP<P>>) : AssignTargetP<P>()
     data class Index<P : AstPayload>(val expr: AstExprP<P>, val index: AstExprP<P>) : AssignTargetP<P>()
     data class Dot<P : AstPayload>(val expr: AstExprP<P>, val field: AstString) : AssignTargetP<P>()
+    // TODO: stub - Identifier needs real import
     data class Identifier<P : AstPayload, IAP>(val ident: AstAssignIdentP<P, IAP>) : AssignTargetP<P>()
 }
 
@@ -224,6 +233,7 @@ sealed class ClauseP<P : AstPayload> {
     data class If<P : AstPayload>(val cond: AstExprP<P>) : ClauseP<P>()
 }
 
+// TODO: stub - BinOp needs real import
 enum class BinOp {
     Or, And, Equal, NotEqual, Less, Greater, LessOrEqual, GreaterOrEqual,
     In, NotIn, Subtract, Add, Multiply, Percent, Divide, FloorDivide,
@@ -275,6 +285,7 @@ sealed class StmtP<P : AstPayload> {
     data class If<P : AstPayload>(val cond: AstExprP<P>, val suite: AstStmtP<P>) : StmtP<P>()
     data class IfElse<P : AstPayload>(val cond: AstExprP<P>, val suite1: AstStmtP<P>, val suite2: AstStmtP<P>) : StmtP<P>()
     data class For<P : AstPayload>(val forStmt: ForP<P>) : StmtP<P>()
+    // TODO: stub - Def needs real import
     data class Def<P : AstPayload, DP>(val defStmt: DefP<P, DP>) : StmtP<P>()
     data class Load<P : AstPayload, LP>(val loadStmt: LoadP<P, LP>) : StmtP<P>()
 }

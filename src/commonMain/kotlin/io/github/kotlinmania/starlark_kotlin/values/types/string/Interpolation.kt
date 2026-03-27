@@ -39,7 +39,9 @@ expect class Value {
 }
 
 expect sealed class NumRef {
+    // TODO: stub - Int needs real import
     class Int(val value: StarlarkIntRef) : NumRef()
+    // TODO: stub - Float needs real import
     class Float(val value: StarlarkFloat) : NumRef()
 
     fun asFloat(): Double
@@ -51,7 +53,9 @@ expect sealed class NumRef {
 }
 
 expect sealed class StarlarkIntRef {
+    // TODO: stub - Small needs real import
     class Small(val value: StarlarkIntSmall) : StarlarkIntRef()
+    // TODO: stub - Big needs real import
     class Big(val value: StarlarkBigInt) : StarlarkIntRef()
 }
 
@@ -135,6 +139,7 @@ sealed class PercentSFormat {
     /** `%E`. */
     object ExpUpper : PercentSFormat()
     /** `%f` or `%F`. */
+    // TODO: stub - Float needs real import
     object Float : PercentSFormat()
     /** `%g`. */
     object FloatCompact : PercentSFormat()

@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.macro_support.unpackArgsItem
 // pub enum NativeCallableParamDefaultValue
 sealed class NativeCallableParamDefaultValue {
     /** Value is used for documentation only, not when the function is called. */
+    // TODO: stub - Value needs real import
     data class Value(val value: FrozenValue) : NativeCallableParamDefaultValue()
     data object Optional : NativeCallableParamDefaultValue()
 }

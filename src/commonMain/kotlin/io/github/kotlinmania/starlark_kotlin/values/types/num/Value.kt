@@ -49,8 +49,10 @@ sealed class NumError : Exception() {
  * between them.
  */
 sealed class NumRef {
+    // TODO: stub - Int needs real import
     data class Int(val value: StarlarkIntRef) : NumRef()
     // `StarlarkFloat` not `Double` here because `Double` unpacks from `int` too.
+    // TODO: stub - Float needs real import
     data class Float(val value: StarlarkFloat) : NumRef()
 
     /** Get underlying value as float. */
@@ -193,10 +195,12 @@ sealed class NumRef {
 
 /** Owned numeric value (int or float). */
 sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
+    // TODO: stub - Int needs real import
     data class Int(val value: StarlarkInt) : Num() {
         override fun toString(): String = value.toString()
     }
 
+    // TODO: stub - Float needs real import
     data class Float(val value: Double) : Num() {
         override fun toString(): String = StarlarkFloat(value).toString()
     }

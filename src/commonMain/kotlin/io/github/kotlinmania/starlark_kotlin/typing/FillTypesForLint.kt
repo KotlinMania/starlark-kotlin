@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 /// Value computed during partial evaluation of globals.
 // struct GlobalValue<'v> { value: Option<Value<'v>>, ty: Ty }
+// TODO: stub - GlobalValue needs real import
 private class GlobalValue(
     /// `null` means we don't know (or know it may have different value depending on condition).
     val value: Any?,
@@ -630,6 +631,7 @@ internal class Ty {
         fun ofValue(value: Any): Ty = Ty()
     }
 }
+// TODO: stub - Heap needs real import
 internal class Heap {
     fun alloc(value: Any): Any = value
     fun allocTuple(items: List<Any>): Any = items
@@ -640,17 +642,20 @@ internal class Approximation {
         fun new(message: String, context: Any): Approximation = Approximation()
     }
 }
+// TODO: stub - TypingError needs real import
 internal class TypingError {
     companion object {
         fun new(e: Exception, span: Span, codemap: Any): TypingError = TypingError()
         fun newAnyhow(e: Exception, span: Span, codemap: Any): TypingError = TypingError()
     }
 }
+// TODO: stub - InternalError needs real import
 internal class InternalError(override val message: String) : Exception(message) {
     companion object {
         fun msg(message: String, span: Span, codemap: Any): InternalError = InternalError(message)
     }
 }
+// TODO: stub - ModuleSlotId needs real import
 internal class ModuleSlotId
 internal class ModuleScopeData {
     fun getBinding(id: Any): Binding = Binding()
@@ -658,10 +663,12 @@ internal class ModuleScopeData {
 internal class Binding {
     fun resolvedSlot(codemap: Any): Slot = Slot.Module(ModuleSlotId())
 }
+// TODO: stub - Slot needs real import
 internal sealed class Slot {
     class Module(val slotId: ModuleSlotId) : Slot()
     class Local(val slotId: Any) : Slot()
 }
+// TODO: stub - TypingOracleCtx needs real import
 internal class TypingOracleCtx(val codemap: Any = Any())
 internal class CstExpr(val span: Span = Span(), val node: ExprP = ExprP.Pass)
 internal class CstIdent(val span: Span = Span(), val payload: ResolvedIdent? = null)
@@ -678,6 +685,7 @@ internal sealed class ResolvedIdent {
     class SlotLocal(val slotId: Any) : ResolvedIdent()
     class Global(val value: Any) : ResolvedIdent()
 }
+// TODO: stub - AstLiteral needs real import
 internal sealed class AstLiteral {
     class StringLit(val value: String) : AstLiteral()
     class IntLit(val value: Int) : AstLiteral()
@@ -685,11 +693,13 @@ internal sealed class AstLiteral {
 internal class AstString(val value: String = "")
 internal class CallArgs
 internal sealed class ExprP {
+    // TODO: stub - Tuple needs real import
     class Tuple(val elements: List<CstExpr>) : ExprP()
     class Dot(val obj: CstExpr, val field: AstString) : ExprP()
     class Call(val function: CstExpr, val args: CallArgs) : ExprP()
     class Index(val array: CstExpr, val index: CstExpr) : ExprP()
     class Index2(val array: CstExpr, val index0: CstExpr, val index1: CstExpr) : ExprP()
+    // TODO: stub - Identifier needs real import
     class Identifier(val ident: CstIdent) : ExprP()
     class Literal(val literal: AstLiteral) : ExprP()
     class Op(val lhs: CstExpr, val op: BinOp, val rhs: CstExpr) : ExprP()
@@ -701,17 +711,21 @@ internal sealed class ExprP {
     object BitNot : ExprP()
     object If : ExprP()
     object ListExpr : ExprP()
+    // TODO: stub - Dict needs real import
     object Dict : ExprP()
     object ListComprehension : ExprP()
     object DictComprehension : ExprP()
     object FString : ExprP()
     object Pass : ExprP()
 }
+// TODO: stub - BinOp needs real import
 internal enum class BinOp { BitOr, Other }
 internal sealed class AssignTarget {
+    // TODO: stub - Tuple needs real import
     class Tuple(val elements: List<AssignTarget>) : AssignTarget()
     class Index(val array: Any, val index: Any) : AssignTarget()
     class Dot(val obj: Any, val field: Any) : AssignTarget()
+    // TODO: stub - Identifier needs real import
     class Identifier(val ident: CstAssignIdent) : AssignTarget()
 }
 internal class AssignP(val lhs: AssignTarget = AssignTargetP.Tuple(emptyList()), val ty: CstTypeExpr? = null, val rhs: CstExpr = CstExpr())
@@ -728,6 +742,7 @@ internal sealed class StmtP {
     class If(val cond: CstExpr, val thenBlock: CstStmt) : StmtP()
     class IfElse(val cond: CstExpr, val thenBlock: CstStmt, val elseBlock: CstStmt) : StmtP()
     class For(val forStmt: ForP) : StmtP()
+    // TODO: stub - Def needs real import
     class Def(val def: DefP) : StmtP()
     class Load(val load: LoadP) : StmtP()
 }
@@ -750,6 +765,7 @@ internal sealed class DefParamKind {
     object Kwargs : DefParamKind()
 }
 internal enum class DefRegularParamMode { PosOnly, PosOrName, NameOnly }
+// TODO: stub - ParamIsRequired needs real import
 internal enum class ParamIsRequired { Yes, No }
 internal class ParamSpec {
     companion object {
@@ -771,8 +787,10 @@ internal class TypeCompiled {
     }
 }
 internal sealed class TypeExprUnpack {
+    // TODO: stub - Ellipsis needs real import
     object Ellipsis : TypeExprUnpack()
     class ListLiteral(val elements: List<Spanned<TypeExprUnpack>>) : TypeExprUnpack()
+    // TODO: stub - Tuple needs real import
     class Tuple(val elements: List<Spanned<TypeExprUnpack>>) : TypeExprUnpack()
     class Union(val elements: List<Spanned<TypeExprUnpack>>) : TypeExprUnpack()
     class Path(val path: TypePathP) : TypeExprUnpack()
@@ -792,6 +810,7 @@ internal class Constants {
         fun get(): Constants = Constants()
     }
 }
+// TODO: stub - Ellipsis needs real import
 internal object Ellipsis {
     fun newValue(): Any = Any()
 }

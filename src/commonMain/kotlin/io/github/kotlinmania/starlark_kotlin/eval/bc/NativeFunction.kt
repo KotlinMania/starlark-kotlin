@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 //     fun: FrozenValueTyped<'static, NativeFunction>,
 //     imp: &'static NativeFunc,
 // }
+// TODO: stub - BcNativeFunction needs real import
 internal class BcNativeFunction private constructor(
     private val func: FrozenValueTyped<NativeFunction>,
     /// Copy function here from `fun` to avoid extra dereference when calling.

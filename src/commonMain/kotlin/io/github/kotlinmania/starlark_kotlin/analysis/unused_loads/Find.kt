@@ -92,6 +92,7 @@ internal class LoadArgP(
 
 /// Placeholder for CstAssignIdent.
 // CstPayload assign ident
+// TODO: stub - CstAssignIdent needs real import
 internal class CstAssignIdent(
     val span: Span = Span(),
     val ident: String = "",
@@ -100,12 +101,15 @@ internal class CstAssignIdent(
 
 /// Placeholder for StmtP node.
 // starlark_syntax::syntax::ast::StmtP<CstPayload>
+// TODO: stub - StmtP needs real import
 internal sealed class StmtP {
     class Load(val load: LoadP) : StmtP()
+    // TODO: stub - Other needs real import
     class Other : StmtP()
 }
 
 /// Placeholder for CstStmt (Spanned<StmtP>).
+// TODO: stub - CstStmt needs real import
 internal class CstStmt(
     val span: Span = Span(),
     val node: StmtP = StmtP.Other(),

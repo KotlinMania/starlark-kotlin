@@ -47,7 +47,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.values.default
 
 private sealed class SetFromValue<V_> {
+    // TODO: stub - Set needs real import
     data class Set<V_>(val set: SmallSet<Value<V_>>) : SetFromValue<V_>()
+    // TODO: stub - Ref needs real import
     data class Ref<V_>(val ref: SetRef<V_>) : SetFromValue<V_>()
 
     companion object {

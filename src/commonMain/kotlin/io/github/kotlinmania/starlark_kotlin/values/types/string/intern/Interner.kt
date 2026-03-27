@@ -139,6 +139,7 @@ internal class HashTable<T> {
 /**
  * Placeholder for Hashed<T> from collections module.
  */
+// TODO: stub - Hashed needs real import
 internal interface Hashed<T> {
     fun hash(): StarlarkHashValue
     fun value(): T
@@ -162,6 +163,7 @@ internal interface FrozenStringValue {
 /**
  * Placeholder for StringValue with lifetime.
  */
+// TODO: stub - StringValue needs real import
 internal interface StringValue<V> : Traceable<V> {
     fun getHashedStr(): Hashed<String>
     fun getHash(): StarlarkHashValue
@@ -170,6 +172,7 @@ internal interface StringValue<V> : Traceable<V> {
 /**
  * Placeholder for Trace trait.
  */
+// TODO: stub - Trace needs real import
 internal interface Trace<V> {
     fun trace(tracer: Tracer<V>)
 }

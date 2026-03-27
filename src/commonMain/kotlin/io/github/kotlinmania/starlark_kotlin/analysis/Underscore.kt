@@ -52,13 +52,16 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 /// An assign LHS target.
 // use starlark_syntax::syntax::ast::AssignTarget;
 private sealed class AssignTarget {
+    // TODO: stub - Tuple needs real import
     class Tuple(val elements: List<AssignTarget>) : AssignTarget()
     class Index(val array: Any, val index: Any) : AssignTarget()
     class Dot(val obj: Any, val field: Any) : AssignTarget()
+    // TODO: stub - Identifier needs real import
     class Identifier(val ident: CstAssignIdent) : AssignTarget()
 }
 
 /// A variable identifier in an assign LHS.
+// TODO: stub - CstAssignIdent needs real import
 private class CstAssignIdent(
     val ident: String,
     val span: Span = Span(),

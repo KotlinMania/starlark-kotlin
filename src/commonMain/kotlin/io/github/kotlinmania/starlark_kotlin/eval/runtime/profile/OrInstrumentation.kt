@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  */
 
 internal sealed class ProfileOrInstrumentationMode {
+    // TODO: stub - None needs real import
     data object None : ProfileOrInstrumentationMode()
     data class Profile(val mode: ProfileMode) : ProfileOrInstrumentationMode()
     data object Collected : ProfileOrInstrumentationMode()

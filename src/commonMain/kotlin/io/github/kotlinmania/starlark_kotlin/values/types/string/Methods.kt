@@ -112,7 +112,9 @@ private fun rsplitnWhitespace(s: String, maxsplit: Int): List<String> {
 }
 
 sealed class StringOrTuple {
+    // TODO: stub - String needs real import
     data class String(val value: kotlin.String) : StringOrTuple()
+    // TODO: stub - Tuple needs real import
     data class Tuple(val items: List<kotlin.String>) : StringOrTuple()
 }
 

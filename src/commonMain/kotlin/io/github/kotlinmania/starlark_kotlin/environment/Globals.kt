@@ -173,6 +173,7 @@ internal class GlobalsData(
  *   FIXME(JakobDegen): This should probably be removed. Having a docstring on a `GlobalsBuilder`
  *   doesn't really make sense, because there's no good way to combine multiple docstrings.
  */
+// TODO: stub - GlobalsBuilder needs real import
 class GlobalsBuilder private constructor(
     /** The heap everything is allocated in. */
     private val heap: FrozenHeap,

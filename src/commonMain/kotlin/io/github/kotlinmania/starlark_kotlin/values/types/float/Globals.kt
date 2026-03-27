@@ -39,7 +39,9 @@ expect class StringRepr {
  * This mimics Rust's `Either<Either<NumRef, bool>, &str>` type.
  */
 sealed class FloatParam {
+    // TODO: stub - Num needs real import
     data class Num(val value: NumRef) : FloatParam()
+    // TODO: stub - Bool needs real import
     data class Bool(val value: Boolean) : FloatParam()
     data class Str(val value: String) : FloatParam()
 }

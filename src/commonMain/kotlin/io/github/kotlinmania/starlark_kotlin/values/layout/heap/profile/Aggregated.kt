@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_co
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
 class ProfileData(val profile: ProfileDataImpl)
+// TODO: stub - ProfileDataImpl needs real import
 sealed class ProfileDataImpl {
     class HeapRetained(val info: AggregateHeapProfileInfo) : ProfileDataImpl()
     class HeapFlameRetained(val info: AggregateHeapProfileInfo) : ProfileDataImpl()
@@ -42,7 +43,9 @@ class FlameGraphNode {
     fun child(name: String): FlameGraphNode = FlameGraphNode()
     fun add(bytes: Long) {}
 }
+// TODO: stub - HeapKind needs real import
 enum class HeapKind { Unfrozen, Frozen }
+// TODO: stub - RetainedHeapProfileMode needs real import
 enum class RetainedHeapProfileMode { FlameAndSummary, Flame, Summary }
 class ProfilerInstant {
     fun durationSince(other: ProfilerInstant): SmallDuration = SmallDuration(0L)
@@ -57,6 +60,7 @@ class SmallDuration(val nanos: Long) {
         fun default(): SmallDuration = SmallDuration(0L)
     }
 }
+// TODO: stub - Value needs real import
 class Value {
     fun ptrValue(): Long = 0L
     fun toStr(): String = ""
@@ -69,15 +73,18 @@ class Vtable {
 class ValueRef {
     fun totalMemoryForProfile(): Long = 0L
 }
+// TODO: stub - Heap needs real import
 class Heap {
     fun visitArena(kind: HeapKind, visitor: ArenaVisitor) {}
 }
+// TODO: stub - ArenaVisitor needs real import
 interface ArenaVisitor {
     fun enterBump() {}
     fun regularValue(value: AValueOrForward) {}
     fun callEnter(function: Value, time: ProfilerInstant) {}
     fun callExit(time: ProfilerInstant) {}
 }
+// TODO: stub - AValueOrForward needs real import
 class AValueOrForward {
     fun unpack(): AValueOrForwardUnpack = AValueOrForwardUnpack.Header(AValueHeader())
 }
@@ -103,6 +110,7 @@ class HeapSummary {
     }
 }
 class StringId(val id: Int)
+// TODO: stub - StringIndex needs real import
 class StringIndex {
     fun index(s: String): StringId = StringId(0)
     fun get(id: StringId): String = ""

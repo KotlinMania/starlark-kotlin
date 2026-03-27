@@ -61,6 +61,7 @@ internal class BuiltinFn(val value: FrozenValue) {
  * built-ins such as `len`, `type`, `list`, etc. and emit optimised bytecode.
  */
 // pub(crate) struct Constants { ... }
+// TODO: stub - Constants needs real import
 internal class Constants(
     val fnLen: BuiltinFn,
     val fnType: BuiltinFn,

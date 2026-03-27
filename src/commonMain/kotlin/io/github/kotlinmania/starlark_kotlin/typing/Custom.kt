@@ -184,6 +184,7 @@ class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
     override fun toString(): String = inner.toString()
 }
 
+// TODO: stub - TyCustom needs real import
 class TyCustom(
     internal val dyn: TyCustomDyn
 ) : Comparable<TyCustom> {
@@ -278,6 +279,7 @@ class TyCustom(
     }
 }
 
+// TODO: stub - TypeMatcherBox needs real import
 interface TypeMatcherBox {
     fun matches(typeName: String): Boolean
 }

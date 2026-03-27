@@ -108,6 +108,7 @@ class ValueTyped<T : StarlarkValue>(
 
 /// [FrozenValue] wrapper which asserts contained value is of type `<T>`.
 // pub struct FrozenValueTyped<'v, T: StarlarkValue<'v>>(FrozenValue, marker::PhantomData<&'v T>)
+// TODO: stub - FrozenValueTyped needs real import
 class FrozenValueTyped<T : StarlarkValue>(
     private val frozenValue: FrozenValue,
 ) {

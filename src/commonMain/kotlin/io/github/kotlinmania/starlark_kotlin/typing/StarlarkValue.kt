@@ -29,6 +29,7 @@ private sealed class TyStarlarkValueError : Exception() {
     }
 }
 
+// TODO: stub - TypingUnOp needs real import
 enum class TypingUnOp {
     Plus,
     Minus,
@@ -144,6 +145,7 @@ private object TyStarlarkValueVTableGet {
 }
 
 /** Type implementation where typing is handled by the `StarlarkValue` trait implementation. */
+// TODO: stub - TyStarlarkValue needs real import
 data class TyStarlarkValue(
     val typeName: String
 ) : Comparable<TyStarlarkValue> {
@@ -335,6 +337,7 @@ data class TyStarlarkValue(
 /**
  * Matcher that checks if a value's type id matches a [TyStarlarkValue].
  */
+// TODO: stub - StarlarkTypeIdMatcher needs real import
 data class StarlarkTypeIdMatcher(val ty: TyStarlarkValue) {
     fun matches(typeName: String): Boolean = typeName == ty.typeName
 }

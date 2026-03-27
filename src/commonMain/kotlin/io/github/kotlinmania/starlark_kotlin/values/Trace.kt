@@ -72,6 +72,7 @@ interface MutableHolder<T> {
  * Either a left or right value, corresponding to Rust's `either::Either<L, R>`.
  */
 // either::Either<L, R>
+// TODO: stub - Either needs real import
 sealed class Either<out L, out R>
 
 /** Left variant of [Either]. */

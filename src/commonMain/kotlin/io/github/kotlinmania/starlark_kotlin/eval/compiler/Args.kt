@@ -50,6 +50,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
  * Contains positional and named arguments, plus optional star-args
  * and star-star-kwargs expressions.
  */
+// TODO: stub - ArgsCompiledValue needs real import
 internal class ArgsCompiledValue(
     /** Positional and named argument expressions concatenated. */
     val posNamed: MutableList<IrSpanned<ExprCompiled>> = mutableListOf(),

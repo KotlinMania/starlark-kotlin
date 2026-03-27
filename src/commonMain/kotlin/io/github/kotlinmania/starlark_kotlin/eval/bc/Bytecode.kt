@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
 /// Ready to execute bytecode.
 // #[derive(Default)]
 // pub(crate) struct Bc
+// TODO: stub - Bc needs real import
 internal class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /// Number of local variable slots.

@@ -169,6 +169,7 @@ private class ScopeState {
 }
 
 /// The state we use when scanning the variables.
+// TODO: stub - State needs real import
 private class State(
     val codemap: CodeMap,
     /// Those that are set in the global scope.

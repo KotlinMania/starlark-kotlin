@@ -47,6 +47,7 @@ class ListGen<T>(val data: T) : StarlarkValue {
  *
  * Holds the mutable backing content with an iterator guard count.
  */
+// TODO: stub - ListData needs real import
 class ListData(
     /** The data stored by the list. */
     private val content: MutableList<Value> = mutableListOf(),

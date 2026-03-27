@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.small_duration.toDurat
 //     #[cfg(test)] u64, // Millis.
 // );
 // Kotlin: uses kotlin.time.TimeSource.Monotonic for real time.
+// TODO: stub - ProfilerInstant needs real import
 internal class ProfilerInstant private constructor(
     private val nanos: Long,
 ) : Comparable<ProfilerInstant> {

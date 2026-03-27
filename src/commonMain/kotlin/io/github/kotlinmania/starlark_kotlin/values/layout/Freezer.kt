@@ -34,6 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.forwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /** Used to `freeze` values by [Freeze.freeze][io.github.kotlinmania.starlark_kotlin.values.Freeze.freeze]. */
+// TODO: stub - Freezer needs real import
 class Freezer internal constructor(
     /** Freezing into this heap. */
     internal val heap: FrozenHeap,

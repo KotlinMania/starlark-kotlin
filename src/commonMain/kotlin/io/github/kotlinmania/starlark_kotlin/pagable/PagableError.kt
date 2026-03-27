@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  */
 
 /** Errors that can occur during pagable serialization/deserialization. */
+// TODO: stub - PagableError needs real import
 sealed class PagableError(message: String) : Exception(message) {
     /** The type was not registered in the vtable registry. */
     class TypeNotRegistered(

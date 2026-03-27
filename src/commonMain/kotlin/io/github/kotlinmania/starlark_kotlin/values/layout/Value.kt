@@ -153,6 +153,7 @@ private fun debugValue(typ: String, v: Value): String {
  */
 // #[derive(Clone_, Copy_, Dupe_, ProvidesStaticType, Allocative)]
 // pub struct Value<'v>(pub(crate) Pointer<'v>);
+// TODO: stub - Value needs real import
 class Value internal constructor(
     internal val ptr: Pointer,
 ) {
@@ -1219,6 +1220,7 @@ fun FrozenValue.equivalent(key: Value): Boolean {
  */
 // #[derive(Clone, Copy, Dupe, ProvidesStaticType, Allocative)]
 // pub struct FrozenValue(pub(crate) FrozenPointer<'static>);
+// TODO: stub - FrozenValue needs real import
 class FrozenValue internal constructor(
     internal val ptr: FrozenPointer,
 ) {

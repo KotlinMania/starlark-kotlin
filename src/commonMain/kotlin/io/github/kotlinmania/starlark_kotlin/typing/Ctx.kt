@@ -66,15 +66,19 @@ import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 }
 
 class BindingId
+// TODO: stub - ModuleSlotId needs real import
 class ModuleSlotId
 
+// TODO: stub - ResolvedIdent needs real import
 sealed class ResolvedIdent {
+    // TODO: stub - Slot needs real import
     class Slot(val slot: SlotKind, val bindingId: BindingId) : ResolvedIdent()
     class Global(val global: GlobalValue) : ResolvedIdent()
 }
 
 sealed class SlotKind {
     class Module(val id: ModuleSlotId) : SlotKind()
+    // TODO: stub - Other needs real import
     class Other : SlotKind()
 }
 
@@ -106,9 +110,13 @@ class Ty {
     fun clone(): Ty = Ty()
 }
 
+// TODO: stub - TyBasic needs real import
 sealed class TyBasic {
+    // TODO: stub - List needs real import
     class List(val elem: Ty) : TyBasic()
+    // TODO: stub - Dict needs real import
     class Dict(val key: Ty, val value: Ty) : TyBasic()
+    // TODO: stub - Other needs real import
     class Other : TyBasic()
 }
 
@@ -118,7 +126,9 @@ class Approximation(val category: String, val message: String) {
     }
 }
 
+// TODO: stub - TypingError needs real import
 class TypingError(val message: String = "")
+// TODO: stub - InternalError needs real import
 class InternalError(val message: String = "") {
     companion object {
         fun msg(message: String, span: Span, codemap: CodeMap): InternalError = InternalError(message)
@@ -126,6 +136,7 @@ class InternalError(val message: String = "") {
     }
 }
 
+// TODO: stub - TypingOrInternalError needs real import
 sealed class TypingOrInternalError {
     class Typing(val error: TypingError) : TypingOrInternalError()
     class Internal(val error: InternalError) : TypingOrInternalError()
@@ -154,8 +165,10 @@ class TypingOracleCtx(val codemap: CodeMap) {
     fun probablyAList(ty: Ty): Result<Boolean, InternalError> = Result.Ok(false)
 }
 
+// TODO: stub - TypingUnOp needs real import
 enum class TypingUnOp { Minus, Plus, BitNot }
 
+// TODO: stub - TypingBinOp needs real import
 enum class TypingBinOp {
     Add, Sub, Mul, Div, FloorDiv, Percent,
     BitAnd, BitOr, BitXor, LeftShift, RightShift,
@@ -166,6 +179,7 @@ enum class AssignOp {
     BitAnd, BitOr, BitXor, LeftShift, RightShift,
 }
 
+// TODO: stub - BinOp needs real import
 enum class BinOp
 
 sealed class Result<out T, out E> {
@@ -182,6 +196,7 @@ class ModuleVarTypes(
 sealed class BindExpr {
     class Expr(val expr: CstExpr) : BindExpr()
     class GetIndex(val index: Int, val inner: BindExpr) : BindExpr()
+    // TODO: stub - Iter needs real import
     class Iter(val inner: BindExpr) : BindExpr() {
         fun span(): Span = Span()
     }

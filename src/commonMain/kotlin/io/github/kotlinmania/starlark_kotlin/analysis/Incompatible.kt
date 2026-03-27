@@ -34,10 +34,12 @@ sealed class IncompatStmt {
     data class Return(val expr: IncompatAstExpr?) : IncompatStmt()
     data class Expression(val expr: IncompatAstExpr) : IncompatStmt()
     data class Statements(val stmts: List<IncompatAstStmt>) : IncompatStmt()
+    // TODO: stub - Def needs real import
     data class Def(val def: IncompatDefP) : IncompatStmt()
     data class Assign(val assign: IncompatAssign) : IncompatStmt()
     data class AssignModify(val lhs: IncompatAstAssignTarget, val op: IncompatBinOp, val rhs: IncompatAstExpr) : IncompatStmt()
     data class Load(val load: IncompatLoadStmt) : IncompatStmt()
+    // TODO: stub - Other needs real import
     class Other : IncompatStmt()
 }
 
@@ -47,7 +49,9 @@ class IncompatAssign(
 )
 
 sealed class IncompatAssignTarget {
+    // TODO: stub - Identifier needs real import
     data class Identifier(val name: IncompatSpanned<IncompatIdent>) : IncompatAssignTarget()
+    // TODO: stub - Other needs real import
     class Other : IncompatAssignTarget()
 }
 
@@ -78,8 +82,10 @@ class IncompatAstAssignIdent(val ident: String, val span: IncompatSpan = Incompa
 
 sealed class IncompatExpr {
     data class Call(val func: IncompatAstExpr, val args: IncompatCallArgs) : IncompatExpr()
+    // TODO: stub - Identifier needs real import
     data class Identifier(val name: IncompatSpanned<IncompatIdent>) : IncompatExpr()
     data class Op(val lhs: IncompatAstExpr, val op: IncompatBinOp, val rhs: IncompatAstExpr) : IncompatExpr()
+    // TODO: stub - Other needs real import
     class Other : IncompatExpr()
 }
 

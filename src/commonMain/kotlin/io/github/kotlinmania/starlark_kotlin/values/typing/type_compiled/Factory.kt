@@ -34,20 +34,29 @@ class Ty(private val kind: String = "") {
     fun clone(): Ty = Ty(kind)
 }
 
+// TODO: stub - TyCustom needs real import
 class TyCustom {
     fun matcherWithTypeCompiledFactory(factory: TypeCompiledFactory): TypeCompiled {
         return factory.alloc(IsAny)
     }
 }
 
+// TODO: stub - Value needs real import
 class Value
+// TODO: stub - Heap needs real import
 class Heap
 
+// TODO: stub - TypeMatcher needs real import
 interface TypeMatcher
+// TODO: stub - IsAny needs real import
 object IsAny : TypeMatcher
+// TODO: stub - IsNone needs real import
 object IsNone : TypeMatcher
+// TODO: stub - IsBool needs real import
 object IsBool : TypeMatcher
+// TODO: stub - IsInt needs real import
 object IsInt : TypeMatcher
+// TODO: stub - IsStr needs real import
 object IsStr : TypeMatcher
 
 class TypeCompiled(private val value: Value = Value()) {
@@ -67,6 +76,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(val matcher: T, val ty: T
     fun toFrozenValue(): FrozenValue = FrozenValue()
 }
 
+// TODO: stub - FrozenValue needs real import
 class FrozenValue {
     fun toValue(): Value = Value()
 }
@@ -75,6 +85,7 @@ class AllocStaticSimple<T>(val value: T) {
     fun toFrozenValue(): FrozenValue = FrozenValue()
 }
 
+// TODO: stub - TypeMatcherFactory needs real import
 class TypeMatcherFactory(val factory: TypeMatcherFactoryInner)
 class TypeMatcherFactoryInner {
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled = TypeCompiled()

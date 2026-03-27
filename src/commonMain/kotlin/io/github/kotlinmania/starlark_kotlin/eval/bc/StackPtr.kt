@@ -59,6 +59,7 @@ internal data class BcSlot(val value: UInt) : Comparable<BcSlot> {
  */
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BcSlotsN<const N: usize> { pub(crate) start: BcSlot }
+// TODO: stub - BcSlotsN needs real import
 internal class BcSlotsN(
     /** The const generic N parameter from Rust. */
     val n: Int,
@@ -88,6 +89,7 @@ internal class BcSlotsN(
 // #[derive(Copy, Clone, Dupe, Debug, derive_more::Display)]
 // #[display("{}..{}", start, end)]
 // pub(crate) struct BcSlotRange { pub(crate) start: BcSlot, pub(crate) end: BcSlot }
+// TODO: stub - BcSlotRange needs real import
 internal data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,

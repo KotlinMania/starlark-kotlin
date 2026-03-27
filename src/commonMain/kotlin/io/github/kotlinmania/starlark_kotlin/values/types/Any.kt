@@ -29,11 +29,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Value needs real import
 open class Value {
     fun toValue(): Value = this
     fun <T> downcastRef(): T? = null
 }
+// TODO: stub - FrozenValue needs real import
 class FrozenValue : Value()
+// TODO: stub - Heap needs real import
 class Heap {
     fun <T> allocSimple(value: T): Value = Value()
 }

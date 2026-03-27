@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
  */
 sealed class NoneOr<out T> : StarlarkTypeRepr {
     /** Starlark `None`. */
+    // TODO: stub - None needs real import
     data object None : NoneOr<kotlin.Nothing>() {
         override fun starlarkTypeRepr(): Ty = Ty.none()
     }

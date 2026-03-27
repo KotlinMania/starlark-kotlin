@@ -30,7 +30,9 @@ internal enum class NumTy {
 }
 
 private sealed class NumRhsTy {
+    // TODO: stub - Num needs real import
     data class Num(val value: NumTy) : NumRhsTy()
+    // TODO: stub - Any needs real import
     data object Any : NumRhsTy()
 }
 

@@ -24,19 +24,28 @@ import io.github.kotlinmania.starlark_kotlin.values.owned.unpackI32
  */
 
 // Placeholder types - will be removed when actual implementations are ported
+// TODO: stub - Ty needs real import
 internal class Ty private constructor()
+// TODO: stub - Heap needs real import
 internal class Heap<V> private constructor() { fun alloc(value: StarlarkInt): Value<V> = Value() }
+// TODO: stub - FrozenHeap needs real import
 internal class FrozenHeap private constructor() { fun alloc(value: StarlarkInt): FrozenValue = FrozenValue() }
+// TODO: stub - Value needs real import
 internal class Value<V> private constructor() { fun unpackI32(): Int? = null }
+// TODO: stub - FrozenValue needs real import
 internal class FrozenValue private constructor()
+// TODO: stub - StarlarkInt needs real import
 internal class StarlarkInt private constructor() { companion object { fun from(value: Int): StarlarkInt = StarlarkInt() } }
+// TODO: stub - StarlarkIntRef needs real import
 internal class StarlarkIntRef private constructor() {
     companion object { fun unpack(value: Value<*>): StarlarkIntRef? = null }
     override fun toString(): String = ""
 }
 internal class IntegerTooBigError(val value: String, val integerType: String) :
     Exception("Integer value is too big to fit in $integerType: $value")
+// TODO: stub - StarlarkTypeRepr needs real import
 internal interface StarlarkTypeRepr { fun starlarkTypeRepr(): Ty }
+// TODO: stub - PointerI32 needs real import
 internal object PointerI32 { fun starlarkTypeRepr(): Ty = Ty() }
 
 // impl<V_> AllocValue<V_> for i32

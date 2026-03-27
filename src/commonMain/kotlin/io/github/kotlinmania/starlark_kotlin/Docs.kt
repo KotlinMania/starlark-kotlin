@@ -189,6 +189,7 @@ sealed class DocMember {
     // Property(DocProperty)
     class Property(val property: DocProperty) : DocMember()
     // Function(DocFunction)
+    // TODO: stub - Function needs real import
     class Function(val function: DocFunction) : DocMember()
 
     /// Get the underlying [DocString] for this item, if it exists.

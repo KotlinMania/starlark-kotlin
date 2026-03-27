@@ -59,6 +59,7 @@ internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
 private sealed class FlameProfileError(message: String) : Exception(message) {
     // #[error("Flame profile not enabled")]
     // NotEnabled
+    // TODO: stub - NotEnabled needs real import
     class NotEnabled : FlameProfileError("Flame profile not enabled")
 }
 

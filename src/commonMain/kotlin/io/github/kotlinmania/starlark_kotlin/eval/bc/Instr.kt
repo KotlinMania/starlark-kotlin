@@ -39,6 +39,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 internal sealed class InstrControl {
     /** Go to address. */
     // Next(BcPtrAddr<'b>)
+    // TODO: stub - Next needs real import
     data class Next(val ip: BcPtrAddr) : InstrControl()
 
     /** Return from the function. */

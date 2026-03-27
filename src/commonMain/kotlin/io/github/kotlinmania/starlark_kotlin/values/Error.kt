@@ -36,6 +36,7 @@ sealed class ValueError(override val message: String) : Exception(message) {
         val right: String,
     ) : ValueError("Operation `$op` not supported for types `$left` and `$right`")
 
+    // TODO: stub - DivisionByZero needs real import
     data object DivisionByZero : ValueError("Cannot divide by zero")
 
     data object IntegerOverflow : ValueError("Integer overflow")

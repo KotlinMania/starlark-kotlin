@@ -65,6 +65,7 @@ internal class OptCtxEvalForEvaluator(
  * - during compilation of AST to IR, and
  * - when freezing the heap.
  */
+// TODO: stub - OptCtx needs real import
 internal class OptCtx(
     internal val eval: OptCtxEval,
     /** Current function parameter slot count. Zero when compiling module. */

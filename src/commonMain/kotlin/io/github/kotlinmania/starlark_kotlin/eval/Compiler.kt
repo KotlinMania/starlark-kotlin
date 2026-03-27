@@ -109,6 +109,7 @@ internal fun <T> exprThrowStarlarkResult(
  * Holds references to the evaluator, scope data, globals, and codemap needed
  * during compilation from AST to bytecode or IR.
  */
+// TODO: stub - Compiler needs real import
 internal class Compiler(
     val eval: Evaluator,
     val scopeData: ModuleScopeData,

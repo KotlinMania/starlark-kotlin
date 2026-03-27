@@ -108,6 +108,7 @@ internal data class BcPtrRange(
 /// In Rust, this is a raw pointer with debug range checks.
 /// In Kotlin, this is an offset into a bytecode buffer with debug validation.
 // pub(crate) struct BcPtrAddr<'b>
+// TODO: stub - BcPtrAddr needs real import
 internal data class BcPtrAddr(
     // ptr: *const u8
     val offset: Int,

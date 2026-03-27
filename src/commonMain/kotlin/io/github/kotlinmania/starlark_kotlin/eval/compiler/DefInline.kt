@@ -30,16 +30,19 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - FrozenValue needs real import
 class FrozenValue {
     companion object {
         fun newNone(): FrozenValue = FrozenValue()
     }
 }
+// TODO: stub - FrozenValueTyped needs real import
 class FrozenValueTyped<T>(val value: T) {
     companion object {
         fun <T : Any> new(value: FrozenValue): FrozenValueTyped<T>? = null
     }
 }
+// TODO: stub - IrSpanned needs real import
 class IrSpanned<T>(
     val span: FrameSpan,
     val node: T,
@@ -51,24 +54,32 @@ class FrameSpan {
         fun default(): FrameSpan = FrameSpan()
     }
 }
+// TODO: stub - LocalSlotId needs real import
 class LocalSlotId(val index: Int)
 
 class LocalAsValue(val local: LocalSlotId)
 
 sealed class ExprCompiled {
+    // TODO: stub - Value needs real import
     data class Value(val value: FrozenValue) : ExprCompiled()
     data class Local(val slot: LocalSlotId) : ExprCompiled()
     data class LocalCaptured(val slot: LocalSlotId) : ExprCompiled()
     data class Module(val slot: Int) : ExprCompiled()
+    // TODO: stub - Def needs real import
     class Def : ExprCompiled()
     data class Call(val call: IrSpanned<CallCompiled>) : ExprCompiled()
     class Compr : ExprCompiled()
     data class Slice(val args: SliceArgs) : ExprCompiled()
+    // TODO: stub - Builtin2 needs real import
     data class Builtin2(val op: Builtin2Op, val args: Builtin2Args) : ExprCompiled()
     data class Index2(val args: Index2Args) : ExprCompiled()
+    // TODO: stub - Builtin1 needs real import
     data class Builtin1(val op: Builtin1Op, val arg: IrSpanned<ExprCompiled>) : ExprCompiled()
+    // TODO: stub - Tuple needs real import
     data class Tuple(val elems: List<IrSpanned<ExprCompiled>>) : ExprCompiled()
+    // TODO: stub - List needs real import
     data class List(val elems: List<IrSpanned<ExprCompiled>>) : ExprCompiled()
+    // TODO: stub - Dict needs real import
     data class Dict(val entries: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>) : ExprCompiled()
     data class If(val args: IfArgs) : ExprCompiled()
     data class LogicalBinOp(val op: ExprLogicalBinOp, val args: LogicalBinOpArgs) : ExprCompiled()
@@ -149,6 +160,7 @@ class IfArgs(
     val elseExpr: IrSpanned<ExprCompiled>,
 )
 
+// TODO: stub - ExprLogicalBinOp needs real import
 class ExprLogicalBinOp
 
 class LogicalBinOpArgs(
@@ -187,10 +199,12 @@ class ArgsCompiledValue {
     }
 }
 
+// TODO: stub - OptCtx needs real import
 class OptCtx {
     fun frozenHeap(): Any? = null
 }
 
+// TODO: stub - StmtCompiled needs real import
 class StmtCompiled {
     class Return(val expr: IrSpanned<ExprCompiled>)
 }
@@ -352,6 +366,7 @@ fun inlineDefBody(
 class CannotInline : Exception()
 
 /// Utility to inline function body at call site.
+// TODO: stub - InlineDefCallSite needs real import
 class InlineDefCallSite(
     val ctx: OptCtx,
     // Values in the slots are either real frozen values

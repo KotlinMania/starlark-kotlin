@@ -34,6 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMethods
 /// Method and a `Methods` container which declares it.
 // #[derive(Clone, Copy, Dupe)]
 // pub(crate) struct KnownMethod
+// TODO: stub - KnownMethod needs real import
 internal class KnownMethod(
     /// An object where the method is defined.
     val typeMethods: Methods,

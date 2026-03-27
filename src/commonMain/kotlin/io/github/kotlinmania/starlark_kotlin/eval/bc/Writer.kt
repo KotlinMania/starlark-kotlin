@@ -26,10 +26,12 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - BcAddr needs real import
 class BcAddr(val offset: Int) {
     fun offsetFrom(other: BcAddr): BcAddrOffset = BcAddrOffset(offset - other.offset)
 }
 
+// TODO: stub - BcAddrOffset needs real import
 class BcAddrOffset(val value: Int) {
     companion object {
         val FORWARD: BcAddrOffset = BcAddrOffset(0)
@@ -38,6 +40,7 @@ class BcAddrOffset(val value: Int) {
     fun neg(): BcAddrOffset = BcAddrOffset(-value)
 }
 
+// TODO: stub - Bc needs real import
 class Bc(
     val instrs: BcInstrs,
     val localCount: Int,
@@ -62,10 +65,12 @@ class BcDefinitelyAssigned(private val assigned: MutableSet<Int> = mutableSetOf(
     fun clone(): BcDefinitelyAssigned = BcDefinitelyAssigned(assigned.toMutableSet())
 }
 
+// TODO: stub - LoopDepth needs real import
 class LoopDepth(val depth: Int) : Comparable<LoopDepth> {
     override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
 }
 
+// TODO: stub - BcOpcode needs real import
 class BcOpcode {
     companion object {
         val End: BcOpcode = BcOpcode()
@@ -78,16 +83,19 @@ class BcOpcode {
 const val BC_INSTR_ALIGN: Int = 8
 
 class BcInstrSlowArg(val span: FrameSpan? = null)
+// TODO: stub - BcSlot needs real import
 class BcSlot(val index: Int) {
     fun toIn(): BcSlotIn = BcSlotIn(index)
     fun toOut(): BcSlotOut = BcSlotOut(index)
 }
 
+// TODO: stub - BcSlotIn needs real import
 class BcSlotIn(val index: Int) {
     fun get(): BcSlot = BcSlot(index)
 }
 
 class BcSlotInRange
+// TODO: stub - BcSlotOut needs real import
 class BcSlotOut(val index: Int) {
     fun get(): BcSlot = BcSlot(index)
 }
@@ -102,8 +110,11 @@ class BcSlotsN<T>(val slots: List<BcSlot>) {
     }
 }
 
+// TODO: stub - FrameSpan needs real import
 class FrameSpan
+// TODO: stub - LocalCapturedSlotId needs real import
 class LocalCapturedSlotId(val index: Int)
+// TODO: stub - LocalSlotId needs real import
 class LocalSlotId(val index: Int) {
     fun toBcSlot(): BcSlot = BcSlot(index)
 }
@@ -112,6 +123,7 @@ class FrozenHeap {
     fun allocAny(span: FrameSpan): FrameSpan = span
 }
 
+// TODO: stub - FrozenValue needs real import
 class FrozenValue
 class PatchAddr
 class BcInstrsWriter {
@@ -127,6 +139,7 @@ class BcInstrsWriter {
     }
 }
 
+// TODO: stub - MaybeNot needs real import
 enum class MaybeNot { Id, Not }
 
 // --- BcStmtLoc ---

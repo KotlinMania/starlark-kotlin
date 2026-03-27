@@ -65,6 +65,7 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
 private sealed class TypecheckProfileError(message: String) : Exception(message) {
     // #[error("Typecheck profile not enabled")]
     // NotEnabled
+    // TODO: stub - NotEnabled needs real import
     class NotEnabled : TypecheckProfileError("Typecheck profile not enabled")
 }
 

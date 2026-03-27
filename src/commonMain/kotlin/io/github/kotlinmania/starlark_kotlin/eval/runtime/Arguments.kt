@@ -43,6 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.coerce
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
+// TODO: stub - FunctionError needs real import
 internal sealed class FunctionError(
     private val text: String,
 ) : Exception() {
@@ -132,6 +133,7 @@ internal data class ResolvedArgName(
 
 // #[derive(Debug, Clone_, Dupe_)]
 // pub(crate) struct ArgNames<'a, 'v, S: ArgSymbol>
+// TODO: stub - ArgNames needs real import
 internal class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
     private val names_: List<Pair<S, StringValue>>,
@@ -249,6 +251,7 @@ internal class ArgumentsPos<S : ArgSymbol>(
  */
 // #[derive(Default, Clone, Dupe_)]
 // pub struct Arguments<'v, 'a>(pub(crate) ArgumentsFull<'v, 'a, Symbol>);
+// TODO: stub - Arguments needs real import
 class Arguments(
     internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
 ) {

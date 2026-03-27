@@ -23,6 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
  */
+// TODO: stub - Approximation needs real import
 data class Approximation(
     /** The category of the approximation, e.g. `"Unknown type"`. */
     val category: String,
@@ -72,6 +73,7 @@ sealed class TypeRenderConfig {
  *
  * Corresponds to Rust's `Ty` struct.
  */
+// TODO: stub - Ty needs real import
 class Ty private constructor(
     /**
      * A series of alternative types.

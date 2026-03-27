@@ -23,14 +23,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Ty needs real import
 class Ty {
     companion object {
         fun tuple(elems: List<Ty>): Ty = Ty()
         fun tuple2(a: Ty, b: Ty): Ty = Ty()
     }
 }
+// TODO: stub - Value needs real import
 open class Value
+// TODO: stub - FrozenValue needs real import
 class FrozenValue : Value()
+// TODO: stub - Heap needs real import
 class Heap {
     fun allocTuple(values: List<Value>): Value = Value()
 }

@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Ty needs real import
 class Ty {
     fun isAny(): Boolean = false
     fun isStarlarkValue(): TyStarlarkValue? = null
@@ -29,15 +30,24 @@ class Ty {
 }
 
 sealed class TyBasic {
+    // TODO: stub - Any needs real import
     data object Any : TyBasic()
+    // TODO: stub - StarlarkValue needs real import
     class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
+    // TODO: stub - List needs real import
     class List(val item: Ty) : TyBasic()
+    // TODO: stub - Tuple needs real import
     class Tuple(val tuple: TyTuple) : TyBasic()
+    // TODO: stub - Dict needs real import
     class Dict(val key: Ty, val value: Ty) : TyBasic()
+    // TODO: stub - Iter needs real import
     class Iter(val item: Ty) : TyBasic()
+    // TODO: stub - Callable needs real import
     class Callable(val callable: TyCallable) : TyBasic()
     data object Type : TyBasic()
+    // TODO: stub - Custom needs real import
     class Custom(val custom: TyCustom) : TyBasic()
+    // TODO: stub - Set needs real import
     class Set(val item: Ty) : TyBasic()
 
     companion object {
@@ -46,18 +56,23 @@ sealed class TyBasic {
     }
 }
 
+// TODO: stub - TyStarlarkValue needs real import
 class TyStarlarkValue(val name: String = "") {
     fun isStr(): Boolean = name == "string"
     fun isInt(): Boolean = name == "int"
     fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.alloc(StarlarkTypeIdMatcher.new(this))
 }
+// TODO: stub - TyTuple needs real import
 class TyTuple {
     fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
+// TODO: stub - TyCallable needs real import
 class TyCallable
+// TODO: stub - TyCustom needs real import
 class TyCustom {
     fun <R> matcherWithTypeCompiledFactory(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
+// TODO: stub - TypeMatcherFactory needs real import
 class TypeMatcherFactory {
     fun <R> typeCompiled(alloc: TypeMatcherAlloc<R>): R = alloc.any()
 }
@@ -85,40 +100,52 @@ class TypeMatcherBoxAlloc : TypeMatcherAlloc<TypeMatcher> {
 }
 
 // Matcher types
+// TODO: stub - IsAny needs real import
 class IsAny : TypeMatcher {
     override fun matches(value: Any) = true
     override fun isWildcard() = true
 }
+// TODO: stub - IsNever needs real import
 class IsNever : TypeMatcher {
     override fun matches(value: Any) = false
 }
+// TODO: stub - IsNone needs real import
 class IsNone : TypeMatcher {
     override fun matches(value: Any) = value == Unit
 }
+// TODO: stub - IsBool needs real import
 class IsBool : TypeMatcher {
     override fun matches(value: Any) = value is Boolean
 }
+// TODO: stub - IsInt needs real import
 class IsInt : TypeMatcher {
     override fun matches(value: Any) = value is Int || value is Long
 }
+// TODO: stub - IsStr needs real import
 class IsStr : TypeMatcher {
     override fun matches(value: Any) = value is String
 }
+// TODO: stub - IsList needs real import
 class IsList : TypeMatcher {
     override fun matches(value: Any) = value is kotlin.collections.List<*>
 }
+// TODO: stub - IsDict needs real import
 class IsDict : TypeMatcher {
     override fun matches(value: Any) = value is Map<*, *>
 }
+// TODO: stub - IsSet needs real import
 class IsSet : TypeMatcher {
     override fun matches(value: Any) = value is kotlin.collections.Set<*>
 }
+// TODO: stub - IsCallable needs real import
 class IsCallable : TypeMatcher {
     override fun matches(value: Any) = false
 }
+// TODO: stub - IsIterable needs real import
 class IsIterable : TypeMatcher {
     override fun matches(value: Any) = value is Iterable<*>
 }
+// TODO: stub - IsType needs real import
 class IsType : TypeMatcher {
     override fun matches(value: Any) = false
 }

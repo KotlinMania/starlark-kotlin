@@ -102,6 +102,7 @@ internal sealed class BindExpr {
     data class Expr(val expr: CstExpr) : BindExpr()
     /** Get this position from the expression. */
     data class GetIndex(val index: Int, val inner: BindExpr) : BindExpr()
+    // TODO: stub - Iter needs real import
     data class Iter(val inner: BindExpr) : BindExpr()
     data class AssignModify(val target: CstAssignTarget, val op: AssignOp, val expr: CstExpr) : BindExpr()
     /** Set this index in the variable. */

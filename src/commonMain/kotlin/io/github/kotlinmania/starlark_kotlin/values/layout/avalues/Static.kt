@@ -71,6 +71,7 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
 
 /// Allocate simple value statically.
 // pub struct AllocStaticSimple<T: StarlarkValue<'static>>(AValueRepr<AValueImpl<AValueBasic<T>>>)
+// TODO: stub - AllocStaticSimple needs real import
 class AllocStaticSimple<T : StarlarkValue>(
     private val repr: AValueRepr<AValueImpl<AValueBasic<T>>>,
 ) {

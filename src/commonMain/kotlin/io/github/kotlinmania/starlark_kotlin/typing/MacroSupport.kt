@@ -23,6 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Ty needs real import
 class Ty {
     companion object {
         fun any(): Ty = Ty()
@@ -32,9 +33,13 @@ class Ty {
     fun iterUnion(): List<TyBasic> = emptyList()
 }
 
+// TODO: stub - TyBasic needs real import
 sealed class TyBasic {
+    // TODO: stub - Tuple needs real import
     class Tuple(val item: TupleItem) : TyBasic()
+    // TODO: stub - Dict needs real import
     class Dict(val key: Any, val value: DictValue) : TyBasic()
+    // TODO: stub - Other needs real import
     class Other : TyBasic()
 }
 

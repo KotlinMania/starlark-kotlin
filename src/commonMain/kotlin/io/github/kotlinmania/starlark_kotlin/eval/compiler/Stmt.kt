@@ -273,6 +273,7 @@ internal class OptimizeOnFreezeContext(
 
 // #[derive(Clone, Debug)]
 // pub(crate) struct StmtsCompiled(SmallVec1<IrSpanned<StmtCompiled>>)
+// TODO: stub - StmtsCompiled needs real import
 internal class StmtsCompiled(
     private val stmts: SmallVec1<IrSpanned<StmtCompiled>>,
 ) {
@@ -480,6 +481,7 @@ internal class AssignError {
 internal sealed class AssignCompiledValue {
     data class Dot(val obj: IrSpanned<ExprCompiled>, val field: String) : AssignCompiledValue()
     data class Index(val array: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignCompiledValue()
+    // TODO: stub - Tuple needs real import
     data class Tuple(val elements: List<IrSpanned<AssignCompiledValue>>) : AssignCompiledValue()
     data class Local(val slot: LocalSlotId) : AssignCompiledValue()
     data class LocalCaptured(val slot: LocalCapturedSlotId) : AssignCompiledValue()

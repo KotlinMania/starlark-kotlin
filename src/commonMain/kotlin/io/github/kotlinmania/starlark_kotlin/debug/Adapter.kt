@@ -230,6 +230,7 @@ sealed class PathSegment {
     data class Attr(val name: String) : PathSegment()
 
     /** Represents a path segment that accesses dict items by key. */
+    // TODO: stub - Key needs real import
     data class Key(val key: String) : PathSegment()
 
     override fun toString(): String = when (this) {

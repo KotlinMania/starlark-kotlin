@@ -94,6 +94,7 @@ internal object IsList : TypeMatcher {
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsListOf<I: TypeMatcher>(pub(crate) I);
+// TODO: stub - IsListOf needs real import
 internal class IsListOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
@@ -194,6 +195,7 @@ internal object IsDict : TypeMatcher {
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsDictOf<K: TypeMatcher, V: TypeMatcher>(pub(crate) K, pub(crate) V);
+// TODO: stub - IsDictOf needs real import
 internal class IsDictOf(
     val key: TypeMatcher,
     val valueMatcher: TypeMatcher,
@@ -220,6 +222,7 @@ internal object IsSet : TypeMatcher {
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsSetOf<I: TypeMatcher>(pub(crate) I);
+// TODO: stub - IsSetOf needs real import
 internal class IsSetOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
@@ -234,6 +237,7 @@ internal class IsSetOf(
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsAnyOfTwo<A: TypeMatcher, B: TypeMatcher>(pub(crate) A, pub(crate) B);
+// TODO: stub - IsAnyOfTwo needs real import
 internal class IsAnyOfTwo(
     val a: TypeMatcher,
     val b: TypeMatcher,
@@ -248,6 +252,7 @@ internal class IsAnyOfTwo(
 
 // #[derive(Clone, Allocative, Debug)]
 // pub(crate) struct IsAnyOf(pub(crate) Vec<TypeMatcherBox>);
+// TODO: stub - IsAnyOf needs real import
 internal class IsAnyOf(
     val matchers: List<TypeMatcherBox>,
 ) : TypeMatcher {
@@ -329,6 +334,7 @@ internal object IsNone : TypeMatcher {
 // pub(crate) struct StarlarkTypeIdMatcher {
 //     starlark_type_id: StarlarkTypeIdAligned,
 // }
+// TODO: stub - StarlarkTypeIdMatcher needs real import
 internal class StarlarkTypeIdMatcher(
     private val starlarkTypeId: StarlarkTypeIdAligned,
 ) : TypeMatcher {

@@ -26,6 +26,7 @@ import kotlin.time.Duration.Companion.nanoseconds
 /**
  * Slightly faster than [Duration].
  */
+// TODO: stub - SmallDuration needs real import
 internal data class SmallDuration(
     /** `ULong.MAX_VALUE` nanos is ~500 years. */
     internal var nanos: ULong = 0u,

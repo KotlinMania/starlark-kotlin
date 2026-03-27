@@ -11,6 +11,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.Type
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
  */
+// TODO: stub - Approximation needs real import
 data class Approximation(
     /** The category of the approximation, e.g. "Unknown type". */
     val category: String,
@@ -43,6 +44,7 @@ data class Approximation(
  * This is different handling of union types than in TypeScript for example,
  * TypeScript would consider such expression to be an error.
  */
+// TODO: stub - Ty needs real import
 data class Ty(
     /**
      * A series of alternative types.
@@ -260,6 +262,7 @@ sealed class TyBasic : Comparable<TyBasic> {
     }
 
     /** A dictionary type with key and value types. */
+    // TODO: stub - Dict needs real import
     data class Dict(val key: Ty, val value: Ty) : TyBasic() {
         override fun asName(): kotlin.String = "dict"
         override fun toString(): kotlin.String = "{$key: $value}"
@@ -272,6 +275,7 @@ sealed class TyBasic : Comparable<TyBasic> {
     }
 
     /** A tuple type. */
+    // TODO: stub - Tuple needs real import
     data class Tuple(val tuple: TyTuple) : TyBasic() {
         override fun asName(): kotlin.String = "tuple"
         override fun toString(): kotlin.String = tuple.toString()
@@ -373,6 +377,7 @@ data class TyFunction(
 /**
  * Callable type.
  */
+// TODO: stub - TyCallable needs real import
 data class TyCallable(
     val params: ParamSpec,
     val result: Ty

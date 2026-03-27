@@ -142,6 +142,7 @@ class FrozenValue : Value() {
         fun newNone(): FrozenValue = FrozenValue()
     }
 }
+// TODO: stub - StringValue needs real import
 class StringValue {
     companion object {
         fun new(v: Value): StringValue? = null
@@ -163,14 +164,18 @@ class PointerI32 {
 class HashedValue(val key: Value) {
     override fun toString(): String = key.toString()
 }
+// TODO: stub - Heap needs real import
 class Heap {
     fun alloc(value: Any): Value = Value()
     fun allocTuple(items: List<Value>): Value = Value()
     fun allocList(items: List<Value>): Value = Value()
 }
+// TODO: stub - BcSlotIn needs real import
 class BcSlotIn(val index: Int)
+// TODO: stub - BcSlotOut needs real import
 class BcSlotOut(val index: Int)
 class BcSlotInRange(val start: Int, val count: Int)
+// TODO: stub - BcSlotInRangeFrom needs real import
 class BcSlotInRangeFrom(val start: Int) {
     fun toRange(count: Int): BcSlotInRange = BcSlotInRange(start, count)
 }
@@ -179,25 +184,35 @@ class BcPtrAddr {
     fun addRel(offset: BcAddrOffset): BcPtrAddr = BcPtrAddr()
     fun addRelNeg(offset: BcAddrOffsetNeg): BcPtrAddr = BcPtrAddr()
 }
+// TODO: stub - BcAddrOffset needs real import
 class BcAddrOffset
+// TODO: stub - BcAddrOffsetNeg needs real import
 class BcAddrOffsetNeg
+// TODO: stub - LocalSlotId needs real import
 class LocalSlotId(val index: Int)
+// TODO: stub - LocalCapturedSlotId needs real import
 class LocalCapturedSlotId(val index: Int)
+// TODO: stub - ModuleSlotId needs real import
 class ModuleSlotId(val index: Int)
+// TODO: stub - Symbol needs real import
 class Symbol {
     fun asStr(): String = ""
 }
+// TODO: stub - LoopDepth needs real import
 class LoopDepth(val depth: Int)
 class FrameSpan {
     companion object {
         fun default(): FrameSpan = FrameSpan()
     }
 }
+// TODO: stub - Arguments needs real import
 class Arguments
+// TODO: stub - TypeCompiled needs real import
 class TypeCompiled {
     fun matches(value: Value): Boolean = false
     fun checkType(value: Value, name: String?): kotlin.Result<Unit> = kotlin.Result.success(Unit)
 }
+// TODO: stub - TypecheckProfile needs real import
 class TypecheckProfile {
     val enabled: Boolean = false
     fun add(name: FrozenStringValue, elapsed: Long) {}
@@ -208,6 +223,7 @@ class ProfilerInstant {
         fun now(): ProfilerInstant = ProfilerInstant()
     }
 }
+// TODO: stub - SmallMap needs real import
 class SmallMap<K, V> {
     companion object {
         fun <K, V> withCapacity(capacity: Int): SmallMap<K, V> = SmallMap()
@@ -221,7 +237,9 @@ class Dict {
     }
     fun insertHashed(key: HashedValue, value: Value) {}
 }
+// TODO: stub - FrozenRef needs real import
 class FrozenRef<T>(val value: T)
+// TODO: stub - Hashed needs real import
 class Hashed<T>(val key: T)
 class Bc {
     companion object {
@@ -270,12 +288,14 @@ class ParametersSpec {
     fun kwargs() {}
     fun finish(): ParametersSpec = this
 }
+// TODO: stub - ParameterCompiled needs real import
 class ParameterCompiled {
     class Normal(val name: ParamName, val ty: TypeCompiled?, val defaultSlot: Int?)
     class Args(val name: ParamName, val ty: TypeCompiled?)
     class KwArgs(val name: ParamName, val ty: TypeCompiled?)
 }
 class ParamName(val name: String)
+// TODO: stub - ParametersCompiled needs real import
 class ParametersCompiled {
     val params: List<ParamCompiledEntry> = emptyList()
     val indices: ParamIndices = ParamIndices()
@@ -312,9 +332,11 @@ class StarlarkValueRef {
 class Vtable {
     fun methods(): Any? = null
 }
+// TODO: stub - EvalException needs real import
 class EvalException(message: String) : Exception(message) {
     fun intoError(): Exception = this
 }
+// TODO: stub - AssignError needs real import
 class AssignError {
     class IncorrectNumberOfValueToUnpack(expected: Int, actual: Int) : Exception()
 }
@@ -350,7 +372,9 @@ class MethodValue {
 
 /// Instructions which either fail or proceed to the following instruction,
 /// and it returns error with span.
+// TODO: stub - InstrControl needs real import
 sealed class InstrControl {
+    // TODO: stub - Next needs real import
     class Next(val ip: BcPtrAddr) : InstrControl()
     class Return(val value: Value) : InstrControl()
     class Err(val error: Exception) : InstrControl()

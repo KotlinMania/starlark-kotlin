@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.expr
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - IrSpanned needs real import
 class IrSpanned<T>(val node: T, val span: Span = Span()) {
     fun optimize(ctx: OptCtx): IrSpanned<T> = this
     fun isIterableEmpty(): Boolean = false
@@ -43,6 +44,7 @@ class CstPayload
 
 }
 
+// TODO: stub - ExprCompiled needs real import
 class ExprCompiled {
     companion object {
         fun compr(compr: ComprCompiled): ExprCompiled = ExprCompiled()
@@ -51,6 +53,7 @@ class ExprCompiled {
 
 sealed class ExprCompiledBool {
     class Const(val value: Boolean) : ExprCompiledBool()
+    // TODO: stub - Other needs real import
     class Other(val expr: IrSpanned<ExprCompiled>) : ExprCompiledBool()
 
     companion object {
@@ -66,10 +69,13 @@ sealed class ExprCompiledBool {
     }
 }
 
+// TODO: stub - AssignCompiledValue needs real import
 class AssignCompiledValue
 
+// TODO: stub - CompilerInternalError needs real import
 class CompilerInternalError(message: String = "") : Exception(message)
 
+// TODO: stub - OptCtx needs real import
 class OptCtx
 
 fun listToTuple(expr: CstExpr): CstExpr = expr
@@ -169,11 +175,13 @@ class Compiler {
 }
 
 sealed class ComprCompiled {
+    // TODO: stub - List needs real import
     class List(
         val x: IrSpanned<ExprCompiled>,
         val clauses: ClausesCompiled,
     ) : ComprCompiled()
 
+    // TODO: stub - Dict needs real import
     class Dict(
         val kv: Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>,
         val clauses: ClausesCompiled,

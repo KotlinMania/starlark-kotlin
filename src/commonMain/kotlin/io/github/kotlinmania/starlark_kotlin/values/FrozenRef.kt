@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 // #[derive(Clone_, Dupe_, Copy_, Debug, Allocative)]
 // #[allocative(skip)] // Data is owned by heap.
 // pub struct FrozenRef<'fv, T: 'fv + ?Sized>
+// TODO: stub - FrozenRef needs real import
 class FrozenRef<T>(
     internal val value: T,
 ) : Trace {

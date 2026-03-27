@@ -32,6 +32,7 @@ private sealed class AllocNoVariant
 // enum AllocOneVariant { Int(u32) }
 @Suppress("unused")
 private sealed class AllocOneVariant {
+    // TODO: stub - Int needs real import
     class Int(val value: UInt) : AllocOneVariant()
 }
 
@@ -39,6 +40,7 @@ private sealed class AllocOneVariant {
 // enum AllocTwoVariants { Int(u32), String(String) }
 @Suppress("unused")
 private sealed class AllocTwoVariants {
+    // TODO: stub - Int needs real import
     class Int(val value: UInt) : AllocTwoVariants()
     class `String`(val value: String) : AllocTwoVariants()
 }

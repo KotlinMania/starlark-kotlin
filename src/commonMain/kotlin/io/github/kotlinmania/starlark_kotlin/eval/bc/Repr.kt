@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.writer.forInstr
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - BcInstr needs real import
 interface BcInstr {
     /** The argument type for this instruction. */
     val arg: Any

@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
+// TODO: stub - Value needs real import
 class Value(private val repr: String = "") {
     override fun toString(): String = repr
     fun writeHash(hasher: StarlarkHasher): Result<Unit> = Result.success(Unit)
@@ -28,12 +29,14 @@ class Value(private val repr: String = "") {
     fun toValue(): Value = this
 }
 
+// TODO: stub - Ty needs real import
 class Ty {
     fun dupe(): Ty = this
 }
 
 class StarlarkHasher
 
+// TODO: stub - TypeInstanceId needs real import
 class TypeInstanceId
 
 class TyEnumData(val name: String, val tyEnumValue: Ty)
@@ -57,6 +60,7 @@ sealed class EnumTypeRef {
 
 class Methods
 class MethodsBuilder
+// TODO: stub - MethodsStatic needs real import
 class MethodsStatic {
     companion object {
         fun new(): MethodsStatic = MethodsStatic()

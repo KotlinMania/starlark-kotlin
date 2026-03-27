@@ -96,6 +96,7 @@ private sealed class TestExpr {
 
     /// Binary operation.
     // BinOp(TestBinOp, Box<(TestExpr, TestExpr)>)
+    // TODO: stub - BinOp needs real import
     class BinOp(val op: TestBinOp, val lhs: TestExpr, val rhs: TestExpr) : TestExpr()
 
     /// `not` operation.

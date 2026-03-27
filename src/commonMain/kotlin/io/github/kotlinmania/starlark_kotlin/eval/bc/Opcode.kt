@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.name
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
 // BcInstr is defined in repr.kt
+// TODO: stub - BcInstr needs real import
 interface BcInstr
 
 /// Callback for the `dispatch` function.

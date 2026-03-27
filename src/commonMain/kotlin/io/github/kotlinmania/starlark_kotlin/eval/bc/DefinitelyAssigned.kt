@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
  */
 // #[derive(Clone, Debug, PartialEq, Eq)]
 // pub(crate) struct BcDefinitelyAssigned
+// TODO: stub - BcDefinitelyAssigned needs real import
 internal class BcDefinitelyAssigned private constructor(
     /** Map from local variable slot to flag indicating whether it is definitely assigned
      * at the current program point. */

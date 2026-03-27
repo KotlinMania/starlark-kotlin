@@ -57,6 +57,7 @@ internal data class InlinedFrame(
 /// Stack of inlined frames (maybe empty).
 // #[derive(Copy, Clone, Dupe, Debug, Default)]
 // pub(crate) struct InlinedFrames
+// TODO: stub - InlinedFrames needs real import
 internal data class InlinedFrames(
     /// Linked list.
     var frames: FrozenRef<InlinedFrame>? = null,
@@ -112,6 +113,7 @@ internal data class InlinedFrames(
 
 /// Heap allocator for `InlinedFrame` which attempts to reuse previous allocation.
 // pub(crate) struct InlinedFrameAlloc<'f>
+// TODO: stub - InlinedFrameAlloc needs real import
 internal class InlinedFrameAlloc(
     private val frozenHeap: FrozenHeap,
 ) {

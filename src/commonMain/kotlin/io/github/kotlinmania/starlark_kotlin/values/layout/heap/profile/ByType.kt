@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.string.bytes
 /// and [`FrozenHeap`](crate::values::FrozenHeap)
 // #[derive(Debug, Default, Clone, Allocative)]
 // pub struct HeapSummary
+// TODO: stub - HeapSummary needs real import
 class HeapSummary(
     /// For each type, give the (number of entries, size of all entries).
     /// The size may be approximate as it includes information from

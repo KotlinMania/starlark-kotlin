@@ -28,6 +28,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 //     Vec(Vec<T>),
 // }
 internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
+    // TODO: stub - One needs real import
     class One<T>(val value: T) : SmallVec1<T>()
     class Vec<T>(val values: MutableList<T>) : SmallVec1<T>()
 

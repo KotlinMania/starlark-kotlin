@@ -209,6 +209,7 @@ private object NoneAllocFrozenValue : AllocFrozenValue {
 
 // Placeholder for FrozenValueTyped — represents a typed wrapper around FrozenValue.
 // Will be replaced with the real implementation from values/layout.
+// TODO: stub - FrozenValueTyped needs real import
 class FrozenValueTyped<T : StarlarkValue>(
     private val frozenValue: FrozenValue,
     private val ref: T,

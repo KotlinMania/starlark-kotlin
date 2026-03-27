@@ -154,7 +154,9 @@ sealed class StarlarkInt {
  * Reference to a StarlarkInt that can be either a small inline value or a reference to a big integer.
  */
 sealed class StarlarkIntRef {
+    // TODO: stub - Small needs real import
     data class Small(val value: InlineInt) : StarlarkIntRef()
+    // TODO: stub - Big needs real import
     data class Big(val value: StarlarkBigInt) : StarlarkIntRef()
 
     fun toOwned(): StarlarkInt = when (this) {

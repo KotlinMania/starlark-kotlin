@@ -1000,6 +1000,7 @@ internal enum class InLoop {
 /// Storage of objects referenced by AST.
 // #[derive(Default)]
 // pub(crate) struct ModuleScopeData
+// TODO: stub - ModuleScopeData needs real import
 internal class ModuleScopeData(
     /// Bindings by id.
     private val bindings: MutableList<Binding> = mutableListOf(),
@@ -1088,6 +1089,7 @@ internal sealed class BindingSource {
 /// In code `x = 1; def f(): x = 2`, there are two bindings for name `x`.
 // #[derive(Debug)]
 // pub(crate) struct Binding
+// TODO: stub - Binding needs real import
 internal class Binding(
     val name: FrozenStringValue,
     val source: BindingSource,
@@ -1139,7 +1141,9 @@ internal data class ScopeId(val id: Int) {
 
 // #[derive(Debug, Clone, Dupe, Copy)]
 // pub(crate) enum ResolvedIdent
+// TODO: stub - ResolvedIdent needs real import
 internal sealed class ResolvedIdent {
+    // TODO: stub - Slot needs real import
     data class Slot(val slot: io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot, val bindingId: BindingId) : ResolvedIdent()
     data class Global(val value: FrozenValue) : ResolvedIdent()
 }
