@@ -251,7 +251,6 @@ internal class ArgumentsPos<S : ArgSymbol>(
  */
 // #[derive(Default, Clone, Dupe_)]
 // pub struct Arguments<'v, 'a>(pub(crate) ArgumentsFull<'v, 'a, Symbol>);
-// TODO: stub - Arguments needs real import
 class Arguments(
     internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
 ) {

@@ -86,7 +86,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
 /// Wrapper for `Ty` which is smaller than `Ty`.
 // #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, derive_more::Display, Debug, Allocative)]
 // pub struct ArcTy(ArcTyInner);
-// TODO: stub - ArcTy needs real import
 class ArcTy private constructor(
     private val inner: ArcTyInner,
 ) : Comparable<ArcTy> {

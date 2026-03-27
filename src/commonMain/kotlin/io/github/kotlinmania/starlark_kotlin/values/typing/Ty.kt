@@ -44,7 +44,6 @@ data class Approximation(
  * This is different handling of union types than in TypeScript for example,
  * TypeScript would consider such expression to be an error.
  */
-// TODO: stub - Ty needs real import
 data class Ty(
     /**
      * A series of alternative types.

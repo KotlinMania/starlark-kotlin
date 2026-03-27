@@ -220,7 +220,6 @@ internal class BcPairsProfileData(
 
 // enum BcProfileDataMode
 private sealed class BcProfileDataMode {
-    // TODO: stub - Bc needs real import
     data class Bc(val data: BcProfileData) : BcProfileDataMode()
     data class BcPairs(val data: BcPairsProfileData) : BcProfileDataMode()
     data object Disabled : BcProfileDataMode()

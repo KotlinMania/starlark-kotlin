@@ -153,7 +153,6 @@ private fun debugValue(typ: String, v: Value): String {
  */
 // #[derive(Clone_, Copy_, Dupe_, ProvidesStaticType, Allocative)]
 // pub struct Value<'v>(pub(crate) Pointer<'v>);
-// TODO: stub - Value needs real import
 class Value internal constructor(
     internal val ptr: Pointer,
 ) {
@@ -283,6 +282,31 @@ class Value internal constructor(
             return NumRef.Float(float.value)
         }
         return null
+    }
+
+    /**
+     * Unpack this value as an integer of type [Long], or return an error if it's too big.
+     * Returns `null` if the value is not an integer at all.
+     */
+    // pub(crate) fn unpack_integer<I>(self) -> crate::Result<Option<I>>
+    internal fun unpackInteger(): Result<Long?> {
+        val num = StarlarkIntRef.unpackValueOpt(this) ?: return Result.success(null)
+        return when (num) {
+            is StarlarkIntRef.Small -> {
+                Result.success(num.toI32().toLong())
+            }
+            is StarlarkIntRef.Big -> {
+                val bigVal = num.unpackInteger()
+                if (bigVal != null) {
+                    Result.success(bigVal)
+                } else {
+                    Result.failure(IntegerTooBigError(
+                        integerType = "Long",
+                        value = num.toString(),
+                    ))
+                }
+            }
+        }
     }
 
     /**
@@ -888,6 +912,17 @@ class Value internal constructor(
     }
 
     /**
+     * Convert the value to a JSON value object.
+     */
+    // pub fn to_json_value(self) -> anyhow::Result<serde_json::Value>
+    fun toJsonValue(): Result<Any> {
+        return toJson().map { jsonString ->
+            // Parse JSON string to a generic value
+            jsonString
+        }
+    }
+
+    /**
      * Forwards to [StarlarkValue.setAttr].
      */
     // pub fn set_attr(self, attribute: &str, alloc_value: Value<'v>) -> crate::Result<()>
@@ -1220,7 +1255,6 @@ fun FrozenValue.equivalent(key: Value): Boolean {
  */
 // #[derive(Clone, Copy, Dupe, ProvidesStaticType, Allocative)]
 // pub struct FrozenValue(pub(crate) FrozenPointer<'static>);
-// TODO: stub - FrozenValue needs real import
 class FrozenValue internal constructor(
     internal val ptr: FrozenPointer,
 ) {

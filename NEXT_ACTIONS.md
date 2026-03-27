@@ -4,10 +4,10 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (663/470 files)
+- **Current Progress:** 100.0% (524/470 files)
 - **Matched Files:** 470
-- **Average Similarity:** 0.76
-- **Critical Issues:** 57 files with <0.60 similarity
+- **Average Similarity:** 0.78
+- **Critical Issues:** 32 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -15,6 +15,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Similarity:** 0.82 (needs 3% improvement)
 - **Dependencies:** 178
 - **Priority Score:** 32.1
+- **TODOs:** 2
 - **Action:** Minor refinements needed
 
 ### 2. derive.unpack_value
@@ -33,13 +34,14 @@ Based on AST analysis, here are the concrete next steps.
 - **Similarity:** 0.84 (needs 1% improvement)
 - **Dependencies:** 76
 - **Priority Score:** 11.9
-- **TODOs:** 1
+- **TODOs:** 4
 - **Action:** Minor refinements needed
 
 ### 5. values.trace
 - **Similarity:** 0.79 (needs 6% improvement)
 - **Dependencies:** 52
 - **Priority Score:** 11.0
+- **TODOs:** 1
 - **Action:** Minor refinements needed
 
 ### 6. debug
@@ -58,6 +60,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Similarity:** 0.77 (needs 8% improvement)
 - **Dependencies:** 29
 - **Priority Score:** 6.6
+- **TODOs:** 1
 - **Action:** Minor refinements needed
 
 ### 9. private

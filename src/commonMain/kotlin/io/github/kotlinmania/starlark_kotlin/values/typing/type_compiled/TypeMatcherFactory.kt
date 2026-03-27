@@ -56,7 +56,6 @@ internal interface TypeMatcherFactoryDyn {
 }
 
 /** Boxed [TypeMatcher]. */
-// TODO: stub - TypeMatcherFactory needs real import
 class TypeMatcherFactory(
     internal val factory: TypeMatcherFactoryDyn,
 ) {

@@ -73,7 +73,6 @@ sealed class TypeRenderConfig {
  *
  * Corresponds to Rust's `Ty` struct.
  */
-// TODO: stub - Ty needs real import
 class Ty private constructor(
     /**
      * A series of alternative types.

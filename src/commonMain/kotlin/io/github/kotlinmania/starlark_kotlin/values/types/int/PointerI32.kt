@@ -55,7 +55,6 @@ const val INT_TYPE: String = "int"
  * the same Starlark `"int"` type name.
  */
 // Rust: pub(crate) struct PointerI32 { _private: () }
-// TODO: stub - PointerI32 needs real import
 internal class PointerI32 internal constructor(
     /** The inline integer value this pointer represents. */
     private val value: InlineInt,
