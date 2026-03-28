@@ -45,6 +45,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinit
 import io.github.kotlinmania.starlark_kotlin.eval.bc.call.resolve
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPos
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcNativeFunction
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 
 // impl ArgsCompiledValue
 

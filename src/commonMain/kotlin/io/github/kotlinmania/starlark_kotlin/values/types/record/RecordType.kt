@@ -59,6 +59,9 @@ import io.github.kotlinmania.starlark_kotlin.docs.typ
 import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.typing.TyUser
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
 
 // #[doc(hidden)]
 // pub trait RecordCell: ValueLifetimeless {

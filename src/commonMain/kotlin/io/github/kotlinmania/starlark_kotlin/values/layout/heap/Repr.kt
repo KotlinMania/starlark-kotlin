@@ -25,6 +25,8 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
 import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 
 /// In Kotlin, AValueHeader wraps the vtable reference for an allocated value.
 /// The low-level pointer tagging and alignment concerns from Rust are not
@@ -33,10 +35,23 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 class AValueHeader(
     val vtable: AValueVTable,
 ) {
+    /**
+     * Simulated pointer index for this header, used by the pointer-tagging system.
+     * Assigned at construction time via the global registry.
+     * The index is guaranteed to be 8-byte aligned (lower 3 bits are zero)
+     * so that tag bits can be stored in the low bits.
+     */
+    val index: Long = nextIndex()
+
+    init {
+        // Register this header in the global lookup table so fromIndex can find it.
+        headerRegistry[index] = this
+    }
+
     /// Unpack the header into its dynamic value accessor.
     // pub(crate) fn unpack<'v>(&'v self) -> AValueDyn<'v>
     fun unpack(): AValueDyn {
-        return AValueDyn(vtable)
+        return vtable.unpackDyn()
     }
 
     /// Size of allocation for this object.
@@ -46,14 +61,35 @@ class AValueHeader(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AValueHeader) return false
-        return vtable === other.vtable
+        return index == other.index
     }
 
-    override fun hashCode(): Int = System.identityHashCode(vtable)
+    override fun hashCode(): Int = index.hashCode()
 
     companion object {
         /// Alignment of objects in Starlark heap (8 bytes for tag bits).
         const val ALIGN: Int = 8
+
+        /// Global counter for assigning aligned indices.
+        private var counter: Long = ALIGN.toLong()
+
+        /// Global registry mapping index -> AValueHeader.
+        private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
+
+        /// Allocate the next aligned index.
+        @Synchronized
+        private fun nextIndex(): Long {
+            val idx = counter
+            counter += ALIGN
+            return idx
+        }
+
+        /// Look up an AValueHeader by its index.
+        // pub(crate) fn from_index(index: Long) -> AValueHeader
+        fun fromIndex(index: Long): AValueHeader {
+            return headerRegistry[index]
+                ?: throw IllegalArgumentException("No AValueHeader registered for index $index")
+        }
     }
 }
 

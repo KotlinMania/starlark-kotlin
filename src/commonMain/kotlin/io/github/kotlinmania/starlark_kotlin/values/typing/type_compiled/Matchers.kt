@@ -23,6 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenList
@@ -30,7 +31,9 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 
 // #[derive(Clone, Copy, Dupe, Allocative, Debug)]
 // pub(crate) struct IsAny;
@@ -191,7 +194,7 @@ internal class IsDictOf(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val dict = DictRef.fromValue(value) ?: return false
+        val dict = dictRefFromValue(value) ?: return false
         return dict.iter().all { (k, v) -> key.matches(k) && valueMatcher.matches(v) }
     }
 }

@@ -39,6 +39,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.named
 import io.github.kotlinmania.starlark_kotlin.docs.kwargs
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 
 /**
  * Type implementation for the struct type.

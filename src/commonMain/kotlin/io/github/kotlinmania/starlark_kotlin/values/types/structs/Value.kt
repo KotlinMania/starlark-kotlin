@@ -50,6 +50,7 @@ import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.compare
 import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 import io.github.kotlinmania.starlark_kotlin.analysis.keys
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 
 /**
  * The result of calling `struct()`.

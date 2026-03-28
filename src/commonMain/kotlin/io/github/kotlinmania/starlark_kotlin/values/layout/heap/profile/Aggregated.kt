@@ -7,6 +7,16 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
 
 
 /*

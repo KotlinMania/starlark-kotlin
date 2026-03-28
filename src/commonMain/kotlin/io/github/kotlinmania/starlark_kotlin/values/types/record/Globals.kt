@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.function
-import io.github.kotlinmania.starlark_kotlin.fromValue
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
 
 // #[starlark_module]

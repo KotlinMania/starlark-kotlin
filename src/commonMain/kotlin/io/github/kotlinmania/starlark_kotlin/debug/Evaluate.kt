@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
 
 /**
  * Evaluate statements in the existing context. This function is designed for debugging,

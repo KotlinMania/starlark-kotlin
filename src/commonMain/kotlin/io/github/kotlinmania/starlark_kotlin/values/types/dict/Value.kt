@@ -42,7 +42,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 @ProvidesStaticType

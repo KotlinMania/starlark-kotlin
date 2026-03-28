@@ -94,6 +94,13 @@ import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueCaptured
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfile
+import io.github.kotlinmania.starlark_kotlin.collections.StringPool
+import io.github.kotlinmania.starlark_kotlin.collections.Alloca
+import io.github.kotlinmania.starlark_kotlin.stdlib.BreakpointConsole
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueCaptured
+import io.github.kotlinmania.starlark_kotlin.stdlib.RealBreakpointConsole
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :
@@ -496,7 +503,7 @@ class Evaluator(
         return moduleEnv.frozenHeap()
     }
 
-    internal fun getSlotModule(slot: ModuleSlotId): Value {
+    internal fun getSlotModule(slot: ModuleSlotId): Result<Value> {
         fun error(eval: Evaluator, slot: ModuleSlotId): io.github.kotlinmania.starlark_kotlin.Error {
             val name = try {
                 when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
@@ -514,10 +521,15 @@ class Evaluator(
             )
         }
 
-        return when (val frozenModule = topFrameDefFrozenModule(false)) {
+        val value = when (val frozenModule = topFrameDefFrozenModule(false)) {
             null -> moduleEnv.slots().getSlot(slot)
             else -> frozenModule.getSlot(slot)?.let { Value.newFrozen(it) }
-        } ?: throw error(this, slot)
+        }
+        return if (value != null) {
+            Result.success(value)
+        } else {
+            Result.failure(error(this, slot))
+        }
     }
 
     internal fun localVarReferencedBeforeAssignment(slot: LocalSlotId): io.github.kotlinmania.starlark_kotlin.Error {
@@ -536,20 +548,29 @@ class Evaluator(
     internal fun getSlotLocal(
         frame: BcFramePtr,
         slot: LocalSlotId,
-    ): Value {
+    ): Result<Value> {
         // We access locals from explicitly passed frame because it is faster.
         check(currentFrame == frame)
 
-        return frame.getSlot(slot.toCapturedOrNot())
-            ?: throw localVarReferencedBeforeAssignment(slot)
+        val value = frame.getSlot(slot.toCapturedOrNot())
+        return if (value != null) {
+            Result.success(value)
+        } else {
+            Result.failure(localVarReferencedBeforeAssignment(slot))
+        }
     }
 
     internal fun getSlotLocalCaptured(
         slot: LocalCapturedSlotId,
-    ): Value {
+    ): Result<Value> {
         val valueCaptured = getSlotLocal(currentFrame, LocalSlotId(slot.index))
-        return valueCapturedGet(valueCaptured)
-            ?: throw localVarReferencedBeforeAssignment(LocalSlotId(slot.index))
+            .getOrElse { return Result.failure(it) }
+        val result = valueCapturedGet(valueCaptured)
+        return if (result != null) {
+            Result.success(result)
+        } else {
+            Result.failure(localVarReferencedBeforeAssignment(LocalSlotId(slot.index)))
+        }
     }
 
     internal fun cloneSlotCapture(
@@ -624,19 +645,19 @@ class Evaluator(
         currentFrame.setSlot(slot.toCapturedOrNot(), valueCaptured)
     }
 
-    internal fun checkReturnType(ret: Value) {
+    internal fun checkReturnType(ret: Value): Result<Unit> {
         val func = callStack.topNthFunction(0)
         val defRef = func.downcastRef<Def>()
         if (defRef != null) {
-            defRef.checkReturnType(ret, this)
-            return
+            return runCatching { defRef.checkReturnType(ret, this) }
         }
         val frozenDefRef = func.downcastRef<FrozenDef>()
         if (frozenDefRef != null) {
-            frozenDefRef.checkReturnType(ret, this)
-            return
+            return runCatching { frozenDefRef.checkReturnType(ret, this) }
         }
-        throw io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.TopFrameNotDef)
+        return Result.failure(
+            io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.TopFrameNotDef)
+        )
     }
 
     private fun funcToDefInfo(func: Value): FrozenRef<DefInfo> {
@@ -835,18 +856,23 @@ class Evaluator(
         maxCallstackSize = stackSize
     }
 
-    internal fun reportForwardProgress() {
+    internal fun reportForwardProgress(): Result<Unit> {
         infrequentInstrCheckCounter++
         if (infrequentInstrCheckCounter >= INFREQUENT_INSTRUCTION_CHECK_PERIOD) {
-            runInfrequentInstrChecks()
+            val result = runInfrequentInstrChecks()
             infrequentInstrCheckCounter = 0u
+            return result
         }
+        return Result.success(Unit)
     }
 
-    internal fun runInfrequentInstrChecks() {
+    internal fun runInfrequentInstrChecks(): Result<Unit> {
         if (isCancelled()) {
-            throw io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.Cancelled)
+            return Result.failure(
+                io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.Cancelled)
+            )
         }
+        return Result.success(Unit)
     }
 }
 

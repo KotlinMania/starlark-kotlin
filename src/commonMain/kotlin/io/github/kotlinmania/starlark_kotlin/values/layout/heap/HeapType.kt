@@ -47,7 +47,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptr
-import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.toValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.unpackPtr
@@ -57,9 +56,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
 import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValueInterner
 
 enum class HeapKind {
     Unfrozen,

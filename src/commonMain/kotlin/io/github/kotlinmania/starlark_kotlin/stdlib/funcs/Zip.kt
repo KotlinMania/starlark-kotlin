@@ -37,6 +37,8 @@ import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.typing.iterItem
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 
 class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {

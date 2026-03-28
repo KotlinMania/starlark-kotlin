@@ -56,7 +56,8 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 import io.github.kotlinmania.starlark_kotlin.values.documentation
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.typing.ArcTy
 
 // #[derive(Debug, thiserror::Error)]
 // enum FunctionError
@@ -298,6 +299,9 @@ internal class BoundMethodGen<V : ValueLike>(
 ) : StarlarkValue, Freeze<BoundMethodGen<FrozenValue>> {
 
     // starlark_complex_value!(pub(crate) BoundMethod)
+    // Generated type aliases:
+    //   pub(crate) type BoundMethod<'v> = BoundMethodGen<Value<'v>>;
+    //   pub(crate) type FrozenBoundMethod = BoundMethodGen<FrozenValue>;
 
     // #[starlark_value(type = FUNCTION_TYPE)]
     override val TYPE: String get() = FUNCTION_TYPE
@@ -323,3 +327,7 @@ internal class BoundMethodGen<V : ValueLike>(
         return Result.success(BoundMethodGen(method, frozenThis))
     }
 }
+
+// starlark_complex_value!(pub(crate) BoundMethod) generates:
+internal typealias BoundMethod = BoundMethodGen<Value>
+internal typealias FrozenBoundMethod = BoundMethodGen<FrozenValue>

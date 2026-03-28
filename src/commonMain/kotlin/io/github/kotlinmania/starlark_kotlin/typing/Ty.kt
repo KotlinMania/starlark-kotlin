@@ -205,7 +205,7 @@ class Ty private constructor(
             val merged = mergeAdjacent(deduped) { x, y ->
                 when {
                     x is TyBasic.List && y is TyBasic.List -> {
-                        MergeResult.Left(TyBasic.List(ArcTy.union2(x.element, y.element)))
+                        MergeResult.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
                     }
                     x is TyBasic.Dict && y is TyBasic.Dict -> {
                         MergeResult.Left(
@@ -227,7 +227,7 @@ class Ty private constructor(
                 }
             }
 
-            return Ty(merged.toSmallArcVec1())
+            return Ty(SmallArcVec1.cloneFromSlice(merged))
         }
 
         /** Create a union of two entries. */
@@ -319,7 +319,7 @@ class Ty private constructor(
                     }
                 }
                 if (good.isEmpty()) {
-                    Result.failure(TypingNoContextError())
+                    Result.failure(TypingNoContextError)
                 } else {
                     Result.success(unions(good))
                 }
@@ -390,7 +390,16 @@ class Ty private constructor(
         val xs = iterUnion()
         return when {
             xs.isEmpty() -> "never"
-            else -> xs.joinToString(" | ") { it.fmtWithConfig(config) }
+            else -> {
+                val sb = StringBuilder()
+                for ((i, x) in xs.withIndex()) {
+                    if (i != 0) {
+                        sb.append(" | ")
+                    }
+                    x.fmtWithConfig(sb, config)
+                }
+                sb.toString()
+            }
         }
     }
 

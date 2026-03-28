@@ -21,6 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval
 
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 
 /**
  * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)

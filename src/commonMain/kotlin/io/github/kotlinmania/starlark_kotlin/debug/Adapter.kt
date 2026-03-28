@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.length
-import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.values.dirAttr
 import io.github.kotlinmania.starlark_kotlin.values.at
@@ -321,7 +321,7 @@ data class InspectVariableInfo(
         fun tryFromValue(v: Value, heap: Heap): Result<InspectVariableInfo> {
             return when (v.getType()) {
                 "dict" -> {
-                    val dictRef = DictRef.fromValue(v)
+                    val dictRef = dictRefFromValue(v)
                         ?: return Result.failure(IllegalArgumentException("not a dictionary"))
                     tryFromDict(dictRef)
                 }

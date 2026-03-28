@@ -1,5 +1,7 @@
 // port-lint: source src/values/types/enumeration.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

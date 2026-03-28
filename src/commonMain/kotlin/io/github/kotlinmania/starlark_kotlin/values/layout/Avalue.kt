@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDictEmpty
 import io.github.kotlinmania.starlark_kotlin.values.types.list.value.ListData
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {

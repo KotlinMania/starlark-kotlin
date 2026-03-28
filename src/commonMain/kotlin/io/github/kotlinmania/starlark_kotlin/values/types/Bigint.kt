@@ -31,14 +31,13 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.int.Big
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 /**
  * `int` implementation for larger integers.

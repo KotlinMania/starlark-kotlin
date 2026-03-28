@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.definitely_assigned
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 
 /**
  * Tracker for local variables which are definitely assigned.

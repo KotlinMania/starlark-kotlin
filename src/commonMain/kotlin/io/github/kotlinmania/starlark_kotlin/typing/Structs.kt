@@ -78,7 +78,7 @@ data class TyStruct(
         return when {
             ty != null -> Result.success(ty)
             extra -> Result.success(Ty.any())
-            else -> Result.failure(TypingNoContextError())
+            else -> Result.failure(TypingNoContextError)
         }
     }
 

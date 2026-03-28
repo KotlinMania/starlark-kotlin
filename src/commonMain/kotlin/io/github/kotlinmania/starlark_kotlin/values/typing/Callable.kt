@@ -46,11 +46,12 @@ import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.unpackValueErr
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
-import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.typing.hasInvoke
 import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)

@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.typing
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -129,7 +130,8 @@ class TypingError(private val exception: EvalException) {
 }
 
 /// Like [TypingError], but without a message or span.
-class TypingNoContextError : Exception("typing error (no context)")
+/// Corresponds to Rust unit struct `TypingNoContextError` — no fields, singleton value.
+object TypingNoContextError : Exception("typing error (no context)")
 
 /// Either a typing error or an internal error.
 /// * Typing error means, types are not compatible.

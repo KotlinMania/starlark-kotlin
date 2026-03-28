@@ -136,6 +136,10 @@ class SmallMap<K, V> internal constructor(
         return null
     }
 
+    fun insertHashedUniqueUnchecked(key: Hashed<K>, value: V) {
+        entries.add(Entry(key, value))
+    }
+
     fun insertHashed(key: Hashed<K>, value: V): V? {
         val index = getIndexOfHashedByValue(key)
         return if (index != null) {

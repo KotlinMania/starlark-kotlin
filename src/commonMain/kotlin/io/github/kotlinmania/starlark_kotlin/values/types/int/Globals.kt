@@ -4,6 +4,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

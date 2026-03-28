@@ -23,6 +23,9 @@ import io.github.kotlinmania.starlark_kotlin.util.unleakBorrow
 import io.github.kotlinmania.starlark_kotlin.util.refcell.borrow
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.typing.Ok
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

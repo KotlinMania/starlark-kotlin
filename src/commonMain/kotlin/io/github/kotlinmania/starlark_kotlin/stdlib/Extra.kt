@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Other
 import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.assert.printHandler
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 
 /// Apply a predicate to each element of the iterable, returning those that match.
 /// As a special case if the function is `None` then removes all the `None` values.

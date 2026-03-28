@@ -53,6 +53,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.newCheckUnique
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtCount
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.moduleSlotCount
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 
 // --- Re-exports (Rust `pub use`) ---
 // pub use runtime::arguments::Arguments;

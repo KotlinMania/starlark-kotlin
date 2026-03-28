@@ -77,6 +77,15 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParameterCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.EvalError
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParametersCompiled
+import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignError
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

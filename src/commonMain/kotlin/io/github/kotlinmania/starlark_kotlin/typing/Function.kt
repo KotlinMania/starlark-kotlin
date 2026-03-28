@@ -109,7 +109,7 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 
     // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
     override fun attribute(attr: String): Ty {
-        throw TypingNoContextError()
+        throw TypingNoContextError
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result

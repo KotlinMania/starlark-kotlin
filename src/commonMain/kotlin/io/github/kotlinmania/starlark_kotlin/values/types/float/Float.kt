@@ -116,7 +116,9 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
 }
 
 /** Runtime representation of Starlark `float` type. */
-data class StarlarkFloat(val value: Double) : StarlarkTypeRepr {
+data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue {
+
+    override val TYPE: String get() = Companion.TYPE
 
     companion object {
         /** The result of calling `type()` on floats. */

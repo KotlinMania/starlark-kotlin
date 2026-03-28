@@ -55,6 +55,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.DictComprehension
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DictComprehension
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ListComprehension
 
 sealed class NameWarning : LintWarning {
     data class UnusedLoad(val name: String) : NameWarning()

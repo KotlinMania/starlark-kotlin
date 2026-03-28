@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.typing.TypingError
 import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
 import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
 
 // Missing value types not yet ported from Rust (crate::values::*::value):
 //   - List (crate::values::list::value::List)

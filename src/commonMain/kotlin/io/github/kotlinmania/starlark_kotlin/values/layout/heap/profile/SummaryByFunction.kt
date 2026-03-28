@@ -24,6 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 
 /// Information relating to a function.
 // #[derive(Default, Debug, Clone)]

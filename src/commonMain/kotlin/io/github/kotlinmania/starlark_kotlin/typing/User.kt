@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
 
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 // #[derive(Debug, thiserror::Error)]
 // enum TyUserError
@@ -246,7 +247,7 @@ class TyUser private constructor(
         return if (fields.unknown) {
             Result.success(Ty.any())
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 

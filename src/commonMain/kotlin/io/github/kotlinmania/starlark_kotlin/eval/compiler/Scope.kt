@@ -28,7 +28,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.typing.InternalError
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -76,6 +76,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.For
 
 // #[derive(Debug, thiserror::Error)]
 // enum ScopeError

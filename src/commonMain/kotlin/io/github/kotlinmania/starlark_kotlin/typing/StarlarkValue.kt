@@ -229,7 +229,7 @@ class TyStarlarkValue private constructor(
         return if (has) {
             Result.success(this)
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 
@@ -238,7 +238,7 @@ class TyStarlarkValue private constructor(
         return if (ty != null) {
             Result.success(ty)
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 
@@ -247,7 +247,7 @@ class TyStarlarkValue private constructor(
         return if (ty != null) {
             Result.success(ty)
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 
@@ -255,7 +255,7 @@ class TyStarlarkValue private constructor(
         return if (vtable.hasAt) {
             Result.success(Ty.any())
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 
@@ -265,7 +265,7 @@ class TyStarlarkValue private constructor(
             // All known implementations of slice return self type.
             Result.success(Ty.basic(TyBasic.StarlarkValue(this)))
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 
@@ -281,7 +281,7 @@ class TyStarlarkValue private constructor(
                 return Result.success(ty)
             }
         }
-        return Result.failure(TypingNoContextError())
+        return Result.failure(TypingNoContextError)
     }
 
     internal fun attr(name: String): Result<Ty> {
@@ -290,7 +290,7 @@ class TyStarlarkValue private constructor(
         if (ty != null) {
             return Result.success(ty)
         }
-        return Result.failure(TypingNoContextError())
+        return Result.failure(TypingNoContextError)
     }
 
     internal fun isCallable(): Boolean {
@@ -322,7 +322,7 @@ class TyStarlarkValue private constructor(
         return if (isIterableFromVtable(vtable)) {
             Result.success(Ty.any())
         } else {
-            Result.failure(TypingNoContextError())
+            Result.failure(TypingNoContextError)
         }
     }
 

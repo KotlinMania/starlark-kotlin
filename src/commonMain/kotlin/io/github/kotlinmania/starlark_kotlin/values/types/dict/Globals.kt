@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.function.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }

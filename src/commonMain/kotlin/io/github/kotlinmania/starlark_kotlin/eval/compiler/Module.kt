@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 //! Compile and evaluate module top-level statements.
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
@@ -61,6 +61,8 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.load
 import io.github.kotlinmania.starlark_kotlin.analysis.module
 import io.github.kotlinmania.starlark_kotlin.analysis.local
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.typing.BindingsCollect
+import io.github.kotlinmania.starlark_kotlin.typing.TypecheckMode
 
 // #[derive(Debug, thiserror::Error)]
 // enum ModuleError

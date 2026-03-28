@@ -53,6 +53,9 @@ import io.github.kotlinmania.starlark_kotlin.docs.params
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.codemap.*
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
+import io.github.kotlinmania.starlark_kotlin.typing.Visit
 
 // fn test_with_module(program: &str, expected: &str, module: &MutableNames)
 private fun testWithModule(program: String, expected: String, module: MutableNames) {

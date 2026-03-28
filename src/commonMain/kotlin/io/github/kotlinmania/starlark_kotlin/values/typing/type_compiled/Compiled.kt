@@ -7,8 +7,17 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

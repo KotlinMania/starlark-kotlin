@@ -36,6 +36,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.Private
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 
 /**
  * The result of calling `type()` on strings.

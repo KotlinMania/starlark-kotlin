@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 
 /// Ready to execute bytecode.
 // #[derive(Default)]

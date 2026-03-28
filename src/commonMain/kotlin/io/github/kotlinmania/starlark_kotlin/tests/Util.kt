@@ -26,8 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 // #[derive(Trace, Freeze, Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]

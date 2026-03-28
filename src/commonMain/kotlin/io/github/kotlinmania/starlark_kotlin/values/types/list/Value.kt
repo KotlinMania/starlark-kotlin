@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.compareSlice
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import kotlin.math.max
 
@@ -229,7 +230,8 @@ typealias FrozenList = ListGen<FrozenListData>
 typealias MutableStarlarkList = ListGen<ListData>
 
 // pub(crate) static VALUE_EMPTY_FROZEN_LIST
-val VALUE_EMPTY_FROZEN_LIST: FrozenList = ListGen(FrozenListData.empty())
+val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
+    AllocStaticSimple.alloc(ListGen(FrozenListData.empty()))
 
 // impl ListGen<FrozenListData> { fn offset_of_content() -> usize }
 fun ListGen<FrozenListData>.offsetOfContent(): Int = 0

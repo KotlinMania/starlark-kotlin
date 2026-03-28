@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
 import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 
 // pub enum NativeSigArg
 sealed class NativeSigArg {

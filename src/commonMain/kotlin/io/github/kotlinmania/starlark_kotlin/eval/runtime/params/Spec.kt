@@ -31,23 +31,18 @@ import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.FunctionError
-import io.github.kotlinmania.starlark_kotlin.typing.ParamFmt
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FunctionError
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.ParamFmt
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.fromValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.RepeatedArg
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.KwArgsIsNotDict
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ExtraPositionalArg
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ExtraNamedArg
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgsValueIsNotString
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.key
 import io.github.kotlinmania.starlark_kotlin.values.hash
@@ -59,6 +54,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.getIndexFromParamSpec
 import io.github.kotlinmania.starlark_kotlin.docs.kwargs
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParamFmt
 
 /// Describe parameter for [`ParametersSpec`].
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]
@@ -615,7 +611,7 @@ class ParametersSpec<V>(
 
         // Now insert the kwargs, if there are any
         args.kwargs()?.let { paramKwargs ->
-            val dictRef = DictRef.fromValue(paramKwargs)
+            val dictRef = dictRefFromValue(paramKwargs)
                 ?: throw FunctionError.KwArgsIsNotDict
             for ((k, v) in dictRef.iterHashed()) {
                 val s = StringValue.new(k.key())

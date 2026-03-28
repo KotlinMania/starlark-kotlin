@@ -125,6 +125,12 @@ class AValueVTable(
     fun methods(): Methods? {
         return starlarkValue.getMethods()
     }
+
+    /// Create an AValueDyn from this vtable.
+    /// Used by AValueHeader.unpack() to create a dynamic dispatch reference.
+    internal fun unpackDyn(): AValueDyn {
+        return AValueDyn(StarlarkValueRawPtr(starlarkValue), this)
+    }
 }
 
 /// A dynamically dispatched reference to a Starlark value with its vtable.

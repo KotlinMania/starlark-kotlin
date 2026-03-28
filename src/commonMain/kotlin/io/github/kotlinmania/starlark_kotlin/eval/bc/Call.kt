@@ -32,9 +32,10 @@ import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsPos
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
 import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
 
 /// Call arguments.
 // pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg

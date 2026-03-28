@@ -19,6 +19,11 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopeData
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstString
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

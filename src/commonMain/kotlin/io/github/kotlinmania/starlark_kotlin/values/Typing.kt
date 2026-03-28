@@ -1,5 +1,7 @@
 // port-lint: source src/values/typing.rs
 package io.github.kotlinmania.starlark_kotlin.values
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

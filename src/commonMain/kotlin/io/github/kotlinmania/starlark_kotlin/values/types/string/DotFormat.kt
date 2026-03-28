@@ -5,6 +5,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.collections.StringPool
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

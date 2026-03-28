@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerType
 
 // pub(crate) struct HeapAllocatedProfilerType
 object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {

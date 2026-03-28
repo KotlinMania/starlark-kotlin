@@ -5,6 +5,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
@@ -59,8 +59,20 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
+import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
+import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
+import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
+import io.github.kotlinmania.starlark_kotlin.values.types.bool.StarlarkBool
+import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 
 // ---------------------------------------------------------------------------
 // MaybeNot

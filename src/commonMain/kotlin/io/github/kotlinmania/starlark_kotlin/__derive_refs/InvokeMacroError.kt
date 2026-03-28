@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  */
 
 import io.github.kotlinmania.starlark_kotlin.errors.StarlarkError
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 
 // pub trait InvokeMacroError {
 //     fn into_starlark_error(self) -> crate::Error;

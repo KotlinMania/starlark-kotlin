@@ -1,5 +1,11 @@
 // port-lint: source src/values.rs
 package io.github.kotlinmania.starlark_kotlin
+import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

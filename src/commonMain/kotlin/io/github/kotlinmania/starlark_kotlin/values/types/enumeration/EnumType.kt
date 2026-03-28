@@ -59,6 +59,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional1
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.noNamedArgs
+import io.github.kotlinmania.starlark_kotlin.typing.TyUser
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
 
 // #[derive(thiserror::Error, Debug)]
 // enum EnumError {

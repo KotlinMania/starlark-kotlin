@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.newRepr
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 
 /// For types which are only allocated statically (never in heap).
 /// Technically we can use `AValueSimple` for these, but this is more explicit and safe.

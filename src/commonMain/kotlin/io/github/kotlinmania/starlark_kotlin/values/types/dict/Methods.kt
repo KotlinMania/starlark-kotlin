@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.Entry
 
 internal fun dictMethods(registry: MethodsBuilder) {
     registry.method("clear") { thisValue: Value -> clear(thisValue) }

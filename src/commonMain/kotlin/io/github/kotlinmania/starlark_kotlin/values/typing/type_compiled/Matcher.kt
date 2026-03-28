@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.typing.matcherWithBox
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 
 /// Marker interface for type matchers which are registered.
 ///

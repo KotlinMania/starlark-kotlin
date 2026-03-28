@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments

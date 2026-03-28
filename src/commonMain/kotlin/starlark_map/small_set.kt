@@ -25,8 +25,14 @@ import starlark_map.Hashed
 /**
  * A set with deterministic iteration order.
  */
-class SmallSet<T> {
-    private val entries: ArrayList<Hashed<T>> = ArrayList()
+class SmallSet<T> private constructor(
+    private val entries: ArrayList<Hashed<T>>,
+) {
+    constructor() : this(ArrayList())
+
+    companion object {
+        fun <T> withCapacity(n: Int): SmallSet<T> = SmallSet(ArrayList(n))
+    }
 
     fun isEmpty(): Boolean = entries.isEmpty()
 
@@ -39,6 +45,8 @@ class SmallSet<T> {
     fun iter(): Sequence<T> = entries.asSequence().map { it.key() }
 
     fun iterHashed(): Sequence<Hashed<T>> = entries.asSequence()
+
+    fun intoIterHashed(): Sequence<Hashed<T>> = iterHashed()
 
     fun addAll(values: Iterable<Hashed<T>>) {
         for (v in values) {

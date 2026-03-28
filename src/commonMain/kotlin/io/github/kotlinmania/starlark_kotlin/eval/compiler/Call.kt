@@ -9,6 +9,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.function.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

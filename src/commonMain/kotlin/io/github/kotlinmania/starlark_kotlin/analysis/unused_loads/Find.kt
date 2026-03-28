@@ -42,6 +42,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.end
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 
 // Forward-reference AST types until starlark_syntax port is complete.
 // use starlark_syntax::codemap::FileSpanRef;

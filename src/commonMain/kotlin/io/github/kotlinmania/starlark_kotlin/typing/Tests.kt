@@ -44,6 +44,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
 
 // Submodules:
 // mod call           -> typing.tests.call (Call.kt)

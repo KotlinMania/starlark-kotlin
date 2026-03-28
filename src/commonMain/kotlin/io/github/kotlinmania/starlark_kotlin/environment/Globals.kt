@@ -52,6 +52,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.LibraryExtension
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>

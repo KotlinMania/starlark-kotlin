@@ -34,6 +34,9 @@ import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTyp
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomImpl
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 internal object NamespaceMatcher : TypeMatcher {
@@ -91,7 +94,7 @@ data class TyNamespace(
             null -> if (extra) {
                 Result.success(Ty.any())
             } else {
-                Result.failure(TypingNoContextError())
+                Result.failure(TypingNoContextError)
             }
             else -> Result.success(ty)
         }

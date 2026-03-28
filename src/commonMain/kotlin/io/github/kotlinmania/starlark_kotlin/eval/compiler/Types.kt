@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue

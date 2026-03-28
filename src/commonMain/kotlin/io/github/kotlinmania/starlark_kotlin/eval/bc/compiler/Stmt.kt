@@ -58,6 +58,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.asValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.analysis.stmts
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 
 /// Compile a for-loop to bytecode.
 internal fun writeFor(

@@ -1,5 +1,7 @@
 // port-lint: source src/typing/basic.rs
 package io.github.kotlinmania.starlark_kotlin.typing
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.typing.TypingAny
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -19,6 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
+
 enum class TypingBinOp {
     Less,
     BitOr,
@@ -52,7 +55,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
     fun binOp(binOp: TypingBinOp, rhs: TyBasic): Result<Ty> =
         Result.failure(TypingNoContextOrInternalError.Typing)
 
-    fun iterItem(): Result<Ty> = Result.failure(TypingNoContextError())
+    fun iterItem(): Result<Ty> = Result.failure(TypingNoContextError)
 
     fun index(item: TyBasic): Result<Ty> =
         Result.failure(TypingNoContextOrInternalError.Typing)
@@ -192,9 +195,23 @@ class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     companion object {
         fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
+
+        /// Rust: `pub(crate) fn union2(x: TyCustom, y: TyCustom) -> Result<TyCustom, (TyCustom, TyCustom)>`
+        internal fun union2(x: TyCustom, y: TyCustom): Result<TyCustom> {
+            return x.inner.union2Dyn(y.inner).map { TyCustom(it) }
+        }
+
+        /// Rust: `pub(crate) fn intersects(x: &TyCustom, y: &TyCustom) -> bool`
+        internal fun intersects(x: TyCustom, y: TyCustom): Boolean {
+            return x.inner.intersectsDyn(y.inner)
+        }
     }
 
     fun asName(): String? = inner.asNameDyn()
+
+    fun asCallableDyn(): TyCallable? = inner.asCallableDyn()
+
+    fun asFunctionDyn(): TyFunction? = inner.asFunctionDyn()
 
     fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any =
         inner.matcherWithTypeCompiledFactory(factory)

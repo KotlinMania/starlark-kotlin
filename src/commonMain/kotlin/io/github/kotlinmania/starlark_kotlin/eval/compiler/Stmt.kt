@@ -30,7 +30,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.SmallVec1
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
@@ -50,6 +50,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -61,12 +62,12 @@ import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.values.index
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMutFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
 import io.github.kotlinmania.starlark_kotlin.values.types.list.isListType
-import io.github.kotlinmania.starlark_kotlin.values.types.list.fromValueMut
 import io.github.kotlinmania.starlark_kotlin.values.types.list.extend
 import io.github.kotlinmania.starlark_kotlin.values.types.array.double
 import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
@@ -78,7 +79,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.If
 import io.github.kotlinmania.starlark_kotlin.typing.For
 import io.github.kotlinmania.starlark_kotlin.typing.Continue
 import io.github.kotlinmania.starlark_kotlin.typing.Break
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.assignP
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
 import io.github.kotlinmania.starlark_kotlin.pagable.vtable
@@ -99,6 +99,11 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.allocatedBytes
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.For
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.If
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IfElse
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Pass
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Break
 
 // #[derive(Clone, Debug)]
 // pub(crate) enum AssignModifyLhs {
@@ -532,11 +537,11 @@ internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     val lhsTy = lhsRef.vtable().staticTypeOfValue.get()
 
     if (Dict.isDictType(lhsTy)) {
-        val dict = DictMut.fromValue(lhs).getOrElse { return Result.failure(it) }
+        val dict = dictMutFromValue(lhs).getOrElse { return Result.failure(it) }
         if (lhs.ptrEq(rhs)) {
             // Nothing to do as union is idempotent
         } else {
-            val rhsDict = DictRef.fromValue(rhs)
+            val rhsDict = dictRefFromValue(rhs)
             if (rhsDict == null) {
                 return Result.failure(ValueError.unsupportedOwned(
                     lhsRef.vtable().typeName,

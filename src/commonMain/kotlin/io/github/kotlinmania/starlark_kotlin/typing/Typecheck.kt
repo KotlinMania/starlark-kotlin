@@ -53,6 +53,8 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(

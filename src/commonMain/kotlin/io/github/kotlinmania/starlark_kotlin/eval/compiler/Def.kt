@@ -43,7 +43,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
@@ -71,6 +72,9 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
 
 // ---- DefError ----
 

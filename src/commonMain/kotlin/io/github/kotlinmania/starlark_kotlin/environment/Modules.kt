@@ -61,6 +61,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.EnvironmentError
 
 /// #[derive(Debug, thiserror::Error)]
 /// enum ModuleError

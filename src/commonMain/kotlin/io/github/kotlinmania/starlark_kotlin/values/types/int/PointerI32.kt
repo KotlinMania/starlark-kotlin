@@ -39,6 +39,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
+import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 
 /** The result of calling `type()` on integers. */
 // Rust: pub const INT_TYPE: &str = "int";
@@ -58,7 +59,9 @@ const val INT_TYPE: String = "int"
 internal class PointerI32 internal constructor(
     /** The inline integer value this pointer represents. */
     private val value: InlineInt,
-) {
+) : StarlarkValue {
+
+    override val TYPE: String get() = INT_TYPE
 
     /** Construct from a raw i32 value (used by layout code). */
     internal constructor(rawI32: Int) : this(InlineInt.newUnchecked(rawI32))

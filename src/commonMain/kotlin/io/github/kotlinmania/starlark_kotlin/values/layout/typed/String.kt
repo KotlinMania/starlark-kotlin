@@ -19,10 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.typed
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
-class StarlarkStr(val value: String) {
+class StarlarkStr(val value: String) : StarlarkValue {
+    override val TYPE: String get() = "string"
+
     fun asStr(): String = value
+
+    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(value)
+
     override fun toString(): String = value
     override fun hashCode(): Int = value.hashCode()
     override fun equals(other: Any?): Boolean {
@@ -96,6 +106,12 @@ class FrozenStringValue(
 
     companion object {
         fun default(): FrozenStringValue = FrozenStringValue(StarlarkStr(""))
+
+        /** Downcast a [FrozenValue] to a [FrozenStringValue], returning null if the value is not a string. */
+        fun new(value: FrozenValue): FrozenStringValue? {
+            val str = value.toValue().unpackStarlarkStr() ?: return null
+            return FrozenStringValue(str, value)
+        }
     }
 }
 
@@ -164,6 +180,12 @@ class StringValue(
 
     companion object {
         fun default(): StringValue = FrozenStringValue.default().toStringValue()
+
+        /** Downcast a [Value] to a [StringValue], returning null if the value is not a string. */
+        fun new(value: Value): StringValue? {
+            val str = value.unpackStarlarkStr() ?: return null
+            return StringValue(str, value)
+        }
     }
 }
 

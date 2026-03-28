@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.starlark_type_id
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 
 /**
  * Identifier of a starlark type.
