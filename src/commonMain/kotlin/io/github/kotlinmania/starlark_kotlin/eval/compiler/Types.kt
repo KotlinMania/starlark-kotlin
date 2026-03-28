@@ -19,54 +19,30 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypePathP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Union
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Path
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Index2
-import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.analysis.Index
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeAnyOf
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.toInner
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.fromTy
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
-import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
-import io.github.kotlinmania.starlark_kotlin.values.types.array.rem
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
-import io.github.kotlinmania.starlark_kotlin.typing.internalError
-import io.github.kotlinmania.starlark_kotlin.typing.i0
-import io.github.kotlinmania.starlark_kotlin.typing.getAttrError
-import io.github.kotlinmania.starlark_kotlin.typing.Union
-import io.github.kotlinmania.starlark_kotlin.typing.TypePathP
-import io.github.kotlinmania.starlark_kotlin.typing.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.typing.Path
-import io.github.kotlinmania.starlark_kotlin.typing.Index2
-import io.github.kotlinmania.starlark_kotlin.tests.xs
-import io.github.kotlinmania.starlark_kotlin.tests.opt.i1
-import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
-import io.github.kotlinmania.starlark_kotlin.tests.derive.i
-import io.github.kotlinmania.starlark_kotlin.tests.a
-import io.github.kotlinmania.starlark_kotlin.analysis.path
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypeExprUnpackP
+import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypePathP
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypesError
@@ -106,7 +82,9 @@ internal fun Compiler.exprForType(
     }
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
-    val ty = expr.Payload.compilerTy
+    @Suppress("UNCHECKED_CAST")
+    val payload = expr.node.payload as? CstTypeExprPayload
+    val ty = payload?.compilerTy
     if (ty == null) {
         // This is unreachable. But unfortunately we do not return error here.
         // Still make an error in panic to produce nice panic message.
@@ -114,7 +92,7 @@ internal fun Compiler.exprForType(
             EvalException.newAnyhow(
                 TypesError.TypePayloadNotSet(),
                 expr.span,
-                codemap,
+                codemap.value,
             ).toString()
         )
     }
@@ -142,7 +120,7 @@ private fun Compiler.allocValueForType(
     return try {
         TypeCompiled.new(value, eval.heap())
     } catch (e: Exception) {
-        throw EvalException.newAnyhow(e, span, codemap)
+        throw EvalException.newAnyhow(e, span, codemap.value)
     }
 }
 
@@ -152,7 +130,7 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
         ?: throw EvalException.newAnyhow(
             TypesError.UnresolvedIdentifier(),
             ident.span,
-            codemap,
+            codemap.value,
         )
     return when (identPayload) {
         is ResolvedIdent.Slot -> {
@@ -160,14 +138,14 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
                 is Slot.Local -> throw EvalException.newAnyhow(
                     TypesError.LocalIdentifier(),
                     ident.span,
-                    codemap,
+                    codemap.value,
                 )
                 is Slot.Module -> {
                     eval.moduleEnv.slots().getSlot(slot.id)
                         ?: throw EvalException.newAnyhow(
                             TypesError.ModuleVariableNotSet(ident.node.ident),
                             ident.span,
-                            codemap,
+                            codemap.value,
                         )
                 }
                 else -> throw IllegalStateException("Unexpected slot: $slot")
@@ -181,13 +159,11 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
 /// We may use non-frozen values as types, so we don't reuse `expr_ident` function
 /// which is used in normal compilation.
 // fn eval_path(&mut self, path: TypePathP<CstPayload>) -> Result<Value<'v>, EvalException>
-private fun Compiler.evalPath(path: TypePathP<CstPayload>): Value {
+private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Value {
     var value = evalIdentInTypeExpr(path.first)
     for (step in path.rem) {
-        value = try {
-            value.getAttrError(step.node, eval.heap())
-        } catch (e: Exception) {
-            throw EvalException.new(e, step.span, codemap)
+        value = value.getAttrError(step.node, eval.heap()).getOrElse { e ->
+            throw EvalException.newAnyhow(e, step.span, codemap.value)
         }
     }
     return value
@@ -198,7 +174,7 @@ private fun Compiler.evalPath(path: TypePathP<CstPayload>): Value {
 //     expr: Spanned<TypeExprUnpackP<CstPayload>>,
 // ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.evalExprAsType(
-    expr: Spanned<TypeExprUnpackP<CstPayload>>,
+    expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
 ): TypeCompiled {
     val span = expr.span
     val value = evalExpr(expr)
@@ -212,7 +188,7 @@ private fun Compiler.evalExprAsType(
 //     expr: Spanned<TypeExprUnpackP<CstPayload>>,
 // ) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalExpr(
-    expr: Spanned<TypeExprUnpackP<CstPayload>>,
+    expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
 ): Value {
     return when (val node = expr.node) {
         is TypeExprUnpackP.Ellipsis -> Ellipsis.newValue().toValue()
@@ -222,41 +198,37 @@ private fun Compiler.evalExpr(
         }
         is TypeExprUnpackP.Path -> evalPath(node.path)
         is TypeExprUnpackP.Index -> {
-            val a = evalIdentInTypeExpr(node.a)
-            if (!a.ptrEq(Constants.get().fnList.first.toValue())
-                && !a.ptrEq(Constants.get().fnSet.first.toValue())
+            val a = evalIdentInTypeExpr(node.ident)
+            if (!a.ptrEq(Constants.get().fnList.value.toValue())
+                && !a.ptrEq(Constants.get().fnSet.value.toValue())
             ) {
                 throw EvalException.newAnyhow(
                     TypesError.TypeIndexOnNonList(),
                     expr.span,
-                    codemap,
+                    codemap.value,
                 )
             }
-            val i = evalExprAsType(node.i)
-            try {
-                a.getRef().at(i.toInner(), eval.heap())
-            } catch (e: Exception) {
-                throw EvalException.new(e, expr.span, codemap)
+            val i = evalExprAsType(node.index)
+            a.getRef().at(i.toInner(), eval.heap()).getOrElse { e ->
+                throw EvalException.newAnyhow(e, expr.span, codemap.value)
             }
         }
         is TypeExprUnpackP.Index2 -> {
-            val a = evalPath(node.a.node)
-            if (a.ptrEq(Constants.get().fnDict.first.toValue())
-                || a.ptrEq(Constants.get().fnTuple.first.toValue())
-                || a.ptrEq(Constants.get().typingCallable.first.toValue())
+            val a = evalPath(node.path.node)
+            if (a.ptrEq(Constants.get().fnDict.value.toValue())
+                || a.ptrEq(Constants.get().fnTuple.value.toValue())
+                || a.ptrEq(Constants.get().typingCallable.value.toValue())
             ) {
                 val i0 = evalExpr(node.i0)
                 val i1 = evalExpr(node.i1)
-                try {
-                    a.getRef().at2(i0, i1, eval.heap())
-                } catch (e: Exception) {
-                    throw EvalException.new(e, expr.span, codemap)
+                a.getRef().at2(i0, i1, eval.heap()).getOrElse { e ->
+                    throw EvalException.newAnyhow(e, expr.span, codemap.value)
                 }
             } else {
                 throw EvalException.newAnyhow(
                     TypesError.TypeIndexOnNonDictOrTuple(),
                     expr.span,
-                    codemap,
+                    codemap.value,
                 )
             }
         }
@@ -268,7 +240,6 @@ private fun Compiler.evalExpr(
             val xs = node.xs.map { x -> evalExprAsType(x).asTy() }
             TypeCompiled.fromTy(Ty.tuple(xs), eval.heap()).toInner()
         }
-        else -> throw IllegalStateException("Unexpected type expr: $node")
     }
 }
 
@@ -276,20 +247,24 @@ private fun Compiler.evalExpr(
 //     &mut self,
 //     type_expr: &mut CstTypeExpr,
 // ) -> Result<(), EvalException>
+@Suppress("UNCHECKED_CAST")
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
 ) {
-    if (typeExpr.Payload.compilerTy != null) {
-        throw EvalException.new(
-            internalError("Type already initialized"),
+    val payload = typeExpr.node.payload as? CstTypeExprPayload
+    if (payload?.compilerTy != null) {
+        throw EvalException.newAnyhow(
+            StarlarkError("Type already initialized"),
             typeExpr.span,
-            codemap,
+            codemap.value,
         )
     }
     // This should not fail because we validated it at parse time.
-    val unpack = TypeExprUnpackP.unpack(typeExpr.node.expr, codemap)
+    val unpack = TypeExprUnpackP.unpack<CstPayload, CstIdentPayload>(typeExpr.node.expr, codemap.value)
     val typeValue = evalExprAsType(unpack)
-    typeExpr.Payload.compilerTy = typeValue.asTy()
+    if (payload != null) {
+        payload.compilerTy = typeValue.asTy()
+    }
 }
 
 // pub(crate) fn populate_types_in_stmt(
@@ -299,5 +274,30 @@ private fun Compiler.populateTypesInTypeExpr(
 internal fun Compiler.populateTypesInStmt(
     stmt: CstStmt,
 ) {
-    stmt.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr) }
+    stmt.node.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr) }
+}
+
+/// Visit all type expressions in this statement.
+/// Port of `StmtP::visit_type_expr_err_mut` from starlark_syntax uniplate.rs.
+@Suppress("UNCHECKED_CAST")
+private fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
+    f: (AstTypeExprP<P>) -> Unit,
+) {
+    when (this) {
+        is StmtP.Def<*, *> -> {
+            for (param in def.params) {
+                when (val p = param.node) {
+                    is ParameterP.Normal<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
+                    is ParameterP.Args<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
+                    is ParameterP.KwArgs<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
+                    is ParameterP.Slash<*>, is ParameterP.NoArgs<*> -> { /* no type */ }
+                }
+            }
+            (def.returnType as? AstTypeExprP<P>)?.let { f(it) }
+        }
+        is StmtP.Assign<*> -> {
+            (assign.ty as? AstTypeExprP<P>)?.let { f(it) }
+        }
+        else -> { /* no type expressions in other statements */ }
+    }
 }

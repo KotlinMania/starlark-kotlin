@@ -27,83 +27,42 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 //! Bazel's .bzl files) or the BUILD file dialect (i.e. used to interpret
 //! Bazel's BUILD file). The BUILD dialect does not allow `def` statements.
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.SmallVec1
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentAssignPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.GC_THRESHOLD
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut
-import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.GC_THRESHOLD
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
-import io.github.kotlinmania.starlark_kotlin.values.types.set.aref
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
-import io.github.kotlinmania.starlark_kotlin.values.types.function
-import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.values.index
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMutFromValue
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
-import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
-import io.github.kotlinmania.starlark_kotlin.values.types.list.isListType
-import io.github.kotlinmania.starlark_kotlin.values.types.list.extend
-import io.github.kotlinmania.starlark_kotlin.values.types.array.double
-import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.garbageCollect
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocatedBytes
-import io.github.kotlinmania.starlark_kotlin.typing.Pass
-import io.github.kotlinmania.starlark_kotlin.typing.IfElse
-import io.github.kotlinmania.starlark_kotlin.typing.If
-import io.github.kotlinmania.starlark_kotlin.typing.For
-import io.github.kotlinmania.starlark_kotlin.typing.Continue
-import io.github.kotlinmania.starlark_kotlin.typing.Break
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.assignP
-import io.github.kotlinmania.starlark_kotlin.stdlib.add
-import io.github.kotlinmania.starlark_kotlin.pagable.vtable
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.nextGcLevel
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.forP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.exprForType
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.assert.disableGc
-import io.github.kotlinmania.starlark_kotlin.analysis.stmts
-import io.github.kotlinmania.starlark_kotlin.analysis.arg
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.captured
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.field
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.getAssignIdentSlot
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.isDictType
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.allocatedBytes
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.For
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.If
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IfElse
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Pass
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Break
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
 // #[derive(Clone, Debug)]
 // pub(crate) enum AssignModifyLhs {
@@ -263,25 +222,25 @@ internal class StmtsCompiled(
             val span = expr.span
             return when {
                 expr.node.isPureInfallible() -> empty()
-                expr.node is ExprCompiled.List -> {
+                expr.node is ExprCompiled.ListExpr -> {
                     val stmts = empty()
-                    for (x in (expr.node as ExprCompiled.List).elements) {
+                    for (x in (expr.node as ExprCompiled.ListExpr).elements) {
                         stmts.extend(expr(x))
                     }
                     stmts
                 }
-                expr.node is ExprCompiled.Tuple -> {
+                expr.node is ExprCompiled.TupleExpr -> {
                     val stmts = empty()
-                    for (x in (expr.node as ExprCompiled.Tuple).elements) {
+                    for (x in (expr.node as ExprCompiled.TupleExpr).elements) {
                         stmts.extend(expr(x))
                     }
                     stmts
                 }
                 // Unwrap infallible expressions.
-                expr.node is ExprCompiled.Builtin1 && (
-                    (expr.node as ExprCompiled.Builtin1).op is Builtin1.Not ||
-                    (expr.node as ExprCompiled.Builtin1).op is Builtin1.TypeIs
-                ) -> expr((expr.node as ExprCompiled.Builtin1).arg)
+                expr.node is ExprCompiled.Builtin1Expr && (
+                    (expr.node as ExprCompiled.Builtin1Expr).op is Builtin1.Not ||
+                    (expr.node as ExprCompiled.Builtin1Expr).op is Builtin1.TypeIs
+                ) -> expr((expr.node as ExprCompiled.Builtin1Expr).expr)
                 // "And" and "or" for effect are equivalent to `if`.
                 expr.node is ExprCompiled.LogicalBinOp &&
                     (expr.node as ExprCompiled.LogicalBinOp).op == ExprLogicalBinOp.And -> {
@@ -319,8 +278,8 @@ internal class StmtsCompiled(
                 is ExprCompiledBool.Expr -> {
                     val condExpr = (condBool.node as ExprCompiledBool.Expr).expr
                     when {
-                        condExpr is ExprCompiled.Builtin1 && condExpr.op is Builtin1.Not ->
-                            ifStmt(span, condExpr.arg, f, t)
+                        condExpr is ExprCompiled.Builtin1Expr && condExpr.op is Builtin1.Not ->
+                            ifStmt(span, condExpr.expr, f, t)
                         condExpr is ExprCompiled.Seq -> {
                             val stmt = empty()
                             stmt.extend(expr(condExpr.first))
@@ -350,7 +309,7 @@ internal class StmtsCompiled(
             over: IrSpanned<ExprCompiled>,
             body: StmtsCompiled,
         ): StmtsCompiled {
-            if (over.isIterableEmpty()) {
+            if (over.node.isIterableEmpty()) {
                 return empty()
             }
             return one(IrSpanned(
@@ -364,7 +323,7 @@ internal class StmtsCompiled(
     fun isEmpty(): Boolean {
         return when (stmts) {
             is SmallVec1.One -> false
-            is SmallVec1.Vec -> stmts.items.isEmpty()
+            is SmallVec1.Vec -> stmts.values.isEmpty()
         }
     }
 
@@ -400,7 +359,7 @@ internal class StmtsCompiled(
         when (stmts) {
             is SmallVec1.One -> result.extend(stmts.value.optimize(ctx))
             is SmallVec1.Vec -> {
-                for (s in stmts.items) {
+                for (s in stmts.values) {
                     if (result.isTerminal()) {
                         break
                     }
@@ -415,7 +374,7 @@ internal class StmtsCompiled(
     fun first(): IrSpanned<StmtCompiled>? {
         return when (stmts) {
             is SmallVec1.One -> stmts.value
-            is SmallVec1.Vec -> stmts.items.firstOrNull()
+            is SmallVec1.Vec -> stmts.values.firstOrNull()
         }
     }
 
@@ -423,7 +382,7 @@ internal class StmtsCompiled(
     fun last(): IrSpanned<StmtCompiled>? {
         return when (stmts) {
             is SmallVec1.One -> stmts.value
-            is SmallVec1.Vec -> stmts.items.lastOrNull()
+            is SmallVec1.Vec -> stmts.values.lastOrNull()
         }
     }
 }
@@ -519,9 +478,9 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 
 // pub(crate) fn possible_gc(eval: &mut Evaluator)
 internal fun possibleGc(eval: Evaluator) {
-    if (!eval.disableGc && eval.heap().allocatedBytes() >= eval.nextGcLevel) {
+    if (!eval.disableGc && eval.heap().allocatedBytes() >= eval.nextGcLevel.toLong()) {
         eval.garbageCollect()
-        eval.nextGcLevel = max(eval.heap().allocatedBytes() * 2, GC_THRESHOLD)
+        eval.nextGcLevel = maxOf(eval.heap().allocatedBytes() * 2, GC_THRESHOLD.toLong()).toInt()
     }
 }
 
@@ -543,14 +502,18 @@ internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
         } else {
             val rhsDict = dictRefFromValue(rhs)
             if (rhsDict == null) {
-                return Result.failure(ValueError.unsupportedOwned(
+                return ValueError.unsupportedOwned(
                     lhsRef.vtable().typeName,
                     "|=",
                     rhs.getType(),
-                ))
+                )
             }
-            for ((k, v) in rhsDict.iterHashed()) {
-                dict.aref.insertHashed(k, v)
+            val rhsDictDeref = when (val ref = rhsDict.aref) {
+                is Either.Left -> ref.value.value
+                is Either.Right -> ref.value
+            }
+            for ((k, v) in rhsDictDeref.iterHashed()) {
+                dict.aref.value.insertHashed(k, v)
             }
         }
         return Result.success(lhs)
@@ -587,9 +550,10 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
         }
         val list = ListData.fromValueMut(lhs).getOrElse { return Result.failure(it) }
         if (lhs.ptrEq(rhs)) {
-            list.double(heap)
+            list.double()
         } else {
-            list.extend(lhs.iterate(heap).getOrElse { return Result.failure(it) }, heap)
+            val iter = rhs.iterate(heap).getOrElse { return Result.failure(it) }
+            list.extend(Iterable { iter })
         }
         return Result.success(lhs)
     } else {
@@ -627,15 +591,16 @@ internal fun Compiler.assignTarget(
         }
         is AssignTargetP.Identifier<*, *> -> {
             val name = node.ident.node.ident
-            val bindingId = node.ident.node.payload
+            @Suppress("UNCHECKED_CAST")
+            val bindingId = (node.ident.node.payload as BindingId?)
                 ?: error("unresolved binding: `$name`")
             val binding = this.scopeData.getBinding(bindingId)
-            val slot = binding.resolvedSlot(this.codemap)!!
+            val slot = binding.resolvedSlot(this.codemap.value)!!
             when {
                 slot is Slot.Local && binding.captured == Captured.No ->
-                    AssignCompiledValue.Local(LocalSlotId(slot.index))
+                    AssignCompiledValue.Local(LocalSlotId(slot.id.index))
                 slot is Slot.Local && binding.captured == Captured.Yes ->
-                    AssignCompiledValue.LocalCaptured(LocalCapturedSlotId(slot.index))
+                    AssignCompiledValue.LocalCaptured(LocalCapturedSlotId(slot.id.index))
                 slot is Slot.Module ->
                     AssignCompiledValue.Module(slot.id, name)
                 else -> error("unreachable")
@@ -675,17 +640,19 @@ private fun Compiler.assignModify(
             )))
         }
         is AssignTargetP.Identifier<*, *> -> {
-            val (slot, captured) = this.scopeData.getAssignIdentSlot(node.ident, this.codemap)
+            @Suppress("UNCHECKED_CAST")
+            val ident = node.ident as CstAssignIdent
+            val (slot, captured) = this.scopeData.getAssignIdentSlot(ident, this.codemap.value)
             when {
                 slot is Slot.Local && captured == Captured.No -> {
-                    val lhsSpanned = IrSpanned(spanLhs, LocalSlotId(slot.index))
+                    val lhsSpanned = IrSpanned(spanLhs, LocalSlotId(slot.id.index))
                     Result.success(StmtsCompiled.one(IrSpanned(
                         spanStmtFrame,
                         StmtCompiled.AssignModify(AssignModifyLhs.Local(lhsSpanned), op, rhs),
                     )))
                 }
                 slot is Slot.Local && captured == Captured.Yes -> {
-                    val lhsSpanned = IrSpanned(spanLhs, LocalCapturedSlotId(slot.index))
+                    val lhsSpanned = IrSpanned(spanLhs, LocalCapturedSlotId(slot.id.index))
                     Result.success(StmtsCompiled.one(IrSpanned(
                         spanStmtFrame,
                         StmtCompiled.AssignModify(AssignModifyLhs.LocalCaptured(lhsSpanned), op, rhs),
@@ -740,11 +707,11 @@ internal fun Compiler.moduleTopLevelStmt(
         }
         is StmtP.Expression -> {
             val wrappedStmt = Spanned(
-                stmt.span,
                 // When top level statement is an expression, compile it as return.
                 // This is used to obtain the result of evaluation
                 // of the last statement-expression in module.
-                StmtP.Return(node.expr),
+                StmtP.Return<CstPayload>(node.expr),
+                stmt.span,
             )
             this.stmt(wrappedStmt, true)
         }
@@ -796,25 +763,29 @@ private fun Compiler.stmtDirect(
 ): Result<StmtsCompiled> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, stmt.span))
     return when (val node = stmt.node) {
-        is StmtP.Def -> {
-            val signatureSpan = node.def.signatureSpan()
+        is StmtP.Def<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            val defP = node.def as DefP<CstPayload, ScopeId>
+            val signatureSpan = defP.signatureSpan()
             val frozenSignatureSpan = FrozenFileSpan.new(this.codemap, signatureSpan)
             val rhs = IrSpanned(
                 span,
                 runCatching {
                     this.function(
-                        node.def.name.ident,
+                        defP.name.node.ident,
                         frozenSignatureSpan,
-                        node.def.payload,
-                        node.def.params,
-                        node.def.returnType,
-                        node.def.body,
+                        defP.payload,
+                        defP.params,
+                        defP.returnType,
+                        defP.body,
                     )
                 }.getOrElse { return Result.failure(it) },
             )
+            @Suppress("UNCHECKED_CAST")
+            val defName = defP.name as CstAssignIdent
             val lhs = assignTarget(Spanned(
-                node.def.name.span,
-                AssignTargetP.Identifier(node.def.name),
+                AssignTargetP.Identifier<CstPayload, CstIdentAssignPayload>(defName),
+                defName.span,
             )).getOrElse { return Result.failure(it) }
             Result.success(StmtsCompiled.one(IrSpanned(
                 span,
@@ -868,7 +839,7 @@ private fun Compiler.stmtDirect(
             val rhs = this.expr(node.rhs).getOrElse { return Result.failure(it) }
             assignModify(span.span.span(), node.lhs, rhs, node.op)
         }
-        is StmtP.Load -> error("unreachable")
+        is StmtP.Load<*, *> -> error("unreachable")
         is StmtP.Pass -> Result.success(StmtsCompiled.empty())
         is StmtP.Break -> Result.success(StmtsCompiled.one(IrSpanned(
             span,

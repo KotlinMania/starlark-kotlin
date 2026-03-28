@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.Froze
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
+import io.github.kotlinmania.starlark_kotlin.Frame
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
 import io.github.kotlinmania.starlark_kotlin.analysis.location

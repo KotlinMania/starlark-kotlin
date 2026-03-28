@@ -42,7 +42,8 @@ data class Range(
     val start: Int,
     val stop: Int,
     val step: NonZeroI32
-) {
+) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+    override val TYPE: String get() = Companion.TYPE
     companion object {
         /** The result of calling `type()` on a range. */
         const val TYPE: String = "range"

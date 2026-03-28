@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 
 /** List/dict/set comprehension evaluation. */
 
-internal fun listToTuple(expr: CstExpr): CstExpr = expr
+private fun listToTupleCompr(expr: CstExpr): CstExpr = expr
 
 internal fun Compiler.listComprehension(
     x: CstExpr,
@@ -89,7 +89,7 @@ private fun Compiler.compileClauses(
     clauses: List<ClauseP>,
 ): Result<ClausesCompiled> {
     // The first for.over is scoped before we enter the list comp
-    val over = this.expr(listToTuple(for_.over)).getOrElse { return Result.failure(it) }
+    val over = this.expr(listToTupleCompr(for_.over)).getOrElse { return Result.failure(it) }
 
     val clausesMut = clauses.toMutableList()
 

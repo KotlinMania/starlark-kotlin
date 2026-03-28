@@ -19,10 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.typed
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // Placeholder types referenced from other modules
 // These will be replaced with real imports as the port progresses
@@ -31,7 +34,7 @@ class StarlarkStr(val value: String) : StarlarkValue {
 
     fun asStr(): String = value
 
-    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(value)
+    override fun getHash(): Result<StarlarkHashValue> = Result.success(StarlarkHashValue.new(value))
 
     override fun toString(): String = value
     override fun hashCode(): Int = value.hashCode()
@@ -42,14 +45,8 @@ class StarlarkStr(val value: String) : StarlarkValue {
     }
 }
 
-class Hashed<T>(val hash: Int, val value: T) {
-    companion object {
-        fun <T> newUnchecked(hash: Int, value: T): Hashed<T> = Hashed(hash, value)
-    }
-}
-class Freezer {
-    fun freeze(value: Value): FrozenValue = FrozenValue()
-}
+// Hashed is defined in io.github.kotlinmania.starlark_kotlin.collections.Hashed
+// Freezer is defined in io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 
 /// Convenient type alias.
 ///
@@ -57,7 +54,7 @@ class Freezer {
 /// on `FrozenStringValue` than on generic `FrozenValueTyped<T>`.
 class FrozenStringValue(
     private val str: StarlarkStr,
-    private val frozenValue: FrozenValue = FrozenValue(),
+    private val frozenValue: FrozenValue,
 ) : StringValueLike, Comparable<FrozenStringValue> {
 
     fun asStr(): String = str.asStr()
@@ -66,7 +63,7 @@ class FrozenStringValue(
 
     fun toValue(): Value = frozenValue.toValue()
 
-    fun getHash(): Int = str.hashCode()
+    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
 
     /// Get self along with the hash.
     fun getHashed(): Hashed<FrozenStringValue> {
@@ -105,7 +102,16 @@ class FrozenStringValue(
     override fun toString(): String = str.toString()
 
     companion object {
-        fun default(): FrozenStringValue = FrozenStringValue(StarlarkStr(""))
+        fun default(): FrozenStringValue {
+            return io.github.kotlinmania.starlark_kotlin.values.layout.VALUE_EMPTY_STRING.erase()
+        }
+
+        /// Construct without checking type.
+        fun newUnchecked(value: FrozenValue): FrozenStringValue {
+            val str = value.toValue().unpackStarlarkStr()
+                ?: error("FrozenStringValue.newUnchecked: value is not a StarlarkStr")
+            return FrozenStringValue(str, value)
+        }
 
         /** Downcast a [FrozenValue] to a [FrozenStringValue], returning null if the value is not a string. */
         fun new(value: FrozenValue): FrozenStringValue? {
@@ -121,7 +127,7 @@ class FrozenStringValue(
 /// on `StringValue` than on generic `ValueTyped<T>`.
 class StringValue(
     private val str: StarlarkStr,
-    private val value: Value = Value(),
+    private val value: Value,
 ) : StringValueLike, Comparable<StringValue> {
 
     internal fun starlarkStr(): StarlarkStr = str
@@ -130,12 +136,12 @@ class StringValue(
 
     fun toValue(): Value = value
 
-    fun getHash(): Int = str.hashCode()
+    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
 
     /// Convert a value to a FrozenStringValue using a supplied Freezer.
-    fun freeze(freezer: Freezer): FrozenStringValue {
-        val frozen = freezer.freeze(toValue())
-        return FrozenStringValue(str, frozen)
+    fun freeze(freezer: Freezer): FreezeResult<FrozenStringValue> {
+        val frozen = freezer.freeze(toValue()).getOrElse { return Result.failure(it) }
+        return Result.success(FrozenStringValue.newUnchecked(frozen))
     }
 
     /// Get self along with the hash.
@@ -156,7 +162,7 @@ class StringValue(
     /// If this string value is frozen, return it.
     fun unpackFrozen(): FrozenStringValue? {
         val frozen = toValue().unpackFrozen() ?: return null
-        return FrozenStringValue(str, frozen)
+        return FrozenStringValue.newUnchecked(frozen)
     }
 
     override fun toStringValue(): StringValue = this
@@ -180,6 +186,13 @@ class StringValue(
 
     companion object {
         fun default(): StringValue = FrozenStringValue.default().toStringValue()
+
+        /// Construct without checking type.
+        fun newUnchecked(value: Value): StringValue {
+            val str = value.unpackStarlarkStr()
+                ?: error("StringValue.newUnchecked: value is not a StarlarkStr")
+            return StringValue(str, value)
+        }
 
         /** Downcast a [Value] to a [StringValue], returning null if the value is not a string. */
         fun new(value: Value): StringValue? {

@@ -86,7 +86,7 @@ internal fun solveBindings(
         ctx.errors.clear()
         for ((name, exprs) in bindings.expressions.entries()) {
             for (expr in exprs) {
-                val ty = ctx.expressionBindType(expr)
+                val ty = ctx.expressionBindType(expr).getOrThrow()
                 val t = ctx.types[name]!!
                 val new = Ty.union2(t, ty)
                 if (new != t) {
@@ -107,13 +107,13 @@ internal fun solveBindings(
     }
     // Make sure we check every expression, looking for failures
     for (x in bindings.check) {
-        ctx.expressionType(x)
+        ctx.expressionType(x).getOrThrow()
     }
     for ((span, e, require) in bindings.checkType) {
         val ty = if (e == null) {
             Ty.none()
         } else {
-            ctx.expressionType(e)
+            ctx.expressionType(e).getOrThrow()
         }
         ctx.validateType(
             Spanned(
@@ -121,7 +121,7 @@ internal fun solveBindings(
                 span = span,
             ),
             require,
-        )
+        ).getOrThrow()
     }
     return Triple(
         ctx.errors.toList(),

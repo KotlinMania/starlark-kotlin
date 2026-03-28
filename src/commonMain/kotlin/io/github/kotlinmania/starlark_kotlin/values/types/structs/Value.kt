@@ -19,38 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * limitations under the License.
  */
 
-import kotlinx.serialization.Serializable
-import io.github.kotlinmania.starlark_kotlin.values.typing.TyStruct
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
 import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
+import starlark_map.StarlarkHasher
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import starlark_map.writeU64
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.values.writeHash
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.custom
-import io.github.kotlinmania.starlark_kotlin.values.typing.anyStruct
-import io.github.kotlinmania.starlark_kotlin.values.types.set.iterHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue
-import io.github.kotlinmania.starlark_kotlin.values.hash
+import io.github.kotlinmania.starlark_kotlin.values.compareSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
-import io.github.kotlinmania.starlark_kotlin.values.compare
-import io.github.kotlinmania.starlark_kotlin.typing.ofValue
-import io.github.kotlinmania.starlark_kotlin.analysis.keys
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 
 /**
  * The result of calling `struct()`.
@@ -59,11 +41,11 @@ import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
  * either Value or FrozenValue in the Rust implementation. The lifetime parameter
  * 'v from Rust is handled through Kotlin's type system.
  */
-@Serializable
 data class StructGen<V>(
     /** The fields in a struct. */
     val fields: SmallMap<String, V>
-) where V : ValueLike {
+) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+    override val TYPE: String get() = Companion.TYPE
 
     companion object {
         /** The result of calling `type()` on a struct. */
@@ -79,17 +61,21 @@ data class StructGen<V>(
 
     /**
      * Iterate over the elements in the struct.
+     *
+     * In Rust, this returns (StringValue, V) pairs. Since the Kotlin port uses
+     * plain String keys in SmallMap, this returns (String, V) pairs instead.
      */
-    fun iter(): Sequence<Pair<StringValue, V>> {
-        return fields.asSequence().map { (name, value) ->
-            name.toStringValue() to value
-        }
+    fun iter(): Sequence<Pair<String, V>> {
+        return fields.iter()
     }
 
     private fun selfTy(): Ty {
+        // Rust: Ty::of_value(value.to_value()) for each field value.
+        // Ty::of_value is not yet ported; approximate with Ty.any() per value.
         return Ty.custom(TyStruct(
-            fields = fields.mapKeys { (k, _) -> ArcStr.from(k.asStr()) }
-                .mapValues { (_, v) -> Ty.ofValue(v.toValue()) },
+            fields = fields.iter().associate { (k, _) ->
+                k to Ty.any()
+            },
             extra = false
         ))
     }
@@ -99,7 +85,7 @@ data class StructGen<V>(
             append("struct(")
             val items = iter().toList()
             items.forEachIndexed { index, (key, value) ->
-                append(key.asStr())
+                append(key)
                 append("=")
                 append(value)
                 if (index < items.size - 1) {
@@ -110,48 +96,58 @@ data class StructGen<V>(
         }
     }
 
-    fun collectReprCycle(collector: StringBuilder) {
+    override fun collectReprCycle(collector: StringBuilder) {
         collector.append("struct(...)")
     }
 
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         val otherStruct = Struct.fromValue(other) ?: return Result.success(false)
-        return equalsSmallMap(
-            coerce(fields),
+        @Suppress("UNCHECKED_CAST")
+        val thisFields = fields as SmallMap<String, Value>
+        return equalsSmallMap<Exception, String, Value, Value>(
+            thisFields,
             otherStruct.fields
         ) { x, y -> x.equals(y) }
     }
 
-    fun compare(other: Value): Result<Int> {
+    override fun compare(other: Value): Result<Int> {
         val otherStruct = Struct.fromValue(other)
-            ?: return ValueError.unsupportedWith(this, "cmp()", other)
-        return compareSmallMap(
-            coerce(fields),
+            ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
+        @Suppress("UNCHECKED_CAST")
+        val thisFields = fields as SmallMap<String, Value>
+        return compareSmallMap<Exception, String, String, Value, Value>(
+            thisFields,
             otherStruct.fields,
-            keyFn = { k -> k.asStr() }
+            key = { k: String -> k }
         ) { x, y -> x.compare(y) }
     }
 
-    fun getAttr(attribute: String, heap: Heap): Value? {
+    override fun getAttr(attribute: String, heap: Heap): Value? {
         return getAttrHashed(Hashed.new(attribute), heap)
     }
 
-    fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
-        val coercedFields = coerce<SmallMap<String, Value>>(fields)
-        return coercedFields.getHashed(attribute)
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
+        @Suppress("UNCHECKED_CAST")
+        val valueFields = fields as SmallMap<String, Value>
+        return valueFields.getHashedByValue(attribute)
     }
 
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Must use unordered hash because equality is unordered,
         // and `a = b  =>  hash(a) = hash(b)`.
-        val unorderedHasher = UnorderedHasher()
+        val unorderedHasher = UnorderedHasher.new()
 
-        for ((k, v) in fields.iterHashed()) {
+        for ((hashedKey, v) in fields.iterHashed()) {
             // Should hash key and value together, so two structs
             // `a=1 b=2` and `a=2 b=1` would produce different hashes.
             val entryHasher = StarlarkHasher()
-            k.hash().hash(entryHasher)
-            v.writeHash(entryHasher).getOrElse { return Result.failure(it) }
+            // Hash the key's hash value into the entry hasher
+            entryHasher.writeU32(hashedKey.hash().get())
+            // Hash the value
+            @Suppress("UNCHECKED_CAST")
+            val value = v as? Value ?: (v as? FrozenValue)?.toValue()
+                ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
+            value.writeHash(entryHasher).getOrElse { return Result.failure(it) }
             unorderedHasher.writeHash(entryHasher.finish())
         }
 
@@ -160,11 +156,11 @@ data class StructGen<V>(
         return Result.success(Unit)
     }
 
-    fun dirAttr(): List<String> {
-        return fields.keys.map { it.asStr() }
+    override fun dirAttr(): List<String> {
+        return fields.keys().toList()
     }
 
-    fun documentation(): DocItem {
+    override fun documentation(): DocItem {
         // This treats structs as being value-like, and intentionally generates bad docs in the case
         // of namespace-like usage. See
         // <https://fb.workplace.com/groups/starlark/permalink/1463680027654154/> for some
@@ -173,11 +169,11 @@ data class StructGen<V>(
         return DocItem.Member(DocMember.Property(DocProperty(docs = null, typ = typ)))
     }
 
-    fun getTypeStarlarkRepr(): Ty {
+    override fun getTypeStarlarkRepr(): Ty {
         return Ty.anyStruct()
     }
 
-    fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty? {
         return selfTy()
     }
 
@@ -185,15 +181,15 @@ data class StructGen<V>(
      * Serialize to map format matching Rust serde implementation.
      */
     fun serialize(): Map<String, V> {
-        return iter().associate { (k, v) -> k.asStr() to v }
+        return iter().associate { (k, v) -> k to v }
     }
 }
 
 /**
  * Extension for StructGen<FrozenValue> to iterate with frozen types.
  */
-fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<FrozenStringValue, FrozenValue>> {
-    return fields.asSequence().map { (name, value) -> name to value }
+fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<String, FrozenValue>> {
+    return fields.iter()
 }
 
 /**
@@ -217,7 +213,7 @@ typealias FrozenStruct = StructGen<FrozenValue>
 /**
  * Helper function to extract struct from a value.
  */
-fun Struct.Companion.fromValue(value: Value): Struct? {
+fun StructGen.Companion.fromValue(value: Value): Struct? {
     // Try to get as unfrozen struct first, then try frozen and coerce
     return value.downcastRef<Struct>()
         ?: value.downcastRef<FrozenStruct>()?.let { coerceStruct(it) }

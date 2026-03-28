@@ -192,12 +192,12 @@ data class AssignP<P : AstPayload>(
 
 data class AssignIdentP<P : AstPayload, IAP>(
     val ident: String,
-    val payload: IAP
+    var payload: IAP
 )
 
 data class IdentP<P : AstPayload, IP>(
     val ident: String,
-    val payload: IP
+    var payload: IP
 )
 
 data class LoadArgP<P : AstPayload, IAP>(

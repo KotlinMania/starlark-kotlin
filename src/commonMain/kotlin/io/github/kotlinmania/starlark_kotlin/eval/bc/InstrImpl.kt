@@ -2,47 +2,12 @@
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.length
-import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.values.types.typeMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.invokeMethod
-import io.github.kotlinmania.starlark_kotlin.values.toBool
-import io.github.kotlinmania.starlark_kotlin.values.sub
-import io.github.kotlinmania.starlark_kotlin.values.setAt
-import io.github.kotlinmania.starlark_kotlin.values.rightShift
-import io.github.kotlinmania.starlark_kotlin.values.percent
-import io.github.kotlinmania.starlark_kotlin.values.mul
-import io.github.kotlinmania.starlark_kotlin.values.leftShift
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.unpackIntValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.info
-import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
-import io.github.kotlinmania.starlark_kotlin.values.key
-import io.github.kotlinmania.starlark_kotlin.values.isIn
-import io.github.kotlinmania.starlark_kotlin.values.exportAs
-import io.github.kotlinmania.starlark_kotlin.values.div
-import io.github.kotlinmania.starlark_kotlin.values.bitXor
-import io.github.kotlinmania.starlark_kotlin.values.bitOr
-import io.github.kotlinmania.starlark_kotlin.values.bitNot
-import io.github.kotlinmania.starlark_kotlin.values.bitAnd
-import io.github.kotlinmania.starlark_kotlin.values.at
-import io.github.kotlinmania.starlark_kotlin.typing.numPositionalOnly
-import io.github.kotlinmania.starlark_kotlin.typing.numPositional
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.nameTy
-import io.github.kotlinmania.starlark_kotlin.tests.setAttr
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
-import io.github.kotlinmania.starlark_kotlin.stdlib.invokeWithLoc
-import io.github.kotlinmania.starlark_kotlin.stdlib.add
-import io.github.kotlinmania.starlark_kotlin.pagable.vtable
-import io.github.kotlinmania.starlark_kotlin.eval.bc.toRange
-import io.github.kotlinmania.starlark_kotlin.docs.params
-import io.github.kotlinmania.starlark_kotlin.__derive_refs.returnType
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 // Types from values.layout
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
@@ -52,13 +17,15 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import starlark_map.Hashed
 // Types from values.layout.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-// Types from values.layout.heap.profile
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfilerInstant
+// Types from starlark_map
+import starlark_map.small_map.SmallMap
+// Types from eval.runtime.profile
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 // Types from eval.runtime
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 // Types from eval.bc.frame (sub-package)
@@ -76,16 +43,26 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
 // Types from collections.symbol
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParameterCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.newDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.isStarOrStarStar
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.nameTy
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.EvalError
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.MemberOrValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.getAttrHashedRaw
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.getAttrHashedBind
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParametersCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignError
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import kotlin.reflect.KClass
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -107,22 +84,21 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignError
 
 /// Instruction implementations.
 
-fun addSpanToExprError(e: Exception, span: FrameSpan, eval: Evaluator): EvalException =
+private fun asStarlarkError(t: Throwable): StarlarkError =
+    if (t is StarlarkError) t else StarlarkError(t.message ?: "", t)
+
+fun addSpanToExprError(e: Throwable, span: FrameSpan, eval: Evaluator): EvalException =
     EvalException(e.message ?: "")
 fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
     result
 fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
-    kotlin.Result.success(Value())
+    v0.add(v1, heap)
 fun bitOrAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
-    kotlin.Result.success(Value())
+    v0.bitOr(v1, heap)
 fun possibleGc(eval: Evaluator) {}
-fun getAttrHashedBind(obj: Value, field: Symbol, heap: Heap): kotlin.Result<Value> =
-    kotlin.Result.success(Value())
-fun getAttrHashedRaw(obj: Value, field: Symbol, heap: Heap): kotlin.Result<MethodValue> =
-    kotlin.Result.success(MethodValue())
 fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
-    kotlin.Result.success(StringValue())
-fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue()
+    kotlin.Result.success(StringValue.default())
+fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue.default()
 
 /// Instructions which either fail or proceed to the following instruction,
 /// and it returns error with span.
@@ -136,19 +112,19 @@ interface InstrNoFlowImpl {
     ): kotlin.Result<Unit>
 }
 
-class InstrNoFlow(val impl: InstrNoFlowImpl) {
+class InstrNoFlow(val impl: InstrNoFlowImpl) : BcInstr {
+    override val arg: Any get() = impl
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
     ): InstrControl {
-        return when (val result = impl.runWithArgs(eval, frame, ip, arg)) {
-            else -> if (result.isSuccess) {
-                InstrControl.Next(ip.addInstr<InstrNoFlow>())
-            } else {
-                InstrControl.Err(result.exceptionOrNull() ?: Exception("unknown error"))
-            }
+        val result = impl.runWithArgs(eval, frame, ip, arg)
+        return if (result.isSuccess) {
+            InstrControl.Next(ip.addInstr(InstrNoFlow::class))
+        } else {
+            InstrControl.Err(asStarlarkError(result.exceptionOrNull()!!))
         }
     }
 }
@@ -799,7 +775,7 @@ object InstrLenImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> {
         val len = v.length()
         return if (len.isSuccess) {
-            kotlin.Result.success(heap.alloc(len.getOrThrow()))
+            kotlin.Result.success(len.getOrThrow().allocValue(heap))
         } else {
             kotlin.Result.failure(len.exceptionOrNull()!!)
         }
@@ -860,7 +836,11 @@ object InstrDictOfConstsImpl : InstrNoFlowImpl {
         arg: Any,
     ): kotlin.Result<Unit> {
         val (values, target) = arg as Pair<SmallMap<FrozenValue, FrozenValue>, BcSlotOut>
-        val dict = eval.heap().alloc(Dict.new(values))
+        val coerced = SmallMap.new<Value, Value>()
+        for ((k, v) in values.iter()) {
+            coerced.insertHashedUniqueUnchecked(k.toValue().getHashed().getOrThrow(), v.toValue())
+        }
+        val dict = Dict.new(coerced).allocValue(eval.heap())
         frame.setBcSlot(target, dict)
         return kotlin.Result.success(Unit)
     }
@@ -889,14 +869,14 @@ object InstrDictNPopImpl : InstrNoFlowImpl {
             }
             val prev = dict.insertHashed(hashed.getOrThrow(), v)
             if (prev != null) {
-                val e = EvalError.DuplicateDictionaryKey(hashed.getOrThrow().key.toString())
+                val e = EvalError.DuplicateDictionaryKey(hashed.getOrThrow().key().toString())
                 val spans = Bc.slowArgAtPtr(ip).spans
                 return kotlin.Result.failure(
                     addSpanToExprError(e, spans[i], eval).intoError()
                 )
             }
         }
-        val dictVal = eval.heap().alloc(Dict.new(dict))
+        val dictVal = Dict.new(dict).allocValue(eval.heap())
         frame.setBcSlot(target, dictVal)
         return kotlin.Result.success(Unit)
     }
@@ -919,9 +899,9 @@ object InstrDictConstKeysImpl : InstrNoFlowImpl {
         val values = frame.getBcSlotRange(a.values.toRange(a.keys.size.toUInt()))
         val dict = SmallMap.withCapacity<Value, Value>(a.keys.size)
         for ((k, v) in a.keys.zip(values)) {
-            dict.insertHashed(HashedValue(k.key.toValue()), v)
+            dict.insertHashed(Hashed.newUnchecked(k.hash(), k.key().toValue()), v)
         }
-        val dictVal = eval.heap().alloc(Dict.new(dict))
+        val dictVal = Dict.new(dict).allocValue(eval.heap())
         frame.setBcSlot(a.target, dictVal)
         return kotlin.Result.success(Unit)
     }
@@ -949,7 +929,7 @@ object InstrDictNewImpl : InstrNoFlowImpl {
         arg: Any,
     ): kotlin.Result<Unit> {
         val target = arg as BcSlotOut
-        val dict = eval.heap().alloc(Dict.default())
+        val dict = Dict.new(SmallMap.new()).allocValue(eval.heap())
         frame.setBcSlot(target, dict)
         return kotlin.Result.success(Unit)
     }
@@ -957,7 +937,8 @@ object InstrDictNewImpl : InstrNoFlowImpl {
 
 // --- Comprehension ---
 
-object InstrComprListAppend {
+object InstrComprListAppend : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -968,12 +949,13 @@ object InstrComprListAppend {
         val listVal = frame.getBcSlot(list)
         val itemVal = frame.getBcSlot(item)
         val listData = ListData.fromValueUncheckedMut(listVal)
-        listData.push(itemVal, eval.heap())
-        return InstrControl.Next(ip.addInstr<InstrComprListAppend>())
+        listData.push(itemVal)
+        return InstrControl.Next(ip.addInstr(InstrComprListAppend::class))
     }
 }
 
-object InstrComprDictInsert {
+object InstrComprDictInsert : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -985,10 +967,11 @@ object InstrComprDictInsert {
         val keyVal = frame.getBcSlot(key)
         val valueVal = frame.getBcSlot(value)
         val hashed = keyVal.getHashed()
-        if (hashed.isFailure) return InstrControl.Err(hashed.exceptionOrNull()!!)
-        val dictData = Dict.new(SmallMap<Value, Value>())
-        dictData.insertHashed(hashed.getOrThrow(), valueVal)
-        return InstrControl.Next(ip.addInstr<InstrComprDictInsert>())
+        if (hashed.isFailure) return InstrControl.Err(asStarlarkError(hashed.exceptionOrNull()!!))
+        // In generated bytecode this slot can only be occupied by a mutable dict.
+        val dictData = Dict.fromValueUncheckedMut(dictVal)
+        dictData.value.content.insertHashed(hashed.getOrThrow(), valueVal)
+        return InstrControl.Next(ip.addInstr(InstrComprDictInsert::class))
     }
 }
 
@@ -1010,7 +993,7 @@ object InstrCheckTypeImpl : InstrNoFlowImpl {
         }
         val res = ty.checkType(exprVal, null)
         if (start != null) {
-            eval.typecheckProfile.add(FrozenStringValue(), start.elapsed())
+            eval.typecheckProfile.add(FrozenStringValue.default(), start.elapsed())
         }
         return res
     }
@@ -1029,7 +1012,8 @@ object InstrBr {
     }
 }
 
-object InstrIfBr {
+object InstrIfBr : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1041,12 +1025,13 @@ object InstrIfBr {
         return if (condVal.toBool()) {
             InstrControl.Next(ip.addRel(target))
         } else {
-            InstrControl.Next(ip.addInstr<InstrIfBr>())
+            InstrControl.Next(ip.addInstr(InstrIfBr::class))
         }
     }
 }
 
-object InstrIfNotBr {
+object InstrIfNotBr : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1058,7 +1043,7 @@ object InstrIfNotBr {
         return if (!condVal.toBool()) {
             InstrControl.Next(ip.addRel(target))
         } else {
-            InstrControl.Next(ip.addInstr<InstrIfNotBr>())
+            InstrControl.Next(ip.addInstr(InstrIfNotBr::class))
         }
     }
 }
@@ -1074,7 +1059,8 @@ data class InstrIterArg(
     val end: BcAddrOffset,
 )
 
-object InstrIter {
+object InstrIter : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1083,14 +1069,14 @@ object InstrIter {
     ): InstrControl {
         val over = frame.getBcSlot(arg.over)
         val iter = over.getRef().iterate(over, eval.heap())
-        if (iter.isFailure) return InstrControl.Err(iter.exceptionOrNull()!!)
+        if (iter.isFailure) return InstrControl.Err(asStarlarkError(iter.exceptionOrNull()!!))
         val iterVal = iter.getOrThrow()
         val next = iterVal.getRef().iterNext(0, eval.heap())
         return if (next != null) {
             frame.setBcSlot(arg.iterSlot, iterVal)
             frame.setBcSlot(arg.varSlot, next)
             frame.setIterIndex(arg.loopDepth, 1)
-            InstrControl.Next(ip.addInstr<InstrIter>())
+            InstrControl.Next(ip.addInstr(InstrIter::class))
         } else {
             iterVal.getRef().iterStop()
             InstrControl.Next(ip.addRel(arg.end))
@@ -1115,7 +1101,7 @@ object InstrContinue {
         arg: InstrContinueArg,
     ): InstrControl {
         val progress = eval.reportForwardProgress()
-        if (progress.isFailure) return InstrControl.Err(progress.exceptionOrNull()!!)
+        if (progress.isFailure) return InstrControl.Err(asStarlarkError(progress.exceptionOrNull()!!))
         val iter = frame.getBcSlot(arg.iter)
         val loopDepth = arg.loopDepth
         val i = frame.getIterIndex(loopDepth)
@@ -1147,7 +1133,8 @@ object InstrBreak {
 }
 
 /// Stop all the iterations to release mutation locks before `return`.
-object InstrIterStop {
+object InstrIterStop : BcInstr {
+    override val arg: Any get() = Unit
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1156,7 +1143,7 @@ object InstrIterStop {
     ): InstrControl {
         val iterVal = frame.getBcSlot(iter)
         iterVal.getRef().iterStop()
-        return InstrControl.Next(ip.addInstr<InstrIterStop>())
+        return InstrControl.Next(ip.addInstr(InstrIterStop::class))
     }
 }
 
@@ -1194,16 +1181,16 @@ object InstrReturnCheckType {
     ): InstrControl {
         val v = frame.getBcSlot(slot)
         val check = eval.checkReturnType(v)
-        if (check.isFailure) return InstrControl.Err(check.exceptionOrNull()!!)
+        if (check.isFailure) return InstrControl.Err(asStarlarkError(check.exceptionOrNull()!!))
         return InstrControl.Return(v)
     }
 }
 
 // --- Def ---
 
-data class InstrDefData(
+internal data class InstrDefData(
     val functionName: String,
-    val params: ParametersCompiled,
+    val params: ParametersCompiled<Int>,
     val returnType: TypeCompiled?,
     val info: FrozenRef<DefInfo>,
 )
@@ -1218,7 +1205,7 @@ object InstrDefImpl : InstrNoFlowImpl {
         val (pops, defData, target) = arg as Triple<BcSlotInRange, InstrDefData, BcSlotOut>
         val pop = frame.getBcSlotRange(pops)
 
-        val parameters = ParametersSpec.withCapacity(
+        val parameters = ParametersSpec.withCapacity<Value>(
             defData.functionName,
             defData.params.params.size,
         )
@@ -1227,31 +1214,31 @@ object InstrDefImpl : InstrNoFlowImpl {
         var popIndex = 0
 
         for ((i, x) in defData.params.params.withIndex()) {
-            if (i == defData.params.indices.numPositionalOnly && !x.isStarOrStarStar()) {
+            if (i.toUInt() == defData.params.indices.numPositionalOnly && !x.node.isStarOrStarStar()) {
                 parameters.noMorePositionalOnlyArgs()
             }
-            if (i == defData.params.indices.numPositional && !x.isStarOrStarStar()) {
+            if (i.toUInt() == defData.params.indices.numPositional && !x.node.isStarOrStarStar()) {
                 parameters.noMorePositionalArgs()
             }
 
-            val (name, ty) = x.nameTy()
+            val (name, ty) = x.node.nameTy()
             if (ty != null) {
-                parameterTypes.add(Triple(LocalSlotId(i), name.name, ty))
+                parameterTypes.add(Triple(LocalSlotId(i.toUInt()), name.name, ty))
             }
 
             when (val node = x.node) {
-                is ParameterCompiled.Normal -> {
-                    if (node.defaultSlot == null) {
-                        parameters.required(node.name.name)
+                is ParameterCompiled.Normal<Int> -> {
+                    if (node.defaultValue == null) {
+                        parameters.required(node.paramName.name)
                     } else {
-                        check(node.defaultSlot == popIndex)
+                        check(node.defaultValue == popIndex)
                         val value = pop[popIndex]
                         popIndex += 1
 
-                        if (node.ty != null) {
+                        if (node.type != null) {
                             val (_, _, tyCompiled) = parameterTypes.last()
                             val checkResult = exprThrowStarlarkResult(
-                                tyCompiled.checkType(value, node.name.name),
+                                tyCompiled.checkType(value, node.paramName.name),
                                 x.span,
                                 eval,
                             )
@@ -1259,25 +1246,24 @@ object InstrDefImpl : InstrNoFlowImpl {
                                 return kotlin.Result.failure(checkResult.exceptionOrNull()!!)
                             }
                         }
-                        parameters.defaulted(node.name.name, value)
+                        parameters.defaulted(node.paramName.name, value)
                     }
                 }
-                is ParameterCompiled.Args -> parameters.args()
-                is ParameterCompiled.KwArgs -> parameters.kwargs()
-                else -> {}
+                is ParameterCompiled.Args<Int> -> parameters.args()
+                is ParameterCompiled.KwArgs<Int> -> parameters.kwargs()
             }
         }
         val returnType = defData.returnType
         check(popIndex == pop.size)
-        val defResult = Def.new(
+        val defResult = newDef(
             parameters.finish(),
             parameterTypes,
             returnType,
-            defData.info,
+            defData.info.asRef(),
             eval,
         )
         if (defResult.isFailure) return kotlin.Result.failure(defResult.exceptionOrNull()!!)
-        val def = eval.heap().alloc(defResult.getOrThrow())
+        val def = defResult.getOrThrow()
         frame.setBcSlot(target, def)
         return kotlin.Result.success(Unit)
     }
@@ -1288,7 +1274,7 @@ object InstrDefImpl : InstrNoFlowImpl {
 /// A frozen function argument to a call instruction.
 interface BcFrozenCallable {
     fun bcInvoke(
-        location: FrameSpan,
+        location: FrozenRef<FrameSpan>,
         args: Arguments,
         eval: Evaluator,
     ): kotlin.Result<Value>
@@ -1296,7 +1282,7 @@ interface BcFrozenCallable {
 
 class FrozenValueCallable(private val value: FrozenValue) : BcFrozenCallable {
     override fun bcInvoke(
-        location: FrameSpan,
+        location: FrozenRef<FrameSpan>,
         args: Arguments,
         eval: Evaluator,
     ): kotlin.Result<Value> {
@@ -1304,9 +1290,9 @@ class FrozenValueCallable(private val value: FrozenValue) : BcFrozenCallable {
     }
 }
 
-class FrozenDefCallable(private val def: FrozenValueTyped<FrozenDef>) : BcFrozenCallable {
+internal class FrozenDefCallable(private val def: FrozenValueTyped<FrozenDef>) : BcFrozenCallable {
     override fun bcInvoke(
-        location: FrameSpan,
+        location: FrozenRef<FrameSpan>,
         args: Arguments,
         eval: Evaluator,
     ): kotlin.Result<Value> {
@@ -1318,12 +1304,12 @@ class FrozenDefCallable(private val def: FrozenValueTyped<FrozenDef>) : BcFrozen
 
 class BcNativeFunctionCallable(private val func: BcNativeFunction) : BcFrozenCallable {
     override fun bcInvoke(
-        location: FrameSpan,
+        location: FrozenRef<FrameSpan>,
         args: Arguments,
         eval: Evaluator,
     ): kotlin.Result<Value> {
         return eval.withCallStack(func.toValue(), location) { innerEval ->
-            func.invoke(args, innerEval)
+            kotlin.Result.success(func.invoke(args, innerEval))
         }
     }
 }
@@ -1348,7 +1334,7 @@ object InstrCallImpl : InstrNoFlowImpl {
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
         val f = frame.getBcSlot(a.funSlot)
-        val r = f.invokeWithLoc(a.span, Arguments(), eval)
+        val r = f.invokeWithLoc(FrozenRef(a.span), Arguments(), eval)
         return if (r.isSuccess) {
             frame.setBcSlot(a.target, r.getOrThrow())
             kotlin.Result.success(Unit)
@@ -1375,7 +1361,7 @@ object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
         val a = arg as CallFrozenArg
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
-        val r = a.callable.bcInvoke(a.span, Arguments(), eval)
+        val r = a.callable.bcInvoke(FrozenRef(a.span), Arguments(), eval)
         return if (r.isSuccess) {
             frame.setBcSlot(a.target, r.getOrThrow())
             kotlin.Result.success(Unit)
@@ -1385,7 +1371,7 @@ object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
     }
 }
 
-data class CallFrozenDefArg(
+internal data class CallFrozenDefArg(
     val fun_: FrozenValueTyped<FrozenDef>,
     val args: Any,
     val span: FrameSpan,
@@ -1402,8 +1388,10 @@ object InstrCallFrozenDefImpl : InstrNoFlowImpl {
         val a = arg as CallFrozenDefArg
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
-        val r = eval.withCallStack(a.fun_.toValue(), a.span) { innerEval ->
-            a.fun_.asRef().invokeWithArgs(a.fun_.toValue(), a.args, innerEval)
+        @Suppress("UNCHECKED_CAST")
+        val arguments = a.args as ArgumentsImpl<Symbol>
+        val r = eval.withCallStack(a.fun_.toValue(), FrozenRef(a.span)) { innerEval ->
+            a.fun_.asRef().invokeWithArgs(a.fun_.toValue(), arguments, innerEval)
         }
         return if (r.isSuccess) {
             frame.setBcSlot(a.target, r.getOrThrow())
@@ -1436,9 +1424,13 @@ private fun callMethodCommon(
 ): kotlin.Result<Unit> {
     val progress = eval.reportForwardProgress()
     if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
-    val method = getAttrHashedRaw(thisValue, symbol, eval.heap())
-    if (method.isFailure) return kotlin.Result.failure(method.exceptionOrNull()!!)
-    val r = method.getOrThrow().invoke(thisValue, span, arguments, eval)
+    val method = try {
+        getAttrHashedRaw(thisValue, symbol, eval.heap())
+    } catch (e: Throwable) {
+        return kotlin.Result.failure(e)
+    }
+    if (method == null) return kotlin.Result.failure(Exception("no such method"))
+    val r = method.invoke(thisValue, FrozenRef(span), arguments, eval)
     return if (r.isSuccess) {
         frame.setBcSlot(target, r.getOrThrow())
         kotlin.Result.success(Unit)
@@ -1447,7 +1439,7 @@ private fun callMethodCommon(
     }
 }
 
-data class CallMaybeKnownMethodArg(
+internal data class CallMaybeKnownMethodArg(
     val thisSlot: BcSlotIn,
     val symbol: Symbol,
     val knownMethod: KnownMethod,
@@ -1472,7 +1464,7 @@ private fun callMaybeKnownMethodCommon(
         // Instead of method lookup by name, we compare Methods pointers.
         // If pointers are equal, getattr would return the same method we already have.
         if (methods === knownMethod.typeMethods) {
-            val r = eval.withCallStack(knownMethod.toValue(), span) { innerEval ->
+            val r = eval.withCallStack(knownMethod.toValue(), FrozenRef(span)) { innerEval ->
                 knownMethod.invokeMethod(thisValue, arguments, innerEval)
             }
             return if (r.isSuccess) {

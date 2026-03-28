@@ -53,7 +53,8 @@ class EnumValueGen(
     internal val value: Value,   // The value of this enumeration
     internal val index: Int, // The index in the enumeration
     internal val id: TypeInstanceId,
-) {
+) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+    override val TYPE: String get() = Companion.TYPE
     companion object {
         /// The result of calling `type()` on an enum value.
         const val TYPE: String = "enum"

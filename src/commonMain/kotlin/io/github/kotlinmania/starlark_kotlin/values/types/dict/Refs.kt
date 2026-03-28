@@ -82,9 +82,11 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
 class FrozenDictRef internal constructor(
     private val dict: FrozenDictData
 ) {
-    /** Downcast to frozen dict. */
-    fun fromFrozenValue(x: FrozenValue): FrozenDictRef? =
-        x.downcastRef<DictGen<FrozenDictData>>()?.let { FrozenDictRef(it.inner) }
+    companion object {
+        /** Downcast to frozen dict. */
+        fun fromFrozenValue(x: FrozenValue): FrozenDictRef? =
+            x.downcastRef<DictGen<FrozenDictData>>()?.let { FrozenDictRef(it.inner) }
+    }
 
     /** Get value by a string key. */
     fun getStr(key: String): FrozenValue? = dict.getStr(key)

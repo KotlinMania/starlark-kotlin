@@ -23,6 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.if_debug.IfDebug
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrRepr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrHeader
 

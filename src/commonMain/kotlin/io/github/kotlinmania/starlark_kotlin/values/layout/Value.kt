@@ -91,7 +91,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.FrozenRecord
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumValue
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStruct
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
@@ -103,7 +103,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.tuple.VALUE_EMPTY_TUPL
 import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.VALUE_EMPTY_FROZEN_DICT
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 
 // We already import another `ValueError`, hence the odd name.
 // #[derive(Debug, thiserror::Error)]
@@ -1020,7 +1019,7 @@ class Value internal constructor(
     fun getHashed(): Result<Hashed<Value>> {
         val str = unpackStarlarkStr()
         val hash = if (str != null) {
-            str.getHash()
+            str.getHash().getOrElse { return Result.failure(it) }
         } else {
             getHash().getOrElse { return Result.failure(it) }
         }
@@ -1556,7 +1555,7 @@ class FrozenValue internal constructor(
      * Downcast to given type.
      */
     // pub fn downcast_frozen_ref<T: StarlarkValue<'static>>(self) -> Option<FrozenRef<'static, T>>
-    inline fun <reified T : StarlarkValue> downcastFrozenRef(): FrozenRef<T>? {
+    internal inline fun <reified T : StarlarkValue> downcastFrozenRef(): FrozenRef<T>? {
         val value = toValue().downcastRef<T>() ?: return null
         return FrozenRef(value)
     }
@@ -1644,7 +1643,7 @@ class FrozenValue internal constructor(
     /**
      * Downcast to a specific [StarlarkValue] type.
      */
-    inline fun <reified T : StarlarkValue> downcastRef(): T? {
+    internal inline fun <reified T : StarlarkValue> downcastRef(): T? {
         return toValue().downcastRef<T>()
     }
 }
@@ -1720,7 +1719,7 @@ interface ValueLike : ValueLifetimeless {
         val v = toValue()
         val str = v.unpackStarlarkStr()
         val hash = if (str != null) {
-            str.getHash()
+            str.getHash().getOrElse { return Result.failure(it) }
         } else {
             v.getHash().getOrElse { return Result.failure(it) }
         }

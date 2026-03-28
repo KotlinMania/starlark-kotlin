@@ -26,73 +26,440 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 ///  - scope/ScopeResolverGlobals.kt (scope_resolver_globals)
 ///  - scope/Tests.kt (tests)
 
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
+import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.typing.InternalError
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.LambdaP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.Interface
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.typing.Interface
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmtFromAst
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
-import io.github.kotlinmania.starlark_kotlin.analysis.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
-import io.github.kotlinmania.starlark_kotlin.analysis.For
-import io.github.kotlinmania.starlark_kotlin.analysis.Def
-import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
-import io.github.kotlinmania.starlark_kotlin.analysis.Assign
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.typing.For
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.forStmt
-import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.payload
-import io.github.kotlinmania.starlark_kotlin.analysis.assign
-import io.github.kotlinmania.starlark_kotlin.values.key
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.For
+
+// ---------------------------------------------------------------------------
+// Visitor infrastructure (port of starlark_syntax::syntax::uniplate)
+// ---------------------------------------------------------------------------
+
+/// VisitMut — mutable visitor over CST children.
+internal sealed class VisitMut {
+    class Stmt(val stmt: CstStmt) : VisitMut()
+    class Expr(val expr: CstExpr) : VisitMut()
+}
+
+/// Flatten top-level Statements into a list.
+/// Port of `top_level_stmts_mut`.
+internal fun topLevelStmtsMut(top: CstStmt): MutableList<CstStmt> {
+    val result = mutableListOf<CstStmt>()
+    fun flatten(stmt: CstStmt) {
+        when (val node = stmt.node) {
+            is StmtP.Statements<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                for (s in node.stmts as List<CstStmt>) {
+                    flatten(s)
+                }
+            }
+            else -> result.add(stmt)
+        }
+    }
+    flatten(top)
+    return result
+}
+
+/// Convert AstStmt (with AstNoPayload) to CstStmt (with CstPayload).
+/// Port of `CstStmt::from_ast`.
+/// This is a simplified version that performs payload mapping.
+internal fun cstStmtFromAst(
+    stmt: AstStmt,
+    scopeData: ModuleScopeData,
+    loads: Map<String, Interface>,
+): CstStmt {
+    // The full implementation maps payloads from AstNoPayload -> CstPayload.
+    // For now, we cast since the AST node structure is the same; payload
+    // fields that differ (ident payload, def payload, etc.) start as null/default
+    // and are filled in during scope resolution.
+    @Suppress("UNCHECKED_CAST")
+    return stmt as CstStmt
+}
+
+/// Extension: visit children of a StmtP node (mutable visitor).
+/// Port of `StmtP::visit_children_mut`.
+internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
+    when (val node = this.node) {
+        is StmtP.Statements<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.stmts as List<CstStmt>).forEach { f(VisitMut.Stmt(it)) }
+        }
+        is StmtP.If<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(node.cond as CstExpr))
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Stmt(node.suite as CstStmt))
+        }
+        is StmtP.IfElse<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(node.cond as CstExpr))
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Stmt(node.suite1 as CstStmt))
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Stmt(node.suite2 as CstStmt))
+        }
+        is StmtP.Def<*, *> -> {
+            val defP = node.def
+            @Suppress("UNCHECKED_CAST")
+            for (p in defP.params as List<Spanned<ParameterP<CstPayload>>>) {
+                p.node.visitExprMut { f(VisitMut.Expr(it)) }
+            }
+            defP.returnType?.let {
+                @Suppress("UNCHECKED_CAST")
+                (it as Spanned<TypeExprP<CstPayload, *>>).node.expr.let { expr ->
+                    @Suppress("UNCHECKED_CAST")
+                    f(VisitMut.Expr(expr as CstExpr))
+                }
+            }
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Stmt(defP.body as CstStmt))
+        }
+        is StmtP.For<*> -> {
+            val forP = node.forStmt
+            @Suppress("UNCHECKED_CAST")
+            (forP.varTarget as Spanned<AssignTargetP<CstPayload>>).visitExprMut { f(VisitMut.Expr(it)) }
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(forP.over as CstExpr))
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Stmt(forP.body as CstStmt))
+        }
+        is StmtP.Return<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            node.expr?.let { f(VisitMut.Expr(it as CstExpr)) }
+        }
+        is StmtP.Expression<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(node.expr as CstExpr))
+        }
+        is StmtP.Assign<*> -> {
+            val assignP = node.assign
+            @Suppress("UNCHECKED_CAST")
+            (assignP.lhs as CstAssignTarget).visitExprMut { f(VisitMut.Expr(it)) }
+            @Suppress("UNCHECKED_CAST")
+            assignP.ty?.let {
+                (it as Spanned<TypeExprP<CstPayload, *>>).node.expr.let { expr ->
+                    @Suppress("UNCHECKED_CAST")
+                    f(VisitMut.Expr(expr as CstExpr))
+                }
+            }
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(assignP.rhs as CstExpr))
+        }
+        is StmtP.AssignModify<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.lhs as CstAssignTarget).visitExprMut { f(VisitMut.Expr(it)) }
+            @Suppress("UNCHECKED_CAST")
+            f(VisitMut.Expr(node.rhs as CstExpr))
+        }
+        is StmtP.Load<*, *> -> { /* no children */ }
+        is StmtP.Break<*>,
+        is StmtP.Continue<*>,
+        is StmtP.Pass<*> -> { /* no children */ }
+    }
+}
+
+/// Extension: visit only stmt children of StmtP (mutable).
+/// Port of `StmtP::visit_stmt_mut`.
+internal fun StmtP<CstPayload>.visitStmtMut(f: (CstStmt) -> Unit) {
+    // Wrap in a Spanned to reuse visitChildrenMut - we need to construct a temporary
+    // Actually, we can just filter VisitMut.Stmt from visitChildrenMut
+    // But visitChildrenMut is on CstStmt (Spanned), not on StmtP directly.
+    // So we implement directly:
+    when (this) {
+        is StmtP.Statements<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (this.stmts as List<CstStmt>).forEach { f(it) }
+        }
+        is StmtP.If<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.suite as CstStmt)
+        }
+        is StmtP.IfElse<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.suite1 as CstStmt)
+            @Suppress("UNCHECKED_CAST")
+            f(this.suite2 as CstStmt)
+        }
+        is StmtP.Def<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.def.body as CstStmt)
+        }
+        is StmtP.For<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.forStmt.body as CstStmt)
+        }
+        else -> { /* no stmt children */ }
+    }
+}
+
+/// Extension: visit expr children (mutable) of an ExprP.
+/// Port of `ExprP::visit_expr_mut` (on the inner expression node, not the Spanned wrapper).
+internal fun CstExpr.visitExprMut(f: (CstExpr) -> Unit) {
+    when (val node = this.node) {
+        is ExprP.Tuple<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.elements as List<CstExpr>).forEach { f(it) }
+        }
+        is ExprP.Dot<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.Call<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            for (arg in node.args.args) {
+                f(arg.node.expr() as CstExpr)
+            }
+        }
+        is ExprP.Index<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.index as CstExpr)
+        }
+        is ExprP.Slice<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            node.start?.let { f(it as CstExpr) }
+            @Suppress("UNCHECKED_CAST")
+            node.stop?.let { f(it as CstExpr) }
+            @Suppress("UNCHECKED_CAST")
+            node.step?.let { f(it as CstExpr) }
+        }
+        is ExprP.Not<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.Minus<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.Plus<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.BitNot<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.Op<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.lhs as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.rhs as CstExpr)
+        }
+        is ExprP.If<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.cond as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.v1 as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.v2 as CstExpr)
+        }
+        is ExprP.ListExpr<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.elements as List<CstExpr>).forEach { f(it) }
+        }
+        is ExprP.Dict<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            for ((k, v) in node.elements as List<Pair<CstExpr, CstExpr>>) {
+                f(k); f(v)
+            }
+        }
+        is ExprP.ListComprehension<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+            @Suppress("UNCHECKED_CAST")
+            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprMut(f) }
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is ExprP.DictComprehension<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (node.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+            @Suppress("UNCHECKED_CAST")
+            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprMut(f) }
+            @Suppress("UNCHECKED_CAST")
+            f(node.key as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.value as CstExpr)
+        }
+        is ExprP.Lambda<*, *> -> {
+            val lambdaP = node.lambda
+            @Suppress("UNCHECKED_CAST")
+            for (p in lambdaP.params as List<Spanned<ParameterP<CstPayload>>>) {
+                p.node.visitExprMut(f)
+            }
+            @Suppress("UNCHECKED_CAST")
+            f(lambdaP.body as CstExpr)
+        }
+        is ExprP.Identifier<*, *>,
+        is ExprP.Literal<*>,
+        is ExprP.FString<*> -> { /* no expr children */ }
+        is ExprP.Index2<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.index0 as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.index1 as CstExpr)
+        }
+        is ExprP.DictComprehension<*> -> { /* already handled above */ }
+    }
+}
+
+/// Extension: visit expr children of an AssignTargetP.
+/// Port of `AssignTargetP::visit_expr_mut`.
+internal fun Spanned<AssignTargetP<CstPayload>>.visitExprMut(f: (CstExpr) -> Unit) {
+    when (val node = this.node) {
+        is AssignTargetP.Tuple<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            for (elem in node.elements as List<Spanned<AssignTargetP<CstPayload>>>) {
+                elem.visitExprMut(f)
+            }
+        }
+        is AssignTargetP.Index<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+            @Suppress("UNCHECKED_CAST")
+            f(node.index as CstExpr)
+        }
+        is AssignTargetP.Dot<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(node.expr as CstExpr)
+        }
+        is AssignTargetP.Identifier<*, *> -> { /* no expr children */ }
+    }
+}
+
+/// Extension: visit lvalue identifiers in an AssignTargetP.
+/// Port of `AssignTargetP::visit_lvalue_mut`.
+internal fun AssignTargetP<CstPayload>.visitLvalueMut(f: (CstAssignIdent) -> Unit) {
+    when (this) {
+        is AssignTargetP.Identifier<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.ident as CstAssignIdent)
+        }
+        is AssignTargetP.Tuple<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            for (elem in this.elements as List<Spanned<AssignTargetP<CstPayload>>>) {
+                elem.node.visitLvalueMut(f)
+            }
+        }
+        else -> { /* Index, Dot have no lvalues */ }
+    }
+}
+
+/// Extension: visit expr children of a ParameterP.
+/// Port of `ParameterP::visit_expr_mut`.
+internal fun ParameterP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+    val (_, ty, def) = this.splitMut()
+    @Suppress("UNCHECKED_CAST")
+    ty?.let { (it as Spanned<TypeExprP<CstPayload, *>>).node.expr.let { expr -> f(expr as CstExpr) } }
+    def?.let { f(it) }
+}
+
+/// Extension: split a ParameterP into (name?, type?, default?).
+/// Port of `ParameterP::split_mut`.
+internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayload, *>?, Spanned<TypeExprP<CstPayload, *>>?, CstExpr?> {
+    return when (this) {
+        is ParameterP.Normal<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            Triple(
+                this.name as AstAssignIdentP<CstPayload, *>,
+                this.typ as Spanned<TypeExprP<CstPayload, *>>?,
+                this.defaultVal as CstExpr?,
+            )
+        }
+        is ParameterP.Args<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            Triple(
+                this.name as AstAssignIdentP<CstPayload, *>,
+                this.typ as Spanned<TypeExprP<CstPayload, *>>?,
+                null,
+            )
+        }
+        is ParameterP.KwArgs<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            Triple(
+                this.name as AstAssignIdentP<CstPayload, *>,
+                this.typ as Spanned<TypeExprP<CstPayload, *>>?,
+                null,
+            )
+        }
+        is ParameterP.NoArgs<*>,
+        is ParameterP.Slash<*> -> Triple(null, null, null)
+    }
+}
+
+/// Extension: visit expr children of a ForClauseP.
+internal fun ForClauseP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    (this.varTarget as Spanned<AssignTargetP<CstPayload>>).visitExprMut(f)
+    f(this.over)
+}
+
+/// Extension: visit expr children of a ClauseP.
+internal fun ClauseP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+    when (this) {
+        is ClauseP.For<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (this.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+        }
+        is ClauseP.If<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            f(this.cond as CstExpr)
+        }
+    }
+}
 
 // #[derive(Debug, thiserror::Error)]
 // enum ScopeError
-internal sealed class ScopeError : Exception() {
+internal sealed class ScopeError(message: String) : StarlarkError(message) {
     // #[error("Variable `{0}` not found")]
-    data class VariableNotFound(val name: String) : ScopeError() {
-        override val message: String get() = "Variable `$name` not found"
-    }
+    class VariableNotFound(val name: String) : ScopeError("Variable `$name` not found")
     // #[error("Variable `{0}` not found, did you mean `{1}`?")]
-    data class VariableNotFoundDidYouMean(val name: String, val suggestion: String) : ScopeError() {
-        override val message: String get() = "Variable `$name` not found, did you mean `$suggestion`?"
-    }
+    class VariableNotFoundDidYouMean(val name: String, val suggestion: String) : ScopeError("Variable `$name` not found, did you mean `$suggestion`?")
     // #[error("Identifiers in type expressions can only refer globals or builtins: `{0}`")]
-    data class TypeExpressionGlobalOrBuiltin(val name: String) : ScopeError() {
-        override val message: String get() = "Identifiers in type expressions can only refer globals or builtins: `$name`"
-    }
+    class TypeExpressionGlobalOrBuiltin(val name: String) : ScopeError("Identifiers in type expressions can only refer globals or builtins: `$name`")
 }
 
 /// All scopes and bindings in a module.
@@ -145,7 +512,7 @@ internal class ModuleScopeBuilder(
         ): Pair<CstStmt, ModuleScopeBuilder> {
             val scopeData = ModuleScopeData()
             val (scopeId, _) = scopeData.newScope()
-            var cst = CstStmtFromAst.fromAst(stmt, scopeData, loads)
+            var cst = cstStmtFromAst(stmt, scopeData, loads)
 
             val topLevelStmts = topLevelStmtsMut(cst)
 
@@ -218,13 +585,13 @@ internal class ModuleScopeBuilder(
         fun collectDefinesInDef(
             scopeData: ModuleScopeData,
             scopeId: ScopeId,
-            params: MutableList<CstParameter>,
+            params: List<CstParameter>,
             body: CstStmt?,
             frozenHeap: FrozenHeap,
             dialect: Dialect,
             codemap: CodeMap,
         ) {
-            val paramIdents: MutableList<AstAssignIdentP<*>> = mutableListOf()
+            val paramIdents: MutableList<AstAssignIdentP<CstPayload, *>> = mutableListOf()
             for (p in params) {
                 val ident = p.node.splitMut().first
                 if (ident != null) {
@@ -234,7 +601,7 @@ internal class ModuleScopeBuilder(
             scopeData.mutScope(scopeId).setParamCount(paramIdents.size)
             val localBindings: MutableMap<FrozenStringValue, BindingId> = mutableMapOf()
             for (p in paramIdents) {
-                val name = frozenHeap.allocStrIntern(p.ident)
+                val name = frozenHeap.allocStrIntern(p.node.ident)
                 // Subtle invariant: the slots for the params must be ordered and at the beginning
                 val (bindingId, _) = scopeData.newBinding(
                     name,
@@ -242,7 +609,8 @@ internal class ModuleScopeBuilder(
                     Visibility.Public,
                     AssignCount.AtMostOnce,
                 )
-                p.Payload = bindingId
+                @Suppress("UNCHECKED_CAST")
+                (p.node as AssignIdentP<CstPayload, BindingId?>).payload = bindingId
                 check(localBindings.put(name, bindingId) == null)
             }
             if (body != null) {
@@ -271,13 +639,14 @@ internal class ModuleScopeBuilder(
             codemap: CodeMap,
         ) {
             val node = code.node
-            if (node is StmtP.Def) {
+            if (node is StmtP.Def<*, *>) {
                 val defP = node.def
+                @Suppress("UNCHECKED_CAST")
                 collectDefinesInDef(
                     scopeData,
-                    defP.payload,
-                    defP.params,
-                    defP.body,
+                    defP.payload as ScopeId,
+                    defP.params as List<CstParameter>,
+                    defP.body as CstStmt,
                     frozenHeap,
                     dialect,
                     codemap,
@@ -313,12 +682,13 @@ internal class ModuleScopeBuilder(
             codemap: CodeMap,
         ) {
             val node = code.node
-            if (node is ExprP.Lambda) {
+            if (node is ExprP.Lambda<*, *>) {
                 val lambdaP = node.lambda
+                @Suppress("UNCHECKED_CAST")
                 collectDefinesInDef(
                     scopeData,
-                    lambdaP.payload,
-                    lambdaP.params,
+                    lambdaP.payload as ScopeId,
+                    lambdaP.params as List<CstParameter>,
                     null,
                     frozenHeap,
                     dialect,
@@ -341,8 +711,9 @@ internal class ModuleScopeBuilder(
             dialect: Dialect,
         ) {
             when (val node = stmt.node) {
-                is StmtP.Assign -> {
-                    val assignP = node.assign
+                is StmtP.Assign<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val assignP = node.assign as io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP<CstPayload>
                     collectDefinesLvalue(
                         assignP.lhs,
                         inLoop,
@@ -351,19 +722,21 @@ internal class ModuleScopeBuilder(
                         result,
                     )
                 }
-                is StmtP.AssignModify -> {
+                is StmtP.AssignModify<*> -> {
+                    @Suppress("UNCHECKED_CAST")
                     collectDefinesLvalue(
-                        node.lhs,
+                        node.lhs as CstAssignTarget,
                         inLoop,
                         scopeData,
                         frozenHeap,
                         result,
                     )
                 }
-                is StmtP.For -> {
-                    val forP = node.forStmt
+                is StmtP.For<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val forP = node.forStmt as ForP<CstPayload>
                     collectDefinesLvalue(
-                        forP.variable,
+                        forP.varTarget,
                         InLoop.Yes,
                         scopeData,
                         frozenHeap,
@@ -371,10 +744,11 @@ internal class ModuleScopeBuilder(
                     )
                     collectDefines(forP.body, InLoop.Yes, scopeData, frozenHeap, result, dialect)
                 }
-                is StmtP.Def -> {
-                    val defP = node.def
+                is StmtP.Def<*, *> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val defP = node.def as DefP<CstPayload, ScopeId>
                     collectAssignIdent(
-                        defP.name,
+                        defP.name as CstAssignIdent,
                         inLoop,
                         Visibility.Public,
                         scopeData,
@@ -382,15 +756,18 @@ internal class ModuleScopeBuilder(
                         result,
                     )
                 }
-                is StmtP.Load -> {
+                is StmtP.Load<*, *> -> {
                     val vis = if (dialect.enableLoadReexport) Visibility.Public else Visibility.Private
-                    for (loadArg in node.load.args) {
+                    @Suppress("UNCHECKED_CAST")
+                    val loadP = node.loadStmt as io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP<CstPayload, *>
+                    for (loadArg in loadP.args) {
                         var argVis = vis
-                        if (Module.defaultVisibility(loadArg.local.ident) == Visibility.Private) {
+                        if (Module.defaultVisibility(loadArg.local.node.ident) == Visibility.Private) {
                             argVis = Visibility.Private
                         }
+                        @Suppress("UNCHECKED_CAST")
                         collectAssignIdent(
-                            loadArg.local,
+                            loadArg.local as CstAssignIdent,
                             inLoop,
                             argVis,
                             scopeData,
@@ -399,8 +776,11 @@ internal class ModuleScopeBuilder(
                         )
                     }
                 }
-                else -> node.visitStmtMut { x ->
-                    collectDefines(x, inLoop, scopeData, frozenHeap, result, dialect)
+                else -> {
+                    @Suppress("UNCHECKED_CAST")
+                    (node as StmtP<CstPayload>).visitStmtMut { x ->
+                        collectDefines(x, inLoop, scopeData, frozenHeap, result, dialect)
+                    }
                 }
             }
         }
@@ -423,7 +803,7 @@ internal class ModuleScopeBuilder(
 
             var effectiveVis = vis
             if (effectiveVis == Visibility.Public) {
-                effectiveVis = Module.defaultVisibility(name)
+                effectiveVis = Module.defaultVisibility(name.asStr())
             }
 
             val existing = result[name]
@@ -489,20 +869,21 @@ internal class ModuleScopeBuilder(
     }
 
     // fn resolve_idents(&mut self, code: &mut CstStmt)
+    @Suppress("UNCHECKED_CAST")
     fun resolveIdents(code: CstStmt) {
         when (val node = code.node) {
-            is StmtP.Def -> {
-                val defP = node.def
+            is StmtP.Def<*, *> -> {
+                val defP = node.def as DefP<CstPayload, ScopeId>
                 resolveIdentsInDef(
                     defP.payload,
-                    defP.params,
-                    defP.returnType,
-                    defP.body,
+                    defP.params as List<CstParameter>,
+                    defP.returnType as CstTypeExpr?,
+                    defP.body as CstStmt,
                     null,
                 )
             }
-            is StmtP.Assign -> {
-                val assignP = node.assign
+            is StmtP.Assign<*> -> {
+                val assignP = node.assign as io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP<CstPayload>
                 resolveIdentsInAssign(assignP.lhs)
                 if (assignP.ty != null) {
                     resolveIdentsInTypeExpr(assignP.ty!!)
@@ -524,17 +905,18 @@ internal class ModuleScopeBuilder(
     }
 
     // fn resolve_idents_in_def(...)
+    @Suppress("UNCHECKED_CAST")
     fun resolveIdentsInDef(
         scopeId: ScopeId,
-        params: MutableList<CstParameter>,
+        params: List<CstParameter>,
         ret: CstTypeExpr?,
         bodyStmt: CstStmt?,
         bodyExpr: CstExpr?,
     ) {
         for (param in params) {
-            val (_, ty, def) = param.splitMut()
+            val (_, ty, def) = param.node.splitMut()
             if (ty != null) {
-                resolveIdentsInTypeExpr(ty)
+                resolveIdentsInTypeExpr(ty as CstTypeExpr)
             }
             if (def != null) {
                 resolveIdentsInExpr(def)
@@ -555,25 +937,26 @@ internal class ModuleScopeBuilder(
     }
 
     // fn resolve_idents_in_expr_impl(&mut self, scope: ResolveIdentScope, expr: &mut CstExpr)
+    @Suppress("UNCHECKED_CAST")
     fun resolveIdentsInExprImpl(scope: ResolveIdentScope, expr: CstExpr) {
         when (val node = expr.node) {
-            is ExprP.Identifier -> resolveIdent(scope, node.ident)
-            is ExprP.Lambda -> {
-                val lambdaP = node.lambda
-                resolveIdentsInDef(lambdaP.payload, lambdaP.params, null, null, lambdaP.body)
+            is ExprP.Identifier<*, *> -> resolveIdent(scope, node.ident as CstIdent)
+            is ExprP.Lambda<*, *> -> {
+                val lambdaP = node.lambda as LambdaP<CstPayload, ScopeId>
+                resolveIdentsInDef(lambdaP.payload, lambdaP.params as List<CstParameter>, null, null, lambdaP.body)
             }
-            is ExprP.ListComprehension -> {
+            is ExprP.ListComprehension<*> -> {
                 resolveIdentsInCompr(
-                    mutableListOf(node.expr),
-                    node.firstFor,
-                    node.clauses,
+                    mutableListOf(node.expr as CstExpr),
+                    node.forClause as ForClauseP<CstPayload>,
+                    (node.clauses as List<ClauseP<CstPayload>>).toMutableList(),
                 )
             }
-            is ExprP.DictComprehension -> {
+            is ExprP.DictComprehension<*> -> {
                 resolveIdentsInCompr(
-                    mutableListOf(node.key, node.value),
-                    node.firstFor,
-                    node.clauses,
+                    mutableListOf(node.key as CstExpr, node.value as CstExpr),
+                    node.forClause as ForClauseP<CstPayload>,
+                    (node.clauses as List<ClauseP<CstPayload>>).toMutableList(),
                 )
             }
             else -> expr.visitExprMut { e -> resolveIdentsInExprImpl(scope, e) }
@@ -678,10 +1061,10 @@ internal class ModuleScopeBuilder(
         enterCompr()
 
         // Add identifiers to compr scope
-        val vars = mutableListOf(firstFor.variable)
+        val vars = mutableListOf(firstFor.varTarget)
         for (clause in clauses) {
             if (clause is ClauseP.For) {
-                vars.add(clause.forClause.variable)
+                vars.add(clause.forClause.varTarget)
             }
         }
         addCompr(vars)
@@ -705,7 +1088,7 @@ internal class ModuleScopeBuilder(
     // fn resolve_idents_in_for_clause(&mut self, for_clause: &mut ForClauseP<CstPayload>)
     fun resolveIdentsInForClause(forClause: ForClauseP<CstPayload>) {
         resolveIdentsInExpr(forClause.over)
-        resolveIdentsInAssign(forClause.variable)
+        resolveIdentsInAssign(forClause.varTarget)
     }
 
     // pub fn enter_def(&mut self, scope_id: ScopeId)
@@ -1035,7 +1418,7 @@ internal class ModuleScopeData(
         ident: CstAssignIdent,
         codemap: CodeMap,
     ): Pair<Slot, Captured> {
-        val bindingId = ident.Payload ?: error("binding not assigned for ident")
+        val bindingId = ident.node.payload ?: error("binding not assigned for ident")
         val binding = getBinding(bindingId)
         val slot = binding.resolvedSlot(codemap)!!
         return Pair(slot, binding.captured)
@@ -1089,7 +1472,7 @@ internal class Binding(
     // fn span(&self) -> Span
     fun span(): Span = when (source) {
         is BindingSource.Source -> source.span
-        is BindingSource.FromModule -> Span.default()
+        is BindingSource.FromModule -> Span.DEFAULT
     }
 
     /// Get resolved slot after analysis is completed.

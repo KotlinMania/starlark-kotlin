@@ -293,7 +293,7 @@ internal class NativeAttribute(
 /// A wrapper for a method with a self object already bound.
 // #[derive(Clone, Debug, Trace, Coerce, Display, Freeze, NoSerialize, ProvidesStaticType, Allocative)]
 // pub(crate) struct BoundMethodGen<V: ValueLifetimeless>
-internal class BoundMethodGen<V : ValueLike>(
+internal class BoundMethodGen<V>(
     val method: FrozenValueTyped<NativeMethod>,
     val thisValue: V,
 ) : StarlarkValue, Freeze<BoundMethodGen<FrozenValue>> {
@@ -312,18 +312,25 @@ internal class BoundMethodGen<V : ValueLike>(
     /// the first argument would be `object`, and the second would be `getattr(object, "function")`.
     // pub(crate) fn new(this: V, method: FrozenValueTyped<'static, NativeMethod>) -> Self
 
+    /** Convert thisValue to a Value, regardless of whether V is Value or FrozenValue. */
+    private fun thisAsValue(): Value = when (val v = thisValue) {
+        is Value -> v
+        is FrozenValue -> v.toValue()
+        is ValueLike -> v.toValue()
+        else -> error("BoundMethodGen: unexpected thisValue type: ${v?.let { it::class }}")
+    }
+
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
     override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
-        return method.function.invoke(eval, thisValue.toValue(), args)
+        return method.asRef().function.invoke(eval, thisAsValue(), args)
     }
 
     // fn documentation(&self) -> DocItem
-    override fun documentation(): DocItem = method.documentation()
+    override fun documentation(): DocItem = method.asRef().documentation()
 
     // impl Freeze for BoundMethodGen<V>
     override fun freeze(freezer: Freezer): FreezeResult<BoundMethodGen<FrozenValue>> {
-        @Suppress("UNCHECKED_CAST")
-        val frozenThis = freezer.freeze(thisValue.toValue()) as FrozenValue
+        val frozenThis = freezer.freeze(thisAsValue()).getOrElse { return Result.failure(it) }
         return Result.success(BoundMethodGen(method, frozenThis))
     }
 }

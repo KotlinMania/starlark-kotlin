@@ -40,7 +40,9 @@ import io.github.kotlinmania.starlark_kotlin.values.applySlice
 class TupleGen<V>(
     /// The data stored by the tuple.
     private val content: List<V>,
-) {
+) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+    override val TYPE: String get() = Companion.TYPE
+
     companion object {
         /// `type(())`.
         const val TYPE: String = "tuple"

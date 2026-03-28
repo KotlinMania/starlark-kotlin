@@ -393,6 +393,18 @@ class FrozenHeap(
         return FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
     }
 
+    /// Allocate an interned string. Returns a FrozenStringValue.
+    /// Port of `FrozenHeap::alloc_str_intern`.
+    fun allocStrIntern(s: String): FrozenStringValue {
+        // Simplified interning: just allocate the string.
+        // A full implementation would use an interner to deduplicate.
+        val hash = StarlarkHashValue.new(s)
+        val bytes = s.encodeToByteArray()
+        return allocStrInit(bytes.size, hash) { dst ->
+            bytes.copyInto(dst)
+        }
+    }
+
     /// Number of bytes allocated on this heap, not including any memory
     /// allocated outside of the starlark heap.
     fun allocatedBytes(): Long {

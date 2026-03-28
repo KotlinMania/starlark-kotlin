@@ -27,6 +27,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * [Value] holding [ValueCaptured] is equivalent to `Box<Option<Value>>`.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
@@ -40,7 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 // pub(crate) struct ValueCaptured<'v>(Cell<Option<Value<'v>>>);
 internal class ValueCaptured private constructor(
     @Volatile private var payload: Value?,
-) : StarlarkValue, Trace, Freeze<FrozenValueCaptured> {
+) : ComplexValue, Trace, Freeze<FrozenValueCaptured> {
 
     override val TYPE: String get() = "value_captured"
 

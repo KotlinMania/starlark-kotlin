@@ -125,7 +125,15 @@ class Error private constructor(
 data class Frame(
     val name: String,
     val location: FileSpan?,
-)
+) {
+    override fun toString(): String {
+        val sb = StringBuilder(name)
+        if (location != null) {
+            sb.append(" (called from $location)")
+        }
+        return sb.toString()
+    }
+}
 
 /** The different kinds of errors that can be produced by starlark. */
 sealed class ErrorKind {

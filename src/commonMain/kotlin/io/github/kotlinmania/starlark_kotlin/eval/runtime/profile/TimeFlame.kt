@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
@@ -102,6 +103,19 @@ private class ValueIndex {
     /// Map from Value to FrozenValueId.
     // frozen_map: HashMap<RawPointer, FrozenValueId, StarlarkHasherBuilder>
     val frozenMap: MutableMap<RawPointer, FrozenValueId> = mutableMapOf()
+
+    // unsafe impl Trace for ValueIndex
+    // We only need to trace mutable values.
+    fun trace(tracer: Tracer) {
+        for (i in mutableValues.indices) {
+            mutableValues[i] = tracer.trace(mutableValues[i])
+        }
+        // Have to rebuild the map, as its keyed by ValuePtr which changes on GC
+        mutableMap.clear()
+        for ((i, x) in mutableValues.withIndex()) {
+            mutableMap[x.ptrValue()] = MutableValueId(i)
+        }
+    }
 
     /// Map Value to ValueId.
     // fn index(&mut self, value: Value<'v>) -> ValueId
@@ -180,6 +194,14 @@ internal class TimeFlameProfile {
     fun gen(): ProfileData {
         val x = data ?: throw Error.newOther(FlameProfileError.NotEnabled())
         return genProfile(x)
+    }
+
+    // #[derive(Trace)] on TimeFlameProfile traces its inner FlameData.
+    // FlameData contains ValueIndex which holds mutable Value references
+    // that must be updated during GC.
+    fun trace(tracer: Tracer) {
+        val x = data ?: return
+        x.index.trace(tracer)
     }
 }
 

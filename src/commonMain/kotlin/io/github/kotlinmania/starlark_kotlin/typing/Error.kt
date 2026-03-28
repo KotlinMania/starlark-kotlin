@@ -40,7 +40,7 @@ class EvalException(val message: String, cause: Throwable? = null) : Exception(m
     }
 }
 
-class StarlarkError(message: String, cause: Throwable? = null) : Exception(message, cause) {
+open class StarlarkError(message: String, cause: Throwable? = null) : Exception(message, cause) {
     fun intoInternalError(): StarlarkError {
         return StarlarkError("Internal: $message", cause)
     }

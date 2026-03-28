@@ -24,21 +24,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import starlark_map.Hashed
-import starlark_map.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.values.types.list.pop
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.insertHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import starlark_map.Hashed
+import starlark_map.small_set.SmallSet
 
 private sealed class SetFromValue {
     data class Set(val set: SmallSet<Value>) : SetFromValue()
@@ -46,13 +37,13 @@ private sealed class SetFromValue {
 
     companion object {
         fun fromValue(
-            value: ValueOfUnchecked<StarlarkIter<Value>>,
+            value: Value,
             heap: Heap
         ): Result<SetFromValue> {
-            return when (val setRef = SetRef.unpackValueOpt(value.get())) {
+            return when (val setRef = SetRef.unpackValueOpt(value)) {
                 null -> {
-                    val set = SmallSet.default<Value>()
-                    for (elem in value.get().iterate(heap).getOrElse { return Result.failure(it) }) {
+                    val set = SmallSet<Value>()
+                    for (elem in value.iterate(heap).getOrElse { return Result.failure(it) }) {
                         set.insertHashed(elem.getHashed().getOrElse { return Result.failure(it) })
                     }
                     Result.success(Set(set))
@@ -65,14 +56,21 @@ private sealed class SetFromValue {
     fun get(): SmallSet<Value> {
         return when (this) {
             is Set -> this.set
-            is Ref -> this.ref.aref.content
+            is Ref -> this.ref.content
         }
     }
 
     fun intoSet(): SmallSet<Value> {
         return when (this) {
             is Set -> this.set
-            is Ref -> this.ref.aref.content.clone()
+            is Ref -> {
+                // Clone: create a new SmallSet with the same entries
+                val clone = SmallSet<Value>()
+                for (h in this.ref.content.iterHashed()) {
+                    clone.insertHashedUniqueUnchecked(h)
+                }
+                clone
+            }
         }
     }
 
@@ -81,7 +79,7 @@ private sealed class SetFromValue {
     }
 
     fun containsHashed(value: Hashed<Value>): Boolean {
-        return get().containsHashed(value.asRef())
+        return get().containsHashed(value)
     }
 }
 
@@ -96,7 +94,7 @@ internal fun setMethods(builder: MethodsBuilder) {
 
 internal fun clear(thisValue: Value): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    thisSet.aref.clear()
+    thisSet.aref.data.clear()
     return Result.success(NoneType)
 }
 
@@ -113,19 +111,24 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  */
 internal fun union(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<SetData> {
-    if (thisSet.aref.content.isEmpty()) {
+    if (thisSet.content.isEmpty()) {
         val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
-        return Result.success(SetData(content = otherSet.intoSet()))
+        val result = SetData()
+        result.content.addAll(otherSet.intoSet().iterHashed().asIterable())
+        return Result.success(result)
     }
-    val data = thisSet.aref.content.clone()
-    for (elem in other.get().iterate(heap).getOrElse { return Result.failure(it) }) {
+    val result = SetData()
+    for (h in thisSet.content.iterHashed()) {
+        result.content.insertHashedUniqueUnchecked(h)
+    }
+    for (elem in other.iterate(heap).getOrElse { return Result.failure(it) }) {
         val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-        data.insertHashed(hashed)
+        result.content.insertHashed(hashed)
     }
-    return Result.success(SetData(content = data))
+    return Result.success(result)
 }
 
 /**
@@ -141,16 +144,16 @@ internal fun union(
  */
 internal fun intersection(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<SetData> {
     val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
-    val data = SetData.default()
+    val data = SetData()
     if (otherSet.isEmpty()) {
         return Result.success(data)
     }
 
-    for (hashed in thisSet.aref.content.iterHashed()) {
+    for (hashed in thisSet.content.iterHashed()) {
         if (otherSet.containsHashed(hashed.copied())) {
             data.content.insertHashedUniqueUnchecked(hashed.copied())
         }
@@ -170,30 +173,36 @@ internal fun intersection(
  */
 internal fun symmetricDifference(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<SetData> {
     val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
 
     if (otherSet.isEmpty()) {
-        return Result.success(SetData(content = thisSet.aref.content.clone()))
+        val clone = SetData()
+        for (h in thisSet.content.iterHashed()) {
+            clone.content.insertHashedUniqueUnchecked(h)
+        }
+        return Result.success(clone)
     }
 
     // TODO(romanp) add symmetric_difference to small set and use it here and in xor
-    if (thisSet.aref.content.isEmpty()) {
-        return Result.success(SetData(content = otherSet.intoSet()))
+    if (thisSet.content.isEmpty()) {
+        val result = SetData()
+        result.content.addAll(otherSet.intoSet().iterHashed().asIterable())
+        return Result.success(result)
     }
 
-    val data = SetData.default()
-    for (elem in thisSet.aref.content.iterHashed()) {
+    val data = SetData()
+    for (elem in thisSet.content.iterHashed()) {
         if (!otherSet.containsHashed(elem.copied())) {
             data.addHashed(elem.copied())
         }
     }
 
-    for (elem in otherSet.get()) {
+    for (elem in otherSet.get().iter()) {
         val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-        if (!thisSet.aref.content.containsHashed(hashed.asRef())) {
+        if (!thisSet.content.containsHashed(hashed.asRef())) {
             data.addHashed(hashed)
         }
     }
@@ -216,7 +225,7 @@ internal fun add(
 ): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    thisSet.aref.addHashed(hashed)
+    thisSet.aref.data.addHashed(hashed)
     return Result.success(NoneType)
 }
 
@@ -232,23 +241,24 @@ internal fun add(
  */
 internal fun update(
     thisValue: Value,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<NoneType> {
-    val isSelfPtr = other.get().ptrEq(thisValue)
+    val isSelfPtr = other.ptrEq(thisValue)
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     if (isSelfPtr) {
         return Result.success(NoneType)
     }
 
-    if (thisSet.aref.content.isEmpty()) {
-        thisSet.aref.content = SetFromValue.fromValue(other, heap)
+    if (thisSet.aref.data.content.isEmpty()) {
+        val otherSet = SetFromValue.fromValue(other, heap)
             .getOrElse { return Result.failure(it) }
-            .intoSet()
+        val newContent = otherSet.intoSet()
+        thisSet.aref.data.content.addAll(newContent.iterHashed().asIterable())
     } else {
-        for (elem in other.get().iterate(heap).getOrElse { return Result.failure(it) }) {
+        for (elem in other.iterate(heap).getOrElse { return Result.failure(it) }) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-            thisSet.aref.addHashed(hashed)
+            thisSet.aref.data.addHashed(hashed)
         }
     }
 
@@ -285,10 +295,10 @@ internal fun remove(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    return if (set.aref.removeHashed(hashed.asRef())) {
+    return if (set.aref.data.removeHashed(hashed.asRef())) {
         Result.success(NoneType)
     } else {
-        Result.failure(ValueError("`$value` not found in `$thisValue`"))
+        Result.failure(ValueError.KeyNotFound("`$value` not found in `$thisValue`"))
     }
 }
 
@@ -322,7 +332,7 @@ internal fun discard(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    set.aref.removeHashed(hashed.asRef())
+    set.aref.data.removeHashed(hashed.asRef())
     return Result.success(NoneType)
 }
 
@@ -348,9 +358,14 @@ internal fun discard(
  */
 internal fun pop(thisValue: Value): Result<Value> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    return when (val x = set.aref.content.pop()) {
-        null -> Result.failure(ValueError("pop from an empty set"))
-        else -> Result.success(x)
+    val content = set.aref.data.content
+    return if (content.isEmpty()) {
+        Result.failure(ValueError.KeyNotFound("pop from an empty set"))
+    } else {
+        // Pop the last element - get it then remove it
+        val last = content.iterHashed().last()
+        content.shiftRemoveHashed(last)
+        Result.success(last.key())
     }
 }
 
@@ -366,22 +381,26 @@ internal fun pop(thisValue: Value): Result<Value> {
  */
 internal fun difference(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<SetData> {
-    if (thisSet.aref.content.isEmpty()) {
-        other.get().iterate(heap).getOrElse { return Result.failure(it) }
-        return Result.success(SetData.default())
+    if (thisSet.content.isEmpty()) {
+        other.iterate(heap).getOrElse { return Result.failure(it) }
+        return Result.success(SetData())
     }
 
     val otherSet = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
 
     if (otherSet.isEmpty()) {
-        return Result.success(SetData(content = thisSet.aref.content.clone()))
+        val clone = SetData()
+        for (h in thisSet.content.iterHashed()) {
+            clone.content.insertHashedUniqueUnchecked(h)
+        }
+        return Result.success(clone)
     }
 
-    val data = SetData.default()
-    for (elem in thisSet.aref.content.iterHashed()) {
+    val data = SetData()
+    for (elem in thisSet.content.iterHashed()) {
         if (!otherSet.containsHashed(elem.copied())) {
             data.addHashed(elem.copied())
         }
@@ -401,29 +420,26 @@ internal fun difference(
  */
 internal fun issuperset(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<Boolean> {
-    val otherVar: SetRef?
-    val otherIter = when (val setRef = SetRef.unpackValueOpt(other.get())) {
-        null -> {
-            other.get().iterate(heap)
-                .getOrElse { return Result.failure(it) }
-                .map { it.getHashed() }
+    val otherSetRef = SetRef.unpackValueOpt(other)
+    if (otherSetRef != null) {
+        if (thisSet.content.len() < otherSetRef.content.len()) {
+            return Result.success(false)
         }
-        else -> {
-            if (thisSet.aref.content.size < setRef.aref.content.size) {
+        for (hashed in otherSetRef.content.iterHashed()) {
+            if (!thisSet.content.containsHashed(hashed.copied())) {
                 return Result.success(false)
             }
-            otherVar = setRef
-            otherVar.aref.content.iterHashed().map { Result.success(it.copied()) }
         }
-    }
-
-    for (elem in otherIter) {
-        val hashed = elem.getOrElse { return Result.failure(it) }
-        if (!thisSet.aref.containsHashed(hashed)) {
-            return Result.success(false)
+    } else {
+        val iter = other.iterate(heap).getOrElse { return Result.failure(it) }
+        for (elem in iter) {
+            val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
+            if (!thisSet.content.containsHashed(hashed)) {
+                return Result.success(false)
+            }
         }
     }
     return Result.success(true)
@@ -441,18 +457,18 @@ internal fun issuperset(
  */
 internal fun issubset(
     thisSet: SetRef,
-    other: ValueOfUnchecked<StarlarkIter<Value>>,
+    other: Value,
     heap: Heap
 ): Result<Boolean> {
-    if (thisSet.aref.content.isEmpty()) {
-        other.get().iterate(heap).getOrElse { return Result.failure(it) }
+    if (thisSet.content.isEmpty()) {
+        other.iterate(heap).getOrElse { return Result.failure(it) }
         return Result.success(true)
     }
     val rhs = SetFromValue.fromValue(other, heap).getOrElse { return Result.failure(it) }
-    if (thisSet.aref.content.size > rhs.get().size) {
+    if (thisSet.content.len() > rhs.get().len()) {
         return Result.success(false)
     }
-    for (elem in thisSet.aref.content.iterHashed()) {
+    for (elem in thisSet.content.iterHashed()) {
         if (!rhs.containsHashed(elem.copied())) {
             return Result.success(false)
         }
