@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.BindingId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.typing.cst

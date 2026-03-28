@@ -27,7 +27,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 // But it does as things stand.
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClause
@@ -138,7 +137,7 @@ private enum class Abort {
 private fun isFail(x: AstExpr): Boolean {
     val expr = x.node
     if (expr is ExprP.Call) {
-        val func = expr.function.node
+        val func = expr.expr.node
         if (func is ExprP.Identifier) {
             return func.ident == "fail"
         }

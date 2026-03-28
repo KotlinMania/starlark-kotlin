@@ -48,7 +48,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.writeHash
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
 import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
@@ -57,7 +56,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.nextOpt
 import io.github.kotlinmania.starlark_kotlin.docs.typ
 import io.github.kotlinmania.starlark_kotlin.docs.ty
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.typing.TyUser
 import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
@@ -236,7 +234,7 @@ class RecordTypeGen internal constructor(
             val tyRecord = Ty.custom(
                 TyUser.new(
                     variableName,
-                    TyStarlarkValue.new<Record>(),
+                    TyStarlarkValue.new("record"),
                     id,
                     TyUserParams(
                         matcher = TypeMatcherFactory.new(RecordTypeMatcher(id = id)),
@@ -251,7 +249,7 @@ class RecordTypeGen internal constructor(
             val tyRecordType = Ty.custom(
                 TyUser.new(
                     "record[$variableName]",
-                    TyStarlarkValue.new<RecordTypeGen>(),
+                    TyStarlarkValue.new("function"),
                     TypeInstanceId.gen(),
                     TyUserParams(
                         callable = TyCallable.new(

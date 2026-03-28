@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 
 // #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
 // #[display("foo")]

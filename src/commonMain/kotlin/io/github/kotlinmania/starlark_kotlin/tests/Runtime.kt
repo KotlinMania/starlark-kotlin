@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.assert.disableGc
 import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 
 class RuntimeTests {
 

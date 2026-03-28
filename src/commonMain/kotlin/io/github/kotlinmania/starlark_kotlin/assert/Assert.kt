@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 import io.github.kotlinmania.starlark_kotlin.tests.getAttr
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
@@ -47,7 +46,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtFn
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 /** Functional type alias for value equality assertion. */

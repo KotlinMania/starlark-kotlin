@@ -50,7 +50,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
@@ -231,7 +230,7 @@ class EnumTypeGen internal constructor(
             val tyEnumValue = Ty.custom(
                 TyUser.new(
                     variableName,
-                    TyStarlarkValue.new<EnumValue>(),
+                    TyStarlarkValue.new("enum"),
                     id,
                     TyUserParams(
                         matcher = TypeMatcherFactory.new(EnumTypeMatcher(id = id)),
@@ -250,7 +249,7 @@ class EnumTypeGen internal constructor(
             val tyEnumType = Ty.custom(
                 TyUser.new(
                     "enum[$variableName]",
-                    TyStarlarkValue.new<EnumTypeGen>(),
+                    TyStarlarkValue.new("function"),
                     TypeInstanceId.gen(),
                     TyUserParams(
                         fields = TyUserFields(
@@ -346,7 +345,7 @@ private fun enumTypeMethods(builder: MethodsBuilder) {
     }
 
     // fn values<'v>(this: Value<'v>) -> anyhow::Result<AllocList<impl Iterator<Item = Value<'v>>>>
-    builder.function("values") { thisValue, _ ->
+    builder.setMethod("values") { thisValue, _ ->
         val this = thisValue.downcast<EnumTypeGen>()!!
         AllocList(this.elements().keys.toList())
     }

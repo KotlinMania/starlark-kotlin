@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.Module
 import kotlin.random.Random
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.extra
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule

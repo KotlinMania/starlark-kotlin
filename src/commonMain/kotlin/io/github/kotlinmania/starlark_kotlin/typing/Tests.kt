@@ -36,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
 import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
 import io.github.kotlinmania.starlark_kotlin.tests.trimRustBacktrace
@@ -45,6 +44,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecki
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 
 // Submodules:
 // mod call           -> typing.tests.call (Call.kt)

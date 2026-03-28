@@ -23,14 +23,13 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 
 // #[starlark_module]
 // pub(crate) fn register_eval_type(globals: &mut GlobalsBuilder)
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /// Create a runtime type object which can be used to check if a value matches the given type.
     // fn eval_type<'v>(#[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<TypeCompiled<Value<'v>>>
-    globals.function("eval_type") { args: List<Value>, eval: Evaluator ->
+    globals.setFunction("eval_type") { args: List<Value>, eval: Evaluator ->
         val ty = args[0]
         TypeCompiled.new(ty, eval.heap())
     }
@@ -52,7 +51,7 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     /// `L = eval_type(list); [isinstance(x, L) for x in y]`:
     /// `eval_type()` converts `list` value into prepared type matcher.
     // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
-    globals.function("isinstance") { args: List<Value>, eval: Evaluator ->
+    globals.setFunction("isinstance") { args: List<Value>, eval: Evaluator ->
         val value = args[0]
         val ty = args[1]
         val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.Rec
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
 
 // #[starlark_module]
@@ -72,7 +71,7 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     /// Records are stored deduplicating their field names, making them more
     /// memory efficient than dictionaries.
     // fn record<'v>(#[starlark(kwargs)] kwargs: SmallMap<String, Value<'v>>, eval: &mut Evaluator) -> anyhow::Result<RecordType<'v>>
-    builder.function("record") { kwargs: SmallMap<String, Value>, eval: Evaluator ->
+    builder.setFunction("record") { kwargs: SmallMap<String, Value>, eval: Evaluator ->
         // Every Value must either be a field or a value (the type)
         val mp = SmallMap<String, Field>()
         for ((k, v) in kwargs) {
@@ -95,7 +94,7 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     /// rec.mask == 255
     /// ```
     // fn field<'v>(#[starlark(require = pos)] typ: Value<'v>, default: Option<Value<'v>>, eval: &mut Evaluator) -> starlark::Result<Field<'v>>
-    builder.function("field") { args: List<Value>, eval: Evaluator ->
+    builder.setFunction("field") { args: List<Value>, eval: Evaluator ->
         val typ = args[0]
         val default: Value? = args.getOrNull(1)
         // We compile the type even if we don't have a default to raise the error sooner

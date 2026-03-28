@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
 
 import kotlin.jvm.JvmInline
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.convertSliceIndices
@@ -238,7 +239,7 @@ data class Range(
     }
 
     fun getTypeStarlarkRepr(): Ty {
-        return Ty.starlarkValue<Range>()
+        return Ty.starlarkValue(TyStarlarkValue.new("range"))
     }
 
     /** For tests. */

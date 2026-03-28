@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.analysis.For
 import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign

@@ -425,34 +425,34 @@ private fun type(a: Value): FrozenStringValue {
  */
 internal fun registerOther(globals: GlobalsBuilder) {
     // fn fail(#[starlark(args)] args: UnpackTuple<Value>) -> starlark::Result<StarlarkNever>
-    globals.setFunction("fail") { _, callArgs ->
+    globals.setFunction("fail") { callArgs, _ ->
         fail(callArgs.positionalAll())
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn any<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
-    globals.setFunction("any", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("any", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         eval.heap().allocBool(any(x, eval.heap()))
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn all<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
-    globals.setFunction("all", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("all", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         eval.heap().allocBool(all(x, eval.heap()))
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn dir(x: Value) -> anyhow::Result<Vec<String>>
-    globals.setFunction("dir", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("dir", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         eval.heap().allocList(dir(x).map { eval.heap().allocStr(it) })
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn enumerate<'v>(it: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, start: i32, heap: Heap<'v>)
-    globals.setFunction("enumerate", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("enumerate", speculativeExecSafe = true) { callArgs, eval ->
         val it = callArgs.positional<Value>(0)
         val start = callArgs.optionalPositional<Int>(1) ?: 0
         enumerate(it, start, eval.heap())
@@ -460,7 +460,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // #[starlark(speculative_exec_safe)]
     // fn getattr<'v>(a: Value<'v>, attr: &str, default: Option<Value<'v>>, heap: Heap<'v>)
-    globals.setFunction("getattr", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("getattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
         val default = callArgs.optionalPositional<Value>(2)
@@ -469,7 +469,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // #[starlark(speculative_exec_safe)]
     // fn hasattr<'v>(a: Value<'v>, attr: &str, heap: Heap<'v>) -> anyhow::Result<bool>
-    globals.setFunction("hasattr", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("hasattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
         eval.heap().allocBool(hasattr(a, attr, eval.heap()))
@@ -477,21 +477,21 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // #[starlark(speculative_exec_safe)]
     // fn hash(a: &str) -> anyhow::Result<i32>
-    globals.setFunction("hash", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("hash", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<String>(0)
         eval.heap().allocInt(hash(a))
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn len(a: Value) -> starlark::Result<i32>
-    globals.setFunction("len", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("len", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         eval.heap().allocInt(len(a))
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn reversed<'v>(a: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>)
-    globals.setFunction("reversed", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("reversed", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         reversed(a, eval.heap())
     }
@@ -500,7 +500,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
     // which might be not spec-safe.
     // fn sorted<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, key: Option<Value<'v>>,
     //     reverse: bool, eval: &mut Evaluator<'v, '_, '_>)
-    globals.setFunction("sorted") { eval, callArgs ->
+    globals.setFunction("sorted") { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         val key = callArgs.optionalNamed<Value>("key")
         val reverse = callArgs.optionalNamed<Boolean>("reverse") ?: false
@@ -509,7 +509,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // #[starlark(speculative_exec_safe, as_type = AbstractType)]
     // fn r#type<'v>(a: Value) -> anyhow::Result<FrozenStringValue>
-    globals.setFunction("type", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("type", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         type(a).toValue()
     }

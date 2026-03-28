@@ -44,7 +44,6 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.toBool
 import io.github.kotlinmania.starlark_kotlin.syntax.stmtLocations
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.toFileSpan

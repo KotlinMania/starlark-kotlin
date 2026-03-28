@@ -36,17 +36,15 @@ import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.float.testingNewInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
 import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.setCheckCancelled
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 
 class UncategorizedTests {
 

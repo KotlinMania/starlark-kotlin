@@ -420,7 +420,7 @@ class FrozenValueTypedInstrArg<T : StarlarkValue>(
  */
 class BcNativeFunctionInstrArg(val func: BcNativeFunction) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
-        FrozenValueInstrArg(func.function().toFrozenValue()).fmtAppend(ip, endArg, f)
+        FrozenValueInstrArg(func.func().toFrozenValue()).fmtAppend(ip, endArg, f)
     }
 
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}

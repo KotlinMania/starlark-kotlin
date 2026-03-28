@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.any.TypingAny
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingCallable
 import io.github.kotlinmania.starlark_kotlin.values.typing.iter.TypingIterable
 import io.github.kotlinmania.starlark_kotlin.values.typing.never.TypingNever
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.globals.registerEvalType
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.registerEvalType
 
 internal fun registerTyping(globals: GlobalsBuilder) {
     registerEvalType(globals)

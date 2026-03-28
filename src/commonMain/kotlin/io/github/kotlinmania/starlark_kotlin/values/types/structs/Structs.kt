@@ -29,17 +29,15 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.named
 import io.github.kotlinmania.starlark_kotlin.docs.kwargs
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 
 /**
  * Type implementation for the struct type.
@@ -93,7 +91,7 @@ internal object StructType : TyCustomFunctionImpl {
  * this explicitly.
  */
 internal fun registerStruct(builder: GlobalsBuilder) {
-    builder.function(
+    builder.setFunction(
         name = "struct",
         tyCustomFunction = StructType,
         asType = FrozenStruct::class

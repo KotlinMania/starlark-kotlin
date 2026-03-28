@@ -69,7 +69,7 @@ internal fun registerFloat(globals: GlobalsBuilder) {
      * # "#, "doesn't match, expected");
      * ```
      */
-    globals.function(
+    globals.setFunction(
         name = "float",
         asType = StarlarkFloat::class,
         speculativeExecSafe = true,

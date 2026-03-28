@@ -37,6 +37,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage
 import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
+import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 
 // fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
 private fun docsGoldenTest(testFileName: String, doc: DocItem): String {

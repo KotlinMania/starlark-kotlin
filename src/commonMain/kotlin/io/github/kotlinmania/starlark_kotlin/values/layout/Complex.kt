@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /// Value which is either a complex mutable value or a frozen value.

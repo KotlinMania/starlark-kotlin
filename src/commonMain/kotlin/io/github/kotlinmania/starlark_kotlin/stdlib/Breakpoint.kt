@@ -202,7 +202,7 @@ private const val BREAKPOINT_HIT_MESSAGE: String =
  * Registers the `breakpoint` built-in function into the given [GlobalsBuilder].
  */
 fun breakpointGlobal(builder: GlobalsBuilder) {
-    builder.function("breakpoint") { _, eval ->
+    builder.setFunction("breakpoint") { _, eval ->
         breakpointLock.withLock {
             if (breakpointState == State.Allow) {
                 val handler = eval.breakpointHandler

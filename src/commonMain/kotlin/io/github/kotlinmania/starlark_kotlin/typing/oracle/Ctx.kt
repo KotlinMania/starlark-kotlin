@@ -491,7 +491,7 @@ class TypingOracleCtx(
                     ParamSpec.posOnly(listOf(array.item.toTy()), emptyList()),
                     Ty.none(),
                 ))
-                else -> TyStarlarkValue.new<ListType>().attr(attr)
+                else -> TyStarlarkValue.new("list").attr(attr)
             }
             is TyBasic.Dict -> when (attr) {
                 "get" -> kotlin.Result.success(Ty.union2(
@@ -518,10 +518,10 @@ class TypingOracleCtx(
                     ParamSpec.empty(),
                     Ty.tuple(listOf(array.key.toTy(), array.value.toTy())),
                 ))
-                else -> TyStarlarkValue.new<MutableDictType>().attr(attr)
+                else -> TyStarlarkValue.new("dict").attr(attr)
             }
             is TyBasic.Custom -> array.custom.attributeDyn(attr)
-            is TyBasic.Set -> TyStarlarkValue.new<MutableSetType>().attr(attr)
+            is TyBasic.Set -> TyStarlarkValue.new("set").attr(attr)
         }
     }
 
@@ -603,10 +603,10 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(lhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new<ListType>().binOp(binOp, rhs.node))
+                else -> kotlin.Result.success(TyStarlarkValue.new("list").binOp(binOp, rhs.node))
             }
             is TyBasic.Tuple ->
-                kotlin.Result.success(TyStarlarkValue.new<TupleType>().binOp(binOp, rhs.node))
+                kotlin.Result.success(TyStarlarkValue.new("tuple").binOp(binOp, rhs.node))
             is TyBasic.Dict -> when (binOp) {
                 TypingBinOp.BitOr -> {
                     val ir = intersectsBasic(rhs.node, TyBasic.anyDict())
@@ -626,7 +626,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.bool())
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new<MutableDictType>().binOp(binOp, rhs.node))
+                else -> kotlin.Result.success(TyStarlarkValue.new("dict").binOp(binOp, rhs.node))
             }
             is TyBasic.Custom ->
                 kotlin.Result.success(lhs.custom.binOpDyn(binOp, rhs.node, this))
@@ -649,7 +649,7 @@ class TypingOracleCtx(
                         kotlin.Result.failure(TypingNoContextError)
                     }
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new<MutableSetType>().binOp(binOp, rhs.node))
+                else -> kotlin.Result.success(TyStarlarkValue.new("set").binOp(binOp, rhs.node))
             }
         }
     }
@@ -669,7 +669,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(rhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new<ListType>().rbinOp(binOp, lhs))
+                else -> kotlin.Result.success(TyStarlarkValue.new("list").rbinOp(binOp, lhs))
             }
             is TyBasic.Tuple -> when (binOp) {
                 TypingBinOp.Mul -> {

@@ -23,8 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 
 // #[starlark_module]
 // fn functions(builder: &mut GlobalsBuilder)

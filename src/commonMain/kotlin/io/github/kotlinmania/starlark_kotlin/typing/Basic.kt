@@ -47,11 +47,11 @@ sealed class TyBasic : Comparable<TyBasic> {
     class Set(val item: ArcTy) : TyBasic()
 
     companion object {
-        fun none(): TyBasic = starlarkValue<NoneType>()
+        fun none(): TyBasic = starlarkValue("NoneType")
 
-        fun <T> starlarkValue(): TyBasic = StarlarkValue(TyStarlarkValue.new<T>())
+        fun starlarkValue(typeName: String): TyBasic = StarlarkValue(TyStarlarkValue.new(typeName))
 
-        fun string(): TyBasic = starlarkValue<StarlarkStr>()
+        fun string(): TyBasic = starlarkValue("string")
 
         fun int(): TyBasic = StarlarkValue(TyStarlarkValue.int())
 

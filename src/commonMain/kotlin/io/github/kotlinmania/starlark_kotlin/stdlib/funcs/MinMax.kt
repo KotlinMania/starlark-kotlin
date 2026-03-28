@@ -165,7 +165,7 @@ internal fun registerMinMax(globals: GlobalsBuilder) {
     //     key: Option<Value<'v>>,
     //     eval: &mut Evaluator<'v, '_, '_>,
     // ) -> starlark::Result<Value<'v>>
-    globals.setFunction("max", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("max", speculativeExecSafe = true) { callArgs, eval ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<Value>("key")
         minMax(args, key, eval, min = false)
@@ -195,7 +195,7 @@ internal fun registerMinMax(globals: GlobalsBuilder) {
     //     key: Option<Value<'v>>,
     //     eval: &mut Evaluator<'v, '_, '_>,
     // ) -> starlark::Result<Value<'v>>
-    globals.setFunction("min", speculativeExecSafe = true) { eval, callArgs ->
+    globals.setFunction("min", speculativeExecSafe = true) { callArgs, eval ->
         val args = callArgs.positionalAll()
         val key = callArgs.optionalNamed<Value>("key")
         minMax(args, key, eval, min = true)

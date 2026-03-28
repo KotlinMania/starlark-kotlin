@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
@@ -73,7 +74,7 @@ class Field internal constructor(
 
     // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? {
-        return Ty.starlarkValue<Field>()
+        return Ty.starlarkValue(TyStarlarkValue.new("field"))
     }
 
     // impl Display for FieldGen

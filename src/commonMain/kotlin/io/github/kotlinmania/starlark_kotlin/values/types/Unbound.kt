@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCallStack
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
@@ -79,7 +78,7 @@ internal sealed class UnboundValue {
             span,
         ) { eval ->
             when (this) {
-                is Method -> method.function.invoke(eval, thisValue, args)
+                is Method -> method.asRef().function.invoke(eval, thisValue, args)
                 is Attr -> attr.invoke(thisValue, eval.heap())
             }
         }

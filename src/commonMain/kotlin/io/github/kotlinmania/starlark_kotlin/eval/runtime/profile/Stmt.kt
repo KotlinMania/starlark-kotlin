@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.analysis.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge

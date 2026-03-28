@@ -553,6 +553,53 @@ class Arguments(
         return this
     }
 
+    // ---- Convenience accessors for starlark_module-style argument extraction ----
+
+    /**
+     * Get all positional arguments as a list.
+     */
+    fun positionalAll(): List<Value> = full.pos
+
+    /**
+     * Get a single positional argument by 0-based index, unpacking it to type [T].
+     * Supports [Value], [String], [Int], and [Boolean] directly.
+     * For other types performs an unchecked cast of the underlying [Value].
+     * When T is inferred as [Value] (default), returns the raw [Value].
+     */
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T> positional(index: Int): T {
+        val v = full.pos[index]
+        return unpackValueAs<T>(v)
+    }
+
+    /**
+     * Get an optional positional argument by 0-based index, unpacking it to type [T],
+     * or null if the index is out of range.
+     */
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T> optionalPositional(index: Int): T? {
+        val v = full.pos.getOrNull(index) ?: return null
+        return unpackValueAs<T>(v)
+    }
+
+    /**
+     * Get an optional named argument by name, unpacking it to type [T],
+     * or null if the argument is not present.
+     */
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T> optionalNamed(name: String): T? {
+        val idx = full.names.names().indexOfFirst { it.second.asStr() == name }
+        if (idx < 0) return null
+        return unpackValueAs<T>(full.named[idx])
+    }
+
+    /**
+     * Get an optional named argument by name, unpacking it to type [T],
+     * or null if the argument is not present. Alias for [optionalNamed].
+     */
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
+
     companion object {
         fun default(): Arguments {
             return Arguments()
@@ -607,3 +654,20 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.
+
+/**
+ * Unpack a [Value] to type [T]. Used by [Arguments] convenience accessors.
+ * Handles [Value], [String], [Int], and [Boolean] directly.
+ * For other types performs an unchecked cast of the underlying [Value].
+ */
+@Suppress("UNCHECKED_CAST")
+internal inline fun <reified T> unpackValueAs(v: Value): T {
+    return when (T::class) {
+        Value::class -> v as T
+        String::class -> v.unpackStrErr().getOrThrow() as T
+        Int::class -> (v.unpackI32()
+            ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")) as T
+        Boolean::class -> v.toBool() as T
+        else -> v as T
+    }
+}

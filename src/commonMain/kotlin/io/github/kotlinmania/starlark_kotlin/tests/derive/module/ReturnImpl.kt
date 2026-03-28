@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 
 // #[starlark_module]
 // fn _test_return_impl_alloc_value(globals: &mut GlobalsBuilder)

@@ -22,23 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.typing.iterItem
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 
 class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {

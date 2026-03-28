@@ -104,7 +104,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * # "#, "cannot be represented as exact integer");
      * ```
      */
-    globals.function<Nothing>(
+    globals.setFunction(
         name = "int",
         asType = PointerI32::class,
         speculativeExecSafe = true,

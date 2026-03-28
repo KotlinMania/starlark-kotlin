@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen

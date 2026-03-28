@@ -120,10 +120,10 @@ private fun callStackFrame(n: Int, eval: Evaluator): NoneOr<StackFrame> {
 
 /** Register call_stack and call_stack_frame globals. */
 internal fun callStackGlobal(builder: GlobalsBuilder) {
-    builder.function("call_stack") { args, eval ->
+    builder.setFunction("call_stack") { args, eval ->
         callStack(args.namedOptional("strip_frames") ?: 0, eval)
     }
-    builder.function("call_stack_frame") { args, eval ->
+    builder.setFunction("call_stack_frame") { args, eval ->
         callStackFrame(args.positional(0), eval)
     }
 }

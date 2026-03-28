@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.Aggregat
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profile
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileDataError
@@ -159,18 +158,18 @@ data class ProfileData(
             }
 
             val profile = when (profileMode) {
-                ProfileMode.Bytecode -> BcProfilerType.mergeProfiles(list).profile
-                ProfileMode.BytecodePairs -> BcPairsProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapAllocated -> HeapAllocatedProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapRetained -> HeapRetainedProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapSummaryAllocated -> HeapSummaryAllocatedProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapSummaryRetained -> HeapSummaryRetainedProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapFlameAllocated -> HeapFlameAllocatedProfilerType.mergeProfiles(list).profile
-                ProfileMode.HeapFlameRetained -> HeapFlameRetainedProfilerType.mergeProfiles(list).profile
-                ProfileMode.TimeFlame -> TimeFlameProfilerType.mergeProfiles(list).profile
-                ProfileMode.Typecheck -> TypecheckProfilerType.mergeProfiles(list).profile
-                ProfileMode.Statement -> StmtProfilerType.mergeProfiles(list).profile
-                ProfileMode.Coverage -> CoverageProfileType.mergeProfiles(list).profile
+                ProfileMode.Bytecode -> BcProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.BytecodePairs -> BcPairsProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapAllocated -> HeapAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapRetained -> HeapRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapSummaryAllocated -> HeapSummaryAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapSummaryRetained -> HeapSummaryRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapFlameAllocated -> HeapFlameAllocatedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.HeapFlameRetained -> HeapFlameRetainedProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.TimeFlame -> TimeFlameProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.Typecheck -> TypecheckProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.Statement -> StmtProfilerType.mergeProfiles(list).getOrThrow().profile
+                ProfileMode.Coverage -> CoverageProfileType.mergeProfiles(list).getOrThrow().profile
                 ProfileMode.None -> ProfileDataImpl.None
             }
             return ProfileData(profile)

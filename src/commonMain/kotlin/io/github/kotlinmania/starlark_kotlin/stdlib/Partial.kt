@@ -3,7 +3,6 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.types.list.fmt
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 

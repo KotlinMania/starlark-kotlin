@@ -310,13 +310,13 @@ fun jsonDecode(x: String, heap: Heap): Result<Value> {
 // fn json_members(globals: &mut GlobalsBuilder)
 private fun jsonMembers(globals: GlobalsBuilder) {
     // fn encode(#[starlark(require = pos)] x: Value) -> anyhow::Result<String>
-    globals.setFunction("encode") { eval, args ->
+    globals.setFunction("encode") { args, eval ->
         val x = args.positional<Value>(0)
         jsonEncode(x).getOrThrow()
     }
 
     // fn decode<'v>(#[starlark(require = pos)] x: &str, heap: Heap<'v>) -> anyhow::Result<Value<'v>>
-    globals.setFunction("decode") { eval, args ->
+    globals.setFunction("decode") { args, eval ->
         val x = args.positional<String>(0)
         jsonDecode(x, eval.heap()).getOrThrow()
     }

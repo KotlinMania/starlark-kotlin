@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 import io.github.kotlinmania.starlark_kotlin.values.owned.typed
 import io.github.kotlinmania.starlark_kotlin.values.value_of.typed
 

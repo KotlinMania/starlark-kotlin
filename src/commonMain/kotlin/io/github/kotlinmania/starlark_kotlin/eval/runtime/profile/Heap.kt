@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.Aggregat
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.types.float.testingNewInt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule

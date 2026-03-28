@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.function
 
 // #[starlark_module]
 // pub fn register_enum(builder: &mut GlobalsBuilder)
@@ -58,7 +57,7 @@ fun registerEnum(builder: GlobalsBuilder) {
     /// Enumeration types store each value once, which are then efficiently referenced by
     /// enumeration values.
     // fn r#enum<'v>(#[starlark(args)] args: UnpackTuple<StringValue<'v>>, heap: Heap<'v>) -> starlark::Result<Value<'v>>
-    builder.function("enum") { args: List<Value>, heap: Heap ->
+    builder.setFunction("enum") { args: List<Value>, heap: Heap ->
         // Every Value must either be a field or a value (the type)
         @Suppress("UNCHECKED_CAST")
         val stringArgs = args as List<StringValue>
