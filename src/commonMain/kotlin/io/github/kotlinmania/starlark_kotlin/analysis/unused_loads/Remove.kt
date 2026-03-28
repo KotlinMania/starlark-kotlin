@@ -20,11 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  */
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.sourceSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.fullSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.end
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 /// Helper for building the output string with span-based skipping.
@@ -40,7 +36,7 @@ private class Out(
     /// Append source text from current position up to [pos], then advance.
     fun appendTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end())
+        check(pos <= codemap.fullSpan().end)
         out.append(codemap.sourceSpan(Span(this.pos, pos)))
         this.pos = pos
     }
@@ -50,7 +46,7 @@ private class Out(
     /// Advance the current position to [pos] without appending.
     fun skipTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end())
+        check(pos <= codemap.fullSpan().end)
         this.pos = pos
     }
 
@@ -58,8 +54,8 @@ private class Out(
     ///
     /// fn skip_span(&mut self, span: Span)
     fun skipSpan(span: Span) {
-        appendTo(span.begin())
-        skipTo(span.end())
+        appendTo(span.begin)
+        skipTo(span.end)
     }
 }
 
@@ -88,7 +84,7 @@ fun removeUnusedLoads(name: String, program: String): Result<String?> {
         }
     }
 
-    out.appendTo(codemap.fullSpan().end())
+    out.appendTo(codemap.fullSpan().end)
 
     return Result.success(out.out.toString())
 }

@@ -47,7 +47,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
@@ -60,7 +60,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 /// and one containing FrozenValue. To deal with that, if we are defining the type
 /// containing a single value, let's call it `One`, we'd define `OneGen`
 /// (for the general version), and then have type aliases generate `One` and `FrozenOne`.
-interface ComplexValue : StarlarkValue, Freeze
+interface ComplexValue : StarlarkValue
 
 /// How to put Kotlin values into Values.
 ///
@@ -92,7 +92,7 @@ interface StarlarkValue {
     /// type annotations. This often will be the same as TYPE, but in
     /// some instances it might be slightly different than what is returned by TYPE.
     fun getTypeStarlarkRepr(): Ty {
-        return Ty.starlarkValue(this)
+        return Ty.starlarkValue(TyStarlarkValue.new(TYPE))
     }
 
     /// Type is special in Starlark, it is implemented differently than user defined types.
@@ -190,7 +190,7 @@ interface StarlarkValue {
     /// This method returns a result of type Ordering, or an error
     /// if the two types differ.
     fun compare(other: Value): Result<Int> {
-        return ValueError.unsupportedWith(this, "compare", other)
+        return ValueError.unsupportedWith(TYPE, "compare", other)
     }
 
     /// Directly invoke a function.
@@ -200,12 +200,12 @@ interface StarlarkValue {
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {
-        return ValueError.unsupported(this, "call()")
+        return ValueError.unsupported(TYPE, "call()")
     }
 
     /// Return the result of `a[index]` if `a` is indexable.
     fun at(index: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "[]", index)
+        return ValueError.unsupportedWith(TYPE, "[]", index)
     }
 
     /// Return the result of `a[index0, index1]` if `a` is indexable by two parameters.
@@ -214,7 +214,7 @@ interface StarlarkValue {
         index1: Value,
         heap: Heap,
     ): Result<Value> {
-        return ValueError.unsupported(this, "[,]")
+        return ValueError.unsupported(TYPE, "[,]")
     }
 
     /// Extract a slice of the underlying object if the object is indexable. The
@@ -227,13 +227,13 @@ interface StarlarkValue {
         stride: Value?,
         heap: Heap,
     ): Result<Value> {
-        return ValueError.unsupported(this, "[::]")
+        return ValueError.unsupported(TYPE, "[::]")
     }
 
     /// Implement iteration over the value of this container by providing
     /// the values in a list.
     fun iterateCollect(heap: Heap): Result<List<Value>> {
-        return ValueError.unsupported(this, "(iter)")
+        return ValueError.unsupported(TYPE, "(iter)")
     }
 
     /// Returns an iterator over the value of this container if this value holds
@@ -269,7 +269,7 @@ interface StarlarkValue {
 
     /// Returns the length of the value, if this value is a sequence.
     fun length(): Result<Int> {
-        return ValueError.unsupported(this, "len()")
+        return ValueError.unsupported(TYPE, "len()")
     }
 
     /// Attribute type, for the typechecker.
@@ -310,12 +310,12 @@ interface StarlarkValue {
 
     /// Apply the `+` unary operator to the current value.
     fun plus(heap: Heap): Result<Value> {
-        return ValueError.unsupported(this, "+")
+        return ValueError.unsupported(TYPE, "+")
     }
 
     /// Apply the `-` unary operator to the current value.
     fun minus(heap: Heap): Result<Value> {
-        return ValueError.unsupported(this, "-")
+        return ValueError.unsupported(TYPE, "-")
     }
 
     /// Add with the arguments the other way around.
@@ -328,7 +328,7 @@ interface StarlarkValue {
 
     /// Subtract `other` from the current value.
     fun sub(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "-", other)
+        return ValueError.unsupportedWith(TYPE, "-", other)
     }
 
     /// Called on `rhs` of `lhs * rhs` when `lhs.mul` returns null.
@@ -341,48 +341,48 @@ interface StarlarkValue {
 
     /// Divide the current value by `other`. Always results in a float value.
     fun div(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "/", other)
+        return ValueError.unsupportedWith(TYPE, "/", other)
     }
 
     /// Apply the percent operator between the current value and `other`. Usually used on
     /// strings, as per the Starlark spec string interpolation.
     fun percent(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "%", other)
+        return ValueError.unsupportedWith(TYPE, "%", other)
     }
 
     /// Floor division between the current value and `other`.
     fun floorDiv(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "//", other)
+        return ValueError.unsupportedWith(TYPE, "//", other)
     }
 
     /// Bitwise `&` operator.
     fun bitAnd(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "&", other)
+        return ValueError.unsupportedWith(TYPE, "&", other)
     }
 
     /// Bitwise `|` operator.
     fun bitOr(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "|", other)
+        return ValueError.unsupportedWith(TYPE, "|", other)
     }
 
     /// Bitwise `^` operator.
     fun bitXor(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "^", other)
+        return ValueError.unsupportedWith(TYPE, "^", other)
     }
 
     /// Bitwise `~` operator.
     fun bitNot(heap: Heap): Result<Value> {
-        return ValueError.unsupported(this, "~")
+        return ValueError.unsupported(TYPE, "~")
     }
 
     /// Bitwise `<<` operator.
     fun leftShift(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, "<<", other)
+        return ValueError.unsupportedWith(TYPE, "<<", other)
     }
 
     /// Bitwise `>>` operator.
     fun rightShift(other: Value, heap: Heap): Result<Value> {
-        return ValueError.unsupportedWith(this, ">>", other)
+        return ValueError.unsupportedWith(TYPE, ">>", other)
     }
 
     /// Typecheck `this op rhs`.
@@ -409,7 +409,7 @@ interface StarlarkValue {
     /// Set the attribute named `attribute` of the current value to
     /// `value` (e.g. `a.attribute = value`).
     fun setAttr(attribute: String, newValue: Value): Result<Unit> {
-        return ValueError.unsupported(this, ".${attribute}=")
+        return ValueError.unsupported(TYPE, ".${attribute}=")
     }
 
     /// Dynamically provide values based on type.

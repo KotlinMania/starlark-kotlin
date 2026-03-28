@@ -26,36 +26,23 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 //
 // But it does as things stand.
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClause
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Clause
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.key
-import io.github.kotlinmania.starlark_kotlin.value
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.thenBlock
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseBlock
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.variable
-import io.github.kotlinmania.starlark_kotlin.docs.ty
-import io.github.kotlinmania.starlark_kotlin.codemap.*
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.ListComprehension
-import io.github.kotlinmania.starlark_kotlin.typing.DictComprehension
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DictComprehension
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ListComprehension
 
 sealed class NameWarning : LintWarning {
     data class UnusedLoad(val name: String) : NameWarning()
@@ -117,11 +104,15 @@ private enum class Assigned {
 
 private typealias AstStr = Spanned<String>
 
-private fun astStrFromIdent(x: AstIdent): AstStr =
-    Spanned(x.span, x.node.ident)
+private fun astStrFromIdent(x: AstIdent): AstStr {
+    // AstIdent = Spanned<IdentP<AstNoPayload, Unit>>, .node.ident is the string
+    return Spanned(x.node.ident, x.span)
+}
 
-private fun astStrFromAssignIdent(x: AstAssignIdent): AstStr =
-    Spanned(x.span, x.node.ident)
+private fun astStrFromAssignIdent(x: AstAssignIdent): AstStr {
+    // AstAssignIdent = Spanned<AssignIdentP<AstNoPayload, Unit>>, .node.ident is the string
+    return Spanned(x.node.ident, x.span)
+}
 
 /// When we see a control flow operator, how far does it apply?
 private enum class Abort {
@@ -138,11 +129,118 @@ private fun isFail(x: AstExpr): Boolean {
     val expr = x.node
     if (expr is ExprP.Call) {
         val func = expr.expr.node
-        if (func is ExprP.Identifier) {
-            return func.ident == "fail"
+        if (func is ExprP.Identifier<*, *>) {
+            return func.ident.node.ident == "fail"
         }
     }
     return false
+}
+
+/// Visit all expression children of an assign target (e.g. index/dot exprs, not the lvalue itself).
+private fun AstAssignTarget.visitExpr(visitor: (AstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val t = this.node) {
+        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitExpr(visitor) }
+        is AssignTargetP.Index<*> -> {
+            visitor(t.expr as AstExpr)
+            visitor(t.index as AstExpr)
+        }
+        is AssignTargetP.Dot<*> -> visitor(t.expr as AstExpr)
+        is AssignTargetP.Identifier<*, *> -> {} // no sub-expressions
+    }
+}
+
+/// Visit all lvalue identifier leaves of an assign target.
+private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val t = this.node) {
+        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitLvalue(visitor) }
+        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
+        is AssignTargetP.Index<*>, is AssignTargetP.Dot<*> -> {} // not a simple lvalue
+    }
+}
+
+/// Visit all expression children of a parameter (default value, type annotation).
+private fun ParameterP<AstNoPayload>.visitExpr(visitor: (AstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (this) {
+        is ParameterP.Normal -> {
+            typ?.let { visitor(it.node.expr as AstExpr) }
+            defaultVal?.let { visitor(it as AstExpr) }
+        }
+        is ParameterP.Args -> typ?.let { visitor(it.node.expr as AstExpr) }
+        is ParameterP.KwArgs -> typ?.let { visitor(it.node.expr as AstExpr) }
+        is ParameterP.NoArgs, is ParameterP.Slash -> {}
+    }
+}
+
+/// Visit all expression children of an AstExpr (recursing one level via the visitor).
+private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val e = this.node) {
+        is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
+        is ExprP.Dot<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Call<*> -> {
+            visitor(e.expr as AstExpr)
+            e.args.args.forEach { visitor(it.node.expr() as AstExpr) }
+        }
+        is ExprP.Index<*> -> {
+            visitor(e.expr as AstExpr)
+            visitor(e.index as AstExpr)
+        }
+        is ExprP.Index2<*> -> {
+            visitor(e.expr as AstExpr)
+            visitor(e.index0 as AstExpr)
+            visitor(e.index1 as AstExpr)
+        }
+        is ExprP.Slice<*> -> {
+            visitor(e.expr as AstExpr)
+            e.start?.let { visitor(it as AstExpr) }
+            e.stop?.let { visitor(it as AstExpr) }
+            e.step?.let { visitor(it as AstExpr) }
+        }
+        is ExprP.Not<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Minus<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Plus<*> -> visitor(e.expr as AstExpr)
+        is ExprP.BitNot<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Op<*> -> {
+            visitor(e.lhs as AstExpr)
+            visitor(e.rhs as AstExpr)
+        }
+        is ExprP.If<*> -> {
+            visitor(e.cond as AstExpr)
+            visitor(e.v1 as AstExpr)
+            visitor(e.v2 as AstExpr)
+        }
+        is ExprP.ListExpr<*> -> e.elements.forEach { visitor(it as AstExpr) }
+        is ExprP.Dict<*> -> e.elements.forEach { (k, v) ->
+            visitor(k as AstExpr)
+            visitor(v as AstExpr)
+        }
+        is ExprP.ListComprehension<*> -> {
+            visitor(e.expr as AstExpr)
+            visitor(e.forClause.over as AstExpr)
+            e.clauses.forEach { clause ->
+                when (clause) {
+                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
+                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
+                }
+            }
+        }
+        is ExprP.DictComprehension<*> -> {
+            visitor(e.key as AstExpr)
+            visitor(e.value as AstExpr)
+            visitor(e.forClause.over as AstExpr)
+            e.clauses.forEach { clause ->
+                when (clause) {
+                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
+                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
+                }
+            }
+        }
+        is ExprP.FString<*> -> e.fstring.node.expressions.forEach { visitor(it as AstExpr) }
+        is ExprP.Identifier<*, *>, is ExprP.Lambda<*, *>, is ExprP.Literal -> {}
+    }
 }
 
 /// A combination of the scope information (what is set) and state information as we
@@ -182,7 +280,7 @@ private class State(
 ) {
     fun addWarning(ident: AstStr, ctor: (String) -> NameWarning) {
         if (warned.add(ident)) {
-            warnings.add(LintT(codemap, ident.span, ctor(ident.node)))
+            warnings.add(LintT.new(codemap, ident.span, ctor(ident.node)))
         }
     }
 
@@ -337,7 +435,7 @@ private class State(
             } else {
                 val (assigned, spans) = entry
                 for (span in spans) {
-                    scope.used.add(Spanned(span, ident.node))
+                    scope.used.add(Spanned(ident.node, span))
                 }
                 if (assigned == Assigned.Maybe) {
                     addWarning(ident, NameWarning::UsingMaybeUndefined)
@@ -365,20 +463,20 @@ private class State(
     fun comprehension(
         res1: AstExpr,
         res2: AstExpr?,
-        forClause: ForClause,
-        clauses: List<Clause>,
+        forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>,
+        clauses: List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>,
     ) {
         expr(forClause.over)
         enterScope()
         // This isn't quite right, as we assume the comprehensions are always evaluated (e.g. no zero arrays)
         // and the assign is always hit, which isn't true.
         // But it is a close enough approximation, and comprehensions tend not to have variable assignment issues.
-        assign(forClause.variable)
+        assign(forClause.varTarget)
         for (clause in clauses) {
             when (clause) {
                 is ClauseP.For -> {
                     expr(clause.forClause.over)
-                    assign(clause.forClause.variable)
+                    assign(clause.forClause.varTarget)
                 }
                 is ClauseP.If -> expr(clause.cond)
             }
@@ -388,16 +486,17 @@ private class State(
         exitScope()
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun expr(expr: AstExpr) {
         when (val e = expr.node) {
-            is ExprP.Identifier -> useIdent(astStrFromIdent(e.ident))
+            is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as AstIdent))
             is ExprP.Lambda<*, *> -> {
                 for (p in e.lambda.params) {
-                    p.node.visitExpr { x -> expr(x as AstExpr) }
+                    (p.node as ParameterP<AstNoPayload>).visitExpr { x -> expr(x) }
                 }
                 enterScope()
                 for (p in e.lambda.params) {
-                    val pname = p.node.ident()
+                    val pname = (p.node as ParameterP<AstNoPayload>).ident()
                     if (pname != null) {
                         setIdent(pname as AstAssignIdent, Kind.Argument)
                     }
@@ -405,8 +504,8 @@ private class State(
                 expr(e.lambda.body as AstExpr)
                 exitScope()
             }
-            is ExprP.ListComprehension -> comprehension(e.expr, null, e.forClause, e.clauses)
-            is ExprP.DictComprehension -> comprehension(e.key, e.value, e.forClause, e.clauses)
+            is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
             else -> expr.visitExpr { x -> expr(x) }
         }
     }
@@ -428,6 +527,7 @@ private class State(
         assign.visitLvalue { x -> useIdent(astStrFromAssignIdent(x)) }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun stmt(stmt: AstStmt) {
         when (val s = stmt.node) {
             is StmtP.Expression -> {
@@ -437,49 +537,49 @@ private class State(
                 }
             }
             is StmtP.Return -> {
-                exprOpt(s.expr)
+                exprOpt(s.expr as AstExpr?)
                 setAbort(Abort.Function)
             }
             is StmtP.Assign -> {
-                typOpt(s.ty)
-                expr(s.rhs)
-                assign(s.lhs)
+                typOpt(s.assign.ty as AstTypeExpr?)
+                expr(s.assign.rhs as AstExpr)
+                assign(s.assign.lhs as AstAssignTarget)
             }
             is StmtP.AssignModify -> {
-                expr(s.rhs)
-                assignAsExpr(s.lhs)
-                assign(s.lhs)
+                expr(s.rhs as AstExpr)
+                assignAsExpr(s.lhs as AstAssignTarget)
+                assign(s.lhs as AstAssignTarget)
             }
             is StmtP.Statements -> {
                 for (x in s.stmts) {
-                    stmt(x)
+                    stmt(x as AstStmt)
                 }
             }
             is StmtP.If -> {
-                expr(s.cond)
-                branch({ me -> me.stmt(s.thenBlock) }, { })
+                expr(s.cond as AstExpr)
+                branch({ me -> me.stmt(s.suite as AstStmt) }, { })
             }
             is StmtP.IfElse -> {
-                expr(s.cond)
-                branch({ me -> me.stmt(s.thenBlock) }, { me -> me.stmt(s.elseBlock) })
+                expr(s.cond as AstExpr)
+                branch({ me -> me.stmt(s.suite1 as AstStmt) }, { me -> me.stmt(s.suite2 as AstStmt) })
             }
             is StmtP.For -> {
-                expr(s.over)
+                expr(s.forStmt.over as AstExpr)
                 // Note this isn't 100% correct, as a for loop may set something the next iteration consumes
                 loops { me ->
-                    me.assign(s.variable)
-                    me.stmt(s.body)
+                    me.assign(s.forStmt.varTarget as AstAssignTarget)
+                    me.stmt(s.forStmt.body as AstStmt)
                 }
             }
             is StmtP.Def<*, *> -> {
                 for (p in s.def.params) {
-                    p.node.visitExpr { e -> expr(e as AstExpr) }
+                    (p.node as ParameterP<AstNoPayload>).visitExpr { e -> expr(e) }
                 }
                 typOpt(s.def.returnType as AstTypeExpr?)
                 setIdent(s.def.name as AstAssignIdent, Kind.Assign)
                 enterScope()
                 for (p in s.def.params) {
-                    val pname = p.node.ident()
+                    val pname = (p.node as ParameterP<AstNoPayload>).ident()
                     if (pname != null) {
                         setIdent(pname as AstAssignIdent, Kind.Argument)
                     }
@@ -490,7 +590,7 @@ private class State(
             // These were handled by collecting the scopes
             is StmtP.Load<*, *> -> {
                 for (arg in s.loadStmt.args) {
-                    setIdent(arg.local, Kind.Load)
+                    setIdent(arg.local as AstAssignIdent, Kind.Load)
                 }
             }
             // These control flow operators can be ignored - either the code after is fine (no problem)

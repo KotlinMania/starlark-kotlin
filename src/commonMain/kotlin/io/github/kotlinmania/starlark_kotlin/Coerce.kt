@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import kotlin.jvm.JvmInline
 
 /**
  * A trait to represent zero-cost conversions.
@@ -66,6 +67,29 @@ value class Borrowed<T>(
     val value: T,
 )
 
+/**
+ * Kotlin stand-in for Rust's `Box<T>`.
+ *
+ * In Rust, `Box<T>` is an owned heap pointer. In Kotlin all reference types are heap-allocated,
+ * so this wrapper exists only to satisfy the coercion API surface.
+ */
+data class Box<T>(val value: T)
+
+/**
+ * Kotlin stand-in for Rust's 1-tuple `(T,)`.
+ *
+ * Kotlin has no single-element tuple syntax; this data class provides an equivalent.
+ */
+data class Tuple1<A>(val first: A)
+
+/**
+ * Kotlin stand-in for Rust's `std::marker::PhantomData<T>`.
+ *
+ * In Rust, `PhantomData<T>` is a zero-size type used as a variance/lifetime marker.
+ * In Kotlin it is a plain class that carries no data and is used only to satisfy type bounds.
+ */
+class PhantomData<T>
+
 /** Kotlin stand-in for `ManuallyDrop<T>`. */
 class ManuallyDrop<T> private constructor(
     private val value: T,
@@ -83,7 +107,8 @@ object CoerceLayout {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <To, From> cast(value: From): To = value as To
+@PublishedApi
+internal fun <To, From> cast(value: From): To = value as To
 
 class BorrowedCoerce<To, From>(
     private val inner: Coerce<To, From>,

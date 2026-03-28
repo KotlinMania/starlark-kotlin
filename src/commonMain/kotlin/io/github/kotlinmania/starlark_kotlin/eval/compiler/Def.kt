@@ -50,8 +50,13 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Symbol
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtxEvalForOptimizeOnFreeze
+import io.github.kotlinmania.starlark_kotlin.docs.extractRawStarlarkDocstring
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.typing.DefParam
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamKind
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
@@ -93,7 +98,6 @@ private sealed class DefError(message: String) : Exception(message) {
  * This is initialized in [FrozenDef.postFreeze].
  */
 internal class StmtCompiledCell {
-    @Volatile
     private var bc: Bc = Bc()
 
     companion object {
@@ -453,7 +457,7 @@ internal fun Compiler.parameter(
         is DefParamKind.Regular -> ParameterCompiled.Normal(
             pName,
             this.exprForType(x.node.ty)?.node,
-            kind.defaultValue?.let { d -> this.expr(d) },
+            kind.defaultValue?.let { d -> this.expr(d).getOrThrow() },
         )
         is DefParamKind.Args -> ParameterCompiled.Args(
             pName,
@@ -486,13 +490,14 @@ internal fun Compiler.function(
     suite: CstStmt,
 ): ExprCompiled {
     val file = this.codemap.asRef().fileSpan(suite.span)
-    val functionName = "${file.file.filename()}.$name"
+    val functionName = "${file.file.filename}.$name"
     val frozenName = this.eval.frozenHeap().allocStrIntern(name)
 
     val defParams = unpackDefParamsForCompiler(params, this.codemap.asRef())
 
     // The parameters run in the scope of the parent, so compile them with the outer scope
-    val compiledParams = defParams.first.map { x -> parameter(x) }
+    val compiler = this
+    val compiledParams = defParams.first.map { x -> compiler.parameter(x) }
     val parametersCompiled = ParametersCompiled(compiledParams, defParams.second)
     val compiledReturnType = this.exprForType(returnType)?.node
 
@@ -504,7 +509,7 @@ internal fun Compiler.function(
     this.enterScope(scopeId)
 
     val docstring = DocString.extractRawStarlarkDocstring(suite)
-    val body = this.stmt(suite, false)
+    val body = this.stmt(suite, false).getOrThrow()
     val exitedScopeId = this.exitScope()
     val scopeNames = this.scopeData.getScope(exitedScopeId)
 
@@ -531,7 +536,7 @@ internal fun Compiler.function(
         parent = scopeNames.parent,
         stmtCompiled = body.asBc(
             this.compileContext(compiledReturnType != null),
-            used,
+            FrozenRef(used),
             paramCount,
             this.eval.moduleEnv.frozenHeap(),
         ),
@@ -688,7 +693,7 @@ internal class DefGen<V>(
         if (!frozen) {
             for (cap in captured) {
                 if (cap is Value) {
-                    tracer.trace(cap)
+                    tracer.trace(ValueHolder(cap))
                 }
             }
         }
@@ -698,12 +703,11 @@ internal class DefGen<V>(
     // impl Freeze for Def
     fun freeze(freezer: Freezer): FreezeResult<FrozenDef> {
         @Suppress("UNCHECKED_CAST")
-        val frozenParameters = parameters.freeze(freezer)
-        @Suppress("UNCHECKED_CAST")
+        val frozenParameters = parameters as ParametersSpec<FrozenValue>
         val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
-            Triple(slot, name, ty.freeze(freezer))
+            Triple(slot, name, ty.toFrozen(freezer.heap))
         }
-        val frozenReturnType = returnType?.freeze(freezer)
+        val frozenReturnType = returnType?.toFrozen(freezer.heap)
         @Suppress("UNCHECKED_CAST")
         val frozenCaptured = (captured as List<Value>).map { v ->
             freezer.freeze(v).getOrElse { return FreezeResult.failure(it) }
@@ -996,7 +1000,7 @@ internal fun FrozenDef.postFreeze(
         ))
         .asBc(
             this.defInfo.stmtCompileContext,
-            this.defInfo.used,
+            FrozenRef(this.defInfo.used),
             this.parameters.len(),
             frozenHeap,
         )

@@ -23,23 +23,20 @@ import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.types.float.testingNewInt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerType
 
 // pub(crate) struct HeapAllocatedProfilerType
 object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapAllocated
+    override val profileMode: ProfileMode = ProfileMode.HeapAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -50,13 +47,13 @@ object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapAllocated(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // pub(crate) struct HeapRetainedProfilerType
 object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapRetained
+    override val profileMode: ProfileMode = ProfileMode.HeapRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -67,13 +64,13 @@ object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapRetained(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // pub(crate) struct HeapSummaryAllocatedProfilerType
 object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapSummaryAllocated
+    override val profileMode: ProfileMode = ProfileMode.HeapSummaryAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -84,13 +81,13 @@ object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo>
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapSummaryAllocated(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // pub(crate) struct HeapFlameAllocatedProfilerType
 object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapFlameAllocated
+    override val profileMode: ProfileMode = ProfileMode.HeapFlameAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -101,13 +98,13 @@ object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapFlameAllocated(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // pub(crate) struct HeapSummaryRetainedProfilerType
 object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapSummaryRetained
+    override val profileMode: ProfileMode = ProfileMode.HeapSummaryRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -118,13 +115,13 @@ object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> 
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapSummaryRetained(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // pub(crate) struct HeapFlameRetainedProfilerType
 object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.HeapFlameRetained
+    override val profileMode: ProfileMode = ProfileMode.HeapFlameRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
         when (profileData) {
@@ -135,8 +132,8 @@ object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override fun dataToGeneric(data: AggregateHeapProfileInfo): ProfileDataImpl =
         ProfileDataImpl.HeapFlameRetained(data)
 
-    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): AggregateHeapProfileInfo =
-        AggregateHeapProfileInfo.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<AggregateHeapProfileInfo>): Result<AggregateHeapProfileInfo> =
+        Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
 // #[derive(Copy, Clone, Dupe, Debug, Allocative)]
@@ -265,11 +262,11 @@ f
 
         // finally, check a user can add values into the heap before/after
         val eval3 = Evaluator(module3)
-        module3.heap().alloc("Thing that goes before")
+        module3.heap().allocStr("Thing that goes before")
         eval3.enableProfile(ProfileMode.HeapSummaryAllocated)
         eval3.evalFunction(f, listOf(Value.testingNewInt(100)), listOf()).getOrThrow()
 
-        module3.heap().alloc("Thing that goes after")
+        module3.heap().allocStr("Thing that goes after")
         HeapProfile.writeSummarizedHeapProfile(module3.heap())
         HeapProfile.writeFlameHeapProfile(module3.heap())
     }

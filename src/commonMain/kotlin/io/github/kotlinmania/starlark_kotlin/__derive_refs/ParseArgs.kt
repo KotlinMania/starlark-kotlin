@@ -19,15 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.coerce
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.unpackNamedParam
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.collectInto
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 
 /// Collect `N` arguments.
 ///
@@ -36,8 +39,8 @@ fun parseSignature(
     parser: ParametersSpec<FrozenValue>,
     args: Arguments,
     heap: Heap,
-): Result<Array<Value?>> {
-    return parser.collectInto(args, heap)
+): Result<List<Value?>> {
+    return Result.success(parser.collectInto(parser.len(), args, heap))
 }
 
 /// Parse positional-only arguments, required and optional.
@@ -46,9 +49,9 @@ fun parsePositional(
     heap: Heap,
     requiredCount: Int,
     optionalCount: Int,
-): Result<Pair<Array<Value>, Array<Value?>>> {
+): Result<Pair<List<Value>, List<Value?>>> {
     args.noNamedArgs().getOrElse { return Result.failure(it) }
-    return args.optional(heap, requiredCount, optionalCount)
+    return args.optional(requiredCount, optionalCount, heap)
 }
 
 fun parsePositionalKwargsAlloc(
@@ -56,51 +59,42 @@ fun parsePositionalKwargsAlloc(
     heap: Heap,
     requiredCount: Int,
     optionalCount: Int,
-): Result<Triple<Array<Value>, Array<Value?>, Value>> {
-    val (required, optional) = args.optional(heap, requiredCount, optionalCount)
+): Result<Triple<List<Value>, List<Value?>, Value>> {
+    val (required, optional) = args.optional(requiredCount, optionalCount, heap)
         .getOrElse { return Result.failure(it) }
     val namesMap = args.namesMap().getOrElse { return Result.failure(it) }
-    val kwargs = heap.alloc(namesMap)
+    val kwargs = Dict.new(coerce(namesMap)).allocValue(heap)
     return Result.success(Triple(required, optional, kwargs))
 }
 
 /// Utility for checking a `this` parameter matches what you expect.
-inline fun <reified T> checkThis(thisValue: Value): Result<T>
-    where T : UnpackValue
-{
-    return T.unpackNamedParam(thisValue, "this")
+fun <T> checkThis(unpack: UnpackValue<T>, thisValue: Value): Result<T> {
+    return Result.success(unpack.unpackNamedParam(thisValue, "this"))
 }
 
 /// Utility for checking a required parameter matches what you expect.
-inline fun <reified T> checkRequired(name: String, x: Value?): Result<T>
-    where T : UnpackValue
-{
+fun <T> checkRequired(unpack: UnpackValue<T>, name: String, x: Value?): Result<T> {
     val value = x ?: return Result.failure(ValueError.MissingRequired(name))
-    return T.unpackNamedParam(value, name)
+    return Result.success(unpack.unpackNamedParam(value, name))
 }
 
 /// Utility for checking an optional parameter matches what you expect.
-inline fun <reified T> checkOptional(name: String, x: Value?): Result<T?>
-    where T : UnpackValue
-{
+fun <T> checkOptional(unpack: UnpackValue<T>, name: String, x: Value?): Result<T?> {
     if (x == null) return Result.success(null)
-    return T.unpackNamedParam(x, name).map { it }
+    return Result.success(unpack.unpackNamedParam(x, name))
 }
 
-inline fun <reified T> checkDefaulted(
+fun <T> checkDefaulted(
+    unpack: UnpackValue<T>,
     name: String,
     x: Value?,
     default: () -> T,
-): Result<T>
-    where T : UnpackValue
-{
-    val optional = checkOptional<T>(name, x).getOrElse { return Result.failure(it) }
+): Result<T> {
+    val optional = checkOptional(unpack, name, x).getOrElse { return Result.failure(it) }
     return Result.success(optional ?: default())
 }
 
 /// We already know the parameter is set, so we just unpack it.
-inline fun <reified T> checkUnpack(name: String, x: Value): Result<T>
-    where T : UnpackValue
-{
-    return T.unpackNamedParam(x, name)
+fun <T> checkUnpack(unpack: UnpackValue<T>, name: String, x: Value): Result<T> {
+    return Result.success(unpack.unpackNamedParam(x, name))
 }

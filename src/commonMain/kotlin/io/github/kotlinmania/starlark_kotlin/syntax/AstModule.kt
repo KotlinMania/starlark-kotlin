@@ -33,12 +33,25 @@ class AstLoad(
     val symbols: Map<String, String>
 )
 
+// pub trait AstModuleFields: Sized {
+//     fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool);
+// }
+data class AstModuleParts(
+    val codemap: CodeMap,
+    val statement: AstStmt,
+    val dialect: Dialect,
+    val typecheck: Boolean,
+)
+
 class AstModule(
     val codemap: CodeMap,
     val statement: AstStmt,
     val dialect: Dialect,
     val typecheck: Boolean
 ) {
+    // fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool)
+    fun intoParts(): AstModuleParts =
+        AstModuleParts(codemap, statement, dialect, typecheck)
     companion object {
         fun parse(filename: String, content: String, dialect: Dialect): Result<AstModule> {
             // TODO: handwritten Kotlin recursive descent parser

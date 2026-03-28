@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
@@ -31,8 +31,8 @@ private fun listToTupleCompr(expr: CstExpr): CstExpr = expr
 
 internal fun Compiler.listComprehension(
     x: CstExpr,
-    for_: ForClauseP,
-    clauses: List<ClauseP>,
+    for_: ForClauseP<CstPayload>,
+    clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
     val compiledClauses = compileClauses(for_, clauses)
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
@@ -46,8 +46,8 @@ internal fun Compiler.listComprehension(
 internal fun Compiler.dictComprehension(
     k: CstExpr,
     v: CstExpr,
-    for_: ForClauseP,
-    clauses: List<ClauseP>,
+    for_: ForClauseP<CstPayload>,
+    clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
     val compiledClauses = compileClauses(for_, clauses)
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
@@ -61,17 +61,18 @@ internal fun Compiler.dictComprehension(
 
 /** Peel the final if's from clauses, and return them (in the order they started), plus the next for you get to. */
 private fun Compiler.compileIfs(
-    clauses: MutableList<ClauseP>,
-): Result<Pair<ForClauseP?, List<IrSpanned<ExprCompiled>>>> {
+    clauses: MutableList<ClauseP<CstPayload>>,
+): Result<Pair<ForClauseP<CstPayload>?, List<IrSpanned<ExprCompiled>>>> {
     val ifs = mutableListOf<IrSpanned<ExprCompiled>>()
     while (clauses.isNotEmpty()) {
         when (val x = clauses.removeAt(clauses.lastIndex)) {
-            is ClauseP.For -> {
+            is ClauseP.For<*> -> {
                 ifs.reverse()
-                return Result.success(Pair(x.clause, ifs))
+                @Suppress("UNCHECKED_CAST")
+                return Result.success(Pair(x.forClause as ForClauseP<CstPayload>, ifs))
             }
-            is ClauseP.If -> {
-                val compiled = this.exprTruth(x.expr)
+            is ClauseP.If<*> -> {
+                val compiled = this.exprTruth(x.cond as CstExpr).getOrElse { return Result.failure(it) }
                 if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
                     // If the condition is always true, skip the clause.
                     continue
@@ -85,8 +86,8 @@ private fun Compiler.compileIfs(
 }
 
 private fun Compiler.compileClauses(
-    for_: ForClauseP,
-    clauses: List<ClauseP>,
+    for_: ForClauseP<CstPayload>,
+    clauses: List<ClauseP<CstPayload>>,
 ): Result<ClausesCompiled> {
     // The first for.over is scoped before we enter the list comp
     val over = this.expr(listToTupleCompr(for_.over)).getOrElse { return Result.failure(it) }
@@ -102,7 +103,7 @@ private fun Compiler.compileClauses(
         val (nextFor, ifs) = result.getOrThrow()
         if (nextFor == null) {
             val last = ClauseCompiled(
-                variable = this.assignTarget(for_.variable),
+                variable = this.assignTarget(for_.varTarget).getOrElse { return Result.failure(it) },
                 over = over,
                 ifs = ifs,
             )
@@ -110,7 +111,7 @@ private fun Compiler.compileClauses(
         } else {
             res.add(ClauseCompiled(
                 over = this.expr(nextFor.over).getOrElse { return Result.failure(it) },
-                variable = this.assignTarget(nextFor.variable),
+                variable = this.assignTarget(nextFor.varTarget).getOrElse { return Result.failure(it) },
                 ifs = ifs,
             ))
         }

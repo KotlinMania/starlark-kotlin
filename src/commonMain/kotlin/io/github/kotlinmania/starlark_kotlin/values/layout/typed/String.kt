@@ -27,12 +27,15 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
+// pub struct StarlarkStr { ... }
 class StarlarkStr(val value: String) : StarlarkValue {
     override val TYPE: String get() = "string"
 
+    // pub fn as_str(&self) -> &str
     fun asStr(): String = value
+
+    // pub fn len(&self) -> usize
+    fun len(): Int = value.encodeToByteArray().size
 
     override fun getHash(): Result<StarlarkHashValue> = Result.success(StarlarkHashValue.new(value))
 
@@ -42,6 +45,17 @@ class StarlarkStr(val value: String) : StarlarkValue {
         if (this === other) return true
         if (other !is StarlarkStr) return false
         return value == other.value
+    }
+
+    companion object {
+        // pub(crate) const UNINIT_HASH: StarlarkHashValue = StarlarkHashValue::new_unchecked(0)
+        val UNINIT_HASH: StarlarkHashValue get() = StarlarkHashValue.newUnchecked(0u)
+
+        // pub const fn payload_len_for_len(len: usize) -> usize { len.div_ceil(mem::size_of::<usize>()) }
+        fun payloadLenForLen(len: Int): Int = (len + 7) / 8
+
+        // pub(crate) fn offset_of_content() -> usize { memoffset::offset_of!(StarlarkStrN<0>, body) }
+        fun offsetOfContent(): Int = 8
     }
 }
 

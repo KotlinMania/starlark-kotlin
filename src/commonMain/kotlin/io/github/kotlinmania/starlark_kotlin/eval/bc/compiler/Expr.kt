@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /// Compile expressions.
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
@@ -40,23 +40,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrSlowArg
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.unpackIntValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
-
-// Forward reference: write_if_else from if_compiler.rs (not yet ported).
-// pub(crate) fn write_if_else(c, t, f, bc)
-internal fun writeIfElse(
-    c: IrSpanned<ExprCompiled>,
-    t: (BcWriter) -> Unit,
-    f: (BcWriter) -> Unit,
-    bc: BcWriter,
-) {
-    c.writeBcCb(bc) { cond, bc2 ->
-        bc2.writeIfElse(cond, MaybeNot.Id, c.span, t, f)
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterCompr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.writeBc as comprWriteBc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterDef
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def.writeBc as defWriteBc
 
 /// Try extract consecutive definitely initialized locals from expressions.
 // fn try_slot_range(exprs, bc) -> Option<BcSlotInRange>
@@ -159,7 +146,7 @@ internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
                 v.node.markDefinitelyAssignedAfter(bc)
             }
         }
-        is ExprCompiled.Compr -> compr.markDefinitelyAssignedAfter(bc)
+        is ExprCompiled.Compr -> compr.markDefinitelyAssignedAfterCompr(bc)
         is ExprCompiled.If -> {
             // Condition is executed unconditionally, so we use it to mark definitely assigned.
             // But we don't know which of the branches will be executed.
@@ -189,27 +176,28 @@ internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
         }
         is ExprCompiled.Index2 -> {
             obj.node.markDefinitelyAssignedAfter(bc)
-            a.node.markDefinitelyAssignedAfter(bc)
-            b.node.markDefinitelyAssignedAfter(bc)
+            index0.node.markDefinitelyAssignedAfter(bc)
+            index1.node.markDefinitelyAssignedAfter(bc)
         }
-        is ExprCompiled.Call -> call.node.markDefinitelyAssignedAfter(bc)
-        is ExprCompiled.Def -> def.markDefinitelyAssignedAfter(bc)
+        is ExprCompiled.Call -> call.node.markDefinitelyAssignedAfterCall(bc)
+        is ExprCompiled.Def -> def.markDefinitelyAssignedAfterDef(bc)
     }
 }
 
 // Helper: IrSpanned<ExprCompiled>::mark_definitely_assigned_after
 internal fun IrSpanned<ExprCompiled>.markDefinitelyAssignedAfter(bc: BcWriter) {
-    Node.markDefinitelyAssignedAfter(bc)
+    this.node.markDefinitelyAssignedAfter(bc)
 }
 
 // fn try_dict_of_consts(xs) -> Option<SmallMap<FrozenValue, FrozenValue>>
 private fun tryDictOfConsts(
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
 ): SmallMap<FrozenValue, FrozenValue>? {
-    val res = SmallMap<FrozenValue, FrozenValue>()
+    val res = SmallMap.new<FrozenValue, FrozenValue>()
     for ((k, v) in xs) {
         val kVal = k.node.asValue() ?: return null
-        val kHashed = kVal.getHashed() ?: return null
+        val kHash = kVal.toValue().getHash().getOrNull() ?: return null
+        val kHashed = Hashed.newUnchecked(kHash, kVal)
         val vVal = v.node.asValue() ?: return null
         val prev = res.insertHashed(kHashed, vVal)
         if (prev != null) {
@@ -229,7 +217,8 @@ private fun tryDictConstKeys(
     val keysUnique = mutableSetOf<Hashed<FrozenValue>>()
     for ((k, _) in xs) {
         val kVal = k.node.asValue() ?: return null
-        val kHashed = kVal.getHashed() ?: return null
+        val kHash = kVal.toValue().getHash().getOrNull() ?: return null
+        val kHashed = Hashed.newUnchecked(kHash, kVal)
         keys.add(kHashed)
         val inserted = keysUnique.add(kHashed)
         if (!inserted) {
@@ -266,7 +255,7 @@ private fun writeDict(
                     )
                 }
             } else {
-                val keySpans = xs.map { (k, _) -> k.span }
+                val keySpans = xs.map { (k, _) -> k.span }.toMutableList()
                 writeExprs(xs.flatMap { (k, v) -> listOf(k, v) }, bc) { kvs, bc2 ->
                     bc2.writeInstrExplicit(
                         "InstrDictNPop",
@@ -375,7 +364,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
             }
         }
         is ExprCompiled.DictExpr -> writeDict(span, expr.entries, target, bc)
-        is ExprCompiled.Compr -> expr.compr.writeBc(span, target, bc)
+        is ExprCompiled.Compr -> expr.compr.comprWriteBc(span, target, bc)
         is ExprCompiled.Slice -> {
             expr.obj.writeBcCb(bc) { l, bc2 ->
                 writeExprOpt(expr.start, bc2) { start, bc3 ->
@@ -428,9 +417,9 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
         }
         is ExprCompiled.If -> {
             writeIfElse(
-                IrSpanned(expr.cond.span, expr.cond.node),
-                { bc2 -> expr.then.writeBc(target, bc2) },
-                { bc2 -> expr.elseExpr.writeBc(target, bc2) },
+                expr.cond,
+                { bc2 -> expr.thenBranch.writeBc(target, bc2) },
+                { bc2 -> expr.elseBranch.writeBc(target, bc2) },
                 bc,
             )
         }
@@ -482,12 +471,12 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
             }
         }
         is ExprCompiled.Index2 -> {
-            writeNExprs(listOf(expr.obj, expr.a, expr.b), bc) { slots, bc2 ->
+            writeNExprs(listOf(expr.obj, expr.index0, expr.index1), bc) { slots, bc2 ->
                 bc2.writeInstr("InstrArrayIndex2", span, listOf(slots[0], slots[1], slots[2], target))
             }
         }
-        is ExprCompiled.Call -> expr.call.node.writeBc(target, bc)
-        is ExprCompiled.Def -> expr.def.writeBc(span, target, bc)
+        is ExprCompiled.Call -> expr.call.writeBcCall(target, bc)
+        is ExprCompiled.Def -> expr.def.defWriteBc(span, target, bc)
     }
 }
 

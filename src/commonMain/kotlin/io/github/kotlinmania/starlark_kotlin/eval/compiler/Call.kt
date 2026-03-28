@@ -38,6 +38,14 @@ internal class CallCompiled(
     val fun_: IrSpanned<ExprCompiled>,
     val args: ArgsCompiledValue,
 ) {
+    /** If this call expression is `len(x)`, return `x`. */
+    fun asLen(): IrSpanned<ExprCompiled>? {
+        if (!fun_.node.isFnLen()) {
+            return null
+        }
+        return args.onePos()
+    }
+
     /** If this call expression is `type(x)`, return `x`. */
     fun asType(): IrSpanned<ExprCompiled>? {
         if (!fun_.node.isFnType()) {

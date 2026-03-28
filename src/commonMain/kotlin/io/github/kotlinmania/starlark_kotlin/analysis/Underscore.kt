@@ -1,26 +1,6 @@
 // port-lint: source src/analysis/underscore.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.types.string.elems
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.thenExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.forP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.codemap.*
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Ident
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -39,118 +19,15 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
  * limitations under the License.
  */
 
-// Forward reference placeholder types for AST nodes not yet in flow.kt.
-// These mirror the Rust `AssignP`, `AssignTarget`, `Stmt::Assign`, etc.
-// Once the full AST is ported, these should be replaced with canonical imports.
-
-/// An assign LHS target.
-// use starlark_syntax::syntax::ast::AssignTarget;
-private sealed class AssignTarget {
-    class Tuple(val elements: List<AssignTarget>) : AssignTarget()
-    class Index(val array: Any, val index: Any) : AssignTarget()
-    class Dot(val obj: Any, val field: Any) : AssignTarget()
-    class Identifier(val ident: CstAssignIdent) : AssignTarget()
-}
-
-/// A variable identifier in an assign LHS.
-internal class CstAssignIdent(
-    val ident: String,
-    val span: Span = Span(),
-) {
-    val node: CstAssignIdent get() = this
-}
-
-/// Assignment statement payload.
-// use starlark_syntax::syntax::ast::AssignP;
-private class AssignP(
-    val lhs: Spanned<AssignTarget>,
-    val rhs: AstExpr,
-)
-
-/// Load argument with local binding.
-internal class LoadArg(
-    val local: Spanned<Ident>,
-)
-
-/// Load statement payload.
-internal class LoadP(
-    val module: Spanned<String>,
-    val args: List<LoadArg>,
-)
-
-// Extension: visit lvalues in an AssignTargetP.
-internal fun Spanned<AssignTarget>.visitLvalue(visitor: (CstAssignIdent) -> Unit) {
-    when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { Spanned(it).visitLvalue(visitor) }
-        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as CstAssignIdent)
-        is AssignTargetP.Index -> {}
-        is AssignTargetP.Dot -> {}
-        else -> {}
-    }
-}
-
-// Extension: visit immediate child statements in an AstStmt.
-internal fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
-    when (val s = this.node) {
-        is StmtP.Statements -> s.stmts.forEach(visitor)
-        is StmtP.Def -> visitor(s.def.body)
-        is StmtP.If -> visitor(s.body)
-        is StmtP.IfElse -> {
-            visitor(s.bodies.first)
-            visitor(s.bodies.second)
-        }
-        is StmtP.For -> visitor(s.forP.body)
-        else -> {}
-    }
-}
-
-// Extension: visit immediate child expressions in an AstStmt.
-internal fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
-    when (val s = this.node) {
-        is StmtP.Expression -> visitor(s.expr)
-        is StmtP.Return -> s.expr?.let(visitor)
-        is StmtP.Statements -> s.stmts.forEach { it.visitExpr(visitor) }
-        is StmtP.Def -> s.def.body.visitExpr(visitor)
-        is StmtP.If -> {
-            visitor(s.cond)
-            s.body.visitExpr(visitor)
-        }
-        is StmtP.IfElse -> {
-            visitor(s.cond)
-            s.bodies.first.visitExpr(visitor)
-            s.bodies.second.visitExpr(visitor)
-        }
-        is StmtP.For -> {
-            visitor(s.forP.var_)
-            visitor(s.forP.over)
-            s.forP.body.visitExpr(visitor)
-        }
-        else -> {}
-    }
-}
-
-// Extension: visit child expressions in an AstExpr.
-internal fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
-    when (val e = this.node) {
-        is ExprP.Call -> {
-            visitor(e.func)
-            e.args.forEach(visitor)
-        }
-        is ExprP.IfExpr -> {
-            visitor(e.cond)
-            visitor(e.thenExpr)
-            visitor(e.elseExpr)
-        }
-        is ExprP.Tuple -> e.elems.forEach(visitor)
-        is ExprP.ListExpr -> e.elems.forEach(visitor)
-        is ExprP.Dict -> e.entries.forEach { (k, v) ->
-            visitor(k)
-            visitor(v)
-        }
-        is ExprP.Lambda -> visitor(e.lambda.body)
-        else -> {}
-    }
-}
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 
 // #[derive(Error, Debug)]
 // pub(crate) enum UnderscoreWarning
@@ -184,11 +61,75 @@ internal sealed class UnderscoreWarning : LintWarning {
 }
 
 // pub(crate) fn lint(module: &AstModule) -> Vec<LintT<UnderscoreWarning>>
-internal fun lint(module: AstModule): List<LintT<UnderscoreWarning>> {
+internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
     val res = mutableListOf<LintT<UnderscoreWarning>>()
     inappropriateUnderscore(module.codemap, module.statement, true, res)
     useIgnored(module.codemap, module.statement, res)
     return res
+}
+
+// Visit immediate child statements of this AstStmt (local helper).
+private fun AstStmt.visitStmtU(visitor: (AstStmt) -> Unit) {
+    when (val s = this.node) {
+        is StmtP.Statements -> s.stmts.forEach { visitor(it as AstStmt) }
+        is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
+        is StmtP.If -> visitor(s.suite as AstStmt)
+        is StmtP.IfElse -> {
+            visitor(s.suite1 as AstStmt)
+            visitor(s.suite2 as AstStmt)
+        }
+        is StmtP.For -> visitor(s.forStmt.body as AstStmt)
+        else -> {}
+    }
+}
+
+// Visit immediate child expressions of this AstExpr (local helper).
+private fun AstExpr.visitExprU(visitor: (AstExpr) -> Unit) {
+    when (val e = this.node) {
+        is ExprP.Call -> {
+            visitor(e.expr as AstExpr)
+            for (arg in e.args.args) {
+                visitor(arg.node.expr() as AstExpr)
+            }
+        }
+        is ExprP.If -> {
+            visitor(e.cond as AstExpr)
+            visitor(e.v1 as AstExpr)
+            visitor(e.v2 as AstExpr)
+        }
+        is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
+        is ExprP.ListExpr -> e.elements.forEach { visitor(it as AstExpr) }
+        is ExprP.Dict -> e.elements.forEach { (k, v) ->
+            visitor(k as AstExpr)
+            visitor(v as AstExpr)
+        }
+        is ExprP.Lambda<*, *> -> visitor(e.lambda.body as AstExpr)
+        else -> {}
+    }
+}
+
+// Visit immediate child expressions of this AstStmt (local helper).
+private fun AstStmt.visitStmtExprU(visitor: (AstExpr) -> Unit) {
+    when (val s = this.node) {
+        is StmtP.Expression -> visitor(s.expr as AstExpr)
+        is StmtP.Return -> (s.expr as AstExpr?)?.let(visitor)
+        is StmtP.Statements -> s.stmts.forEach { (it as AstStmt).visitStmtExprU(visitor) }
+        is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitStmtExprU(visitor)
+        is StmtP.If -> {
+            visitor(s.cond as AstExpr)
+            (s.suite as AstStmt).visitStmtExprU(visitor)
+        }
+        is StmtP.IfElse -> {
+            visitor(s.cond as AstExpr)
+            (s.suite1 as AstStmt).visitStmtExprU(visitor)
+            (s.suite2 as AstStmt).visitStmtExprU(visitor)
+        }
+        is StmtP.For -> {
+            visitor(s.forStmt.over as AstExpr)
+            (s.forStmt.body as AstStmt).visitStmtExprU(visitor)
+        }
+        else -> {}
+    }
 }
 
 /// There's no reason to make a def or lambda and give it an underscore name not at the top level.
@@ -203,31 +144,46 @@ private fun inappropriateUnderscore(
     // fn is_allowed(x: &AstExpr) -> bool
     fun isAllowed(x: AstExpr): Boolean {
         return when (val e = x.node) {
-            is ExprP.Tuple -> e.elems.isNotEmpty() && e.elems.all { it.node is ExprP.Identifier }
-            is ExprP.Identifier -> true
+            is ExprP.Tuple<*> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
+            is ExprP.Identifier<*, *> -> true
             else -> false
         }
     }
 
     when (val s = x.node) {
-        is StmtP.Def -> {
+        is StmtP.Def<*, *> -> {
             val name = s.def.name
-            if (!top && name.node.ident.startsWith('_')) {
+            val nameIdent = (name as Spanned<*>).node as AssignIdentP<*, *>
+            if (!top && nameIdent.ident.startsWith('_')) {
                 res.add(
                     LintT.new(
                         codemap,
-                        name.span,
-                        UnderscoreWarning.UnderscoreDefinition(name.node.ident),
+                        (name as Spanned<*>).span,
+                        UnderscoreWarning.UnderscoreDefinition(nameIdent.ident),
                     )
                 )
             }
-            inappropriateUnderscore(codemap, s.def.body, false, res)
+            inappropriateUnderscore(codemap, s.def.body as AstStmt, false, res)
         }
         // Stmt::Assign(assign) if !top =>
-        // Note: flow.kt Stmt doesn't have Assign variant yet.
-        // When it does, this branch should match on StmtP.Assign.
-        // For now, this is a forward reference placeholder.
-        else -> x.visitStmt { child ->
+        is StmtP.Assign<*> -> if (!top) {
+            val assign = s.assign
+            val lhsNode = (assign.lhs as Spanned<*>).node
+            if (lhsNode is AssignTargetP.Identifier<*, *>) {
+                val identSpanned = lhsNode.ident as Spanned<*>
+                val assignIdent = identSpanned.node as AssignIdentP<*, *>
+                if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs as AstExpr)) {
+                    res.add(
+                        LintT.new(
+                            codemap,
+                            identSpanned.span,
+                            UnderscoreWarning.UnderscoreDefinition(assignIdent.ident),
+                        )
+                    )
+                }
+            }
+        }
+        else -> x.visitStmtU { child ->
             inappropriateUnderscore(codemap, child, top, res)
         }
     }
@@ -244,18 +200,45 @@ private fun useIgnored(
     // fn root_definitions<'a>(x: &'a AstStmt, res: &mut HashSet<&'a str>)
     fun rootDefinitions(x: AstStmt, defs: MutableSet<String>) {
         when (val s = x.node) {
-            is StmtP.Def -> {
-                defs.add(s.def.name.node.ident)
+            is StmtP.Assign<*> -> {
+                val lhsNode = (s.assign.lhs as Spanned<*>).node
+                fun visitLvalue(target: Any?) {
+                    when (target) {
+                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
+                        is AssignTargetP.Identifier<*, *> -> {
+                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
+                            defs.add(assignIdent.ident)
+                        }
+                        else -> {}
+                    }
+                }
+                visitLvalue(lhsNode)
             }
-            is StmtP.Load -> {
-                // flow.kt Load has (module, names) - add all names
-                for (name in s.names) {
-                    defs.add(name)
+            is StmtP.AssignModify<*> -> {
+                val lhsNode = (s.lhs as Spanned<*>).node
+                fun visitLvalue(target: Any?) {
+                    when (target) {
+                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
+                        is AssignTargetP.Identifier<*, *> -> {
+                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
+                            defs.add(assignIdent.ident)
+                        }
+                        else -> {}
+                    }
+                }
+                visitLvalue(lhsNode)
+            }
+            is StmtP.Def<*, *> -> {
+                val nameIdent = (s.def.name as Spanned<*>).node as AssignIdentP<*, *>
+                defs.add(nameIdent.ident)
+            }
+            is StmtP.Load<*, *> -> {
+                for (arg in s.loadStmt.args) {
+                    val localIdent = (arg.local as Spanned<*>).node as AssignIdentP<*, *>
+                    defs.add(localIdent.ident)
                 }
             }
-            // Stmt::Assign and Stmt::AssignModify would visit lvalues here.
-            // Forward reference: when Assign variant is added to Stmt, handle it.
-            else -> x.visitStmt { child -> rootDefinitions(child, defs) }
+            else -> x.visitStmtU { child -> rootDefinitions(child, defs) }
         }
     }
 
@@ -273,25 +256,27 @@ private fun useIgnored(
         res: MutableList<LintT<UnderscoreWarning>>,
     ) {
         when (val e = x.node) {
-            is ExprP.Identifier -> {
-                val ident = e.name.node.ident
+            is ExprP.Identifier<*, *> -> {
+                val identSpanned = e.ident as Spanned<*>
+                @Suppress("UNCHECKED_CAST")
+                val ident = (identSpanned.node as io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP<*, *>).ident
                 if (isIgnored(ident) && ident !in roots) {
                     res.add(
                         LintT.new(
                             codemap,
-                            e.name.span,
+                            identSpanned.span,
                             UnderscoreWarning.UsingIgnored(ident),
                         )
                     )
                 }
             }
-            else -> x.visitExpr { child -> checkExpr(codemap, child, roots, res) }
+            else -> x.visitExprU { child -> checkExpr(codemap, child, roots, res) }
         }
     }
 
     val roots = mutableSetOf<String>()
     rootDefinitions(x, roots)
-    x.visitExpr { child -> checkExpr(codemap, child, roots, res) }
+    x.visitStmtExprU { child -> checkExpr(codemap, child, roots, res) }
 }
 
 // #[cfg(test)] mod tests

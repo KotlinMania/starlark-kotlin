@@ -23,11 +23,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsFull
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsPos
-import io.github.kotlinmania.starlark_kotlin.eval.bc.native_function.BcNativeFunction
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPos
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcNativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark_kotlin.eval.bc.resolve
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CallCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
@@ -37,17 +38,8 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.types.getKnownMethod
-import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeExprOpt
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.resolve
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPos
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcNativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 
 // impl ArgsCompiledValue
@@ -103,12 +95,12 @@ private fun writeArgs(
     val pos = args.posOnly()
     if (pos != null) {
         writeExprs(pos, bc) { posSlots, bc2 ->
-            val argsPos = Either.Left<BcCallArgsPos, BcCallArgsFull<Symbol>>(BcCallArgsPos(posSlots))
+            val argsPos = Either.Left(BcCallArgsPos(posSlots))
             k(argsPos, bc2)
         }
     } else {
         args.writeBc(bc) { argsFull, bc2 ->
-            val argsFull2 = Either.Right<BcCallArgsPos, BcCallArgsFull<Symbol>>(argsFull)
+            val argsFull2 = Either.Right(argsFull)
             k(argsFull2, bc2)
         }
     }
@@ -131,7 +123,7 @@ private fun writeCallFrozen(
                     bc2.writeInstr("CallFrozenDefPos", span, listOf(frozenDef, callArgs.value, fileSpan, target))
                 }
                 is Either.Right -> {
-                    bc2.writeInstr("CallFrozenDef", span, listOf(frozenDef, callArgs.value.resolve(frozenDef), fileSpan, target))
+                    bc2.writeInstr("CallFrozenDef", span, listOf(frozenDef, callArgs.value.resolve(frozenDef.asRef()), fileSpan, target))
                 }
             }
         }
@@ -220,7 +212,7 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     val call = this.node
 
     // Special-case: len(x)
-    val lenArg = CallCompiled.asLen(call)
+    val lenArg = call.asLen()
     if (lenArg != null) {
         lenArg.writeBcCb(bc) { argSlot, bc2 ->
             bc2.writeInstr("Len", this.span, listOf(argSlot, target))
@@ -229,7 +221,7 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     }
 
     // Special-case: type(x)
-    val typeArg = CallCompiled.asType(call)
+    val typeArg = call.asType()
     if (typeArg != null) {
         typeArg.writeBcCb(bc) { argSlot, bc2 ->
             bc2.writeInstr("Type", this.span, listOf(argSlot, target))
@@ -238,7 +230,7 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     }
 
     // Special-case: isinstance(x, t)
-    val isinstanceArgs = CallCompiled.asIsinstance(call)
+    val isinstanceArgs = call.asIsinstance()
     if (isinstanceArgs != null) {
         val (x, t) = isinstanceArgs
         val compiled = try {
@@ -256,9 +248,9 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
 
     val span = this.span
     val fileSpan = bc.allocFileSpan(span)
-    val method = CallCompiled.method(call)
+    val method = call.method()
     if (method == null) {
-        val frozenFun = call.fun_.asValue()
+        val frozenFun = call.fun_.node.asValue()
         if (frozenFun != null) {
             writeCallFrozen(span, frozenFun, call.args, target, bc)
         } else {

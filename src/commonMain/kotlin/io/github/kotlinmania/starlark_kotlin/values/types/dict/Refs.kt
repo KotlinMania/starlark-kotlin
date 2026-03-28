@@ -57,6 +57,12 @@ operator fun DictRef.getValue(thisRef: Any?, property: Any?): Dict = when (val r
     is Either.Right -> ref.value
 }
 
+/** Iterate over key/value pairs, mirroring Rust's `Deref<Target = Dict>` on DictRef. */
+fun DictRef.iter(): Sequence<Pair<Value, Value>> = when (val ref = aref) {
+    is Either.Left -> ref.value.value.iter()
+    is Either.Right -> ref.value.iter()
+}
+
 /** Mutably borrowed `Dict`. */
 class DictMut(
     /** Mutable reference to the dict. */

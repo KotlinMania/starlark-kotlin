@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.LoadP
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue

@@ -28,32 +28,27 @@ package io.github.kotlinmania.starlark_kotlin.eval
 // pub(crate) mod runtime;
 // pub(crate) mod soft_error;
 
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
+import io.github.kotlinmania.starlark_kotlin.docs.extractRawStarlarkDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.DEFAULT_STACK_SIZE
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
-import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
-import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
-import io.github.kotlinmania.starlark_kotlin.typing.scopeData
-import io.github.kotlinmania.starlark_kotlin.typing.cst
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.enableTypes
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.newCheckUnique
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtCount
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.moduleSlotCount
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import kotlin.time.TimeSource
 
 // --- Re-exports (Rust `pub use`) ---
 // pub use runtime::arguments::Arguments;
@@ -159,7 +154,7 @@ fun Evaluator.evalFunction(
     positional: List<Value>,
     named: List<Pair<String, Value>>,
 ): Result<Value> {
-    val names = named.map { (s, _) -> Pair(Symbol.new(s), heap().allocStr(s)) }
+    val names = named.map { (s, _) -> Pair(Symbol.new(s), StringValue.newUnchecked(heap().allocStr(s))) }
     val namedValues = named.map { it.second }
     val params = Arguments(
         ArgumentsFull(

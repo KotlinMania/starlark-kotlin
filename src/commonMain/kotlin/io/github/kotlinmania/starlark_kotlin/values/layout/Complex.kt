@@ -30,9 +30,11 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import kotlin.reflect.KClass
 
 /// Value which is either a complex mutable value or a frozen value.
 ///
@@ -46,26 +48,38 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 // #[derive(Copy_, Clone_, Dupe_, Allocative)]
 // pub struct ValueTypedComplex<'v, T>(Value<'v>, PhantomData<T>)
 // where T: ComplexValue<'v>, T::Frozen: StarlarkValue<'static>;
-class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> private constructor(
-    private val value: Value,
-    private val mutableClass: kotlin.reflect.KClass<T>,
-    private val frozenClass: kotlin.reflect.KClass<F>,
+class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi internal constructor(
+    // Mutable: tracer.trace(&mut self.0) may update the pointer during GC.
+    @PublishedApi internal var value: Value,
+    @PublishedApi internal val mutableClass: KClass<T>,
+    @PublishedApi internal val frozenClass: KClass<F>,
 ) : StarlarkTypeRepr, Trace {
 
     // impl ValueTypedComplex
 
     companion object {
-        /// Downcast.
-        // pub fn new(value: Value<'v>) -> Option<Self>
-        inline fun <reified T : ComplexValue, reified F : StarlarkValue> new(
+        /// Internal non-inline helper used by public inline [new]: checks if the raw pointer
+        /// held by [value] is an instance of [mutableClass] or [frozenClass].
+        @PublishedApi
+        @Suppress("UNCHECKED_CAST")
+        internal fun <T : ComplexValue, F : StarlarkValue> newImpl(
             value: Value,
+            mutableClass: KClass<T>,
+            frozenClass: KClass<F>,
         ): ValueTypedComplex<T, F>? {
-            return if (value.downcastRef<T>() != null || value.downcastRef<F>() != null) {
-                ValueTypedComplex(value, T::class, F::class)
+            val raw = value.getRef().value.ptr
+            return if (mutableClass.isInstance(raw) || frozenClass.isInstance(raw)) {
+                ValueTypedComplex(value, mutableClass, frozenClass)
             } else {
                 null
             }
         }
+
+        /// Downcast.
+        // pub fn new(value: Value<'v>) -> Option<Self>
+        inline fun <reified T : ComplexValue, reified F : StarlarkValue> new(
+            value: Value,
+        ): ValueTypedComplex<T, F>? = newImpl(value, T::class, F::class)
 
         /// Downcast.
         // pub fn new_err(value: Value<'v>) -> crate::Result<Self>
@@ -97,34 +111,48 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> private constructor
     // pub fn to_value(self) -> Value<'v>
     fun toValue(): Value = value
 
+    /// Downcast a Value to T using its stored KClass, via the AValueDyn raw pointer.
+    @Suppress("UNCHECKED_CAST")
+    private fun downcastMutable(): T? {
+        val raw = value.getRef().value.ptr
+        return if (mutableClass.isInstance(raw)) raw as T else null
+    }
+
+    /// Downcast a Value to F using its stored KClass, via the AValueDyn raw pointer.
+    @Suppress("UNCHECKED_CAST")
+    private fun downcastFrozen(): F? {
+        val raw = value.getRef().value.ptr
+        return if (frozenClass.isInstance(raw)) raw as F else null
+    }
+
     /// Unpack the mutable or frozen value.
     ///
     /// Returns either the mutable value (Left) or the frozen value (Right).
     // pub fn unpack(self) -> Either<&'v T, &'v T::Frozen>
     fun unpack(): Any {
-        val mutable = value.downcastRef(mutableClass)
+        val mutable = downcastMutable()
         if (mutable != null) return mutable
-        val frozen = value.downcastRef(frozenClass)
+        val frozen = downcastFrozen()
         if (frozen != null) return frozen
         error("unreachable: validated at construction")
     }
 
     /// Unpack the mutable value, or null if frozen.
-    fun unpackMutable(): T? = value.downcastRef(mutableClass)
+    fun unpackMutable(): T? = downcastMutable()
 
     /// Unpack the frozen value, or null if mutable.
-    fun unpackFrozen(): F? = value.downcastRef(frozenClass)
+    fun unpackFrozen(): F? = downcastFrozen()
 
     // impl StarlarkTypeRepr for ValueTypedComplex
     // type Canonical = <T as StarlarkTypeRepr>::Canonical;
     // fn starlark_type_repr() -> Ty { T::starlark_type_repr() }
     override fun starlarkTypeRepr(): Ty {
         // Delegate to the mutable type's repr.
-        val instance = value.downcastRef(mutableClass)
+        val instance = downcastMutable()
         if (instance is StarlarkTypeRepr) {
             return instance.starlarkTypeRepr()
         }
-        return Ty()
+        return Ty.any()
     }
 
     // impl AllocValue for ValueTypedComplex
@@ -142,7 +170,9 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> private constructor
     // impl Trace for ValueTypedComplex
     // fn trace(&mut self, tracer: &Tracer<'v>)
     override fun trace(tracer: Tracer) {
-        tracer.trace(value)
+        val holder = ValueHolder(value)
+        tracer.trace(holder)
+        value = holder.value
         // If type of value changed, dereference will produce the wrong object type.
         // debug_assert!(Self::new(self.0).is_some());
     }
@@ -150,10 +180,21 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> private constructor
     // impl Freeze for ValueTypedComplex
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValueTyped<'static, T::Frozen>>
     fun freeze(freezer: Freezer): FreezeResult<FrozenValueTyped<F>> {
-        val frozenValue = value.freeze(freezer)
-        if (frozenValue.isFailure) return FreezeResult.failure(frozenValue.exceptionOrNull()!!)
-        return FrozenValueTyped.newErr<F>(frozenValue.get(), frozenClass)
-            .mapError { e -> FreezeError.new("$e") }
+        val frozenResult = value.freeze(freezer)
+        if (frozenResult.isFailure) {
+            return Result.failure(frozenResult.exceptionOrNull()!!)
+        }
+        val frozenFv = frozenResult.getOrThrow()
+        // Verify the frozen value has the expected type (mirrors FrozenValueTyped::new_err).
+        val raw = frozenFv.toValue().getRef().value.ptr
+        if (!frozenClass.isInstance(raw)) {
+            return Result.failure(
+                FreezeError.new(
+                    "Expected value of type `${frozenClass.simpleName}`, got: `${frozenFv.toValue().toStringForTypeError()}`"
+                )
+            )
+        }
+        return Result.success(FrozenValueTyped.newUnchecked(frozenFv))
     }
 }
 

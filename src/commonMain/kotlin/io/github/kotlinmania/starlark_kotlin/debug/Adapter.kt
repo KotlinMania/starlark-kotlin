@@ -29,15 +29,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
-import io.github.kotlinmania.starlark_kotlin.values.length
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
-import io.github.kotlinmania.starlark_kotlin.values.dirAttr
-import io.github.kotlinmania.starlark_kotlin.values.at
-import io.github.kotlinmania.starlark_kotlin.typing.getAttrError
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation
-import io.github.kotlinmania.starlark_kotlin.analysis.iter
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
@@ -240,9 +235,9 @@ sealed class PathSegment {
 
     fun get(v: Value, heap: Heap): Result<Value> {
         return when (this) {
-            is Index -> v.at(heap.alloc(index), heap)
+            is Index -> v.at(index.allocValue(heap), heap)
             is Attr -> v.getAttrError(name, heap)
-            is Key -> v.at(heap.alloc(key), heap)
+            is Key -> v.at(heap.allocStr(key), heap)
         }
     }
 }
@@ -287,6 +282,7 @@ data class InspectVariableInfo(
             return Result.success(InspectVariableInfo(
                 subValues = keySegments
                     .map { (pathSegment, value) -> Variable.fromValue(pathSegment, value) }
+                    .toList()
             ))
         }
 
@@ -307,7 +303,7 @@ data class InspectVariableInfo(
             return try {
                 val len = v.length().getOrThrow()
                 val subValues = (0 until len).map { i ->
-                    val index = heap.alloc(i)
+                    val index = i.allocValue(heap)
                     val elem = v.at(index, heap).getOrThrow()
                     Variable.fromValue(PathSegment.Index(i), elem)
                 }
@@ -458,7 +454,7 @@ internal data class Breakpoint(
 /**
  * Breakpoints resolved to their spans.
  */
-class ResolvedBreakpoints(
+class ResolvedBreakpoints internal constructor(
     internal val breakpoints: List<Breakpoint?>,
 ) {
     /**
