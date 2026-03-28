@@ -25,16 +25,13 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.AllocStringValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.allocStringValue
-import io.github.kotlinmania.starlark_kotlin.tests.assert
-import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import starlark_map.small_map.SmallMap
 
 /**
  * Utility to allocate a struct on a heap.
@@ -76,7 +73,7 @@ inline fun <reified K, reified V, reified S> allocStructStarlarkTypeRepr(): Ty
     where S : Iterable<Pair<K, V>>,
           V : StarlarkTypeRepr {
     // Return the canonical type for StructRef
-    return Struct.starlarkTypeRepr()
+    return Ty.anyStruct()
 }
 
 /**
@@ -93,13 +90,13 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
     val fields = SmallMap.withCapacity<String, Value>(sizeHint)
 
     for ((k, v) in iter) {
-        val k = k.allocStringValue(heap)
-        val v = v.allocValue(heap)
-        val prev = fields.insert(k, v)
-        check(prev == null) { "non-unique key: $k" }
+        val allocatedKey = k.allocStringValue(heap).asStr()
+        val allocatedVal = v.allocValue(heap)
+        val prev = fields.insert(allocatedKey, allocatedVal)
+        check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return Struct(fields).allocValue(heap)
+    return heap.allocSimple(StructGen(fields))
 }
 
 /**
@@ -116,11 +113,11 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     val fields = SmallMap.withCapacity<String, FrozenValue>(sizeHint)
 
     for ((k, v) in iter) {
-        val k = k.allocFrozenStringValue(heap)
-        val v = v.allocFrozenValue(heap)
-        val prev = fields.insert(k, v)
-        check(prev == null) { "non-unique key: $k" }
+        val allocatedKey = k.allocFrozenStringValue(heap).asStr()
+        val allocatedVal = v.allocFrozenValue(heap)
+        val prev = fields.insert(allocatedKey, allocatedVal)
+        check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.alloc(FrozenStruct(fields))
+    return heap.allocSimple(StructGen(fields))
 }

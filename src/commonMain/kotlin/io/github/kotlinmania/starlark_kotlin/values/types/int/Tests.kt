@@ -19,18 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
-import io.github.kotlinmania.starlark_kotlin.values.eq
-import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
-import io.github.kotlinmania.starlark_kotlin.assert.allTrue
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class IntTests {
     @Test
     fun testArithmeticOperators() {
-        allTrue(
+        Assert.allTrue(
             """
 +1 == 1
 -1 == 0 - 1
@@ -50,7 +48,7 @@ class IntTests {
     @Test
     fun testMinus() {
         // `-i32::MIN` should overflow to `StarlarkBigInt`.
-        eq("2147483648", "-(-2147483647 - 1)")
+        Assert.eq("2147483648", "-(-2147483647 - 1)")
     }
 
     @Test
@@ -60,7 +58,7 @@ class IntTests {
         }
 
         for (x in -10 until 10) {
-            check(InlineInt.tryFrom(x)!!)
+            check(InlineInt.tryFrom(x).getOrThrow())
         }
         check(InlineInt.MAX)
         check(InlineInt.MIN)

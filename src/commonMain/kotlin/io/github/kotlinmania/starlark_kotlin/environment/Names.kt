@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.environment
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 
 /// MutableNames are how we allocate slots (index-based) to variables
@@ -46,7 +45,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 // pub(crate) struct MutableNames(RefCell<SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>>);
 class MutableNames {
     // RefCell<SmallMap<...>> → mutable SmallMap field
-    private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap()
+    private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
     // impl MutableNames
 
@@ -73,13 +72,17 @@ class MutableNames {
 
     // pub(crate) fn get_name(&self, name: Hashed<&str>) -> Option<(ModuleSlotId, Visibility)>
     fun getName(name: Hashed<String>): Pair<ModuleSlotId, Visibility>? {
-        return map.getHashed(name)
+        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.
+        for ((k, v) in map.iter()) {
+            if (k.asStr() == name.key()) return v
+        }
+        return null
     }
 
     /// Add a name with explicit visibility to the module.
     // pub(crate) fn add_name_visibility(&self, name: FrozenStringValue, vis: Visibility) -> ModuleSlotId
     fun addNameVisibility(name: FrozenStringValue, vis: Visibility): ModuleSlotId {
-        val existing = map.getMutHashed(name.getHashed())
+        val existing = map.getHashedByValue(name.getHashed())
         if (existing != null) {
             val (slot, storedVis) = existing
             // Public visibility wins.
@@ -102,22 +105,26 @@ class MutableNames {
 
     // pub(crate) fn hide_name(&self, name: &str)
     fun hideName(name: String) {
-        map.shiftRemove(name)
+        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we find the index by string content.
+        val index = map.entries.indexOfFirst { it.key.key().asStr() == name }
+        if (index >= 0) {
+            map.entries.removeAt(index)
+        }
     }
 
     // pub(crate) fn all_names_and_slots(&self) -> Vec<(FrozenStringValue, ModuleSlotId)>
     fun allNamesAndSlots(): List<Pair<FrozenStringValue, ModuleSlotId>> {
-        return map.iter().map { (name, pair) -> Pair(name, pair.first) }
+        return map.iter().map { (name, pair) -> Pair(name, pair.first) }.toList()
     }
 
     // pub(crate) fn all_names_and_visibilities(&self) -> Vec<(FrozenStringValue, Visibility)>
     fun allNamesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> {
-        return map.iter().map { (name, pair) -> Pair(name, pair.second) }
+        return map.iter().map { (name, pair) -> Pair(name, pair.second) }.toList()
     }
 
     // pub(crate) fn all_names_slots_and_visibilities(&self) -> Vec<(FrozenStringValue, ModuleSlotId, Visibility)>
     fun allNamesSlotsAndVisibilities(): List<Triple<FrozenStringValue, ModuleSlotId, Visibility>> {
-        return map.iter().map { (name, pair) -> Triple(name, pair.first, pair.second) }
+        return map.iter().map { (name, pair) -> Triple(name, pair.first, pair.second) }.toList()
     }
 
     // pub(crate) fn freeze(self) -> FrozenNames
@@ -136,7 +143,11 @@ class FrozenNames(
 
     // pub(crate) fn get_name(&self, name: &str) -> Option<(ModuleSlotId, Visibility)>
     fun getName(name: String): Pair<ModuleSlotId, Visibility>? {
-        return map.get(name)
+        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.
+        for ((k, v) in map.iter()) {
+            if (k.asStr() == name) return v
+        }
+        return null
     }
 
     /// Symbols including private.

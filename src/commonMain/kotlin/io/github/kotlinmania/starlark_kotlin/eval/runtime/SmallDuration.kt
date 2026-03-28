@@ -36,6 +36,8 @@ internal data class SmallDuration(
     }
 
     companion object {
+        val ZERO: SmallDuration = SmallDuration(0u)
+
         fun default(): SmallDuration = SmallDuration(0u)
 
         fun fromDuration(duration: Duration): SmallDuration {

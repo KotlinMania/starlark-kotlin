@@ -19,9 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import starlark_map.small_map.SmallMap
 
 // pub(crate) fn equals_slice<E, X1, X2>(xs, ys, f) -> Result<bool, E>
 internal fun <E : Exception, X1, X2> equalsSlice(
@@ -47,11 +45,11 @@ internal fun <E : Exception, K, V1, V2> equalsSmallMap(
     y: SmallMap<K, V2>,
     f: (V1, V2) -> Result<Boolean>,
 ): Result<Boolean> {
-    if (x.size != y.size) {
+    if (x.len() != y.len()) {
         return Result.success(false)
     }
-    for ((xk, xv) in x) {
-        val yv = y[xk] ?: return Result.success(false)
+    for ((xk, xv) in x.iterHashed()) {
+        val yv = y.getHashedByValue(xk) ?: return Result.success(false)
         val eq = f(xv, yv).getOrElse { return Result.failure(it) }
         if (!eq) {
             return Result.success(false)
@@ -95,12 +93,12 @@ internal fun <E : Exception, K, K2 : Comparable<K2>, V1, V2> compareSmallMap(
     key: (K) -> K2,
     f: (V1, V2) -> Result<Int>,
 ): Result<Int> {
-    val cmp = x.size.compareTo(y.size)
+    val cmp = x.len().compareTo(y.len())
     if (cmp != 0) {
         return Result.success(cmp)
     }
-    val xSorted = x.entries.sortedBy { (k, _) -> key(k) }
-    val ySorted = y.entries.sortedBy { (k, _) -> key(k) }
+    val xSorted = x.iter().toList().sortedBy { (k, _) -> key(k) }
+    val ySorted = y.iter().toList().sortedBy { (k, _) -> key(k) }
     for (i in xSorted.indices) {
         val (xk, xv) = xSorted[i]
         val (yk, yv) = ySorted[i]

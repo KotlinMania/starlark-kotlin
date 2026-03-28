@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 
 data class MaybeDocHiddenValue<V>(
     val value: V,
@@ -68,35 +66,60 @@ data class NamespaceGen<V>(
     override fun getAttr(attribute: String, heap: Heap): Value? =
         getAttrHashed(Hashed.new(attribute), heap)
 
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? =
-        fields.getHashedByValue(attribute)?.value?.toValue()
+    @Suppress("UNCHECKED_CAST")
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
+        val v = fields.getHashedByValue(attribute) ?: return null
+        return when (val raw = v.value) {
+            is Value -> raw
+            is FrozenValue -> raw.toValue()
+            else -> null
+        }
+    }
 
     override fun dirAttr(): List<String> =
         fields.keys().map { x -> x }.toList()
 
-    override fun documentation(): DocItem =
-        DocItem.Module(DocModule(
+    @Suppress("UNCHECKED_CAST")
+    override fun documentation(): DocItem {
+        val members = SmallMap.new<String, DocItem>()
+        for ((k, v) in fields.iter()) {
+            if (!v.docHidden) {
+                val value = when (val raw = v.value) {
+                    is Value -> raw
+                    is FrozenValue -> raw.toValue()
+                    else -> continue
+                }
+                members.insert(k, value.documentation())
+            }
+        }
+        return DocItem.Module(DocModule(
             docs = null,
-            members = fields.iter()
-                .filter { (_, v) -> !v.docHidden }
-                .associate { (k, v) -> k to v.value.toValue().documentation() },
+            members = members,
         ))
+    }
 
     override fun getTypeStarlarkRepr(): Ty =
         Ty.custom(TyNamespace(
-            fields = sortedMapOf(),
+            fields = emptyMap(),
             extra = true,
         ))
 
-    override fun typecheckerTy(): Ty? =
-        Ty.custom(TyNamespace(
-            fields = fields.iter()
-                .associate { (name, value) ->
-                    ArcStr.from(name) to Ty.ofValue(value.value.toValue())
-                }
-                .toSortedMap(),
+    @Suppress("UNCHECKED_CAST")
+    override fun typecheckerTy(): Ty? {
+        val result = mutableMapOf<ArcStr, Ty>()
+        for ((name, mdv) in fields.iter()) {
+            val value = when (val raw = mdv.value) {
+                is Value -> raw
+                is FrozenValue -> raw.toValue()
+                else -> continue
+            }
+            result[ArcStr.from(name)] = Ty.ofValue(value)
+        }
+        return Ty.custom(TyNamespace(
+            fields = result,
             extra = false,
         ))
+    }
 
     fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }

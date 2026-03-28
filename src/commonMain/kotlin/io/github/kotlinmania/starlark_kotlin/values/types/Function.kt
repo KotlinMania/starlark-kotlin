@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
@@ -293,7 +294,7 @@ internal class NativeAttribute(
 internal class BoundMethodGen<V>(
     val method: FrozenValueTyped<NativeMethod>,
     val thisValue: V,
-) : StarlarkValue, Freeze<BoundMethodGen<FrozenValue>> {
+) : ComplexValue, Freeze<BoundMethodGen<FrozenValue>> {
 
     // starlark_complex_value!(pub(crate) BoundMethod)
     // Generated type aliases:

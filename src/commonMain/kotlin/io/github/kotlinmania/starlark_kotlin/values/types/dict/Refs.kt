@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
@@ -74,12 +75,12 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
     class NotDictError(typeName: String) : Exception("Value is not dict, value type: `$typeName`")
 
     fun error(x: Value): Throwable =
-        if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue()
+        if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue
         else NotDictError(x.getType())
 
     val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
-        null -> Result.failure(ValueError.MutationDuringIteration())
+        null -> Result.failure(ValueError.MutationDuringIteration)
         else -> Result.success(DictMut(borrowed))
     }
 }
@@ -104,11 +105,13 @@ class FrozenDictRef internal constructor(
 /** StarlarkTypeRepr for DictRef. */
 object DictRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
-        DictType.starlarkTypeRepr<FrozenValue, FrozenValue>()
+        Ty.dict(Ty.any(), Ty.any())
 }
 
 /** UnpackValue for DictRef. */
-object DictRefUnpackValue : UnpackValue<Nothing> {
+object DictRefUnpackValue : UnpackValue<DictRef> {
+    override fun starlarkTypeRepr(): Ty = DictRefStarlarkTypeRepr.starlarkTypeRepr()
+
     override fun unpackValueImpl(value: Value): Result<DictRef?> =
         Result.success(dictRefFromValue(value))
 }

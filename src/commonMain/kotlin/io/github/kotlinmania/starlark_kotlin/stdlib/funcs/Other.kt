@@ -32,6 +32,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.bool.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 
 /**
  * fail: fail the execution.
@@ -170,7 +173,7 @@ private fun enumerate(it: Value, start: Int, heap: Heap): Value {
     val iter = it.iterate(heap).getOrThrow()
     val result = mutableListOf<Value>()
     for ((k, v) in iter.withIndex()) {
-        val tuple = heap.allocTuple(listOf(heap.allocInt(k + start), v))
+        val tuple = heap.allocTuple(listOf((k + start).allocValue(heap), v))
         result.add(tuple)
     }
     return heap.allocList(result)
@@ -433,14 +436,14 @@ internal fun registerOther(globals: GlobalsBuilder) {
     // fn any<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
     globals.setFunction("any", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
-        eval.heap().allocBool(any(x, eval.heap()))
+        any(x, eval.heap()).allocValue(eval.heap())
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn all<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
     globals.setFunction("all", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
-        eval.heap().allocBool(all(x, eval.heap()))
+        all(x, eval.heap()).allocValue(eval.heap())
     }
 
     // #[starlark(speculative_exec_safe)]
@@ -472,21 +475,21 @@ internal fun registerOther(globals: GlobalsBuilder) {
     globals.setFunction("hasattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
-        eval.heap().allocBool(hasattr(a, attr, eval.heap()))
+        hasattr(a, attr, eval.heap()).allocValue(eval.heap())
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn hash(a: &str) -> anyhow::Result<i32>
     globals.setFunction("hash", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<String>(0)
-        eval.heap().allocInt(hash(a))
+        hash(a).allocValue(eval.heap())
     }
 
     // #[starlark(speculative_exec_safe)]
     // fn len(a: Value) -> starlark::Result<i32>
     globals.setFunction("len", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
-        eval.heap().allocInt(len(a))
+        len(a).allocValue(eval.heap())
     }
 
     // #[starlark(speculative_exec_safe)]

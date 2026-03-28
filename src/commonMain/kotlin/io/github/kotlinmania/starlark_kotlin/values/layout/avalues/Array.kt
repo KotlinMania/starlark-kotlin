@@ -36,9 +36,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.types.any_array.offsetOfContent
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.layout.toValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
@@ -65,12 +64,11 @@ internal object AValueArray : AValue {
     }
 
     // fn offset_of_extra() -> usize
-    override fun offsetOfExtra(): Int {
-        return Array.offsetOfContent()
-    }
+    // Kotlin: no C repr layout, not applicable.
+    override fun offsetOfExtra(): Int = 0
 
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
-    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(0)
+    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
     override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
@@ -88,6 +86,8 @@ internal object AValueArray : AValue {
 
         val content = array.contentMut()
 
+        val (v, r, _) = tracer.reserveWithExtra<AValueArray>(content.size)
+
         // Trace all values in the content.
         (content as Trace).trace(tracer)
 
@@ -96,7 +96,8 @@ internal object AValueArray : AValue {
         for (i in content.indices) {
             newArray.contentMut()[i] = content[i]
         }
-        return newArray.toValue()
+        r.fill(newArray)
+        return v
     }
 
     override fun unpack(): StarlarkValue = Array.new(0, 0)
@@ -115,12 +116,11 @@ internal class AValueAnyArray<T> : AValue {
     }
 
     // fn offset_of_extra() -> usize
-    override fun offsetOfExtra(): Int {
-        return AnyArray.offsetOfContent<Any>()
-    }
+    // Kotlin: no C repr layout, not applicable.
+    override fun offsetOfExtra(): Int = 0
 
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
-    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(0)
+    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
     override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
@@ -140,10 +140,10 @@ internal class AValueAnyArray<T> : AValue {
 // fn do_alloc_any_slice<T: Debug + Send + Sync + Clone>(&self, values: &[T]) -> FrozenRef<'static, [T]>
 private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> {
     val anyArray = AnyArray.new<T>(values.size)
-    for ((i, v) in values.withIndex()) {
-        anyArray.content()[i] = v
+    for (v in values) {
+        anyArray.add(v)
     }
-    return FrozenRef(anyArray.content().toList())
+    return FrozenRef(anyArray.asSlice().toList())
 }
 
 /// Allocate a slice in the frozen heap.
@@ -169,5 +169,6 @@ internal fun Heap.allocArray(cap: Int): ValueTyped<Array> {
 
     val capU32: UInt = cap.toUInt()
 
-    return allocRawExtra(arrayAvalue(capU32)).first
+    @Suppress("UNCHECKED_CAST")
+    return allocRawExtra(arrayAvalue(capU32)).first as ValueTyped<Array>
 }

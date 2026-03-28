@@ -25,13 +25,13 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import starlark_map.Hashed
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
@@ -56,7 +56,7 @@ private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
     val xs = eval.callStack.toFunctionValues()
     val names = xs.reversed().firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
         ?: return null
-    val res = SmallMap<String, Value>()
+    val res = SmallMap.new<String, Value>()
     for ((slot, name) in names.withIndex()) {
         // correctly handle captured.
         val v = eval.currentFrame.getSlotSlow(LocalSlotIdCapturedOrNot(slot.toUInt()))
@@ -68,7 +68,7 @@ private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
 }
 
 private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
-    val res = SmallMap<String, Value>()
+    val res = SmallMap.new<String, Value>()
     for ((name, slot) in eval.moduleEnv.mutableNames().allNamesAndSlots()) {
         val v = eval.moduleEnv.slots().getSlot(slot)
         if (v != null) {
@@ -81,16 +81,18 @@ private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
 // Tests
 
 private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_inspect_stack") { eval: Evaluator ->
+    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
         Result.success(eval.callStack().intoFrames().map { it.toString() })
     }
 
-    builder.setFunction("debug_inspect_variables") { eval: Evaluator ->
-        val sm = SmallMap<Any, Value>()
+    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
+        val sm = SmallMap.new<Value, Value>()
         for ((k, v) in eval.localVariables()) {
-            sm.insertHashed(eval.heap().allocStr(k).getHashed(), v)
+            val sv = StringValue.newUnchecked(eval.heap().allocStr(k))
+            val hashedValue = Hashed.newUnchecked(sv.getHash(), sv.toValue())
+            sm.insertHashed(hashedValue, v)
         }
-        Result.success(Dict.new(coerce(sm)))
+        Result.success(Dict.new(sm))
     }
 }
 

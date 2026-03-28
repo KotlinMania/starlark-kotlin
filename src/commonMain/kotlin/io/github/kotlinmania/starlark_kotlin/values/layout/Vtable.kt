@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
-import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
@@ -39,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import kotlin.reflect.KClass
 
 /// Untyped raw pointer to StarlarkValue without vtable.
 ///
@@ -110,6 +110,38 @@ class AValueVTable(
                 },
                 displayFn = { "BlackHole" },
                 debugFn = { "BlackHole" },
+            )
+        }
+
+        /// Build an [AValueVTable] from a [KClass].
+        ///
+        /// This mirrors the Rust `AValueVTable::new::<T>()` which creates
+        /// a static vtable from the type parameter at compile time.
+        /// Used by the vtable registry for deserialization support.
+        inline fun <reified T : Any> new(): AValueVTable {
+            return forType(T::class)
+        }
+
+        /// Build an [AValueVTable] for the given type class.
+        ///
+        /// Constructs a vtable with type metadata derived from the [KClass].
+        /// The vtable uses stub implementations for heap operations since
+        /// deserialization reconstructs values through the pagable subsystem
+        /// rather than through these vtable functions.
+        fun forType(type: KClass<*>): AValueVTable {
+            val typeId = ConstTypeId.of(type)
+            val typeName = type.simpleName ?: type.toString()
+            return AValueVTable(
+                staticTypeOfValue = typeId,
+                starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
+                typeName = typeName,
+                isStr = false,
+                memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
+                heapFreezeFn = { _, _ -> error("forType: heapFreeze not supported for $typeName") },
+                heapCopyFn = { _, _ -> error("forType: heapCopy not supported for $typeName") },
+                starlarkValue = object : StarlarkValue {
+                    override val TYPE: String get() = typeName
+                },
             )
         }
     }

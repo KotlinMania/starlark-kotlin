@@ -19,25 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[starlark_module]
 fun registerNamespace(builder: GlobalsBuilder) {
     // #[starlark(ty_custom_function = TyNamespaceFunction, as_type = FrozenNamespace)]
-    builder.setFunction("namespace") { args: Arguments, heap: Heap ->
-        args.noPositionalArgs(heap)
+    builder.setFunction("namespace") { args, eval ->
+        val heap = eval.heap()
+        args.noPositionalArgs(heap).getOrElse { return@setFunction Result.failure<Value>(it) }
 
-        NamespaceGen.new(
-            args.namesMap()
-                .map { (k, v) ->
-                    k to MaybeDocHiddenValue(
-                        value = v,
-                        docHidden = false,
-                    )
-                }
-                .toMap()
-        )
+        val namesMap = args.namesMap().getOrElse { return@setFunction Result.failure<Value>(it) }
+        val fields = SmallMap.withCapacity<String, MaybeDocHiddenValue<Value>>(namesMap.len())
+        for ((k, v) in namesMap.iter()) {
+            fields.insert(
+                k.asStr(),
+                MaybeDocHiddenValue(
+                    value = v,
+                    docHidden = false,
+                ),
+            )
+        }
+        NamespaceGen.new(fields)
     }
 }

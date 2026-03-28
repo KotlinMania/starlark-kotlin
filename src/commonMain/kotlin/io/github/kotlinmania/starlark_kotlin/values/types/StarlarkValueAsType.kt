@@ -31,18 +31,16 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_type.TypeType
-import io.github.kotlinmania.starlark_kotlin.values.typing.AbstractType
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.typing.TypeType
+import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
 
 // #[derive(Debug, NoSerialize, Allocative, ProvidesStaticType)]
 // struct StarlarkValueAsTypeStarlarkValue(fn() -> Ty, fn() -> DocItem);
-private class StarlarkValueAsTypeStarlarkValue(
+@PublishedApi
+internal class StarlarkValueAsTypeStarlarkValue(
     private val tyFn: () -> Ty,
     private val docFn: () -> DocItem,
 ) : StarlarkValue {
@@ -83,8 +81,8 @@ private class StarlarkValueAsTypeStarlarkValue(
 //     PhantomData<fn(&T)>,
 // );
 // Kotlin: holds a lazily-allocated frozen StarlarkValue that acts as a type marker.
-class StarlarkValueAsType<T : StarlarkTypeRepr> private constructor(
-    private val inner: StarlarkValueAsTypeStarlarkValue,
+class StarlarkValueAsType<T : StarlarkTypeRepr> @PublishedApi internal constructor(
+    @PublishedApi internal val inner: StarlarkValueAsTypeStarlarkValue,
     private val tyRepr: () -> Ty,
 ) : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
 
@@ -97,8 +95,15 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> private constructor(
         inline fun <reified T> new(): StarlarkValueAsType<T>
             where T : StarlarkTypeRepr, T : StarlarkValue
         {
-            val tyFn = { StarlarkTypeRepr.typeReprOf<T>() }
-            val docFn = { DocItem.Type(DocType.fromStarlarkValue<T>()) }
+            val instance = T::class.objectInstance
+            val tyFn: () -> Ty = {
+                instance?.getTypeStarlarkRepr()
+                    ?: error("StarlarkValueAsType.new requires T to be an object/singleton")
+            }
+            val docFn: () -> DocItem = {
+                DocItem.Type(DocType.fromStarlarkValue(instance
+                    ?: error("StarlarkValueAsType.new requires T to be an object/singleton")))
+            }
             return StarlarkValueAsType(
                 inner = StarlarkValueAsTypeStarlarkValue(tyFn, docFn),
                 tyRepr = tyFn,
@@ -108,8 +113,12 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> private constructor(
         // pub const fn new_no_docs() -> Self
         /// Constructor.
         inline fun <reified T : StarlarkTypeRepr> newNoDocs(): StarlarkValueAsType<T> {
-            val tyFn = { StarlarkTypeRepr.typeReprOf<T>() }
-            val docFn = {
+            val instance = T::class.objectInstance
+            val tyFn: () -> Ty = {
+                instance?.starlarkTypeRepr()
+                    ?: error("StarlarkValueAsType.newNoDocs requires T to be an object/singleton")
+            }
+            val docFn: () -> DocItem = {
                 DocItem.Member(
                     DocMember.Property(
                         DocProperty(
@@ -137,7 +146,7 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> private constructor(
     // type Canonical = <TypeType as StarlarkTypeRepr>::Canonical;
     // fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty {
-        return TypeType.starlarkTypeRepr()
+        return AbstractType.starlarkTypeRepr()
     }
 
     // impl AllocValue for StarlarkValueAsType

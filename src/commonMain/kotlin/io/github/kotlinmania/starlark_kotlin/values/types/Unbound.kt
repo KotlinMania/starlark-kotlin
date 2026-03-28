@@ -23,14 +23,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.withCallStack
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
@@ -61,8 +59,8 @@ internal sealed class UnboundValue {
     // pub(crate) fn bind<'v>(&self, this: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bind(thisValue: Value, heap: Heap): Result<Value> {
         return when (this) {
-            is Method -> Result.success(heap.allocComplex(BoundMethodGen(thisValue.toValue(), method)))
-            is Attr -> attr.invoke(thisValue, heap)
+            is Method -> Result.success(heap.allocComplex(BoundMethodGen(method, thisValue.toValue())))
+            is Attr -> attr.asRef().invoke(thisValue, heap)
         }
     }
 
@@ -79,7 +77,7 @@ internal sealed class UnboundValue {
         ) { eval ->
             when (this) {
                 is Method -> method.asRef().function.invoke(eval, thisValue, args)
-                is Attr -> attr.invoke(thisValue, eval.heap())
+                is Attr -> attr.asRef().invoke(thisValue, eval.heap())
             }
         }
     }

@@ -20,27 +20,17 @@ package io.github.kotlinmania.starlark_kotlin.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnOwnedFileLoader
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
-import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
 import io.github.kotlinmania.starlark_kotlin.tests.trimRustBacktrace
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
@@ -167,12 +157,12 @@ internal class TypeCheck(
 private object NamedXy : StarlarkCallableParamSpec {
     // fn params() -> ParamSpec
     override fun params(): ParamSpec {
-        return ParamSpec.newNamedOnly(
-            listOf(
-                Triple(ArcStr.newStatic("x"), ParamIsRequired.Yes, Ty.string()),
-                Triple(ArcStr.newStatic("y"), ParamIsRequired.Yes, Ty.int()),
+        return ParamSpec.newParts(
+            namedOnly = listOf(
+                Triple("x", ParamIsRequired.Yes, Ty.string()),
+                Triple("y", ParamIsRequired.Yes, Ty.int()),
             )
-        ).getOrThrow()
+        )
     }
 }
 
@@ -180,21 +170,18 @@ private object NamedXy : StarlarkCallableParamSpec {
 // fn register_typecheck_globals(globals: &mut GlobalsBuilder)
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
     // fn accepts_iterable<'v>(xs: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_iterable") { _eval: Evaluator, xs: ValueOfUnchecked<StarlarkIter<Value>> ->
-        val _ignore = xs
-        Result.success(NoneType)
+    globals.setFunction("accepts_iterable") { _args: Arguments, _eval: Evaluator ->
+        NoneType
     }
 
     // fn accepts_typed_kwargs(x: SmallMap<String, u32>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_typed_kwargs") { _eval: Evaluator, x: SmallMap<String, UInt> ->
-        val _ignore = x
-        Result.success(NoneType)
+    globals.setFunction("accepts_typed_kwargs") { _args: Arguments, _eval: Evaluator ->
+        NoneType
     }
 
     // fn accepts_callable_named_xy<'v>(f: StarlarkCallable<'v, NamedXy, NoneType>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_callable_named_xy") { _eval: Evaluator, f: StarlarkCallable<NamedXy, NoneType> ->
-        val _ignore = f
-        Result.success(NoneType)
+    globals.setFunction("accepts_callable_named_xy") { _args: Arguments, _eval: Evaluator ->
+        NoneType
     }
 }
 

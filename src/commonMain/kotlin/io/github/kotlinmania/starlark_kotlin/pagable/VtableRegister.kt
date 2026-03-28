@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.typing.forType
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 
 /// In Rust, `register_avalue_simple_frozen!` is a macro that registers a frozen value type
@@ -40,9 +38,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 /// will fail.
 // macro_rules! register_avalue_simple_frozen
 fun registerAvalueSimpleFrozen(type: KClass<*>) {
-    VtableRegistry.register(
-        VtableRegistryEntry(
-            deserTypeId = DeserTypeId.of(type),
+    registerVTableEntry(
+        VTableRegistryEntry(
+            deserTypeId = DeserTypeId(type),
             vtable = AValueVTable.forType(type),
         )
     )
@@ -54,9 +52,9 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
 /// that use custom AValue implementations instead of the simple wrapper.
 // macro_rules! register_special_avalue_frozen
 internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClass<*>) {
-    VtableRegistry.register(
-        VtableRegistryEntry(
-            deserTypeId = DeserTypeId.of(starlarkValue),
+    registerVTableEntry(
+        VTableRegistryEntry(
+            deserTypeId = DeserTypeId(starlarkValue),
             vtable = AValueVTable.forType(avalue),
         )
     )

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.Rec
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
 
 // #[starlark_module]
 // pub(crate) fn register_record(builder: &mut GlobalsBuilder)
@@ -71,16 +70,19 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     /// Records are stored deduplicating their field names, making them more
     /// memory efficient than dictionaries.
     // fn record<'v>(#[starlark(kwargs)] kwargs: SmallMap<String, Value<'v>>, eval: &mut Evaluator) -> anyhow::Result<RecordType<'v>>
-    builder.setFunction("record") { kwargs: SmallMap<String, Value>, eval: Evaluator ->
+    builder.setFunction("record") { args, eval ->
+        val kwargs = args.namesMap().getOrElse { return@setFunction Result.failure<Value>(it) }
         // Every Value must either be a field or a value (the type)
-        val mp = SmallMap<String, Field>()
-        for ((k, v) in kwargs) {
-            val field = Field.fromValue(v)
+        val mp = SmallMap.withCapacity<String, Field>(kwargs.len())
+        for ((k, v) in kwargs.iter()) {
+            val key = k.asStr()
+            val value = v
+            val field = Field.fromValue(value)
                 ?: Field.new(
-                    runCatching { TypeCompiled.new(v, eval.heap()) }.getOrElse { return@function Result.failure(it) },
+                    runCatching { TypeCompiled.new(value, eval.heap()) }.getOrElse { return@setFunction Result.failure<Value>(it) },
                     null,
                 )
-            mp.put(k, field)
+            mp.insert(key, field)
         }
         Result.success(RecordTypeGen.new(mp))
     }
@@ -94,15 +96,16 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     /// rec.mask == 255
     /// ```
     // fn field<'v>(#[starlark(require = pos)] typ: Value<'v>, default: Option<Value<'v>>, eval: &mut Evaluator) -> starlark::Result<Field<'v>>
-    builder.setFunction("field") { args: List<Value>, eval: Evaluator ->
-        val typ = args[0]
-        val default: Value? = args.getOrNull(1)
+    builder.setFunction("field") { args, eval ->
+        val positionalArgs = args.positionalAll()
+        val typ = positionalArgs[0]
+        val default: Value? = positionalArgs.getOrNull(1)
         // We compile the type even if we don't have a default to raise the error sooner
         val compiled = runCatching { TypeCompiled.new(typ, eval.heap()) }
-            .getOrElse { return@function Result.failure(it) }
+            .getOrElse { return@setFunction Result.failure<Value>(it) }
         if (default != null) {
             compiled.checkType(default, "default")
-                .getOrElse { return@function Result.failure(it) }
+                .getOrElse { return@setFunction Result.failure<Value>(it) }
         }
         Result.success(Field.new(compiled, default))
     }

@@ -47,33 +47,33 @@ import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 // In Kotlin, these are interfaces/annotations defined in the values package
 
 // Re-exports from values subpackages (mirrors Rust's extensive pub use block)
-internal typealias OwnedFrozenRefExport = io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenRef
+internal typealias OwnedFrozenRefExport<T> = io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozenRef<T>
 internal typealias AllocValueExport = io.github.kotlinmania.starlark_kotlin.values.AllocValue
-internal typealias DemandExport = io.github.kotlinmania.starlark_kotlin.values.Demand
+internal typealias DemandExport = io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 internal typealias ValueErrorExport = io.github.kotlinmania.starlark_kotlin.values.ValueError
-internal typealias FreezeExport = io.github.kotlinmania.starlark_kotlin.values.Freeze
-internal typealias FreezeErrorExport = io.github.kotlinmania.starlark_kotlin.values.FreezeError
-internal typealias FreezeResultExport<T> = io.github.kotlinmania.starlark_kotlin.values.FreezeResult<T>
-internal typealias FrozenRefExport = io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+internal typealias FreezeExport<Frozen> = io.github.kotlinmania.starlark_kotlin.values.Freeze<Frozen>
+internal typealias FreezeErrorExport = io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
+internal typealias FreezeResultExport<T> = io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult<T>
+internal typealias FrozenRefExport<T> = io.github.kotlinmania.starlark_kotlin.values.FrozenRef<T>
 internal typealias StarlarkIteratorExport = io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
 internal typealias FreezerExport = io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 internal typealias FrozenHeapExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 internal typealias HeapExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 internal typealias TracerExport = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 internal typealias ValueIdentityExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueIdentity
-internal typealias FrozenValueTypedExport = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-internal typealias ValueTypedExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+internal typealias FrozenValueTypedExport<T> = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped<T>
+internal typealias ValueTypedExport<T> = io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped<T>
 internal typealias FrozenValueExport = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 internal typealias ValueExport = io.github.kotlinmania.starlark_kotlin.values.layout.Value
 internal typealias ValueLikeExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 internal typealias ValueLifetimelessExport = io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
-internal typealias OwnedFrozenValueExport = io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue
+internal typealias OwnedFrozenValueExport = io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 internal typealias TraceExport = io.github.kotlinmania.starlark_kotlin.values.Trace
 internal typealias ComplexValueExport = io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 internal typealias StarlarkValueExport = io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-internal typealias UnpackValueExport = io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-internal typealias ValueOfExport = io.github.kotlinmania.starlark_kotlin.values.ValueOf
-internal typealias ValueOfUncheckedExport = io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+internal typealias UnpackValueExport<T> = io.github.kotlinmania.starlark_kotlin.values.UnpackValue<T>
+internal typealias ValueOfExport<T> = io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf<T>
+internal typealias ValueOfUncheckedExport<T> = io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked<T>
 
 // Submodules (in Kotlin, these are separate packages under values/)
 // alloc_value, comparison, demand, error, freeze, freeze_error,

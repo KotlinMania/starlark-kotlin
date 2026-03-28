@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.LibraryExtension
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
@@ -32,15 +33,12 @@ import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecBuilder
-import io.github.kotlinmania.starlark_kotlin.stdlib.LibraryExtension
-import io.github.kotlinmania.starlark_kotlin.stdlib.standardEnvironment
+import io.github.kotlinmania.starlark_kotlin.standardEnvironment
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.documentation
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn
@@ -53,8 +51,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
+import kotlin.concurrent.Volatile
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
@@ -164,7 +164,7 @@ class Globals internal constructor(
         )
         return DocModule(
             docs = docs,
-            members = members.toMap(),
+            members = members,
         )
     }
 }
@@ -250,9 +250,15 @@ class GlobalsBuilder private constructor(
         namespaceFields.add(SmallMap.new())
         f(this)
         val fields = namespaceFields.removeLast()
+        // Convert SmallMap<FrozenStringValue, GlobalValue> to SmallMap<String, GlobalValue>
+        // because NamespaceGen<V> uses String keys in the Kotlin port.
+        val stringKeyFields = SmallMap.new<String, GlobalValue>()
+        for ((k, v) in fields) {
+            stringKeyFields.insert(k.asStr(), v)
+        }
         setInner(
             name,
-            heap.alloc(FrozenNamespace.new(fields)),
+            heap.allocSimple(FrozenNamespace.new(stringKeyFields)),
             docHidden,
         )
     }
@@ -476,14 +482,17 @@ class GlobalsStatic {
 fun commonDocumentation(
     docstring: String?,
     members: Iterable<Pair<String, FrozenValue>>,
-): Pair<DocString?, Map<String, DocItem>> {
+): Pair<DocString?, SmallMap<String, DocItem>> {
     val mainDocs = docstring?.let { ds ->
         DocString.fromDocstring(DocStringKind.Rust, ds)
     }
-    val memberDocs = members
+    val sorted = members
         .map { (name, value) -> Pair(name, value.toValue().documentation()) }
         .sortedBy { (name, _) -> name }
-        .toMap()
+    val memberDocs = SmallMap.new<String, DocItem>()
+    for ((name, doc) in sorted) {
+        memberDocs.insert(name, doc)
+    }
 
     return Pair(mainDocs, memberDocs)
 }

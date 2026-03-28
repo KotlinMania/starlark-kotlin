@@ -22,26 +22,25 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.Coerce
-import io.github.kotlinmania.starlark_kotlin.docs.docs
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
-/// Main module docs
+/** Main module docs */
 // #[starlark_module]
 // fn object_docs_1(_: &mut MethodsBuilder)
 private fun objectDocs1(builder: MethodsBuilder) {
-    /// Returns the string "foo"
+    builder.setDocstring("Main module docs")
+    /** Returns the string "foo" */
     // #[starlark(attribute)]
     // fn foo(this: &TestExample) -> Result<String>
-    builder.setAttribute("foo") { _, _ ->
-        Result.success("foo")
+    builder.setAttribute("foo", "Returns the string \"foo\"") { _: Value, heap: Heap ->
+        Result.success(heap.allocStr("foo"))
     }
 }
 
@@ -78,16 +77,16 @@ private typealias FrozenComplexTestExample = ComplexTestExampleGen<Any>
 // #[test]
 // fn test_derive_docs()
 internal fun testDeriveDocs() {
-    val obj = DocType.fromStarlarkValue<TestExample>()
+    val obj = DocType.fromStarlarkValue(TestExample())
 
     check(
         DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == obj.docs
     )
     check(
         DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
-            obj.members.firstNotNullOfOrNull { (name, m) ->
+            obj.members.iter().firstNotNullOfOrNull { (name, m) ->
                 when {
-                    m is DocMember.Property && name == "foo" -> m.docs
+                    m is DocMember.Property && name == "foo" -> m.property.docs
                     else -> null
                 }
             }
@@ -97,16 +96,16 @@ internal fun testDeriveDocs() {
 // #[test]
 // fn test_derive_docs_on_complex_values()
 internal fun testDeriveDocsOnComplexValues() {
-    val complexObj = DocType.fromStarlarkValue<FrozenComplexTestExample>()
+    val complexObj = DocType.fromStarlarkValue(ComplexTestExampleGen<Any>(Unit))
 
     check(
         DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == complexObj.docs
     )
     check(
         DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
-            complexObj.members.firstNotNullOfOrNull { (name, m) ->
+            complexObj.members.iter().firstNotNullOfOrNull { (name, m) ->
                 when {
-                    m is DocMember.Property && name == "foo" -> m.docs
+                    m is DocMember.Property && name == "foo" -> m.property.docs
                     else -> null
                 }
             }

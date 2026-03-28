@@ -25,14 +25,11 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import kotlin.time.Duration
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
-import io.github.kotlinmania.starlark_kotlin.util.asStr
 
 // pub(crate) struct TypecheckProfilerType
 internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
@@ -48,14 +45,14 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
         ProfileDataImpl.Typecheck(data)
 
     // fn merge_profiles_impl(profiles: &[&Self::Data]) -> starlark_syntax::Result<Self::Data>
-    override fun mergeProfilesImpl(profiles: List<TypecheckProfileData>): TypecheckProfileData {
+    override fun mergeProfilesImpl(profiles: List<TypecheckProfileData>): Result<TypecheckProfileData> {
         val byFunction = mutableMapOf<ArcStr, SmallDuration>()
         for (profile in profiles) {
             for ((name, time) in profile.byFunction) {
                 byFunction[name] = (byFunction[name] ?: SmallDuration.ZERO) + time
             }
         }
-        return TypecheckProfileData(byFunction)
+        return Result.success(TypecheckProfileData(byFunction))
     }
 }
 
@@ -115,7 +112,7 @@ internal class TypecheckProfile {
     // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
         if (!enabled) {
-            throw Error.newOther(TypecheckProfileError.NotEnabled())
+            throw io.github.kotlinmania.starlark_kotlin.Error.newOther(TypecheckProfileError.NotEnabled())
         }
         return ProfileData(
             profile = ProfileDataImpl.Typecheck(

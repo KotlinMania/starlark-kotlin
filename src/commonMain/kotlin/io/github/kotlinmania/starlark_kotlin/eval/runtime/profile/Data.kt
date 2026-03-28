@@ -54,7 +54,7 @@ sealed class ProfileDataError : Exception() {
 
 // #[derive(Clone, Debug)]
 // pub(crate) enum ProfileDataImpl
-sealed class ProfileDataImpl {
+internal sealed class ProfileDataImpl {
     // Bc(Box<BcProfileData>)
     data class Bc(val data: BcProfileData) : ProfileDataImpl()
     // BcPairs(BcPairsProfileData)
@@ -104,7 +104,7 @@ sealed class ProfileDataImpl {
 /// Collected profiling data.
 // #[derive(Clone, Debug)]
 // pub struct ProfileData
-data class ProfileData(
+data class ProfileData internal constructor(
     internal val profile: ProfileDataImpl,
 ) {
     /// Profile mode used to collect this data.

@@ -23,8 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
@@ -32,8 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
-import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 
 // pub(crate) struct TimeFlameProfilerType
 internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
@@ -49,8 +46,8 @@ internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
         ProfileDataImpl.TimeFlameProfile(data)
 
     // fn merge_profiles_impl(profiles: &[&Self::Data]) -> starlark_syntax::Result<Self::Data>
-    override fun mergeProfilesImpl(profiles: List<FlameGraphData>): FlameGraphData =
-        FlameGraphData.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<FlameGraphData>): Result<FlameGraphData> =
+        Result.success(FlameGraphData.merge(profiles))
 }
 
 // #[derive(Debug, thiserror::Error)]
@@ -63,15 +60,15 @@ private sealed class FlameProfileError(message: String) : Exception(message) {
 
 // #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
 // struct MutableValueId(usize)
-private data class MutableValueId(val value: Int)
+internal data class MutableValueId(val value: Int)
 
 // #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
 // struct FrozenValueId(usize)
-private data class FrozenValueId(val value: Int)
+internal data class FrozenValueId(val value: Int)
 
 /// Index into FlameData.values
 // enum ValueId
-private sealed class ValueId {
+internal sealed class ValueId {
     // Mutable(MutableValueId)
     data class Mutable(val id: MutableValueId) : ValueId()
     // Frozen(FrozenValueId)
@@ -108,7 +105,9 @@ private class ValueIndex {
     // We only need to trace mutable values.
     fun trace(tracer: Tracer) {
         for (i in mutableValues.indices) {
-            mutableValues[i] = tracer.trace(mutableValues[i])
+            val holder = ValueHolder(mutableValues[i])
+            tracer.trace(holder)
+            mutableValues[i] = holder.value
         }
         // Have to rebuild the map, as its keyed by ValuePtr which changes on GC
         mutableMap.clear()
@@ -192,7 +191,7 @@ internal class TimeFlameProfile {
 
     // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
-        val x = data ?: throw Error.newOther(FlameProfileError.NotEnabled())
+        val x = data ?: throw io.github.kotlinmania.starlark_kotlin.Error.newOther(FlameProfileError.NotEnabled())
         return genProfile(x)
     }
 

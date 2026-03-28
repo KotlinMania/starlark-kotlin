@@ -220,11 +220,11 @@ internal class Array(
 // pub(crate) struct ValueEmptyArray(AllocStaticSimple<Array<'static>>);
 // pub(crate) static VALUE_EMPTY_ARRAY: ValueEmptyArray = ...;
 internal object ValueEmptyArray {
-    private val emptyArray: Array = Array.new(0, 0)
+    private val inner: AllocStaticSimple<Array> = AllocStaticSimple.alloc(Array.new(0, 0))
 
     // impl ValueEmptyArray
     // pub(crate) fn unpack<'v>(&'static self) -> FrozenValueTyped<'v, Array<'v>>
-    fun unpack(): Array = emptyArray
+    fun unpack(): FrozenValueTyped<Array> = inner.unpack()
 }
 
 // #[cfg(test)] mod tests

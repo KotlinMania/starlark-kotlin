@@ -1,6 +1,5 @@
 // port-lint: source src/debug/evaluate.rs
 package io.github.kotlinmania.starlark_kotlin.debug
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,15 +19,17 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark_kotlin.isWasm
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 /**
  * Evaluate statements in the existing context. This function is designed for debugging,
@@ -51,19 +52,19 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
 
     // We want all the local variables to be available to the module, so we capture
     // everything before, shove the local variables into the module, and then revert after
-    val originalModule: SmallMap<FrozenStringValue, Value?> = SmallMap<FrozenStringValue, Value?>().also { map ->
+    val originalModule: SmallMap<FrozenStringValue, Value?> = SmallMap.new<FrozenStringValue, Value?>().also { map ->
         for ((name, slot) in moduleEnv.mutableNames().allNamesAndSlots()) {
             map.insert(name, moduleEnv.slots().getSlot(slot))
         }
     }
 
     // Push all the frozen variables into the module
-    val frozen = runCatching { topFrameDefFrozenModule(true) }.getOrElse { return Result.failure(it) }
+    val frozen = topFrameDefFrozenModule(true)
     if (frozen != null) {
-        for ((name, slot) in frozen.names.symbols()) {
-            val value = frozen.getSlot(slot)
+        for ((name, slot) in frozen.value.names.symbols()) {
+            val value = frozen.value.getSlot(slot)
             if (value != null) {
-                moduleEnv.set(name, value.toValue())
+                moduleEnv.set(name.asStr(), value.toValue())
             }
         }
     }
@@ -76,33 +77,37 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
         for ((slot, name) in locals.withIndex()) {
             val value = currentFrame.getSlotSlow(LocalSlotIdCapturedOrNot(slot.toUInt()))
             if (value != null) {
-                moduleEnv.set(name, value)
+                moduleEnv.set(name.asStr(), value)
             }
         }
     }
 
-    val globals = runCatching { topFrameDefInfoForDebugger() }.getOrElse { return Result.failure(it) }.globals
-    val res = evalModule(statements, globals)
+    val globals = topFrameDefInfoForDebugger().globals
+    val res = evalModule(statements, globals.asRef())
 
     // Now put the Module back how it was before we started, as best we can
     // and move things into locals if that makes sense
     if (locals != null) {
         for ((slot, name) in locals.withIndex()) {
-            val value = moduleEnv.get(name)
+            val value = moduleEnv.get(name.asStr())
             if (value != null) {
                 currentFrame.setSlotSlow(LocalSlotIdCapturedOrNot(slot.toUInt()), value)
             }
         }
         for ((name, slot) in moduleEnv.mutableNames().allNamesAndSlots()) {
-            val original = originalModule.get(name)
+            val nameStr = name.asStr()
+            val originalIdx = originalModule.getIndexOf(name)
             when {
-                original == null && !originalModule.containsKey(name) -> {
-                    moduleEnv.mutableNames().hideName(name)
+                originalIdx == null -> {
+                    moduleEnv.mutableNames().hideName(nameStr)
                 }
-                original != null -> {
-                    moduleEnv.slots().setSlot(slot, original)
+                else -> {
+                    val original = originalModule.get(name)
+                    if (original != null) {
+                        moduleEnv.slots().setSlot(slot, original)
+                    }
+                    // else: No way to unassign a previously assigned value yet
                 }
-                // else: No way to unassign a previously assigned value yet
             }
         }
     }
@@ -113,9 +118,10 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
 // Tests
 
 private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_evaluate") { code: String, eval: Evaluator ->
+    builder.setFunction("debug_evaluate") { args, eval ->
+        val code = args.positional<String>(0)
         val ast = AstModule.parse("interactive", code, Dialect.AllOptionsInternal).getOrThrow()
-        eval.evalStatements(ast).getOrThrow().let { Result.success(it) }
+        eval.evalStatements(ast).getOrThrow()
     }
 }
 

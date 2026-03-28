@@ -23,13 +23,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
-import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import kotlin.reflect.KClass
 
 /// Ready to execute bytecode.
 // #[derive(Default)]
@@ -99,7 +97,11 @@ class Bc(
     }
 }
 
-/// Execute one instruction.
+/// Execute one instruction by dispatching on the opcode.
+///
+/// In Rust, this uses generic dispatch via BcOpcodeHandler trait and proc-macro
+/// generated code. In Kotlin, we dispatch using the opcode to look up the
+/// instruction argument from the buffer and call the appropriate handler.
 // fn step<'v, 'b, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, frame: BcFramePtr, ip: BcPtrAddr) -> InstrControl
 private fun step(
     eval: Evaluator,
@@ -109,20 +111,135 @@ private fun step(
     bcInstrs: BcInstrs,
 ): InstrControl {
     val opcode = bcInstrs.getOpcodeAt(ip)
-
-    val handler = object : BcOpcodeHandler<InstrControl> {
-        override fun <I : BcInstr> handle(instrClass: KClass<I>): InstrControl {
-            val arg = bcInstrs.getArgAt(ip) as? BcInstrArg
-                ?: return InstrControl.Err(StarlarkError("missing instruction arg at $ip"))
-            return arg.run(eval, frame, ip)
-        }
-    }
+    val arg = bcInstrs.getArgAt(ip)
 
     runCatching { ec.beforeInstr(eval, ip, opcode) }.getOrElse {
         val starlarkError = if (it is StarlarkError) it else StarlarkError(it.message ?: "unknown error", it)
         return InstrControl.Err(starlarkError)
     }
-    return opcode.dispatch(handler)
+
+    return dispatchInstruction(opcode, eval, frame, ip, arg)
+}
+
+/// Dispatch an instruction by opcode.
+///
+/// This is the Kotlin equivalent of the Rust proc-macro generated dispatch.
+/// Each opcode maps to a specific instruction implementation.
+private fun dispatchInstruction(
+    opcode: BcOpcode,
+    eval: Evaluator,
+    frame: BcFramePtr,
+    ip: BcPtrAddr,
+    arg: Any?,
+): InstrControl {
+    // Helper for InstrNoFlowImpl-based instructions: execute and wrap result.
+    fun noFlow(impl: InstrNoFlowImpl): InstrControl {
+        val result = impl.runWithArgs(eval, frame, ip, arg ?: Unit)
+        return if (result.isSuccess) {
+            InstrControl.Next(ip.add(opcode.sizeOfRepr()))
+        } else {
+            InstrControl.Err(
+                if (result.exceptionOrNull() is StarlarkError)
+                    result.exceptionOrNull() as StarlarkError
+                else
+                    StarlarkError(result.exceptionOrNull()?.message ?: "", result.exceptionOrNull())
+            )
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return when (opcode) {
+        // --- No-flow instructions ---
+        BcOpcode.Const -> noFlow(InstrConstImpl)
+        BcOpcode.LoadLocal -> noFlow(InstrLoadLocalImpl)
+        BcOpcode.LoadLocalCaptured -> noFlow(InstrLoadLocalCapturedImpl)
+        BcOpcode.LoadModule -> noFlow(InstrLoadModuleImpl)
+        BcOpcode.Mov -> noFlow(InstrMovImpl)
+        BcOpcode.StoreLocalCaptured -> noFlow(InstrStoreLocalCapturedImpl)
+        BcOpcode.StoreModule -> noFlow(InstrStoreModuleImpl)
+        BcOpcode.StoreModuleAndExport -> noFlow(InstrStoreModuleAndExportImpl)
+        BcOpcode.Unpack -> noFlow(InstrUnpackImpl)
+        BcOpcode.ArrayIndex -> noFlow(InstrArrayIndexImpl)
+        BcOpcode.SetArrayIndex -> noFlow(InstrSetArrayIndexImpl)
+        BcOpcode.ArrayIndexSet -> noFlow(InstrArrayIndexSetImpl)
+        BcOpcode.Slice -> noFlow(InstrSliceImpl)
+        BcOpcode.ObjectField -> noFlow(InstrObjectFieldImpl)
+        BcOpcode.SetObjectField -> noFlow(InstrSetObjectFieldImpl)
+        BcOpcode.Eq -> noFlow(InstrEqConstImpl)
+        BcOpcode.EqConst -> noFlow(InstrEqConstImpl)
+        BcOpcode.EqPtr -> noFlow(InstrEqPtrImpl)
+        BcOpcode.EqStr -> noFlow(InstrEqStrImpl)
+        BcOpcode.EqInt -> noFlow(InstrEqIntImpl)
+        BcOpcode.Not -> noFlow(InstrUnOpWrapper(InstrNotImpl))
+        BcOpcode.Minus -> noFlow(InstrUnOpWrapper(InstrMinusImpl))
+        BcOpcode.Plus -> noFlow(InstrUnOpWrapper(InstrPlusImpl))
+        BcOpcode.BitNot -> noFlow(InstrUnOpWrapper(InstrBitNotImpl))
+        BcOpcode.Less -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrLessImpl)))
+        BcOpcode.Greater -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrGreaterImpl)))
+        BcOpcode.LessOrEqual -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrLessOrEqualImpl)))
+        BcOpcode.GreaterOrEqual -> noFlow(InstrBinOpWrapper(InstrCompareWrapper(InstrGreaterOrEqualImpl)))
+        BcOpcode.In -> noFlow(InstrBinOpWrapper(InstrInImpl))
+        BcOpcode.Add -> noFlow(InstrBinOpWrapper(InstrAddImpl))
+        BcOpcode.AddAssign -> noFlow(InstrBinOpWrapper(InstrAddAssignImpl))
+        BcOpcode.Sub -> noFlow(InstrBinOpWrapper(InstrSubImpl))
+        BcOpcode.Multiply -> noFlow(InstrBinOpWrapper(InstrMultiplyImpl))
+        BcOpcode.Percent -> noFlow(InstrBinOpWrapper(InstrPercentImpl))
+        BcOpcode.PercentSOne -> noFlow(InstrPercentSOneImpl)
+        BcOpcode.FormatOne -> noFlow(InstrFormatOneImpl)
+        BcOpcode.Divide -> noFlow(InstrBinOpWrapper(InstrDivideImpl))
+        BcOpcode.FloorDivide -> noFlow(InstrBinOpWrapper(InstrFloorDivideImpl))
+        BcOpcode.BitAnd -> noFlow(InstrBinOpWrapper(InstrBitAndImpl))
+        BcOpcode.BitOr -> noFlow(InstrBinOpWrapper(InstrBitOrImpl))
+        BcOpcode.BitOrAssign -> noFlow(InstrBinOpWrapper(InstrBitOrAssignImpl))
+        BcOpcode.BitXor -> noFlow(InstrBinOpWrapper(InstrBitXorImpl))
+        BcOpcode.LeftShift -> noFlow(InstrBinOpWrapper(InstrLeftShiftImpl))
+        BcOpcode.RightShift -> noFlow(InstrBinOpWrapper(InstrRightShiftImpl))
+        BcOpcode.Len -> noFlow(InstrUnOpWrapper(InstrLenImpl))
+        BcOpcode.Type -> noFlow(InstrUnOpWrapper(InstrTypeImpl))
+        BcOpcode.TypeIs -> noFlow(InstrTypeIsImpl)
+        BcOpcode.IsInstance -> noFlow(InstrIsInstanceImpl)
+        BcOpcode.TupleNPop -> noFlow(InstrTupleNPopImpl)
+        BcOpcode.ListNew -> noFlow(InstrListNewImpl)
+        BcOpcode.ListNPop -> noFlow(InstrListNPopImpl)
+        BcOpcode.ListOfConsts -> noFlow(InstrListOfConstsImpl)
+        BcOpcode.DictNew -> noFlow(InstrDictNewImpl)
+        BcOpcode.DictNPop -> noFlow(InstrDictNPopImpl)
+        BcOpcode.DictOfConsts -> noFlow(InstrDictOfConstsImpl)
+        BcOpcode.DictConstKeys -> noFlow(InstrDictConstKeysImpl)
+        BcOpcode.CheckType -> noFlow(InstrCheckTypeImpl)
+        BcOpcode.ArrayIndex2 -> noFlow(InstrArrayIndex2Impl)
+        BcOpcode.Def -> noFlow(InstrDefImpl)
+        BcOpcode.Call -> noFlow(InstrCallImpl)
+        BcOpcode.CallPos -> noFlow(InstrCallImpl)
+        BcOpcode.CallFrozenDef -> noFlow(InstrCallFrozenDefImpl)
+        BcOpcode.CallFrozenDefPos -> noFlow(InstrCallFrozenDefImpl)
+        BcOpcode.CallFrozenNative -> noFlow(InstrCallFrozenGenericImpl)
+        BcOpcode.CallFrozenNativePos -> noFlow(InstrCallFrozenGenericImpl)
+        BcOpcode.CallFrozen -> noFlow(InstrCallFrozenGenericImpl)
+        BcOpcode.CallFrozenPos -> noFlow(InstrCallFrozenGenericImpl)
+        BcOpcode.CallMethod -> noFlow(InstrCallMethodImpl)
+        BcOpcode.CallMethodPos -> noFlow(InstrCallMethodImpl)
+        BcOpcode.CallMaybeKnownMethod -> noFlow(InstrCallMaybeKnownMethodImpl)
+        BcOpcode.CallMaybeKnownMethodPos -> noFlow(InstrCallMaybeKnownMethodImpl)
+        BcOpcode.PossibleGc -> noFlow(InstrPossibleGcImpl)
+
+        // --- Flow control instructions ---
+        BcOpcode.ComprListAppend -> InstrComprListAppend.run(eval, frame, ip, arg as Pair<BcSlotIn, BcSlotIn>)
+        BcOpcode.ComprDictInsert -> InstrComprDictInsert.run(eval, frame, ip, arg as Triple<BcSlotIn, BcSlotIn, BcSlotIn>)
+        BcOpcode.Br -> InstrBr.run(eval, frame, ip, arg as BcAddrOffset)
+        BcOpcode.IfBr -> InstrIfBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+        BcOpcode.IfNotBr -> InstrIfNotBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+        BcOpcode.Iter -> InstrIter.run(eval, frame, ip, arg as InstrIterArg)
+        BcOpcode.Continue -> InstrContinue.run(eval, frame, ip, arg as InstrContinueArg)
+        BcOpcode.Break -> InstrBreak.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
+        BcOpcode.IterStop -> InstrIterStop.run(eval, frame, ip, arg as BcSlotIn)
+        BcOpcode.Return -> InstrReturn.run(eval, frame, ip, arg as BcSlotIn)
+        BcOpcode.ReturnConst -> InstrReturnConst.run(eval, frame, ip, arg as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue)
+        BcOpcode.ReturnCheckType -> InstrReturnCheckType.run(eval, frame, ip, arg as BcSlotIn)
+
+        // --- End pseudo-instruction ---
+        BcOpcode.End -> InstrEnd.run(eval, frame, ip, arg as BcInstrEndArg)
+    }
 }
 
 /// Execute the code block, either a module or a function body.

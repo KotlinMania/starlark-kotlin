@@ -27,6 +27,9 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.freeze
+import io.github.kotlinmania.starlark_kotlin.values.freezeList
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.FrozenRecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
@@ -34,10 +37,7 @@ import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.writeHash
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.recordFields
-import io.github.kotlinmania.starlark_kotlin.values.layout.getStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.key
 
 /// Helper: format keyed container like "record[Name](a=1, b=2)".
 private fun <K, V> fmtKeyedContainer(
@@ -89,7 +89,7 @@ private fun equalsSlice(
 class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
     internal val values: List<Value>,
-) : StarlarkValue, Freeze {
+) : StarlarkValue, Freeze<RecordGen> {
 
     companion object {
         /// `type(x)` for records.
@@ -99,8 +99,7 @@ class RecordGen internal constructor(
         /// Attempt to extract a Record from a Value.
         // From starlark_complex_value!(pub Record) macro expansion.
         fun fromValue(value: Value): RecordGen? {
-            val sv = value.getStarlarkValue()
-            return sv as? RecordGen
+            return value.downcastRef()
         }
     }
 
@@ -112,10 +111,15 @@ class RecordGen internal constructor(
 
     // impl Freeze for RecordGen
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): RecordGen {
-        return RecordGen(
-            typ = typ.freeze(freezer),
-            values = values.map { it.freeze(freezer) },
+    override fun freeze(freezer: Freezer): FreezeResult<RecordGen> {
+        val frozenTyp = typ.freeze(freezer).getOrElse { return FreezeResult.failure(it) }
+        val frozenValues = freezeList(values, freezer) { v, f -> v.freeze(f) }
+            .getOrElse { return FreezeResult.failure(it) }
+        return FreezeResult.success(
+            RecordGen(
+                typ = frozenTyp.toValue(),
+                values = frozenValues.map { it.toValue() },
+            )
         )
     }
 
@@ -124,8 +128,7 @@ class RecordGen internal constructor(
     // fn get_record_type(&self) -> Either<&'v RecordType<'v>, &'v FrozenRecordType>
     private fun getRecordType(): RecordTypeGen {
         // Safe to unwrap because we always ensure typ is RecordType
-        val sv = typ.getStarlarkValue()
-        return sv as RecordTypeGen
+        return typ.downcastRef<RecordTypeGen>()!!
     }
 
     // fn record_type_name(&self) -> Option<&'v str>
@@ -148,8 +151,7 @@ class RecordGen internal constructor(
     // pub fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'v str, V)> + 'a
     fun iter(): Sequence<Pair<String, Value>> {
         return getRecordFields().keys()
-            .zip(values)
-            .asSequence()
+            .zip(values.asSequence())
     }
 
     // #[starlark_value(type = Record::TYPE)]
@@ -171,7 +173,7 @@ class RecordGen internal constructor(
     // fn get_attr_hashed(&self, attribute: Hashed<&str>, _heap: Heap<'v>) -> Option<Value<'v>>
     fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val fields = getRecordFields()
-        val i = fields.getIndexOf(attribute.key) ?: return null
+        val i = fields.getIndexOf(attribute.key()) ?: return null
         return values[i]
     }
 

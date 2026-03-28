@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -34,9 +33,12 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDictEmpty
-import io.github.kotlinmania.starlark_kotlin.values.types.list.value.ListData
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackTuple2
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {
@@ -177,10 +179,10 @@ internal object AValueTests {
 
     fun tupleCycleFreeze() {
         Module.withTempHeap { module ->
-            val list = module.heap().allocList(emptyArray())
+            val list = module.heap().allocList(emptyList())
             val tuple = module.heap().allocTuple(listOf(list))
-            ListData.fromValueMut(list)
-                ?.push(tuple, module.heap())
+            ListData.fromValueMut(list).getOrNull()
+                ?.push(tuple)
             module.set("t", tuple)
             module.freeze()
             Result.success(Unit)
@@ -192,8 +194,8 @@ internal object AValueTests {
         // so use it for the test.
 
         Module.withTempHeap { module ->
-            val d0 = module.heap().alloc(AllocDictEmpty.EMPTY)
-            val d1 = module.heap().alloc(AllocDictEmpty.EMPTY)
+            val d0 = Dict.new(SmallMap.new()).allocValue(module.heap())
+            val d1 = Dict.new(SmallMap.new()).allocValue(module.heap())
             // Pointers are not equal.
             check(d0 !== d1)
 
@@ -201,7 +203,8 @@ internal object AValueTests {
 
             val frozen = module.freeze().getOrThrow()
             val extra = frozen.extraValue()!!.toValue()
-            val (fd0, fd1) = UnpackValue.unpackValuePair<Value, Value>(extra)
+            val (fd0, fd1) = unpackTuple2<Value, Value>(extra, { it }, { it })
+                ?: error("expected a 2-element tuple")
             // Pointers are equal.
             check(fd0 === fd1)
             Result.success(Unit)

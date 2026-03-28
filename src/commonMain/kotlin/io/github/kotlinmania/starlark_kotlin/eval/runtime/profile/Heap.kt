@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 // pub(crate) struct HeapAllocatedProfilerType
-object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -52,7 +52,7 @@ object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
 }
 
 // pub(crate) struct HeapRetainedProfilerType
-object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -69,7 +69,7 @@ object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
 }
 
 // pub(crate) struct HeapSummaryAllocatedProfilerType
-object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapSummaryAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -86,7 +86,7 @@ object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo>
 }
 
 // pub(crate) struct HeapFlameAllocatedProfilerType
-object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapFlameAllocated
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -103,7 +103,7 @@ object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
 }
 
 // pub(crate) struct HeapSummaryRetainedProfilerType
-object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapSummaryRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -120,7 +120,7 @@ object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> 
 }
 
 // pub(crate) struct HeapFlameRetainedProfilerType
-object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
+internal object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapFlameRetained
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): AggregateHeapProfileInfo? =
@@ -138,7 +138,7 @@ object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
 
 // #[derive(Copy, Clone, Dupe, Debug, Allocative)]
 // pub(crate) enum RetainedHeapProfileMode
-enum class RetainedHeapProfileMode {
+internal enum class RetainedHeapProfileMode {
     Flame,
     Summary,
     FlameAndSummary,
@@ -146,7 +146,7 @@ enum class RetainedHeapProfileMode {
 
 // #[derive(Debug, thiserror::Error)]
 // enum HeapProfileError
-sealed class HeapProfileError : Exception() {
+private sealed class HeapProfileError : Exception() {
     // #[error("heap profile not enabled")]
     data object NotEnabled : HeapProfileError() {
         override val message: String get() = "heap profile not enabled"
@@ -155,14 +155,14 @@ sealed class HeapProfileError : Exception() {
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) enum HeapProfileFormat
-enum class HeapProfileFormat {
+internal enum class HeapProfileFormat {
     FlameGraph,
     Summary,
     FlameGraphAndSummary,
 }
 
 // pub(crate) struct HeapProfile
-class HeapProfile(
+internal class HeapProfile(
     private var enabled: Boolean = false,
 ) {
     // pub(crate) fn enable(&mut self)

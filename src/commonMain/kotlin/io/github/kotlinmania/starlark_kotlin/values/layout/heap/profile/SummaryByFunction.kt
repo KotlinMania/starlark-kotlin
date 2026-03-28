@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_co
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 
 /// Information relating to a function.
 // #[derive(Default, Debug, Clone)]
@@ -65,7 +66,7 @@ internal data class FuncInfo(
 
     /// Total number of bytes allocated by this function.
     // fn alloc_bytes(&self) -> usize
-    fun allocBytes(): Int = allocations.values.sumOf { it.bytes }
+    fun allocBytes(): Long = allocations.values.sumOf { it.bytes }
 }
 
 /// We morally have two pieces of information:
@@ -111,7 +112,8 @@ internal class HeapSummaryByFunction(
         val funcStr = strings.get(func)
         info.getOrPut(funcStr) { FuncInfo() }.time += frame.timeX2
         info.getOrPut(funcStr) { FuncInfo() }.calls += frame.callsX2
-        info.getOrPut(funcStr) { FuncInfo() }.callers.merge(caller, 1) { a, b -> a + b }
+        val callerEntry = info.getOrPut(funcStr) { FuncInfo() }.callers
+        callerEntry[caller] = (callerEntry[caller] ?: 0) + 1
         for ((t, allocs) in frame.allocs.summary) {
             val entry = info.getOrPut(funcStr) { FuncInfo() }.allocations.getOrPut(t) { AllocCounts() }
             entry += allocs
@@ -167,8 +169,8 @@ internal class HeapSummaryByFunction(
             // We divide calls and time by two
             // because we count calls twice: for drop and non-drop bumps.
             csv.writeValue(rowname)
-            csv.writeValue(rowInfo.time / 2)
-            csv.writeValue(rowInfo.timeRec / 2)
+            csv.writeValue(rowInfo.time / 2uL)
+            csv.writeValue(rowInfo.timeRec / 2uL)
             csv.writeValue(rowInfo.calls / 2)
             csv.writeValue(rowInfo.callers.size)
             csv.writeValue(callers.first)
@@ -176,7 +178,7 @@ internal class HeapSummaryByFunction(
             csv.writeValue(rowInfo.allocCount())
             csv.writeValue(rowInfo.allocBytes())
             for (c in columns) {
-                csv.writeValue(rowInfo.alloc[c.first]?.count ?: 0)
+                csv.writeValue(rowInfo.allocations[c.first]?.count ?: 0)
             }
             csv.finishRow()
         }
@@ -197,14 +199,13 @@ internal fun dropNonDrop() {
 _ignore = {1: 2}       # allocate a dict in drop
 _ignore = str([1])     # allocate a string in non_drop
         """.trimIndent(),
-        io.github.kotlinmania.starlark_kotlin.syntax.Dialect.AllOptionsInternal,
+        Dialect.AllOptionsInternal,
     ).getOrThrow()
 
     val globals = io.github.kotlinmania.starlark_kotlin.environment.Globals.standard()
     io.github.kotlinmania.starlark_kotlin.environment.Module.withTempHeap { module ->
-        val eval = io.github.kotlinmania.starlark_kotlin.eval.Evaluator(module)
+        val eval = io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator(module)
         eval.enableProfile(io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode.HeapSummaryAllocated)
-            .getOrThrow()
 
         eval.evalModule(ast, globals).getOrThrow()
 

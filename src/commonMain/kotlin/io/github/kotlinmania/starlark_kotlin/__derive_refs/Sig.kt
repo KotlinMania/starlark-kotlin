@@ -19,11 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 
 // pub enum NativeSigArg
 sealed class NativeSigArg {
@@ -36,8 +34,8 @@ sealed class NativeSigArg {
     // fn param(&self) -> (&str, ParametersSpecParam<FrozenValue>)
     internal fun param(): Pair<String, ParametersSpecParam<FrozenValue>> {
         return when (this) {
-            is Required -> Pair(name, ParametersSpecParam.Required())
-            is Optional -> Pair(name, ParametersSpecParam.Optional())
+            is Required -> Pair(name, ParametersSpecParam.Required)
+            is Optional -> Pair(name, ParametersSpecParam.Optional)
             is Defaulted -> Pair(name, ParametersSpecParam.Defaulted(value))
         }
     }

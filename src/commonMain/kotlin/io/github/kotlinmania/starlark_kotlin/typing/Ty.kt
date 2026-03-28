@@ -158,6 +158,24 @@ class Ty private constructor(
         }
 
         /**
+         * Create a type from native callable components.
+         *
+         * Corresponds to Rust's `Ty::from_native_callable_components`.
+         */
+        // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
+        internal fun fromNativeCallableComponents(
+            comp: io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents,
+            asType: Ty?,
+        ): Result<Ty> {
+            val result = comp.returnType
+            val params = comp.paramSpec.paramSpec()
+            return when (asType) {
+                null -> Result.success(function(params, result))
+                else -> Result.success(ctorFunction(asType, params, result))
+            }
+        }
+
+        /**
          * Create a unions type, which will be normalised before being created.
          */
         fun unions(xs: List<Ty>): Ty {
