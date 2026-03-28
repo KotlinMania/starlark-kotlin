@@ -35,7 +35,9 @@ private class TypeMatcherFactoryImpl(
 
     // fn matcher_box(&self) -> TypeMatcherBox
     override fun matcherBox(): TypeMatcherBox {
-        return TypeMatcherBoxAlloc.alloc(matcher)
+        return TypeMatcherBox.new(object : TypeMatcherT {
+            override fun matches(value: Value): Boolean = matcher.matches(value)
+        })
     }
 
     // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>

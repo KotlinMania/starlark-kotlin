@@ -28,10 +28,16 @@ internal interface Bound
 // #[derive(Freeze)]
 // #[freeze(validator = check_type, bounds = "<V as Freeze>::Frozen: Bound<'freeze>")]
 // struct BoundsTest<V>
-internal class BoundsTest<V>(val field: V)
+internal class BoundsTest<V>(val field: V) : Freeze<BoundsTest<V>> where V : Freeze<V> {
+    @Suppress("UNCHECKED_CAST")
+    override fun freeze(freezer: Freezer): Result<BoundsTest<V>> {
+        val frozenField = (field as Freeze<V>).freeze(freezer).getOrElse { return Result.failure(it) }
+        return Result.success(BoundsTest(frozenField))
+    }
+}
 
 // fn check_type<V: Bound>(t: &BoundsTest<V>) -> Result<()>
-internal fun <V : Bound> checkType(t: BoundsTest<V>): Result<Unit> {
+internal fun <V> checkType(t: BoundsTest<V>): Result<Unit> where V : Bound, V : Freeze<V> {
     return Result.success(Unit)
 }
 

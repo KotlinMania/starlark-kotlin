@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.vtable.AValueDyn
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 
 /** [FrozenValue] which is not `i32` or `str`. */
@@ -44,10 +44,8 @@ internal class FrozenValueNotSpecial private constructor(
     fun toValue(): Value = value.toValue()
 
     private fun getRef(): AValueDyn {
-        return value.ptr
-            .unpackPtrNoIntNoStrUnchecked()
-            .unpackHeaderUnchecked()
-            .unpack()
+        val ptrIndex = value.ptr.unpackPtrNoIntNoStrUnchecked()
+        return AValueHeader.fromIndex(ptrIndex).unpack()
     }
 
     fun equals(other: Value): Result<Boolean> {

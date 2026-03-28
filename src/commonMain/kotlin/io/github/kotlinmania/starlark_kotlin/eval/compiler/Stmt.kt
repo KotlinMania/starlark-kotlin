@@ -480,7 +480,7 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 internal fun possibleGc(eval: Evaluator) {
     if (!eval.disableGc && eval.heap().allocatedBytes() >= eval.nextGcLevel.toLong()) {
         eval.garbageCollect()
-        eval.nextGcLevel = maxOf(eval.heap().allocatedBytes() * 2, GC_THRESHOLD.toLong()).toInt()
+        eval.nextGcLevel = maxOf(eval.heap().allocatedBytes().toLong() * 2, GC_THRESHOLD.toLong()).toInt()
     }
 }
 

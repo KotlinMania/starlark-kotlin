@@ -21,6 +21,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
+import io.github.kotlinmania.starlark_kotlin.values.types.string.stringRepr
 
 /**
  * Sealed class representing the type hierarchy for float() parameter.
@@ -73,43 +74,52 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         name = "float",
         asType = StarlarkFloat::class,
         speculativeExecSafe = true,
-        requirePos = true
-    ) { a: FloatParam? ->
-        if (a == null) {
-            return@function Result.success(0.0)
+    ) { args, _ ->
+        // #[starlark(require = pos)] a: Option<Either<Either<NumRef, bool>, &str>>
+        // Get the first positional argument, or return 0.0 if absent.
+        val positional = args.positionalAll()
+        if (positional.isEmpty()) {
+            return@setFunction 0.0
         }
 
-        when (a) {
-            is FloatParam.Num -> {
-                Result.success(a.value.asFloat())
-            }
-            is FloatParam.Bool -> {
-                Result.success(if (a.value) 1.0 else 0.0)
-            }
-            is FloatParam.Str -> {
-                val s = a.value
-                try {
-                    val f = s.toDouble()
-                    if (f.isInfinite() && !s.lowercase().contains("inf")) {
-                        // if a resulting float is infinite but the parsed string is not explicitly infinity then we should fail with an error
-                        Result.failure(
-                            IllegalArgumentException(
-                                "float() floating-point number too large: $s"
-                            )
-                        )
-                    } else {
-                        Result.success(f)
-                    }
-                } catch (x: NumberFormatException) {
-                    val repr = StringBuilder()
-                    StringRepr.stringRepr(s, repr)
-                    Result.failure(
-                        IllegalArgumentException(
-                            "$repr is not a valid number: $x"
-                        )
+        val v = positional.first()
+
+        // Try to unpack as NumRef, Bool, or String in order.
+        // This mirrors Rust's Either<Either<NumRef, bool>, &str>.
+        val asBool = v.unpackBool()
+        if (asBool != null) {
+            return@setFunction if (asBool) 1.0 else 0.0
+        }
+
+        val asStr = v.unpackStr()
+        if (asStr != null) {
+            val s = asStr
+            return@setFunction try {
+                val f = s.toDouble()
+                if (f.isInfinite() && !s.lowercase().contains("inf")) {
+                    throw IllegalArgumentException(
+                        "float() floating-point number too large: $s"
                     )
+                } else {
+                    f
                 }
+            } catch (x: NumberFormatException) {
+                val repr = StringBuilder()
+                stringRepr(s, repr)
+                throw IllegalArgumentException(
+                    "$repr is not a valid number: $x"
+                )
             }
         }
+
+        // Otherwise try as numeric (int or float)
+        val asNum = NumRef.unpackValueImpl(v)
+        if (asNum != null) {
+            return@setFunction asNum.asFloat()
+        }
+
+        throw IllegalArgumentException(
+            "float() argument doesn't match, expected int, float, bool or string"
+        )
     }
 }

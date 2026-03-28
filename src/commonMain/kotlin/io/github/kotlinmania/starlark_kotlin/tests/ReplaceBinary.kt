@@ -25,11 +25,10 @@ import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import kotlin.test.Test
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import kotlin.test.assertEquals
 
 class ReplaceBinaryTests {
 

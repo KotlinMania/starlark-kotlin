@@ -25,11 +25,10 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
-import io.github.kotlinmania.starlark_kotlin.values.layout.unpackPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.forwardPtr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /** Used to `freeze` values by [Freeze.freeze][io.github.kotlinmania.starlark_kotlin.values.Freeze.freeze]. */
@@ -46,8 +45,7 @@ class Freezer internal constructor(
     }
 
     internal fun <T : AValue> reserve(): Pair<FrozenValue, Reservation<T>> {
-        val (fv, r, extra) = heap.reserveWithExtra<T>(0)
-        check(extra.isEmpty())
+        val (fv, r, _) = heap.reserveWithExtra<T>(0)
         return Pair(fv, r)
     }
 
@@ -56,19 +54,20 @@ class Freezer internal constructor(
         // Case 1: We have our value encoded in our pointer
         val unpacked = value.unpackFrozen()
         if (unpacked != null) {
-            return FreezeResult.success(unpacked)
+            return Result.success(unpacked)
         }
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
-        val ptr = value.unpackPtr()!!
-        return when (val result = ptr.unpack()) {
+        val ptrIndex = value.ptr.unpackPtrOpt()!!
+        val header = AValueHeader.fromIndex(ptrIndex)
+        val aValueOrForward = AValueOrForward.Header(header)
+        return when (val result = aValueOrForward.unpack()) {
             is AValueOrForwardUnpack.Forward -> {
-                FreezeResult.success(result.forwardPtr().unpackFrozenValue())
+                Result.success(result.forward.forwardPtr().unpackFrozenValue())
             }
             is AValueOrForwardUnpack.Header -> {
-                result.value.unpack().heapFreeze(this)
+                result.header.unpack().heapFreeze(this)
             }
-            else -> throw IllegalStateException("Unexpected unpack result: $result")
         }
     }
 

@@ -26,6 +26,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr
  * including nested for-loops and if-clauses within comprehension expressions.
  */
 
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeFor
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeIfThen
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs

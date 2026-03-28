@@ -19,21 +19,30 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.Pos
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
+
+/// Source text used by native code locations, matching Rust's `NativeCodeMap::SOURCE`.
+private const val NATIVE_SOURCE = "<native>"
+
+/// Full span covering `NATIVE_SOURCE`, matching Rust's `NativeCodeMap::FULL_SPAN`.
+private val NATIVE_FULL_SPAN = Span(Pos(0), Pos(NATIVE_SOURCE.length))
 
 /** Initialize a `FrozenRef<FrameSpan>` with Kotlin file and line number. */
 // macro_rules! rust_loc { ... }
 // Kotlin: macro replaced with a function that creates a native code location.
 // Callers should cache the result in a companion `val` for static-like behavior.
 internal fun rustLoc(file: String, line: Int, column: Int = 0): FrozenRef<FrameSpan> {
-    val nativeCodeMap = NativeCodeMap.new(file, line, column)
-    val codeMap = nativeCodeMap.toCodeMap()
+    // NativeCodeMap in Rust stores filename + resolved position and produces
+    // a CodeMap with source "<native>". We replicate that directly.
+    val codeMap = CodeMap("$file:$line:$column", NATIVE_SOURCE)
     val frozenFileSpan = FrozenFileSpan.newUnchecked(
         FrozenRef.new(codeMap),
-        NativeCodeMap.FULL_SPAN,
+        NATIVE_FULL_SPAN,
     )
     val frameSpan = FrameSpan.new(frozenFileSpan)
     return FrozenRef.new(frameSpan)

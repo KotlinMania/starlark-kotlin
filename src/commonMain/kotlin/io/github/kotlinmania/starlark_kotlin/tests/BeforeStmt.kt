@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 // fn before_stmt()
 internal fun beforeStmt() {
     Module.withTempHeap { module ->
-        val globals = Globals()
+        val globals = Globals.new()
         var counter = 0
         val beforeStmt = { _span: FileSpanRef, _continued: Boolean, _eval: Evaluator ->
             counter += 1

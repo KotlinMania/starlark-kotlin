@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
@@ -63,7 +64,7 @@ fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     val map = SmallMap.withCapacity<Value, Value>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
         map.insertHashed(
-            k.allocValue(heap).getHashed()!!,
+            k.allocValue(heap).getHashed().getOrThrow(),
             v.allocValue(heap)
         )
     }
@@ -78,8 +79,10 @@ fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     val iter = this.d.iterator()
     val map = SmallMap.withCapacity<FrozenValue, FrozenValue>((this.d as? Collection<*>)?.size ?: 0)
     for ((k, v) in iter) {
+        val frozenKey = k.allocFrozenValue(heap)
+        val hashedValue = frozenKey.toValue().getHashed().getOrThrow()
         map.insertHashed(
-            k.allocFrozenValue(heap).getHashed()!!,
+            Hashed.newUnchecked(hashedValue.hash(), frozenKey),
             v.allocFrozenValue(heap)
         )
     }

@@ -69,8 +69,8 @@ internal fun addSpanToExprError(
     span: FrameSpan,
     eval: Evaluator,
 ): EvalException {
-    return EvalException.newWithCallStack(e, span.span.span(), span.span.file()) {
-        eval.callStack.toDiagnosticFrames(span.inlinedFrames)
+    return EvalException.newWithCallStack(e, span.span.span(), span.span.file().value) {
+        listOf(eval.callStack.toDiagnosticFrames(span.inlinedFrames))
     }
 }
 

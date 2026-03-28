@@ -21,14 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 //! Permutations tests for if condition evaluation.
 
+import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import kotlin.random.Random
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.extra
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
 /// Count side effects. For example, in expression like:
@@ -40,8 +39,10 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 /// `true()` should not be evaluated. After evaluation, the counter should be 1.
 // #[derive(Debug, ProvidesStaticType, Default, PartialEq)]
 // struct CountCalls
-private class CountCalls {
+private class CountCalls : AnyLifetime {
     var calls: Int = 0
+    override fun staticTypeId() = CountCalls::class
+    override fun staticTypeOf() = CountCalls::class
 }
 
 // #[starlark_module]

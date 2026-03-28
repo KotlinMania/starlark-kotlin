@@ -28,9 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.SetType
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.inner
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueStarlarkTypeRepr
 
 /**
  * Define the set type.
@@ -134,19 +132,21 @@ class SetMut internal constructor(
  */
 object SetRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
-        return SetType.starlarkTypeRepr<FrozenValue>()
+        return SetType(FrozenValueStarlarkTypeRepr).starlarkTypeRepr()
     }
 }
 
 /**
  * UnpackValue implementation for SetRef.
  */
-object SetRefUnpackValue : UnpackValue<Nothing> {
+object SetRefUnpackValue : UnpackValue<SetRef> {
+    override fun starlarkTypeRepr(): Ty = SetRefStarlarkTypeRepr.starlarkTypeRepr()
+
     override fun unpackValueImpl(value: Value): Result<SetRef?> {
         val result = if (value.unpackFrozen() != null) {
             value.unpackFrozen()!!
                 .downcastRef<SetGen<FrozenSetData>>()
-                ?.let { SetRef(Either.Right(coerce(it.inner))) }
+                ?.let { SetRef(Either.Right(coerceSetData(it.inner))) }
         } else {
             value.downcastRef<SetGen<RefCell<SetData>>>()
                 ?.let { ptr -> SetRef(Either.Left(ptr.inner.borrow())) }
@@ -154,6 +154,13 @@ object SetRefUnpackValue : UnpackValue<Nothing> {
         return Result.success(result)
     }
 }
+
+/// Coerce a [FrozenSetData] to a [SetData] view.
+/// Corresponds to Rust's `coerce(&x.0)` which zero-cost converts FrozenSetData to SetData
+/// because FrozenValue can be treated as Value.
+@Suppress("UNCHECKED_CAST")
+private fun coerceSetData(data: FrozenSetData): SetData =
+    SetData(data.content as SmallSet<Value>)
 
 /**
  * Either type for representing one of two possible values.

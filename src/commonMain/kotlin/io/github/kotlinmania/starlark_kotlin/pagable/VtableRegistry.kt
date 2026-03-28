@@ -88,7 +88,7 @@ fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> {
     return VTableRegistry.registry[deserTypeId]?.let {
         Result.success(it)
     } ?: Result.failure(
-        PagableError.TypeNotRegistered(typeId = deserTypeId)
+        PagableError.TypeNotRegistered(typeId = deserTypeId.asStr())
     )
 }
 

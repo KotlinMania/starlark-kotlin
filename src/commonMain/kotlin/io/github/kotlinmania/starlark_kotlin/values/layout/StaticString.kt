@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 
 /// Internal string representation with packed body bytes.
 /// In Rust, this is `StarlarkStrN<const N: usize>` with const generics for the body size.
@@ -40,7 +39,7 @@ internal class StarlarkStrN(
 /// In the Rust original, `N` is the length in words and `#[repr(C)]` ensures
 /// the struct layout matches the heap representation. In Kotlin, we hold the
 /// `AValueRepr<StarlarkStrN>` directly and rely on the runtime representation.
-class StarlarkStrNRepr(
+class StarlarkStrNRepr internal constructor(
     private val repr: AValueRepr<StarlarkStrN>,
 ) {
     companion object {

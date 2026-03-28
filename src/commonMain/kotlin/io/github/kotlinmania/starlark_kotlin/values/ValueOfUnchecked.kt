@@ -134,7 +134,7 @@ typealias FrozenValueOfUnchecked<T> = ValueOfUncheckedGeneric<FrozenValue, T>
 /** Construct after checking the type. */
 // pub fn new_checked(value: Value<'v>) -> crate::Result<Self>
 // where T: UnpackValue<'v>
-fun <T : StarlarkTypeRepr> ValueOfUnchecked.Companion.newChecked(
+fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
     value: Value,
 ): Result<ValueOfUnchecked<T>> {
     // T::unpack_value_err(value)?;
@@ -150,7 +150,7 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric<Value, T>.freeze(
 ): FreezeResult<ValueOfUncheckedGeneric<FrozenValue, T>> {
     val frozen = freezer.freeze(this.get())
     if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
-    return FreezeResult.success(ValueOfUncheckedGeneric.new(frozen.value()))
+    return FreezeResult.success(ValueOfUncheckedGeneric.new(frozen.getOrThrow()))
 }
 
 // impl<'v, T: StarlarkTypeRepr> UnpackValue<'v> for ValueOfUnchecked<'v, T>

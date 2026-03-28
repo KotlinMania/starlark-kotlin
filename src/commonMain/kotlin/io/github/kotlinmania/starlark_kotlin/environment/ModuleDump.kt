@@ -39,7 +39,7 @@ fun FrozenModule.dumpDebug(): String {
             appendLine("$name = $value")
             val def = FrozenValueTyped.new<FrozenDef>(value)
             if (def != null) {
-                def.dumpDebug()
+                def.asRef().dumpDebug()
                     .lines()
                     .forEach { line -> appendLine("  $line") }
             }

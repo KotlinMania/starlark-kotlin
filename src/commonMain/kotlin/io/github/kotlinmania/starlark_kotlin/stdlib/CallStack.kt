@@ -21,7 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
 
 /** Implementation of `call_stack` function. */
 
+import io.github.kotlinmania.starlark_kotlin.CallStack
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
@@ -30,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
@@ -43,8 +46,12 @@ internal data class StackFrame(
     val location: FileSpan?,
 ) : StarlarkValue, AllocValue {
 
+    override val TYPE: String get() = Companion.TYPE
+
+    override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
+
     /** Get the methods for StackFrame values. */
-    fun getMethods(): Methods? =
+    override fun getMethods(): Methods? =
         RES.methods(::stackFrameMethods)
 
     /** Allocate this value on a heap. */
@@ -73,8 +80,18 @@ private fun modulePath(thisRef: StackFrame): NoneOr<String> =
 
 /** Define attribute methods on StackFrame values. */
 private fun stackFrameMethods(builder: MethodsBuilder) {
-    builder.attribute("func_name") { thisValue -> funcName(thisValue as StackFrame) }
-    builder.attribute("module_path") { thisValue -> modulePath(thisValue as StackFrame) }
+    builder.setAttribute("func_name") { thisValue, heap ->
+        val frame = thisValue.downcastRefUnchecked<StackFrame>()
+        Result.success(heap.allocStr(funcName(frame)))
+    }
+    builder.setAttribute("module_path") { thisValue, heap ->
+        val frame = thisValue.downcastRefUnchecked<StackFrame>()
+        val result = modulePath(frame)
+        Result.success(when (result) {
+            is NoneOr.None -> Value.newNone()
+            is NoneOr.Other -> heap.allocStr(result.value)
+        })
+    }
 }
 
 /**
@@ -89,11 +106,9 @@ private fun stackFrameMethods(builder: MethodsBuilder) {
  */
 private fun callStack(stripFrames: Int, eval: Evaluator): String {
     val stack = eval.callStack()
-    stack.frames.subList(
-        maxOf(0, stack.frames.size - stripFrames),
-        stack.frames.size,
-    ).clear()
-    return stack.toString()
+    val truncatedSize = maxOf(0, stack.frames.size - stripFrames)
+    val truncated = CallStack(frames = stack.frames.subList(0, truncatedSize))
+    return truncated.toString()
 }
 
 /**

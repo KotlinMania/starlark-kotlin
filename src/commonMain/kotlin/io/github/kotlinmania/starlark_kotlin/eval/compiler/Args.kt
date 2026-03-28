@@ -24,6 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.optimize
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
@@ -162,7 +163,7 @@ internal class ArgsCompiledValue(
                 ArgumentsFull(
                     pos = posValues,
                     named = namedValues,
-                    names = ArgNames.newUnique(names),
+                    names = ArgNames.newUnique(names.map { (s, fsv) -> Pair(s, fsv.toStringValue()) }),
                     args = argsValue,
                     kwargs = kwargsValue,
                 )
@@ -244,7 +245,7 @@ internal fun Compiler.compileArgs(
             }
             is ArgumentP.Named -> {
                 val fv = this.eval.frozenHeap().allocStrIntern(node.name.node)
-                res.names.add(Pair(Symbol(node.name.node), fv))
+                res.names.add(Pair(Symbol.new(node.name.node), fv))
                 val compiled = this.expr(node.expr).getOrElse { return Result.failure(it) }
                 res.posNamed.add(compiled)
             }

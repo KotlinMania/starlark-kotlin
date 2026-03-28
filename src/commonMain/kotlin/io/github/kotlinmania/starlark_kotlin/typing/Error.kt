@@ -22,7 +22,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
  * limitations under the License.
  */
 
-class EvalException(val message: String, cause: Throwable? = null) : Exception(message, cause) {
+class EvalException(override val message: String, cause: Throwable? = null) : Exception(message, cause) {
     companion object {
         fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException {
             return EvalException("${error.message} at ${span} in ${codemap}")
@@ -30,6 +30,18 @@ class EvalException(val message: String, cause: Throwable? = null) : Exception(m
 
         fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): EvalException {
             return EvalException("${error.message} at ${span} in ${codemap}", error)
+        }
+
+        // EvalException::new_with_callstack(e, span, file, || frames)
+        fun newWithCallStack(
+            error: Throwable,
+            span: Span,
+            file: CodeMap,
+            callStackFrames: () -> List<Any>,
+        ): EvalException {
+            val frames = callStackFrames()
+            val framesStr = if (frames.isNotEmpty()) "\n  ${frames.joinToString("\n  ")}" else ""
+            return EvalException("${error.message} at $span in $file$framesStr", error)
         }
     }
 

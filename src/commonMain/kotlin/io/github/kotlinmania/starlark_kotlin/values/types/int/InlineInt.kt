@@ -97,7 +97,8 @@ value class InlineInt internal constructor(private val value: Int) : Comparable<
 
         // Rust: impl TryFrom<u64> for InlineInt
         internal fun tryFrom(value: ULong): Result<InlineInt> {
-            return tryFromImpl(value)
+            if (value > Int.MAX_VALUE.toULong()) return Result.failure(InlineIntOverflow())
+            return tryFromImpl(value.toInt())
         }
 
         // Rust: impl TryFrom<&BigInt> for InlineInt
@@ -309,16 +310,12 @@ value class InlineInt internal constructor(private val value: Int) : Comparable<
         return value.compareTo(other)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return when (other) {
-            is InlineInt -> value == other.value
-            is Int -> value == other
-            else -> false
-        }
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
+    // Rust: PartialEq<i32> for InlineInt
+    // Value class equals/hashCode are derived from the underlying Int.
+    // For explicit comparison with Int, use equalsInt.
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun equalsInt(other: Int): Boolean {
+        return value == other
     }
 
     override fun toString(): String {

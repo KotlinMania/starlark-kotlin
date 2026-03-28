@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 // #[starlark_module]
@@ -31,8 +30,15 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
     //     #[starlark(require = pos)] b: bool,
     //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
     // ) -> anyhow::Result<String>
-    globals.setFunction("pos_kwargs") { a: UInt, b: Boolean, kwargs: SmallMap<String, ULong> ->
-        Result.success("a=$a b=$b kwargs=$kwargs")
+    globals.setFunction("pos_kwargs") { args, _ ->
+        val a = args.positional<UInt>(0)
+        val b = args.positional<Boolean>(1)
+        // Remaining named args are kwargs
+        val kwargsEntries = args.namesMap().getOrThrow()
+        val kwargsStr = kwargsEntries.iter().joinToString(", ") { (k, v) ->
+            "\"${k.asStr()}\": ${v.unpackI32()}"
+        }
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 
     // fn pos_named_kwargs(
@@ -40,8 +46,17 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
     //     #[starlark(require = named)] b: bool,
     //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
     // ) -> anyhow::Result<String>
-    globals.setFunction("pos_named_kwargs") { a: UInt, b: Boolean, kwargs: SmallMap<String, ULong> ->
-        Result.success("a=$a b=$b kwargs=$kwargs")
+    globals.setFunction("pos_named_kwargs") { args, _ ->
+        val a = args.positional<UInt>(0)
+        val b = args.optionalNamed<Boolean>("b") ?: error("b is required")
+        // Remaining named args (excluding "b") are kwargs
+        val kwargsEntries = args.namesMap().getOrThrow()
+        val kwargsStr = kwargsEntries.iter()
+            .filter { (k, _) -> k.asStr() != "b" }
+            .joinToString(", ") { (k, v) ->
+                "\"${k.asStr()}\": ${v.unpackI32()}"
+            }
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 }
 

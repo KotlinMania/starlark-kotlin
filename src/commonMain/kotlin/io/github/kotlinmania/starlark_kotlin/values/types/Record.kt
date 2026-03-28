@@ -72,7 +72,7 @@ typealias InstanceSubmodule = RecordGen
 typealias MatcherSubmodule = RecordTypeMatcher
 
 // pub(crate) mod record_type
-typealias RecordTypeSubmodule = io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeGen
+typealias RecordTypeSubmodule = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 
 // pub(crate) mod ty_record_type
 typealias TyRecordTypeSubmodule = TyRecordData
@@ -81,9 +81,9 @@ typealias TyRecordTypeSubmodule = TyRecordData
 // pub use crate::values::record::instance::Record
 typealias RecordReExport = RecordGen
 // RecordTypeGen (Rust has RecordType = RecordTypeGen<FrozenValue>, but we just alias directly)
-typealias RecordTypeReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeGen
+typealias RecordTypeReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 // RecordTypeGen
-typealias RecordTypeGenReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeGen
+typealias RecordTypeGenReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 // TyRecordData
 typealias TyRecordDataReExport = TyRecordData
 // RecordTypeMatcher

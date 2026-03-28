@@ -19,26 +19,76 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Private
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 
 /** The result of calling type() on booleans. */
 const val BOOL_TYPE: String = "bool"
 
 /** bool value. */
-data class StarlarkBool internal constructor(internal val _0: Boolean)
+data class StarlarkBool internal constructor(internal val _0: Boolean) : StarlarkValue {
 
-fun StarlarkBool.display(): String {
-    return if (_0) {
-        "True"
-    } else {
-        "False"
+    override val TYPE: String get() = BOOL_TYPE
+
+    override fun toString(): String {
+        return if (_0) "True" else "False"
+    }
+
+    override fun isSpecial(): Boolean {
+        return true
+    }
+
+    override fun collectRepr(collector: StringBuilder) {
+        // repr() for bool is quite hot, so optimise it
+        if (_0) {
+            collector.append("True")
+        } else {
+            collector.append("False")
+        }
+    }
+
+    override fun toBool(): Boolean {
+        return _0
+    }
+
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+        hasher.writeU8(if (_0) 1u else 0u)
+        return Result.success(Unit)
+    }
+
+    override fun getHash(): Result<StarlarkHashValue> {
+        // These constants are just two random numbers.
+        return Result.success(
+            StarlarkHashValue.newUnchecked(
+                if (_0) {
+                    0xa4acba08u
+                } else {
+                    0x71e8ba71u
+                }
+            )
+        )
+    }
+
+    override fun compare(other: Value): Result<Int> {
+        val otherBool = other.unpackBool()
+        return if (otherBool != null) {
+            Result.success(_0.compareTo(otherBool))
+        } else {
+            ValueError.unsupportedWith(BOOL_TYPE, "<>", other)
+        }
+    }
+
+    override fun typecheckerTy(): Ty? {
+        return Ty.bool()
+    }
+
+    override fun getTypeStarlarkRepr(): Ty {
+        return Ty.bool()
     }
 }
 
@@ -46,57 +96,3 @@ internal val VALUE_FALSE_TRUE: Array<AllocStaticSimple<StarlarkBool>> = arrayOf(
     AllocStaticSimple.alloc(StarlarkBool(false)),
     AllocStaticSimple.alloc(StarlarkBool(true))
 )
-
-/** Define the bool type */
-
-fun StarlarkBool.isSpecial(private: Private): Boolean {
-    return true
-}
-
-fun StarlarkBool.collectRepr(s: String) {
-    // repr() for bool is quite hot, so optimise it
-    if (_0) {
-        s.plus("True")
-    } else {
-        s.plus("False")
-    }
-}
-
-fun StarlarkBool.toBool(): Boolean {
-    return _0
-}
-
-fun StarlarkBool.writeHash(hasher: StarlarkHasher): Result<Unit> {
-    hasher.writeU8(if (_0) 1u else 0u)
-    return Result.success(Unit)
-}
-
-fun StarlarkBool.getHash(private: Private): Result<StarlarkHashValue> {
-    // These constants are just two random numbers.
-    return Result.success(
-        StarlarkHashValue.newUnchecked(
-            if (_0) {
-                0xa4acba08u
-            } else {
-                0x71e8ba71u
-            }
-        )
-    )
-}
-
-fun StarlarkBool.compare(other: Value): Result<Ordering> {
-    val otherBool = other.unpackBool()
-    return if (otherBool != null) {
-        Result.success(_0.compareTo(otherBool))
-    } else {
-        ValueError.unsupportedWith(this, "<>", other)
-    }
-}
-
-fun StarlarkBool.typecheckerTy(): Ty? {
-    return Ty.bool()
-}
-
-fun getTypeStarlarkRepr(): Ty {
-    return Ty.bool()
-}

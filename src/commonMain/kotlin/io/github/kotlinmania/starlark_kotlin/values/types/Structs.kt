@@ -46,6 +46,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 // Re-exports (mirrors Rust's pub use declarations)
-internal typealias AllocStructExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
+internal typealias AllocStructExport<S> = io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct<S>
 internal typealias FrozenStructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStructRef
 internal typealias StructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef

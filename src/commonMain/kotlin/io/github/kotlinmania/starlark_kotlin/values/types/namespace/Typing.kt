@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 
@@ -39,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMat
 internal object NamespaceMatcher : TypeMatcher {
     // #[type_matcher]
     override fun matches(value: Value): Boolean =
-        value.starlarkTypeId() == StarlarkTypeId.of<FrozenNamespace>()
+        value.starlarkTypeId() == StarlarkTypeId.of(FrozenNamespace::class)
 }
 
 // #[derive(Allocative, Clone, Copy, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -82,12 +81,12 @@ data class TyNamespace(
     /** `true` if there might be additional fields not captured above,
      *  `false` if this struct has no extra members. */
     val extra: Boolean,
-) : TyCustomImpl {
+) : TyCustomImpl, Comparable<TyCustomImpl> {
 
     override fun asName(): String? = "namespace"
 
     override fun attribute(attr: String): Result<Ty> =
-        when (val ty = fields[attr]) {
+        when (val ty = fields[ArcStr.from(attr)]) {
             null -> if (extra) {
                 Result.success(Ty.any())
             } else {
@@ -98,6 +97,25 @@ data class TyNamespace(
 
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R =
         factory.alloc(NamespaceMatcher)
+
+    override fun compareTo(other: TyCustomImpl): Int {
+        if (other !is TyNamespace) {
+            return this::class.simpleName.orEmpty().compareTo(other::class.simpleName.orEmpty())
+        }
+        val extraComp = extra.compareTo(other.extra)
+        if (extraComp != 0) return extraComp
+        val sizeComp = fields.size.compareTo(other.fields.size)
+        if (sizeComp != 0) return sizeComp
+        val thisEntries = fields.entries.sortedBy { it.key.toString() }
+        val otherEntries = other.fields.entries.sortedBy { it.key.toString() }
+        for ((a, b) in thisEntries.zip(otherEntries)) {
+            val keyComp = a.key.toString().compareTo(b.key.toString())
+            if (keyComp != 0) return keyComp
+            val valComp = a.value.compareTo(b.value)
+            if (valComp != 0) return valComp
+        }
+        return 0
+    }
 
     // impl Display for TyNamespace
     override fun toString(): String {

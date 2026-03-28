@@ -34,10 +34,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 // Re-exports (mirrors Rust's pub use declarations)
-internal typealias AllocDictExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDict
-internal typealias DictTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictType
+internal typealias AllocDictExport<D> = io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDict<D>
+internal typealias DictTypeExport<K, V> = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictType<K, V>
 internal typealias DictMutExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut
 internal typealias DictRefExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 internal typealias FrozenDictRefExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
-internal typealias UnpackDictEntriesExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries
+internal typealias UnpackDictEntriesExport<K, V> = io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries<K, V>
 internal typealias DictExport = io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict

@@ -149,6 +149,12 @@ class SmallSet<T> private constructor(
         entries.add(value)
     }
 
+    /** Remove and return the last element, or null if empty. */
+    fun pop(): T? {
+        if (entries.isEmpty()) return null
+        return entries.removeAt(entries.lastIndex).key()
+    }
+
     /** Remove the element from the set if it is present, and return the removed element. */
     fun take(value: T): T? {
         val index = getIndexOf(value) ?: return null
@@ -179,7 +185,7 @@ class SmallSet<T> private constructor(
     /** Sort entries. */
     @Suppress("UNCHECKED_CAST")
     fun sort() {
-        entries.sortBy { it.key() }
+        entries.sortWith(compareBy { it.key() as Comparable<Any> })
     }
 
     /** Reverse the iteration order of the set. */

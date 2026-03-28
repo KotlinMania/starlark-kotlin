@@ -19,9 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /**
  * Iterator of starlark values.

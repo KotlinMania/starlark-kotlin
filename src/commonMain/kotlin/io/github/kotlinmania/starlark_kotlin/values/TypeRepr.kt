@@ -64,7 +64,7 @@ class SetType<T : StarlarkTypeRepr>(
 /// StarlarkTypeRepr implementation for String.
 object StringTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
-        return StarlarkStr.starlarkTypeRepr()
+        return Ty.string()
     }
 }
 

@@ -40,7 +40,7 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
          *
          * Returns the Starlark type representation: `Ty.dict(K.starlarkTypeRepr(), V.starlarkTypeRepr())`.
          */
-        internal inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
+        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
             return Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
         }
     }
@@ -66,6 +66,6 @@ fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     }
 }
 
-internal fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
+fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
     return Ty.any()
 }

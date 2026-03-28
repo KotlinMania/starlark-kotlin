@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.stdlib.callStackGlobal
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

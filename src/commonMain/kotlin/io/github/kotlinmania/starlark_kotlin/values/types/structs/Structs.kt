@@ -28,16 +28,13 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.named
-import io.github.kotlinmania.starlark_kotlin.docs.kwargs
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import starlark_map.small_map.SmallMap
 
 /**
  * Type implementation for the struct type.
@@ -45,7 +42,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 internal object StructType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {
         // Note: this should be obtained from function signature from function definition.
-        return TyCallable(ParamSpec.kwargs(Ty.any()), Ty.anyStruct())
+        return TyCallable.new(ParamSpec.kwargs(Ty.any()), Ty.anyStruct())
     }
 
     override fun validateCall(
@@ -56,18 +53,17 @@ internal object StructType : TyCustomFunctionImpl {
         if (args.pos.isNotEmpty()) {
             val pos = args.pos.first()
             return Result.failure(
-                TypingOrInternalError.fromMessage(
-                    oracle,
+                oracle.msgError(
                     pos.span,
                     "Positional arguments not allowed"
                 )
             )
         }
 
-        val fields = mutableMapOf<ArcStr, Ty>()
+        val fields = mutableMapOf<String, Ty>()
         for (named in args.named) {
             val (name, ty) = named.node
-            fields[ArcStr.from(name)] = ty
+            fields[name] = ty
         }
 
         val extra = args.kwargs != null
@@ -93,16 +89,26 @@ internal object StructType : TyCustomFunctionImpl {
 internal fun registerStruct(builder: GlobalsBuilder) {
     builder.setFunction(
         name = "struct",
-        tyCustomFunction = StructType,
         asType = FrozenStruct::class
-    ) { args: Arguments, heap: Heap ->
-        args.noPositionalArgs(heap)
+    ) { args: Arguments, eval ->
+        val heap = eval.heap()
+        val noPosResult = args.noPositionalArgs(heap)
+        if (noPosResult.isFailure) return@setFunction noPosResult
 
         // Note: missing optimization: practically most `struct` invocations are
         // performed with fixed named arguments, e.g. `struct(a = 1, b = 2)`.
         // In this case we can avoid allocating the map, but instead
         // allocate field index once at compilation time and store field values in a vector.
 
-        Result.success(Struct(args.namesMap()))
+        val namesResult = args.namesMap()
+        if (namesResult.isFailure) return@setFunction Result.failure<Any?>(namesResult.exceptionOrNull()!!)
+        val namesMap = namesResult.getOrThrow()
+
+        // Convert SmallMap<StringValue, Value> to SmallMap<String, Value>
+        val fields = SmallMap.withCapacity<String, Value>(namesMap.len())
+        for ((k, v) in namesMap.iter()) {
+            fields.insert(k.asStr(), v)
+        }
+        Result.success(Struct(fields))
     }
 }

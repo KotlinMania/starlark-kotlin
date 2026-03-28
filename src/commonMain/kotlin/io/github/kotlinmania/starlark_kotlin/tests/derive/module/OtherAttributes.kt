@@ -24,6 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 
 // #[starlark_module]
@@ -43,8 +44,8 @@ private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
 @Suppress("unused")
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
     // fn test_method(#[allow(unused_variables)] this: u32) -> Result<NoneType>
-    methods.setMethod("test_method") { _, _ ->
-        Result.success(NoneType)
+    methods.setMethod("test_method") { _, _, _, _ ->
+        Result.success(Value.newNone())
     }
 }
 
@@ -56,6 +57,6 @@ private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
     // fn test_attribute(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setAttribute("test_attribute") { _, _ ->
         // TODO(nga): this marker is no-op.
-        Result.success(NoneType)
+        Result.success(Value.newNone())
     }
 }

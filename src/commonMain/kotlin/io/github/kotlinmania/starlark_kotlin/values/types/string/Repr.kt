@@ -38,24 +38,13 @@ private fun <V : Vector> chunkNonAsciiOrNeedEscape(chunk: V): Boolean {
     /**
      * Combine four vectors with OR operation.
      */
-    fun <V : Vector> or4(a: V, b: V, c: V, d: V): V {
-        val ab = a.or(b)
-        val cd = c.or(d)
-        return ab.or(cd)
-    }
-
     // Note `cmplt` is signed comparison.
     val anyControlOrNonAscii = chunk.cmplt(chunk.splat(32))
     val any7f = chunk.cmpeq(chunk.splat(0x7f.toByte()))
     val anyDoubleQuote = chunk.cmpeq(chunk.splat('"'.code.toByte()))
     val anyBackslash = chunk.cmpeq(chunk.splat('\\'.code.toByte()))
 
-    val needEscape = or4(
-        anyControlOrNonAscii,
-        any7f,
-        anyDoubleQuote,
-        anyBackslash
-    )
+    val needEscape = anyControlOrNonAscii.or(any7f).or(anyDoubleQuote).or(anyBackslash)
     return needEscape.movemask() != 0u
 }
 

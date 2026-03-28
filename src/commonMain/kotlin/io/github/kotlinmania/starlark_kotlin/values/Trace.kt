@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.AtomicLong
@@ -122,7 +123,7 @@ private class ImplTraceForSmallMap
 
 /** Trace a [SmallMap] by tracing each key-value pair. */
 fun <K : Trace, V : Trace> traceSmallMap(self: SmallMap<K, V>, tracer: Tracer) {
-    for ((k, v) in self.iterMutUnchecked()) {
+    for ((k, v) in self.iter()) {
         k.trace(tracer)
         v.trace(tracer)
     }
@@ -137,7 +138,7 @@ private class ImplTraceForSmallSet
 
 /** Trace a [SmallSet] by tracing each element. */
 fun <T : Trace> traceSmallSet(self: SmallSet<T>, tracer: Tracer) {
-    for (v in self.iterMutUnchecked()) {
+    for (v in self.iter()) {
         v.trace(tracer)
     }
 }
@@ -308,13 +309,13 @@ fun <T1 : Trace, T2 : Trace> traceEither(self: Either<T1, T2>, tracer: Tracer) {
 
 /**
  * Marker class corresponding to `unsafe impl<'v> Trace<'v> for Value<'v>`.
- * The trace implementation is provided by the [Value.trace] extension function.
+ * The trace implementation is provided by the [ValueHolder.trace] extension function.
  */
 // unsafe impl<'v> Trace<'v> for Value<'v>
 private class ImplTraceForValue
 
-/** Trace a [Value] by delegating to the [Tracer]. */
-fun Value.trace(tracer: Tracer) = tracer.trace(this)
+/** Trace a [ValueHolder] by delegating to the [Tracer]. */
+fun ValueHolder.trace(tracer: Tracer) = tracer.trace(this)
 
 /**
  * Marker class corresponding to `unsafe impl<'v> Trace<'v> for FrozenValue`.

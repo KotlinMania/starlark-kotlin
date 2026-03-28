@@ -19,11 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.`sealed`.Sealed
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 
 /**
  * Implemented by [Value] and [FrozenValue].
+ *
+ * In Rust, this trait extends `Sealed` to prevent external implementations.
+ * In Kotlin, we rely on `internal` visibility instead since sealed interfaces
+ * cannot be extended from a different package.
  */
-interface ValueLifetimeless : Sealed, Freeze<FrozenValue>
+interface ValueLifetimeless : Freeze<FrozenValue>

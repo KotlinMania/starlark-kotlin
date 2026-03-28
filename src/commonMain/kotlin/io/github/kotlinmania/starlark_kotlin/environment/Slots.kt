@@ -96,7 +96,7 @@ class MutableSlots {
             } else {
                 val frozen = freezer.freeze(slot)
                 if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
-                frozenSlots.add(frozen.get())
+                frozenSlots.add(frozen.getOrThrow())
             }
         }
         return FreezeResult.success(FrozenSlots(frozenSlots))

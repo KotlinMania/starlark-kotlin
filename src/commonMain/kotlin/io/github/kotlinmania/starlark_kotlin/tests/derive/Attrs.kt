@@ -20,24 +20,36 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 
 // #[test]
 // fn test_derive_attrs()
 internal fun testDeriveAttrs() {
     // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
     // struct Nested { foo: String }
-    class Nested(val foo: String) : StarlarkValue, StarlarkAttrs {
+    class Nested(val foo: String) : StarlarkValue, AllocFrozenValue {
         // #[starlark_value(type = "nested")]
         override val TYPE: String get() = "nested"
         override fun toString(): String = foo
 
-        override fun getAttr(attribute: String): Any? = when (attribute) {
-            "foo" -> foo
+        override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
+            "foo" -> heap.allocStr(foo)
             else -> null
         }
 
-        override fun dir(): List<String> = listOf("foo")
+        override fun dirAttr(): List<String> = listOf("foo")
+
+        override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+        override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
     }
 
     // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
@@ -48,21 +60,24 @@ internal fun testDeriveAttrs() {
         val nested: Nested, // #[starlark(clone)]
         val type_: Long, // r#type
         val escaped: String, // r#escaped
-    ) : StarlarkValue, StarlarkAttrs {
+    ) : StarlarkValue, AllocFrozenValue {
         // #[starlark_value(type = "example")]
         override val TYPE: String get() = "example"
         override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, type_=$type_, escaped=$escaped)"
 
         // starlark_attrs!()
-        override fun getAttr(attribute: String): Any? = when (attribute) {
-            "hello" -> hello
-            "nested" -> nested
-            "type" -> type_
-            "escaped" -> escaped
+        override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
+            "hello" -> heap.allocStr(hello)
+            "nested" -> heap.allocSimple(nested)
+            "type" -> type_.allocValue(heap)
+            "escaped" -> heap.allocStr(escaped)
             else -> null
         }
 
-        override fun dir(): List<String> = listOf("escaped", "hello", "nested", "type")
+        override fun dirAttr(): List<String> = listOf("escaped", "hello", "nested", "type")
+
+        override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+        override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
     }
 
     val a = Assert()

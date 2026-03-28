@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.HardErrorSoftErrorHandler
 import io.github.kotlinmania.starlark_kotlin.eval.SoftErrorHandler
 import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrs
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
@@ -152,6 +153,8 @@ class Evaluator(
 ) {
     /** Current function (`def` or `lambda`) frame: locals and bytecode stack. */
     internal var currentFrame: BcFramePtr = BcFramePtr.nullPtr()
+    /** Current bytecode instructions being executed. Set by runBlock. */
+    internal var currentBcInstrs: BcInstrs = BcInstrs.default()
     // How we deal with a `load` function.
     internal var loader: FileLoader? = null
     // `DefInfo` of currently executed module.
@@ -174,7 +177,7 @@ class Evaluator(
     internal var profileOrInstrumentationMode: ProfileOrInstrumentationMode =
         ProfileOrInstrumentationMode.None
     // Used for line profiling
-    private var stmtProfile: StmtProfile = StmtProfile()
+    private var stmtProfile: StmtProfile = StmtProfile.new()
     // Holds things that require hooking into evaluation.
     internal var evalInstrumentation: EvaluationInstrumentation = EvaluationInstrumentation()
     // Total time spent in runtime typechecking.

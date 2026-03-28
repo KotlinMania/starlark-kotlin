@@ -19,20 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.custom.TyCustomImpl
-import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
-import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextOrInternalError
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.types.callable
-import io.github.kotlinmania.starlark_kotlin.typing.validateFnCall
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 
 /// Custom function typechecker.
 // pub trait TyCustomFunctionImpl: Debug + Eq + Ord + Hash + Allocative + Send + Sync + 'static
@@ -118,6 +107,13 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     }
 
     override fun hashCode(): Int = inner.hashCode()
+
+    // Derived from Rust's #[derive(Ord, PartialOrd)] on TyCustomFunction<F>.
+    // Comparison delegates to the string representation as a stable ordering.
+    override fun compareTo(other: TyCustomImpl): Int {
+        if (other !is TyCustomFunction<*>) return this::class.simpleName.orEmpty().compareTo(other::class.simpleName.orEmpty())
+        return toString().compareTo(other.toString())
+    }
 }
 
 /// A function.

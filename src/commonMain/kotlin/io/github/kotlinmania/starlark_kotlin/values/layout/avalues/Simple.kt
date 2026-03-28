@@ -70,14 +70,16 @@ class AValueSimple<T : StarlarkValue>(
 /// Extension function on FrozenHeap for simple typed static allocation.
 // impl FrozenHeap
 // pub(crate) fn alloc_simple_typed_static<T>(&self, val: T) -> FrozenValueTyped<'static, T>
+@Suppress("UNCHECKED_CAST")
 fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(val_: T): FrozenValueTyped<T> {
-    return allocRaw(simple(val_))
+    return allocRaw(simple(val_)) as FrozenValueTyped<T>
 }
 
 /// Allocate a value on the heap.
 // pub fn alloc_simple_typed<'fv, T>(&'fv self, val: T) -> FrozenValueTyped<'fv, T>
+@Suppress("UNCHECKED_CAST")
 fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(val_: T): FrozenValueTyped<T> {
-    return allocRaw(simple(val_))
+    return allocRaw(simple(val_)) as FrozenValueTyped<T>
 }
 
 /// Allocate a simple [`StarlarkValue`] on this heap.

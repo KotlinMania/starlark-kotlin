@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.util.asStr
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
@@ -75,8 +75,8 @@ class Methods internal constructor(
     internal fun getTy(name: String): Ty? {
         return when (val member = members.getStr(name)) {
             null -> null
-            is UnboundValue.Attr -> member.attr.typ
-            is UnboundValue.Method -> member.method.ty
+            is UnboundValue.Attr -> member.attr.asRef().typ
+            is UnboundValue.Method -> member.method.asRef().ty
         }
     }
 
@@ -103,16 +103,17 @@ class Methods internal constructor(
             members.iter().map { (n, v) -> Pair(n.asStr(), v.toFrozenValue()) },
         )
 
+        val membersMap = SmallMap.new<String, DocMember>()
+        for ((n, item) in memberDocs.iter()) {
+            // This is only `None` if the item is a module, but types shouldn't really have
+            // modules in them anyway, so that seems ok
+            val member = item.tryAsMemberWithCollapsedObject().getOrNull() ?: continue
+            membersMap.insert(n, member)
+        }
+
         return DocType(
             docs = docs,
-            members = memberDocs
-                .mapNotNull { (n, item) ->
-                    // This is only `None` if the item is a module, but types shouldn't really have
-                    // modules in them anyway, so that seems ok
-                    val member = item.tryAsMemberWithCollapsedObject() ?: return@mapNotNull null
-                    Pair(n, member)
-                }
-                .toMap(),
+            members = membersMap,
             ty = ty,
             constructor = null,
         )

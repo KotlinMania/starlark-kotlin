@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // Define a common set of errors.
 

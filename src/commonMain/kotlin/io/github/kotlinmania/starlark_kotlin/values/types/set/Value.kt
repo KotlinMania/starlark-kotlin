@@ -62,9 +62,11 @@ private const val SET_TYPE: String = "set"
  *
  * Corresponds to Rust's `SetData`.
  */
-class SetData {
+class SetData internal constructor(
     /** The data stored by the set. */
-    val content: SmallSet<Value> = SmallSet()
+    val content: SmallSet<Value>,
+) {
+    constructor() : this(SmallSet())
 
     fun clear() {
         content.clear()

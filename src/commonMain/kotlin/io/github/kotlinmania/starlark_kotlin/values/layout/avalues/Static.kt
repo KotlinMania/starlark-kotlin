@@ -24,10 +24,10 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.newRepr
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
@@ -57,6 +57,11 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
         error("Basic types don't appear in the heap")
     }
 
+    // fn unpack() -> StarlarkValue
+    override fun unpack(): StarlarkValue {
+        error("Basic types don't appear in the heap")
+    }
+
     // fn total_memory_for_profile(_value: &Self::StarlarkValue) -> usize
     override fun totalMemoryForProfile(value: StarlarkValue): Int {
         // This avalue is always statically allocated so don't charge anyone for the memory.
@@ -79,9 +84,9 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
         // pub const fn alloc(value: T) -> Self
         fun <T : StarlarkValue> alloc(value: T): AllocStaticSimple<T> {
             return AllocStaticSimple(
-                AValueRepr.withMetadata(
-                    AValueVTable.new<AValueBasic<T>>(),
-                    AValueImpl(AValueBasic(), value),
+                AValueRepr(
+                    AValueHeader(AValueVTable.forType(AValueBasic::class)),
+                    AValueImpl.new<AValueBasic<T>>(value),
                 )
             )
         }

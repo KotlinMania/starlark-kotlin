@@ -1,6 +1,5 @@
 // port-lint: source src/values/types/tuple.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -33,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTup
  */
 
 // Re-exports (mirrors Rust's pub use declarations)
-internal typealias AllocTupleExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.AllocTuple
+internal typealias AllocTupleExport<T> = io.github.kotlinmania.starlark_kotlin.values.types.tuple.AllocTuple<T>
 internal typealias FrozenTupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
 internal typealias TupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
-internal typealias UnpackTupleExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTuple
+internal typealias UnpackTupleExport<T> = io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple<T>

@@ -252,6 +252,7 @@ fun runBlock(
 ): Result<Value> {
     // Copy frame pointer to local variable to generate more efficient code.
     val frame = eval.currentFrame
+    eval.currentBcInstrs = bcInstrs
 
     var ip = startIp
     while (true) {

@@ -20,11 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
 
 /**
  * Unpack the value of type [T], but do not store result.
@@ -32,23 +30,30 @@ import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
  * This can be used when type needs to be checked, but the unpacked value is not needed.
  */
 class UnpackAndDiscard<T : Any> internal constructor(
-    // Kotlin: KClass replaces PhantomData for type info.
-    private val targetType: KClass<T>,
+    // Kotlin: stored Ty replaces Rust's static trait dispatch on PhantomData.
+    private val ty: Ty,
 ) : StarlarkTypeRepr {
 
     // impl StarlarkTypeRepr for UnpackAndDiscard
     // fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty {
-        return StarlarkTypeRepr.typeReprForClass(targetType)
+        return ty
     }
 
     companion object {
         // impl UnpackValue for UnpackAndDiscard
         // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
-        internal inline fun <reified T : Any> unpackValueImpl(value: Value): UnpackAndDiscard<T>? {
-            val result = UnpackValue.unpack<T>(value)
+        //
+        // In Rust, `T::unpack_value_impl(value)` calls the trait statically.
+        // In Kotlin, we require the UnpackValue<T> instance to be passed in,
+        // since Kotlin cannot dispatch interface methods via KClass.
+        internal fun <T : Any> unpackValueImpl(
+            value: Value,
+            unpacker: UnpackValue<T>,
+        ): UnpackAndDiscard<T>? {
+            val result = unpacker.unpackValueImpl(value).getOrThrow()
             return if (result != null) {
-                UnpackAndDiscard(T::class)
+                UnpackAndDiscard(unpacker.starlarkTypeRepr())
             } else {
                 null
             }

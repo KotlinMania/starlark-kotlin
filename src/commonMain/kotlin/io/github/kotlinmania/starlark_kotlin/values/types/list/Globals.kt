@@ -26,10 +26,11 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyFunction
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
@@ -53,16 +54,23 @@ internal object ListTypeFunction : TyCustomFunctionImpl {
     override fun validateCall(
         span: Span,
         args: TyCallArgs,
-        oracle: Any,
+        oracle: TypingOracleCtx,
     ): Result<Ty> {
         // Validate against the list() signature.
-        // If a positional argument is provided, attempt to infer the element type.
-        val firstArg = args.pos.firstOrNull()
-        if (firstArg != null) {
-            // When we can determine the iterable's element type, return list[element_type].
-            // For now, we return any_list as the default.
-            return Result.success(Ty.anyList())
+        oracle.validateFnCall(span, LIST_FUNCTION.callable, args).getOrElse {
+            return Result.failure(it)
         }
+
+        // If a positional argument is provided, attempt to infer the element type.
+        val arg = args.pos.firstOrNull()
+        if (arg != null) {
+            // This is infallible after the check above.
+            val item = oracle.iterItem(Spanned(arg.node, span)).getOrElse {
+                return Result.failure(it)
+            }
+            return Result.success(Ty.list(item))
+        }
+
         return Result.success(Ty.anyList())
     }
 }
@@ -131,12 +139,12 @@ internal fun listBuiltin(a: Value?, heap: Heap): Result<Value> {
         // If the argument is already a list, copy its contents directly.
         val xs = ListRef.fromValue(a)
         if (xs != null) {
-            return Result.success(heap.alloc(AllocList(xs.content())))
+            return Result.success(heap.allocListIter(xs.content()))
         }
         // Otherwise, iterate the argument and collect elements into a new list.
         val it = a.iterate(heap).getOrElse { return Result.failure(it) }
-        return Result.success(heap.alloc(AllocList(it)))
+        return Result.success(heap.allocListIter(it.asSequence().asIterable()))
     } else {
-        return Result.success(heap.alloc(AllocList.EMPTY))
+        return Result.success(heap.allocListIter(emptyList()))
     }
 }

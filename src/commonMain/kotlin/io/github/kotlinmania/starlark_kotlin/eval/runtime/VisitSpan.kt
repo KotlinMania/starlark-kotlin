@@ -25,13 +25,10 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
 import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /// Visitor for code spans in the IR.
@@ -43,9 +40,9 @@ internal interface VisitSpanMut {
 
 /// [VisitSpanMut] impl for [IrSpanned].
 // impl<V: VisitSpanMut> VisitSpanMut for IrSpanned<V>
-internal fun <V : VisitSpanMut> IrSpanned<V>.visitSpans(visitor: (FrameSpan) -> FrameSpan) {
-    Span = visitor(Span)
-    Node.visitSpans(visitor)
+internal fun <V : VisitSpanMut> IrSpanned<V>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan): IrSpanned<V> {
+    val newSpan = visitor(span)
+    return IrSpanned(newSpan, node).also { node.visitSpans(visitor) }
 }
 
 /// [VisitSpanMut] impl for [FrozenValue] — no spans.

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
@@ -29,9 +29,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /// Create a runtime type object which can be used to check if a value matches the given type.
     // fn eval_type<'v>(#[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<TypeCompiled<Value<'v>>>
-    globals.setFunction("eval_type") { args: List<Value>, eval: Evaluator ->
-        val ty = args[0]
-        TypeCompiled.new(ty, eval.heap())
+    globals.setFunction("eval_type") { args: Arguments, eval: Evaluator ->
+        val ty = args.positional1(eval.heap()).getOrThrow()
+        TypeCompiled.new(ty, eval.heap()).toInner()
     }
 
     /// Check if a value matches the given type.
@@ -51,12 +51,13 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     /// `L = eval_type(list); [isinstance(x, L) for x in y]`:
     /// `eval_type()` converts `list` value into prepared type matcher.
     // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
-    globals.setFunction("isinstance") { args: List<Value>, eval: Evaluator ->
-        val value = args[0]
-        val ty = args[1]
+    globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
+        val positional = args.positional(2, eval.heap()).getOrThrow()
+        val value = positional[0]
+        val ty = positional[1]
         val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return@function Result.failure(it) }
-        Result.success(compiled.matches(value))
+            .getOrElse { return@setFunction Result.failure<Value>(it) }
+        Value.newBool(compiled.matches(value))
     }
 }
 

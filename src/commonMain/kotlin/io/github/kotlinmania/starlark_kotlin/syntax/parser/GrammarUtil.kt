@@ -3,7 +3,7 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval_exception.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.*
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState

@@ -25,7 +25,7 @@ internal fun unpackArgsItemTy(ty: Ty): Ty {
     return Ty.unions(
         ty.iterUnion().map { basic ->
             when (basic) {
-                is TyBasic.Tuple -> basic.item.itemTy()
+                is TyBasic.Tuple -> basic.tuple.itemTy()
                 else -> Ty.any()
             }
         }

@@ -28,7 +28,15 @@ import io.github.kotlinmania.starlark_kotlin.assert.conformance
 /// Load a test case file from the testcases directory.
 // macro_rules! test_case { ($name:expr) => { include_str!(...) } }
 private fun testCase(name: String): String {
-    return loadTestResource("eval/go/$name")
+    return io.github.kotlinmania.starlark_kotlin.tests.loadTestResource("eval/go/$name")
+}
+
+// Rust uses include_str! macro to embed file contents at compile time.
+// In Kotlin multiplatform, resource loading is platform-specific.
+// Placeholder: tests that call this will fail at runtime until platform-specific
+// resource loading is implemented.
+internal fun loadTestResource(path: String): String {
+    error("loadTestResource not yet implemented for this platform: $path")
 }
 
 // fn ignore_bad_lines(x: &str, bad: &[&str]) -> String

@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.intersectsBasic
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
@@ -62,7 +61,9 @@ data class TyStruct(
     override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         return when (binOp) {
             TypingBinOp.Less -> {
-                if (ctx.intersectsBasic(TyBasic.custom(this), rhs)) {
+                val ir = ctx.intersectsBasic(TyBasic.custom(this), rhs)
+                if (ir.isFailure) return Result.failure(ir.exceptionOrNull()!!)
+                if (ir.getOrThrow()) {
                     Result.success(Ty.bool())
                 } else {
                     Result.failure(TypingNoContextOrInternalError.Typing)

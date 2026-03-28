@@ -32,10 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.parametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.parametersStr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.parameters
 
 /// Parse a series of parameters which were specified by
 /// [`ParametersSpec`].
@@ -145,7 +141,7 @@ internal fun testParametersStr() {
         val a = Assert()
         val f = a
             .passModule("def f($sig): pass")
-            .get("f")!!
+            .get("f").getOrThrow()
         check(sig == f.value().parametersSpec()!!.parametersStr())
     }
 
@@ -168,8 +164,8 @@ internal fun testCanFillWithArgs() {
     fun test(sig: String, pos: Int, names: List<String>, expected: Boolean) {
         val a = Assert()
         val module = a.passModule("def f($sig): pass")
-        val f = module.get("f")!!.downcast<FrozenDef>()!!
-        val parametersSpec = f.parameters
+        val f = module.get("f").getOrThrow().downcast<FrozenDef>().getOrThrow()
+        val parametersSpec = f.asRef().parameters
         check(expected == parametersSpec.canFillWithArgs(pos, names))
     }
 

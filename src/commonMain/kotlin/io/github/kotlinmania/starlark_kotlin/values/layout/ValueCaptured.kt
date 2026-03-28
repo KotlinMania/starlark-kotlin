@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import kotlin.concurrent.Volatile
 
 // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
@@ -52,7 +53,9 @@ internal class ValueCaptured private constructor(
     // impl Trace for ValueCaptured
     override fun trace(tracer: Tracer) {
         payload?.let { value ->
-            payload = tracer.trace(value)
+            val holder = ValueHolder(value)
+            tracer.trace(holder)
+            payload = holder.value
         }
     }
 

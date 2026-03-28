@@ -23,9 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.values.types.list.display
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
 
 // #[test]
@@ -102,7 +100,7 @@ internal fun testDictInlinedCallStack() {
 
     // Check `f` is inlined into `g` and `h`.
     for ((m, f) in listOf(Pair(mG, "g"), Pair(mH, "h"))) {
-        val fVal = m.get(f)!!
+        val fVal = m.get(f).getOrThrow()
         val fDef = fVal.value().downcastRef<DefGen<*>>()!!
         check(BcOpcode.ListNew == fDef.bc().instrs.opcodes()[0]) {
             "in `$fDef`"
@@ -132,7 +130,7 @@ error: Value of type `list` is not hashable
 1 | def f(): return {[]: 10}
   |                  ^^
   |
-""" == "\n${error.display()}"
+""" == "\n${error}"
     )
 }
 

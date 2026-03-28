@@ -19,6 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.ellipsis
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -28,6 +30,10 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 // #[display("Ellipsis")]
 // pub(crate) struct Ellipsis;
 internal object Ellipsis : StarlarkValue, AllocFrozenValue {
+
+    override val TYPE: String get() = "ellipsis"
+
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new("ellipsis"))
 
     override fun toString(): String = "Ellipsis"
 

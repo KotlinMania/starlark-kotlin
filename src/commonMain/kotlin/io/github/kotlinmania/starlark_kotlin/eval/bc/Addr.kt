@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /// Address types used in bytecode interpreter.
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.if_debug.IfDebug
 import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrRepr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrHeader
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BC_INSTR_ALIGN
 
 /// Address relative to bytecode start.
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display, Hash, Default)]
@@ -90,6 +90,14 @@ data class BcPtrRange(
                 len = slice.size * Long.SIZE_BYTES,
             )
         }
+
+        /// Overload for list-based instruction buffers (used by BcInstrs).
+        fun forSlice(slice: List<Any>): BcPtrRange {
+            return BcPtrRange(
+                start = 0,
+                len = slice.size,
+            )
+        }
     }
 
     // pub(crate) fn assert_in_range(&self, ptr: *const u8)
@@ -140,6 +148,22 @@ data class BcPtrAddr(
         fun forSliceEnd(slice: LongArray): BcPtrAddr {
             return new(
                 slice.size * Long.SIZE_BYTES,
+                IfDebug.new(BcPtrRange.forSlice(slice)),
+            )
+        }
+
+        /// Overload for list-based instruction buffers (used by BcInstrs).
+        fun forSliceStart(slice: List<Any>): BcPtrAddr {
+            return BcPtrAddr(
+                0,
+                IfDebug.new(BcPtrRange.forSlice(slice)),
+            )
+        }
+
+        /// Overload for list-based instruction buffers (used by BcInstrs).
+        fun forSliceEnd(slice: List<Any>): BcPtrAddr {
+            return BcPtrAddr(
+                slice.size,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
         }

@@ -71,7 +71,7 @@ fun removeUnusedLoads(name: String, program: String): Result<String?> {
     }
 
     val out = Out(
-        codemap = codemap,
+        codemap = codemap.value,
     )
 
     for (load in unusedLoads) {
@@ -84,7 +84,7 @@ fun removeUnusedLoads(name: String, program: String): Result<String?> {
         }
     }
 
-    out.appendTo(codemap.fullSpan().end)
+    out.appendTo(codemap.value.fullSpan().end)
 
     return Result.success(out.out.toString())
 }

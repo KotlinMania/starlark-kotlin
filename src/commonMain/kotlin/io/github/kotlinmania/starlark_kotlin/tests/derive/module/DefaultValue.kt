@@ -21,12 +21,15 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 
 // #[starlark_module]
 // fn default_value_functions(globals: &mut GlobalsBuilder)
 private fun defaultValueFunctions(globals: GlobalsBuilder) {
     // fn foo(#[starlark(default = 75)] x: i32) -> anyhow::Result<i32>
-    globals.setFunction("foo") { x: Int? ->
+    globals.setFunction("foo") { args: Arguments, _eval: Evaluator ->
+        val x = args.optionalPositional<Int>(0)
         Result.success(x ?: 75)
     }
 }

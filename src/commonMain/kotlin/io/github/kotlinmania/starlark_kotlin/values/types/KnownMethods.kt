@@ -27,7 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.set.setMethods
 import io.github.kotlinmania.starlark_kotlin.values.types.list.listMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getDictMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /// Method and a `Methods` container which declares it.
@@ -88,7 +89,7 @@ private class KnownMethods(
 
             // We don't need to add all the methods, only the most common ones. This is fine.
             addMethods(methods, listMethods())
-            addMethods(methods, dictMethods())
+            addMethods(methods, getDictMethods())
             addMethods(methods, setMethods())
             addMethods(methods, strMethods())
 

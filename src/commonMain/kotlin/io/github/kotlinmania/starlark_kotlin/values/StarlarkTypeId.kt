@@ -19,9 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.starlark_type_id
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
-import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
+import kotlin.reflect.KClass
 
 /**
  * Identifier of a starlark type.

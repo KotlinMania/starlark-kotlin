@@ -23,10 +23,12 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.asInt
 
 // struct Test<V> { field: V }
 private class TestFreeze(var field: Value) : Freeze<TestFrozen> {
@@ -35,8 +37,8 @@ private class TestFreeze(var field: Value) : Freeze<TestFrozen> {
         val frozenField = field.freeze(freezer).getOrElse { return Result.failure(it) }
         val test = TestFrozen(frozenField)
         val members = ListRef.fromValue(test.field.toValue())!!
-        check(members[0].unpackNum()!!.asInt()!! == 1)
-        check(members[1].unpackNum()!!.asInt()!! == 2)
+        check(members[0]!!.unpackNum()!!.asInt()!! == 1)
+        check(members[1]!!.unpackNum()!!.asInt()!! == 2)
         return Result.success(test)
     }
 }
@@ -47,11 +49,16 @@ private class TestFrozen(val field: FrozenValue)
 // fn test() -> anyhow::Result<()>
 internal fun testFreezeAccessValue() {
     Heap.temp { heap ->
-        val list = heap.alloc(listOf(1, 2))
+        // Rust: heap.alloc(vec![1i32, 2i32])
+        // Kotlin: allocate each i32 as a Value, then allocate the list.
+        val list = heap.allocList(listOf(
+            StarlarkInt.from(1).allocValue(heap),
+            StarlarkInt.from(2).allocValue(heap),
+        ))
 
         val t = TestFreeze(list)
 
-        val frozenHeap = FrozenHeap()
+        val frozenHeap = FrozenHeap.new()
         val freezer = Freezer(frozenHeap)
         list.freeze(freezer).getOrThrow()
         t.freeze(freezer).getOrThrow()

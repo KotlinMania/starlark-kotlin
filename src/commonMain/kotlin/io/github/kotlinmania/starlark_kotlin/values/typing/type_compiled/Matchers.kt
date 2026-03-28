@@ -24,12 +24,14 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenList
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
+import io.github.kotlinmania.starlark_kotlin.values.types.set.content
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -94,7 +96,7 @@ internal class IsListOf(
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val list = ListRef.fromValue(value) ?: return false
-        return list.iter().all { v -> item.matches(v) }
+        return list.content().all { v -> item.matches(v) }
     }
 }
 
@@ -195,7 +197,7 @@ internal class IsDictOf(
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val dict = dictRefFromValue(value) ?: return false
-        return dict.iter().all { (k, v) -> key.matches(k) && valueMatcher.matches(v) }
+        return dict.iter().all { pair -> key.matches(pair.first) && valueMatcher.matches(pair.second) }
     }
 }
 
@@ -220,7 +222,7 @@ internal class IsSetOf(
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val set = SetRef.unpackValueOpt(value) ?: return false
-        return set.aref.iter().all { v -> item.matches(v) }
+        return set.content.iter().all { v -> item.matches(v) }
     }
 }
 

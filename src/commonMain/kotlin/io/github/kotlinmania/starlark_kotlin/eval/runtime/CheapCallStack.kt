@@ -25,10 +25,8 @@ import io.github.kotlinmania.starlark_kotlin.Frame
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.inlinedFrames
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
@@ -88,7 +86,9 @@ internal class CheapCallStack {
     // unsafe impl Trace for CheapCallStack
     fun trace(tracer: Tracer) {
         for (i in 0 until count) {
-            stack[i].function = tracer.trace(stack[i].function)
+            val holder = ValueHolder(stack[i].function)
+            tracer.trace(holder)
+            stack[i].function = holder.value
         }
         // Blank out unused frames (good practice).
         for (i in count until stack.size) {

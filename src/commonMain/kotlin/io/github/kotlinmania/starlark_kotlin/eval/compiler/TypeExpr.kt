@@ -35,7 +35,7 @@ internal class TypeExprCompiled(
 
     /** True if type is known to match any type. */
     fun isWildcard(): Boolean {
-        val value = expr.asValue() ?: return false
-        return TypeCompiled.isWildcardValue(value.toValue())
+        val value = expr.node.asValue() ?: return false
+        return TypeCompiled(value.toValue()).isRuntimeWildcard()
     }
 }

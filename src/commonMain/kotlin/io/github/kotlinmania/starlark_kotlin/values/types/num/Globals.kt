@@ -20,6 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /**
  * Register numerical global functions.
@@ -34,10 +37,13 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
  */
 internal fun registerNum(globals: GlobalsBuilder) {
     /** Take the absolute value of an int. */
-    globals.setFunction("abs") { x: NumRef ->
+    globals.setFunction("abs") { args: Arguments, eval: Evaluator ->
+        val v = args.positional<Value>(0)
+        val x = NumRef.unpackValue(v).getOrThrow()
+            ?: throw IllegalArgumentException("abs() requires a numeric argument")
         when (x) {
             is NumRef.Int -> Num.Int(x.value.abs())
-            is NumRef.Float -> Num.Float(kotlin.math.abs(x.value))
+            is NumRef.Float -> Num.Float(kotlin.math.abs(x.value.value))
         }
     }
 }

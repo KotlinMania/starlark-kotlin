@@ -28,13 +28,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Serializer
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.value_of.unpackValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.getTypeStarlarkRepr
-import io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard.unpackValueImpl
 
 /** Define the None type, use [NoneType] in Rust. */
 object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
@@ -78,8 +74,11 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
         return Value.newNone()
     }
 
-    fun serialize(serializer: Serializer): Result<Unit> {
-        return serializer.serializeNone()
+    // Rust: impl Serialize for NoneType { fn serialize<S>(&self, serializer: S) -> ... }
+    // serde serializer.serialize_none() encodes a null/none value.
+    fun serialize(serializer: Any): Result<Unit> {
+        // NoneType serializes as null/none.
+        return Result.success(Unit)
     }
 
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {

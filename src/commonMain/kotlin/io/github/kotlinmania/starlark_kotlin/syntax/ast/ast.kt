@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.ast
  */
 
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
@@ -41,7 +40,7 @@ object AstNoPayload : AstPayload
 class Comma
 
 typealias Expr = ExprP<AstNoPayload>
-typealias TypeExpr = TypeExprP<AstNoPayload>
+typealias TypeExpr = TypeExprP<AstNoPayload, Unit>
 typealias AssignTarget = AssignTargetP<AstNoPayload>
 typealias AssignIdent = AssignIdentP<AstNoPayload, Unit>
 typealias Ident = IdentP<AstNoPayload, Unit>

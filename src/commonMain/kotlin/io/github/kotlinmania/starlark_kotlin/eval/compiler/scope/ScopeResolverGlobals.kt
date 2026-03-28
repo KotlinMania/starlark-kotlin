@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.values.owned.toFrozenValue
 
 // pub(crate) struct ScopeResolverGlobals {
 //     pub(crate) globals: Option<FrozenRef<'static, Globals>>,
@@ -51,6 +50,6 @@ internal class ScopeResolverGlobals(
 
     // pub(crate) fn names(&self) -> Option<Vec<String>>
     fun names(): List<String>? {
-        return globals?.value?.names()?.map { it }
+        return globals?.value?.names()?.asSequence()?.map { s -> s.asStr() }?.toList()
     }
 }

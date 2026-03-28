@@ -66,10 +66,10 @@ private fun <T, U> methodBuilder(
     // Just check that this compiles
     // #[starlark(attribute)]
     // fn test_attribute(this: u32) -> starlark::Result<CustomNone<T>>
-    builder.setAttribute("test_attribute") { _this: UInt ->
+    builder.setAttribute("test_attribute") { _this, _heap ->
         val _u = defaultU().toString()
         val _t = defaultT()
-        Result.success(CustomNone<T>())
+        Result.success(CustomNone<T>().allocValue(_heap))
     }
 }
 
@@ -82,7 +82,7 @@ private fun <T, U> globalBuilderForFunc(
     defaultU: () -> U,
 ) {
     // fn make_my_str() -> starlark::Result<String>
-    globals.setFunction("make_my_str") {
+    globals.setFunction("make_my_str") { _, _ ->
         val _t = defaultT()
         Result.success(defaultU().toString())
     }

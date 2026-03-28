@@ -1,6 +1,8 @@
 // port-lint: source src/values/types/range/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.range
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 
 
 /*
@@ -65,11 +67,11 @@ internal fun registerRange(globals: GlobalsBuilder) {
      * # "#);
      * ```
      */
-    globals.registerFunction(
-        name = "range",
-        asType = Range::class,
-        speculativeExecSafe = true
-    ) { a1: Int, a2: Int?, step: Int? ->
+    globals.setFunction("range") { args: Arguments, _eval: Evaluator ->
+        val a1 = args.positional<Int>(0)
+        val a2 = args.optionalPositional<Int>(1)
+        val step = args.optionalPositional<Int>(2)
+
         val actualStep = step ?: 1
         val start = if (a2 != null) a1 else 0
         val stop = a2 ?: a1

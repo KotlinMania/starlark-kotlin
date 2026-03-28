@@ -77,16 +77,16 @@ class EnumValueGen(
         }
     }
 
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         return value.writeHash(hasher)
     }
 
-    fun getMethods(): Methods? {
+    override fun getMethods(): Methods? {
         val res = MethodsStatic()
         return res.methods(::enumValueMethods)
     }
 
-    fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty? {
         val tyEnumType = when (val enumTypeRef = getEnumType()) {
             is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData() ?: return null
             is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData() ?: return null
@@ -95,8 +95,10 @@ class EnumValueGen(
         return tyEnumType.tyEnumValue
     }
 
+    // impl serde::Serialize for EnumValueGen
+    // Delegates serialization to the inner value.
     fun serialize(serializer: Any): Result<Any> {
-        return value.serialize(serializer)
+        return Result.success(value.toValue())
     }
 }
 

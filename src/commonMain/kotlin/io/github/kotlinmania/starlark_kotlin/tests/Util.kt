@@ -19,11 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
@@ -34,12 +37,19 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 // pub(crate) struct TestComplexValue<V: ValueLifetimeless>(pub(crate) V)
 internal class TestComplexValue(
     val inner: Value,
-) : StarlarkValue, AllocValue, AllocFrozenValue {
+) : ComplexValue, Trace, AllocValue, AllocFrozenValue {
 
     // #[starlark_value(type = "TestComplexValue")]
     override val TYPE: String get() = "TestComplexValue"
 
+    override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
+
     override fun toString(): String = "TestComplexValue<$inner>"
+
+    // #[derive(Trace)]
+    override fun trace(tracer: Tracer) {
+        // inner is a Value, traced by the GC
+    }
 
     // impl AllocValue for TestComplexValue<Value>
     override fun allocValue(heap: Heap): Value {

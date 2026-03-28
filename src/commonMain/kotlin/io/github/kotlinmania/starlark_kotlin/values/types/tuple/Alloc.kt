@@ -54,12 +54,12 @@ class AllocTuple<T>(val items: Iterable<T>) : StarlarkTypeRepr, AllocValue, Allo
     override fun allocValue(heap: Heap): Value {
         return heap.allocTupleIter(items.map { x ->
             (x as AllocValue).allocValue(heap)
-        }.iterator())
+        })
     }
 
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return heap.allocTupleIter(items.map { x ->
             (x as AllocFrozenValue).allocFrozenValue(heap)
-        }.iterator())
+        })
     }
 }

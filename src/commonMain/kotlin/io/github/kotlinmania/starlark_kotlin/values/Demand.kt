@@ -28,6 +28,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
@@ -86,6 +87,14 @@ class Demand @PublishedApi internal constructor(
     }
 }
 
+/// Non-inline helper that invokes provide on a Value.
+/// Separated from requestValueImpl to avoid PublishedApi visibility issues
+/// with internal classes (AValueDyn).
+@PublishedApi
+internal fun fillDemand(value: Value, demand: Demand) {
+    value.getRef().provide(demand)
+}
+
 // pub(crate) fn request_value_impl<'v, T: AnyLifetime<'v>>(value: Value<'v>) -> Option<T>
 @PublishedApi
 internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
@@ -93,7 +102,7 @@ internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
     // value.get_ref().provide(&mut Demand::new(&mut option));
     // option
     val demand: Demand = Demand.new<T>()
-    value.getRef().provide(demand)
+    fillDemand(value, demand)
     @Suppress("UNCHECKED_CAST")
     return if (demand.filled) demand.option as? T else null
 }
@@ -155,7 +164,7 @@ internal class MyValue(val payload: UInt) : StarlarkValue, SomeTrait {
 // }
 internal fun testTraitDowncast() {
     Heap.temp { heap: Heap ->
-        val value: Value = heap.alloc(MyValue(payload = 17u))
+        val value: Value = heap.allocSimple(MyValue(payload = 17u))
         val stringRequest: String? = value.requestValue<String>()
         check(stringRequest == null)
         val someTrait: SomeTrait = value.requestValue<MyValue>()!!

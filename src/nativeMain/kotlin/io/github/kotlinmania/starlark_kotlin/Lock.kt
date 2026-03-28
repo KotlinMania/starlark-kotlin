@@ -12,6 +12,6 @@ actual class ReentrantLock actual constructor() {
     }
 
     actual fun unlock() {
-        locked.store(0)
+        locked.value = 0
     }
 }

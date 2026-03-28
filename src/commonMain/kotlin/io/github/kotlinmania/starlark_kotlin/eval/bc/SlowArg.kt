@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcAddr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
@@ -41,5 +41,5 @@ data class BcInstrEndArg(
     /** Spans of all instructions. */
     val slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>> = mutableListOf(),
     /** Frame local names. */
-    val localNames: FrozenRef<List<FrozenStringValue>> = FrozenRef.empty(),
+    val localNames: FrozenRef<List<FrozenStringValue>> = FrozenRef.default(),
 )

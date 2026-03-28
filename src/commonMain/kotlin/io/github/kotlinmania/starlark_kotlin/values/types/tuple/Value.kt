@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
@@ -30,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
 import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.compareSlice
@@ -86,7 +84,7 @@ val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
     AllocStaticSimple.alloc(TupleGen(emptyList()))
 
 /// Downcast a value to a tuple.
-fun Tuple.Companion.fromValue(value: Value): Tuple? {
+fun TupleGen.Companion.fromValue(value: Value): Tuple? {
     return value.downcastRef<Tuple>()
 }
 
@@ -104,18 +102,18 @@ fun <V : ValueLike> TupleGen<V>.writeHash(hasher: StarlarkHasher): Result<Unit> 
 }
 
 fun <V : ValueLike> TupleGen<V>.equals(other: Value): Result<Boolean> {
-    val otherTuple = Tuple.fromValue(other) ?: return Result.success(false)
-    return equalsSlice(content(), otherTuple.content()) { x, y -> x.equals(y) }
+    val otherTuple = TupleGen.fromValue(other) ?: return Result.success(false)
+    return equalsSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> x.equals(y) }
 }
 
 fun <V : ValueLike> TupleGen<V>.compare(other: Value): Result<Int> {
-    val otherTuple = Tuple.fromValue(other)
-        ?: return ValueError.unsupportedWith(this, "cmp()", other)
-    return compareSlice(content(), otherTuple.content()) { x, y -> x.compare(y) }
+    val otherTuple = TupleGen.fromValue(other)
+        ?: return ValueError.unsupportedWith(TupleGen.TYPE, "cmp()", other)
+    return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> x.compare(y) }
 }
 
 fun <V : ValueLike> TupleGen<V>.at(index: Value, heap: Heap): Result<Value> {
-    val i = convertIndex(index, len())
+    val i = convertIndex(index, len()).getOrElse { return Result.failure(it) }
     return Result.success((content()[i] as ValueLike).toValue())
 }
 
@@ -139,7 +137,7 @@ fun <V : ValueLike> TupleGen<V>.slice(
     val sliced = applySlice(content(), start, stop, stride).getOrElse {
         return Result.failure(it)
     }
-    return Result.success(heap.allocTuple(sliced))
+    return Result.success(heap.allocTuple(sliced.map { (it as ValueLike).toValue() }))
 }
 
 fun <V : ValueLike> TupleGen<V>.iterate(me: Value, heap: Heap): Result<Value> = Result.success(me)
@@ -156,7 +154,7 @@ fun <V : ValueLike> TupleGen<V>.iterNext(index: Int, heap: Heap): Value? {
 fun <V> TupleGen<V>.iterStop() {}
 
 fun <V : ValueLike> TupleGen<V>.add(other: Value, heap: Heap): Result<Value>? {
-    val otherTuple = Tuple.fromValue(other) ?: return null
+    val otherTuple = TupleGen.fromValue(other) ?: return null
     val result = mutableListOf<Value>()
     for (x in content()) {
         result.add((x as ValueLike).toValue())
@@ -168,7 +166,7 @@ fun <V : ValueLike> TupleGen<V>.add(other: Value, heap: Heap): Result<Value>? {
 }
 
 fun <V : ValueLike> TupleGen<V>.mul(other: Value, heap: Heap): Result<Value>? {
-    val l = UnpackValue.unpackInt(other) ?: return null
+    val l = other.unpackI32() ?: return null
     val result = mutableListOf<Value>()
     for (i in 0 until l) {
         result.addAll(content().map { (it as ValueLike).toValue() })

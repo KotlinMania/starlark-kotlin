@@ -20,12 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 
 /**
  * Register the `set` builtin function.
@@ -51,31 +47,43 @@ internal fun registerSet(globals: GlobalsBuilder) {
      * # "#);
      * ```
      */
-    globals.registerFunction(
+    // #[starlark(as_type = FrozenSet, speculative_exec_safe,
+    //   special_builtin_function = SpecialBuiltinFunction::Set)]
+    // fn set<'v>(arg: Option<ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>>, heap: Heap<'v>)
+    //   -> starlark::Result<SetData<'v>>
+    globals.setFunction(
         name = "set",
-        asType = FrozenSet::class,
+        asType = SetGen::class,
         speculativeExecSafe = true,
-        specialBuiltinFunction = SpecialBuiltinFunction.Set
-    ) { arg: ValueOfUnchecked<StarlarkIter<Value>>?, heap: Heap ->
+    ) { callArgs, eval ->
+        val heap: Heap = eval.heap()
+        val arg: Value? = callArgs.optionalPositional(0)
         val set = when (arg) {
             null -> SetData()
             else -> {
                 val pos = arg
-                when (val setRef = SetRef.unpackValueOpt(pos.get())) {
+                when (val setRef = SetRef.unpackValueOpt(pos)) {
                     null -> {
-                        val it = pos.get().iterate(heap).getOrElse { return@registerFunction Result.failure(it) }
+                        val it = pos.iterate(heap).getOrThrow()
                         val data = SetData()
                         for (el in it) {
-                            val hashedEl = el.getHashed().getOrElse { return@registerFunction Result.failure(it) }
+                            val hashedEl = el.getHashed().getOrThrow()
                             data.content.insertHashed(hashedEl)
                         }
                         data
                     }
-                    else -> setRef.aref.clone()
+                    else -> {
+                        // (set.aref).clone() -- clone the SetData from the SetRef
+                        val data = SetData()
+                        for (el in setRef.content.iterHashed()) {
+                            data.content.insertHashed(el)
+                        }
+                        data
+                    }
                 }
             }
         }
-        Result.success(set)
+        set.allocValue(heap)
     }
 }
 

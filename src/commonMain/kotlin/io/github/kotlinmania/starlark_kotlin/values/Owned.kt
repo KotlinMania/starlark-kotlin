@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.owned
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -27,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozen
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedRefFrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 internal sealed class OwnedError(override val message: String) : Exception(message) {
@@ -205,5 +205,6 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
 // Placeholder for NoneType alloc — will be replaced when NoneType is fully ported.
 private object NoneAllocFrozenValue : AllocFrozenValue {
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
+    override fun starlarkTypeRepr(): Ty = Ty.none()
 }
 

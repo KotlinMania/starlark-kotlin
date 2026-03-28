@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.definitely_assigned
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 
 /**

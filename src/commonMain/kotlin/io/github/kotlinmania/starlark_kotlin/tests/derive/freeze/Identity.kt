@@ -40,7 +40,7 @@ private class TestStruct(
 
 // #[derive(Freeze)]
 // struct TestUnitStruct(String, #[freeze(identity)] NonFreeze)
-internal class TestUnitStruct(
+private class TestUnitStruct(
     val component1: String,
     val component2: NonFreeze, // #[freeze(identity)]
 ) : Freeze<TestUnitStruct> {

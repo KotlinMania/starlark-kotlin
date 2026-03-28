@@ -26,12 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMo
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.genFlameData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.genProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.environment.heapProfile
 import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
@@ -73,21 +68,21 @@ R = test()
         var profileData = when (mode) {
             ProfileMode.HeapSummaryRetained, ProfileMode.HeapFlameRetained -> {
                 // Drop eval, freeze module
-                val frozen = module.freeze()
-                frozen.heapProfile()
+                val frozen = module.freeze().getOrThrow()
+                frozen.heapProfile().getOrThrow()
             }
             else -> eval.genProfile()
         }
 
         val profile = profileData.profile
-        if (profile is ProfileDataImpl.HeapRetained ||
-            profile is ProfileDataImpl.HeapAllocated ||
-            profile is ProfileDataImpl.HeapFlameRetained ||
-            profile is ProfileDataImpl.HeapFlameAllocated ||
-            profile is ProfileDataImpl.HeapSummaryRetained ||
-            profile is ProfileDataImpl.HeapSummaryAllocated
-        ) {
-            profile.normalizeForGoldenTests()
+        when (profile) {
+            is ProfileDataImpl.HeapRetained -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapAllocated -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapFlameRetained -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapFlameAllocated -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapSummaryRetained -> profile.data.normalizeForGoldenTests()
+            is ProfileDataImpl.HeapSummaryAllocated -> profile.data.normalizeForGoldenTests()
+            else -> {}
         }
 
         when (mode) {

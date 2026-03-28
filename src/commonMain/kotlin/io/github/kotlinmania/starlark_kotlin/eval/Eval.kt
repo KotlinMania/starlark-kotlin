@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.extractRawStarlarkDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.evalModule
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId

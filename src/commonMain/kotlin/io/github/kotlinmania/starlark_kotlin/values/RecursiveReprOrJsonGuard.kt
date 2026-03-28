@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.values.types.list.pop
-import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
 
 /// Pop the stack on drop.
 // pub(crate) struct ReprStackGuard;
@@ -32,7 +30,7 @@ internal class ReprStackGuard : AutoCloseable {
     // impl Drop for ReprStackGuard
     override fun close() {
         val popped = reprStack.pop()
-        check(popped)
+        check(popped != null)
     }
 }
 
@@ -42,7 +40,7 @@ internal class JsonStackGuard : AutoCloseable {
     // impl Drop for JsonStackGuard
     override fun close() {
         val popped = jsonStack.pop()
-        check(popped)
+        check(popped != null)
     }
 }
 

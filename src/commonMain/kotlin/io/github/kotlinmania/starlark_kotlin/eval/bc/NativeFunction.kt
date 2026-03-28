@@ -59,7 +59,7 @@ class BcNativeFunction private constructor(
 
     // #[inline]
     // pub(crate) fn invoke<'v>(&self, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    fun invoke(args: Arguments, eval: Evaluator): Value {
+    fun invoke(args: Arguments, eval: Evaluator): Result<Value> {
         return imp.invoke(eval, args)
     }
 }

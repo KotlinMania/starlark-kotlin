@@ -23,13 +23,18 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 
 // #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
 // struct Applaud { value: i32 }
@@ -40,6 +45,8 @@ private class Applaud(
 
     // #[starlark_value(type = "applaud")]
     override val TYPE: String get() = "applaud"
+
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
     // impl StarlarkValue for Applaud
     // fn get_methods() -> Option<&'static Methods>
@@ -62,9 +69,13 @@ private class Applaud(
 // fn methods(builder: &mut MethodsBuilder)
 private fun methods(builder: MethodsBuilder) {
     // fn test_method(#[starlark(this)] receiver: Value, this: i32) -> anyhow::Result<i32>
-    builder.setMethod("test_method") { receiver: Value, thisParam: Int ->
+    builder.setMethod("test_method") { eval, receiver, _, args ->
+        val thisParam = args.positional1(eval.heap()).getOrThrow()
+        val thisInt = thisParam.unpackI32() ?: return@setMethod Result.failure(
+            IllegalArgumentException("Expected int, got ${thisParam.toRepr()}")
+        )
         val applaud = receiver.downcastRef<Applaud>()!!
-        Result.success(applaud.value + thisParam)
+        Result.success((applaud.value + thisInt).allocValue(eval.heap()))
     }
 }
 
@@ -72,6 +83,6 @@ private fun methods(builder: MethodsBuilder) {
 // fn test_receiver_can_be_named_anything()
 internal fun testReceiverCanBeNamedAnything() {
     val a = Assert()
-    a.globalsAdd { g -> g.set("x", g.alloc(Applaud(value = 10))) }
+    a.globalsAdd { g -> g.set("x", Applaud(value = 10)) }
     a.eq("13", "x.test_method(this=3)")
 }

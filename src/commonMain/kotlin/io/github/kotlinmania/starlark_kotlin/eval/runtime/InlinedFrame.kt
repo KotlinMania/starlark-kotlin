@@ -25,9 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.Frame
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
-import io.github.kotlinmania.starlark_kotlin.analysis.location
-import io.github.kotlinmania.starlark_kotlin.codemap.fullSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 
@@ -35,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 /// the inlined frame for expressions in `a` which now reside in `b`.
 // #[derive(Debug, PartialEq)]
 // pub(crate) struct InlinedFrame
-internal data class InlinedFrame(
+data class InlinedFrame(
     val span: FrameSpan,
     val funValue: FrozenValue,
 ) {
@@ -55,7 +52,7 @@ internal data class InlinedFrame(
 /// Stack of inlined frames (maybe empty).
 // #[derive(Copy, Clone, Dupe, Debug, Default)]
 // pub(crate) struct InlinedFrames
-internal data class InlinedFrames(
+data class InlinedFrames(
     /// Linked list.
     var frames: FrozenRef<InlinedFrame>? = null,
 ) {
@@ -110,7 +107,7 @@ internal data class InlinedFrames(
 
 /// Heap allocator for `InlinedFrame` which attempts to reuse previous allocation.
 // pub(crate) struct InlinedFrameAlloc<'f>
-internal class InlinedFrameAlloc(
+class InlinedFrameAlloc(
     private val frozenHeap: FrozenHeap,
 ) {
     private var lastAlloc: FrozenRef<InlinedFrame>? = null

@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // #[starlark_module]
@@ -31,7 +30,7 @@ private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
     // fn func(v: Value) -> Result<impl AllocValue>
     globals.setFunction("func") { args, _ ->
         val v = args.positional<Value>(0)
-        Result.success<AllocValue>(v)
+        Result.success(v)
     }
 }
 
@@ -42,6 +41,6 @@ private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn attr(this: Value) -> Result<impl AllocValue>
     methods.setAttribute("attr") { this_, _ ->
-        Result.success<AllocValue>(this_)
+        Result.success(this_)
     }
 }

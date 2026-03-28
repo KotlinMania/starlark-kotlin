@@ -4,7 +4,6 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
@@ -27,19 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
  * limitations under the License.
  */
 
-// Real types should be imported from their respective packages
-
-// Extension functions for GlobalsBuilder to register different function types
-// These will be implemented when the actual GlobalsBuilder is ported
-expect fun GlobalsBuilder.registerFunction(
-    name: String,
-    asType: kotlin.reflect.KClass<*>? = null,
-    speculativeExecSafe: Boolean = false,
-    impl: FunctionImpl
-)
-
-// Marker interface for function implementations
-expect interface FunctionImpl
 
 /**
  * Register string-related global functions.
@@ -166,7 +152,7 @@ internal fun repr(a: Value, eval: Evaluator): Result<StringValue> {
     a.collectRepr(s)
     val r = eval.heap().allocStr(s.toString())
     eval.stringPool.release(s)
-    return Result.success(r)
+    return Result.success(StringValue.newUnchecked(r))
 }
 
 /**
@@ -193,5 +179,5 @@ internal fun str(a: Value, eval: Evaluator): Result<StringValue> {
     a.collectRepr(s)
     val r = eval.heap().allocStr(s.toString())
     eval.stringPool.release(s)
-    return Result.success(r)
+    return Result.success(StringValue.newUnchecked(r))
 }

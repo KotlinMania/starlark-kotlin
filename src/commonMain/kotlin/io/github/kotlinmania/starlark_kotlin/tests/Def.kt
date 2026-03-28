@@ -24,7 +24,6 @@ package io.github.kotlinmania.starlark_kotlin.tests
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
 
 // #[test]
@@ -184,14 +183,14 @@ def function(x):
 value = {"test": "hello"}
 """
     )
-    val f = m.get("function")!!
-    val x = m.get("value")!!
+    val f = m.get("function").getOrThrow()
+    val x = m.get("value").getOrThrow()
     Module.withTempHeap { module ->
-        val fVal = module.heap().accessOwnedFrozenValue(f).getOrThrow()
-        val xVal = module.heap().accessOwnedFrozenValue(x).getOrThrow()
+        val fVal = module.heap().accessOwnedFrozenValue(f)
+        val xVal = module.heap().accessOwnedFrozenValue(x)
         val eval = Evaluator(module)
-        val res = eval.evalFunction(fVal, listOf(xVal), emptyList())
-        check(res.getOrThrow().toStr() == "hello")
+        val res = eval.evalFunction(fVal, listOf(xVal), emptyList()).getOrThrow()
+        check(res.toStr() == "hello")
     }
 }
 

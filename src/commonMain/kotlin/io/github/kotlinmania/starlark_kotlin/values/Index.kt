@@ -1,7 +1,7 @@
 // port-lint: source src/values/index.rs
 package io.github.kotlinmania.starlark_kotlin.values
 
-import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
 
 

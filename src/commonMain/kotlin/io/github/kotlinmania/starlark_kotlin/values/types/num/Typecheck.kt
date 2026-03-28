@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.typing.ANY
+// TyBasic.Any is a data object in the typing module
 
 internal enum class NumTy {
     Int,
@@ -54,7 +54,7 @@ private enum class BinOpClass {
 
 internal fun typecheckNumBinOp(lhs: NumTy, op: TypingBinOp, rhs: TyBasic): Ty? {
     val rhsTy = when {
-        rhs == TyBasic.ANY -> NumRhsTy.Any
+        rhs == TyBasic.Any -> NumRhsTy.Any
         rhs == TyBasic.int() -> NumRhsTy.Num(NumTy.Int)
         rhs == TyBasic.float() -> NumRhsTy.Num(NumTy.Float)
         else -> return null

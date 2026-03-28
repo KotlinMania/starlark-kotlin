@@ -78,12 +78,11 @@ fun DocString.renderAsQuotedCode(): String {
 fun DocModule.renderAsCode(): String {
     var res = docs?.renderAsQuotedCode() ?: ""
     for ((k, v) in members) {
-        val member = v.tryAsMemberWithCollapsedObject() ?: continue
+        val member = v.tryAsMemberWithCollapsedObject().getOrNull() ?: continue
         res += "\n"
         res += when (member) {
             is DocMember.Property -> member.property.renderAsCode(k)
             is DocMember.Function -> member.function.renderAsCode(k)
-            else -> throw IllegalStateException("Unexpected DocMember: $member")
         }
         res += "\n"
     }
@@ -153,14 +152,14 @@ fun DocFunction.renderAsCode(name: String): String {
 // fn starlark_docstring(&self, max_indentation: &str) -> Option<String>
 private fun DocParam.starlarkDocstring(maxIndentation: String): String? {
     val renderedDocs = this.docs?.renderAsCode() ?: return null
-    val indented = indentTrimmed(renderedDocs, maxIndentation).toMutableList()
+    val indented = indentTrimmed(renderedDocs, maxIndentation)
     // Replace the leading indentation with "name: " prefix.
     val prefix = "${this.name}: "
-    val result = StringBuilder(indented.joinToString(""))
-    if (result.length >= this.name.length + 2) {
-        result.replace(0, this.name.length + 2, prefix)
+    return if (indented.length >= this.name.length + 2) {
+        prefix + indented.substring(this.name.length + 2)
+    } else {
+        indented
     }
-    return result.toString()
 }
 
 // fn fmt_param (DocParam)
@@ -248,7 +247,7 @@ fun DocType.renderAsCode(name: String): String {
         s
     } ?: ""
 
-    val memberDocs = this.members.entries
+    val memberDocs = this.members.iter()
         .map { (memberName, member) ->
             when (member) {
                 is DocMember.Property -> member.property.renderAsCode(memberName)
@@ -257,7 +256,7 @@ fun DocType.renderAsCode(name: String): String {
         }
         .joinToString("\n\n")
 
-    val exportedStructMembers = this.members.entries
+    val exportedStructMembers = this.members.iter()
         .map { (memberName, _) -> "    $memberName = _$memberName," }
         .joinToString("\n")
     val exportedStruct = if (exportedStructMembers.isNotEmpty()) {

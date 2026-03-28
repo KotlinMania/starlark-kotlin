@@ -70,7 +70,7 @@ internal class DefParam(val ident: CstAssignIdent, val kind: DefParamKind, val t
 @Suppress("UNCHECKED_CAST")
 private fun resolvedBindingId(ident: CstAssignIdent, codemap: CodeMap): BindingId =
     ident.node.payload as? BindingId
-        ?: throw InternalError.msg("Binding not resolved for '${ident.node.ident}'")
+        ?: throw InternalError.msg("Binding not resolved for '${ident.node.ident}'", ident.span, codemap)
 
 @Suppress("UNCHECKED_CAST")
 private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codemap: CodeMap): List<DefParam> {
@@ -203,7 +203,7 @@ internal class BindingsCollect(
             TypecheckMode.Lint -> payload?.typecheckerTy
             TypecheckMode.Compiler -> payload?.compilerTy
         }
-        return ty ?: throw InternalError.msg("Type must be populated earlier")
+        return ty ?: throw InternalError.msg("Type must be populated earlier", expr.span, codemap)
     }
 
     private fun resolveTyOpt(expr: CstTypeExpr?, typecheckMode: TypecheckMode, codemap: CodeMap): Ty =
@@ -321,7 +321,7 @@ internal class BindingsCollect(
                                     val payload = ident.ident.node.payload
                                     if (payload is ResolvedIdent.Slot) {
                                         val bindId = payload.bindingId
-                                        val argExpr = call.args.args[arg].expr()
+                                        val argExpr = call.args.args[arg].node.expr()
                                         val bind = if (extend) BindExpr.ListExtend(bindId, argExpr)
                                             else BindExpr.ListAppend(bindId, argExpr)
                                         expressionsEntry(bindId).add(bind)
@@ -444,7 +444,7 @@ private fun visitExprChildren(expr: CstExpr, f: (Visit) -> Unit) {
         is ExprP.Dot<*> -> f(Visit.Expr(node.expr as CstExpr))
         is ExprP.Call<*> -> {
             f(Visit.Expr(node.expr as CstExpr))
-            (node as ExprP.Call<CstPayload>).args.args.forEach { f(Visit.Expr(it.expr())) }
+            (node as ExprP.Call<CstPayload>).args.args.forEach { f(Visit.Expr(it.node.expr())) }
         }
         is ExprP.Index<*> -> { f(Visit.Expr(node.expr as CstExpr)); f(Visit.Expr(node.index as CstExpr)) }
         is ExprP.Index2<*> -> { f(Visit.Expr(node.expr as CstExpr)); f(Visit.Expr(node.index0 as CstExpr)); f(Visit.Expr(node.index1 as CstExpr)) }

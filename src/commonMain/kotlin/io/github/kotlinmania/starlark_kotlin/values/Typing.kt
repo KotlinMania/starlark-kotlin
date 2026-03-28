@@ -1,7 +1,5 @@
 // port-lint: source src/values/typing.rs
 package io.github.kotlinmania.starlark_kotlin.values
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,10 +36,10 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMat
 
 // Re-exports (mirrors Rust's pub use declarations)
 internal typealias TypeInstanceIdExport = io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-internal typealias StarlarkCallableExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable
-internal typealias StarlarkIterExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+internal typealias StarlarkCallableExport<P, R> = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable<P, R>
+internal typealias StarlarkIterExport<T> = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter<T>
 internal typealias StarlarkNeverExport = io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 internal typealias TypeCompiledExport = io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-internal typealias TypeMatcherExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeMatcher
-internal typealias TypeMatcherFactoryExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeMatcherFactory
+internal typealias TypeMatcherExport = io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+internal typealias TypeMatcherFactoryExport = io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 internal typealias TypeTypeExport = io.github.kotlinmania.starlark_kotlin.values.typing.TypeType

@@ -28,8 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.v
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
 
 /// A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method`
 // pub struct NativeCallableComponents
@@ -43,16 +42,14 @@ class NativeCallableComponents(
     private fun docParams(): DocParams {
         // fn doc_param(p: &NativeCallableParam) -> DocParam
         fun docParam(p: NativeCallableParam): DocParam {
-            val (name, ty, required) = p
             return DocParam(
-                name = name,
+                name = p.name,
                 docs = null,
-                typ = ty,
-                defaultValue = when (required) {
+                typ = p.ty,
+                defaultValue = when (val required = p.required) {
                     null -> null
                     is NativeCallableParamDefaultValue.Optional -> PARAM_FMT_OPTIONAL
-                    is NativeCallableParamDefaultValue.Value -> required.v.toValue().toRepr()
-                    else -> throw IllegalStateException("Unexpected default value: $required")
+                    is NativeCallableParamDefaultValue.Value -> required.value.toValue().toRepr()
                 },
             )
         }
@@ -78,7 +75,12 @@ class NativeCallableComponents(
             null -> DocItem.Member(DocMember.Function(funcDocs))
             else -> {
                 val (_, tyDocs) = asType
-                DocItem.Type(tyDocs.copy(constructor = funcDocs))
+                DocItem.Type(DocType(
+                    docs = tyDocs.docs,
+                    members = tyDocs.members,
+                    ty = tyDocs.ty,
+                    constructor = funcDocs,
+                ))
             }
         }
     }

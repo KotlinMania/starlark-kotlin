@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Box
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.intoInner
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
  * A [FrozenRef] is essentially a [FrozenValue],
@@ -61,7 +61,7 @@ class FrozenRef<T>(
 
     // pub fn try_map_result<F, U: 'fv + ?Sized, E>(self, f: F) -> Result<FrozenRef<'fv, U>, E>
     /** Fallible map the reference to another one. */
-    fun <U, E> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
+    fun <U> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
         val mapped = f(value)
         return mapped.map { FrozenRef.new(it) }
     }
@@ -126,9 +126,8 @@ fun <T> FrozenRef<T>.borrow(): T {
     return deref()
 }
 
-fun <T> FrozenRef<Box<T>>.borrow(): T {
-    return deref().intoInner()
-}
+// impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, Box<T>>
+// Kotlin: Box has no equivalent; the first borrow() already returns the inner value.
 
 // impl<'fv, T: 'fv + ?Sized> PartialOrd for FrozenRef<'fv, T>
 // impl<'fv, T: 'fv + ?Sized> Ord for FrozenRef<'fv, T>
@@ -159,10 +158,11 @@ fun <T> FrozenRef<T>.freeze(
  * An atomic optional reference to a frozen value.
  */
 // pub(crate) struct AtomicFrozenRefOption<T>(atomic::AtomicPtr<T>);
+@OptIn(ExperimentalAtomicApi::class)
 internal class AtomicFrozenRefOption<T>(
     initial: FrozenRef<T>?,
 ) : Trace {
-    private val ref_ = atomic(initial?.asRef())
+    private val ref_: AtomicReference<T?> = AtomicReference(initial?.asRef())
 
     // unsafe impl<'v, T> Trace<'v> for AtomicFrozenRefOption<T>
     /** Trace is a no-op because AtomicFrozenRefOption holds FrozenRef. */
@@ -183,13 +183,14 @@ internal class AtomicFrozenRefOption<T>(
     /** Load the value with relaxed ordering. */
     fun loadRelaxed(): FrozenRef<T>? {
         // Note this is relaxed load which is cheap.
-        return ref_.value?.let { FrozenRef.new(it) }
+        val v: T? = ref_.load()
+        return if (v != null) FrozenRef.new(v) else null
     }
 
     // pub(crate) fn store_relaxed(&self, module: FrozenRef<T>)
     /** Store a value with relaxed ordering. */
     fun storeRelaxed(module: FrozenRef<T>) {
         val value: T = module.asRef()
-        ref_.value = value
+        ref_.store(value)
     }
 }

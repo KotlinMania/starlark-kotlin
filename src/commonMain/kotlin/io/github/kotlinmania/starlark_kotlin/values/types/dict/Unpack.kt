@@ -67,15 +67,3 @@ class UnpackDictEntries<K, V>(
         }
     }
 }
-
-private fun dictRefFromValue(value: Value): DictRef? {
-    return io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue(value)
-}
-
-private fun DictRef.iter(): Sequence<Pair<Value, Value>> {
-    val dict = when (val ref = aref) {
-        is Either.Left -> ref.value.value
-        is Either.Right -> ref.value
-    }
-    return dict.iter()
-}

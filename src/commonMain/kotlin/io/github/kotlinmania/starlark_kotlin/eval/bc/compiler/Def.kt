@@ -25,11 +25,13 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefCompiled
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParameterCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParametersCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrDefData
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBc
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.mapExpr
-import io.github.kotlinmania.starlark_kotlin.analysis.iter
 
 // impl DefCompiled
 
@@ -37,8 +39,8 @@ import io.github.kotlinmania.starlark_kotlin.analysis.iter
 internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     // Argument default values and types can be used
     // to mark variables definitely assigned.
-    @Suppress("UNUSED_PARAMETER")
-    val _ = bc
+    @Suppress("UNUSED_VARIABLE")
+    val unused = bc
 }
 
 // pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
@@ -52,9 +54,9 @@ internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWrite
     bc.allocSlots(howManySlotsWeNeed, fun(slots, bc2) {
         val slotsIter = slots.iter().iterator()
         var valueCount = 0
-        val mappedParams = paramList.map { p ->
-            p.map { pc ->
-                pc.mapExpr { e ->
+        val mappedParams = paramList.map { p: IrSpanned<ParameterCompiled<IrSpanned<ExprCompiled>>> ->
+            p.map { pc: ParameterCompiled<IrSpanned<ExprCompiled>> ->
+                pc.mapExpr { e: IrSpanned<ExprCompiled> ->
                     e.writeBc(slotsIter.next().toOut(), bc2)
                     val idx = valueCount
                     valueCount += 1

@@ -102,7 +102,7 @@ internal class Chunk private constructor(
             val allocLen = HEADER_SIZE + len
             // Round up to power of two to avoid spacing in allocation.
             val allocLenPow2 = allocLen.checkedNextPowerOfTwo()
-            val actualLen = allocLenPow2 - HEADER_SIZE
+            val actualLen = (allocLenPow2 ?: allocLen) - HEADER_SIZE
             return Chunk(ChunkData.allocRefCount1(actualLen))
         }
     }

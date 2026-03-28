@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.tests.bc
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 
 // fn test_function_bytecode(program: &str) -> String
@@ -33,15 +32,17 @@ private fun testFunctionBytecode(program: String): String {
     a.dialect(Dialect.AllOptionsInternal)
     val def = a
         .module("instrs.star", trimmed)
-        .get("test")!!
-        .downcast<FrozenDef>()!!
+        .get("test")
+        .getOrThrow()
+        .downcast<FrozenDef>()
+        .getOrThrow()
 
     val golden = StringBuilder()
     golden.appendLine(trimmed)
     golden.appendLine()
     golden.appendLine("# Bytecode:")
     golden.appendLine()
-    golden.appendLine(def.bc().dumpDebug().trim())
+    golden.appendLine(def.asRef().bc().dumpDebug().trim())
     return golden.toString()
 }
 

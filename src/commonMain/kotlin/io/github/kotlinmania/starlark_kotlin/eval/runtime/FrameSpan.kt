@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.DEFAULT
+// FrozenFileSpan.DEFAULT is used directly below
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 
 /** Span of the call frame (including inlined call frames). */
 data class FrameSpan internal constructor(
     val span: FrozenFileSpan,
     /** Parent frames. */
-    val inlinedFrames: InlinedFrames,
+    internal val inlinedFrames: InlinedFrames,
 ) {
     constructor(span: FrozenFileSpan) : this(
         span = span,

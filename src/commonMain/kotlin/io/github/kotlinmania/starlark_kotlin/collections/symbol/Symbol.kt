@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
 import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import starlark_map.Hashed
 import starlark_map.StarlarkHashValue
 
@@ -64,7 +63,7 @@ class Symbol private constructor(
     }
 
     internal fun asAlignedPaddedStr(): AlignedPaddedStr =
-        AlignedPaddedStr(asStr())
+        AlignedPaddedStr.new(len = len.toInt(), data = payload)
 
     fun asStrHashed(): Hashed<String> =
         Hashed.newUnchecked(smallHash, asStr())
@@ -72,7 +71,7 @@ class Symbol private constructor(
     override fun smallHash(): StarlarkHashValue = smallHash
 
     // impl ArgSymbol for Symbol
-    override fun <V : ValueLike> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? {
+    override fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int? {
         return ps.names.get(this)?.toInt()
     }
 

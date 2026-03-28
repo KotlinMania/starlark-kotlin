@@ -4,7 +4,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat3
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.collections.StringPool
 
 /*
@@ -78,7 +80,7 @@ internal fun formatOne(
             result.append(before)
             arg.collectRepr(result)
             result.append(after)
-            heap.allocStr(result.toString())
+            StringValue.newUnchecked(heap.allocStr(result.toString()))
         }
         else -> heap.allocStrConcat3(before, argStr.toString(), after)
     }
@@ -139,7 +141,7 @@ internal fun format(
     heap: Heap
 ): Result<StringValue> = runCatching {
     val parser = FormatParser(thisString)
-    val result = stringPool.alloc().let { StringBuilder() }
+    val result = stringPool.alloc()
     val formatArgs = FormatArgs(args)
 
     while (true) {
@@ -153,8 +155,8 @@ internal fun format(
         }
     }
 
-    val r = heap.allocStr(result.toString())
-    stringPool.release(result.toString())
+    val r = StringValue.newUnchecked(heap.allocStr(result.toString()))
+    stringPool.release(result)
     r
 }
 

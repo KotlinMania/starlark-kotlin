@@ -20,6 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max.registerMinMax
+import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip.registerZip
+import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.other.registerOther
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.registerBool
 import io.github.kotlinmania.starlark_kotlin.values.types.float.registerFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.registerInt

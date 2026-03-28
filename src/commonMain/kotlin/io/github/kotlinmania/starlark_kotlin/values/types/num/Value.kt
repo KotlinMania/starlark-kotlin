@@ -31,6 +31,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.plus
+import io.github.kotlinmania.starlark_kotlin.values.types.int.minus
+import io.github.kotlinmania.starlark_kotlin.values.types.int.times
 
 /** Error type for numeric operations. */
 sealed class NumError : Exception() {
@@ -233,7 +238,7 @@ sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
     }
 
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
-        is Int -> heap.alloc(value)
-        is Float -> heap.alloc(StarlarkFloat(value))
+        is Int -> value.allocFrozenValue(heap)
+        is Float -> StarlarkFloat(value).allocFrozenValue(heap)
     }
 }

@@ -130,14 +130,14 @@ interface TypeMatcherAlloc<R> {
         return when (ty) {
             is TyBasic.Any -> any()
             is TyBasic.StarlarkValue -> ty.value.matcher(this)
-            is TyBasic.List -> listOf(ty.item)
+            is TyBasic.List -> listOf(ty.item.toTy())
             is TyBasic.Tuple -> ty.tuple.matcher(this)
-            is TyBasic.Dict -> dictOf(ty.key, ty.value)
+            is TyBasic.Dict -> dictOf(ty.key.toTy(), ty.value.toTy())
             is TyBasic.Iter -> alloc(IsIterable)
             is TyBasic.Callable -> alloc(IsCallable)
             is TyBasic.Type -> alloc(IsType)
             is TyBasic.Custom -> custom(ty.custom)
-            is TyBasic.Set -> setOf(ty.item)
+            is TyBasic.Set -> setOf(ty.item.toTy())
         }
     }
 

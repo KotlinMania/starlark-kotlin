@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.PatchAddr
-import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Common code for compiling if statements and if expressions.
 // pub(crate) fn write_if_else(...)
@@ -150,9 +149,9 @@ private fun writeCond(
     bc: BcWriter,
 ) {
     when (val node = cond.node) {
-        is ExprCompiled.Builtin1 -> {
+        is ExprCompiled.Builtin1Expr -> {
             if (node.op == Builtin1.Not) {
-                writeCond(node.arg, maybeNot.negate(), t, f, bc)
+                writeCond(node.expr, maybeNot.negate(), t, f, bc)
                 return
             }
             // Fall through to default case
@@ -165,8 +164,7 @@ private fun writeCond(
             }
         }
         is ExprCompiled.LogicalBinOp -> {
-            val (x, y) = node.operands
-            writeCondBinOp(x, y, node.op, maybeNot, t, f, bc)
+            writeCondBinOp(node.lhs, node.rhs, node.op, maybeNot, t, f, bc)
         }
         else -> {
             cond.writeBcCb(bc) { condSlot, bc ->

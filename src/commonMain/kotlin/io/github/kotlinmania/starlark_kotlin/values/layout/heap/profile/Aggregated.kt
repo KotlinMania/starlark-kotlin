@@ -248,6 +248,15 @@ internal class StackFrame(
             )
         }
     }
+
+    // #[cfg(test)]
+    // pub(crate) fn normalize_for_golden_tests(&mut self)
+    internal fun normalizeForGoldenTests() {
+        for ((_, v) in callees) {
+            v.normalizeForGoldenTests()
+        }
+        allocs.normalizeForGoldenTests()
+    }
 }
 
 internal class StackFrameWithContext(
@@ -305,6 +314,12 @@ internal class AggregateHeapProfileInfo(
 
     fun clone(): AggregateHeapProfileInfo {
         return AggregateHeapProfileInfo(strings, root)
+    }
+
+    // #[cfg(test)]
+    // pub(crate) fn normalize_for_golden_tests(&mut self)
+    internal fun normalizeForGoldenTests() {
+        root.normalizeForGoldenTests()
     }
 
     override fun toString(): String = "AggregateHeapProfileInfo(..)"

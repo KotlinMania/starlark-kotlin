@@ -98,14 +98,14 @@ class SymbolMap<T> private constructor(
 
     /** Look up a value by pre-hashed string key. */
     fun getHashedStr(key: Hashed<String>): T? {
-        val hash = key.hash().promote().toLong()
+        val hash = key.hash().promote()
         val bucket = table[hash] ?: return null
         return bucket.firstOrNull { it.first.asStr() == key.key() }?.second
     }
 
     /** Look up a value by pre-hashed string value, using aligned padded string comparison. */
     fun getHashedStringValue(key: Hashed<String>): T? {
-        val hash = key.hash().promote().toLong()
+        val hash = key.hash().promote()
         val bucket = table[hash] ?: return null
         val keyAligned = Symbol.new(key.key()).asAlignedPaddedStr()
         return bucket.firstOrNull { it.first.asAlignedPaddedStr() == keyAligned }?.second

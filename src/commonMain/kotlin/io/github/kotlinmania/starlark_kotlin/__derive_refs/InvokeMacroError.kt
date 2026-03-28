@@ -19,8 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.errors.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
+import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
 
 // pub trait InvokeMacroError {
 //     fn into_starlark_error(self) -> crate::Error;
@@ -42,6 +41,6 @@ interface InvokeMacroError {
  * Starlark native functions should not return generic exceptions;
  * this exists as a fallback for external integrations.
  */
-fun Throwable.intoStarlarkError(): StarlarkError {
-    return StarlarkError.newNative(this)
+fun Throwable.intoStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error {
+    return io.github.kotlinmania.starlark_kotlin.Error.newNative(this)
 }

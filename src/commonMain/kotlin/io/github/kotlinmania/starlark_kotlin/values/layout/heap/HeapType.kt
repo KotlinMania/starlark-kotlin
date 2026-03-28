@@ -427,7 +427,7 @@ typealias FrozenHeapName = Any
 /// FrozenHeap when it is no longer modified and can be shared between threads.
 /// Although, arena is not safe to share between threads, but at least refs is.
 class FrozenFrozenHeap internal constructor(
-    val arena: Arena,
+    internal val arena: Arena,
     val refs: List<FrozenHeapRef>,
     val name: Any? = null,
 ) {

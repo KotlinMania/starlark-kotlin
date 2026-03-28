@@ -62,9 +62,10 @@ internal class ChunkAllocator : ArenaAllocator {
     /// Returns the offset if there's room, null otherwise.
     private fun tryAllocFast(len: AlignedSize): Int? {
         val rem = endPtr - currentPtr
-        return if (rem >= len.bytes()) {
+        val lenBytes = len.bytes().toInt()
+        return if (rem >= lenBytes) {
             val ptr = currentPtr
-            currentPtr += len.bytes()
+            currentPtr += lenBytes
             ptr
         } else {
             null

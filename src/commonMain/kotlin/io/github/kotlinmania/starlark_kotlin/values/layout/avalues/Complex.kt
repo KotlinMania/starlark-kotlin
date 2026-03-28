@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -33,7 +34,9 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.tryFreezeDirectly
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
@@ -80,12 +83,18 @@ internal class AValueComplex(
         // let x = AValueHeader::overwrite_with_forward(...);
         // let res = x.freeze(freezer)?;
         // r.fill(res);
-        val result = value.freeze(freezer)
-        val fv = result.getOrElse { return FreezeResult.failure(it) }
+        @Suppress("UNCHECKED_CAST")
+        val freezable = value as Freeze<StarlarkValue>
+        val result = freezable.freeze(freezer)
+        val frozen = result.getOrElse { return FreezeResult.failure(it) }
+
+        val (fv, r) = freezer.reserve<AValue>()
+        r.fill(frozen)
 
         // if TypeId::of::<T::Frozen>() == TypeId::of::<FrozenDef>()
-        if (fv is FrozenDef) {
-            freezer.frozenDefs.add(fv)
+        @Suppress("UNCHECKED_CAST")
+        if (frozen is DefGen<*>) {
+            freezer.frozenDefs.add(FrozenRef(frozen as DefGen<FrozenValue>))
         }
 
         return FreezeResult.success(fv)

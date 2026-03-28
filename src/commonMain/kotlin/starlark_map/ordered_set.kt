@@ -127,11 +127,11 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Insert an element if it is not already present in the set.
-     * Returns [Result.success] if inserted, or [Result.failure] with an [OccupiedError]
+     * Returns `null` if inserted successfully, or an [OccupiedError]
      * containing the value that was not inserted and the existing element.
-     * Corresponds to Rust `try_insert`.
+     * Corresponds to Rust `try_insert` which returns `Result<(), OccupiedError<T>>`.
      */
-    fun tryInsert(value: T): Result<Unit> {
+    fun tryInsert(value: T): OccupiedError<T>? {
         val hashed = Hashed.new(value)
         val existing = inner.getHashed(object : Equivalent<T> {
             override fun equivalent(key: T): Boolean = hashed.key() == key
@@ -139,10 +139,10 @@ class OrderedSet<T> internal constructor(
             Hashed.newUnchecked(hashed.hash(), equiv)
         })
         if (existing != null) {
-            return Result.failure(OccupiedError(value, existing))
+            return OccupiedError(value, existing)
         }
         inner.insertHashedUniqueUnchecked(hashed)
-        return Result.success(Unit)
+        return null
     }
 
     /** Clear the set. */
@@ -227,11 +227,11 @@ class OrderedSet<T> internal constructor(
 
 /**
  * Error returned by [OrderedSet.tryInsert] when the element is already present.
- * Corresponds to Rust `OccupiedError`.
+ * Corresponds to Rust `OccupiedError` (a plain struct in Rust, not an error type).
  */
 class OccupiedError<T>(
     /** The value that was not inserted. */
     val value: T,
     /** The value that was already in the set. */
     val occupied: T,
-) : Exception("Element already exists in the set")
+)

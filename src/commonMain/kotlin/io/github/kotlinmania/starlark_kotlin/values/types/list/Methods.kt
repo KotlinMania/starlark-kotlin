@@ -206,7 +206,7 @@ internal fun extend(
         res.double()
     } else {
         val it = other.iterate(heap).getOrElse { e -> return Result.failure(e) }
-        res.extend(it)
+        res.extend(it.asSequence().asIterable())
     }
     return Result.success(NoneType)
 }

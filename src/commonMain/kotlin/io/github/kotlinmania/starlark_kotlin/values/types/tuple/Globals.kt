@@ -20,10 +20,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
  * Register the `tuple` builtin function.
@@ -40,7 +42,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIte
  * ```
  */
 internal fun registerTuple(globals: GlobalsBuilder) {
-    globals.setFunction("tuple") { a: Value?, heap: Heap ->
+    globals.setFunction("tuple") { args: Arguments, eval: Evaluator ->
+        val heap = eval.heap()
+        val a = args.optionalPositional<Value>(0)
         if (a == null) {
             heap.allocTuple(emptyList())
         } else {
@@ -48,8 +52,8 @@ internal fun registerTuple(globals: GlobalsBuilder) {
             if (tupleRef != null) {
                 a
             } else {
-                val it = a.iterate(heap)
-                heap.allocTupleIter(it)
+                val it = a.iterate(heap).getOrThrow()
+                heap.allocTupleIter(it.asSequence().asIterable())
             }
         }
     }

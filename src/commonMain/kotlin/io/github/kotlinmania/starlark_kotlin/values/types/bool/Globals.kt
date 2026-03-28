@@ -20,6 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 internal fun registerBool(globals: GlobalsBuilder) {
@@ -52,7 +54,8 @@ internal fun registerBool(globals: GlobalsBuilder) {
      * bool("1") == True
      * ```
      */
-    globals.setFunction("bool") { x: Value? ->
+    globals.setFunction("bool") { args: Arguments, eval: Evaluator ->
+        val x = args.optionalPositional<Value>(0)
         x?.toBool() ?: false
     }
 }

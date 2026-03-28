@@ -57,7 +57,7 @@ internal class Array(
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("array(")
-        displayList(content(), sb)
+        sb.append(displayList(content()))
         sb.append(", cap=$capacity)")
         return sb.toString()
     }
@@ -193,22 +193,22 @@ internal class Array(
     // Kotlin: handled by StarlarkValue infrastructure.
 
     // fn length(&self) -> crate::Result<i32>
-    fun length(): Result<Int> {
+    override fun length(): Result<Int> {
         return Result.success(len())
     }
 
     // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
-    fun iterNext(index: Int, heap: Heap): Value? {
+    override fun iterNext(index: Int, heap: Heap): Value? {
         return content.getOrNull(index)
     }
 
     // unsafe fn iter_stop(&self)
-    fun iterStop() {
+    override fun iterStop() {
         decIterCount()
     }
 
     // unsafe fn iter_size_hint(&self, index: usize) -> (usize, Option<usize>)
-    fun iterSizeHint(index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         check(index <= len())
         val rem = len() - index
         return Pair(rem, rem)

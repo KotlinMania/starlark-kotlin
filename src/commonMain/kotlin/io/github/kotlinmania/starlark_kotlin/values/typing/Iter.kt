@@ -35,9 +35,7 @@ class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
     companion object {
         // impl<T: StarlarkTypeRepr> StarlarkTypeRepr for StarlarkIter<T>
         // fn starlark_type_repr() -> Ty
-        inline fun <reified T : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
-            val inner = T::class.objectInstance?.starlarkTypeRepr()
-                ?: error("StarlarkTypeRepr companion required")
+        fun starlarkTypeRepr(inner: Ty): Ty {
             return Ty.iter(inner)
         }
     }
@@ -52,7 +50,9 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
     override fun toString(): String = TYPE_NAME
 
     // fn eval_type(&self) -> Option<Ty>
-    fun evalType(): Ty? = Ty.iter(Ty.any())
+    override fun evalType(): Ty? = Ty.iter(Ty.any())
+
+    override fun starlarkTypeRepr(): Ty = Ty.iter(Ty.any())
 
     // impl AllocFrozenValue for TypingIterable
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue

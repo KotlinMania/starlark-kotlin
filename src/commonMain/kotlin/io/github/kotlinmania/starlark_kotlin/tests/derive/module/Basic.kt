@@ -22,10 +22,10 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.UnpackListOrTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 // The examples from the starlark_module documentation.
@@ -36,9 +36,11 @@ internal fun testStarlarkModule() {
     // fn global(builder: &mut GlobalsBuilder)
     fun global(builder: GlobalsBuilder) {
         // fn cc_binary(name: &str, srcs: UnpackListOrTuple<&str>) -> anyhow::Result<String>
-        builder.setFunction("cc_binary") { name: String, srcs: UnpackListOrTuple<String> ->
+        builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
+            val name = args.positional<String>(0)
+            val srcs = args.positional<Value>(1)
             // real implementation may write it to a global variable
-            Result.success("\"$name\" ${srcs.items}")
+            eval.heap().allocStr("\"$name\" $srcs")
         }
     }
 
@@ -58,13 +60,14 @@ internal fun testStarlarkMethods() {
     // fn methods(builder: &mut MethodsBuilder)
     fun methods(builder: MethodsBuilder) {
         // fn enum(this: Value, #[starlark(require = named, default = 3)] index: i32, heap: Heap) -> anyhow::Result<StringValue>
-        builder.setMethod("enum") { thisVal: Value, index: Int?, heap: Heap ->
-            val idx = index ?: 3
-            Result.success(heap.allocStr("$thisVal $idx"))
+        builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
+            val index = args.optionalNamed<Int>("index") ?: 3
+            val sv = eval.heap().allocStr("$thisVal $index")
+            Result.success(sv)
         }
     }
 
-    MethodsBuilder().with(::methods).build()
+    MethodsBuilder.new().with(::methods).build()
 }
 
 // #[test]
@@ -74,7 +77,7 @@ internal fun testStaticAllowed() {
     // fn globals(globals: &mut GlobalsBuilder)
     fun globals(globals: GlobalsBuilder) {
         // fn test() -> anyhow::Result<ValueOfUnchecked<&'static str>>
-        globals.setFunction("test") {
+        globals.setFunction("test") { _: Arguments, _: Evaluator ->
             throw AssertionError("should not be called")
         }
     }

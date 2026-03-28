@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
  */
 internal fun listToTuple(x: CstExpr): CstExpr {
     return when (val node = x.node) {
-        is ExprP.List -> Spanned(
+        is ExprP.ListExpr -> Spanned(
             node = ExprP.Tuple(node.elements),
             span = x.span,
         )

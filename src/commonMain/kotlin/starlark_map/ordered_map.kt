@@ -138,7 +138,7 @@ class OrderedMap<K, V> internal constructor(
      */
     @Suppress("UNCHECKED_CAST")
     fun sortKeys() {
-        inner.entries.sortBy { it.key.key() }
+        inner.entries.sortWith(compareBy { it.key.key() as Comparable<Any> })
     }
 
     /**

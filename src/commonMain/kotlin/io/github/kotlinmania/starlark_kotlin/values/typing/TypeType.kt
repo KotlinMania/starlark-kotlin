@@ -26,11 +26,20 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
 
 /** Represent a type of type. (For example, an expression `int` is valid for this type.) */
-class TypeType private constructor() : StarlarkTypeRepr, UnpackValue {
+class TypeType private constructor() : StarlarkTypeRepr, UnpackValue<TypeType> {
     // impl StarlarkTypeRepr for TypeType
 
     override fun starlarkTypeRepr(): Ty {
         return AbstractType.starlarkTypeRepr()
+    }
+
+    // impl UnpackValue for TypeType
+    override fun unpackValueImpl(value: Value): Result<TypeType?> {
+        return if (value.vtable().hasEvalType) {
+            Result.success(TypeType())
+        } else {
+            Result.success(null)
+        }
     }
 
     companion object {

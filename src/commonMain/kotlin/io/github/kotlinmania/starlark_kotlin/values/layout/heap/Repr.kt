@@ -19,12 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.withLock
 
 /// In Kotlin, AValueHeader wraps the vtable reference for an allocated value.
 /// The low-level pointer tagging and alignment concerns from Rust are not
@@ -74,12 +75,14 @@ class AValueHeader(
         /// Global registry mapping index -> AValueHeader.
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
 
+        /// Lock for thread-safe index allocation.
+        private val lock = ReentrantLock()
+
         /// Allocate the next aligned index.
-        @Synchronized
-        private fun nextIndex(): Long {
+        private fun nextIndex(): Long = lock.withLock {
             val idx = counter
             counter += ALIGN
-            return idx
+            idx
         }
 
         /// Look up an AValueHeader by its index.
@@ -153,7 +156,7 @@ internal class AValueForward(
 
 /// Object on the heap, either a real object or a forward.
 // pub(crate) union AValueOrForward
-sealed class AValueOrForward {
+internal sealed class AValueOrForward {
     class Header(val header: AValueHeader) : AValueOrForward()
     class Forward(val forward: AValueForward) : AValueOrForward()
 

@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
@@ -68,12 +68,15 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
  * ```
  */
 internal fun registerDict(globals: GlobalsBuilder) {
-    globals.set("dict", FrozenDict::class, SpecialBuiltinFunction.Dict) { args: Arguments, heap: Heap ->
+    // Rust: #[starlark(as_type = FrozenDict, speculative_exec_safe, special_builtin_function = SpecialBuiltinFunction::Dict)]
+    // fn dict<'v>(args: &Arguments<'v, '_>, heap: Heap<'v>) -> starlark::Result<Dict<'v>>
+    globals.setFunction("dict", asType = FrozenDict::class) { args: Arguments, eval: Evaluator ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.
         // Therefore we make it take the raw Arguments.
         // It might have one positional argument, which could be a dict or an array of pairs.
         // It might have named/kwargs arguments, which we copy over (afterwards).
+        val heap = eval.heap()
 
         val pos = args.optional1(heap).getOrThrow()
         val kwargs = args.names().getOrThrow()
@@ -109,4 +112,4 @@ private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Right -> ref.value
 }
 
-internal fun Dict.clone(): Dict = Dict(content.clone())
+internal fun Dict.clone(): Dict = Dict(SmallMap(ArrayList(content.entries)))

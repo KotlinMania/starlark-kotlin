@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.FmtParam
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.iterFmtParamSpec
 
 /// The documentation provided by a user for a specific module, object, function, etc.
@@ -57,7 +56,7 @@ class DocModule(
         val filtered = SmallMap.new<String, DocItem>()
         for ((k, v) in members) {
             if (predicate(Pair(k, v))) {
-                filtered[k] = v
+                filtered.insert(k, v)
             }
         }
         return DocModule(docs = docs, members = filtered)
@@ -233,7 +232,7 @@ class DocType(
     companion object {
         // pub fn from_starlark_value<T: StarlarkValue<'static>>() -> DocType
         fun <T : StarlarkValue> fromStarlarkValue(value: T): DocType {
-            val ty = value.starlarkTypeRepr()
+            val ty = value.getTypeStarlarkRepr()
             val methods = value.getMethods()
             return if (methods != null) {
                 methods.documentation(ty)

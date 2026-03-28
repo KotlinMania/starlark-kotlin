@@ -48,8 +48,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapName
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
@@ -535,13 +535,16 @@ class Module internal constructor(
         val slotsMut = slots().getSlotsMut()
         for (i in slotsMut.indices) {
             slotsMut[i]?.let { v ->
-                v.trace(tracer)
+                val holder = ValueHolder(v)
+                tracer.trace(holder)
+                slotsMut[i] = holder.value
             }
         }
 
         _extraValue?.let { extra ->
-            extra.trace(tracer)
-            setExtraValue(extra)
+            val holder = ValueHolder(extra)
+            tracer.trace(holder)
+            _extraValue = holder.value
         }
 
         heap().traceInterner(tracer)

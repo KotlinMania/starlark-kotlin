@@ -100,7 +100,7 @@ class UnorderedSet<T> internal constructor(
      */
     @Suppress("UNCHECKED_CAST")
     fun entriesSorted(): List<T> =
-        iter().sorted().toList()
+        iter().sortedWith(compareBy { it as Comparable<Any> }).toList()
 
     /**
      * Unordered equality: two sets are equal iff they have the same elements,

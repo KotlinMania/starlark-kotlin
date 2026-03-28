@@ -180,7 +180,7 @@ class UnorderedMap<K, V> internal constructor(
      */
     @Suppress("UNCHECKED_CAST")
     fun entriesSorted(): List<Pair<K, V>> =
-        entriesUnordered().sortedBy { it.first }.toList()
+        entriesUnordered().sortedWith(compareBy { it.first as Comparable<Any> }).toList()
 
     /**
      * Convert into a [HashMap].

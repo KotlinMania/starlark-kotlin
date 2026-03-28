@@ -862,7 +862,7 @@ object InstrDictNPopImpl : InstrNoFlowImpl {
             val v = items[i * 2 + 1]
             val hashed = k.getHashed()
             if (hashed.isFailure) {
-                val spans = Bc.slowArgAtPtr(ip).spans
+                val spans = Bc.slowArgAtPtr(ip, eval.currentBcInstrs).spans
                 return kotlin.Result.failure(
                     addSpanToExprError(hashed.exceptionOrNull()!!, spans[i], eval).intoError()
                 )
@@ -870,7 +870,7 @@ object InstrDictNPopImpl : InstrNoFlowImpl {
             val prev = dict.insertHashed(hashed.getOrThrow(), v)
             if (prev != null) {
                 val e = EvalError.DuplicateDictionaryKey(hashed.getOrThrow().key().toString())
-                val spans = Bc.slowArgAtPtr(ip).spans
+                val spans = Bc.slowArgAtPtr(ip, eval.currentBcInstrs).spans
                 return kotlin.Result.failure(
                     addSpanToExprError(e, spans[i], eval).intoError()
                 )
@@ -1309,7 +1309,7 @@ class BcNativeFunctionCallable(private val func: BcNativeFunction) : BcFrozenCal
         eval: Evaluator,
     ): kotlin.Result<Value> {
         return eval.withCallStack(func.toValue(), location) { innerEval ->
-            kotlin.Result.success(func.invoke(args, innerEval))
+            func.invoke(args, innerEval)
         }
     }
 }

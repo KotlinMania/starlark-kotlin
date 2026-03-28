@@ -26,7 +26,10 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTuple
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleOf
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.StarlarkTypeIdMatcher
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherT
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /**
  * A tuple type in the Starlark type system.
@@ -118,7 +121,13 @@ sealed class TyTuple : Comparable<TyTuple> {
             }
             // xs => general N-element path
             else -> {
-                val matchers = elems.map { TypeMatcherBoxAlloc.ty(it) }
+                val matchers = elems.map { e ->
+                    val m = TypeMatcherBoxAlloc.ty(e)
+                    TypeMatcherBox.new(object : TypeMatcherT {
+                        override fun matches(value: Value): Boolean = m.matches(value)
+                        override fun isWildcard(): Boolean = m.isWildcard()
+                    })
+                }
                 factory.alloc(IsTupleElems(matchers))
             }
         }

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.InlineDefBody
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.defInfo
 
 // #[starlark_module]
 // fn globals(builder: &mut GlobalsBuilder)

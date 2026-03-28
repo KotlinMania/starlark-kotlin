@@ -29,6 +29,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -43,7 +44,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocS
 /// For "complex" version check [StarlarkAnyComplex].
 class StarlarkAny<T>(
     val inner: T,
-) {
+) : StarlarkValue {
+    override val TYPE: String get() = Companion.TYPE
+
     companion object {
         const val TYPE: String = "any"
 
@@ -56,8 +59,8 @@ class StarlarkAny<T>(
         /// Extract from a [Value] that contains a [StarlarkAny] underneath. Returns null if
         /// the value does not match the expected type.
         internal inline fun <reified T> get(x: Value): T? {
-            val starlarkAny: StarlarkAny<T> = x.downcastRef() ?: return null
-            return starlarkAny.inner
+            val starlarkAny: StarlarkAny<T>? = x.downcastRef()
+            return starlarkAny?.inner
         }
     }
 
@@ -73,6 +76,7 @@ class StarlarkAny<T>(
 
 /// Allocate any value in the frozen heap.
 fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> {
+    @Suppress("UNCHECKED_CAST")
     return this.allocSimpleTypedStatic(StarlarkAny.new(value))
         .asFrozenRef()
         .map { r -> (r as StarlarkAny<T>).inner }

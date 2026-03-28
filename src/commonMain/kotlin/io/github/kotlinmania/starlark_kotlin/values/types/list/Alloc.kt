@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
@@ -96,7 +97,7 @@ fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
     where L : Iterable<Item> {
     // Map each item through AllocValue::alloc_value, then collect into a list.
     val allocated = items.map { x -> x.allocValue(heap) }
-    return heap.alloc(AllocList(allocated))
+    return heap.allocListIter(allocated)
 }
 
 // -- impl AllocFrozenValue for AllocList<L> -----------------------------------
@@ -116,5 +117,5 @@ fun <L, Item : AllocFrozenValue> AllocList<L>.allocFrozenValue(heap: FrozenHeap)
     where L : Iterable<Item> {
     // Map each item through AllocFrozenValue::alloc_frozen_value, then collect.
     val allocated = items.map { x -> x.allocFrozenValue(heap) }
-    return heap.alloc(AllocList(allocated))
+    return heap.allocListIter(allocated)
 }

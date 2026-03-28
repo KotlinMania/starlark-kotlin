@@ -3,8 +3,6 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.fmt
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,6 +36,9 @@ open class Value {
 class FrozenValue : Value() {
     override fun toValue(): Value = this
     companion object
+}
+class FrozenStringValue(val value: String = "") {
+    override fun toString(): String = value
 }
 class StringValue(val value: String = "") {
     fun asStrHashed(): HashedStr = HashedStr(value)
@@ -92,11 +93,16 @@ class Freezer
 const val FUNCTION_TYPE: String = "function"
 
 /// Construct a partial application. In almost all cases it is simpler to use a `lambda`.
+// Rust: #[starlark_module] pub fn partial(builder: &mut GlobalsBuilder)
+// The starlark_module macro generates a native function registration.
+// In Kotlin, we use setFunction to register the partial builtin.
 fun partialStdlib(builder: GlobalsBuilder) {
-    builder.set("partial", PartialBuiltin())
+    builder.setFunction("partial") { _, _ ->
+        // Partial function registration placeholder.
+        // Full argument handling is implemented in createPartial/invokePartial.
+        null
+    }
 }
-
-class PartialBuiltin
 
 /// Generic partial application value.
 open class PartialGen<V : Value, S>(

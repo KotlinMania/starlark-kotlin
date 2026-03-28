@@ -38,6 +38,6 @@ fun starlarkValueBitOrForType(
             return Result.failure(TypingMacroRefsError(repr))
         }
     val thisCompiled = TypeCompiled.fromTy(evalType, heap)
-    val otherCompiled = TypeCompiled.new(other, heap).getOrThrow()
+    val otherCompiled = TypeCompiled.new(other, heap)
     return Result.success(TypeCompiled.typeAnyOfTwo(thisCompiled, otherCompiled, heap).toInner())
 }

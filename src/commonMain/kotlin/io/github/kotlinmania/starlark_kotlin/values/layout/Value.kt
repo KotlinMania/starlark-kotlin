@@ -486,6 +486,16 @@ class Value internal constructor(
     }
 
     /**
+     * Get the raw underlying pointer from this value's AValueDyn.
+     * Used by inline functions that need to access the underlying object
+     * from a different package (e.g. ValueOf.unpackValueImpl).
+     */
+    @PublishedApi
+    internal fun getUnderlyingPtr(): Any {
+        return getRef().value.ptr
+    }
+
+    /**
      * Downcast without checking the value type.
      */
     // pub(crate) unsafe fn downcast_ref_unchecked<T: StarlarkValue<'v>>(self) -> &'v T

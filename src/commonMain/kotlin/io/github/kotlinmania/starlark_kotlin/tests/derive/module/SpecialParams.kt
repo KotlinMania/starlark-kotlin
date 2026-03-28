@@ -21,18 +21,16 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
 
 // #[starlark_module]
 // fn functions(builder: &mut GlobalsBuilder)
 private fun functions(builder: GlobalsBuilder) {
     // fn non_standard_heap_name(heap: &str, starlark_heap: Heap) -> Result<StringValue>
     builder.setFunction("non_standard_heap_name") { args, eval ->
-        val heap = args.positional<String>(0)
+        val heapParam = args.positional<String>(0)
         val starlarkHeap = eval.heap()
-        Result.success(starlarkHeap.allocStrConcat(heap, "!"))
+        Result.success(starlarkHeap.allocStrConcat(heapParam, "!").toValue())
     }
 }
 
