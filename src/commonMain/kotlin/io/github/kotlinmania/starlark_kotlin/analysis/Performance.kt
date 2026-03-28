@@ -104,7 +104,7 @@ private fun matchInefficientBoolCheck(
 
     when (arg) {
         // any([blah for blah in blahs]) or any({k: v for ...})
-        is ExprP.List<*>, is ExprP.Dict<*> -> {
+        is ExprP.ListExpr<*>, is ExprP.Dict<*> -> {
             // Comprehension variants — in the full AST these would be
             // ExprP.ListComprehension / ExprP.DictComprehension.
             // Placeholder: trigger on list/dict comprehensions once available.
@@ -137,13 +137,13 @@ private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>
     fun check(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
         matchDictCopy(codemap, x, res)
         matchInefficientBoolCheck(codemap, x, res)
-        x.visitExpr { child -> check(codemap, child, res) }
+        x.node.visitChildExprs { child -> check(codemap, child, res) }
     }
-    module.statement.visitExpr { x -> check(module.codemap, x, res) }
+    module.statement.visitExprs { x -> check(module.codemap, x, res) }
 }
 
 // pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Performance>>
-internal fun lint(module: AstModule): List<LintT<Performance>> {
+internal fun lintPerformance(module: AstModule): List<LintT<Performance>> {
     val res = mutableListOf<LintT<Performance>>()
     checkCallExpr(module, res)
     return res

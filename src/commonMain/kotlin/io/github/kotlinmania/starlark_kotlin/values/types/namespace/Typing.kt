@@ -96,7 +96,7 @@ data class TyNamespace(
             else -> Result.success(ty)
         }
 
-    override fun <T : TypeMatcherAlloc> matcher(factory: T): Any =
+    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R =
         factory.alloc(NamespaceMatcher)
 
     // impl Display for TyNamespace

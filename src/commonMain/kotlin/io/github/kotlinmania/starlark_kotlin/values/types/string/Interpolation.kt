@@ -1,19 +1,21 @@
 // port-lint: source src/values/types/string/interpolation.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat3
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.float.writeDecimal
+import io.github.kotlinmania.starlark_kotlin.values.types.float.writeScientific
+import io.github.kotlinmania.starlark_kotlin.values.types.float.writeCompact
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import com.ionspin.kotlin.bignum.integer.BigInteger
+import kotlin.math.truncate
 
 
 /*
@@ -107,7 +109,7 @@ private class PercentFormatParser(
             }
 
             val f = remAfterPercent[1]
-            val res = when (f) {
+            val res: Item = when (f) {
                 '%' -> {
                     // Include the percent in the literal.
                     val literalWithPercent = prevRem.substring(0, indexOfPercent + 1)
@@ -121,7 +123,7 @@ private class PercentFormatParser(
                 'X' -> Item(literal, PercentSFormat.HexUpper)
                 'e' -> Item(literal, PercentSFormat.Exp)
                 'E' -> Item(literal, PercentSFormat.ExpUpper)
-                'f', F_' -> Item(literal, PercentSFormat.Float)
+                'f', 'F' -> Item(literal, PercentSFormat.Float)
                 'g' -> Item(literal, PercentSFormat.FloatCompact)
                 'G' -> Item(literal, PercentSFormat.FloatCompactUpper)
                 else -> {
@@ -159,8 +161,8 @@ fun percent(format: String, value: Value): Result<String> {
     val res = StringBuilder(format.length + 20)
 
     val tuple = Tuple.fromValue(value)
-    val one = arrayOf(value)
-    val values = when (tuple) {
+    val one = listOf(value)
+    val values: List<Value> = when (tuple) {
         null -> one
         else -> tuple.content()
     }
@@ -208,20 +210,16 @@ fun percent(format: String, value: Value): Result<String> {
                         }
                     }
                     is NumRef.Float -> {
-                        val truncated = NumRef.Float(StarlarkFloat(num.value.value.truncateToInt().toDouble()))
+                        val truncated = NumRef.Float(StarlarkFloat(truncate(num.value.value)))
                         val asInt = truncated.asInt()
                         if (asInt != null) {
                             res.append(asInt)
                         } else {
-                            return Result.failure(
-                                ValueError.UnsupportedType(v, "format(%d)")
-                            )
+                            return ValueError.unsupportedType(v, "format(%d)")
                         }
                     }
                     null -> {
-                        return Result.failure(
-                            ValueError.UnsupportedType(v, "format(%d)")
-                        )
+                        return ValueError.unsupportedType(v, "format(%d)")
                     }
                 }
             }
@@ -242,15 +240,13 @@ fun percent(format: String, value: Value): Result<String> {
                             }
                             is StarlarkIntRef.Big -> {
                                 val bigInt = intRef.value.get()
-                                if (bigInt.isNegative()) res.append("-")
+                                if (bigInt.signum() < 0) res.append("-")
                                 res.append(bigInt.abs().toString(8))
                             }
                         }
                     }
                     is NumRef.Float, null -> {
-                        return Result.failure(
-                            ValueError.UnsupportedType(v, "format(%o)")
-                        )
+                        return ValueError.unsupportedType(v, "format(%o)")
                     }
                 }
             }
@@ -271,15 +267,13 @@ fun percent(format: String, value: Value): Result<String> {
                             }
                             is StarlarkIntRef.Big -> {
                                 val bigInt = intRef.value.get()
-                                if (bigInt.isNegative()) res.append("-")
+                                if (bigInt.signum() < 0) res.append("-")
                                 res.append(bigInt.abs().toString(16))
                             }
                         }
                     }
                     is NumRef.Float, null -> {
-                        return Result.failure(
-                            ValueError.UnsupportedType(v, "format(%x)")
-                        )
+                        return ValueError.unsupportedType(v, "format(%x)")
                     }
                 }
             }
@@ -300,42 +294,40 @@ fun percent(format: String, value: Value): Result<String> {
                             }
                             is StarlarkIntRef.Big -> {
                                 val bigInt = intRef.value.get()
-                                if (bigInt.isNegative()) res.append("-")
+                                if (bigInt.signum() < 0) res.append("-")
                                 res.append(bigInt.abs().toString(16).uppercase())
                             }
                         }
                     }
                     is NumRef.Float, null -> {
-                        return Result.failure(
-                            ValueError.UnsupportedType(v, "format(%X)")
-                        )
+                        return ValueError.unsupportedType(v, "format(%X)")
                     }
                 }
             }
             PercentSFormat.Exp -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeScientific(res, numRef.asFloat(), E_', false)
+                writeScientific(res, numRef.asFloat(), 'e', false)
             }
             PercentSFormat.ExpUpper -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeScientific(res, numRef.asFloat(), E_', false)
+                writeScientific(res, numRef.asFloat(), 'E', false)
             }
             PercentSFormat.Float -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeDecimal(res, numRef.asFloat())
+                writeDecimal(res, numRef.asFloat())
             }
             PercentSFormat.FloatCompact -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeCompact(res, numRef.asFloat(), E_')
+                writeCompact(res, numRef.asFloat(), 'e')
             }
             PercentSFormat.FloatCompactUpper -> {
                 val v = nextValue().getOrElse { return Result.failure(it) }
                 val numRef = NumRef.unpackParam(v).getOrElse { return Result.failure(it) }
-                FloatFormatting.writeCompact(res, numRef.asFloat(), E_')
+                writeCompact(res, numRef.asFloat(), 'E')
             }
         }
     }
@@ -416,17 +408,4 @@ fun percentSOne(
         }
         Result.success(formatOne(before, one, after, heap))
     }
-}
-
-// ValueError should be imported from its real package
-
-// Extension for Double.truncateToInt()
-private fun Double.truncateToInt(): kotlin.Int {
-    return this.toInt()
-}
-
-// Extension for BigInt.toString(radix)
-private fun BigInt.toString(radix: kotlin.Int): String {
-    // This will need to be implemented based on the actual BigInt implementation
-    return this.toString()
 }

@@ -21,16 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
 
 import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.debug.*
+import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
 import io.github.kotlinmania.starlark_kotlin.isWasm
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -123,7 +126,7 @@ private fun evalWithHook(
     ast: AstModule,
     hook: DapAdapterEvalHook,
 ): Result<OwnedFrozenValue> {
-    val modules = HashMap<String, Any>()
+    val modules = HashMap<String, FrozenModule>()
     val loader = ReturnFileLoader(modules)
     val globals = GlobalsBuilder.extended().with(::testFunctions).build()
     return Module.withTempHeap { env ->
@@ -135,21 +138,20 @@ private fun evalWithHook(
         }
 
         env.set("_", res)
-        Result.success(
-            env.freeze().getOrElse { error("error freezing module") }
-                .get("_") ?: error("missing _"),
-        )
+        env.freeze().getOrElse { error("error freezing module") }
+            .get("_").getOrElse { error("missing _") }
+            .let { Result.success(it) }
     }
 }
 
-private fun <T> joinTimeout(waiting: Thread, result: () -> T, timeout: Duration): T {
+private fun <T> joinTimeout(waiting: kotlinx.coroutines.Deferred<T>, timeout: Duration): T {
     val start = TimeSource.Monotonic.markNow()
-    while (waiting.isAlive) {
+    while (!waiting.isCompleted) {
         if (start.elapsedNow() > timeout) {
             error("timeout waiting for thread")
         }
     }
-    return result()
+    return runBlocking { waiting.await() }
 }
 
 private val TIMEOUT: Duration = 10.seconds
@@ -185,18 +187,17 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(3L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        val evalResult = runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        adapter.continue_().getOrThrow()
-        controller.waitForEvalStopped(2, TIMEOUT)
+            controller.waitForEvalStopped(1, TIMEOUT)
+            adapter.continue_().getOrThrow()
+            controller.waitForEvalStopped(2, TIMEOUT)
 
-        adapter.continue_().getOrThrow()
+            adapter.continue_().getOrThrow()
 
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -221,12 +222,10 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(3L to "5 in x")), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
-
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -251,17 +250,16 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(3L to "2 in x")), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        adapter.continue_().getOrThrow()
-        controller.waitForEvalStopped(2, TIMEOUT)
-        adapter.continue_().getOrThrow()
+            controller.waitForEvalStopped(1, TIMEOUT)
+            adapter.continue_().getOrThrow()
+            controller.waitForEvalStopped(2, TIMEOUT)
+            adapter.continue_().getOrThrow()
 
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -292,33 +290,32 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(7L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        adapter.continue_().getOrThrow()
-        controller.waitForEvalStopped(2, TIMEOUT)
+            controller.waitForEvalStopped(1, TIMEOUT)
+            adapter.continue_().getOrThrow()
+            controller.waitForEvalStopped(2, TIMEOUT)
 
-        check("1" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("2" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("3" == adapter.evaluate("x[2]").getOrThrow().result)
-        adapter.step(StepKind.Over).getOrThrow()
-        controller.waitForEvalStopped(3, TIMEOUT)
-        check("2" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("3" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("4" == adapter.evaluate("x[2]").getOrThrow().result)
+            check("1" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("2" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("3" == adapter.evaluate("x[2]").getOrThrow().result)
+            adapter.step(StepKind.Over).getOrThrow()
+            controller.waitForEvalStopped(3, TIMEOUT)
+            check("2" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("3" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("4" == adapter.evaluate("x[2]").getOrThrow().result)
 
-        adapter.step(StepKind.Over).getOrThrow()
-        controller.waitForEvalStopped(4, TIMEOUT)
-        adapter.step(StepKind.Over).getOrThrow()
-        controller.waitForEvalStopped(5, TIMEOUT)
-        check("3" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("4" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("5" == adapter.evaluate("x[2]").getOrThrow().result)
-        adapter.continue_().getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+            adapter.step(StepKind.Over).getOrThrow()
+            controller.waitForEvalStopped(4, TIMEOUT)
+            adapter.step(StepKind.Over).getOrThrow()
+            controller.waitForEvalStopped(5, TIMEOUT)
+            check("3" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("4" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("5" == adapter.evaluate("x[2]").getOrThrow().result)
+            adapter.continue_().getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -349,55 +346,54 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(7L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        adapter.continue_().getOrThrow()
-        controller.waitForEvalStopped(2, TIMEOUT)
+            controller.waitForEvalStopped(1, TIMEOUT)
+            adapter.continue_().getOrThrow()
+            controller.waitForEvalStopped(2, TIMEOUT)
 
-        check("1" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("2" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("3" == adapter.evaluate("x[2]").getOrThrow().result)
+            check("1" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("2" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("3" == adapter.evaluate("x[2]").getOrThrow().result)
 
-        // into adjust
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(3, TIMEOUT)
-        check("1" == adapter.evaluate("y[0]").getOrThrow().result)
-        check("2" == adapter.evaluate("y[1]").getOrThrow().result)
-        check("3" == adapter.evaluate("y[2]").getOrThrow().result)
+            // into adjust
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(3, TIMEOUT)
+            check("1" == adapter.evaluate("y[0]").getOrThrow().result)
+            check("2" == adapter.evaluate("y[1]").getOrThrow().result)
+            check("3" == adapter.evaluate("y[2]").getOrThrow().result)
 
-        // into should go to next line
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(4, TIMEOUT)
-        check("2" == adapter.evaluate("y[0]").getOrThrow().result)
-        check("2" == adapter.evaluate("y[1]").getOrThrow().result)
-        check("3" == adapter.evaluate("y[2]").getOrThrow().result)
+            // into should go to next line
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(4, TIMEOUT)
+            check("2" == adapter.evaluate("y[0]").getOrThrow().result)
+            check("2" == adapter.evaluate("y[1]").getOrThrow().result)
+            check("3" == adapter.evaluate("y[2]").getOrThrow().result)
 
-        // two more intos should get us out of the function call
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(5, TIMEOUT)
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(6, TIMEOUT)
-        check("2" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("3" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("4" == adapter.evaluate("x[2]").getOrThrow().result)
+            // two more intos should get us out of the function call
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(5, TIMEOUT)
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(6, TIMEOUT)
+            check("2" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("3" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("4" == adapter.evaluate("x[2]").getOrThrow().result)
 
-        // and once more back into the function
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(7, TIMEOUT)
+            // and once more back into the function
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(7, TIMEOUT)
 
-        adapter.step(StepKind.Into).getOrThrow()
-        controller.waitForEvalStopped(8, TIMEOUT)
+            adapter.step(StepKind.Into).getOrThrow()
+            controller.waitForEvalStopped(8, TIMEOUT)
 
-        check("2" == adapter.evaluate("y[0]").getOrThrow().result)
-        check("3" == adapter.evaluate("y[1]").getOrThrow().result)
-        check("4" == adapter.evaluate("y[2]").getOrThrow().result)
+            check("2" == adapter.evaluate("y[0]").getOrThrow().result)
+            check("3" == adapter.evaluate("y[1]").getOrThrow().result)
+            check("4" == adapter.evaluate("y[2]").getOrThrow().result)
 
-        adapter.continue_().getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+            adapter.continue_().getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -428,41 +424,40 @@ print(x)
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(4L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        // should break on the first time hitting line 4
-        controller.waitForEvalStopped(1, TIMEOUT)
-        check("2" == adapter.evaluate("y[0]").getOrThrow().result)
-        check("2" == adapter.evaluate("y[1]").getOrThrow().result)
-        check("3" == adapter.evaluate("y[2]").getOrThrow().result)
+            // should break on the first time hitting line 4
+            controller.waitForEvalStopped(1, TIMEOUT)
+            check("2" == adapter.evaluate("y[0]").getOrThrow().result)
+            check("2" == adapter.evaluate("y[1]").getOrThrow().result)
+            check("3" == adapter.evaluate("y[2]").getOrThrow().result)
 
-        // step out should take us to line 8
-        adapter.step(StepKind.Out).getOrThrow()
-        controller.waitForEvalStopped(2, TIMEOUT)
-        check("2" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("3" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("4" == adapter.evaluate("x[2]").getOrThrow().result)
+            // step out should take us to line 8
+            adapter.step(StepKind.Out).getOrThrow()
+            controller.waitForEvalStopped(2, TIMEOUT)
+            check("2" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("3" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("4" == adapter.evaluate("x[2]").getOrThrow().result)
 
-        // step out should actually hit the breakpoint at 4 first (before getting out)
-        adapter.step(StepKind.Out).getOrThrow()
-        controller.waitForEvalStopped(3, TIMEOUT)
-        check("3" == adapter.evaluate("y[0]").getOrThrow().result)
-        check("3" == adapter.evaluate("y[1]").getOrThrow().result)
-        check("4" == adapter.evaluate("y[2]").getOrThrow().result)
+            // step out should actually hit the breakpoint at 4 first (before getting out)
+            adapter.step(StepKind.Out).getOrThrow()
+            controller.waitForEvalStopped(3, TIMEOUT)
+            check("3" == adapter.evaluate("y[0]").getOrThrow().result)
+            check("3" == adapter.evaluate("y[1]").getOrThrow().result)
+            check("4" == adapter.evaluate("y[2]").getOrThrow().result)
 
-        // step out should get out to the print
-        adapter.step(StepKind.Out).getOrThrow()
-        controller.waitForEvalStopped(4, TIMEOUT)
-        check("3" == adapter.evaluate("x[0]").getOrThrow().result)
-        check("4" == adapter.evaluate("x[1]").getOrThrow().result)
-        check("5" == adapter.evaluate("x[2]").getOrThrow().result)
+            // step out should get out to the print
+            adapter.step(StepKind.Out).getOrThrow()
+            controller.waitForEvalStopped(4, TIMEOUT)
+            check("3" == adapter.evaluate("x[0]").getOrThrow().result)
+            check("4" == adapter.evaluate("x[1]").getOrThrow().result)
+            check("5" == adapter.evaluate("x[2]").getOrThrow().result)
 
-        // one more out should be equivalent to continue
-        adapter.step(StepKind.Out).getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
+            // one more out should be equivalent to continue
+            adapter.step(StepKind.Out).getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+        }
         Result.success(Unit)
     }.getOrThrow()
 }
@@ -498,16 +493,15 @@ print(do())
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(13L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        val variables = adapter.variables()
-        adapter.continue_().getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
-        variables.map { it }.mapCatching { it }
+            controller.waitForEvalStopped(1, TIMEOUT)
+            val variables = adapter.variables()
+            adapter.continue_().getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+            variables
+        }
     }.getOrThrow()
 
     // It's easier to handle errors outside of thread::scope block as the test is quite flaky
@@ -557,23 +551,22 @@ print(do())
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(13L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        inspectResults.addAll(
-            listOf(
-                adapter.inspectVariable(VariablePath.newLocal("a")),
-                adapter.inspectVariable(VariablePath.newLocal("arr")),
-                adapter.inspectVariable(VariablePath.newLocal("t")),
-                adapter.inspectVariable(VariablePath.newLocal("d")),
-            ),
-        )
-        adapter.continue_().getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
-        Result.success(inspectResults.map { it.getOrThrow() })
+            controller.waitForEvalStopped(1, TIMEOUT)
+            inspectResults.addAll(
+                listOf(
+                    adapter.inspectVariable(VariablePath.newLocal("a")),
+                    adapter.inspectVariable(VariablePath.newLocal("arr")),
+                    adapter.inspectVariable(VariablePath.newLocal("t")),
+                    adapter.inspectVariable(VariablePath.newLocal("d")),
+                ),
+            )
+            adapter.continue_().getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+            Result.success(inspectResults.map { it.getOrThrow() })
+        }
     }.getOrThrow()
 
     // It's easier to handle errors outside of thread::scope block as the test is quite flaky
@@ -620,24 +613,23 @@ print(do())
             resolveBreakpoints(breakpointsArgs("test.bzl", listOf(12L to null)), ast).getOrThrow()
         adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        var evalResult: Result<OwnedFrozenValue>? = null
-        val thread = Thread {
-            evalResult = evalWithHook(ast, evalHook)
-        }.also { it.start() }
+        runBlocking {
+            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-        controller.waitForEvalStopped(1, TIMEOUT)
-        evalResults.addAll(
-            listOf(
-                adapter.evaluate("s.inner.value"),
-                adapter.evaluate("s.inner.inner.value"),
-                adapter.evaluate("s.inner.arr[0]"),
-                adapter.evaluate("s.inner.arr[0][\"a\"]"),
-                adapter.evaluate("s.inner.arr[1]"),
-            ),
-        )
-        adapter.continue_().getOrThrow()
-        joinTimeout(thread, { evalResult!!.getOrThrow() }, TIMEOUT)
-        Result.success(evalResults.map { it.getOrThrow() })
+            controller.waitForEvalStopped(1, TIMEOUT)
+            evalResults.addAll(
+                listOf(
+                    adapter.evaluate("s.inner.value"),
+                    adapter.evaluate("s.inner.inner.value"),
+                    adapter.evaluate("s.inner.arr[0]"),
+                    adapter.evaluate("s.inner.arr[0][\"a\"]"),
+                    adapter.evaluate("s.inner.arr[1]"),
+                ),
+            )
+            adapter.continue_().getOrThrow()
+            joinTimeout(deferred, TIMEOUT).getOrThrow()
+            Result.success(evalResults.map { it.getOrThrow() })
+        }
     }.getOrThrow()
 
     // It's easier to handle errors outside of thread::scope block as the test is quite flaky

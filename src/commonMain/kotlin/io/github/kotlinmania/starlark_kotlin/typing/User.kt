@@ -19,9 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
 
 // #[derive(Debug, thiserror::Error)]
 // enum TyUserError
@@ -252,12 +255,13 @@ class TyUser private constructor(
     }
 
     // fn index(&self, item: &TyBasic, ctx: &TypingOracleCtx) -> Result<Ty, TypingNoContextOrInternalError>
-    override fun index(item: TyBasic): Result<Ty> {
+    override fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         val idx = index
         if (idx != null) {
-            // Simplified: in the full implementation, this would check
-            // ctx.intersects(Ty.basic(item), idx.index).
-            // Without ctx, we return the result type directly.
+            val doesIntersect = ctx.intersects(Ty.basic(item), idx.index).getOrElse { return Result.failure(it) }
+            if (!doesIntersect) {
+                return Result.failure(TypingNoContextOrInternalError.Typing)
+            }
             return Result.success(idx.result)
         }
         return base.index(item)
@@ -282,19 +286,23 @@ class TyUser private constructor(
     }
 
     // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
-    override fun validateCall(args: TyCallArgs): Result<Ty> {
+    override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> {
         val c = callable
         if (c != null) {
-            return c.validateCall(args)
+            return c.validateCall(span, args, oracle)
         }
-        return base.validateCall()
+        return try {
+            Result.success(base.validateCall(span, oracle))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
-    override fun <T> matcher(factory: TypeMatcherFactory<T>): T {
+    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
         val m = matcher
         if (m != null) {
-            return factory.byTypeName(TyStarlarkValue.new(name))
+            return factory.fromTypeMatcherFactory(m)
         }
         return base.matcher(factory)
     }

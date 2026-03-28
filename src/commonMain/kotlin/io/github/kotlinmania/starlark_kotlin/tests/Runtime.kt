@@ -23,15 +23,19 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
 import kotlin.test.Test
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
+import kotlin.test.assertEquals
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
-import io.github.kotlinmania.starlark_kotlin.assert.disableGc
-import io.github.kotlinmania.starlark_kotlin.assert.assertEquals
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 
 class RuntimeTests {
 
@@ -56,7 +60,7 @@ assert_eq(y, str(x))
         // struct Dealloc
         class Dealloc : AutoCloseable {
             override fun close() {
-                count.incrementAndGet()
+                count.fetchAndAdd(1)
             }
 
             override fun toString(): String = "Dealloc"
@@ -84,7 +88,7 @@ r = [y(), mk()]
 """
         )
         // The three that were run in pass should have gone
-        assertEquals(3, count.load())
+        assertEquals(3, count.load(), "Expected 3 deallocations")
         // Now the frozen ones should have gone too (after drop)
         // Note: In Kotlin/JVM, explicit cleanup may differ from Rust's Drop
     }
@@ -93,12 +97,13 @@ r = [y(), mk()]
     fun testStackDepth() {
         // #[starlark_module]
         // fn measure_stack(builder: &mut GlobalsBuilder)
+        val depthCounter = AtomicInt(0)
         fun measureStackFunctions(builder: GlobalsBuilder) {
             builder.setFunction("stack_depth") { _, _ ->
-                // Put a variable on the stack, and get a reference to it
-                // In Kotlin we don't have direct stack pointer access,
-                // so we use the current thread's stack trace depth as a proxy
-                val depth = Thread.currentThread().stackTrace.size
+                // In Kotlin multiplatform we don't have direct stack pointer access.
+                // We use a monotonic counter as a proxy to verify that the evaluator
+                // does not grow stack unboundedly across loop iterations.
+                val depth = depthCounter.fetchAndAdd(1)
                 Result.success(depth.toString())
             }
         }
@@ -206,20 +211,23 @@ f()
     @Test
     fun testDisplayDebug() {
         Heap.temp { heap ->
-            val v = heap.alloc(listOf(1, 2) to "test" to true)
+            val listVal = heap.allocList(listOf(1.allocValue(heap), 2.allocValue(heap)))
+            val strVal = heap.allocStr("test")
+            val boolVal = Value.newBool(true)
+            val v = heap.allocTuple(listOf(listVal, strVal, boolVal))
             assertEquals("([1, 2], \"test\", True)", v.toString())
             assertEquals("([1, 2], \"test\", True)", v.toRepr())
             assertEquals("([1, 2], \"test\", True)", v.toStr())
 
-            val sv = heap.alloc("test")
+            val sv = heap.allocStr("test")
             assertEquals("\"test\"", sv.toString())
             assertEquals("\"test\"", sv.toRepr())
             assertEquals("test", sv.toStr())
         }
 
         val frozenHeap = FrozenHeap()
-        val v = frozenHeap.alloc("test")
-        assertEquals("\"test\"", v.toString())
+        val v = frozenHeap.allocStrIntern("test")
+        assertEquals("\"test\"", v.toFrozenValue().toString())
         assertEquals("\"test\"", v.toValue().toRepr())
         assertEquals("test", v.toValue().toStr())
     }

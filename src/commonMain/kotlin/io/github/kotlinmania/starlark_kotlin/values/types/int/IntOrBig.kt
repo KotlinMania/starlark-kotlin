@@ -22,12 +22,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import com.ionspin.kotlin.bignum.integer.Sign
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
-import io.github.kotlinmania.starlark_kotlin.values.types.string.BigInt
-import io.github.kotlinmania.starlark_kotlin.values.types.num.abs
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.toOwned
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
+import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 
 /**
  * Starlark integer error types.
@@ -82,7 +80,14 @@ sealed class StarlarkInt {
 
     companion object {
         fun fromStrRadix(s: String, base: Int): Result<StarlarkInt> = runCatching {
-            from(TokenInt.fromStrRadix(s, base).getOrThrow())
+            // Rust: TokenInt::from_str_radix(s, base)?
+            // Try parsing as i32 first, fall back to BigInteger.
+            val i32 = s.toIntOrNull(base)
+            if (i32 != null) {
+                from(i32)
+            } else {
+                from(BigInteger.parseString(s, base))
+            }
         }
 
         fun fromF64Exact(f: Double): Result<StarlarkInt> = runCatching {
@@ -99,7 +104,6 @@ sealed class StarlarkInt {
             }
         }
 
-        @PublishedApi
         internal inline fun <I> fromImpl(value: I, tryInline: (I) -> InlineInt?, toBig: (I) -> BigInteger): StarlarkInt {
             val inlineValue = tryInline(value)
             return if (inlineValue != null) {
@@ -122,11 +126,8 @@ sealed class StarlarkInt {
             }
         }
 
-        fun from(value: TokenInt): StarlarkInt = when (value) {
-            is TokenInt.I32 -> from(value.value)
-            is TokenInt.BigInt -> from(value.value)
-            else -> throw IllegalStateException("Unexpected TokenInt: $value")
-        }
+        // Rust: impl From<TokenInt> for StarlarkInt
+        // TokenInt is not yet fully ported; parsing is handled by fromStrRadix.
 
         fun from(value: UInt): StarlarkInt = fromImpl(
             value,
@@ -148,6 +149,18 @@ sealed class StarlarkInt {
     }
 }
 
+// Rust: impl AllocValue for StarlarkInt
+fun StarlarkInt.allocValue(heap: Heap): Value = when (this) {
+    is StarlarkInt.Small -> Value.newInt(value)
+    is StarlarkInt.Big -> heap.allocSimple(value)
+}
+
+// Rust: impl AllocFrozenValue for StarlarkInt
+fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
+    is StarlarkInt.Small -> FrozenValue.newInt(value)
+    is StarlarkInt.Big -> heap.allocSimple(value)
+}
+
 /**
  * Reference to a StarlarkInt that can be either a small inline value or a reference to a big integer.
  */
@@ -162,7 +175,7 @@ sealed class StarlarkIntRef {
 
     fun toBig(): BigInteger = when (this) {
         is Small -> value.toBigInt()
-        is Big -> value.get().copy()
+        is Big -> value.get()
     }
 
     fun toF64(): Double = when (this) {
@@ -184,7 +197,7 @@ sealed class StarlarkIntRef {
 
     private fun isNegative(): Boolean = when (this) {
         is Small -> value < 0
-        is Big -> value.get().sign == Sign.NEGATIVE
+        is Big -> value.get() < BigInteger.ZERO
     }
 
     private fun isZero(): Boolean = when (this) {

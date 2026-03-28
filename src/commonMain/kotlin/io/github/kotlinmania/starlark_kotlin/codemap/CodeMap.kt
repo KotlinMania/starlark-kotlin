@@ -19,11 +19,55 @@ package io.github.kotlinmania.starlark_kotlin.codemap
  * limitations under the License.
  */
 
+import kotlin.concurrent.Volatile
+
+/// A cheap unique identifier per CodeMap, used for profiling optimisations.
+// In Rust this is a pointer-based identity (CodeMapId). In Kotlin we use an
+// incrementing counter so that each CodeMap instance gets a unique id.
+data class CodeMapId(val value: Long) {
+    companion object {
+        val EMPTY: CodeMapId = CodeMapId(0L)
+        @Volatile
+        private var nextId: Long = 1L
+
+        internal fun next(): CodeMapId {
+            val id = nextId
+            nextId = id + 1
+            return CodeMapId(id)
+        }
+    }
+}
+
+/// Multiple [CodeMap]s, keyed by [CodeMapId].
+// pub struct CodeMaps { codemaps: HashMap<CodeMapId, CodeMap> }
+class CodeMaps {
+    private val codemaps: MutableMap<CodeMapId, CodeMap> = mutableMapOf()
+
+    /// Lookup by id.
+    fun get(id: CodeMapId): CodeMap? = codemaps[id]
+
+    /// Add codemap if not already present.
+    fun add(codemap: CodeMap) {
+        val id = codemap.id()
+        if (id !in codemaps) {
+            codemaps[id] = codemap
+        }
+    }
+
+    /// Add all codemaps.
+    fun addAll(codemaps: CodeMaps) {
+        for (codemap in codemaps.codemaps.values) {
+            add(codemap)
+        }
+    }
+}
+
 class CodeMap(
     val filename: String,
     val source: String
 ) {
     val lines: List<Pos>
+    private val _id: CodeMapId = CodeMapId.next()
 
     init {
         val linePositions = mutableListOf(Pos(0))
@@ -36,6 +80,9 @@ class CodeMap(
         }
         lines = linePositions
     }
+
+    /// Only used internally for profiling optimisations.
+    fun id(): CodeMapId = _id
 
     fun fullSpan(): Span = Span(Pos(0), Pos(source.length))
 
@@ -60,11 +107,58 @@ class CodeMap(
     fun sourceLine(line: Int): String {
         return sourceSpan(lineSpan(line)).trimEnd('\r', '\n')
     }
+
+    private fun findLineCol(pos: Pos): ResolvedPos {
+        val line = findLine(pos)
+        val lineSpan = lineSpan(line)
+        val byteCol = pos.value - lineSpan.begin.value
+        val column = sourceSpan(lineSpan).substring(0, byteCol).length
+        return ResolvedPos(line = line, column = column)
+    }
+
+    /// Gets the file and its line and column ranges represented by a Span.
+    fun resolveSpan(span: Span): ResolvedSpan {
+        val begin = findLineCol(span.begin)
+        val end = findLineCol(span.end)
+        return ResolvedSpan(begin = begin, end = end)
+    }
+
+    /// Filename method (mirrors Rust's CodeMap::filename()).
+    fun filename(): String = filename
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CodeMap) return false
+        return _id == other._id
+    }
+
+    override fun hashCode(): Int = _id.hashCode()
+
+    override fun toString(): String = "CodeMap(\"$filename\")"
 }
 
 data class FileSpan(
     val file: CodeMap,
     val span: Span
-) {
+) : Comparable<FileSpan> {
     fun sourceSpan(): String = file.sourceSpan(span)
+
+    /// Resolve the span to lines and columns.
+    fun resolveSpan(): ResolvedSpan = file.resolveSpan(span)
+
+    /// Resolve the span to a [ResolvedFileSpan].
+    fun resolve(): ResolvedFileSpan = ResolvedFileSpan(
+        file = file.filename,
+        span = file.resolveSpan(span),
+    )
+
+    override fun compareTo(other: FileSpan): Int {
+        val fc = file.filename.compareTo(other.file.filename)
+        if (fc != 0) return fc
+        val sc = span.compareTo(other.span)
+        if (sc != 0) return sc
+        return file.id().value.compareTo(other.file.id().value)
+    }
+
+    override fun toString(): String = "${file.filename}:${resolveSpan()}"
 }

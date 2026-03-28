@@ -45,7 +45,7 @@ interface TyCustomFunctionImpl {
         span: Span,
         args: TyCallArgs,
         oracle: TypingOracleCtx,
-    ): Ty
+    ): Result<Ty>
 
     // fn as_callable(&self) -> TyCallable
     fun asCallable(): TyCallable
@@ -66,11 +66,7 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     override fun asName(): String? = "function"
 
     // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
-    override fun validateCall(
-        span: Span,
-        args: TyCallArgs,
-        oracle: TypingOracleCtx,
-    ): Ty {
+    override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> {
         return inner.validateCall(span, args, oracle)
     }
 
@@ -85,35 +81,28 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     }
 
     // fn bin_op(&self, bin_op, rhs, ctx) -> Result<Ty, TypingNoContextOrInternalError>
-    override fun binOp(
-        binOp: TypingBinOp,
-        rhs: TyBasic,
-        ctx: TypingOracleCtx,
-    ): Ty {
+    override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         return when {
             // `str | list`.
-            binOp == TypingBinOp.BitOr && inner.isType() -> Ty.basic(TyBasic.Type)
-            else -> throw TypingNoContextOrInternalError.Typing
+            binOp == TypingBinOp.BitOr && inner.isType() -> Result.success(Ty.basic(TyBasic.Type))
+            else -> Result.failure(TypingNoContextOrInternalError.Typing)
         }
     }
 
     // fn index(&self, item, ctx) -> Result<Ty, TypingNoContextOrInternalError>
-    override fun index(
-        item: TyBasic,
-        ctx: TypingOracleCtx,
-    ): Ty {
+    override fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         // TODO(nga): this is hack for `enum` (type) which pretends to be a function.
         //   Should be a custom type.
-        return Ty.any()
+        return Result.success(Ty.any())
     }
 
     // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
-    override fun attribute(attr: String): Ty {
-        throw TypingNoContextError
+    override fun attribute(attr: String): Result<Ty> {
+        return Result.failure(TypingNoContextError)
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
-    override fun <T : TypeMatcherAlloc> matcher(factory: T): Any {
+    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
         return factory.callable()
     }
 
@@ -173,11 +162,7 @@ class TyFunction(
     override fun isType(): Boolean = typeAttr != null
 
     // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
-    override fun validateCall(
-        span: Span,
-        args: TyCallArgs,
-        oracle: TypingOracleCtx,
-    ): Ty {
+    override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> {
         return oracle.validateFnCall(span, callable, args)
     }
 

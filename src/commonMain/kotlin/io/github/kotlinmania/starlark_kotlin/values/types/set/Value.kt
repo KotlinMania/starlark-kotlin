@@ -1,32 +1,6 @@
 // port-lint: source src/values/types/set/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Serializer
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Methods
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.SetType
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.typing.anySet
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.insertHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.intoInner
-import io.github.kotlinmania.starlark_kotlin.values.equalsSmallSet
-import io.github.kotlinmania.starlark_kotlin.util.unleakBorrow
-import io.github.kotlinmania.starlark_kotlin.util.refcell.borrow
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.typing.Ok
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -45,8 +19,22 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ok
  * limitations under the License.
  */
 
-// Note: This is a skeletal port. Many dependencies (SmallSet, Hashed, Cell, etc.) are not yet fully ported.
-// This file captures the structure and will be completed once dependencies are available.
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.freezeSmallSet
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /**
  * Generic set wrapper.
@@ -54,8 +42,20 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ok
  * Transparent wrapper around the inner set implementation.
  * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
  */
-@JvmInline
-value class SetGen<T>(val inner: T)
+// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
+// pub(crate) struct SetGen<T>(pub(crate) T);
+data class SetGen<T>(val inner: T) : ComplexValue, Trace {
+    override val TYPE: String get() = SET_TYPE
+
+    override fun trace(tracer: Tracer) {
+        val innerVal = inner
+        if (innerVal is Trace) {
+            innerVal.trace(tracer)
+        }
+    }
+}
+
+private const val SET_TYPE: String = "set"
 
 /**
  * Define the mutable set type.
@@ -109,13 +109,13 @@ class SetData {
  *
  * Corresponds to Rust's `FrozenSetData`.
  */
-class FrozenSetData {
+class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
     val content: SmallSet<FrozenValue> = SmallSet()
-}
+)
 
 /** Mutable set type alias. */
-typealias MutableSet = SetGen<Cell<SetData>>
+typealias MutableSet = SetGen<RefCell<SetData>>
 
 /** Frozen set type alias. */
 typealias FrozenSet = SetGen<FrozenSetData>
@@ -124,38 +124,41 @@ typealias FrozenSet = SetGen<FrozenSetData>
  * AllocValue implementation for SetData.
  */
 fun SetData.allocValue(heap: Heap): Value {
-    return heap.allocComplex(SetGen(Cell.new(this)))
+    return heap.allocComplex(SetGen(RefCell(this)))
 }
 
 /**
  * StarlarkTypeRepr implementation for SetData.
  */
 fun SetData.starlarkTypeRepr(): Ty {
-    return SetType.starlarkTypeRepr<Value>()
+    return Ty.anySet()
 }
 
 /**
  * Freeze implementation for MutableSet.
  */
 fun MutableSet.freeze(freezer: Freezer): FreezeResult<FrozenSet> {
-    val content = this.inner.intoInner().content.freeze(freezer)
-    return when (content) {
-        is Result.Success -> FreezeResult.Ok(SetGen(FrozenSetData().apply {
-            this.content.addAll(content.value)
-        }))
-        is Result.Failure -> FreezeResult.Err(content.exception)
-        else -> throw IllegalStateException("Unexpected result: $content")
-    }
+    val contentResult = freezeSmallSet(
+        this.inner.borrow().data.content,
+        freezer,
+    ) { v, f -> v.freeze(f) }
+    if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
+    return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
 }
 
 /**
  * Get set methods.
  */
 fun setMethods(): Methods? {
-    return RES.methods { setMethodsImpl() }
+    return RES.methods(::setMethodsImpl)
 }
 
-private val RES = MethodsStatic.new()
+private val RES = MethodsStatic()
+
+/** Delegate to the set methods registration in Methods.kt. */
+private fun setMethodsImpl(builder: io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder) {
+    setMethods(builder)
+}
 
 /**
  * Trait for set-like operations.
@@ -173,23 +176,25 @@ interface SetLike {
 }
 
 /**
- * SetLike implementation for Cell<SetData>.
+ * SetLike implementation for RefCell<SetData>.
  */
-class CellSetDataSetLike(private val cell: Cell<SetData>) : SetLike {
+class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     override fun content(): SmallSet<Value> {
-        return cell.borrow().content
+        return cell.borrow().data.content
     }
 
     override fun iterStart() {
-        cell.forgetBorrow()
+        // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
+        // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
+        cell.borrow()
     }
 
     override fun iterStop() {
-        cell.unleakBorrow()
+        cell.releaseBorrow()
     }
 
     override fun contentUnchecked(): SmallSet<Value> {
-        return cell.tryBorrowUnguarded()!!.content
+        return cell.borrow().data.content
     }
 }
 
@@ -197,8 +202,9 @@ class CellSetDataSetLike(private val cell: Cell<SetData>) : SetLike {
  * SetLike implementation for FrozenSetData.
  */
 class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
+    @Suppress("UNCHECKED_CAST")
     override fun content(): SmallSet<Value> {
-        return coerce(data.content)
+        return data.content as SmallSet<Value>
     }
 
     override fun iterStart() {
@@ -209,8 +215,9 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
         // No-op for frozen data
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun contentUnchecked(): SmallSet<Value> {
-        return coerce(data.content)
+        return data.content as SmallSet<Value>
     }
 }
 
@@ -228,19 +235,17 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
 /**
  * Returns the length of the set.
  */
-fun <T> SetGen<T>.length(): Result<Int> where T : SetLike {
-    val setLike = inner as SetLike
-    return Result.success(setLike.content().len())
+fun <T : SetLike> SetGen<T>.length(): Result<Int> {
+    return Result.success(inner.content().len())
 }
 
 /**
  * Check if a value is in the set.
  */
-fun <T> SetGen<T>.isIn(other: Value): Result<Boolean> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.isIn(other: Value): Result<Boolean> {
     return try {
-        val hashed = other.getHashed()
-        Result.success(setLike.content().containsHashed(hashed.asRef()))
+        val hashed = other.getHashed().getOrThrow()
+        Result.success(inner.content().containsHashed(hashed.asRef()))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -249,14 +254,13 @@ fun <T> SetGen<T>.isIn(other: Value): Result<Boolean> where T : SetLike {
 /**
  * Check equality with another value.
  */
-fun <T> SetGen<T>.equals(other: Value): Result<Boolean> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.setEquals(other: Value): Result<Boolean> {
     return try {
         val otherSet = SetRef.unpackValueOpt(other)
         if (otherSet == null) {
             Result.success(false)
         } else {
-            Result.success(equalsSmallSet(setLike.content(), otherSet.aref.content))
+            Result.success(equalsSmallSet(inner.content(), otherSet.content))
         }
     } catch (e: Throwable) {
         Result.failure(e)
@@ -266,72 +270,66 @@ fun <T> SetGen<T>.equals(other: Value): Result<Boolean> where T : SetLike {
 /**
  * Get methods for set type.
  */
-fun <T> SetGen<T>.getMethods(): Methods? where T : SetLike {
+fun <T : SetLike> SetGen<T>.getMethods(): Methods? {
     return setMethods()
 }
 
 /**
  * Start iteration over the set.
  */
-fun <T> SetGen<T>.iterate(me: Value, heap: Heap): Result<Value> where T : SetLike {
-    val setLike = inner as SetLike
-    setLike.iterStart()
+fun <T : SetLike> SetGen<T>.iterate(me: Value, heap: Heap): Result<Value> {
+    inner.iterStart()
     return Result.success(me)
 }
 
 /**
  * Get size hint for iteration.
  */
-fun <T> SetGen<T>.iterSizeHint(index: Int): Pair<Int, Int?> where T : SetLike {
-    val setLike = inner as SetLike
-    check(index <= setLike.content().len())
-    val rem = setLike.content().len() - index
+fun <T : SetLike> SetGen<T>.iterSizeHint(index: Int): Pair<Int, Int?> {
+    check(index <= inner.content().len())
+    val rem = inner.content().len() - index
     return Pair(rem, rem)
 }
 
 /**
  * Get next item in iteration.
  */
-fun <T> SetGen<T>.iterNext(index: Int, heap: Heap): Value? where T : SetLike {
-    val setLike = inner as SetLike
-    return setLike.contentUnchecked().iter().drop(index).firstOrNull()
+fun <T : SetLike> SetGen<T>.iterNext(index: Int, heap: Heap): Value? {
+    return inner.contentUnchecked().iter().drop(index).firstOrNull()
 }
 
 /**
  * Stop iteration.
  */
-fun <T> SetGen<T>.iterStop() where T : SetLike {
-    val setLike = inner as SetLike
-    setLike.iterStop()
+fun <T : SetLike> SetGen<T>.iterStop() {
+    inner.iterStop()
 }
 
 /**
  * Convert to boolean.
  */
-fun <T> SetGen<T>.toBool(): Boolean where T : SetLike {
-    val setLike = inner as SetLike
-    return !setLike.content().isEmpty()
+fun <T : SetLike> SetGen<T>.toBool(): Boolean {
+    return !inner.content().isEmpty()
 }
 
 /**
  * Set union (bitwise OR operator).
  */
-fun <T> SetGen<T>.bitOr(rhs: Value, heap: Heap): Result<Value> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.bitOr(rhs: Value, heap: Heap): Result<Value> {
     return try {
         // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
         val rhsSet = SetRef.unpackValueOpt(rhs)
-            ?: return ValueError.unsupportedWith(this, "|", rhs)
+            ?: return ValueError.unsupportedWith(SET_TYPE, "|", rhs)
 
-        if (setLike.content().isEmpty()) {
-            return Result.success(rhsSet.aref.clone().allocValue(heap))
+        if (inner.content().isEmpty()) {
+            return Result.success(copySetData(rhsSet.content).allocValue(heap))
         }
 
-        val items = setLike.content().clone()
-        for (h in rhsSet.aref.iterHashed()) {
+        val items = copySmallSet(inner.content())
+        for (h in rhsSet.iterHashed()) {
             items.insertHashed(h)
         }
-        Result.success(SetData().apply { content.addAll(items) }.allocValue(heap))
+        Result.success(SetData().apply { content.addAll(items.iterHashed().asIterable()) }.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -340,24 +338,23 @@ fun <T> SetGen<T>.bitOr(rhs: Value, heap: Heap): Result<Value> where T : SetLike
 /**
  * Set intersection (bitwise AND operator).
  */
-fun <T> SetGen<T>.bitAnd(rhs: Value, heap: Heap): Result<Value> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.bitAnd(rhs: Value, heap: Heap): Result<Value> {
     return try {
         val rhsSet = SetRef.unpackValueOpt(rhs)
-            ?: return ValueError.unsupportedWith(this, "&", rhs)
+            ?: return ValueError.unsupportedWith(SET_TYPE, "&", rhs)
 
-        val items = SmallSet<Value>()
-        if (setLike.content().isEmpty()) {
+        if (inner.content().isEmpty()) {
             return Result.success(SetData().allocValue(heap))
         }
 
-        for (h in rhsSet.aref.iterHashed()) {
-            if (setLike.content().containsHashed(h.asRef())) {
+        val items = SmallSet<Value>()
+        for (h in rhsSet.iterHashed()) {
+            if (inner.content().containsHashed(h.asRef())) {
                 items.insertHashedUniqueUnchecked(h)
             }
         }
 
-        Result.success(SetData().apply { content.addAll(items) }.allocValue(heap))
+        Result.success(SetData().apply { content.addAll(items.iterHashed().asIterable()) }.allocValue(heap))
     } catch (e: Throwable) {
         Result.failure(e)
     }
@@ -366,27 +363,24 @@ fun <T> SetGen<T>.bitAnd(rhs: Value, heap: Heap): Result<Value> where T : SetLik
 /**
  * Set symmetric difference (bitwise XOR operator).
  */
-fun <T> SetGen<T>.bitXor(rhs: Value, heap: Heap): Result<Value> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.bitXor(rhs: Value, heap: Heap): Result<Value> {
     return try {
         val rhsSet = SetRef.unpackValueOpt(rhs)
-            ?: return ValueError.unsupportedWith(this, "^", rhs)
+            ?: return ValueError.unsupportedWith(SET_TYPE, "^", rhs)
 
-        if (rhsSet.aref.content.isEmpty()) {
-            return Result.success(SetData().apply {
-                content.addAll(setLike.content().clone())
-            }.allocValue(heap))
+        if (rhsSet.content.isEmpty()) {
+            return Result.success(copySetData(inner.content()).allocValue(heap))
         }
 
         val data = SetData()
-        for (elem in setLike.content().iterHashed()) {
-            if (!rhsSet.aref.containsHashed(elem.copied())) {
+        for (elem in inner.content().iterHashed()) {
+            if (!rhsSet.containsHashed(elem.copied())) {
                 data.addHashedUniqueUnchecked(elem.copied())
             }
         }
 
-        for (hashed in rhsSet.aref.iterHashed()) {
-            if (!setLike.content().containsHashed(hashed.asRef())) {
+        for (hashed in rhsSet.iterHashed()) {
+            if (!inner.content().containsHashed(hashed.asRef())) {
                 data.addHashed(hashed)
             }
         }
@@ -399,26 +393,23 @@ fun <T> SetGen<T>.bitXor(rhs: Value, heap: Heap): Result<Value> where T : SetLik
 /**
  * Set difference (subtraction operator).
  */
-fun <T> SetGen<T>.sub(rhs: Value, heap: Heap): Result<Value> where T : SetLike {
-    val setLike = inner as SetLike
+fun <T : SetLike> SetGen<T>.sub(rhs: Value, heap: Heap): Result<Value> {
     return try {
         val rhsSet = SetRef.unpackValueOpt(rhs)
-            ?: return ValueError.unsupportedWith(this, "-", rhs)
+            ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)
 
-        if (setLike.content().isEmpty()) {
+        if (inner.content().isEmpty()) {
             return Result.success(SetData().allocValue(heap))
         }
 
-        if (rhsSet.aref.content.isEmpty()) {
-            return Result.success(SetData().apply {
-                content.addAll(setLike.content().clone())
-            }.allocValue(heap))
+        if (rhsSet.content.isEmpty()) {
+            return Result.success(copySetData(inner.content()).allocValue(heap))
         }
 
         val data = SetData()
 
-        for (elem in setLike.content().iterHashed()) {
-            if (!rhsSet.aref.containsHashed(elem.copied())) {
+        for (elem in inner.content().iterHashed()) {
+            if (!rhsSet.containsHashed(elem.copied())) {
                 data.addHashed(elem.copied())
             }
         }
@@ -431,7 +422,7 @@ fun <T> SetGen<T>.sub(rhs: Value, heap: Heap): Result<Value> where T : SetLike {
 /**
  * Get typechecker type.
  */
-fun <T> SetGen<T>.typecheckerTy(): Ty? where T : SetLike {
+fun <T : SetLike> SetGen<T>.typecheckerTy(): Ty? {
     return Ty.anySet()
 }
 
@@ -443,22 +434,63 @@ fun getTypeStarlarkRepr(): Ty {
 }
 
 /**
- * Serialize a SetGen to a serializer.
+ * Display a SetGen as a string.
  */
-fun <T> SetGen<T>.serialize(serializer: Serializer): Result<Unit, SerializerError> where T : SetLike {
-    val setLike = inner as SetLike
-    return try {
-        serializer.collectSeq(setLike.content().iter())
-        Result.success(Unit)
-    } catch (e: SerializerError) {
-        Result.failure(e)
-    }
+fun <T : SetLike> SetGen<T>.display(): String {
+    return fmtContainer("set([", "])", inner.content().iter())
 }
 
 /**
- * Display a SetGen as a string.
+ * Format a container with start/end delimiters and comma-separated items.
+ * Corresponds to Rust's `display_container::fmt_container`.
  */
-fun <T> SetGen<T>.display(): String where T : SetLike {
-    val setLike = inner as SetLike
-    return fmtContainer("set([", "])", setLike.content().iter())
+private fun <T> fmtContainer(
+    start: String,
+    end: String,
+    iter: Sequence<T>,
+): String {
+    val builder = StringBuilder()
+    builder.append(start)
+    var first = true
+    for (item in iter) {
+        if (!first) builder.append(", ")
+        builder.append(item.toString())
+        first = false
+    }
+    builder.append(end)
+    return builder.toString()
+}
+
+/**
+ * Compare two SmallSets for equality by checking containment in both directions.
+ * Corresponds to Rust's `equals_small_set`.
+ */
+private fun <K> equalsSmallSet(xs: SmallSet<K>, ys: SmallSet<K>): Boolean {
+    if (xs.len() != ys.len()) {
+        return false
+    }
+    for (x in xs.iter()) {
+        if (!ys.contains(x)) {
+            return false
+        }
+    }
+    return true
+}
+
+/**
+ * Create a new SetData as a copy of an existing SmallSet<Value>.
+ */
+private fun copySetData(source: SmallSet<Value>): SetData {
+    val data = SetData()
+    data.content.addAll(source.iterHashed().asIterable())
+    return data
+}
+
+/**
+ * Create a shallow copy of a SmallSet by reinserting all hashed entries.
+ */
+private fun <T> copySmallSet(source: SmallSet<T>): SmallSet<T> {
+    val copy = SmallSet<T>()
+    copy.addAll(source.iterHashed().asIterable())
+    return copy
 }

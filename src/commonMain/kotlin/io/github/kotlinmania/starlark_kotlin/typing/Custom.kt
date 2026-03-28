@@ -19,8 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAllocImpl
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
 
 enum class TypingBinOp {
     Less,
@@ -35,29 +40,34 @@ enum class TypingBinOp {
     BitAnd,
     BitXor,
     LeftShift,
-    RightShift,
+    RightShift;
+
+    /**
+     * Result type is always `bool`.
+     */
+    fun alwaysBool(): Boolean {
+        return this == In || this == Less
+    }
 }
 
 /// Custom type implementation. [`Display`] must implement the representation of the type.
 interface TyCustomImpl : Comparable<TyCustomImpl> {
     fun asName(): String?
 
-    fun validateCall(args: TyCallArgs): Result<Ty> =
-        Result.failure(TypingOrInternalError.fromTyping(
-            TypingError.msg("Value of type `$this` is not callable")
-        ))
+    fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
+        Result.failure(oracle.msgError(span, "Value of type `$this` is not callable"))
 
     /** Must override if implementing `validate_call`. */
     fun asCallable(): TyCallable? = null
 
     fun asFunction(): TyFunction? = null
 
-    fun binOp(binOp: TypingBinOp, rhs: TyBasic): Result<Ty> =
+    fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
         Result.failure(TypingNoContextOrInternalError.Typing)
 
     fun iterItem(): Result<Ty> = Result.failure(TypingNoContextError)
 
-    fun index(item: TyBasic): Result<Ty> =
+    fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
         Result.failure(TypingNoContextOrInternalError.Typing)
 
     fun attribute(attr: String): Result<Ty>
@@ -70,7 +80,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
     fun intersectsWith(other: TyBasic): Boolean = false
 
     /// Create runtime type matcher for values.
-    fun <T> matcher(factory: TypeMatcherFactory<T>): T
+    fun <R> matcher(factory: TypeMatcherAlloc<R>): R
 }
 
 /**
@@ -93,19 +103,19 @@ internal interface TyCustomDyn {
     fun asAny(): Any
 
     fun asNameDyn(): String?
-    fun validateCallDyn(args: TyCallArgs): Result<Ty>
+    fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty>
     fun asCallableDyn(): TyCallable?
     fun isIntersectsWithDyn(other: TyBasic): Boolean
     fun asFunctionDyn(): TyFunction?
     fun attributeDyn(attr: String): Result<Ty>
     fun iterItemDyn(): Result<Ty>
-    fun indexDyn(index: TyBasic): Result<Ty>
-    fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic): Result<Ty>
+    fun indexDyn(index: TyBasic, ctx: TypingOracleCtx): Result<Ty>
+    fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty>
 
     fun union2Dyn(other: TyCustomDyn): Result<TyCustomDyn>
     fun intersectsDyn(other: TyCustomDyn): Boolean
 
-    fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any
+    fun matcherWithTypeCompiledFactoryDyn(factory: TypeCompiledFactory): TypeCompiled
     fun matcherBoxDyn(): TypeMatcherBox
 }
 
@@ -128,8 +138,8 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 
     override fun asNameDyn(): String? = inner.asName()
 
-    override fun validateCallDyn(args: TyCallArgs): Result<Ty> =
-        inner.validateCall(args)
+    override fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
+        inner.validateCall(span, args, oracle)
 
     override fun asCallableDyn(): TyCallable? = inner.asCallable()
 
@@ -142,10 +152,10 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 
     override fun iterItemDyn(): Result<Ty> = inner.iterItem()
 
-    override fun indexDyn(index: TyBasic): Result<Ty> = inner.index(index)
+    override fun indexDyn(index: TyBasic, ctx: TypingOracleCtx): Result<Ty> = inner.index(index, ctx)
 
-    override fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic): Result<Ty> =
-        inner.binOp(binOp, rhs)
+    override fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
+        inner.binOp(binOp, rhs, ctx)
 
     override fun union2Dyn(other: TyCustomDyn): Result<TyCustomDyn> {
         // In Rust: if TypeId::of::<Self>() == other.eq_token().type_id()
@@ -171,10 +181,10 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
         return false
     }
 
-    override fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any =
+    override fun matcherWithTypeCompiledFactoryDyn(factory: TypeCompiledFactory): TypeCompiled =
         inner.matcher(factory)
 
-    override fun matcherBoxDyn(): TypeMatcherBox = inner.matcher(TypeMatcherBoxAlloc)
+    override fun matcherBoxDyn(): TypeMatcherBox = inner.matcher(TypeMatcherBoxAllocImpl())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -213,10 +223,39 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
 
     fun asFunctionDyn(): TyFunction? = inner.asFunctionDyn()
 
-    fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any =
-        inner.matcherWithTypeCompiledFactory(factory)
+    internal fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
+        inner.validateCallDyn(span, args, oracle)
 
-    internal fun matcherBox(): TypeMatcherBox = inner.matcherBoxDyn()
+    internal fun iterItemDyn(): Result<Ty> = inner.iterItemDyn()
+
+    internal fun indexDyn(index: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
+        inner.indexDyn(index, ctx)
+
+    internal fun attributeDyn(attr: String): Result<Ty> = inner.attributeDyn(attr)
+
+    internal fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
+        inner.binOpDyn(binOp, rhs, ctx)
+
+    /// Rust: `pub(crate) fn intersects_with(&self, other: &TyBasic, ctx: TypingOracleCtx) -> Result<bool, InternalError>`
+    internal fun intersectsWith(other: TyBasic, ctx: TypingOracleCtx): Result<Boolean> {
+        if (inner.isIntersectsWithDyn(other)) {
+            return Result.success(true)
+        }
+        return when (other) {
+            is TyBasic.Custom -> Result.success(intersects(this, other.custom))
+            is TyBasic.Callable -> {
+                val thisCallable = inner.asCallableDyn()
+                if (thisCallable != null) ctx.callablesIntersect(thisCallable, other.callable)
+                else Result.success(false)
+            }
+            else -> Result.success(false)
+        }
+    }
+
+    fun matcherWithTypeCompiledFactory(factory: TypeCompiledFactory): TypeCompiled =
+        inner.matcherWithTypeCompiledFactoryDyn(factory)
+
+    internal fun matcherWithBox(): TypeMatcherBox = inner.matcherBoxDyn()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -227,25 +266,4 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     override fun hashCode(): Int = inner.hashCodeDyn()
 
     override fun toString(): String = inner.toString()
-}
-
-internal object TypeMatcherBoxAlloc : TypeMatcherFactory<TypeMatcherBox> {
-    override fun int(): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == "int"
-    }
-    override fun bool(): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == "bool"
-    }
-    override fun none(): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == "NoneType"
-    }
-    override fun str(): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == "string"
-    }
-    override fun callable(): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == "function"
-    }
-    override fun byTypeName(ty: TyStarlarkValue): TypeMatcherBox = object : TypeMatcherBox {
-        override fun matches(typeName: String): Boolean = typeName == ty.typeName
-    }
 }

@@ -1495,7 +1495,9 @@ internal class Binding(
 /// Id of a binding within current module.
 // #[derive(Copy, Clone, Dupe, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
 // pub(crate) struct BindingId(usize)
-data class BindingId(val id: Int)
+data class BindingId(val id: Int) : Comparable<BindingId> {
+    override fun compareTo(other: BindingId): Int = id.compareTo(other.id)
+}
 
 /// Id of a scope within current module.
 // #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]

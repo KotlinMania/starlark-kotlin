@@ -20,22 +20,12 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list.StarlarkIter
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
-import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkFunction
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.list.None
-import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.analysis.Other
-import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
-import io.github.kotlinmania.starlark_kotlin.assert.printHandler
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 
 /// Apply a predicate to each element of the iterable, returning those that match.
 /// As a special case if the function is `None` then removes all the `None` values.
@@ -45,24 +35,33 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 /// filter(lambda x: x > 2, [1, 2, 3, 4]) == [3, 4]
 /// filter(None, [True, None, False]) == [True, False]
 /// ```
-internal fun filter(
-    func: NoneOr<ValueOfUnchecked<StarlarkFunction>>,
-    seq: ValueOfUnchecked<StarlarkIter<Value>>,
+// fn filter<'v>(
+//     func: NoneOr<ValueOfUnchecked<'v, StarlarkFunction>>,
+//     seq: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>,
+//     eval: &mut Evaluator<'v, '_, '_>,
+// ) -> starlark::Result<Vec<Value<'v>>>
+private fun filter(
+    func: Value,
+    seq: Value,
     eval: Evaluator,
 ): Result<List<Value>> {
     val res = mutableListOf<Value>()
+    val heap = eval.heap()
 
-    for (v in seq.get().iterate(eval.heap())) {
-        when (func) {
-            is NoneOr.None -> {
-                if (!v.isNone()) {
-                    res.add(v)
-                }
+    val iter = seq.iterate(heap).getOrElse { return Result.failure(it) }
+    for (v in iter) {
+        if (func.isNone()) {
+            // NoneOr::None => if !v.is_none() { res.push(v); }
+            if (!v.isNone()) {
+                res.add(v)
             }
-            is NoneOr.Other -> {
-                if (func.get().invokePos(listOf(v), eval).toBool()) {
-                    res.add(v)
-                }
+        } else {
+            // NoneOr::Other(func) => if func.get().invoke_pos(&[v], eval)?.to_bool()
+            val callResult = func.invokePos(listOf(v), eval).getOrElse {
+                return Result.failure(it)
+            }
+            if (callResult.toBool()) {
+                res.add(v)
             }
         }
     }
@@ -75,81 +74,93 @@ internal fun filter(
 /// map(abs, [7, -5, -6]) == [7, 5, 6]
 /// map(lambda x: x * 2, [1, 2, 3, 4]) == [2, 4, 6, 8]
 /// ```
-internal fun map(
-    func: ValueOfUnchecked<StarlarkFunction>,
-    seq: ValueOfUnchecked<StarlarkIter<Value>>,
+// fn map<'v>(
+//     func: ValueOfUnchecked<'v, StarlarkFunction>,
+//     seq: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>,
+//     eval: &mut Evaluator<'v, '_, '_>,
+// ) -> starlark::Result<Vec<Value<'v>>>
+private fun map(
+    func: Value,
+    seq: Value,
     eval: Evaluator,
 ): Result<List<Value>> {
-    val it = seq.get().iterate(eval.heap())
+    val iter = seq.iterate(eval.heap()).getOrElse { return Result.failure(it) }
     val res = mutableListOf<Value>()
-    for (v in it) {
-        res.add(func.get().invokePos(listOf(v), eval).getOrThrow())
+    for (v in iter) {
+        res.add(func.invokePos(listOf(v), eval).getOrElse { return Result.failure(it) })
     }
     return Result.success(res)
 }
 
 /// Print the value with full debug formatting. The result may not be stable over time.
 /// Intended for debugging purposes and guaranteed to produce verbose output not suitable for user display.
-fun debug(
+// fn debug(val: Value) -> anyhow::Result<String>
+private fun debug(
     v: Value,
 ): Result<String> {
-    return Result.success(v.debugRepr())
+    // Rust: format!("{val:?}") — Debug representation
+    return Result.success(v.toString())
 }
 
+// struct PrintWrapper<'a, 'b>(&'a Vec<Value<'b>>)
+// impl fmt::Display for PrintWrapper<'_, '_>
 private class PrintWrapper(private val values: List<Value>) {
     override fun toString(): String {
         return values.joinToString(" ") { it.toString() }
     }
-
-    fun prettyPrint(): String {
-        return values.joinToString(" ") { it.prettyRepr() }
-    }
 }
 
 /// Invoked from `print` or `pprint` to print a value.
+// pub trait PrintHandler
 interface PrintHandler {
     /// If this function returns error, evaluation fails with this error.
     fun println(text: String): Result<Unit>
 }
 
+// pub(crate) struct StderrPrintHandler
 internal class StderrPrintHandler : PrintHandler {
     override fun println(text: String): Result<Unit> {
-        System.err.println(text)
+        kotlin.io.println(text)
         return Result.success(Unit)
     }
 }
 
 /// Print some values to the output.
-fun print(
-    args: UnpackTuple<Value>,
+// fn print(args: UnpackTuple<Value>, eval: &mut Evaluator) -> starlark::Result<NoneType>
+private fun printImpl(
+    args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
     // In practice most users should want to put the print somewhere else, but this does for now.
     // Unfortunately, we can't use PrintWrapper because strings to_str() and Display are different.
-    eval.printHandler.println(args.items.joinToString(" ") { it.toStr() }).getOrThrow()
+    eval.printHandler.println(args.joinToString(" ") { it.toStr() }).getOrThrow()
     return Result.success(NoneType)
 }
 
-fun pprint(
-    args: UnpackTuple<Value>,
+// fn pprint(args: UnpackTuple<Value>, eval: &mut Evaluator) -> starlark::Result<NoneType>
+private fun pprintImpl(
+    args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
     // In practice most users may want to put the print somewhere else, but this does for now.
-    eval.printHandler.println(PrintWrapper(args.items).prettyPrint()).getOrThrow()
+    eval.printHandler.println(PrintWrapper(args).toString()).getOrThrow()
     return Result.success(NoneType)
 }
 
+// fn pretty_repr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
 private fun prettyRepr(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
-    val s = a.prettyRepr()
+    // Rust: write!(s, "{a:#}") — alternate Display format
+    val s = a.toRepr()
     val r = eval.heap().allocStr(s)
-    return Result.success(r)
+    return Result.success(StringValue.newUnchecked(r))
 }
 
 /// Like `str`, but produces more verbose pretty-printed output.
-fun pstr(
+// fn pstr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
+private fun pstrImpl(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
@@ -161,37 +172,71 @@ fun pstr(
 }
 
 /// Like `repr`, but produces more verbose pretty-printed output.
-fun prepr(
+// fn prepr<'v>(a: Value<'v>, eval: &mut Evaluator<'v, '_, '_>) -> anyhow::Result<StringValue<'v>>
+private fun preprImpl(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
     return prettyRepr(a, eval)
 }
 
+// #[starlark_module] pub fn filter(builder: &mut GlobalsBuilder)
 fun registerFilter(globals: GlobalsBuilder) {
-    globals.set("filter", ::filter)
+    globals.setFunction("filter") { callArgs, eval ->
+        val func = callArgs.positional<Value>(0)
+        val seq = callArgs.positional<Value>(1)
+        val result = filter(func, seq, eval).getOrThrow()
+        eval.heap().allocList(result)
+    }
 }
 
+// #[starlark_module] pub fn map(builder: &mut GlobalsBuilder)
 fun registerMap(globals: GlobalsBuilder) {
-    globals.set("map", ::map)
+    globals.setFunction("map") { callArgs, eval ->
+        val func = callArgs.positional<Value>(0)
+        val seq = callArgs.positional<Value>(1)
+        val result = map(func, seq, eval).getOrThrow()
+        eval.heap().allocList(result)
+    }
 }
 
+// #[starlark_module] pub fn debug(builder: &mut GlobalsBuilder)
 fun registerDebug(globals: GlobalsBuilder) {
-    globals.set("debug", ::debug)
+    globals.setFunction("debug") { callArgs, eval ->
+        val v = callArgs.positional<Value>(0)
+        val result = debug(v).getOrThrow()
+        eval.heap().allocStr(result)
+    }
 }
 
+// #[starlark_module] pub fn print(builder: &mut GlobalsBuilder)
 fun registerPrint(globals: GlobalsBuilder) {
-    globals.set("print", ::print)
+    globals.setFunction("print") { callArgs, eval ->
+        printImpl(callArgs.positionalAll(), eval).getOrThrow()
+        Value.newNone()
+    }
 }
 
+// #[starlark_module] pub fn pprint(builder: &mut GlobalsBuilder)
 fun registerPprint(globals: GlobalsBuilder) {
-    globals.set("pprint", ::pprint)
+    globals.setFunction("pprint") { callArgs, eval ->
+        pprintImpl(callArgs.positionalAll(), eval).getOrThrow()
+        Value.newNone()
+    }
 }
 
+// #[starlark_module] pub fn pstr(builder: &mut GlobalsBuilder)
 fun registerPstr(globals: GlobalsBuilder) {
-    globals.set("pstr", ::pstr)
+    globals.setFunction("pstr") { callArgs, eval ->
+        val a = callArgs.positional<Value>(0)
+        pstrImpl(a, eval).getOrThrow().toValue()
+    }
 }
 
+// #[starlark_module] pub fn prepr(builder: &mut GlobalsBuilder)
 fun registerPrepr(globals: GlobalsBuilder) {
-    globals.set("prepr", ::prepr)
+    globals.setFunction("prepr") { callArgs, eval ->
+        val a = callArgs.positional<Value>(0)
+        preprImpl(a, eval).getOrThrow().toValue()
+    }
 }

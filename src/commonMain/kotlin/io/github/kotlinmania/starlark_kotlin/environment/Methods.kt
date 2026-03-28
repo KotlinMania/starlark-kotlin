@@ -23,7 +23,12 @@ import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableCompone
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
+import io.github.kotlinmania.starlark_kotlin.docs.DocItem
+import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.util.asStr
@@ -229,6 +234,48 @@ class MethodsBuilder private constructor(
                 docs = components.intoDocs(null),
                 ty = ty,
             ))),
+        )
+    }
+
+    /**
+     * Convenience overload: register a method by name with a lambda.
+     * The lambda receives (Evaluator, Value, ParametersSpec, Arguments) -> Result<Value>
+     * and is wrapped into the full method registration.
+     */
+    fun setMethod(
+        name: String,
+        f: (Evaluator, Value, ParametersSpec<FrozenValue>, Arguments) -> Result<Value>,
+    ) {
+        val sig = ParametersSpec.withCapacity<FrozenValue>(name).finish()
+        val nativeMethFn: NativeMethFn = f
+        val ty = Ty.any()
+        members.insert(
+            name,
+            UnboundValue.Method(heap.allocSimpleTypedStatic(NativeMethod(
+                function = NativeMeth(nativeMethFn, sig),
+                name = name,
+                speculativeExecSafe = false,
+                docs = DocItem.Member(DocMember.Function(DocFunction())),
+                ty = ty,
+            ))),
+        )
+    }
+
+    /**
+     * Convenience overload: register an attribute by name with a lambda.
+     * The lambda receives (Value, Heap) -> Result<Value>.
+     */
+    fun setAttribute(
+        name: String,
+        docstring: String? = null,
+        f: (Value, Heap) -> Result<Value>,
+    ) {
+        setAttributeFn(
+            name = name,
+            speculativeExecSafe = false,
+            docstring = docstring,
+            typ = Ty.any(),
+            f = { _, thisValue, heap -> f(thisValue, heap) },
         )
     }
 

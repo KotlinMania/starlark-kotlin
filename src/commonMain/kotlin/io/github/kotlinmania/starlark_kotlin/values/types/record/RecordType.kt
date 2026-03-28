@@ -20,46 +20,39 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record.record_type
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserFields
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyUser
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.record.TyRecordData
-import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.record.Record
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTypedComplex
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.values.ValueUnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.writeHash
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
-import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
-import io.github.kotlinmania.starlark_kotlin.values.next
-import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.nextOpt
-import io.github.kotlinmania.starlark_kotlin.docs.typ
-import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.typing.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
+import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.types.record.Field
+import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordGen
+import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.types.record.TyRecordData
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 // #[doc(hidden)]
 // pub trait RecordCell: ValueLifetimeless {
@@ -93,30 +86,34 @@ class RecordTypeGen internal constructor(
     // Kotlin: combined OnceCell (unfrozen) and Option (frozen) into single nullable field.
     internal var tyRecordData: TyRecordData?,
     /// The V is the type the field must satisfy (e.g. `"string"`)
-    internal val fields: SmallMap<String, FieldGen<Value>>,
+    internal val fields: SmallMap<String, Field>,
     private val frozen: Boolean,
-) : StarlarkValue, Freeze {
+) : StarlarkValue, Freeze<RecordTypeGen> {
 
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
 
     // impl Display for RecordTypeGen
     override fun toString(): String {
-        return "record(${fields.entries.joinToString(", ") { (k, v) -> "$k=$v" }})"
+        return "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
     }
 
     // impl Freeze for RecordType
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): RecordTypeGen {
-        val frozenFields = SmallMap<String, FieldGen<Value>>()
-        for ((name, field) in fields) {
-            frozenFields.put(name, field.freeze(freezer))
-        }
-        return RecordTypeGen(
-            id = id,
-            tyRecordData = tyRecordData,
-            fields = frozenFields,
-            frozen = true,
+    override fun freeze(freezer: Freezer): FreezeResult<RecordTypeGen> {
+        val frozenFields = freezeSmallMap(
+            fields,
+            freezer,
+            freezeKey = { k, _ -> FreezeResult.success(k) },
+            freezeValue = { field, _ -> FreezeResult.success(field) },
+        ).getOrElse { return FreezeResult.failure(it) }
+        return FreezeResult.success(
+            RecordTypeGen(
+                id = id,
+                tyRecordData = tyRecordData,
+                fields = frozenFields,
+                frozen = true,
+            )
         )
     }
 
@@ -146,17 +143,17 @@ class RecordTypeGen internal constructor(
     // fn make_parameter_spec(name: &str, fields: &SmallMap<String, FieldGen<V>>) -> ParametersSpec<FrozenValue>
     private fun makeParameterSpec(
         name: String,
-        fields: SmallMap<String, FieldGen<Value>>,
+        fields: SmallMap<String, Field>,
     ): ParametersSpec<FrozenValue> {
         return ParametersSpec.newNamedOnly(
             name,
-            fields.entries.map { (fieldName, field) ->
+            fields.iter().map { (fieldName, field) ->
                 Pair(
                     fieldName,
                     if (field.default != null) ParametersSpecParam.Optional
                     else ParametersSpecParam.Required,
                 )
-            },
+            }.toList(),
         )
     }
 
@@ -164,68 +161,70 @@ class RecordTypeGen internal constructor(
     // impl StarlarkValue for RecordTypeGen
 
     // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    fun writeHash(hasher: Any) {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         for ((name, typ) in fields) {
             name.hashCode()
-            typ.writeHash(hasher)
+            typ.writeHash(hasher).getOrElse { return Result.failure(it) }
         }
+        return Result.success(Unit)
     }
 
     // fn invoke(...)
-    fun invoke(me: Value, args: Arguments, eval: Evaluator): Value {
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         val tyRecordDataVal = tyRecordData()
-            ?: throw RecordTypeError.recordTypeNotAssigned()
+            ?: return Result.failure(RecordTypeError.recordTypeNotAssigned())
 
         val thisValue = me
 
-        return tyRecordDataVal.parameterSpec.parser(args, eval) { paramParser, ev ->
+        return Result.success(tyRecordDataVal.parameterSpec.parser(args, eval) { paramParser, ev ->
             val recordFields = this.fields
             val values = mutableListOf<Value>()
             for ((name, field) in recordFields) {
                 val value = if (field.default == null) {
-                    val v: Value = paramParser.next()
-                    field.typ.checkType(v, name)
+                    val v: Value = paramParser.next(ValueUnpackValue)
+                    field.typ.checkType(v, name).getOrThrow()
                     v
                 } else {
-                    val v: Value? = paramParser.nextOpt()
+                    val v: Value? = paramParser.nextOpt(ValueUnpackValue)
                     when (v) {
                         null -> field.default
                         else -> {
-                            field.typ.checkType(v, name)
+                            field.typ.checkType(v, name).getOrThrow()
                             v
                         }
                     }
                 }
                 values.add(value)
             }
+            @Suppress("UNCHECKED_CAST")
             ev.heap().allocComplex(
-                Record(
+                RecordGen(
                     typ = thisValue,
                     values = values,
-                )
+                ) as ComplexValue
             )
-        }
+        })
     }
 
     // fn get_methods() -> Option<&'static Methods>
-    fun getMethods(): Methods? {
+    override fun getMethods(): Methods? {
         return recordTypeMethodsStatic.methods(::recordTypeMethods)
     }
 
     // fn eval_type(&self) -> Option<Ty>
-    fun evalType(): Ty? {
+    override fun evalType(): Ty? {
         return tyRecordData()?.tyRecord
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty? {
         return tyRecordData()?.tyRecordType
     }
 
     // fn export_as(...)
-    fun exportAs(variableName: String, eval: Evaluator) {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
-            val fieldsTy = sortedMapOf<String, Ty>().apply {
+            val fieldsTy = linkedMapOf<String, Ty>().apply {
                 for ((name, field) in fields) {
                     put(name, field.ty())
                 }
@@ -243,7 +242,7 @@ class RecordTypeGen internal constructor(
                             unknown = false,
                         ),
                     ),
-                )
+                ).getOrThrow()
             )
 
             val tyRecordType = Ty.custom(
@@ -253,17 +252,19 @@ class RecordTypeGen internal constructor(
                     TypeInstanceId.gen(),
                     TyUserParams(
                         callable = TyCallable.new(
-                            ParamSpec.newNamedOnly(fields.entries.map { (name, field) ->
-                                Triple(
-                                    ArcStr.from(name),
-                                    if (field.default != null) ParamIsRequired.No else ParamIsRequired.Yes,
-                                    field.ty(),
-                                )
-                            }),
+                            ParamSpec.newParts(
+                                namedOnly = fields.iter().map { (name, field) ->
+                                    Triple(
+                                        name,
+                                        if (field.default != null) ParamIsRequired.No else ParamIsRequired.Yes,
+                                        field.ty(),
+                                    )
+                                }.toList(),
+                            ),
                             tyRecord,
                         ),
                     ),
-                )
+                ).getOrThrow()
             )
 
             TyRecordData(
@@ -273,6 +274,7 @@ class RecordTypeGen internal constructor(
                 parameterSpec = makeParameterSpec(variableName, fields),
             )
         }
+        return Result.success(Unit)
     }
 
     companion object {
@@ -283,7 +285,7 @@ class RecordTypeGen internal constructor(
 
         // impl RecordType::new(...)
         // pub(crate) fn new(fields: SmallMap<String, FieldGen<Value<'v>>>) -> Self
-        fun new(fields: SmallMap<String, FieldGen<Value>>): RecordTypeGen {
+        fun new(fields: SmallMap<String, Field>): RecordTypeGen {
             return RecordTypeGen(
                 id = TypeInstanceId.gen(),
                 tyRecordData = null,
@@ -302,7 +304,7 @@ typealias RecordType = RecordTypeGen
 typealias FrozenRecordType = RecordTypeGen
 
 // pub(crate) fn record_fields<'v>(...) -> &'v SmallMap<String, FieldGen<Value<'v>>>
-internal fun recordFields(x: RecordTypeGen): SmallMap<String, FieldGen<Value>> = x.fields
+internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields
 
 // static RES: MethodsStatic = MethodsStatic::new();
 private val recordTypeMethodsStatic = MethodsStatic()
@@ -312,13 +314,20 @@ private val recordTypeMethodsStatic = MethodsStatic()
 private fun recordTypeMethods(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn r#type<'v>(this: ValueTypedComplex<'v, RecordType<'v>>) -> starlark::Result<&'v str>
-    methods.attribute("type") { thisValue, _ ->
-        val this = thisValue.downcast<RecordTypeGen>()!!
-        val tyRecordType = this.tyRecordData()
-        when {
+    methods.setAttributeFn(
+        name = "type",
+        speculativeExecSafe = true,
+        docstring = null,
+        typ = Ty.string(),
+    ) { _, thisValue, heap ->
+        val recordType = thisValue.downcastRef<RecordTypeGen>()
+            ?: return@setAttributeFn Result.failure(IllegalStateException("Expected RecordTypeGen"))
+        val tyRecordType = recordType.tyRecordData()
+        val name = when {
             tyRecordType != null -> tyRecordType.name
-            else -> Record.TYPE
+            else -> RecordGen.TYPE
         }
+        Result.success(heap.allocStr(name))
     }
 }
 

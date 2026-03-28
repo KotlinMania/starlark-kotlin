@@ -181,6 +181,15 @@ class RefCell<T>(private var value: T) {
         return BorrowedSetData(value as SetData)
     }
 
+    /**
+     * Release (unleak) a previously leaked borrow.
+     * Corresponds to Rust's `unleak_borrow` which undoes `mem::forget(self.borrow())`.
+     */
+    fun releaseBorrow() {
+        check(borrowCount > 0) { "No borrow to release" }
+        borrowCount--
+    }
+
     fun tryBorrowMut(): BorrowedMutSetData? {
         if (borrowCount > 0 || mutBorrowCount > 0) {
             return null

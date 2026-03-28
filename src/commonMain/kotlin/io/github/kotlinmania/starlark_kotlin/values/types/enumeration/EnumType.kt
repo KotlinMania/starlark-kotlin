@@ -19,50 +19,41 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserFields
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserIndex
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyUser
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumTypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.ValueStr
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
-import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional1
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.noNamedArgs
-import io.github.kotlinmania.starlark_kotlin.typing.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.ValueStr
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumTypeMatcher
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
+import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 // #[derive(thiserror::Error, Debug)]
 // enum EnumError {
@@ -104,29 +95,42 @@ class EnumTypeGen internal constructor(
     // The value is a value of type EnumValue
     private val elements: SmallMap<Value, Value>,
     private val frozen: Boolean,
-) : StarlarkValue, Freeze {
+) : StarlarkValue, AllocValue, Freeze<EnumTypeGen> {
+
+    override val TYPE: String get() = FUNCTION_TYPE
 
     // Track whether tyEnumData has been initialized (for unfrozen).
     private var tyEnumDataInitialized: Boolean = tyEnumData != null
 
+    // impl AllocValue for EnumTypeGen
+    override fun allocValue(heap: Heap): Value {
+        return heap.allocSimple(this)
+    }
+
+    // impl StarlarkTypeRepr for EnumTypeGen
+    override fun starlarkTypeRepr(): Ty = Ty.any()
+
     // impl Display for EnumTypeGen
     override fun toString(): String {
-        return "enum(${elements().keys.joinToString(", ")})"
+        return "enum(${elements().keys().joinToString(", ")})"
     }
 
     // impl Freeze for EnumTypeGen<Value>
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): EnumTypeGen {
-        val frozenElements = SmallMap<Value, Value>()
-        for ((k, v) in elements) {
-            frozenElements.put(freezer.freeze(k), freezer.freeze(v))
-        }
-        return EnumTypeGen(
+    override fun freeze(freezer: Freezer): FreezeResult<EnumTypeGen> {
+        val frozenElements = freezeSmallMap(
+            elements,
+            freezer,
+            { v, f -> v.freeze(f) },
+            { v, f -> v.freeze(f) },
+        )
+        if (frozenElements.isFailure) return FreezeResult.failure(frozenElements.exceptionOrNull()!!)
+        return FreezeResult.success(EnumTypeGen(
             id = id,
             tyEnumData = tyEnumData,
-            elements = frozenElements,
+            elements = frozenElements.getOrThrow(),
             frozen = true,
-        )
+        ))
     }
 
     // -- EnumCell helpers --
@@ -157,7 +161,7 @@ class EnumTypeGen internal constructor(
     // impl EnumTypeGen (construct)
     // pub(crate) fn construct(&self, val: Value<'v>) -> crate::Result<V>
     fun construct(value: Value): Value {
-        val hashed = value.getHashed()
+        val hashed = value.getHashed().getOrThrow()
         return elements().getHashedByValue(hashed)
             ?: throw EnumError.InvalidElement(value.toStr(), toString())
     }
@@ -167,7 +171,7 @@ class EnumTypeGen internal constructor(
 
     // fn invoke(...)
     fun invoke(me: Value, args: Arguments, eval: Evaluator): Value {
-        args.noNamedArgs()
+        args.noNamedArgs().getOrThrow()
         val v = args.positional1(eval.heap()).getOrThrow()
         return construct(v)
     }
@@ -179,7 +183,7 @@ class EnumTypeGen internal constructor(
 
     // fn dir_attr(&self) -> Vec<String>
     fun dirAttr(): List<String> {
-        return elements().keys.map { it.unpackStr()!! }
+        return elements().keys().map { it.unpackStr()!! }.toList()
     }
 
     // fn length(&self) -> crate::Result<i32>
@@ -187,7 +191,7 @@ class EnumTypeGen internal constructor(
 
     // fn at(&self, index: Value, _heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun at(index: Value, heap: Heap): Value {
-        val i = convertIndex(index, elements().len())
+        val i = convertIndex(index, elements().len()).getOrThrow()
         return elements().getIndex(i)!!.second
     }
 
@@ -202,7 +206,7 @@ class EnumTypeGen internal constructor(
 
     // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
     fun iterNext(index: Int, heap: Heap): Value? {
-        val values = elements().values.toList()
+        val values = elements().values().toList()
         return if (index < values.size) values[index] else null
     }
 
@@ -235,16 +239,16 @@ class EnumTypeGen internal constructor(
                     TyUserParams(
                         matcher = TypeMatcherFactory.new(EnumTypeMatcher(id = id)),
                     ),
-                )
+                ).getOrThrow()
             )
 
             // The unwrap here is safe because the new() method requires the elements be
             // of type StringValue<'v>
-            val fieldsMap = sortedMapOf<String, Ty>().apply {
-                for (key in elements().keys) {
+            val fieldsMap = mutableMapOf<String, Ty>().apply {
+                for (key in elements().keys()) {
                     put(key.unpackStr()!!, tyEnumValue)
                 }
-            }
+            }.toSortedMap()
 
             val tyEnumType = Ty.custom(
                 TyUser.new(
@@ -269,7 +273,7 @@ class EnumTypeGen internal constructor(
                             tyEnumValue,
                         ),
                     ),
-                )
+                ).getOrThrow()
             )
             TyEnumData(
                 name = variableName,
@@ -286,11 +290,13 @@ class EnumTypeGen internal constructor(
         // pub type FrozenEnumType = EnumTypeGen<FrozenValue>;
         // Kotlin: Use EnumTypeGen directly; frozen flag distinguishes.
 
+        private const val FUNCTION_TYPE = "function"
+
         // impl EnumType::new(...)
         // pub(crate) fn new(elements: Vec<StringValue<'v>>, heap: Heap<'v>) -> crate::Result<ValueTyped<'v, EnumType<'v>>>
         fun new(elements: List<StringValue>, heap: Heap): ValueTyped<EnumTypeGen> {
             val id = TypeInstanceId.gen()
-            val elemMap = SmallMap<Value, Value>()
+            val elemMap = SmallMap.new<Value, Value>()
 
             val typ = EnumTypeGen(
                 id = id,
@@ -301,15 +307,15 @@ class EnumTypeGen internal constructor(
             val typValue = heap.allocTyped(typ)
 
             for ((i, x) in elements.withIndex()) {
-                val v = heap.alloc(
-                    EnumValue(
+                val v = heap.allocSimple(
+                    EnumValueGen(
                         id = id,
                         typ = typValue.toValue(),
                         index = i,
                         value = x.toValue(),
                     )
                 )
-                val hashed = x.toValue().getHashed()
+                val hashed = x.toValue().getHashed().getOrThrow()
                 if (elemMap.insertHashed(hashed, v) != null) {
                     throw EnumError.DuplicateEnumValue(x.toString())
                 }
@@ -335,19 +341,33 @@ private val enumTypeMethodsStatic = MethodsStatic()
 private fun enumTypeMethods(builder: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn r#type<'v>(this: Value, heap: Heap<'_>) -> starlark::Result<Value<'v>>
-    builder.attribute("type") { thisValue, heap ->
-        val this = thisValue.downcast<EnumTypeGen>()!!
-        val tyEnumType = this.tyEnumData()
+    builder.setAttributeFn(
+        name = "type",
+        speculativeExecSafe = true,
+        docstring = null,
+        typ = Ty.string(),
+    ) { _, thisValue, heap ->
+        val enumTypeGen = thisValue.downcastRef<EnumTypeGen>()!!
+        val tyEnumType = enumTypeGen.tyEnumData()
         when {
-            tyEnumType != null -> heap.allocStr(tyEnumType.name)
-            else -> heap.allocStr(EnumValue.TYPE)
+            tyEnumType != null -> Result.success(heap.allocStr(tyEnumType.name))
+            else -> Result.success(heap.allocStr(EnumValue.TYPE))
         }
     }
 
     // fn values<'v>(this: Value<'v>) -> anyhow::Result<AllocList<impl Iterator<Item = Value<'v>>>>
-    builder.setMethod("values") { thisValue, _ ->
-        val this = thisValue.downcast<EnumTypeGen>()!!
-        AllocList(this.elements().keys.toList())
+    // Note: In Rust this is a method, but the MethodsBuilder.setMethod API requires
+    // NativeCallableComponents and ParametersSpec. Using setAttributeFn as a simpler
+    // approach that exposes the values list.
+    builder.setAttributeFn(
+        name = "values",
+        speculativeExecSafe = true,
+        docstring = null,
+        typ = Ty.anyList(),
+    ) { _, thisValue, heap ->
+        val enumTypeGen = thisValue.downcastRef<EnumTypeGen>()!!
+        val valuesList = enumTypeGen.elements().keys().toList()
+        Result.success(heap.alloc(AllocList(valuesList)))
     }
 }
 

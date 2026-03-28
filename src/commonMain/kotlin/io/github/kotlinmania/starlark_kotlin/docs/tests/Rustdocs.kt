@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocParam
@@ -28,73 +27,69 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.values.documentation
-import io.github.kotlinmania.starlark_kotlin.tests.getAttr
-import io.github.kotlinmania.starlark_kotlin.docs.summary
-import io.github.kotlinmania.starlark_kotlin.docs.params
-import io.github.kotlinmania.starlark_kotlin.docs.docs
-import io.github.kotlinmania.starlark_kotlin.docs.defaultValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
 
 // struct InputTypeRepr;
-private class InputTypeRepr : StarlarkValue {
+private class InputTypeRepr : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "input"
     override fun toString(): String = "input"
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
 // struct OutputTypeRepr;
-private class OutputTypeRepr : StarlarkValue {
+private class OutputTypeRepr : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "output"
     override fun toString(): String = "output"
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
 // #[starlark_module]
 // fn globals(builder: &mut GlobalsBuilder)
 private fun globals(builder: GlobalsBuilder) {
     // const Input: StarlarkValueAsType<InputTypeRepr> = StarlarkValueAsType::new()
-    builder.setConst("Input", StarlarkValueAsType<InputTypeRepr>())
+    builder.set("Input", StarlarkValueAsType.new<InputTypeRepr>())
     // const Output: StarlarkValueAsType<OutputTypeRepr> = StarlarkValueAsType::new()
-    builder.setConst("Output", StarlarkValueAsType<OutputTypeRepr>())
+    builder.set("Output", StarlarkValueAsType.new<OutputTypeRepr>())
 
     // fn simple(arg_int: i32, arg_bool: bool, arg_vec: UnpackList<&str>, arg_dict: SmallMap<String, (bool, i32)>) -> anyhow::Result<NoneType>
-    builder.setFunction("simple") { _argInt: Int, _argBool: Boolean, _argVec: UnpackList<String>, _argDict: SmallMap<String, Pair<Boolean, Int>> ->
+    builder.setFunction("simple") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn default_arg(arg1: Option<Value>, arg2: Value, eval: &mut Evaluator) -> anyhow::Result<Vec<String>>
-    builder.setFunction("default_arg") { _arg1: Value?, _arg2: Value? ->
+    builder.setFunction("default_arg") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn args_kwargs(args: UnpackTuple<Value>, kwargs: Value) -> anyhow::Result<NoneType>
-    builder.setFunction("args_kwargs") { _args: UnpackTuple<Value>, _kwargs: Value ->
+    builder.setFunction("args_kwargs") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn custom_types(arg1: StringValue, arg2: ValueOfUnchecked<InputTypeRepr>, heap: Heap) -> anyhow::Result<ValueOfUnchecked<OutputTypeRepr>>
-    builder.setFunction("custom_types") { _arg1: StringValue, _arg2: ValueOfUnchecked<InputTypeRepr> ->
+    builder.setFunction("custom_types") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn pos_named(arg1: i32, #[starlark(require = named)] arg2: i32) -> anyhow::Result<i32>
-    builder.setFunction("pos_named") { _arg1: Int, _arg2: Int ->
+    builder.setFunction("pos_named") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn with_arguments(args: &Arguments) -> anyhow::Result<i32>
-    builder.setFunction("with_arguments") { _args: Arguments ->
+    builder.setFunction("with_arguments") { _args: Arguments, _eval: Evaluator ->
         error("unimplemented")
     }
 }
@@ -104,7 +99,7 @@ private fun globals(builder: GlobalsBuilder) {
 // #[test]
 // fn test_rustdoc()
 internal fun testRustdoc() {
-    val got = GlobalsBuilder().with(::globals).build()
+    val got = GlobalsBuilder.new().with(::globals).build()
     val a = Assert()
     a.globalsAdd(::globals)
     val expected = a.passModule("""
@@ -117,12 +112,12 @@ def with_arguments(*args, **kwargs) -> int: pass
 """)
 
     val expectedMembers = expected.documentation().members
-    val gotMembers = got.documentation().members.toMutableMap()
+    val gotMembers = got.documentation().members
 
-    gotMembers.remove("Input")
-    gotMembers.remove("Output")
+    gotMembers.shiftRemove("Input")
+    gotMembers.shiftRemove("Output")
 
-    check(expectedMembers.size == gotMembers.size)
+    check(expectedMembers.len() == gotMembers.len())
     for ((name, expectedItem) in expectedMembers) {
         var item = expectedItem
         if (name == "default_arg") {
@@ -130,11 +125,11 @@ def with_arguments(*args, **kwargs) -> int: pass
             // be replicated with normal functions
             val memberItem = item as? DocItem.Member ?: error("unreachable")
             val funcItem = (memberItem.member as? DocMember.Function) ?: error("unreachable")
-            val firstParam = funcItem.params.docParamsMut().next()!!
+            val firstParam = funcItem.function.params.docParamsMut().next()!!
             firstParam.defaultValue = PARAM_FMT_OPTIONAL
         }
         // Comparing one at a time produces more useful error messages
-        check(item == gotMembers[name])
+        check(item == gotMembers.get(name))
     }
 }
 
@@ -158,9 +153,8 @@ internal class Obj : StarlarkValue {
 private fun objectMethods(builder: MethodsBuilder) {
     /// Docs for func1
     // fn func1(this: Value, foo: String) -> anyhow::Result<String>
-    builder.setMethod("func1") { _this: Value, foo: String ->
-        val _ignore = foo
-        Result.success("func1")
+    builder.setMethod("func1") { _eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, _args: Arguments ->
+        Result.success(Value.newNone())
     }
 }
 
@@ -170,13 +164,14 @@ internal fun innerObjectFunctionsHaveDocs() {
     Heap.temp { heap ->
         val obj = heap.allocSimple(Obj())
         val item = obj
-            .getAttr("func1", heap)!!
+            .getAttr("func1", heap)
+            .getOrThrow()!!
             .documentation()
 
         when (item) {
             is DocItem.Member -> {
                 val funcItem = item.member as DocMember.Function
-                check(funcItem.docs!!.summary == "Docs for func1")
+                check(funcItem.function.docs!!.summary == "Docs for func1")
             }
             else -> error("Expected function: $item")
         }
@@ -187,29 +182,29 @@ internal fun innerObjectFunctionsHaveDocs() {
 // fn module(builder: &mut GlobalsBuilder)
 private fun moduleFunctions(builder: GlobalsBuilder) {
     // const MAGIC: i32 = 42
-    builder.setConst("MAGIC", 42)
+    builder.set("MAGIC", 42)
 
     /// Docs for func1
     // fn func1(foo: String) -> anyhow::Result<String>
-    builder.setFunction("func1") { foo: String ->
-        val _ignore = foo
-        Result.success("func1")
+    builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
+        Value.newNone()
     }
 }
 
 // #[test]
 // fn inner_module_functions_have_docs()
 internal fun innerModuleFunctionsHaveDocs() {
-    val item = GlobalsBuilder()
+    val item = GlobalsBuilder.new()
         .with(::moduleFunctions)
         .build()
-        .get("func1")!!
+        .getOwned("func1")!!
+        .value()
         .documentation()
 
     when (item) {
         is DocItem.Member -> {
             val funcItem = item.member as DocMember.Function
-            check(funcItem.docs!!.summary == "Docs for func1")
+            check(funcItem.function.docs!!.summary == "Docs for func1")
         }
         else -> error("Expected function: $item")
     }

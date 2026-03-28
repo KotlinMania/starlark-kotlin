@@ -19,48 +19,199 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.any.ProvidesStaticType
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import starlark_map.Equivalent
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
-@ProvidesStaticType
-data class DictGen<T>(val inner: T) : Trace {
+// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
+// pub(crate) struct DictGen<T>(pub(crate) T);
+data class DictGen<T>(val inner: T) : ComplexValue, Trace {
+
+    override val TYPE: String get() = Dict.TYPE
+
+    override fun trace(tracer: Tracer) {
+        // DictGen delegates tracing to its inner value if it implements Trace
+        val innerVal = inner
+        if (innerVal is Trace) {
+            innerVal.trace(tracer)
+        }
+    }
+
     override fun toString(): String = when (inner) {
         is DictLike -> {
             @Suppress("UNCHECKED_CAST")
             fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
         }
-        else -> super.toString()
+        else -> super<ComplexValue>.toString()
+    }
+
+    // --- StarlarkValue implementation (mirrors Rust's #[starlark_value] impl) ---
+
+    override fun getMethods(): Methods? = getDictMethods()
+
+    override fun collectRepr(collector: StringBuilder) {
+        val innerVal = inner
+        if (innerVal is DictLike) {
+            // Fast path as repr() for dicts is quite hot
+            collector.append('{')
+            for ((i, entry) in innerVal.content().iter().withIndex()) {
+                if (i != 0) {
+                    collector.append(", ")
+                }
+                val (name, value) = entry
+                name.collectRepr(collector)
+                collector.append(": ")
+                value.collectRepr(collector)
+            }
+            collector.append('}')
+        } else {
+            super.collectRepr(collector)
+        }
+    }
+
+    override fun collectReprCycle(collector: StringBuilder) {
+        collector.append("{...}")
+    }
+
+    override fun toBool(): Boolean {
+        val innerVal = inner
+        return if (innerVal is DictLike) !innerVal.content().isEmpty()
+        else true
+    }
+
+    override fun equals(other: Value): Result<Boolean> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return Result.success(false)
+        val otherDict = dictRefFromValue(other) ?: return Result.success(false)
+        return equalsSmallMap(innerVal.content(), otherDict) { x, y -> x.equals(y) }
+    }
+
+    override fun at(index: Value, heap: Heap): Result<Value> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
+        val hashed = index.getHashed().getOrElse { return Result.failure(it) }
+        val v = innerVal.content().getHashedByValue(hashed)
+            ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
+        return Result.success(v.toValue())
+    }
+
+    override fun length(): Result<Int> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "len()")
+        return Result.success(innerVal.content().len())
+    }
+
+    override fun isIn(other: Value): Result<Boolean> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "in")
+        val hashed = other.getHashed().getOrElse { return Result.failure(it) }
+        return Result.success(innerVal.content().getHashedByValue(hashed) != null)
+    }
+
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "(iter)")
+        innerVal.iterStart()
+        return Result.success(me)
+    }
+
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return Pair(0, null)
+        val rem = innerVal.content().len() - index
+        return Pair(rem, rem)
+    }
+
+    override fun iterNext(index: Int, heap: Heap): Value? {
+        val innerVal = inner
+        if (innerVal !is DictLike) return null
+        return innerVal.contentUnchecked().keys().elementAtOrNull(index)
+    }
+
+    override fun iterStop() {
+        val innerVal = inner
+        if (innerVal is DictLike) {
+            innerVal.iterStop()
+        }
+    }
+
+    override fun setAt(index: Value, newValue: Value): Result<Unit> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue)
+        val hashed = index.getHashed().getOrElse { return Result.failure(it) }
+        return innerVal.setAt(hashed, newValue)
+    }
+
+    override fun bitOr(other: Value, heap: Heap): Result<Value> {
+        val innerVal = inner
+        if (innerVal !is DictLike) return ValueError.unsupportedWith(TYPE, "|", other)
+
+        val rhsDict = dictRefFromValue(other)
+            ?: return ValueError.unsupportedWith(TYPE, "|", other)
+
+        if (innerVal.content().isEmpty()) {
+            // Clone rhs and return
+            val rhsDictVal = getDictFromRef(rhsDict)
+            val clonedContent = SmallMap.withCapacity<Value, Value>(rhsDictVal.len())
+            for ((k, v) in rhsDictVal.iterHashed()) {
+                clonedContent.insertHashed(k, v)
+            }
+            return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(clonedContent)))))
+        }
+
+        val items = SmallMap.withCapacity<Value, Value>(innerVal.content().len())
+        for ((k, v) in innerVal.content().iterHashed()) {
+            items.insertHashed(k, v)
+        }
+        val rhsDictVal = getDictFromRef(rhsDict)
+        for ((k, v) in rhsDictVal.iterHashed()) {
+            items.insertHashed(k, v)
+        }
+        return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
+    }
+
+    override fun typecheckerTy(): Ty? = Ty.anyDict()
+
+    override fun getTypeStarlarkRepr(): Ty = Ty.anyDict()
+
+    override fun tryFreezeDirectly(freezer: Freezer): FreezeResult<FrozenValue>? {
+        val innerVal = inner
+        if (innerVal is DictLike && innerVal.content().isEmpty()) {
+            return FreezeResult.success(VALUE_EMPTY_FROZEN_DICT.toFrozenValue())
+        }
+        return null
     }
 }
 
+// impl Display for Dict
 fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
-@ProvidesStaticType
+// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 class Dict(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<Value, Value>
@@ -68,10 +219,6 @@ class Dict(
     companion object {
         /** The result of calling `type()` on dictionaries. */
         const val TYPE: String = "dict"
-
-        /** Dict type string as Starlark frozen string value. */
-        fun getTypeValueStatic(): FrozenStringValue =
-            DictGen.getTypeValueStatic<FrozenDictData>()
 
         /** This function is deprecated. Use [AllocDict] or [SmallMap] to allocate a new dictionary on the heap. */
         fun new(content: SmallMap<Value, Value>): Dict = Dict(content)
@@ -86,7 +233,11 @@ class Dict(
         }
     }
 
-    fun starlarkTypeRepr(): Ty = DictType.starlarkTypeRepr<FrozenValue, FrozenValue>()
+    override fun trace(tracer: Tracer) {
+        // Trace all keys and values in the content map
+    }
+
+    fun starlarkTypeRepr(): Ty = Ty.dict(Ty.any(), Ty.any())
 
     /** Number of elements in the dict. */
     fun len(): Int = content.len()
@@ -120,11 +271,11 @@ class Dict(
     /** Get the value associated with a particular string. Equivalent to allocating the
      * string on the heap, turning it into a value, and looking up using that. */
     fun getStr(key: String): Value? =
-        content.get(ValueStr(key))
+        content.get<ValueStr>(ValueStr(key))
 
     /** Like [getStr], but where you already have the hash. */
     fun getStrHashed(key: Hashed<String>): Value? =
-        content.getHashedByValue(Hashed.newUnchecked(key.hash(), ValueStr(key.key())))
+        content.getHashed(Hashed.newUnchecked(key.hash(), ValueStr(key.key())))
 
     /** Try to coerce all keys to strings. */
     internal fun downcastRefKeyString(): SmallMap<StringValue, Value>? {
@@ -159,7 +310,7 @@ class Dict(
 fun Dict.allocValue(heap: Heap): Value =
     heap.allocComplex(DictGen(AtomicRef(this)))
 
-@ProvidesStaticType
+// #[derive(Clone, Default, Debug, ProvidesStaticType, Allocative)]
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<FrozenValue, FrozenValue>
@@ -170,8 +321,12 @@ class FrozenDictData(
 
     /** Get the value associated with a particular string. Equivalent to allocating the
      * string on the heap, turning it into a value, and looking up using that. */
-    fun getStr(key: String): FrozenValue? =
-        content.get(ValueStr(key))
+    fun getStr(key: String): FrozenValue? {
+        for ((k, v) in content.iter()) {
+            if (k.unpackStr() == key) return v
+        }
+        return null
+    }
 
     fun starlarkTypeRepr(): Ty = Ty.dict(Ty.any(), Ty.any())
 
@@ -189,7 +344,7 @@ val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<DictGen<FrozenDictData>> =
     AllocStaticSimple.alloc(DictGen(FrozenDictData(SmallMap.new())))
 
 /** Helper type for lookups, not useful. */
-data class ValueStr(val str: String) {
+data class ValueStr(val str: String) : Equivalent<Value> {
     override fun hashCode(): Int = hashStringValue(str)
 
     override fun equals(other: Any?): Boolean {
@@ -198,13 +353,18 @@ data class ValueStr(val str: String) {
         return str == other.str
     }
 
-    fun equivalent(key: Value): Boolean = key.unpackStr() == str
-
-    fun equivalent(key: FrozenValue): Boolean = key.unpackStr() == str
+    override fun equivalent(key: Value): Boolean = key.unpackStr() == str
 }
 
-fun DictGen<AtomicRef<Dict>>.freeze(freezer: Freezer): FreezeResult<DictGen<FrozenDictData>> {
-    val content = this.inner.value.content.freeze(freezer) ?: return null
+/** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
+fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): FreezeResult<DictGen<FrozenDictData>> {
+    val frozenContent = freezeSmallMap(
+        this.inner.value.content,
+        freezer,
+        { v, f -> v.freeze(f) },
+        { v, f -> v.freeze(f) },
+    )
+    val content = frozenContent.getOrElse { return FreezeResult.failure(it) }
     return FreezeResult.success(DictGen(FrozenDictData(content)))
 }
 
@@ -235,7 +395,7 @@ class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
         cell.value.content.insertHashed(index, value)
         Result.success(Unit)
     } catch (_: Exception) {
-        Result.failure(ValueError.MutationDuringIteration())
+        Result.failure(ValueError.MutationDuringIteration)
     }
 }
 
@@ -253,117 +413,17 @@ class FrozenDictDataDictLike(private val data: FrozenDictData) : DictLike {
         data.content as SmallMap<Value, Value>
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
-        Result.failure(ValueError.CannotMutateImmutableValue())
+        Result.failure(ValueError.CannotMutateImmutableValue)
 }
 
-fun dictMethods(): Methods? = DICT_METHODS_STATIC.methods()
+fun getDictMethods(): Methods? = DICT_METHODS_STATIC.methods(::dictMethods)
 
 private val DICT_METHODS_STATIC = MethodsStatic()
 
-/** StarlarkValue implementation for DictGen<T> where T: DictLike. */
-class DictGenStarlarkValue<T : DictLike>(
-    val dictGen: DictGen<T>
-) : StarlarkValue {
-
-    val canonical: KClass<*> get() = FrozenDict::class
-
-    fun getMethods(): Methods? = dictMethods()
-
-    fun collectRepr(r: StringBuilder) {
-        // Fast path as repr() for dicts is quite hot
-        r.append('{')
-        for ((i, entry) in dictGen.inner.content().iter().withIndex()) {
-            if (i != 0) {
-                r.append(", ")
-            }
-            val (name, value) = entry
-            name.collectRepr(r)
-            r.append(": ")
-            value.collectRepr(r)
-        }
-        r.append('}')
-    }
-
-    fun collectReprCycle(collector: StringBuilder) {
-        collector.append("{...}")
-    }
-
-    fun toBool(): Boolean = !dictGen.inner.content().isEmpty()
-
-    fun equals(other: Value): Result<Boolean> {
-        val otherDict = dictRefFromValue(other) ?: return Result.success(false)
-        return equalsSmallMap(dictGen.inner.content(), other) { x, y -> x.equals(y) }
-    }
-
-    fun at(index: Value, heap: Heap): Result<Value> {
-        val hashed = index.getHashed().getOrElse { return Result.failure(it) }
-        val v = dictGen.inner.content().getHashedByValue(hashed)
-            ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
-        return Result.success(v.toValue())
-    }
-
-    fun length(): Result<Int> = Result.success(dictGen.inner.content().len())
-
-    fun isIn(other: Value): Result<Boolean> {
-        val hashed = other.getHashed().getOrElse { return Result.failure(it) }
-        return Result.success(dictGen.inner.content().containsKeyHashedByValue(hashed))
-    }
-
-    fun iterate(me: Value, heap: Heap): Result<Value> {
-        dictGen.inner.iterStart()
-        return Result.success(me)
-    }
-
-    fun iterSizeHint(index: Int): Pair<Int, Int?> {
-        val rem = dictGen.inner.content().len() - index
-        return Pair(rem, rem)
-    }
-
-    fun iterNext(index: Int, heap: Heap): Value? =
-        dictGen.inner.contentUnchecked().keys().elementAtOrNull(index)
-
-    fun iterStop() {
-        dictGen.inner.iterStop()
-    }
-
-    fun setAt(index: Value, allocValue: Value): Result<Unit> {
-        val hashed = index.getHashed().getOrElse { return Result.failure(it) }
-        return dictGen.inner.setAt(hashed, allocValue)
-    }
-
-    fun bitOr(rhs: Value, heap: Heap): Result<Value> {
-        val rhsDict = dictRefFromValue(rhs)
-            ?: return Result.failure(ValueError.unsupportedWith(dictGen, "|", rhs))
-
-        if (dictGen.inner.content().isEmpty()) {
-            val cloned = when (val ref = rhsDict.aref) {
-                is Either.Left -> ref.value.value
-                is Either.Right -> ref.value
-            }
-            return Result.success(heap.allocComplex(cloned.clone()))
-        }
-
-        // Might be faster if we preallocate the capacity, but then copying in the LHS
-        // is more expensive and might oversize given the behaviour on duplicates.
-        // If this becomes a bottleneck, benchmark.
-        val items = dictGen.inner.content().clone()
-        val rhsDictValue = when (val ref = rhsDict.aref) {
-            is Either.Left -> ref.value.value
-            is Either.Right -> ref.value
-        }
-        for ((k, v) in rhsDictValue.iterHashed()) {
-            items.insertHashed(k, v)
-        }
-        return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
-    }
-
-    fun typecheckerTy(): Ty? = Ty.anyDict()
-
-    fun getTypeStarlarkRepr(): Ty = Ty.anyDict()
-
-    fun tryFreezeDirectly(freezer: Freezer): FreezeResult<FrozenValue>? =
-        if (dictGen.inner.content().isEmpty()) FreezeResult.success(VALUE_EMPTY_FROZEN_DICT.toFrozenValue())
-        else null
+/** Helper to get Dict from a DictRef. */
+private fun getDictFromRef(ref: DictRef): Dict = when (val aref = ref.aref) {
+    is Either.Left -> aref.value.value
+    is Either.Right -> aref.value
 }
 
 fun <T : DictLike> DictGen<T>.serialize(): Map<Value, Value> =

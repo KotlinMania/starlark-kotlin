@@ -1,10 +1,11 @@
 // port-lint: source src/values/types/int/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
+import kotlin.math.truncate
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -23,28 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Real types should be imported from their respective packages
-
-/**
- * Either type for representing one of two possible values.
- * Corresponds to Rust's `either::Either`.
- */
-sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
-}
-
-/**
- * Sealed class representing NumRef enum values.
- * This mimics Rust's `NumRef` enum.
- */
-sealed class NumRefValue {
-    data class Int(val value: Value) : NumRefValue()
-    data class Float(val value: StarlarkFloat) : NumRefValue()
-}
-
-// GlobalsBuilder.function should be imported from the real environment package
 
 /**
  * Register int-related global functions.
@@ -104,114 +83,132 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * # "#, "cannot be represented as exact integer");
      * ```
      */
-    globals.setFunction(
-        name = "int",
-        asType = PointerI32::class,
-        speculativeExecSafe = true,
-        requirePos = true
-    ) { a, base, heap ->
+    // #[starlark(as_type = PointerI32, speculative_exec_safe)]
+    // fn int<'v>(
+    //     #[starlark(require = pos)] a: Option<ValueOf<'v, Either<Either<NumRef<'v>, bool>, &'v str>>>,
+    //     base: Option<i32>,
+    //     heap: Heap<'v>,
+    // ) -> starlark::Result<ValueOfUnchecked<'v, StarlarkInt>>
+    globals.setFunction("int", speculativeExecSafe = true, asType = PointerI32::class) { callArgs, eval ->
+        val heap = eval.heap()
+        val a: Value? = callArgs.optionalPositional(0)
+        val base: Int? = callArgs.optionalNamed("base")
+
         if (a == null) {
-            return@function Result.success(ValueOfUnchecked.new(heap.alloc(0)))
+            // int() with no args returns 0
+            return@setFunction Value.newInt(InlineInt.ZERO)
         }
 
-        val numOrBool = when (val typed = a.typed) {
-            is Either.Left -> typed.value
-            is Either.Right -> {
-                val s = typed.value
-                val baseValue = base ?: 0
-                if (baseValue == 1 || baseValue < 0 || baseValue > 36) {
-                    return@function Result.failure(
-                        IllegalArgumentException(
-                            "$baseValue is not a valid base, int() base must be >= 2 and <= 36"
-                        )
-                    )
-                }
-
-                val (negate, strippedSign) = when (s.firstOrNull()) {
-                    '+' -> false to s.substring(1)
-                    '-' -> true to s.substring(1)
-                    else -> false to s
-                }
-
-                val actualBase = if (baseValue == 0) {
-                    when (strippedSign.take(2)) {
-                        "0b", "0B" -> 2
-                        "0o", "0O" -> 8
-                        "0x", "0X" -> 16
-                        else -> 10
-                    }
-                } else {
-                    baseValue
-                }
-
-                val strippedPrefix = when (actualBase) {
-                    16 -> {
-                        if (strippedSign.startsWith("0x") || strippedSign.startsWith("0X")) {
-                            strippedSign.substring(2)
-                        } else {
-                            strippedSign
-                        }
-                    }
-                    8 -> {
-                        if (strippedSign.startsWith("0o") || strippedSign.startsWith("0O")) {
-                            strippedSign.substring(2)
-                        } else {
-                            strippedSign
-                        }
-                    }
-                    2 -> {
-                        if (strippedSign.startsWith("0b") || strippedSign.startsWith("0B")) {
-                            strippedSign.substring(2)
-                        } else {
-                            strippedSign
-                        }
-                    }
-                    else -> strippedSign
-                }
-
-                // We already handled the sign above, so we are not trying to parse another sign.
-                if (strippedPrefix.startsWith('-') || strippedPrefix.startsWith('+')) {
-                    return@function Result.failure(
-                        IllegalArgumentException("Cannot parse `$strippedPrefix` as an integer")
-                    )
-                }
-
-                return@function StarlarkInt.fromStrRadix(strippedPrefix, actualBase).mapCatching { x ->
-                    val result = if (negate) -x else x
-                    ValueOfUnchecked.new(heap.alloc(result))
-                }
-            }
-            else -> throw IllegalStateException("Unexpected typed: $typed")
-        }
-
-        if (base != null) {
-            return@function Result.failure(
-                IllegalArgumentException(
-                    "int() cannot convert non-string with explicit base '$base'"
+        // Try to interpret as string first
+        val str = a.unpackStr()
+        if (str != null) {
+            val baseValue = base ?: 0
+            if (baseValue == 1 || baseValue < 0 || baseValue > 36) {
+                throw IllegalArgumentException(
+                    "$baseValue is not a valid base, int() base must be >= 2 and <= 36"
                 )
+            }
+
+            val (negate, strippedSign) = when (str.firstOrNull()) {
+                '+' -> false to str.substring(1)
+                '-' -> true to str.substring(1)
+                else -> false to str
+            }
+
+            val actualBase = if (baseValue == 0) {
+                when (strippedSign.take(2)) {
+                    "0b", "0B" -> 2
+                    "0o", "0O" -> 8
+                    "0x", "0X" -> 16
+                    else -> 10
+                }
+            } else {
+                baseValue
+            }
+
+            val strippedPrefix = when (actualBase) {
+                16 -> {
+                    if (strippedSign.startsWith("0x") || strippedSign.startsWith("0X")) {
+                        strippedSign.substring(2)
+                    } else {
+                        strippedSign
+                    }
+                }
+                8 -> {
+                    if (strippedSign.startsWith("0o") || strippedSign.startsWith("0O")) {
+                        strippedSign.substring(2)
+                    } else {
+                        strippedSign
+                    }
+                }
+                2 -> {
+                    if (strippedSign.startsWith("0b") || strippedSign.startsWith("0B")) {
+                        strippedSign.substring(2)
+                    } else {
+                        strippedSign
+                    }
+                }
+                else -> strippedSign
+            }
+
+            // We already handled the sign above, so we are not trying to parse another sign.
+            if (strippedPrefix.startsWith('-') || strippedPrefix.startsWith('+')) {
+                throw IllegalArgumentException("Cannot parse `$strippedPrefix` as an integer")
+            }
+
+            val x = StarlarkInt.fromStrRadix(strippedPrefix, actualBase).getOrThrow()
+            val result = if (negate) -x else x
+            return@setFunction allocStarlarkInt(result, heap)
+        }
+
+        // Not a string - try numeric or bool
+        if (base != null) {
+            throw IllegalArgumentException(
+                "int() cannot convert non-string with explicit base '$base'"
             )
         }
 
-        return@function when (numOrBool) {
-            is Either.Left -> {
-                when (val numRef = numOrBool.value) {
-                    is NumRefValue.Int -> {
-                        Result.success(ValueOfUnchecked.new(a.value))
-                    }
-                    is NumRefValue.Float -> {
-                        val f = numRef.value
-                        StarlarkInt.fromF64Exact(StarlarkFloat.trunc(f.value)).map {
-                            ValueOfUnchecked.new(heap.alloc(it))
-                        }
-                    }
-                    else -> throw IllegalStateException("Unexpected NumRefValue: $numRef")
+        // Try to unpack as a numeric value
+        val numRef = a.unpackNum()
+        if (numRef != null) {
+            return@setFunction when (numRef) {
+                is NumRef.Int -> {
+                    // Already an int, return the original value
+                    a
+                }
+                is NumRef.Float -> {
+                    val f = numRef.value
+                    val truncated = truncate(f.value)
+                    val starlarkInt = StarlarkInt.fromF64Exact(truncated).getOrThrow()
+                    allocStarlarkInt(starlarkInt, heap)
                 }
             }
-            is Either.Right -> {
-                val b = numOrBool.value
-                Result.success(ValueOfUnchecked.new(heap.alloc(b as Int)))
-            }
-            else -> throw IllegalStateException("Unexpected Either: $numOrBool")
         }
+
+        // Try to unpack as a bool
+        val boolVal = a.unpackBool()
+        if (boolVal != null) {
+            return@setFunction Value.newInt(if (boolVal) InlineInt.newUnchecked(1) else InlineInt.ZERO)
+        }
+
+        throw IllegalArgumentException(
+            "int() argument must be a string, a number, or a bool, not '${a.getType()}'"
+        )
+    }
+}
+
+/**
+ * Allocate a [StarlarkInt] on the heap and return a [Value].
+ *
+ * For small ints that fit in an [InlineInt], no heap allocation is needed.
+ * For big ints, the value is allocated on the heap via [StarlarkBigInt.allocValue].
+ */
+private fun allocStarlarkInt(
+    starlarkInt: StarlarkInt,
+    heap: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap,
+): Value {
+    return when (starlarkInt) {
+        is StarlarkInt.Small -> Value.newInt(starlarkInt.value)
+        is StarlarkInt.Big -> starlarkInt.value.allocValue(heap)
     }
 }

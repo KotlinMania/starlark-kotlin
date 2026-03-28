@@ -19,50 +19,34 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.Bindings
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
-import io.github.kotlinmania.starlark_kotlin.typing.InternalError
-import io.github.kotlinmania.starlark_kotlin.typing.TypingError
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleVarTypes
-import io.github.kotlinmania.starlark_kotlin.typing.`interface`.Interface
-import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
+import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingSource
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtsMut
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingContext
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingSource
-import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.analysis.Def
-import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.intoError
-import io.github.kotlinmania.starlark_kotlin.typing.fillTypesForLintTypechecker
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleVarTypes
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.TypingContext
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.BindingId
-import io.github.kotlinmania.starlark_kotlin.analysis.types
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(
     bindings: Bindings,
     oracle: TypingOracleCtx,
     moduleVarTypes: ModuleVarTypes,
-): Triple<List<TypingError>, HashMap<BindingId, Ty>, List<Approximation>> {
-    val types = linkedMapOf<BindingId, Ty>()
+): Triple<List<TypingError>, MutableMap<BindingId, Ty>, List<Approximation>> {
+    val types = mutableMapOf<BindingId, Ty>()
     for (key in bindings.expressions.keys()) {
         types[key] = Ty.never()
     }
@@ -84,7 +68,7 @@ internal fun solveBindings(
     for (iteration in 0 until iterations) {
         changed = false
         ctx.errors.clear()
-        for ((name, exprs) in bindings.expressions.entries()) {
+        for ((name, exprs) in bindings.expressions.iter()) {
             for (expr in exprs) {
                 val ty = ctx.expressionBindType(expr).getOrThrow()
                 val t = ctx.types[name]!!
@@ -125,7 +109,7 @@ internal fun solveBindings(
     }
     return Triple(
         ctx.errors.toList(),
-        HashMap(ctx.types),
+        ctx.types.toMutableMap(),
         ctx.approximations.toList(),
     )
 }
@@ -138,10 +122,10 @@ class TypeMap(
     override fun toString(): String {
         val sb = StringBuilder()
         // Iteration in unstable order - but that's fine because this is just for diagnostics
-        for ((_, entry) in bindings.entries.sortedBy { it.key }) {
+        for ((_, entry) in bindings.entries.sortedBy { it.key.id }) {
             val (name, span, ty) = entry
             sb.appendLine(
-                "$name (${FileSpanRef(file = codemap, span = span)}) = $ty"
+                "$name (${FileSpan(file = codemap, span = span)}) = $ty"
             )
         }
         return sb.toString()
@@ -149,14 +133,14 @@ class TypeMap(
 
     internal fun findBindingsByName(name: String): List<Ty> {
         return bindings.entries
-            .sortedBy { it.key }
+            .sortedBy { it.key.id }
             .filter { (_, entry) -> entry.first == name }
             .map { (_, entry) -> entry.third }
     }
 
     internal fun findFirstBinding(): Ty? {
         return bindings.entries
-            .minByOrNull { it.key }
+            .minByOrNull { it.key.id }
             ?.value?.third
     }
 }
@@ -186,14 +170,14 @@ fun AstModule.typecheck(
     val names = MutableNames()
     val frozenHeap = FrozenHeap()
     val (scopeErrors, moduleScopes) = ModuleScopes.checkModule(
-        names = names,
+        module = names,
         frozenHeap = frozenHeap,
         loads = loads,
-        statement = statement,
-        scopeResolverGlobals = ScopeResolverGlobals(
-            globals = frozenHeap.allocAny(globals),
+        stmt = statement,
+        globals = ScopeResolverGlobals(
+            globals = FrozenRef.new(globals),
         ),
-        codemap = frozenHeap.allocAny(codemap),
+        codemap = FrozenRef.new(codemap),
         dialect = Dialect.AllOptionsInternal,
     )
     val cst = moduleScopes.cst
@@ -229,7 +213,7 @@ fun AstModule.typecheck(
     val allSolveErrors = mutableListOf<TypingError>()
 
     for (top in cstStmts) {
-        if (top.node is StmtP.Def) {
+        if (top.node is StmtP.Def<*, *>) {
             val bindingsCollect = try {
                 BindingsCollect.collectOne(
                     x = top,
@@ -267,10 +251,10 @@ fun AstModule.typecheck(
 
             for ((id, ty) in types) {
                 val binding = scopeData.getBinding(id)
-                val name = binding.name
-                val span = when (val source = binding.source) {
-                    is BindingSource.Source -> source.span
-                    is BindingSource.FromModule -> Span.default()
+                val name = binding.name.asStr()
+                val span = when (binding.source) {
+                    is BindingSource.Source -> binding.source.span
+                    is BindingSource.FromModule -> Span.DEFAULT
                 }
                 typemap[id] = Triple(name, span, ty)
             }
@@ -289,7 +273,7 @@ fun AstModule.typecheck(
     for ((name, moduleSlotId, vis) in names.allNamesSlotsAndVisibilities()) {
         if (vis == Visibility.Public) {
             val ty = moduleVarTypes.types[moduleSlotId] ?: Ty.any()
-            res[name] = ty
+            res[name.asStr()] = ty
         }
     }
     val iface = Interface.new(res)

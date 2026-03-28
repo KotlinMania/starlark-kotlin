@@ -151,6 +151,12 @@ class Ty private constructor(
         fun starlarkValue(value: TyStarlarkValue): Ty =
             basic(TyBasic.StarlarkValue(value))
 
+        /** Typechecker type of value. */
+        // pub fn of_value(value: Value) -> Ty
+        fun ofValue(value: io.github.kotlinmania.starlark_kotlin.values.layout.Value): Ty {
+            return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
+        }
+
         /**
          * Create a unions type, which will be normalised before being created.
          */

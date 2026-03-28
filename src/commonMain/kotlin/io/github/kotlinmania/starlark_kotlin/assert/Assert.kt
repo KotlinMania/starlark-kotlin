@@ -37,16 +37,10 @@ import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
-import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
-import io.github.kotlinmania.starlark_kotlin.tests.getAttr
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.triggerGc
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtFn
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
 
 /** Functional type alias for value equality assertion. */
 internal typealias AssertEquals = (Value, Value) -> Result<NoneType>
@@ -67,7 +61,7 @@ private fun mkEnvironment(): GlobalsBuilder {
 private val GLOBALS: Globals by lazy { mkEnvironment().build() }
 
 private val ASSERTS_STAR: FrozenModule by lazy {
-    val g = GlobalsBuilder()
+    val g = GlobalsBuilder.new()
         .withNamespace("asserts", ::assertsStar)
         .build()
     Module.withTempHeap { m ->
@@ -76,7 +70,7 @@ private val ASSERTS_STAR: FrozenModule by lazy {
         m.set("asserts", assertsValue)
         m.set(
             "freeze",
-            assertsValue.getAttr("freeze", m.heap())!!,
+            assertsValue.getAttr("freeze", m.heap()).getOrThrow()!!,
         )
         m.freeze().getOrThrow()
     }
@@ -123,21 +117,21 @@ enum class GcStrategy {
 /** Definitions to support assert.star as used by the Go test suite */
 private fun assertsStar(builder: GlobalsBuilder) {
     builder.setFunction("eq") { args, _ ->
-        assertEquals(args.positional(0), args.positional(1))
+        assertEquals(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("ne") { args, _ ->
-        assertDifferent(args.positional(0), args.positional(1))
+        assertDifferent(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("lt") { args, _ ->
-        assertLessThan(args.positional(0), args.positional(1))
+        assertLessThan(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("contains") { args, _ ->
-        val xs = args.positional(0)
-        val x = args.positional(1)
-        if (!xs.isIn(x).getOrElse { return@setFunction Result.failure(it) }) {
+        val xs = args.positional<Value>(0)
+        val x = args.positional<Value>(1)
+        if (!xs.isIn(x).getOrElse { return@setFunction Result.failure<NoneType>(it) }) {
             Result.failure(Exception("assert.contains: expected $x to be in $xs"))
         } else {
             Result.success(NoneType)
@@ -145,17 +139,18 @@ private fun assertsStar(builder: GlobalsBuilder) {
     }
 
     builder.setFunction("true") { args, _ ->
-        assertEquals(Value.newBool(args.positional(0).toBool()), Value.newBool(true))
+        assertEquals(Value.newBool(args.positional<Value>(0).toBool()), Value.newBool(true))
     }
 
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
     builder.setFunction("freeze") { args, _ ->
-        Result.success(args.positional(0))
+        Result.success(args.positional<Value>(0))
     }
 
     builder.setFunction("fails") { args, eval ->
-        val f = args.positional(0)
-        val _ = args.positional(1) // msg - We don't actually check the message
+        val f = args.positional<Value>(0)
+        @Suppress("UNUSED_VARIABLE")
+        val msg = args.positional<Value>(1) // msg - We don't actually check the message
         when (val result = f.invokePos(emptyList(), eval)) {
             else -> if (result.isFailure) {
                 Result.success(NoneType)
@@ -168,7 +163,14 @@ private fun assertsStar(builder: GlobalsBuilder) {
 
 fun testFunctions(builder: GlobalsBuilder) {
     // Used by one of the test methods in Go
-    builder.setConst("fibonacci", listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89))
+    run {
+        val heap = builder.frozenHeap()
+        val frozenList = heap.allocList(
+            listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)
+                .map { it.allocFrozenValue(heap) }
+        )
+        builder.setInner("fibonacci", frozenList, false)
+    }
 
     /** Approximate version of a method used by the Go test suite */
     builder.setFunction("hasfields") { _, _ ->
@@ -176,19 +178,19 @@ fun testFunctions(builder: GlobalsBuilder) {
     }
 
     builder.setFunction("assert_eq") { args, _ ->
-        assertEquals(args.positional(0), args.positional(1))
+        assertEquals(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("assert_ne") { args, _ ->
-        assertDifferent(args.positional(0), args.positional(1))
+        assertDifferent(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("assert_lt") { args, _ ->
-        assertLessThan(args.positional(0), args.positional(1))
+        assertLessThan(args.positional<Value>(0), args.positional<Value>(1))
     }
 
     builder.setFunction("assert_true") { args, _ ->
-        if (!args.positional(0).toBool()) {
+        if (!args.positional<Value>(0).toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
@@ -196,7 +198,7 @@ fun testFunctions(builder: GlobalsBuilder) {
     }
 
     builder.setFunction("assert_false") { args, _ ->
-        if (args.positional(0).toBool()) {
+        if (args.positional<Value>(0).toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
@@ -210,11 +212,11 @@ fun testFunctions(builder: GlobalsBuilder) {
     }
 
     builder.setFunction("assert_type") { args, eval ->
-        val v = args.positional(0)
-        val ty = args.positional(1)
+        val v = args.positional<Value>(0)
+        val ty = args.positional<Value>(1)
         runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return@setFunction Result.failure(it) }
-            .checkType(v, "v").getOrElse { return@setFunction Result.failure(it) }
+            .getOrElse { return@setFunction Result.failure<NoneType>(it) }
+            .checkType(v, "v").getOrElse { return@setFunction Result.failure<NoneType>(it) }
         Result.success(NoneType)
     }
 
@@ -225,7 +227,7 @@ fun testFunctions(builder: GlobalsBuilder) {
      */
     builder.setFunction("noop") { args, _ ->
         // kwargs are ignored
-        Result.success(args.positionals().firstOrNull() ?: Value.newNone())
+        Result.success(args.positionalAll().firstOrNull() ?: Value.newNone())
     }
 }
 
@@ -507,7 +509,7 @@ class Assert(
                 env.set("_", res)
                 env.freeze()
                     .getOrThrow()
-                    .get("_")!!
+                    .get("_").getOrThrow()
             }
         }
     }

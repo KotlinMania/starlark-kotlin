@@ -25,13 +25,13 @@ package io.github.kotlinmania.starlark_kotlin.environment
 /// all values from this environment become immutable.
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -46,20 +46,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.Aggregat
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapName
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toProfile
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.values.documentation
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
-import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
+import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.EnvironmentError
 
@@ -83,7 +76,7 @@ sealed class ModuleError(message: String) : Exception(message) {
 /// to the frozen heap.
 ///
 /// pub struct FrozenModule
-class FrozenModule(
+class FrozenModule internal constructor(
     private val heap: FrozenHeapRef,
     private val module: FrozenRef<FrozenModuleData>,
     private val _extraValue: FrozenValue?,
@@ -115,8 +108,8 @@ class FrozenModule(
 
     /// fn get_any_visibility_option(&self, name: &str) -> Option<(OwnedFrozenValue, Visibility)>
     private fun getAnyVisibilityOption(name: String): Pair<OwnedFrozenValue, Visibility>? {
-        val (slot, vis) = module.get().names.getName(name) ?: return null
-        val value = module.get().slots.getSlot(slot) ?: return null
+        val (slot, vis) = module.value.names.getName(name) ?: return null
+        val value = module.value.slots.getSlot(slot) ?: return null
         return OwnedFrozenValue(heap, value) to vis
     }
 
@@ -126,7 +119,7 @@ class FrozenModule(
     fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> {
         return getAnyVisibilityOption(name)?.let { Result.success(it) }
             ?: run {
-                val better = didYouMean(name, names().map { it.asStr() })
+                val better = didYouMean(name, names().map { it.asStr() }.toList())
                 if (better != null) {
                     Result.failure(
                         EnvironmentError.ModuleHasNoSymbolDidYouMean(name, better)
@@ -174,7 +167,7 @@ class FrozenModule(
     ///
     /// pub fn names(&self) -> impl Iterator<Item = FrozenStringValue>
     fun names(): Sequence<FrozenStringValue> {
-        return module.get().names()
+        return module.value.names()
     }
 
     /// Obtain the [FrozenHeapRef] which owns the storage of all values defined in this module.
@@ -188,28 +181,28 @@ class FrozenModule(
     ///
     /// pub fn describe(&self) -> String
     fun describe(): String {
-        return module.get().describe()
+        return module.value.describe()
     }
 
     /// pub(crate) fn all_items(&self) -> impl Iterator<Item = (FrozenStringValue, FrozenValue)>
     internal fun allItems(): Sequence<Pair<FrozenStringValue, FrozenValue>> {
-        return module.get().allItems()
+        return module.value.allItems()
     }
 
     /// The documentation for the module, and all of its top level values.
     ///
     /// pub fn documentation(&self) -> DocModule
     fun documentation(): DocModule {
-        val members = allItems()
-            .filter { (name, _) ->
-                getAnyVisibilityOption(name.asStr())
-                    ?.let { (_, vis) -> vis == Visibility.Public } ?: false
+        val members = SmallMap.new<String, DocItem>()
+        for ((name, value) in allItems()) {
+            val vis = getAnyVisibilityOption(name.asStr())
+            if (vis != null && vis.second == Visibility.Public) {
+                members.insert(name.asStr(), value.toValue().documentation())
             }
-            .map { (k, v) -> k.asStr() to v.toValue().documentation() }
-            .toMap()
+        }
 
         return DocModule(
-            docs = module.get().documentation(),
+            docs = module.value.documentation(),
             members = members,
         )
     }
@@ -218,7 +211,7 @@ class FrozenModule(
     ///
     /// pub fn heap_profile(&self) -> anyhow::Result<ProfileData>
     fun heapProfile(): Result<ProfileData> {
-        return when (val p = module.get().heapProfile) {
+        return when (val p = module.value.heapProfile) {
             null -> Result.failure(ModuleError.RetainedMemoryProfileNotEnabled())
             else -> Result.success(p.toProfile())
         }
@@ -413,7 +406,7 @@ class Module(
     ///
     /// pub fn get(&self, name: &str) -> Option<Value<'v>>
     fun get(name: String): Value? {
-        return getAnyVisibility(Hashed(name))?.let { (v, vis) ->
+        return getAnyVisibility(Hashed.new(name))?.let { (v, vis) ->
             when (vis) {
                 Visibility.Private -> null
                 Visibility.Public -> v
@@ -443,7 +436,9 @@ class Module(
             frozenHeap.addReference(r)
         }
         val frozenSlots = slots.freeze(freezer).getOrElse { return Result.failure(it) }
-        val extraValue = _extraValue?.freeze(freezer)?.getOrElse { return Result.failure(it) }
+        val extraValue = _extraValue?.let { v ->
+            freezer.freeze(v).getOrElse { return Result.failure(it) }
+        }
         val stacks = heapProfileOnFreeze?.let { mode ->
             val heapProfile = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
             RetainedHeapProfile(
@@ -457,9 +452,9 @@ class Module(
             docstring = docstring,
             heapProfile = stacks,
         )
-        val frozenModuleRef = freezer.heap.allocAny(rest)
+        val frozenModuleRef = FrozenRef(rest)
         for (frozenDef in freezer.frozenDefs) {
-            frozenDef.postFreeze(frozenModuleRef, heap, freezer.heap)
+            frozenDef.value.postFreeze(frozenModuleRef, heap, freezer.heap)
         }
 
         return Result.success(
@@ -537,7 +532,12 @@ class Module(
 
     /// pub(crate) fn trace(&self, tracer: &Tracer<'v>)
     internal fun trace(tracer: Tracer) {
-        slots().getSlotsMut().trace(tracer)
+        val slotsMut = slots().getSlotsMut()
+        for (i in slotsMut.indices) {
+            slotsMut[i]?.let { v ->
+                v.trace(tracer)
+            }
+        }
 
         _extraValue?.let { extra ->
             extra.trace(tracer)

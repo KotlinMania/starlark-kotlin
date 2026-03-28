@@ -21,48 +21,31 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 //! Compile and evaluate module top-level statements.
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
-import io.github.kotlinmania.starlark_kotlin.typing.InternalError
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleVarTypes
-import io.github.kotlinmania.starlark_kotlin.typing.mode.TypecheckMode
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.analysis.LoadP
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
-import io.github.kotlinmania.starlark_kotlin.analysis.Statements
-import io.github.kotlinmania.starlark_kotlin.analysis.Def
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.typing.solveBindings
-import io.github.kotlinmania.starlark_kotlin.typing.ofValue
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleVarTypes
-import io.github.kotlinmania.starlark_kotlin.typing.intoEvalException
-import io.github.kotlinmania.starlark_kotlin.typing.bindings.bindings
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.evalBc
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.moduleTopLevelStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.compileContext
-import io.github.kotlinmania.starlark_kotlin.eval.bc.setSlotModule
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
-import io.github.kotlinmania.starlark_kotlin.assert.staticTypechecking
-import io.github.kotlinmania.starlark_kotlin.assert.loader
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.their
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.load
-import io.github.kotlinmania.starlark_kotlin.analysis.module
-import io.github.kotlinmania.starlark_kotlin.analysis.local
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
+import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.typing.BindingsCollect
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.InternalError
+import io.github.kotlinmania.starlark_kotlin.typing.ModuleVarTypes
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TypecheckMode
+import io.github.kotlinmania.starlark_kotlin.typing.TypingError
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.solveBindings
+import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 // #[derive(Debug, thiserror::Error)]
 // enum ModuleError
@@ -84,7 +67,7 @@ internal sealed class ModuleError(override val message: String) : Exception(mess
 // Extension functions on Compiler for module evaluation.
 
 // fn eval_load(&mut self, load: Spanned<&LoadP<CstPayload>>) -> Result<(), EvalException>
-internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload>>): Result<Unit> {
+internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit> {
     val name = load.node.module.node
 
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, load.span))
@@ -101,22 +84,30 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload>>): Result<Unit> {
             )
         )
     } else {
-        exprThrow(loader.load(name), span, eval).getOrElse { return Result.failure(it) }
+        try {
+            exprThrow(runCatching { loader.load(name) }, span, eval)
+        } catch (e: EvalException) {
+            return Result.failure(e)
+        }
     }
 
     for (loadArg in load.node.args) {
-        val (slot, _captured) = scopeData.getAssignIdentSlot(loadArg.local, codemap.deref())
+        @Suppress("UNCHECKED_CAST")
+        val local = loadArg.local as CstAssignIdent
+        val (slot, _captured) = scopeData.getAssignIdentSlot(local, codemap.deref())
         val moduleSlot = when (slot) {
             is Slot.Local -> error("symbol need to be resolved to module")
-            is Slot.Module -> slot
+            is Slot.Module -> slot.id
         }
-        val value = runCatching {
+        val value = try {
             exprThrow(
                 eval.moduleEnv.loadSymbol(loadenv, loadArg.their.node),
                 FrameSpan.new(FrozenFileSpan.new(codemap, loadArg.span())),
                 eval,
             )
-        }.getOrElse { return Result.failure(it) }
+        } catch (e: EvalException) {
+            return Result.failure(e)
+        }
         eval.setSlotModule(moduleSlot, value)
     }
 
@@ -130,7 +121,7 @@ internal fun Compiler.evalRegularTopLevelStmt(
     stmt: CstStmt,
     localNames: FrozenRef<List<FrozenStringValue>>,
 ): Result<Value> {
-    if (stmt.node is StmtP.Statements || stmt.node is StmtP.Load) {
+    if (stmt.node is StmtP.Statements<*> || stmt.node is StmtP.Load<*, *>) {
         return Result.failure(
             EvalException.newAnyhow(
                 ModuleError.UnexpectedStatement,
@@ -141,8 +132,7 @@ internal fun Compiler.evalRegularTopLevelStmt(
     }
 
     val compiledStmt = moduleTopLevelStmt(stmt)
-        .mapCatching { it }
-        .getOrElse { e -> return Result.failure((e as EvalException)) }
+        .getOrElse { e -> return Result.failure(e) }
     val bc = compiledStmt.asBc(
         compileContext(false),
         localNames,
@@ -183,9 +173,11 @@ internal fun Compiler.evalTopLevelStmt(
         runCatching { populateTypesInStmt(s) }.getOrElse { return Result.failure(it) }
 
         when (s.node) {
-            is StmtP.Load -> {
+            is StmtP.Load<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                val loadNode = s.node as StmtP.Load<CstPayload, *>
                 evalLoad(Spanned(
-                    node = (s.node as StmtP.Load).loadStmt,
+                    node = loadNode.loadStmt,
                     span = s.span,
                 )).getOrElse { return Result.failure(it) }
                 last = Value.newNone()
@@ -214,7 +206,7 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
     )
     val moduleVarTypes = mkModuleVarTypes()
     for (top in stmts) {
-        if (top.node is StmtP.Def) {
+        if (top.node is StmtP.Def<*, *>) {
             val bindingsCollect = runCatching {
                 BindingsCollect.collectOne(
                     top,
@@ -222,11 +214,19 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
                     codemap.deref(),
                     mutableListOf(),
                 )
-            }.getOrElse { e -> return Result.failure((e as InternalError).intoEvalException()) }
+            }.getOrElse { e ->
+                return Result.failure(
+                    if (e is InternalError) e.intoEvalException() else e
+                )
+            }
 
             val (errors) = runCatching {
                 solveBindings(bindingsCollect.bindings, oracle, moduleVarTypes)
-            }.getOrElse { e -> return Result.failure((e as InternalError).intoEvalException()) }
+            }.getOrElse { e ->
+                return Result.failure(
+                    if (e is InternalError) e.intoEvalException() else e
+                )
+            }
 
             val firstError = errors.firstOrNull()
             if (firstError != null) {
@@ -241,8 +241,10 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
 // fn mk_module_var_types(&self) -> ModuleVarTypes
 internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
     val types = eval.moduleEnv.valuesBySlotId()
-        .map { (moduleSlotId, value) -> Pair(moduleSlotId, Ty.ofValue(value)) }
-        .toMap()
+        .associate { (moduleSlotId, value) ->
+            moduleSlotId to Ty.ofValue(value)
+        }
+        .toMutableMap()
     return ModuleVarTypes(types = types)
 }
 

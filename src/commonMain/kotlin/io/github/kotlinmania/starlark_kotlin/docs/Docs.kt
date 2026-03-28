@@ -122,6 +122,12 @@ class DocParams(
         }
     }
 
+    /// Mutable iteration over parameters.
+    // pub(crate) fn doc_params_mut(&mut self) -> impl Iterator<Item = &mut DocParam>
+    internal fun docParamsMut(): Iterator<DocParam> {
+        return docParams().iterator()
+    }
+
     /// Non-star parameters.
     // pub fn regular_params(&self) -> impl Iterator<Item = &DocParam>
     fun regularParams(): Sequence<DocParam> {
@@ -151,10 +157,10 @@ class DocParams(
 class DocParam(
     /// Does not include `*` or `**`.
     val name: String,
-    val docs: DocString? = null,
+    var docs: DocString? = null,
     /// Element type for `*args` and value type for `**kwargs`.
     val typ: Ty,
-    val defaultValue: String? = null,
+    var defaultValue: String? = null,
 ) {
     /// Get the underlying [DocString] for this item, if it exists.
     // pub fn get_doc_string(&self) -> Option<&DocString>

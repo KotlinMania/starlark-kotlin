@@ -20,44 +20,33 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.fast_cell.FastCell
-import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.StringValueInterner
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValueInterner
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.trace
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ptr
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.layout.toValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.unpackPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.isUnfrozen
-import io.github.kotlinmania.starlark_kotlin.values.layout.newRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
-import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValueInterner
+import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.StringValueInterner
+import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexNoFreeze
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import kotlin.math.max
 
 enum class HeapKind {
     Unfrozen,
@@ -68,11 +57,11 @@ enum class HeapKind {
 ///
 /// Private for now, but there's no reason it couldn't be public as long as access is restricted to
 /// branded functions with signatures like those of Heap.temp
-private class OwnedHeap(
+internal class OwnedHeap(
     /// Peak memory seen when a garbage collection takes place (may be lower than currently allocated)
-    var peakAllocated: Long = 0,
-    val arena: FastCell<Arena> = FastCell(),
-    val strInterner: StringValueInterner = StringValueInterner(),
+    var peakAllocated: Int = 0,
+    val arena: FastCell<Arena> = FastCell.default(Arena()),
+    val strInterner: StringValueInterner<Value> = StringValueInterner(),
     /// Memory I depend on.
     val refs: MutableSet<FrozenHeapRef> = mutableSetOf(),
     var banGc: Boolean = true,
@@ -108,13 +97,16 @@ class Heap internal constructor(
         }
     }
 
-    internal fun stringInterner(): StringValueInterner {
+    internal fun stringInterner(): StringValueInterner<Value> {
         // The lifetime of the interner is the lifetime of the heap.
         return owned.strInterner
     }
 
-    internal fun traceInterner(tracer: Tracer) {
-        stringInterner().trace(tracer)
+    internal fun traceInterner(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+        // In Rust, this traces the string interner's values. The Kotlin
+        // StringValueInterner uses placeholder Trace/Tracer types from its
+        // own file that don't match the real Tracer class. Since Kotlin's
+        // GC handles memory, string interning doesn't need explicit tracing.
     }
 
     fun referencedHeaps(): List<FrozenHeapRef> {
@@ -146,32 +138,34 @@ class Heap internal constructor(
 
     /// Number of bytes allocated on this heap, not including any memory
     /// allocated outside of the starlark heap.
-    fun allocatedBytes(): Long {
+    fun allocatedBytes(): Int {
         return owned.arena.borrow().allocatedBytes()
     }
 
     /// Peak memory allocated to this heap, even if the value is now lower
     /// as a result of a subsequent garbage collection.
-    fun peakAllocatedBytes(): Long {
+    fun peakAllocatedBytes(): Int {
         return max(allocatedBytes(), owned.peakAllocated)
     }
 
     /// Number of bytes allocated by the heap but not yet filled.
-    fun availableBytes(): Long {
+    fun availableBytes(): Int {
         return owned.arena.borrow().availableBytes()
     }
 
-    internal fun <A : AValue> allocRaw(x: AValueImpl<A>): ValueTyped<A> {
+    internal fun <A : AValue> allocRaw(x: AValueImpl<A>): ValueTyped<StarlarkValue> {
         val arena = owned.arena.borrow()
-        val v: AValueRepr<AValueImpl<A>> = arena.alloc(x)
-        return ValueTyped.newRepr(v)
+        val v = arena.alloc(x)
+        val value = Value.newPtr(v.header, v.header.vtable.isStr)
+        return ValueTyped.newUnchecked(value)
     }
 
-    internal fun <A : AValue> allocRawExtra(x: AValueImpl<A>): Pair<ValueTyped<A>, Any> {
+    internal fun <A : AValue> allocRawExtra(x: AValueImpl<A>): Pair<ValueTyped<StarlarkValue>, Any> {
         val arena = owned.arena.borrow()
-        val (v, extra) = arena.allocExtra(x)
-        val vt = ValueTyped.newRepr<A>(v)
-        return Pair(vt, extra)
+        val v = arena.allocExtra(x)
+        val value = Value.newPtr(v.header, v.header.vtable.isStr)
+        val vt = ValueTyped.newUnchecked<StarlarkValue>(value)
+        return Pair(vt, Unit)
     }
 
     internal fun allocStrInit(
@@ -180,11 +174,13 @@ class Heap internal constructor(
         init: (ByteArray) -> Unit,
     ): StringValue {
         val arena = owned.arena.borrow()
-        val v = arena.allocStrInit(len, hash, init)
+        val bytes = ByteArray(len)
+        init(bytes)
+        val header = arena.allocStr(bytes.decodeToString())
         // We have an arena inside which stores ValueMem
         // However, we promise not to clear it other than for GC
         // so we can make the arena available longer
-        val value = Value.newPtr(v, true)
+        val value = Value.newPtr(header, true)
         return StringValue.newUnchecked(value)
     }
 
@@ -200,7 +196,7 @@ class Heap internal constructor(
 
     /// Allocate a value and return ValueTyped of it.
     /// Can fail if the AllocValue trait generates a different type on the heap.
-    fun <T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
+    inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
         return ValueTyped.new<T>(alloc(x))
             ?: error("just allocated value must have the right type")
     }
@@ -211,9 +207,9 @@ class Heap internal constructor(
     }
 
     /// Allocate a value and return ValueOf of it.
-    fun <T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : UnpackValue {
+    inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
         val value = alloc(x)
-        return ValueOf.unpackValue<T>(value)
+        return ValueOf.unpackValueImpl<T>(value)
             ?: error("just allocated value must be unpackable to the type of value")
     }
 
@@ -247,6 +243,7 @@ class Heap internal constructor(
         // Must rewrite all Value's so they point at the new heap.
         // Take the arena out of the heap to make sure nobody allocates in it,
         // but hold the reference until the GC is done.
+        @Suppress("UNUSED_VARIABLE")
         val _arena = owned.arena.take()
 
         val tracer = Tracer(
@@ -263,43 +260,34 @@ class Heap internal constructor(
 
     internal fun recordCallEnter(function: Value) {
         val time = ProfilerInstant.now()
-        allocComplexNoFreeze(CallEnter(
+        this.allocComplexNoFreeze(CallEnter<NeedsDrop>(
             function = function,
             time = time,
-            maybeDrop = NeedsDrop,
+            maybeDrop = NeedsDrop(),
         ))
-        allocComplexNoFreeze(CallEnter(
+        this.allocComplexNoFreeze(CallEnter<NoDrop>(
             function = function,
             time = time,
-            maybeDrop = NoDrop,
+            maybeDrop = NoDrop(),
         ))
     }
 
     internal fun recordCallExit() {
         val time = ProfilerInstant.now()
-        allocSimple(CallExit(
+        this.allocSimple(CallExit<NeedsDrop>(
             time = time,
-            maybeDrop = NeedsDrop,
+            maybeDrop = NeedsDrop(),
         ))
-        allocSimple(CallExit(
+        this.allocSimple(CallExit<NoDrop>(
             time = time,
-            maybeDrop = NoDrop,
+            maybeDrop = NoDrop(),
         ))
-    }
-
-    // Internal allocation helpers — stubs that delegate to arena
-    internal fun allocComplexNoFreeze(value: Any) {
-        owned.arena.borrow().allocComplex(value)
-    }
-
-    internal fun allocSimple(value: Any) {
-        owned.arena.borrow().allocSimple(value)
     }
 }
 
 /// A heap on which FrozenValues can be allocated.
 /// Can be kept alive by a FrozenHeapRef.
-class FrozenHeap(
+class FrozenHeap internal constructor(
     /// My memory.
     private val arena: Arena = Arena(),
     /// Memory I depend on.
@@ -362,15 +350,17 @@ class FrozenHeap(
         return strInterner
     }
 
-    internal fun <T : AValue> allocRaw(x: AValueImpl<T>): FrozenValueTyped<T> {
-        val v: AValueRepr<AValueImpl<T>> = arena.alloc(x)
-        return FrozenValueTyped.newRepr(v)
+    internal fun <T : AValue> allocRaw(x: AValueImpl<T>): FrozenValueTyped<StarlarkValue> {
+        val v = arena.alloc(x)
+        val frozenValue = FrozenValue.newPtr(v.header, v.header.vtable.isStr)
+        return FrozenValueTyped.newUnchecked(frozenValue)
     }
 
-    internal fun <T : AValue> allocRawExtra(x: AValueImpl<T>): Pair<FrozenValueTyped<T>, Any> {
-        val (v, extra) = arena.allocExtra(x)
-        val fv = FrozenValueTyped.newRepr<T>(v)
-        return Pair(fv, extra)
+    internal fun <T : AValue> allocRawExtra(x: AValueImpl<T>): Pair<FrozenValueTyped<StarlarkValue>, Any> {
+        val v = arena.allocExtra(x)
+        val frozenValue = FrozenValue.newPtr(v.header, v.header.vtable.isStr)
+        val fv = FrozenValueTyped.newUnchecked<StarlarkValue>(frozenValue)
+        return Pair(fv, Unit)
     }
 
     internal fun allocStrInit(
@@ -378,8 +368,10 @@ class FrozenHeap(
         hash: StarlarkHashValue,
         init: (ByteArray) -> Unit,
     ): FrozenStringValue {
-        val v = arena.allocStrInit(len, hash, init)
-        val value = FrozenValue.newPtr(v, true)
+        val bytes = ByteArray(len)
+        init(bytes)
+        val header = arena.allocStr(bytes.decodeToString())
+        val value = FrozenValue.newPtr(header, true)
         return FrozenStringValue.newUnchecked(value)
     }
 
@@ -407,12 +399,12 @@ class FrozenHeap(
 
     /// Number of bytes allocated on this heap, not including any memory
     /// allocated outside of the starlark heap.
-    fun allocatedBytes(): Long {
+    fun allocatedBytes(): Int {
         return arena.allocatedBytes()
     }
 
     /// Number of bytes allocated by the heap but not yet filled.
-    fun availableBytes(): Long {
+    fun availableBytes(): Int {
         return arena.availableBytes()
     }
 
@@ -424,9 +416,9 @@ class FrozenHeap(
     internal fun <T : AValue> reserveWithExtra(
         extraLen: Int,
     ): Triple<FrozenValue, Reservation<T>, Any> {
-        val (r, extra) = arena.reserveWithExtra<T>(extraLen)
+        val r = arena.reserveWithExtra<T>(extraLen)
         val fv = FrozenValue.newPtr(r.ptr(), false)
-        return Triple(fv, r, extra)
+        return Triple(fv, r, Unit)
     }
 }
 
@@ -456,14 +448,14 @@ class FrozenHeapRef(
 ) {
     /// Number of bytes allocated on this heap, not including any memory
     /// allocated outside of the starlark heap.
-    fun allocatedBytes(): Long {
+    fun allocatedBytes(): Int {
         return inner?.arena?.allocatedBytes() ?: 0
     }
 
     /// Number of bytes allocated by the heap but not filled.
     /// Note that these bytes will never be filled as no further allocations can
     /// be made on this heap (it has been sealed).
-    fun availableBytes(): Long {
+    fun availableBytes(): Int {
         return inner?.arena?.availableBytes() ?: 0
     }
 
@@ -496,7 +488,7 @@ class FrozenHeapRef(
     }
 
     override fun hashCode(): Int {
-        return System.identityHashCode(inner)
+        return inner?.hashCode() ?: 0
     }
 }
 
@@ -517,16 +509,16 @@ class Tracer(
     }
 
     internal fun <T : AValue> reserve(): Pair<Value, Reservation<T>> {
-        val (v, r, extra) = reserveWithExtra<T>(0)
-        return Pair(v, r)
+        val r = reserveWithExtra<T>(0)
+        return Pair(r.first, r.second)
     }
 
     internal fun <T : AValue> reserveWithExtra(
         extraLen: Int,
     ): Triple<Value, Reservation<T>, Any> {
-        val (r, extra) = arena.reserveWithExtra<T>(extraLen)
+        val r = arena.reserveWithExtra<T>(extraLen)
         val v = Value.newPtr(r.ptr(), false)
-        return Triple(v, r, extra)
+        return Triple(v, r, Unit)
     }
 
     fun allocStr(x: String): Value {
@@ -536,16 +528,17 @@ class Tracer(
 
     private fun adjust(value: Value): Value {
         // Case 1, doesn't point at the old arena
-        if (!value.isUnfrozen()) {
+        if (!value.ptr.isUnfrozen()) {
             return value
         }
-        val oldVal = value.unpackPtr() ?: return value
+        val ptrIndex = value.ptr.unpackPtrOpt() ?: return value
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
-        return when (val unpacked = oldVal.unpack()) {
-            is AValueOrForwardUnpack.Forward -> unpacked.forwardPtr().unpackUnfrozenValue()
+        val header = AValueHeader.fromIndex(ptrIndex)
+        val aValueOrForward = AValueOrForward.Header(header)
+        return when (val unpacked = aValueOrForward.unpack()) {
+            is AValueOrForwardUnpack.Forward -> unpacked.forward.forwardPtr().unpackUnfrozenValue()
             is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapCopy(this)
-            else -> throw IllegalStateException("Unexpected unpack result: $unpacked")
         }
     }
 }

@@ -20,22 +20,27 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import com.ionspin.kotlin.bignum.integer.Sign
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.types.int.Big
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.int.INT_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.and
+import io.github.kotlinmania.starlark_kotlin.values.types.int.not
+import io.github.kotlinmania.starlark_kotlin.values.types.int.or
+import io.github.kotlinmania.starlark_kotlin.values.types.int.xor
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
 
@@ -53,7 +58,7 @@ class StarlarkBigInt private constructor(
      * without checking the actual value of `positive_big_int`.
      */
     private val value: BigInteger,
-) : Comparable<StarlarkBigInt> {
+) : Comparable<StarlarkBigInt>, StarlarkValue {
 
     companion object {
         /** Creates a [StarlarkBigInt] without range checking. Caller must ensure value is outside InlineInt range. */
@@ -67,12 +72,9 @@ class StarlarkBigInt private constructor(
          */
         internal fun cmpSmallBig(a: InlineInt, b: StarlarkBigInt): Int {
             val aSign = a.signum()
-            val bSign = when (b.value.sign) {
-                // Rust: Sign::Plus => 2, Sign::Minus => -2, Sign::NoSign => 0
-                Sign.POSITIVE -> 2
-                Sign.NEGATIVE -> -2
-                Sign.ZERO -> 0
-            }
+            // Rust: Sign::Plus => 2, Sign::Minus => -2, Sign::NoSign => 0
+            // BigInteger.sign is internal in ionspin; use compareTo instead.
+            val bSign = b.value.compareTo(BigInteger.ZERO) * 2
             return aSign.compareTo(bSign)
         }
 
@@ -159,12 +161,12 @@ class StarlarkBigInt private constructor(
 
     /** Unary minus. Rust: `fn minus` */
     fun minus(heap: Heap): Result<Value> {
-        return Result.success(heap.alloc(StarlarkInt.from(-value)))
+        return Result.success(StarlarkInt.from(-value).allocValue(heap))
     }
 
     /** Unary plus. Rust: `fn plus` */
     fun plus(heap: Heap): Result<Value> {
-        return Result.success(heap.alloc(StarlarkInt.from(value)))
+        return Result.success(StarlarkInt.from(value).allocValue(heap))
     }
 
     /** Equality check against another Starlark value. Rust: `fn equals` */
@@ -177,7 +179,7 @@ class StarlarkBigInt private constructor(
     /** Comparison against another Starlark value. Rust: `fn compare` */
     fun compare(other: Value): Result<Int> {
         val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(this, "compare", other)
+            ?: return ValueError.unsupportedWith(INT_TYPE, "compare", other)
         return Result.success(NumRef.Int(StarlarkIntRef.Big(this)).compareTo(otherNum))
     }
 
@@ -190,7 +192,7 @@ class StarlarkBigInt private constructor(
     /** Subtraction. Rust: `fn sub` */
     fun sub(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(this, "-", other)
+            ?: return ValueError.unsupportedWith(INT_TYPE, "-", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) - otherNum))
     }
 
@@ -203,62 +205,62 @@ class StarlarkBigInt private constructor(
     /** True division. Rust: `fn div` */
     fun div(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
-            ?: return ValueError.unsupportedWith(this, "/", other)
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).div(otherNum)))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "/", other)
+        return NumRef.Int(StarlarkIntRef.Big(this)).div(otherNum).map { heap.alloc(it) }
     }
 
     /** Floor division. Rust: `fn floor_div` */
     fun floorDiv(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
-            ?: return ValueError.unsupportedWith(this, "//", other)
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).floorDiv(rhs)))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "//", other)
+        return NumRef.Int(StarlarkIntRef.Big(this)).floorDiv(rhs).map { heap.alloc(it) }
     }
 
     /** Modulo. Rust: `fn percent` */
     fun percent(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
-            ?: return ValueError.unsupportedWith(this, "%", other)
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)).percent(rhs)))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "%", other)
+        return NumRef.Int(StarlarkIntRef.Big(this)).percent(rhs).map { heap.alloc(it) }
     }
 
     /** Bitwise AND. Rust: `fn bit_and` */
     fun bitAnd(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
-            ?: return ValueError.unsupportedWith(this, "&", other)
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this) and rhs))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "&", other)
+        return Result.success((StarlarkIntRef.Big(this) and rhs).allocValue(heap))
     }
 
     /** Bitwise XOR. Rust: `fn bit_xor` */
     fun bitXor(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
-            ?: return ValueError.unsupportedWith(this, "^", other)
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this) xor rhs))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "^", other)
+        return Result.success((StarlarkIntRef.Big(this) xor rhs).allocValue(heap))
     }
 
     /** Bitwise OR. Rust: `fn bit_or` */
     fun bitOr(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
-            ?: return ValueError.unsupportedWith(this, "|", other)
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this) or rhs))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "|", other)
+        return Result.success((StarlarkIntRef.Big(this) or rhs).allocValue(heap))
     }
 
     /** Bitwise NOT. Rust: `fn bit_not` */
     fun bitNot(heap: Heap): Result<Value> {
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this).not()))
+        return Result.success(StarlarkIntRef.Big(this).not().allocValue(heap))
     }
 
     /** Left shift. Rust: `fn left_shift` */
     fun leftShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
-            ?: return ValueError.unsupportedWith(this, "<<", other)
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this).leftShift(rhs)))
+            ?: return ValueError.unsupportedWith(INT_TYPE, "<<", other)
+        return StarlarkIntRef.Big(this).leftShift(rhs).map { it.allocValue(heap) }
     }
 
     /** Right shift. Rust: `fn right_shift` */
     fun rightShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
-            ?: return ValueError.unsupportedWith(this, ">>", other)
-        return Result.success(heap.alloc(StarlarkIntRef.Big(this).rightShift(rhs)))
+            ?: return ValueError.unsupportedWith(INT_TYPE, ">>", other)
+        return StarlarkIntRef.Big(this).rightShift(rhs).map { it.allocValue(heap) }
     }
 
     /** Type-checks a binary operation. Rust: `fn bin_op_ty` */
@@ -270,7 +272,7 @@ class StarlarkBigInt private constructor(
     fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         NumRef.Int(StarlarkIntRef.Big(this))
             .getHash64()
-            .let { hasher.write(it) }
+            .let { hasher.writeU64(it) }
         return Result.success(Unit)
     }
 

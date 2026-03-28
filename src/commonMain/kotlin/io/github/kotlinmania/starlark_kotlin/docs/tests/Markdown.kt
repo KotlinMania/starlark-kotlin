@@ -20,24 +20,27 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
+import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
+import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
+import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage
-import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
 
 // fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
 private fun docsGoldenTest(testFileName: String, doc: DocItem): String {
@@ -99,16 +102,18 @@ def _do_not_export():
 
 // #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
 // struct Magic;
-private class Magic : StarlarkValue {
+private class Magic : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "magic"
     override fun toString(): String = "magic"
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
 // #[derive(ProvidesStaticType, Debug, Display, Allocative, Serialize)]
 // struct Obj;
-private class MarkdownObj : StarlarkValue {
+private class MarkdownObj : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "obj"
     override fun toString(): String = "obj"
+    override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
     override fun getMethods(): Methods? {
         return objMethodsStatic.methods(::objectMethods)
@@ -124,10 +129,10 @@ private class MarkdownObj : StarlarkValue {
 // fn module(builder: &mut GlobalsBuilder)
 private fun moduleFunctions(builder: GlobalsBuilder) {
     // const MAGIC: i32 = 42
-    builder.setConst("MAGIC", 42)
+    builder.setInner("MAGIC", 42.allocFrozenValue(builder.frozenHeap()), false)
 
     // const Obj: StarlarkValueAsType<Obj> = StarlarkValueAsType::new()
-    builder.setConst("Obj", StarlarkValueAsType<MarkdownObj>())
+    builder.set("Obj", StarlarkValueAsType.new<MarkdownObj>())
 
     /// Docs for func1
     ///
@@ -137,34 +142,30 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     /// # Returns
     /// The string 'func1'
     // fn func1(foo: String) -> anyhow::Result<String>
-    builder.setFunction("func1") { foo: String ->
-        val _ignore = foo
-        Result.success("func1")
+    builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn func2() -> anyhow::Result<String>
-    builder.setFunction("func2") {
-        Result.success("func2")
+    builder.setFunction("func2") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     /// A function with only positional arguments.
     // #[starlark(as_type = Magic)]
     // fn Magic(a1: i32, a2: Option<i32>, step: i32) -> anyhow::Result<String>
-    builder.setFunction("Magic") { a1: Int, a2: Int?, step: Int? ->
-        val _unused = Triple(a1, a2, step ?: 1)
-        Result.success("func3")
+    builder.setFunction("Magic") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn with_defaults(...)
-    builder.setFunction("with_defaults") { explicitDefault: UnpackList<String>?, hiddenDefault: UnpackList<String>?, stringDefault: String? ->
-        val _unused = Triple(explicitDefault ?: UnpackList(), hiddenDefault, stringDefault ?: "my_default")
-        Result.success(NoneType)
+    builder.setFunction("with_defaults") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn pos_either_named(a: i32, b: i32, c: i32) -> anyhow::Result<Magic>
-    builder.setFunction("pos_either_named") { a: Int, b: Int, c: Int ->
-        val _unused = Triple(a, b, c)
-        Result.success(Magic())
+    builder.setFunction("pos_either_named") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 }
 
@@ -172,31 +173,29 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
 // fn submodule(builder: &mut GlobalsBuilder)
 private fun submoduleFunctions(builder: GlobalsBuilder) {
     // fn notypes(a: Value) -> anyhow::Result<Value>
-    builder.setFunction("notypes") { a: Value ->
-        Result.success(a)
+    builder.setFunction("notypes") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn starlark_args(#[starlark(args)] args: UnpackTuple<String>) -> anyhow::Result<NoneType>
-    builder.setFunction("starlark_args") { args: UnpackTuple<String> ->
-        val _ignore = args
-        Result.success(NoneType)
+    builder.setFunction("starlark_args") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn starlark_kwargs(#[starlark(kwargs)] kwargs: SmallMap<String, u32>) -> anyhow::Result<NoneType>
-    builder.setFunction("starlark_kwargs") { kwargs: SmallMap<String, UInt> ->
-        val _ignore = kwargs
-        Result.success(NoneType)
+    builder.setFunction("starlark_kwargs") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 
     // fn new_obj() -> anyhow::Result<Obj>
-    builder.setFunction("new_obj") {
-        Result.success(MarkdownObj())
+    builder.setFunction("new_obj") { _args: Arguments, _eval: Evaluator ->
+        Result.success(Value.newNone())
     }
 }
 
 // fn get_globals() -> Globals
 private fun getGlobals(): Globals {
-    return GlobalsBuilder()
+    return GlobalsBuilder.new()
         .with(::moduleFunctions)
         .withNamespace("submod", ::submoduleFunctions)
         .build()
@@ -209,32 +208,31 @@ private fun objectMethods(builder: MethodsBuilder) {
     /// Docs for attr1
     // #[starlark(attribute)]
     // fn attr1(this: Value) -> starlark::Result<String>
-    builder.setAttribute("attr1") { _this: Value ->
-        Result.success("attr1")
+    builder.setAttribute("attr1", docstring = "Docs for attr1") { _thisValue: Value, _heap: Heap ->
+        Result.success(Value.newNone())
     }
 
     // #[starlark(attribute)]
     // fn attr2(this: Value) -> starlark::Result<String>
-    builder.setAttribute("attr2") { _this: Value ->
-        Result.success("attr2")
+    builder.setAttribute("attr2") { _thisValue: Value, _heap: Heap ->
+        Result.success(Value.newNone())
     }
 
     /// Docs for func1
     // fn func1(this: Value, foo: String) -> anyhow::Result<String>
-    builder.setMethod("func1") { _this: Value, foo: String ->
-        val _ignore = foo
-        Result.success("func1")
+    builder.setMethod("func1") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
     }
 
     // fn func2(this: Value) -> anyhow::Result<String>
-    builder.setMethod("func2") { _this: Value ->
-        Result.success("func2")
+    builder.setMethod("func2") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
     }
 
     /// Needs to be escaped when rendered in markdown.
     // fn __exported__(this: Value) -> anyhow::Result<NoneType>
-    builder.setMethod("__exported__") { _this: Value ->
-        Result.success(NoneType)
+    builder.setMethod("__exported__") { _eval: Evaluator, _thisValue: Value, _sig, _args ->
+        Result.success(Value.newNone())
     }
 }
 
@@ -321,7 +319,7 @@ internal fun globalsRenderSignatureAtBottomWithLinkedType() {
 // #[test]
 // fn golden_docs_object()
 internal fun goldenDocsObject() {
-    val docs = DocType.fromStarlarkValue<MarkdownObj>()
+    val docs = DocType.fromStarlarkValue(MarkdownObj())
     val res = docsGoldenTest("object.golden.md", DocItem.Type(docs))
 
     check(res.contains("name.__exported__"))

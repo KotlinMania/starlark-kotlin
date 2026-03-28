@@ -26,7 +26,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
+import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
@@ -70,9 +70,16 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
+import io.github.kotlinmania.starlark_kotlin.values.types.bool.BOOL_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.StarlarkBool
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.float.allocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
+import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtxEvalForEvaluator
 
 // ---------------------------------------------------------------------------
 // MaybeNot
@@ -151,13 +158,13 @@ internal sealed class Builtin1 {
             is Not -> Value.newBool(!v.toValue().toBool())
             is TypeIs -> Value.newBool(v.toValue().getTypeValue() == type)
             is FormatOne -> {
-                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.dot_format.formatOne(
+                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
                     before, v.toValue(), after, ctx.heap()
                 )
                 result.toValue()
             }
             is PercentSOne -> {
-                io.github.kotlinmania.starlark_kotlin.values.types.string.interpolation.percentSOne(
+                io.github.kotlinmania.starlark_kotlin.values.types.string.percentSOne(
                     before.asStr(), v.toValue(), after.asStr(), ctx.heap()
                 ).getOrNull()?.toValue()
             }
@@ -326,7 +333,7 @@ internal sealed class ExprCompiled {
 
     /** Expression is known to be a frozen bound method. */
     internal fun asFrozenBoundMethod(): FrozenValueTyped<FrozenBoundMethod>? {
-        return FrozenValueTyped.new(asValue() ?: return null)
+        return FrozenValueTyped.new<FrozenBoundMethod>(asValue() ?: return null)
     }
 
     /** Expression is builtin `len` function. */
@@ -593,7 +600,7 @@ internal sealed class ExprCompiled {
         ): ExprCompiled {
             val argVal = arg.node.asValue()
             if (argVal != null) {
-                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.interpolation.percentSOne(
+                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.percentSOne(
                     before.asStr(), argVal.toValue(), after.asStr(), ctx.heap()
                 )
                 if (result.isSuccess) {
@@ -616,7 +623,7 @@ internal sealed class ExprCompiled {
         ): ExprCompiled {
             val argVal = arg.node.asValue()
             if (argVal != null) {
-                val value = io.github.kotlinmania.starlark_kotlin.values.types.string.dot_format.formatOne(
+                val value = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
                     before, argVal.toValue(), after, ctx.heap()
                 )
                 val frozen = ctx.frozenHeap().allocStrIntern(value.asStr())
@@ -1703,5 +1710,5 @@ internal fun Compiler.exprs(
  * Returns `null` if the string doesn't match the single `%s` pattern.
  */
 private fun parsePercentSOne(s: String): Pair<String, String>? {
-    return io.github.kotlinmania.starlark_kotlin.values.types.string.interpolation.parsePercentSOne(s)
+    return io.github.kotlinmania.starlark_kotlin.values.types.string.parsePercentSOne(s)
 }

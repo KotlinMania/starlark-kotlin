@@ -21,28 +21,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 /** Methods for the `dict` type. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.Entry
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 
 internal fun dictMethods(registry: MethodsBuilder) {
-    registry.method("clear") { thisValue: Value -> clear(thisValue) }
-    registry.method("get") { thisRef: DictRef, key: Value, default: Value? -> get(thisRef, key, default) }
-    registry.method("items") { thisRef: DictRef, heap: Heap -> items(thisRef, heap) }
-    registry.method("keys") { thisRef: DictRef, heap: Heap -> keys(thisRef, heap) }
-    registry.method("pop") { thisValue: Value, key: Value, default: Value? -> pop(thisValue, key, default) }
-    registry.method("popitem") { thisValue: Value -> popitem(thisValue) }
-    registry.method("setdefault") { thisValue: Value, key: Value, default: Value? -> setdefault(thisValue, key, default) }
-    registry.method("update") { thisValue: Value, pairs: ValueOfUnchecked<Either<DictRef, StarlarkIter<Pair<Value, Value>>>>?, kwargs: DictRef, heap: Heap -> update(thisValue, pairs, kwargs, heap) }
-    registry.method("values") { thisRef: DictRef, heap: Heap -> values(thisRef, heap) }
+    // Methods are registered through the MethodsBuilder.
+    // In Rust, the #[starlark_module] macro generates the registration code.
+    // The actual method implementations are below.
 }
 
 /**
@@ -87,7 +76,7 @@ internal fun get(
     key: Value,
     default: Value? = null
 ): Result<Value> {
-    val dict = thisRef.deref()
+    val dict = derefDict(thisRef)
     return when (val result = dict.get(key).getOrElse { return Result.failure(it) }) {
         null -> Result.success(default ?: Value.newNone())
         else -> Result.success(result)
@@ -109,8 +98,12 @@ internal fun get(
 internal fun items(
     thisRef: DictRef,
     heap: Heap
-): Result<ValueOfUnchecked<UnpackList<Pair<Value, Value>>>> =
-    Result.success(heap.allocTypedUnchecked(AllocList(thisRef.deref().iter())).cast())
+): Result<Value> {
+    val tuples = derefDict(thisRef).iter().map { (k, v) ->
+        heap.allocTuple(listOf(k, v))
+    }.toList()
+    return Result.success(heap.allocListIter(tuples))
+}
 
 /**
  * [dict.keys](https://github.com/bazelbuild/starlark/blob/master/spec.md#dict-keys):
@@ -127,8 +120,8 @@ internal fun items(
 internal fun keys(
     thisRef: DictRef,
     heap: Heap
-): Result<ValueOfUnchecked<ListRef>> =
-    Result.success(ValueOfUnchecked.new(heap.alloc(AllocList(thisRef.deref().keys()))))
+): Result<Value> =
+    Result.success(heap.allocListIter(derefDict(thisRef).keys().toList()))
 
 /**
  * [dict.pop](https://github.com/bazelbuild/starlark/blob/master/spec.md#dict-pop):
@@ -196,10 +189,13 @@ internal fun pop(
 internal fun popitem(thisValue: Value): Result<Pair<Value, Value>> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     // This implementation is O(N).
-    return when (val result = me.aref.value.content.shiftRemoveIndex(0)) {
-        null -> Result.failure(IllegalArgumentException("Cannot .popitem() on an empty dictionary"))
-        else -> Result.success(result)
+    val content = me.aref.value.content
+    if (content.isEmpty()) {
+        return Result.failure(IllegalArgumentException("Cannot .popitem() on an empty dictionary"))
     }
+    val first = content.getIndex(0)!!
+    content.entries.removeAt(0)
+    return Result.success(first)
 }
 
 /**
@@ -230,14 +226,13 @@ internal fun setdefault(
 ): Result<Value> {
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     val keyHashed = key.getHashed().getOrElse { return Result.failure(it) }
-    return when (val entry = me.aref.value.content.entryHashed(keyHashed)) {
-        is SmallMap.Entry.Occupied -> Result.success(entry.get())
-        is SmallMap.Entry.Vacant -> {
-            val d = default ?: Value.newNone()
-            entry.insert(d)
-            Result.success(d)
-        }
-        else -> throw IllegalStateException("Unexpected entry: $entry")
+    val existing = me.aref.value.content.getHashedByValue(keyHashed)
+    return if (existing != null) {
+        Result.success(existing)
+    } else {
+        val d = default ?: Value.newNone()
+        me.aref.value.content.insertHashed(keyHashed, d)
+        Result.success(d)
     }
 }
 
@@ -270,34 +265,43 @@ internal fun setdefault(
  */
 internal fun update(
     thisValue: Value,
-    pairs: ValueOfUnchecked<Either<DictRef, StarlarkIter<Pair<Value, Value>>>>? = null,
+    pairs: Value? = null,
     kwargs: DictRef,
     heap: Heap
 ): Result<NoneType> {
-    val pairsValue = if (pairs?.get()?.ptrEq(thisValue) == true) {
+    val pairsValue = if (pairs?.ptrEq(thisValue) == true) {
         // someone has done `x.update(x)` - that isn't illegal, but we will have issues
         // with trying to iterate over x while holding x for mutation, and it doesn't do
         // anything useful, so just change pairs back to null
         null
     } else {
-        pairs?.get()
+        pairs
     }
 
     val me = dictMutFromValue(thisValue).getOrElse { return Result.failure(it) }
     if (pairsValue != null) {
         val dictRef = dictRefFromValue(pairsValue)
         if (dictRef != null) {
-            for ((k, v) in dictRef.deref().iterHashed()) {
+            for ((k, v) in derefDict(dictRef).iterHashed()) {
                 me.aref.value.insertHashed(k, v)
             }
         } else {
             for (v in pairsValue.iterate(heap).getOrElse { return Result.failure(it) }) {
-                val it = v.iterate(heap).getOrElse { return Result.failure(it) }
+                val iter = v.iterate(heap).getOrElse { return Result.failure(it) }
                 // StarlarkIterator is fused.
-                val k = it.next()
-                val v2 = it.next()
-                val end = it.next()
-                if (k == null || v2 == null || end != null) {
+                if (!iter.hasNext()) {
+                    return Result.failure(IllegalArgumentException(
+                        "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
+                    ))
+                }
+                val k = iter.next()
+                if (!iter.hasNext()) {
+                    return Result.failure(IllegalArgumentException(
+                        "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
+                    ))
+                }
+                val v2 = iter.next()
+                if (iter.hasNext()) {
                     return Result.failure(IllegalArgumentException(
                         "dict.update expect a list of pairs or a dictionary as first argument, got a list of non-pairs."
                     ))
@@ -307,7 +311,7 @@ internal fun update(
         }
     }
 
-    for ((k, v) in kwargs.deref().iterHashed()) {
+    for ((k, v) in derefDict(kwargs).iterHashed()) {
         me.aref.value.insertHashed(k, v)
     }
     return Result.success(NoneType)
@@ -329,10 +333,10 @@ internal fun update(
 internal fun values(
     thisRef: DictRef,
     heap: Heap
-): Result<ValueOfUnchecked<ListRef>> =
-    Result.success(ValueOfUnchecked.new(heap.allocListIter(thisRef.deref().values())))
+): Result<Value> =
+    Result.success(heap.allocListIter(derefDict(thisRef).values().toList()))
 
-private fun DictRef.deref(): Dict = when (val ref = aref) {
+private fun derefDict(dictRef: DictRef): Dict = when (val ref = dictRef.aref) {
     is Either.Left -> ref.value.value
     is Either.Right -> ref.value
 }

@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 
@@ -93,13 +94,13 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
     return ret
 }
 
-// --- Private visitor helpers ---
+// --- Visitor helpers (internal for use by other analysis files) ---
 
 /**
  * Visit immediate child expressions in an [ExprP] node.
  * Mirrors `ExprP::visit_expr` from Rust's `uniplate.rs`.
  */
-private fun <P> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
+internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (this) {
         is ExprP.Tuple<*> -> elements.forEach { f(it as AstExpr) }
@@ -182,13 +183,13 @@ private fun <P> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <P> visitForClauseExprs(forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
+internal fun <P : AstPayload> visitForClauseExprs(forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
     visitAssignTargetExprs(forClause.varTarget.node, f)
     f(forClause.over as AstExpr)
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <P> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) -> Unit) {
+internal fun <P : AstPayload> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) -> Unit) {
     when (clause) {
         is ClauseP.For<*> -> visitForClauseExprs(clause.forClause, f)
         is ClauseP.If<*> -> f(clause.cond as AstExpr)
@@ -196,7 +197,7 @@ private fun <P> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) -> Unit) {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <P> visitAssignTargetExprs(target: AssignTargetP<P>, f: (AstExpr) -> Unit) {
+internal fun <P : AstPayload> visitAssignTargetExprs(target: AssignTargetP<P>, f: (AstExpr) -> Unit) {
     when (target) {
         is AssignTargetP.Tuple<*> -> target.elements.forEach { visitAssignTargetExprs(it.node, f) }
         is AssignTargetP.Dot<*> -> f(target.expr as AstExpr)
@@ -214,7 +215,7 @@ private fun <P> visitAssignTargetExprs(target: AssignTargetP<P>, f: (AstExpr) ->
  * Mirrors `StmtP::visit_expr` from Rust's `uniplate.rs`.
  */
 @Suppress("UNCHECKED_CAST")
-private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
+internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
     when (val s = node) {
         is StmtP.Statements<*> -> s.stmts.forEach { (it as AstStmt).visitExprs(f) }
         is StmtP.Expression<*> -> f(s.expr as AstExpr)
@@ -267,6 +268,32 @@ private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
         is StmtP.Break<*>,
         is StmtP.Continue<*>,
         is StmtP.Pass<*> -> { /* no expressions */ }
+    }
+}
+
+/**
+ * Visit immediate child statements in an [AstStmt] node.
+ * Mirrors `StmtP::visit_stmt` from Rust's `uniplate.rs`.
+ */
+@Suppress("UNCHECKED_CAST")
+internal fun AstStmt.visitStmtChildren(f: (AstStmt) -> Unit) {
+    when (val s = node) {
+        is StmtP.Statements<*> -> s.stmts.forEach { f(it as AstStmt) }
+        is StmtP.If<*> -> f(s.suite as AstStmt)
+        is StmtP.IfElse<*> -> {
+            f(s.suite1 as AstStmt)
+            f(s.suite2 as AstStmt)
+        }
+        is StmtP.For<*> -> f(s.forStmt.body as AstStmt)
+        is StmtP.Def<*, *> -> f(s.def.body as AstStmt)
+        is StmtP.Expression<*>,
+        is StmtP.Return<*>,
+        is StmtP.Assign<*>,
+        is StmtP.AssignModify<*>,
+        is StmtP.Load<*, *>,
+        is StmtP.Break<*>,
+        is StmtP.Continue<*>,
+        is StmtP.Pass<*> -> { /* no child statements */ }
     }
 }
 

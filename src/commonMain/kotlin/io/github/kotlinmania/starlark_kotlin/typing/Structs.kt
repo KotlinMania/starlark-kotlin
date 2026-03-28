@@ -59,7 +59,7 @@ data class TyStruct(
     override fun asName(): String = "struct"
 
     // fn bin_op(&self, bin_op, rhs, ctx) -> Result<Ty, TypingNoContextOrInternalError>
-    fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
+    override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         return when (binOp) {
             TypingBinOp.Less -> {
                 if (ctx.intersectsBasic(TyBasic.custom(this), rhs)) {
@@ -97,7 +97,7 @@ data class TyStruct(
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
-    fun <R, T : TypeMatcherAlloc<R>> matcher(factory: T): R {
+    override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
         return factory.alloc(StructMatcher)
     }
 

@@ -29,17 +29,18 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
+import io.github.kotlinmania.starlark_kotlin.values.types.num.Num
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp as OracleTypingBinOp
 
 /** The result of calling `type()` on integers. */
 // Rust: pub const INT_TYPE: &str = "int";
@@ -134,136 +135,136 @@ internal class PointerI32 internal constructor(
     // Rust: type Canonical = StarlarkBigInt;
 
     // Rust: fn is_special(_: Private) -> bool { true }
-    fun isSpecial(): Boolean = true
+    override fun isSpecial(): Boolean = true
 
     // Rust: fn equals(&self, other: Value) -> crate::Result<bool>
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         return Result.success(
             NumRef.Int(StarlarkIntRef.Small(get())) == other.unpackNum()
         )
     }
 
     // Rust: fn to_bool(&self) -> bool
-    fun toBool(): Boolean = get().toI32() != 0
+    override fun toBool(): Boolean = get().toI32() != 0
 
     // Rust: fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        hasher.write(NumRef.Int(StarlarkIntRef.Small(get())).getHash64())
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+        hasher.writeU64(NumRef.Int(StarlarkIntRef.Small(get())).getHash64())
         return Result.success(Unit)
     }
 
     // Rust: fn get_hash(&self, _private: Private) -> crate::Result<StarlarkHashValue>
-    fun getHash(): Result<StarlarkHashValue> {
+    override fun getHash(): Result<StarlarkHashValue> {
         return Result.success(NumRef.Int(StarlarkIntRef.Small(get())).getHash())
     }
 
     // Rust: fn plus(&self, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun plus(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
+    override fun plus(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
         return Result.success(Value.newInt(get()))
     }
 
     // Rust: fn minus(&self, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun minus(heap: Heap): Result<Value> {
-        return Result.success(heap.alloc(-StarlarkIntRef.Small(get())))
+    override fun minus(heap: Heap): Result<Value> {
+        return Result.success(Num.Int(-StarlarkIntRef.Small(get())).allocValue(heap))
     }
 
     // Rust: fn add(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    fun add(other: Value, heap: Heap): Result<Value>? {
+    override fun add(other: Value, heap: Heap): Result<Value>? {
         val otherNum = other.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Small(get())) + otherNum))
+        return Result.success((NumRef.Int(StarlarkIntRef.Small(get())) + otherNum).allocValue(heap))
     }
 
     // Rust: fn sub(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun sub(other: Value, heap: Heap): Result<Value> {
+    override fun sub(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "-", other)
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Small(get())) - otherNum))
+        return Result.success((NumRef.Int(StarlarkIntRef.Small(get())) - otherNum).allocValue(heap))
     }
 
     // Rust: fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    fun mul(other: Value, heap: Heap): Result<Value>? {
+    override fun mul(other: Value, heap: Heap): Result<Value>? {
         val otherNum = other.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Small(get())) * otherNum))
+        return Result.success((NumRef.Int(StarlarkIntRef.Small(get())) * otherNum).allocValue(heap))
     }
 
     // Rust: fn div(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun div(other: Value, heap: Heap): Result<Value> {
+    override fun div(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "/", other)
-        return NumRef.Int(StarlarkIntRef.Small(get())).div(otherNum).map { heap.alloc(it) }
+        return NumRef.Int(StarlarkIntRef.Small(get())).div(otherNum).map { Num.Float(it).allocValue(heap) }
     }
 
     // Rust: fn percent(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun percent(other: Value, heap: Heap): Result<Value> {
+    override fun percent(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "%", other)
-        return NumRef.Int(StarlarkIntRef.Small(get())).percent(otherNum).map { heap.alloc(it) }
+        return NumRef.Int(StarlarkIntRef.Small(get())).percent(otherNum).map { it.allocValue(heap) }
     }
 
     // Rust: fn floor_div(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun floorDiv(other: Value, heap: Heap): Result<Value> {
+    override fun floorDiv(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "//", other)
-        return NumRef.Int(StarlarkIntRef.Small(get())).floorDiv(otherNum).map { heap.alloc(it) }
+        return NumRef.Int(StarlarkIntRef.Small(get())).floorDiv(otherNum).map { it.allocValue(heap) }
     }
 
     // Rust: fn compare(&self, other: Value) -> crate::Result<Ordering>
-    fun compare(other: Value): Result<Int> {
+    override fun compare(other: Value): Result<Int> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "compare", other)
         return Result.success(NumRef.Int(StarlarkIntRef.Small(get())).compareTo(otherNum))
     }
 
     // Rust: fn bit_and(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun bitAnd(other: Value, heap: Heap): Result<Value> {
+    override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return when (val rhs = StarlarkIntRef.unpack(other)) {
             null -> ValueError.unsupportedWith(INT_TYPE, "&", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() and rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                heap.alloc(StarlarkInt.from(toBigInt() and rhs.value.get()))
+                Num.Int(StarlarkInt.from(toBigInt() and rhs.value.get())).allocValue(heap)
             )
         }
     }
 
     // Rust: fn bit_or(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun bitOr(other: Value, heap: Heap): Result<Value> {
+    override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return when (val rhs = StarlarkIntRef.unpack(other)) {
             null -> ValueError.unsupportedWith(INT_TYPE, "|", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() or rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                heap.alloc(StarlarkInt.from(toBigInt() or rhs.value.get()))
+                Num.Int(StarlarkInt.from(toBigInt() or rhs.value.get())).allocValue(heap)
             )
         }
     }
 
     // Rust: fn bit_xor(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun bitXor(other: Value, heap: Heap): Result<Value> {
+    override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return when (val rhs = StarlarkIntRef.unpack(other)) {
             null -> ValueError.unsupportedWith(INT_TYPE, "^", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() xor rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                heap.alloc(StarlarkInt.from(toBigInt() xor rhs.value.get()))
+                Num.Int(StarlarkInt.from(toBigInt() xor rhs.value.get())).allocValue(heap)
             )
         }
     }
 
     // Rust: fn bit_not(&self, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun bitNot(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
+    override fun bitNot(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
         return Result.success(Value.newInt(!get()))
     }
 
     // Rust: fn left_shift(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun leftShift(other: Value, heap: Heap): Result<Value> {
+    override fun leftShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpack(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, "<<", other)
-        return StarlarkIntRef.Small(get()).leftShift(rhs).map { heap.alloc(it) }
+        return StarlarkIntRef.Small(get()).leftShift(rhs).map { Num.Int(it).allocValue(heap) }
     }
 
     // Rust: fn right_shift(&self, other: Value, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun rightShift(other: Value, heap: Heap): Result<Value> {
+    override fun rightShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpack(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, ">>", other)
-        return StarlarkIntRef.Small(get()).rightShift(rhs).map { heap.alloc(it) }
+        return StarlarkIntRef.Small(get()).rightShift(rhs).map { Num.Int(it).allocValue(heap) }
     }
 
     /**
@@ -272,12 +273,27 @@ internal class PointerI32 internal constructor(
      * but kept for consistency.
      */
     // Rust: fn bin_op_ty(op: TypingBinOp, rhs: &TyBasic) -> Option<Ty>
-    fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? {
-        return typecheckNumBinOp(NumTy.Int, op, rhs)
+    override fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? {
+        val oracleOp = when (op) {
+            TypingBinOp.Add -> OracleTypingBinOp.ADD
+            TypingBinOp.Sub -> OracleTypingBinOp.SUB
+            TypingBinOp.Mul -> OracleTypingBinOp.MUL
+            TypingBinOp.Div -> OracleTypingBinOp.DIV
+            TypingBinOp.FloorDiv -> OracleTypingBinOp.FLOOR_DIV
+            TypingBinOp.Percent -> OracleTypingBinOp.PERCENT
+            TypingBinOp.BitAnd -> OracleTypingBinOp.BIT_AND
+            TypingBinOp.BitOr -> OracleTypingBinOp.BIT_OR
+            TypingBinOp.BitXor -> OracleTypingBinOp.BIT_XOR
+            TypingBinOp.LeftShift -> OracleTypingBinOp.LEFT_SHIFT
+            TypingBinOp.RightShift -> OracleTypingBinOp.RIGHT_SHIFT
+            TypingBinOp.In -> OracleTypingBinOp.IN
+            TypingBinOp.Less -> OracleTypingBinOp.LESS
+        }
+        return typecheckNumBinOp(NumTy.Int, oracleOp, rhs)
     }
 
     // Rust: fn typechecker_ty(&self) -> Option<Ty>
-    fun typecheckerTy(): Ty = Ty.int()
+    override fun typecheckerTy(): Ty = Ty.int()
 }
 
 /**
@@ -290,5 +306,5 @@ internal class PointerI32 internal constructor(
 private object PointerI32StarlarkValueAdapter : StarlarkValue {
     override val TYPE: String get() = INT_TYPE
     override fun isSpecial(): Boolean = true
-    override fun typecheckerTy(): Ty = Ty.int()
+    override fun typecheckerTy(): Ty? = Ty.int()
 }
