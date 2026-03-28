@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.addr.BcAddr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 /**
  * Slow instruction arg: stored in the end of bytecode,

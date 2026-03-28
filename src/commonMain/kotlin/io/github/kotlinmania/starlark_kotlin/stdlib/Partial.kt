@@ -1,6 +1,7 @@
 // port-lint: source src/stdlib/partial.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
 
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.types.list.fmt
@@ -87,9 +88,7 @@ class ArgNames(val entries: List<Pair<Symbol, StringValue>>) {
     }
 }
 class Freezer
-class GlobalsBuilder {
-    fun set(name: String, value: Any) {}
-}
+// GlobalsBuilder imported from environment package
 
 const val FUNCTION_TYPE: String = "function"
 

@@ -27,14 +27,12 @@ import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.tests.freeze
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /// Value which is either a complex mutable value or a frozen value.
@@ -154,7 +152,7 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> private constructor
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValueTyped<'static, T::Frozen>>
     fun freeze(freezer: Freezer): FreezeResult<FrozenValueTyped<F>> {
         val frozenValue = value.freeze(freezer)
-        if (frozenValue.isError()) return FreezeResult.error(frozenValue.errorValue())
+        if (frozenValue.isFailure) return FreezeResult.failure(frozenValue.exceptionOrNull()!!)
         return FrozenValueTyped.newErr<F>(frozenValue.get(), frozenClass)
             .mapError { e -> FreezeError.new("$e") }
     }

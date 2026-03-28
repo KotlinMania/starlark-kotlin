@@ -19,12 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextOrInternalError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextOrInternalError
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.intersectsBasic
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.intersectsBasic
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 // struct StructMatcher;

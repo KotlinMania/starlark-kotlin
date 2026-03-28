@@ -77,6 +77,35 @@ See [AGENTS.md](./AGENTS.md) for complete porting patterns.
 4. **Documentation** - Translate all doc comments to KDoc
 5. **No oversimplification** - Replicate formatting logic, ANSI handling, etc.
 
+## STRICT RULES — Translation, Not Engineering
+
+### This is a translation project.
+
+Every Kotlin file is a line-by-line port of a Rust source file in `tmp/starlark/src/`. The `// port-lint: source` header at the top of each `.kt` file tells you which Rust file it came from.
+
+**When you encounter a compile error, the fix is ALWAYS in the Rust source.** Do not invent solutions to make the Kotlin compiler happy. Do not make classes extend Exception because it "seems right." Do not change visibility, delete code, or add shims. Read the corresponding Rust file and translate faithfully.
+
+### Use ast_distance for all analysis.
+
+The `tools/ast_distance/ast_distance` tool is the single source of truth for:
+- `--import-map`: Finding unresolved types, duplicate definitions, and ambiguous imports
+- `--symbols-duplicates`: Finding duplicate symbol definitions across files
+- `--compiler-fixup`: Suggesting import fixes from gradle error output
+- `--symbol-parity`: Comparing Rust vs Kotlin symbol coverage
+- `--deep`: Full cross-language AST comparison report
+
+### Do NOT pipe, redirect, or wrap ast_distance output.
+
+The tool detects and rejects stdout piping (`|`), redirection (`>`), and wrappers like `script -q`. Run it directly in the terminal. Read its output directly from the tool result.
+
+### Do NOT create typealias re-export files.
+
+Root-package `.kt` files that re-export types from subpackages via `typealias` cause massive ambiguity errors across the codebase. Types like `Ty`, `Value`, `Freezer` must be imported from their actual defining package, not from a convenience re-export.
+
+### Do NOT create stub/placeholder types.
+
+If a type doesn't exist yet, port the file that defines it. Don't create placeholder classes like `class Ty` or `class CodeMap` in random files — they conflict with real implementations when those files get ported.
+
 ## Progress Tracking
 
 ```bash

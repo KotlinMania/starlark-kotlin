@@ -27,10 +27,10 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
@@ -38,9 +38,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.named
 import io.github.kotlinmania.starlark_kotlin.docs.kwargs
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.pos
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 /**

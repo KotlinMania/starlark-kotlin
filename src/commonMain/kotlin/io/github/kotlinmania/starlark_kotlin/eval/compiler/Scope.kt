@@ -27,9 +27,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 ///  - scope/Tests.kt (tests)
 
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.CopySlotFromParent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
+import io.github.kotlinmania.starlark_kotlin.typing.InternalError
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
@@ -47,48 +47,37 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrN
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmtFromAst
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
 import io.github.kotlinmania.starlark_kotlin.analysis.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
-import io.github.kotlinmania.starlark_kotlin.analysis.def
 import io.github.kotlinmania.starlark_kotlin.analysis.For
 import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
 import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.For
 import io.github.kotlinmania.starlark_kotlin.typing.CstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.typing.CstExpr
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.forStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.forStmt
 import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.payload
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.analysis.lhs
-import io.github.kotlinmania.starlark_kotlin.analysis.ident
 import io.github.kotlinmania.starlark_kotlin.analysis.assign
 import io.github.kotlinmania.starlark_kotlin.values.key
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.values.default
 
 // #[derive(Debug, thiserror::Error)]
 // enum ScopeError
@@ -300,14 +289,14 @@ internal class ModuleScopeBuilder(
                 when (visit) {
                     is VisitMut.Expr -> collectDefinesRecursivelyInExpr(
                         scopeData,
-                        visit.Expr,
+                        visit.expr,
                         frozenHeap,
                         dialect,
                         codemap,
                     )
                     is VisitMut.Stmt -> collectDefinesRecursively(
                         scopeData,
-                        visit.Stmt,
+                        visit.stmt,
                         frozenHeap,
                         dialect,
                         codemap,
@@ -523,8 +512,8 @@ internal class ModuleScopeBuilder(
             }
             else -> code.visitChildrenMut { visit ->
                 when (visit) {
-                    is VisitMut.Stmt -> resolveIdents(visit.Stmt)
-                    is VisitMut.Expr -> resolveIdentsInExpr(visit.Expr)
+                    is VisitMut.Stmt -> resolveIdents(visit.stmt)
+                    is VisitMut.Expr -> resolveIdentsInExpr(visit.expr)
                 }
             }
         }
@@ -576,7 +565,7 @@ internal class ModuleScopeBuilder(
             }
             is ExprP.ListComprehension -> {
                 resolveIdentsInCompr(
-                    mutableListOf(node.Expr),
+                    mutableListOf(node.expr),
                     node.firstFor,
                     node.clauses,
                 )
@@ -914,7 +903,7 @@ internal class ScopeNames(
 
     // fn next_slot(&mut self, name: FrozenStringValue) -> LocalSlotIdCapturedOrNot
     fun nextSlot(name: FrozenStringValue): LocalSlotIdCapturedOrNot {
-        val res = LocalSlotIdCapturedOrNot(used.size)
+        val res = LocalSlotIdCapturedOrNot(used.size.toUInt())
         used.add(name)
         return res
     }
@@ -1001,7 +990,7 @@ internal enum class InLoop {
 // pub(crate) struct ModuleScopeData
 internal class ModuleScopeData(
     /// Bindings by id.
-    private val bindings: MutableList<Binding> = mutableListOf(),
+    internal val bindings: MutableList<Binding> = mutableListOf(),
     /// Scopes by id.
     private val scopes: MutableList<ScopeNames> = mutableListOf(),
 ) {
@@ -1094,7 +1083,7 @@ internal class Binding(
     var assignCount: AssignCount,
     /// `slot` is `None` when it is not initialized yet.
     /// When analysis is completed, `slot` is always `Some`.
-    private var slot: Slot? = null,
+    internal var slot: Slot? = null,
     // Whether a variable defined in a scope gets captured in nested def or lambda scope.
     var captured: Captured = Captured.No,
 ) {
@@ -1124,7 +1113,7 @@ internal class Binding(
 /// Id of a binding within current module.
 // #[derive(Copy, Clone, Dupe, Debug, Hash, PartialEq, Eq, Ord, PartialOrd)]
 // pub(crate) struct BindingId(usize)
-internal data class BindingId(val id: Int)
+data class BindingId(val id: Int)
 
 /// Id of a scope within current module.
 // #[derive(Copy, Clone, Dupe, Debug, Eq, PartialEq)]

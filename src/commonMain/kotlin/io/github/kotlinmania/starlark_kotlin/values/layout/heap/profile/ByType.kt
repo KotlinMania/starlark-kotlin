@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.types.string.bytes
 
 /// Information about the data stored on a heap. Accessible through
 /// the function `allocated_summary` available on [`Heap`](crate::values::Heap)
@@ -83,6 +82,15 @@ class HeapSummary(
             }
             return HeapSummary(summary)
         }
+    }
+
+    // #[derive(Clone)]
+    fun copy(): HeapSummary {
+        val newSummary = SmallMap<String, AllocCounts>()
+        for ((k, v) in summary) {
+            newSummary.insert(k, v.copy())
+        }
+        return HeapSummary(newSummary)
     }
 
     // #[cfg(test)]

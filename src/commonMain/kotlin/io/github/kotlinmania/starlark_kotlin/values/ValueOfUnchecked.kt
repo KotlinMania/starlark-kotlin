@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
@@ -149,7 +149,7 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric<Value, T>.freeze(
     freezer: Freezer,
 ): FreezeResult<ValueOfUncheckedGeneric<FrozenValue, T>> {
     val frozen = freezer.freeze(this.get())
-    if (frozen.isError()) return FreezeResult.error(frozen.errorValue())
+    if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
     return FreezeResult.success(ValueOfUncheckedGeneric.new(frozen.value()))
 }
 

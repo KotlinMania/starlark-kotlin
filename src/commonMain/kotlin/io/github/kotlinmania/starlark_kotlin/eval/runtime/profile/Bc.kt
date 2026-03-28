@@ -28,12 +28,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.eval.bc.COUNT
 import io.github.kotlinmania.starlark_kotlin.assert.parse
-import io.github.kotlinmania.starlark_kotlin.values.types.string.second
 import io.github.kotlinmania.starlark_kotlin.values.types.string.format
 import io.github.kotlinmania.starlark_kotlin.typing.ordinal
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.genBcProfile

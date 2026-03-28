@@ -53,7 +53,7 @@ internal class CallEnter<D : MaybeDrop>(
     val maybeDrop: D,
 ) : StarlarkValue {
     // #[starlark_value(type = "call_enter")]
-    override fun starlarkType(): String = "call_enter"
+    override val TYPE: String get() = "call_enter"
 
     override fun toString(): String = "CallEnter"
 }
@@ -66,7 +66,7 @@ internal class CallExit<D : MaybeDrop>(
     val maybeDrop: D,
 ) : StarlarkValue {
     // #[starlark_value(type = "call_exit")]
-    override fun starlarkType(): String = "call_exit"
+    override val TYPE: String get() = "call_exit"
 
     override fun toString(): String = "CallExit"
 }

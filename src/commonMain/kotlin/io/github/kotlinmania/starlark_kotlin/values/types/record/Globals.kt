@@ -79,7 +79,7 @@ internal fun registerRecord(builder: GlobalsBuilder) {
         for ((k, v) in kwargs) {
             val field = Field.fromValue(v)
                 ?: Field.new(
-                    TypeCompiled.new(v, eval.heap()).getOrElse { return@function Result.failure(it) },
+                    runCatching { TypeCompiled.new(v, eval.heap()) }.getOrElse { return@function Result.failure(it) },
                     null,
                 )
             mp.put(k, field)
@@ -100,7 +100,7 @@ internal fun registerRecord(builder: GlobalsBuilder) {
         val typ = args[0]
         val default: Value? = args.getOrNull(1)
         // We compile the type even if we don't have a default to raise the error sooner
-        val compiled = TypeCompiled.new(typ, eval.heap())
+        val compiled = runCatching { TypeCompiled.new(typ, eval.heap()) }
             .getOrElse { return@function Result.failure(it) }
         if (default != null) {
             compiled.checkType(default, "default")

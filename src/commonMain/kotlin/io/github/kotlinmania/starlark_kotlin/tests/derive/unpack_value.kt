@@ -1,3 +1,4 @@
+
 // port-lint: source src/tests/derive/unpack_value.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
@@ -69,11 +70,11 @@ fun testStarlarkTypeRepr() {
     val intOrStrTy = IntOrStr.starlarkTypeRepr()
     val withLifetimeTy = WithLifetime.starlarkTypeRepr()
     val transparentTy = TransparentIntOrStr.starlarkTypeRepr()
-    assert(never == empty)
-    assert(intTy == justIntTy)
-    assert(union == intOrStrTy)
-    assert(union == withLifetimeTy)
-    assert(intOrStrTy == transparentTy)
+    check(never == empty)
+    check(intTy == justIntTy)
+    check(union == intOrStrTy)
+    check(union == withLifetimeTy)
+    check(intOrStrTy == transparentTy)
 }
 
 // #[test]
@@ -84,10 +85,10 @@ fun testUnpackValue() {
     val r4 = WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow()
     val r5 = WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow()
     val r6 = TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
-    assert(r1 == JustIntInt(17))
-    assert(r2 == IntOrStrInt(19))
-    assert(r3 == IntOrStrStr("abc"))
-    assert(r4 == WithLifetimeInt(23))
-    assert(r5 == WithLifetimeStr("def"))
-    assert(r6 == TransparentIntOrStr(IntOrStrInt(19)))
+    check(r1 == JustIntInt(17))
+    check(r2 == IntOrStrInt(19))
+    check(r3 == IntOrStrStr("abc"))
+    check(r4 == WithLifetimeInt(23))
+    check(r5 == WithLifetimeStr("def"))
+    check(r6 == TransparentIntOrStr(IntOrStrInt(19)))
 }

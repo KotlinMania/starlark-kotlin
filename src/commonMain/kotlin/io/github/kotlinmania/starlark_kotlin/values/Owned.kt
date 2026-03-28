@@ -27,8 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozen
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedRefFrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.newFrozen
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 private sealed class OwnedError(override val message: String) : Exception(message) {
     class WrongType(typeName: String, actual: String) : OwnedError(

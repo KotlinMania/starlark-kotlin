@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 
 // #[derive(Trace, Freeze, Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
@@ -37,7 +36,7 @@ internal class TestComplexValue(
 ) : StarlarkValue, AllocValue, AllocFrozenValue {
 
     // #[starlark_value(type = "TestComplexValue")]
-    override fun starlarkType(): String = "TestComplexValue"
+    override val TYPE: String get() = "TestComplexValue"
 
     override fun toString(): String = "TestComplexValue<$inner>"
 

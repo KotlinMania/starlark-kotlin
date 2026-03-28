@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 internal class TypingAny : StarlarkValue, AllocFrozenValue {
 
     // #[starlark_value(type = "typing.Any")]
-    override fun starlarkType(): String = "typing.Any"
+    override val TYPE: String get() = "typing.Any"
 
     override fun toString(): String = starlarkType()
 

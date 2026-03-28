@@ -20,18 +20,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  */
 
 import kotlin.math.max
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.None
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
 import io.github.kotlinmania.starlark_kotlin.analysis.Other
 import io.github.kotlinmania.starlark_kotlin.values.unsupportedWith
 import io.github.kotlinmania.starlark_kotlin.values.unsupported
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.list.haystack
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackI32
 import io.github.kotlinmania.starlark_kotlin.values.hash
 import io.github.kotlinmania.starlark_kotlin.tests.str
 import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
-import io.github.kotlinmania.starlark_kotlin.analysis.body
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
 /**
  * The result of calling `type()` on strings.
@@ -66,7 +69,7 @@ internal class StarlarkStrN<N>(
 class StarlarkStr internal constructor() {
     internal val str: StarlarkStrN<0> = StarlarkStrN(0)
 
-    private var actualBody: ByteArray? = null
+    internal var actualBody: ByteArray? = null
 
     companion object {
         /**

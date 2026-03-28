@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
@@ -32,11 +32,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtsCompiled
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.StmtCompileContext
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompileContext
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.PossibleGc
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.PossibleGc
 import io.github.kotlinmania.starlark_kotlin.analysis.If
 import io.github.kotlinmania.starlark_kotlin.analysis.For
 import io.github.kotlinmania.starlark_kotlin.analysis.Continue
@@ -44,28 +44,20 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Break
 import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.values.op
 import io.github.kotlinmania.starlark_kotlin.values.layout.newNone
 import io.github.kotlinmania.starlark_kotlin.typing.If
 import io.github.kotlinmania.starlark_kotlin.typing.For
-import io.github.kotlinmania.starlark_kotlin.typing.ExprP
 import io.github.kotlinmania.starlark_kotlin.typing.Continue
 import io.github.kotlinmania.starlark_kotlin.typing.Break
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.thenBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseBlock
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.variable
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.asValue
-import io.github.kotlinmania.starlark_kotlin.eval.bc.over
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.analysis.stmts
-import io.github.kotlinmania.starlark_kotlin.analysis.rhs
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.analysis.lhs
-import io.github.kotlinmania.starlark_kotlin.analysis.body
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 
 /// Compile a for-loop to bytecode.
 internal fun writeFor(

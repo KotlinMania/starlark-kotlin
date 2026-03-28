@@ -1,7 +1,7 @@
 package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.IntValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.BoolValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.NoneValue

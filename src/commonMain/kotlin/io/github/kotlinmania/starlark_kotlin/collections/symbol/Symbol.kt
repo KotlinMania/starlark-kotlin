@@ -24,7 +24,7 @@ import starlark_map.Hashed
 import starlark_map.StarlarkHashValue
 
 /** A pre-hashed string used for efficient dictionary lookup. */
-internal class Symbol private constructor(
+class Symbol private constructor(
     private val hash: ULong,
     private val len: UInt,
     private val payload: LongArray,

@@ -54,6 +54,8 @@ class FrozenStringValue(
 
     fun toFrozenValue(): FrozenValue = frozenValue
 
+    fun toValue(): Value = frozenValue.toValue()
+
     fun getHash(): Int = str.hashCode()
 
     /// Get self along with the hash.

@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 /// Untyped raw pointer to StarlarkValue without vtable.
 ///
 /// In Kotlin, this wraps an Any reference instead of a raw pointer.
-internal class StarlarkValueRawPtr(
+class StarlarkValueRawPtr(
     /// The underlying value reference.
     val ptr: Any,
 ) {
@@ -74,9 +74,9 @@ class AValueVTable(
 
     // AValue
     val isStr: Boolean,
-    private val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
-    private val heapFreezeFn: (StarlarkValueRawPtr, Freezer) -> FreezeResult<FrozenValue>,
-    private val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
+    internal val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
+    internal val heapFreezeFn: (StarlarkValueRawPtr, Freezer) -> FreezeResult<FrozenValue>,
+    internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
 
     // StarlarkValue dispatch
     private val starlarkValue: StarlarkValue,
@@ -132,7 +132,7 @@ class AValueVTable(
 /// In Kotlin, this wraps a StarlarkValue reference and its vtable metadata,
 /// providing forwarding methods that delegate to the vtable or the StarlarkValue interface.
 internal class AValueDyn(
-    private val value: StarlarkValueRawPtr,
+    internal val value: StarlarkValueRawPtr,
     private val _vtable: AValueVTable,
 ) {
     fun vtable(): AValueVTable = _vtable
@@ -363,9 +363,4 @@ internal class AValueDynFull(
     }
 }
 
-/// Internal BlackHole placeholder type used during GC/freeze.
-internal class BlackHole(
-    val size: ValueAllocSize,
-) {
-    override fun toString(): String = "BlackHole(${size})"
-}
+// BlackHole is defined in Avalue.kt (same package)

@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 const val BOOL_TYPE: String = "bool"
 
 /** bool value. */
-data class StarlarkBool internal constructor(private val _0: Boolean)
+data class StarlarkBool internal constructor(internal val _0: Boolean)
 
 fun StarlarkBool.display(): String {
     return if (_0) {
@@ -49,7 +49,7 @@ internal val VALUE_FALSE_TRUE: Array<AllocStaticSimple<StarlarkBool>> = arrayOf(
 
 /** Define the bool type */
 
-fun <V> StarlarkBool.isSpecial(private: Private): Boolean {
+fun StarlarkBool.isSpecial(private: Private): Boolean {
     return true
 }
 
@@ -84,7 +84,7 @@ fun StarlarkBool.getHash(private: Private): Result<StarlarkHashValue> {
     )
 }
 
-fun <V> StarlarkBool.compare(other: Value<V>): Result<Ordering> {
+fun StarlarkBool.compare(other: Value): Result<Ordering> {
     val otherBool = other.unpackBool()
     return if (otherBool != null) {
         Result.success(_0.compareTo(otherBool))

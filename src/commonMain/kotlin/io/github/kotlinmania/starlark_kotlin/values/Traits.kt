@@ -48,8 +48,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /// A trait for values which are more complex - because they are either mutable,

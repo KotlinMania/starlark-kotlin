@@ -32,13 +32,12 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.UnpackListOrTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 import io.github.kotlinmania.starlark_kotlin.assert.parse
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.float.testingNewInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
 import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
@@ -291,7 +290,7 @@ xs[1] += 1
         // #[display("${:?}", _0)]
         // struct Select(Vec<i32>)
         class Select(val items: MutableList<Int>) : StarlarkValue, AllocValue {
-            override fun starlarkType(): String = "select"
+            override val TYPE: String get() = "select"
 
             override fun toString(): String = "\$${items}"
 
@@ -759,7 +758,7 @@ bar(["a","b","c"])
         // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
         // struct Wrapper<'v>(RefCell<SmallMap<String, Value<'v>>>)
         class Wrapper(val map: MutableMap<String, Value> = mutableMapOf()) : StarlarkValue, AllocValue {
-            override fun starlarkType(): String = "wrapper"
+            override val TYPE: String get() = "wrapper"
 
             override fun toString(): String = map.toString()
 

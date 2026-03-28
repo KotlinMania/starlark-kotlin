@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/aligned_size.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 
 /** Allocations in Starlark are word-aligned, and this type represents the size of an allocation. */
-internal data class AlignedSize(
+data class AlignedSize(
     /** Starlark only supports objects smaller than 1 shl 32. */
     // bytes: u32
     val bytes: UInt,

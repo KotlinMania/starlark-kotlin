@@ -19,17 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
 import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackPtr
+import io.github.kotlinmania.starlark_kotlin.values.layout.unpackPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.forwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
@@ -69,6 +68,7 @@ class Freezer internal constructor(
             is AValueOrForwardUnpack.Header -> {
                 result.value.unpack().heapFreeze(this)
             }
+            else -> throw IllegalStateException("Unexpected unpack result: $result")
         }
     }
 

@@ -25,14 +25,13 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.custom.TyCustomImpl
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextError
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextOrInternalError
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextOrInternalError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.callable
-import io.github.kotlinmania.starlark_kotlin.typing.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.typing.callable.validateFnCall
+import io.github.kotlinmania.starlark_kotlin.typing.validateFnCall
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 /// Custom function typechecker.

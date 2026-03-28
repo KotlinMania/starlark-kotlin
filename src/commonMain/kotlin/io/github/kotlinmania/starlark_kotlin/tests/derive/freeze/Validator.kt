@@ -27,20 +27,20 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Freeze)]
 // #[freeze(validator = check_true)]
-// struct Test { field: bool }
-private class Test(
+// struct ValidatorTest { field: bool }
+private class ValidatorTest(
     val field: Boolean,
-) : Freeze<Test> {
-    override fun freeze(freezer: Freezer): FreezeResult<Test> {
-        val result = Test(field)
+) : Freeze<ValidatorTest> {
+    override fun freeze(freezer: Freezer): FreezeResult<ValidatorTest> {
+        val result = ValidatorTest(field)
         // validator: check_true
         checkTrue(result).getOrElse { return Result.failure(it) }
         return Result.success(result)
     }
 }
 
-// fn check_true(test: &Test) -> anyhow::Result<()>
-private fun checkTrue(test: Test): Result<Unit> {
+// fn check_true(test: &ValidatorTest) -> anyhow::Result<()>
+private fun checkTrue(test: ValidatorTest): Result<Unit> {
     if (!test.field) {
         return Result.failure(Exception("Err"))
     }
@@ -50,7 +50,7 @@ private fun checkTrue(test: Test): Result<Unit> {
 // #[test]
 // fn test_ok() -> anyhow::Result<()>
 internal fun testOk() {
-    val t = Test(field = true)
+    val t = ValidatorTest(field = true)
     val frozenHeap = FrozenHeap()
     val freezer = Freezer(frozenHeap)
     t.freeze(freezer).getOrThrow()
@@ -59,7 +59,7 @@ internal fun testOk() {
 // #[test]
 // fn test_fail() -> anyhow::Result<()>
 internal fun testFail() {
-    val t = Test(field = false)
+    val t = ValidatorTest(field = false)
     val frozenHeap = FrozenHeap()
     val freezer = Freezer(frozenHeap)
     check(t.freeze(freezer).isFailure)

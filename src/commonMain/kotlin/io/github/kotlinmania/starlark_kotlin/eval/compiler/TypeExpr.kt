@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
 /** IR expression in type position. */
 internal class TypeExprCompiled(

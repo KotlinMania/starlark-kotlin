@@ -31,7 +31,7 @@ package io.github.kotlinmania.starlark_kotlin.eval
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefInfo
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.DEFAULT_STACK_SIZE
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -43,9 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
 import io.github.kotlinmania.starlark_kotlin.typing.scopeData
@@ -90,15 +88,17 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
         moduleEnv.setDocstring(docstring)
     }
 
-    val moduleScopes = ModuleScopes.checkModuleErr(
-        moduleEnv.mutableNames(),
-        moduleEnv.frozenHeap(),
-        emptyMap(),
-        statement,
-        ScopeResolverGlobals(globals = globalsRef),
-        codemapRef,
-        dialect,
-    ).getOrElse { return Result.failure(it) }
+    val moduleScopes = runCatching {
+        ModuleScopes.checkModuleErr(
+            moduleEnv.mutableNames(),
+            moduleEnv.frozenHeap(),
+            emptyMap(),
+            statement,
+            ScopeResolverGlobals(globals = globalsRef),
+            codemapRef,
+            dialect,
+        )
+    }.getOrElse { return Result.failure(it) }
 
     val scopeNames = moduleScopes.scopeData.getScope(ScopeId.module())
     val localNames = frozenHeap().allocAnySlice(scopeNames.used)
@@ -114,9 +114,11 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
         )
     )
 
-    callStack.allocIfNeeded(
-        maxCallstackSize ?: DEFAULT_STACK_SIZE,
-    ).getOrElse { return Result.failure(it) }
+    runCatching {
+        callStack.allocIfNeeded(
+            maxCallstackSize ?: DEFAULT_STACK_SIZE,
+        )
+    }.getOrElse { return Result.failure(it) }
 
     // Set up the world to allow evaluation (do NOT use getOrElse from now on)
 
@@ -143,7 +145,7 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 
     moduleEnv.addEvalDuration(start.elapsedNow())
 
-    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
+    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
 
     // Return the result of evaluation
     return res.mapCatching { it }
@@ -167,9 +169,11 @@ fun Evaluator.evalFunction(
             kwargs = null,
         )
     )
-    callStack.allocIfNeeded(
-        maxCallstackSize ?: DEFAULT_STACK_SIZE,
-    ).getOrElse { return Result.failure(it) }
+    runCatching {
+        callStack.allocIfNeeded(
+            maxCallstackSize ?: DEFAULT_STACK_SIZE,
+        )
+    }.getOrElse { return Result.failure(it) }
 
     // eval_module pushes an "empty" call stack frame. other places expect that first frame
     // to be ignorable, and so we push an empty frame too (otherwise things would ignore
@@ -178,7 +182,7 @@ fun Evaluator.evalFunction(
         function.invoke(params, eval)
     }
 
-    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
+    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
 
     return res
 }

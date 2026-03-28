@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUser
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserFields
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserParams
@@ -35,9 +35,9 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_matcher_factory.TypeMatcherFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.record.TyRecordData
 import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeMatcher
@@ -48,20 +48,16 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
 import io.github.kotlinmania.starlark_kotlin.tests.freeze
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.writeHash
-import io.github.kotlinmania.starlark_kotlin.values.types.string.parser
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
 import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
 import io.github.kotlinmania.starlark_kotlin.values.next
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.newNamedOnly
+import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.nextOpt
 import io.github.kotlinmania.starlark_kotlin.docs.typ
 import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
-import io.github.kotlinmania.starlark_kotlin.values.default
 
 // #[doc(hidden)]
 // pub trait RecordCell: ValueLifetimeless {

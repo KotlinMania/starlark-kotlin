@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.docs
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.string.String
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.analysis.Statements
@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Expression
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.analysis.stmts
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
 
 /// Controls the formatting to use when parsing [DocString]s from raw docstrings.
@@ -143,7 +142,7 @@ fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstSt
         val first = stmtNode.stmts.firstOrNull() ?: return null
         val firstNode = first.node
         if (firstNode is StmtP.Expression) {
-            val exprSpanned = firstNode.Expr
+            val exprSpanned = firstNode.expr
             val exprNode = exprSpanned.node
             if (exprNode is ExprP.Literal) {
                 val lit = exprNode.literal

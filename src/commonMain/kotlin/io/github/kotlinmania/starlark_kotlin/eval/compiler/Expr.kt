@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
@@ -55,9 +55,11 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // ---------------------------------------------------------------------------
 // MaybeNot
@@ -841,6 +843,7 @@ internal sealed class ExprCompiled {
                             BoundMethodGen(left, member.method)
                         )
                         is UnboundValue.Attr -> null
+                        else -> null
                     }
                 }
                 is MemberOrValue.ValueResult -> v.value.unpackFrozen()
@@ -1411,6 +1414,7 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
             }
         }
         is ResolvedIdent.Global -> ExprCompiled.ValueExpr(resolvedIdent.value)
+        else -> error("Unexpected resolved ident: $resolvedIdent")
     }
 }
 
@@ -1420,7 +1424,7 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
 
 private fun Compiler.optCtx(): OptCtx {
     val paramCount = this.currentScope().paramCount()
-    return OptCtx.new(this.eval, paramCount)
+    return OptCtx.new(this.eval, paramCount.toUInt())
 }
 
 // ---------------------------------------------------------------------------

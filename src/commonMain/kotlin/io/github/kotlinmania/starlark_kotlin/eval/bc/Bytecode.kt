@@ -22,11 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Unsorted/core interpreter stuff.
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.BcInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.currentFrame
 
 /// Ready to execute bytecode.
 // #[derive(Default)]
@@ -113,7 +113,7 @@ private fun step(
         }
     }
 
-    ec.beforeInstr(eval, ip, opcode).getOrElse {
+    runCatching { ec.beforeInstr(eval, ip, opcode) }.getOrElse {
         return InstrControl.Err(it)
     }
     return opcode.dispatch(handler)

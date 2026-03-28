@@ -24,16 +24,16 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefRegularParamMode
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.DefParamIndices
+import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
 import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /// Visitor for code spans in the IR.
 // pub(crate) trait VisitSpanMut

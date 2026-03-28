@@ -41,16 +41,13 @@ import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
 import io.github.kotlinmania.starlark_kotlin.debug.VariablesInfo
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.values.toBool
 import io.github.kotlinmania.starlark_kotlin.syntax.stmtLocations
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.toFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStackTopFrame
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStackCount
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtForDap
 import io.github.kotlinmania.starlark_kotlin.debug.localVariables
@@ -58,11 +55,9 @@ import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
 import io.github.kotlinmania.starlark_kotlin.codemap.filename
 import io.github.kotlinmania.starlark_kotlin.analysis.location
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.concurrent.atomics.AtomicInt
 
 internal object implementation {

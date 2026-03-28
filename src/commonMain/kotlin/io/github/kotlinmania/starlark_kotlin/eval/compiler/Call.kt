@@ -8,8 +8,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.types.function.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -110,7 +110,7 @@ internal class CallCompiled(
         private fun tryTypeIs(fun_: ExprCompiled, args: ArgsCompiledValue): ExprCompiled? {
             val frozenDef: FrozenValueTyped<FrozenDef> = fun_.asFrozenDef() ?: return null
             val pos = args.onePos() ?: return null
-            val body = frozenDef.value.defInfo.inlineDefBody
+            val body = frozenDef.asRef().defInfo.inlineDefBody
             if (body is InlineDefBody.ReturnTypeIs) {
                 return ExprCompiled.typeIs(pos, body.type)
             }
@@ -126,13 +126,13 @@ internal class CallCompiled(
         ): IrSpanned<ExprCompiled>? {
             val frozenDef: FrozenValueTyped<FrozenDef> = fun_.asFrozenDef() ?: return null
 
-            if (frozenDef.value.parameters.hasArgsOrKwargs()) {
+            if (frozenDef.asRef().parameters.hasArgsOrKwargs()) {
                 // Functions with `*args` or `**kwargs` are not marked safe to inline,
                 // but it is safer to also handle it explicitly here.
                 return null
             }
 
-            val body = frozenDef.value.defInfo.inlineDefBody
+            val body = frozenDef.asRef().defInfo.inlineDefBody
             val expr = if (body is InlineDefBody.ReturnSafeToInlineExpr) {
                 body.expr
             } else {
@@ -153,8 +153,8 @@ internal class CallCompiled(
             }
 
             return args.allValuesGeneric(exprToValue) { arguments ->
-                val slots = arrayOfNulls<Value>(frozenDef.value.parameters.len())
-                frozenDef.value.parameters
+                val slots = arrayOfNulls<Value>(frozenDef.asRef().parameters.len())
+                frozenDef.asRef().parameters
                     .collect(arguments.frozenToV(), slots, ctx.heap())
                     .getOrNull() ?: return@allValuesGeneric null
 
@@ -167,7 +167,7 @@ internal class CallCompiled(
 
                 val inlinedExpr = IrSpanned(span, expr.node)
                 inlinedExpr.visitSpans { exprSpan ->
-                    exprSpan.inlinedFrames.inlineInto(span, frozenDef.value.toFrozenValue(), InlinedFrameAlloc.new(ctx.frozenHeap()))
+                    exprSpan.inlinedFrames.inlineInto(span, frozenDef.toFrozenValue(), InlinedFrameAlloc.new(ctx.frozenHeap()))
                 }
                 InlineDefCallSite(ctx, frozenSlots).inline(inlinedExpr).getOrNull()
             }
@@ -202,7 +202,7 @@ internal class CallCompiled(
         ): ExprCompiled? {
             val enumType = fun_.node.asValue()?.downcastFrozenRef<FrozenEnumType>() ?: return null
             val arg = args.onePos()?.let { it.node.asValue() } ?: return null
-            val constructed = enumType.value.construct(arg.toValue()).getOrNull()
+            val constructed = enumType.asRef().construct(arg.toValue()).getOrNull()
                 ?: return null
             return ExprCompiled.ValueExpr(constructed)
         }
@@ -214,8 +214,8 @@ internal class CallCompiled(
             ctx: OptCtx,
         ): ExprCompiled? {
             val boundMethod: FrozenValueTyped<FrozenBoundMethod> = fun_.node.asFrozenBoundMethod() ?: return null
-            val format = FrozenStringValue.new(boundMethod.value.this_) ?: return null
-            if (boundMethod.value.method.name != "format") {
+            val format = FrozenStringValue.new(boundMethod.asRef().this_) ?: return null
+            if (boundMethod.asRef().method.name != "format") {
                 return null
             }
             val arg = args.onePos() ?: return null

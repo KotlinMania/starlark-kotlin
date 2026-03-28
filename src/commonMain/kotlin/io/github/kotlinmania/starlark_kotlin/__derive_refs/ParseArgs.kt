@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.Parameters
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.unpackNamedParam
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.collectInto
 
 /// Collect `N` arguments.

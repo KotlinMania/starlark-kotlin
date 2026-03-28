@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
@@ -76,7 +76,7 @@ internal object AValueList : AValue {
 
         val frozenContent = kotlin.Array(content.size) { i ->
             val frozen = freezer.freeze(content[i])
-            if (frozen.isError()) return frozen
+            if (frozen.isFailure) return frozen
             frozen.get()
         }
 

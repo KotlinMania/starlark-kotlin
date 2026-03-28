@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocParam
 import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue

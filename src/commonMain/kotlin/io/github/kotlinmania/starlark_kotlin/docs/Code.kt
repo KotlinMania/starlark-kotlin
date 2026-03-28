@@ -83,6 +83,7 @@ fun DocModule.renderAsCode(): String {
         res += when (member) {
             is DocMember.Property -> member.property.renderAsCode(k)
             is DocMember.Function -> member.function.renderAsCode(k)
+            else -> throw IllegalStateException("Unexpected DocMember: $member")
         }
         res += "\n"
     }

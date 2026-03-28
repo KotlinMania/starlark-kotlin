@@ -1,6 +1,8 @@
 // port-lint: source src/stdlib.rs
 package io.github.kotlinmania.starlark_kotlin
 
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -123,17 +125,7 @@ enum class LibraryExtension {
     }
 }
 
-// Placeholder types for dependencies not yet ported
-internal class GlobalsBuilder {
-    companion object {
-        fun new(): GlobalsBuilder = GlobalsBuilder()
-    }
-
-    fun with(f: (GlobalsBuilder) -> Unit): GlobalsBuilder {
-        f(this)
-        return this
-    }
-}
+// GlobalsBuilder is imported from environment package
 
 // Placeholder registration functions — these will be replaced when submodules are ported
 private fun registerGlobals(builder: GlobalsBuilder) {}

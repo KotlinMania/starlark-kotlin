@@ -40,10 +40,9 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.typing.TyTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -55,12 +54,12 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeDic
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.fromTy
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 import io.github.kotlinmania.starlark_kotlin.values.documentation
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // #[derive(Debug, thiserror::Error)]
 // enum FunctionError
-private sealed class FunctionError(message: String) : Exception(message) {
+internal sealed class FunctionError(message: String) : Exception(message) {
     // #[error("`tuple[]` is implemented only for `tuple[T, ...]`")]
     // TupleOnlyEllipsis
     class TupleOnlyEllipsis : FunctionError("`tuple[]` is implemented only for `tuple[T, ...]`")
@@ -124,7 +123,7 @@ internal class NativeFunction(
 ) : StarlarkValue, AllocFrozenValue, AllocValue {
 
     // #[starlark_value(type = FUNCTION_TYPE)]
-    override fun starlarkType(): String = FUNCTION_TYPE
+    override val TYPE: String get() = FUNCTION_TYPE
 
     override fun toString(): String = name
 
@@ -179,11 +178,11 @@ internal class NativeFunction(
     override fun at(index: Value, heap: Heap): Result<Value> {
         return when (specialBuiltinFunction) {
             SpecialBuiltinFunction.List -> {
-                val idx = TypeCompiled.new(index, heap).getOrElse { return Result.failure(it) }
+                val idx = runCatching { TypeCompiled.new(index, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeListOf(idx, heap).toInner())
             }
             SpecialBuiltinFunction.Set -> {
-                val idx = TypeCompiled.new(index, heap).getOrElse { return Result.failure(it) }
+                val idx = runCatching { TypeCompiled.new(index, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeSetOf(idx, heap).toInner())
             }
             else -> ValueError.unsupported(this, "[]")
@@ -194,12 +193,12 @@ internal class NativeFunction(
     fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> {
         return when (specialBuiltinFunction) {
             SpecialBuiltinFunction.Dict -> {
-                val idx0 = TypeCompiled.new(index0, heap).getOrElse { return Result.failure(it) }
-                val idx1 = TypeCompiled.new(index1, heap).getOrElse { return Result.failure(it) }
+                val idx0 = runCatching { TypeCompiled.new(index0, heap) }.getOrElse { return Result.failure(it) }
+                val idx1 = runCatching { TypeCompiled.new(index1, heap) }.getOrElse { return Result.failure(it) }
                 Result.success(TypeCompiled.typeDictOf(idx0, idx1, heap).toInner())
             }
             SpecialBuiltinFunction.Tuple -> {
-                val item = TypeCompiled.new(index0, heap).getOrElse { return Result.failure(it) }
+                val item = runCatching { TypeCompiled.new(index0, heap) }.getOrElse { return Result.failure(it) }
                 if (index1.downcastRef<Ellipsis>() != null) {
                     Result.success(
                         TypeCompiled.fromTy(
@@ -246,7 +245,7 @@ internal class NativeMethod(
     // starlark_simple_value!(NativeMethod)
 
     // #[starlark_value(type = "native_method")]
-    override fun starlarkType(): String = "native_method"
+    override val TYPE: String get() = "native_method"
 
     override fun toString(): String = name
 
@@ -272,7 +271,7 @@ internal class NativeAttribute(
     // starlark_simple_value!(NativeAttribute)
 
     // #[starlark_value(type = "attribute")]
-    override fun starlarkType(): String = "attribute"
+    override val TYPE: String get() = "attribute"
 
     override fun toString(): String = "Attribute"
 
@@ -300,7 +299,7 @@ internal class BoundMethodGen<V : ValueLike>(
     // starlark_complex_value!(pub(crate) BoundMethod)
 
     // #[starlark_value(type = FUNCTION_TYPE)]
-    override fun starlarkType(): String = FUNCTION_TYPE
+    override val TYPE: String get() = FUNCTION_TYPE
 
     override fun toString(): String = method.toString()
 

@@ -24,8 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocStr
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
 import io.github.kotlinmania.starlark_kotlin.analysis.location

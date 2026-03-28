@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.function
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 
 // #[starlark_module]
 // pub(crate) fn register_eval_type(globals: &mut GlobalsBuilder)
@@ -56,7 +55,7 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     globals.function("isinstance") { args: List<Value>, eval: Evaluator ->
         val value = args[0]
         val ty = args[1]
-        val compiled = TypeCompiled.new(ty, eval.heap())
+        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
             .getOrElse { return@function Result.failure(it) }
         Result.success(compiled.matches(value))
     }

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // pub(crate) fn equals_slice<E, X1, X2>(xs, ys, f) -> Result<bool, E>

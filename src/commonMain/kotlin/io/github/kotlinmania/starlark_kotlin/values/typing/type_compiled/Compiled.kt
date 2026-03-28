@@ -1,13 +1,12 @@
 // port-lint: source src/values/typing/type_compiled/compiled.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiledFactory
-import io.github.kotlinmania.starlark_kotlin.values.typing.none
-import io.github.kotlinmania.starlark_kotlin.values.typing.any
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dict
-import io.github.kotlinmania.starlark_kotlin.tests.list
-import io.github.kotlinmania.starlark_kotlin.analysis.set
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -97,7 +96,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     }
 
     fun evalType(): Ty? {
-        return ty.clone()
+        return ty
     }
 
     fun getMethods(): Methods? {
@@ -264,25 +263,25 @@ class TypeCompiled(
         }
 
         internal fun typeListOf(t: TypeCompiled, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory.allocTy(Ty.list(t.asTy().clone()), heap)
+            return TypeCompiledFactory.allocTy(Ty.list(t.asTy()), heap)
         }
 
         internal fun typeSetOf(t: TypeCompiled, heap: Heap): TypeCompiled {
-            return TypeCompiledFactory.allocTy(Ty.set(t.asTy().clone()), heap)
+            return TypeCompiledFactory.allocTy(Ty.set(t.asTy()), heap)
         }
 
         internal fun typeAnyOfTwo(t0: TypeCompiled, t1: TypeCompiled, heap: Heap): TypeCompiled {
-            val ty = Ty.union2(t0.asTy().clone(), t1.asTy().clone())
+            val ty = Ty.union2(t0.asTy(), t1.asTy())
             return TypeCompiledFactory.allocTy(ty, heap)
         }
 
         internal fun typeAnyOf(ts: kotlin.collections.List<TypeCompiled>, heap: Heap): TypeCompiled {
-            val ty = Ty.unions(ts.map { it.asTy().clone() })
+            val ty = Ty.unions(ts.map { it.asTy() })
             return TypeCompiledFactory.allocTy(ty, heap)
         }
 
         internal fun typeDictOf(kt: TypeCompiled, vt: TypeCompiled, heap: Heap): TypeCompiled {
-            val ty = Ty.dict(kt.asTy().clone(), vt.asTy().clone())
+            val ty = Ty.dict(kt.asTy(), vt.asTy())
             return TypeCompiledFactory.allocTy(ty, heap)
         }
 
@@ -314,7 +313,7 @@ class TypeCompiled(
             }
             val tuple = Tuple.fromValue(ty)
             if (tuple != null) {
-                val elems = tuple.content().map { new(it, heap).asTy().clone() }
+                val elems = tuple.content().map { new(it, heap).asTy() }
                 return fromTy(Ty.tuple(elems), heap)
             }
             val list = ListRef.fromValue(ty)

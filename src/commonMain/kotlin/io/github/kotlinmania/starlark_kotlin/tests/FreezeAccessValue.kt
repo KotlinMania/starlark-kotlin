@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
 import io.github.kotlinmania.starlark_kotlin.fromValue
 import io.github.kotlinmania.starlark_kotlin.analysis.dubious.asInt
 

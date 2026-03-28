@@ -23,15 +23,15 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 
 // trait Bound<'x> {}
-private interface Bound
+internal interface Bound
 
 // #[derive(Freeze)]
 // #[freeze(validator = check_type, bounds = "<V as Freeze>::Frozen: Bound<'freeze>")]
-// struct Test<V>
-private class Test<V>(val field: V)
+// struct BoundsTest<V>
+internal class BoundsTest<V>(val field: V)
 
-// fn check_type<V: Bound>(t: &Test<V>) -> Result<()>
-private fun <V : Bound> checkType(t: Test<V>): Result<Unit> {
+// fn check_type<V: Bound>(t: &BoundsTest<V>) -> Result<()>
+internal fun <V : Bound> checkType(t: BoundsTest<V>): Result<Unit> {
     return Result.success(Unit)
 }
 
@@ -49,5 +49,5 @@ internal fun assertImpl() {
     // fn check(_: impl Freeze) {}
     fun check(value: Freeze<*>) {}
 
-    check(Test(field = Impl()))
+    check(BoundsTest(field = Impl()))
 }

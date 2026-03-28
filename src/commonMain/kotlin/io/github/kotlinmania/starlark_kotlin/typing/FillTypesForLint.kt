@@ -1,15 +1,19 @@
 // port-lint: source src/typing/fill_types_for_lint.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
-import io.github.kotlinmania.starlark_kotlin.analysis.ident
-import io.github.kotlinmania.starlark_kotlin.analysis.span
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -67,6 +71,7 @@ private class GlobalTypesBuilder(
             is ResolvedIdent.Global -> {
                 GlobalValue.value(resolved.value)
             }
+            else -> throw IllegalStateException("Unexpected resolved ident: $resolved")
         }
     }
 
@@ -154,12 +159,12 @@ private class GlobalTypesBuilder(
             is ExprP.Call -> call(node.function, node.args)
             is ExprP.Index -> index(span, node.array, node.index)
             is ExprP.Index2 -> index2(span, node.array, node.index0, node.index1)
-            is ExprP.Identifier -> exprIdent(node.ident)
+            is ExprP.Identifier<*, *> -> exprIdent(node.ident as CstIdent)
             is ExprP.Literal -> exprLiteral(node.literal)
             is ExprP.Op -> binOp(span, node.lhs, node.op, node.rhs)
             // These are not used in type expressions.
             is ExprP.Slice,
-            is ExprP.Lambda,
+            is ExprP.Lambda<*, *>,
             is ExprP.Not,
             is ExprP.Minus,
             is ExprP.Plus,
@@ -195,6 +200,7 @@ private class GlobalTypesBuilder(
         return when (resolvedSlot) {
             is Slot.Module -> resolvedSlot.slotId
             is Slot.Local -> throw internalError(ident.span, "local slot")
+            else -> throw IllegalStateException("Unexpected slot: $resolvedSlot")
         }
     }
 
@@ -290,10 +296,10 @@ private class GlobalTypesBuilder(
                     evalStmtUnset(x)
                 }
             }
-            is StmtP.If -> evalStmtUnset(node.thenBlock)
+            is StmtP.If -> evalStmtUnset(node.suite)
             is StmtP.IfElse -> {
-                evalStmtUnset(node.thenBlock)
-                evalStmtUnset(node.elseBlock)
+                evalStmtUnset(node.suite1)
+                evalStmtUnset(node.suite2)
             }
             is StmtP.For -> forStmtUnset(node.forStmt)
             is StmtP.Def -> assignUnsetIdent(node.def.name)
@@ -345,14 +351,14 @@ private class GlobalTypesBuilder(
             is StmtP.Assign -> assignStmt(node.assign)
             is StmtP.AssignModify -> { /* noop */ }
             is StmtP.Statements -> throw internalError(span, "statements in top-level statement")
-            is StmtP.If -> evalStmtUnset(node.thenBlock)
+            is StmtP.If -> evalStmtUnset(node.suite)
             is StmtP.IfElse -> {
-                evalStmtUnset(node.thenBlock)
-                evalStmtUnset(node.elseBlock)
+                evalStmtUnset(node.suite1)
+                evalStmtUnset(node.suite2)
             }
             is StmtP.For -> forStmtUnset(node.forStmt)
             is StmtP.Def -> topLevelDef(node.def)
-            is StmtP.Load -> load(node.load)
+            is StmtP.Load -> load(node.loadStmt)
         }
     }
 
@@ -497,6 +503,10 @@ private class GlobalTypesBuilder(
                     approximations.add(Approximation.new("Not dict or tuple", x))
                     Ty.any()
                 }
+            }
+            else -> {
+                approximations.add(Approximation.new("Unexpected type expression", x))
+                Ty.any()
             }
         }
     }

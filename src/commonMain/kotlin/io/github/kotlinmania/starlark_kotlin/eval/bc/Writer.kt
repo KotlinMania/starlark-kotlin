@@ -42,7 +42,7 @@ internal class BcStmtLoc(
 /// Map<BcAddr, BcStmtLoc>. This is very performance sensitive (when profiling/debugging are enabled we
 /// do a lookup for every instruction) and so it's implemented as a vec of statements and then a vec of
 /// statement indexes for each possible BcAddr in a bytecode Bc.
-internal class BcStatementLocations(
+class BcStatementLocations(
     val locs: MutableList<BcStmtLoc> = mutableListOf(),
     /// Map bytecode offset to index in `locs`.
     val stmts: MutableList<Int> = mutableListOf(),
@@ -153,7 +153,7 @@ internal class BcWriter(
             check(paramCount <= localNames.size)
             val definitelyAssigned = BcDefinitelyAssigned.new(localNames.size)
             for (i in 0 until paramCount) {
-                definitelyAssigned.markDefinitelyAssigned(LocalSlotId(i))
+                definitelyAssigned.markDefinitelyAssigned(LocalSlotId(i.toUInt()))
             }
             return BcWriter(
                 instrs = BcInstrsWriter.new(),
@@ -177,8 +177,8 @@ internal class BcWriter(
         check(forLoops.isEmpty())
         return Bc(
             instrs = instrs.finish(slowArgs, stmtLocs, localNames),
-            localCount = localNames.size,
-            maxStackSize = maxStackSize,
+            localCount = localNames.size.toUInt(),
+            maxStackSize = maxStackSize.toUInt(),
             maxLoopDepth = maxLoopDepth,
         )
     }
@@ -337,7 +337,7 @@ internal class BcWriter(
         thenBlock(this)
         val endTarget = writeBr(span)
 
-        restoreDefinitelyAssigned(saved.clone())
+        restoreDefinitelyAssigned(saved.copy())
 
         patchAddr(elseTarget)
         elseBlock(this)
@@ -459,7 +459,7 @@ internal class BcWriter(
     }
 
     fun saveDefinitelyAssigned(): BcDefinitelyAssigned {
-        return definitelyAssigned.clone()
+        return definitelyAssigned.copy()
     }
 
     fun restoreDefinitelyAssigned(saved: BcDefinitelyAssigned) {
@@ -471,7 +471,7 @@ internal class BcWriter(
     ///
     /// The slot is valid during the callback run, and can be reused later.
     fun <R> allocSlot(k: (BcSlot, BcWriter) -> R): R {
-        val slot = BcSlot(localCount() + stackSize)
+        val slot = BcSlot((localCount() + stackSize).toUInt())
         stackAdd(1)
         val r = k(slot, this)
         stackSub(1)
@@ -481,8 +481,8 @@ internal class BcWriter(
     /// Allocate several slots for the duration of callback run.
     fun <R> allocSlots(count: Int, k: (BcSlotRange, BcWriter) -> R): R {
         val slots = BcSlotRange(
-            start = BcSlot(localCount() + stackSize),
-            end = BcSlot(localCount() + stackSize + count),
+            start = BcSlot((localCount() + stackSize).toUInt()),
+            end = BcSlot((localCount() + stackSize + count).toUInt()),
         )
         stackAdd(count)
         val r = k(slots, this)
@@ -499,7 +499,7 @@ internal class BcWriter(
         // And then invoke a callback which consumes all the slots again together.
         k: (BcSlotInRange, BcWriter) -> R,
     ): R {
-        val start = BcSlot(localCount() + stackSize)
+        val start = BcSlot((localCount() + stackSize).toUInt())
         var end = start
         for (item in exprs) {
             stackAdd(1)

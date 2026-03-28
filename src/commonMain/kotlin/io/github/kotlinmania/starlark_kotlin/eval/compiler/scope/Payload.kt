@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ScopeId
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.error.InternalError
+import io.github.kotlinmania.starlark_kotlin.typing.InternalError
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExprP
@@ -47,7 +47,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 // #[derive(Debug, Clone)]
 // pub(crate) struct CstPayload
 // impl AstPayload for CstPayload
-internal object CstPayload : AstPayload
+object CstPayload : AstPayload
 
 internal typealias CstLoadPayload = Interface
 internal typealias CstIdentPayload = ResolvedIdent?
@@ -73,9 +73,9 @@ internal typealias CstTypeExpr = AstTypeExprP<CstPayload>
 // pub(crate) type CstAssignTarget = AstAssignTargetP<CstPayload>
 internal typealias CstAssignTarget = AstAssignTargetP<CstPayload>
 // pub(crate) type CstAssignIdent = AstAssignIdentP<CstPayload>
-internal typealias CstAssignIdent = AstAssignIdentP<CstPayload>
+internal typealias CstAssignIdent = AstAssignIdentP<CstPayload, CstIdentAssignPayload>
 // pub(crate) type CstIdent = AstIdentP<CstPayload>
-internal typealias CstIdent = AstIdentP<CstPayload>
+internal typealias CstIdent = AstIdentP<CstPayload, CstIdentPayload>
 // pub(crate) type CstParameter = AstParameterP<CstPayload>
 internal typealias CstParameter = AstParameterP<CstPayload>
 // pub(crate) type CstStmt = AstStmtP<CstPayload>

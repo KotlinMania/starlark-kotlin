@@ -23,8 +23,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.span
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 
 /** Payload types attached to AST nodes. */
 interface AstPayload {
@@ -275,7 +273,7 @@ sealed class StmtP<P : AstPayload> {
     data class If<P : AstPayload>(val cond: AstExprP<P>, val suite: AstStmtP<P>) : StmtP<P>()
     data class IfElse<P : AstPayload>(val cond: AstExprP<P>, val suite1: AstStmtP<P>, val suite2: AstStmtP<P>) : StmtP<P>()
     data class For<P : AstPayload>(val forStmt: ForP<P>) : StmtP<P>()
-    data class Def<P : AstPayload, DP>(val defStmt: DefP<P, DP>) : StmtP<P>()
+    data class Def<P : AstPayload, DP>(val def: DefP<P, DP>) : StmtP<P>()
     data class Load<P : AstPayload, LP>(val loadStmt: LoadP<P, LP>) : StmtP<P>()
 }
 typealias Node<T> = Spanned<T>

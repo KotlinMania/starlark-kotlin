@@ -97,7 +97,7 @@ interface LintWarning {
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
     when (val s = this.node) {
         is StmtP.Statements -> s.stmts.forEach(visitor)
-        is StmtP.Def<*, *> -> visitor(s.defStmt.body as AstStmt)
+        is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
         is StmtP.If -> visitor(s.suite)
         is StmtP.IfElse -> {
             visitor(s.suite1)
@@ -314,7 +314,7 @@ private fun defName(spanned: Spanned<*>): String {
 private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     when (val s = x.node) {
         is StmtP.Def<*, *> -> {
-            val def = s.defStmt
+            val def = s.def
             val body = def.body as AstStmt
             val rets = returns(body)
 
@@ -447,7 +447,7 @@ private fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
     fun f(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
         when (val s = x.node) {
             is StmtP.For -> check(true, codemap, s.forStmt.body as AstStmt, res)
-            is StmtP.Def<*, *> -> check(false, codemap, s.defStmt.body as AstStmt, res)
+            is StmtP.Def<*, *> -> check(false, codemap, s.def.body as AstStmt, res)
             else -> {}
         }
         // We always want to look inside everything for other types of violation

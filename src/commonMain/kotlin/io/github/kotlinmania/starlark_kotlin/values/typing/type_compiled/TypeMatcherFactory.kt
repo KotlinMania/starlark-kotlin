@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/type_matcher_factory.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_matcher_factory
+package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_m
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory.TypeCompiledFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox

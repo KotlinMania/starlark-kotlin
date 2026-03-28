@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 
 /// Wrapper around allocated chunks for iteration.
 ///
@@ -60,8 +60,8 @@ internal class BumpAllocator : ArenaAllocator {
     override fun alloc(size: ValueAllocSize): Any {
         // In Kotlin, allocation is handled by the JVM.
         // Track the requested size for profiling.
-        totalAllocated += size.bytes()
-        return ByteArray(size.bytes())
+        totalAllocated += size.bytes().toInt()
+        return ByteArray(size.bytes().toInt())
     }
 
     // const CHUNK_ALLOCATION_DIRECTION: ChunkAllocationDirection = ChunkAllocationDirection::Down;

@@ -243,7 +243,7 @@ private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
             (s.forStmt.body as AstStmt).visitExprs(f)
         }
         is StmtP.Def<*, *> -> {
-            s.defStmt.params.forEach { param ->
+            s.def.params.forEach { param ->
                 val p = param.node
                 when (p) {
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
@@ -260,8 +260,8 @@ private fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
                     is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
                 }
             }
-            s.defStmt.returnType?.let { f(it.node.expr as AstExpr) }
-            (s.defStmt.body as AstStmt).visitExprs(f)
+            s.def.returnType?.let { f(it.node.expr as AstExpr) }
+            (s.def.body as AstStmt).visitExprs(f)
         }
         is StmtP.Load<*, *> -> { /* no expressions */ }
         is StmtP.Break<*>,

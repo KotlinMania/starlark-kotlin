@@ -3,11 +3,8 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.types.string.literal
-import io.github.kotlinmania.starlark_kotlin.entries
-import io.github.kotlinmania.starlark_kotlin.analysis.ident
-import io.github.kotlinmania.starlark_kotlin.analysis.expr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
@@ -17,7 +14,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.analysis.visitStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
 import io.github.kotlinmania.starlark_kotlin.analysis.statement
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.analysis.fileSpan
 import io.github.kotlinmania.starlark_kotlin.analysis.description
 import io.github.kotlinmania.starlark_kotlin.analysis.LintWarning
@@ -44,21 +40,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Placeholder types removed. Rely on imports.
-
-class NumRef(val value: Double) {
-    companion object {
-        fun from(d: Double): NumRef = NumRef(d)
-    }
-
-    fun asInt(): Long? {
-        val l = value.toLong()
-        return if (l.toDouble() == value) l else null
-    }
-}
-
-
 
 // --- Dubious lint types and functions ---
 
@@ -131,6 +112,7 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
                 }
                 is AstLiteral.StringLit -> Key.StringKey(lit.node.node) to lit.node.span
                 is AstLiteral.Ellipsis -> null
+                else -> null
             }
             is ExprP.Identifier -> Key.Identifier(node.ident.node.ident) to node.ident.span
             else -> null

@@ -20,18 +20,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
-import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.ionspin.kotlin.bignum.integer.Sign
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
 import io.github.kotlinmania.starlark_kotlin.values.types.string.BigInt
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.num.abs
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.toOwned
 import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
 /**
  * Starlark integer error types.
@@ -129,6 +125,7 @@ sealed class StarlarkInt {
         fun from(value: TokenInt): StarlarkInt = when (value) {
             is TokenInt.I32 -> from(value.value)
             is TokenInt.BigInt -> from(value.value)
+            else -> throw IllegalStateException("Unexpected TokenInt: $value")
         }
 
         fun from(value: UInt): StarlarkInt = fromImpl(
@@ -160,7 +157,7 @@ sealed class StarlarkIntRef {
 
     fun toOwned(): StarlarkInt = when (this) {
         is Small -> StarlarkInt.Small(value)
-        is Big -> StarlarkInt.Big(value.clone())
+        is Big -> StarlarkInt.Big(value)
     }
 
     fun toBig(): BigInteger = when (this) {
@@ -425,6 +422,9 @@ sealed class StarlarkIntRef {
             value.downcastRef<StarlarkBigInt>()?.let { return Big(it) }
             return null
         }
+
+        /// Alias for [unpack] matching the Rust `UnpackValue::unpack_value_opt` trait method.
+        fun unpackValueOpt(value: Value): StarlarkIntRef? = unpack(value)
     }
 }
 

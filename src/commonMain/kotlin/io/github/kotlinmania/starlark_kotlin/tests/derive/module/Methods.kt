@@ -27,10 +27,9 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 
 // #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
 // struct Applaud { value: i32 }
@@ -40,7 +39,7 @@ private class Applaud(
     override fun toString(): String = "Applaud(value=$value)"
 
     // #[starlark_value(type = "applaud")]
-    override fun starlarkType(): String = "applaud"
+    override val TYPE: String get() = "applaud"
 
     // impl StarlarkValue for Applaud
     // fn get_methods() -> Option<&'static Methods>

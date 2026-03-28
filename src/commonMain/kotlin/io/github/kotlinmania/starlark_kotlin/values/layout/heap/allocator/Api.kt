@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 
 /// Direction of chunk allocation within an arena allocator.
 ///

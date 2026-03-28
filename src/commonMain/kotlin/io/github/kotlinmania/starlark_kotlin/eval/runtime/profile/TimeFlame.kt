@@ -27,13 +27,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.Profil
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ZERO
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
-import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
 
 // pub(crate) struct TimeFlameProfilerType
@@ -130,7 +128,7 @@ private class ValueIndex {
 }
 
 // enum Frame
-private sealed class Frame {
+internal sealed class Frame {
     /// Entry recorded when we enter a function.
     // Push(ValueId)
     data class Push(val id: ValueId) : Frame()

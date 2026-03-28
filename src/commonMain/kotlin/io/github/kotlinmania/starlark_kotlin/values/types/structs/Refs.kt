@@ -23,17 +23,14 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.starlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.downcastFrozenRef
+// downcastFrozenRef is a member function on FrozenValue, no import needed
 import io.github.kotlinmania.starlark_kotlin.analysis.iter
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 
 /**
  * Reference to a struct allocated on the heap.

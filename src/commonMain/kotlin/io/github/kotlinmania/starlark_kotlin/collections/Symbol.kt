@@ -18,5 +18,6 @@
  */
 package io.github.kotlinmania.starlark_kotlin.collections
 
-typealias map = Any
-typealias symbol = Any
+// Rust module declarations (pub(crate) mod map; pub(crate) mod symbol;) have
+// no Kotlin equivalent.  The typealias placeholders that were here conflicted
+// with the collections.symbol sub-package.  Removed.

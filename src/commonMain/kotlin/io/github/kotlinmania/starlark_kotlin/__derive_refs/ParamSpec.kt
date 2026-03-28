@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
 
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamIsRequired
+import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.typing.macro_support.unpackKwargsValueTy
-import io.github.kotlinmania.starlark_kotlin.typing.macro_support.unpackArgsItemTy
+import io.github.kotlinmania.starlark_kotlin.typing.unpackKwargsValueTy
+import io.github.kotlinmania.starlark_kotlin.typing.unpackArgsItemTy
 
 // pub enum NativeCallableParamDefaultValue
 sealed class NativeCallableParamDefaultValue {
@@ -53,7 +53,7 @@ class NativeCallableParam(
     // pub fn kwargs(name: &'static str, param_ty: Ty) -> NativeCallableParam
     // fn is_required(&self) -> ParamIsRequired
 
-    private fun isRequired(): ParamIsRequired {
+    internal fun isRequired(): ParamIsRequired {
         return when (required) {
             null -> ParamIsRequired.Yes
             else -> ParamIsRequired.No

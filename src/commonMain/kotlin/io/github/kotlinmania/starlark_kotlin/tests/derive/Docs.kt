@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.Coerce
 import io.github.kotlinmania.starlark_kotlin.docs.docs
 
@@ -48,7 +48,7 @@ private fun objectDocs1(builder: MethodsBuilder) {
 // struct TestExample {}
 private class TestExample : StarlarkValue {
     // #[starlark_value(type = "TestExample")]
-    override fun starlarkType(): String = "TestExample"
+    override val TYPE: String get() = "TestExample"
     override fun toString(): String = "TestExample"
 
     // fn get_methods() -> Option<&'static Methods>
@@ -62,7 +62,7 @@ private class TestExample : StarlarkValue {
 // struct ComplexTestExampleGen<V>(V)
 private class ComplexTestExampleGen<V>(val value: V) : StarlarkValue {
     // #[starlark_value(type = "ComplexTestExample")]
-    override fun starlarkType(): String = "ComplexTestExample"
+    override val TYPE: String get() = "ComplexTestExample"
     override fun toString(): String = value.toString()
 
     companion object {

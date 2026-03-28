@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUser
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserFields
 import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserIndex
@@ -33,11 +33,11 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.type_matcher_factory.TypeMatcherFactory
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
@@ -53,7 +53,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.attribute
 import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr

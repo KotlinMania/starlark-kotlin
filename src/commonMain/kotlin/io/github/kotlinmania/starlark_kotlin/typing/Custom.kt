@@ -184,6 +184,34 @@ class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
     override fun toString(): String = inner.toString()
 }
 
+/**
+ * A custom type, wrapping a [TyCustomDyn] instance.
+ *
+ * In Rust: `pub struct TyCustom(pub(crate) Arc<dyn TyCustomDyn>)`
+ */
+class TyCustom internal constructor(internal val inner: TyCustomDyn) {
+    companion object {
+        fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
+    }
+
+    fun asName(): String? = inner.asNameDyn()
+
+    fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any =
+        inner.matcherWithTypeCompiledFactory(factory)
+
+    fun matcherBox(): TypeMatcherBox = inner.matcherBoxDyn()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TyCustom) return false
+        return inner.eqToken() == other.inner.eqToken()
+    }
+
+    override fun hashCode(): Int = inner.hashCodeDyn()
+
+    override fun toString(): String = inner.toString()
+}
+
 object TypeMatcherBoxAlloc : TypeMatcherFactory<TypeMatcherBox> {
     override fun int(): TypeMatcherBox = object : TypeMatcherBox {
         override fun matches(typeName: String): Boolean = typeName == "int"

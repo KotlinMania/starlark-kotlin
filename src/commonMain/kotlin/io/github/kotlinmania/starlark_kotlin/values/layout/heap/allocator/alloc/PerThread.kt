@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 /// Minimum usable cached allocation.
 /// All chunks are used to store chains, so we need chain header + at least one object.
 internal val MIN_USABLE_ALLOC: AlignedSize = AlignedSize.newBytes(
-    ChunkChain.HEADER_SIZE.bytes() + MIN_ALLOC.bytes()
+    (ChunkChain.HEADER_SIZE.bytes() + MIN_ALLOC.bytes()).toInt()
 )
 
 /// Chunk cache for reuse across arena allocations.

@@ -27,8 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
@@ -38,27 +38,25 @@ import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
 import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.StringValueInterner
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValueInterner
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.trace
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptr
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.toValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.isUnfrozen
+import io.github.kotlinmania.starlark_kotlin.values.layout.unpackPtr
+import io.github.kotlinmania.starlark_kotlin.values.layout.isUnfrozen
 import io.github.kotlinmania.starlark_kotlin.values.layout.newRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.heapCopy
+import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
 import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 enum class HeapKind {
     Unfrozen,
@@ -189,6 +187,11 @@ class Heap internal constructor(
         return StringValue.newUnchecked(value)
     }
 
+    fun allocStr(x: String): Value {
+        val v = owned.arena.borrow().allocStr(x)
+        return Value.newPtr(v, true)
+    }
+
     /// Allocate a new value on a Heap.
     fun <T : AllocValue> alloc(x: T): Value {
         return x.allocValue(this)
@@ -284,11 +287,11 @@ class Heap internal constructor(
     }
 
     // Internal allocation helpers — stubs that delegate to arena
-    private fun allocComplexNoFreeze(value: Any) {
+    internal fun allocComplexNoFreeze(value: Any) {
         owned.arena.borrow().allocComplex(value)
     }
 
-    private fun allocSimple(value: Any) {
+    internal fun allocSimple(value: Any) {
         owned.arena.borrow().allocSimple(value)
     }
 }
@@ -513,7 +516,7 @@ class Tracer(
         return Triple(v, r, extra)
     }
 
-    internal fun allocStr(x: String): Value {
+    fun allocStr(x: String): Value {
         val v = arena.allocStr(x)
         return Value.newPtr(v, true)
     }
@@ -529,6 +532,7 @@ class Tracer(
         return when (val unpacked = oldVal.unpack()) {
             is AValueOrForwardUnpack.Forward -> unpacked.forwardPtr().unpackUnfrozenValue()
             is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapCopy(this)
+            else -> throw IllegalStateException("Unexpected unpack result: $unpacked")
         }
     }
 }

@@ -35,9 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
-import io.github.kotlinmania.starlark_kotlin.values.types.list.List
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.moduleEnv
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Union
@@ -71,9 +69,7 @@ import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
 import io.github.kotlinmania.starlark_kotlin.tests.derive.i
 import io.github.kotlinmania.starlark_kotlin.tests.a
 import io.github.kotlinmania.starlark_kotlin.analysis.path
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
@@ -179,9 +175,11 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
                             codemap,
                         )
                 }
+                else -> throw IllegalStateException("Unexpected slot: $slot")
             }
         }
         is ResolvedIdent.Global -> identPayload.value.toValue()
+        else -> throw IllegalStateException("Unexpected resolved ident: $identPayload")
     }
 }
 
@@ -272,9 +270,10 @@ private fun Compiler.evalExpr(
             TypeCompiled.typeAnyOf(xs, eval.heap()).toInner()
         }
         is TypeExprUnpackP.Tuple -> {
-            val xs = node.xs.map { x -> evalExprAsType(x).asTy().clone() }
+            val xs = node.xs.map { x -> evalExprAsType(x).asTy() }
             TypeCompiled.fromTy(Ty.tuple(xs), eval.heap()).toInner()
         }
+        else -> throw IllegalStateException("Unexpected type expr: $node")
     }
 }
 
@@ -293,9 +292,9 @@ private fun Compiler.populateTypesInTypeExpr(
         )
     }
     // This should not fail because we validated it at parse time.
-    val unpack = TypeExprUnpackP.unpack(typeExpr.Expr, codemap)
+    val unpack = TypeExprUnpackP.unpack(typeExpr.node.expr, codemap)
     val typeValue = evalExprAsType(unpack)
-    typeExpr.Payload.compilerTy = typeValue.asTy().clone()
+    typeExpr.Payload.compilerTy = typeValue.asTy()
 }
 
 // pub(crate) fn populate_types_in_stmt(

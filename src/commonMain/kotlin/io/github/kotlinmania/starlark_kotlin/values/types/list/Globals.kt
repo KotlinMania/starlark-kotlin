@@ -25,8 +25,8 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyFunction
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingOrInternalError
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

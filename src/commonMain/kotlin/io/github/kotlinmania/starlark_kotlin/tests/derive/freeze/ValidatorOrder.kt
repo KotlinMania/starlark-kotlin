@@ -39,21 +39,21 @@ private class FreezeSentinel(
 
 // #[derive(Freeze)]
 // #[freeze(validator = check_froze_before_validating)]
-// struct Test { sentinel: FreezeSentinel }
-private class Test(
+// struct ValidatorOrderTest { sentinel: FreezeSentinel }
+private class ValidatorOrderTest(
     val sentinel: FreezeSentinel,
-) : Freeze<Test> {
-    override fun freeze(freezer: Freezer): FreezeResult<Test> {
+) : Freeze<ValidatorOrderTest> {
+    override fun freeze(freezer: Freezer): FreezeResult<ValidatorOrderTest> {
         val frozenSentinel = sentinel.freeze(freezer).getOrElse { return Result.failure(it) }
-        val result = Test(frozenSentinel)
+        val result = ValidatorOrderTest(frozenSentinel)
         // validator: check_froze_before_validating
         checkFrozeBeforeValidating(result).getOrElse { return Result.failure(it) }
         return Result.success(result)
     }
 }
 
-// fn check_froze_before_validating(test: &Test) -> anyhow::Result<()>
-private fun checkFrozeBeforeValidating(test: Test): Result<Unit> {
+// fn check_froze_before_validating(test: &ValidatorOrderTest) -> anyhow::Result<()>
+private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
     // Accessing fields on a Starlark value before we call freeze() on it may fail (because we
     // read the forward not what it points to), so we check that validators receive frozen data.
     check(test.sentinel.frozen)
@@ -63,7 +63,7 @@ private fun checkFrozeBeforeValidating(test: Test): Result<Unit> {
 // #[test]
 // fn test() -> anyhow::Result<()>
 internal fun testValidatorOrder() {
-    val t = Test(
+    val t = ValidatorOrderTest(
         sentinel = FreezeSentinel(frozen = false),
     )
     val frozenHeap = FrozenHeap()

@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef

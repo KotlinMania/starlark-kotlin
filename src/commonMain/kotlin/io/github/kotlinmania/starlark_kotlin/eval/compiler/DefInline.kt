@@ -8,7 +8,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -222,7 +222,7 @@ internal class InlineDefCallSite(
                 val value = slots[node.slot.index]
                 val localAsValue = FrozenValueTyped.new<LocalAsValue>(value)
                 val inlinedExpr = if (localAsValue != null) {
-                    ExprCompiled.Local(localAsValue.value.local)
+                    ExprCompiled.Local(localAsValue.asRef().local)
                 } else {
                     ExprCompiled.ValueExpr(value)
                 }

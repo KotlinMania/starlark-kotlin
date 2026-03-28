@@ -18,11 +18,5 @@
  */
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
-(basic);
-(defaultValue);
-(generic);
-(kwargs);
-(methods);
-(namedPositional);
-(otherAttributes);
-(returnImpl);
+// Rust mod declarations — each submodule is its own .kt file:
+// basic, defaultValue, generic, kwargs, methods, namedPositional, otherAttributes, returnImpl

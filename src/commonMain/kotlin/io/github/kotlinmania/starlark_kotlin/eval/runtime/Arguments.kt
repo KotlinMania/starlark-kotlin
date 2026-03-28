@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either as DictEither
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark_kotlin.values.length
 import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
-import io.github.kotlinmania.starlark_kotlin.coerce
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
@@ -586,6 +585,7 @@ private fun DictRef<*>.dict(): Dict<*> {
     return when (val ref = aref) {
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
+        else -> throw IllegalStateException("Unexpected DictEither: $ref")
     }
 }
 

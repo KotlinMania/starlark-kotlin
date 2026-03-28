@@ -34,7 +34,10 @@ if (localProperties?.exists() == false) {
 kotlin {
     applyDefaultHierarchyTemplate()
 
-    sourceSets.all { languageSettings.optIn("kotlin.time.ExperimentalTime") }
+    sourceSets.all {
+        languageSettings.optIn("kotlin.time.ExperimentalTime")
+        languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
+    }
 
     val xcf = XCFramework("Starlark")
 
@@ -95,6 +98,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
                 implementation("com.ionspin.kotlin:bignum:0.3.10")
+                // Ported Rust test modules live in commonMain (inline with source, matching Rust convention)
+                implementation(kotlin("test"))
             }
         }
 

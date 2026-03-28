@@ -122,8 +122,8 @@ interface IncompatLintWarning {
 }
 
 class IncompatAstModule(
-    private val codemap: IncompatCodeMap,
-    private val statement: IncompatAstStmt,
+    internal val codemap: IncompatCodeMap,
+    internal val statement: IncompatAstStmt,
 ) {
     fun codemap(): IncompatCodeMap = codemap
     fun statement(): IncompatAstStmt = statement

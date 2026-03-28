@@ -1,11 +1,11 @@
 // port-lint: source src/values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
-import io.github.kotlinmania.starlark_kotlin.values.types.string.bytes
 import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
-import io.github.kotlinmania.starlark_kotlin.values.default
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 
 /*
@@ -97,7 +97,7 @@ private class StackFrameBuilder(
         }
         return StackFrame(
             callees = callees,
-            allocs = data.allocs.clone(),
+            allocs = data.allocs.copy(),
             timeX2 = data.timeX2,
             callsX2 = data.callsX2,
         )
@@ -331,6 +331,7 @@ class RetainedHeapProfile(
                     ProfileDataImpl.HeapFlameRetained(info.clone())
                 RetainedHeapProfileMode.Summary ->
                     ProfileDataImpl.HeapSummaryRetained(info.clone())
+                else -> throw IllegalStateException("Unexpected mode: $mode")
             },
         )
     }

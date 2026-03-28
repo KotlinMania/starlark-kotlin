@@ -19,22 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.tests.freeze
 import io.github.kotlinmania.starlark_kotlin.values.tryFreezeDirectly
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.heapCopyImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Debug, thiserror::Error)]

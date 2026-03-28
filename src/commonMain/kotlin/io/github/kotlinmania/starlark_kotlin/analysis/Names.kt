@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.function
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClause
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Clause
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
@@ -41,15 +40,12 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.key
 import io.github.kotlinmania.starlark_kotlin.value
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.thenBlock
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.elseBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.thenBlock
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseBlock
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.variable
-import io.github.kotlinmania.starlark_kotlin.eval.bc.over
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
 import io.github.kotlinmania.starlark_kotlin.docs.ty
 import io.github.kotlinmania.starlark_kotlin.codemap.*
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
@@ -383,7 +379,7 @@ private class State(
                     expr(clause.forClause.over)
                     assign(clause.forClause.variable)
                 }
-                is ClauseP.If -> expr(clause.Expr)
+                is ClauseP.If -> expr(clause.cond)
             }
         }
         expr(res1)
@@ -423,7 +419,7 @@ private class State(
     }
 
     fun typ(ty: AstTypeExpr) {
-        expr(ty.Expr)
+        expr(ty.node.expr)
     }
 
     fun assignAsExpr(assign: AstAssignTarget) {
@@ -491,7 +487,7 @@ private class State(
                 exitScope()
             }
             // These were handled by collecting the scopes
-            is StmtP.Load -> {
+            is StmtP.Load<*, *> -> {
                 for (arg in s.loadStmt.args) {
                     setIdent(arg.local, Kind.Load)
                 }

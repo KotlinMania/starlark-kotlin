@@ -23,15 +23,15 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // pub(crate) fn simple<'v, T: StarlarkValue<'v>>(x: T) -> AValueImpl<'v, AValueSimple<T>>
 internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> {

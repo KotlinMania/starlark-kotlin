@@ -28,10 +28,10 @@ import starlark_map.Hashed
  * Kotlin does not have an equivalent to `hashbrown::HashTable` in commonMain, so this port
  * keeps the same observable behaviour while using a simple insertion-ordered storage.
  */
-class SmallMap<K, V> private constructor(
-    private val entries: ArrayList<Entry<K, V>>,
+class SmallMap<K, V> internal constructor(
+    internal val entries: ArrayList<Entry<K, V>>,
 ) {
-    private data class Entry<K, V>(
+    internal data class Entry<K, V>(
         val key: Hashed<K>,
         var value: V,
     )
@@ -57,6 +57,10 @@ class SmallMap<K, V> private constructor(
     fun values(): Sequence<V> = entries.asSequence().map { it.value }
 
     fun iter(): Sequence<Pair<K, V>> = entries.asSequence().map { Pair(it.key.key(), it.value) }
+
+    operator fun iterator(): Iterator<Pair<K, V>> = iter().iterator()
+
+    fun intoIterHashed(): Sequence<Pair<Hashed<K>, V>> = iterHashed()
 
     fun iterHashed(): Sequence<Pair<Hashed<K>, V>> = entries.asSequence().map { Pair(it.key, it.value) }
 

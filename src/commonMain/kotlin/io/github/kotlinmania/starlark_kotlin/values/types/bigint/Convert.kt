@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
 import com.ionspin.kotlin.bignum.integer.BigInteger
 
 /// Starlark type repr for all integer types.
@@ -141,6 +140,7 @@ fun Value.unpackBigInteger(): Result<BigInteger?> {
         when (intRef) {
             is StarlarkIntRef.Small -> BigInteger.fromInt(intRef.value.toI32())
             is StarlarkIntRef.Big -> intRef.value.get()
+            else -> throw IllegalStateException("Unexpected StarlarkIntRef: $intRef")
         }
     )
 }

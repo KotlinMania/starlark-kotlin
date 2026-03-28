@@ -1,5 +1,6 @@
 // port-lint: source src/debug/evaluate.rs
 package io.github.kotlinmania.starlark_kotlin.debug
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrN
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
@@ -55,7 +57,7 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     }
 
     // Push all the frozen variables into the module
-    val frozen = topFrameDefFrozenModule(true).getOrElse { return Result.failure(it) }
+    val frozen = runCatching { topFrameDefFrozenModule(true) }.getOrElse { return Result.failure(it) }
     if (frozen != null) {
         for ((name, slot) in frozen.names.symbols()) {
             val value = frozen.getSlot(slot)
@@ -78,7 +80,7 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
         }
     }
 
-    val globals = topFrameDefInfoForDebugger().getOrElse { return Result.failure(it) }.globals
+    val globals = runCatching { topFrameDefInfoForDebugger() }.getOrElse { return Result.failure(it) }.globals
     val res = evalModule(statements, globals)
 
     // Now put the Module back how it was before we started, as best we can

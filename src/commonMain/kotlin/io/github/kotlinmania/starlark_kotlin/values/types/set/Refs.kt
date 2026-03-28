@@ -23,24 +23,28 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Hashed
+import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.SetType
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
 import io.github.kotlinmania.starlark_kotlin.inner
-import io.github.kotlinmania.starlark_kotlin.coerce
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 
 /**
  * Define the set type.
  */
 class SetRef internal constructor(
     internal val aref: Either<BorrowedSetData, SetData>
-)
+) {
+    companion object {
+        /// Unpack a [Value] into a [SetRef], or return null if not a set.
+        /// Matches the Rust `UnpackValue::unpack_value_opt` trait method.
+        fun unpackValueOpt(value: Value): SetRef? =
+            SetRefUnpackValue.unpackValueImpl(value).getOrThrow()
+    }
+}
 
 /**
  * Clone implementation for SetRef.

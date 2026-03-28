@@ -26,7 +26,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
 // Import statements - these types should be defined in their respective modules
 // For now, using placeholder imports assuming standard structure
 // import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-// import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 // import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 // import io.github.kotlinmania.starlark_kotlin.values.Trace
 
@@ -139,7 +139,7 @@ internal class HashTable<T> {
 /**
  * Placeholder for Hashed<T> from collections module.
  */
-internal interface Hashed<T> {
+interface Hashed<T> {
     fun hash(): StarlarkHashValue
     fun value(): T
 }
@@ -151,13 +151,6 @@ internal interface StarlarkHashValue {
     fun promote(): ULong
 }
 
-/**
- * Placeholder for FrozenStringValue.
- */
-internal interface FrozenStringValue {
-    fun getHashedStr(): Hashed<String>
-    fun getHash(): StarlarkHashValue
-}
 
 /**
  * Placeholder for StringValue with lifetime.

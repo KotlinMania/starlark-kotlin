@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
@@ -287,7 +288,7 @@ internal class BindingsCollect(
                     assign(forStmt.varTarget, BindExpr.Iter(BindExpr.Expr(forStmt.over)), codemap)
                 }
                 is StmtP.Def<*, *> -> {
-                    visitDef(node.defStmt as DefP<CstPayload, *>, typecheckMode, codemap)
+                    visitDef(node.def as DefP<CstPayload, *>, typecheckMode, codemap)
                     // We do our own visit_children, with a different return type
                     return
                 }
@@ -387,7 +388,7 @@ private fun visitStmtChildren(stmt: CstStmt, f: (Visit) -> Unit) {
             f(Visit.Expr(node.cond as CstExpr))
             f(Visit.Stmt(node.suite1 as CstStmt)); f(Visit.Stmt(node.suite2 as CstStmt))
         }
-        is StmtP.Def<*, *> -> visitDefChildren(node.defStmt as DefP<CstPayload, *>, f)
+        is StmtP.Def<*, *> -> visitDefChildren(node.def as DefP<CstPayload, *>, f)
         is StmtP.For<*> -> {
             val fp = node.forStmt as ForP<CstPayload>
             visitAssignTargetExprs(fp.varTarget) { f(Visit.Expr(it)) }

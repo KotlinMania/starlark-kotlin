@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse

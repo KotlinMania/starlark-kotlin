@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocTupleIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
 
 /// Utility to allocate a tuple.
 ///

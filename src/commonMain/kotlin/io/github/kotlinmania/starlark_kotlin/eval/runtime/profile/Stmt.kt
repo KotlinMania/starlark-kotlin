@@ -29,13 +29,12 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ProfileData
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.analysis.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.genCsv
@@ -49,7 +48,6 @@ import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.file
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
@@ -160,7 +158,7 @@ private class StmtProfileState {
     fun finish(): StmtProfileData {
         val now = ProfilerInstant.now()
         val data = StmtProfileState().also {
-            it.files = this.files.clone()
+            it.files = this.files
             it.stmts = this.stmts.toMutableMap()
             it.last = this.last
         }
@@ -180,7 +178,7 @@ private class StmtProfileState {
 /// Result of running statement or coverage profiler.
 // #[derive(Clone, Debug, Default, PartialEq)]
 // pub(crate) struct StmtProfileData
-internal data class StmtProfileData(
+data class StmtProfileData(
     val stmts: MutableMap<FileSpan, Pair<Int, SmallDuration>> = mutableMapOf(),
 ) {
     // pub(crate) fn write_to_string(&self) -> String
@@ -369,11 +367,11 @@ internal fun testMerge() {
     a.enable()
     a.beforeStmt(FileSpanRef(
         file = x,
-        span = Span(Pos(1u), Pos(2u)),
+        span = Span(Pos(1), Pos(2)),
     ))
     a.beforeStmt(FileSpanRef(
         file = y,
-        span = Span(Pos(2u), Pos(4u)),
+        span = Span(Pos(2), Pos(4)),
     ))
     val aData = a.gen()
 
@@ -381,11 +379,11 @@ internal fun testMerge() {
     b.enable()
     b.beforeStmt(FileSpanRef(
         file = y,
-        span = Span(Pos(2u), Pos(4u)),
+        span = Span(Pos(2), Pos(4)),
     ))
     b.beforeStmt(FileSpanRef(
         file = z,
-        span = Span(Pos(3u), Pos(5u)),
+        span = Span(Pos(3), Pos(5)),
     ))
     val bData = b.gen()
 
@@ -395,11 +393,11 @@ internal fun testMerge() {
 
     val expected = StmtProfileData(
         stmts = mutableMapOf(
-            FileSpan(file = x, span = Span(Pos(1u), Pos(2u))) to
+            FileSpan(file = x, span = Span(Pos(1), Pos(2))) to
                 Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS)),
-            FileSpan(file = y, span = Span(Pos(2u), Pos(4u))) to
+            FileSpan(file = y, span = Span(Pos(2), Pos(4))) to
                 Pair(2, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS * 2)),
-            FileSpan(file = z, span = Span(Pos(3u), Pos(5u))) to
+            FileSpan(file = z, span = Span(Pos(3), Pos(5))) to
                 Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS)),
         ),
     )

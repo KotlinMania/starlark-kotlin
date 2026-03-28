@@ -31,15 +31,15 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
 import io.github.kotlinmania.starlark_kotlin.values.documentation
 import io.github.kotlinmania.starlark_kotlin.tests.getAttr
 import io.github.kotlinmania.starlark_kotlin.docs.summary
@@ -50,13 +50,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 // struct InputTypeRepr;
 private class InputTypeRepr : StarlarkValue {
-    override fun starlarkType(): String = "input"
+    override val TYPE: String get() = "input"
     override fun toString(): String = "input"
 }
 
 // struct OutputTypeRepr;
 private class OutputTypeRepr : StarlarkValue {
-    override fun starlarkType(): String = "output"
+    override val TYPE: String get() = "output"
     override fun toString(): String = "output"
 }
 
@@ -139,8 +139,8 @@ def with_arguments(*args, **kwargs) -> int: pass
 }
 
 // struct Obj;
-private class Obj : StarlarkValue {
-    override fun starlarkType(): String = "obj"
+internal class Obj : StarlarkValue {
+    override val TYPE: String get() = "obj"
     override fun toString(): String = "obj"
 
     override fun getMethods(): Methods? {

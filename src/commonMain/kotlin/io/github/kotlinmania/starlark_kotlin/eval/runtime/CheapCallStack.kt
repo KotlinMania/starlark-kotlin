@@ -22,14 +22,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Frame
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.inlinedFrames
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.

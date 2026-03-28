@@ -1,3 +1,4 @@
+
 // port-lint: source src/values/types/structs/alloc.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.structs
 
@@ -95,7 +96,7 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
         val k = k.allocStringValue(heap)
         val v = v.allocValue(heap)
         val prev = fields.insert(k, v)
-        assert(prev == null) { "non-unique key: $k" }
+        check(prev == null) { "non-unique key: $k" }
     }
 
     return Struct(fields).allocValue(heap)
@@ -118,7 +119,7 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
         val k = k.allocFrozenStringValue(heap)
         val v = v.allocFrozenValue(heap)
         val prev = fields.insert(k, v)
-        assert(prev == null) { "non-unique key: $k" }
+        check(prev == null) { "non-unique key: $k" }
     }
 
     return heap.alloc(FrozenStruct(fields))

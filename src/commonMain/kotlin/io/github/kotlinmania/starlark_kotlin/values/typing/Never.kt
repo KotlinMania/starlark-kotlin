@@ -34,9 +34,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 // pub(crate) struct TypingNever;
 internal class TypingNever : StarlarkValue, AllocFrozenValue {
     // #[starlark_value(type = "typing.Never")]
-    override fun starlarkType(): String = TYPE
+    override val TYPE: String get() = TYPE_NAME
 
-    override fun toString(): String = TYPE
+    override fun toString(): String = TYPE_NAME
 
     // fn eval_type(&self) -> Option<Ty>
     fun evalType(): Ty? = Ty.never()
@@ -48,7 +48,7 @@ internal class TypingNever : StarlarkValue, AllocFrozenValue {
     }
 
     companion object {
-        const val TYPE: String = "typing.Never"
+        const val TYPE_NAME: String = "typing.Never"
 
         // static NEVER: AllocStaticSimple<TypingNever> = AllocStaticSimple::alloc(TypingNever)
         private val NEVER = AllocStaticSimple.alloc(TypingNever())

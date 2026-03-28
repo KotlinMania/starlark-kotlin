@@ -21,19 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.values.typeName
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.totalMemoryForProfile
+import io.github.kotlinmania.starlark_kotlin.values.layout.totalMemoryForProfile
 import io.github.kotlinmania.starlark_kotlin.values.empty
 import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
 
@@ -175,7 +175,7 @@ class Arena {
     fun forEachDropUnordered(f: (AValueHeader) -> Unit) {
         for (entry in drop) {
             when (entry) {
-                is AValueOrForward.value -> f(entry.repr.header)
+                is AValueOrForward.Header -> f(entry.header)
                 is AValueOrForward.Forward -> {}
             }
         }
@@ -186,7 +186,7 @@ class Arena {
         forEachDropUnordered(f)
         for (entry in nonDrop) {
             when (entry) {
-                is AValueOrForward.value -> f(entry.repr.header)
+                is AValueOrForward.Header -> f(entry.header)
                 is AValueOrForward.Forward -> {}
             }
         }

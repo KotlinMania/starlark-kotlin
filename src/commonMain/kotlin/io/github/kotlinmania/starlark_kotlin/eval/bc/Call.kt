@@ -23,9 +23,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.ResolvedArgName
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.util.asStr
 
 /// Call arguments.

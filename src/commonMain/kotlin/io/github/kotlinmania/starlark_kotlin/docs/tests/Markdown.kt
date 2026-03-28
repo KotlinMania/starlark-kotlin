@@ -99,14 +99,14 @@ def _do_not_export():
 // #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
 // struct Magic;
 private class Magic : StarlarkValue {
-    override fun starlarkType(): String = "magic"
+    override val TYPE: String get() = "magic"
     override fun toString(): String = "magic"
 }
 
 // #[derive(ProvidesStaticType, Debug, Display, Allocative, Serialize)]
 // struct Obj;
-private class Obj : StarlarkValue {
-    override fun starlarkType(): String = "obj"
+private class MarkdownObj : StarlarkValue {
+    override val TYPE: String get() = "obj"
     override fun toString(): String = "obj"
 
     override fun getMethods(): Methods? {
@@ -126,7 +126,7 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     builder.setConst("MAGIC", 42)
 
     // const Obj: StarlarkValueAsType<Obj> = StarlarkValueAsType::new()
-    builder.setConst("Obj", StarlarkValueAsType<Obj>())
+    builder.setConst("Obj", StarlarkValueAsType<MarkdownObj>())
 
     /// Docs for func1
     ///
@@ -189,7 +189,7 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
 
     // fn new_obj() -> anyhow::Result<Obj>
     builder.setFunction("new_obj") {
-        Result.success(Obj())
+        Result.success(MarkdownObj())
     }
 }
 
@@ -320,7 +320,7 @@ internal fun globalsRenderSignatureAtBottomWithLinkedType() {
 // #[test]
 // fn golden_docs_object()
 internal fun goldenDocsObject() {
-    val docs = DocType.fromStarlarkValue<Obj>()
+    val docs = DocType.fromStarlarkValue<MarkdownObj>()
     val res = docsGoldenTest("object.golden.md", DocItem.Type(docs))
 
     check(res.contains("name.__exported__"))

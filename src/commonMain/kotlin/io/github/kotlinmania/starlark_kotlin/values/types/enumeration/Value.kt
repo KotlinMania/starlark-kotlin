@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId

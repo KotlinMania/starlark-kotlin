@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
  * This is the frozen counterpart of [FileSpan], used after the module has been frozen.
  * The [file] and [span] are both immutable once created.
  */
-internal data class FrozenFileSpan private constructor(
+data class FrozenFileSpan private constructor(
     /** The frozen code map this span belongs to. */
     private val file: FrozenRef<CodeMap>,
     /** The span within [file]. */

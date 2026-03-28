@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 // struct Foo;
 private class Foo : StarlarkValue {
     // #[starlark_value(type = "Foo")]
-    override fun starlarkType(): String = "Foo"
+    override val TYPE: String get() = "Foo"
     override fun toString(): String = "foo"
 }
 

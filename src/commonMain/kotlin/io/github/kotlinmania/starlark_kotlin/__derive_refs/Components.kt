@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
 import io.github.kotlinmania.starlark_kotlin.analysis.dubious.v
 
 /// A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method`
@@ -51,6 +51,7 @@ class NativeCallableComponents(
                     null -> null
                     is NativeCallableParamDefaultValue.Optional -> PARAM_FMT_OPTIONAL
                     is NativeCallableParamDefaultValue.Value -> required.v.toValue().toRepr()
+                    else -> throw IllegalStateException("Unexpected default value: $required")
                 },
             )
         }

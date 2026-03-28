@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
 import io.github.kotlinmania.starlark_kotlin.values.owned.typed
-import io.github.kotlinmania.starlark_kotlin.entries
 import io.github.kotlinmania.starlark_kotlin.values.value_of.typed
 
 private sealed class Either<out L, out R> {
@@ -104,7 +103,9 @@ private fun validateModule(builder: GlobalsBuilder) {
             is Either.Right -> when (val nested = v.value) {
                 is Either.Left -> nested.value
                 is Either.Right -> nested.value.value.toRepr()
+                else -> throw IllegalStateException("Unexpected Either: $nested")
             }
+            else -> throw IllegalStateException("Unexpected Either: $v")
         }
         Result.success(result)
     }

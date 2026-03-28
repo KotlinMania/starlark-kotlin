@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import starlark_map.vec_map.insertHashedUniqueUnchecked
 import starlark_map.intoKey
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCapacity
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
@@ -101,7 +100,7 @@ fun <T, F> freezeList(
     val result = mutableListOf<F>()
     for (element in list) {
         val frozen = freezeElement(element, freezer)
-        if (frozen.isError()) return FreezeResult.error(frozen.errorValue())
+        if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
         result.add(frozen.get())
     }
     return FreezeResult.success(result)
@@ -125,7 +124,7 @@ fun <K, FK> freezeHashed(
 ): FreezeResult<Hashed<FK>> {
     // `freeze` must not change hash.
     val frozenKey = freezeKey(hashed.intoKey(), freezer)
-    if (frozenKey.isError()) return FreezeResult.error(frozenKey.errorValue())
+    if (frozenKey.isFailure) return FreezeResult.failure(frozenKey.exceptionOrNull()!!)
     return FreezeResult.success(Hashed.newUnchecked(hashed.hash(), frozenKey.get()))
 }
 
@@ -140,10 +139,10 @@ fun <K, V, FK, FV> freezeSmallMap(
     for ((key, value) in map.intoIterHashed()) {
         val hash = key.hash()
         val frozenKey = freezeKey(key.intoKey(), freezer)
-        if (frozenKey.isError()) return FreezeResult.error(frozenKey.errorValue())
+        if (frozenKey.isFailure) return FreezeResult.failure(frozenKey.exceptionOrNull()!!)
         val hashedKey = Hashed.newUnchecked(hash, frozenKey.get())
         val frozenValue = freezeValue(value, freezer)
-        if (frozenValue.isError()) return FreezeResult.error(frozenValue.errorValue())
+        if (frozenValue.isFailure) return FreezeResult.failure(frozenValue.exceptionOrNull()!!)
         new.insertHashedUniqueUnchecked(hashedKey, frozenValue.get())
     }
     return FreezeResult.success(new)
@@ -158,7 +157,7 @@ fun <T, F> freezeSmallSet(
     val new = SmallSet.withCapacity<F>(set.len())
     for (value in set.intoIterHashed()) {
         val frozenValue = freezeElement(value, freezer)
-        if (frozenValue.isError()) return FreezeResult.error(frozenValue.errorValue())
+        if (frozenValue.isFailure) return FreezeResult.failure(frozenValue.exceptionOrNull()!!)
         new.insertHashedUniqueUnchecked(frozenValue.get())
     }
     return FreezeResult.success(new)
@@ -196,9 +195,9 @@ fun <A, B, FA, FB> freezePair(
     freezeB: (B, Freezer) -> FreezeResult<FB>,
 ): FreezeResult<Pair<FA, FB>> {
     val a = freezeA(pair.first, freezer)
-    if (a.isError()) return FreezeResult.error(a.errorValue())
+    if (a.isFailure) return FreezeResult.failure(a.exceptionOrNull()!!)
     val b = freezeB(pair.second, freezer)
-    if (b.isError()) return FreezeResult.error(b.errorValue())
+    if (b.isFailure) return FreezeResult.failure(b.exceptionOrNull()!!)
     return FreezeResult.success(Pair(a.get(), b.get()))
 }
 
@@ -211,11 +210,11 @@ fun <A, B, C, FA, FB, FC> freezeTriple(
     freezeC: (C, Freezer) -> FreezeResult<FC>,
 ): FreezeResult<Triple<FA, FB, FC>> {
     val a = freezeA(triple.first, freezer)
-    if (a.isError()) return FreezeResult.error(a.errorValue())
+    if (a.isFailure) return FreezeResult.failure(a.exceptionOrNull()!!)
     val b = freezeB(triple.second, freezer)
-    if (b.isError()) return FreezeResult.error(b.errorValue())
+    if (b.isFailure) return FreezeResult.failure(b.exceptionOrNull()!!)
     val c = freezeC(triple.third, freezer)
-    if (c.isError()) return FreezeResult.error(c.errorValue())
+    if (c.isFailure) return FreezeResult.failure(c.exceptionOrNull()!!)
     return FreezeResult.success(Triple(a.get(), b.get(), c.get()))
 }
 

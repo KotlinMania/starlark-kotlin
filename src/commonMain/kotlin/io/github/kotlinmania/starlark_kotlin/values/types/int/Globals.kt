@@ -1,9 +1,8 @@
 // port-lint: source src/values/types/int/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
-
-
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -180,6 +179,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
                     ValueOfUnchecked.new(heap.alloc(result))
                 }
             }
+            else -> throw IllegalStateException("Unexpected typed: $typed")
         }
 
         if (base != null) {
@@ -202,12 +202,14 @@ internal fun registerInt(globals: GlobalsBuilder) {
                             ValueOfUnchecked.new(heap.alloc(it))
                         }
                     }
+                    else -> throw IllegalStateException("Unexpected NumRefValue: $numRef")
                 }
             }
             is Either.Right -> {
                 val b = numOrBool.value
                 Result.success(ValueOfUnchecked.new(heap.alloc(b as Int)))
             }
+            else -> throw IllegalStateException("Unexpected Either: $numOrBool")
         }
     }
 }

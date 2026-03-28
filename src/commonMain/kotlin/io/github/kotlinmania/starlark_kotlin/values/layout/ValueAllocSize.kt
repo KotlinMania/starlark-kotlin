@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/value_alloc_size.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 
 /**

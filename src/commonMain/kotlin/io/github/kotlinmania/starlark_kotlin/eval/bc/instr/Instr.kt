@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.typing.error.StarlarkError
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /**

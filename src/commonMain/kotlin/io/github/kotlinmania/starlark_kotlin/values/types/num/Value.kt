@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
@@ -183,10 +182,32 @@ sealed class NumRef {
         fun from(f: Double): NumRef = Float(StarlarkFloat(f))
 
         /** Unpack a [NumRef] from a [Value]. */
-        fun <V> unpackValue(value: Value<V>): Result<NumRef?> {
+        fun unpackValue(value: Value): Result<NumRef?> {
             StarlarkIntRef.unpack(value)?.let { return Result.success(Int(it)) }
             value.downcastRef<StarlarkFloat>()?.let { return Result.success(Float(it)) }
             return Result.success(null)
+        }
+
+        /** Unpack a [NumRef] from a [Value], returning null on type mismatch (no error). */
+        fun unpackValueImpl(value: Value): NumRef? {
+            StarlarkIntRef.unpack(value)?.let { return Int(it) }
+            value.downcastRef<StarlarkFloat>()?.let { return Float(it) }
+            return null
+        }
+
+        /**
+         * Unpack a [NumRef] from a [Value], returning an error if the value
+         * is not a numeric type (instead of returning null).
+         */
+        fun unpackParam(value: Value): Result<NumRef> {
+            return when (val num = unpackValueImpl(value)) {
+                null -> Result.failure(
+                    IllegalArgumentException(
+                        "Type of parameters mismatch, expected `int | float`, actual `${value}`"
+                    )
+                )
+                else -> Result.success(num)
+            }
         }
     }
 }
@@ -206,7 +227,7 @@ sealed class Num : StarlarkTypeRepr, AllocValue, AllocFrozenValue {
         is Float -> Ty.float()
     }
 
-    override fun <V> allocValue(heap: Heap<V>): Value<V> = when (this) {
+    override fun allocValue(heap: Heap): Value = when (this) {
         is Int -> value.allocValue(heap)
         is Float -> StarlarkFloat(value).allocValue(heap)
     }

@@ -25,12 +25,12 @@ import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnOwnedFileLoader
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamIsRequired
+import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallable
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse
 import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.newNamedOnly
+import io.github.kotlinmania.starlark_kotlin.typing.newNamedOnly
 import io.github.kotlinmania.starlark_kotlin.tests.trimRustBacktrace
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.setLoader
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableStaticTypechecking
@@ -83,7 +83,7 @@ internal class TypeCheck(
             .with(::registerTypecheckGlobals)
             .build()
         val ast = AstModule.parse("filename", code, Dialect.AllOptionsInternal).getOrThrow()
-        val (errors, typemap, interface_, approximations) = ast.clone().typecheck(
+        val (errors, typemap, interface_, approximations) = ast.typecheck(
             globals,
             loads.map { (name, pair) -> Pair(name, pair.first) }.toMap(),
         )

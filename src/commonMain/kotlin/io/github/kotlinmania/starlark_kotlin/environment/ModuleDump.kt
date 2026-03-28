@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.types.string.format
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // impl FrozenModule
 

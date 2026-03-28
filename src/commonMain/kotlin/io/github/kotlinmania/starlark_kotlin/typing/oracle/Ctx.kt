@@ -1,13 +1,37 @@
 // port-lint: source src/typing/oracle/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing.oracle
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.isNever
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.span
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
-import io.github.kotlinmania.starlark_kotlin.values.default
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.typing.ArcTy
+import io.github.kotlinmania.starlark_kotlin.typing.InternalError
+import io.github.kotlinmania.starlark_kotlin.typing.Param
+import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
+import io.github.kotlinmania.starlark_kotlin.typing.ParamMode
+import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+// Missing: TyCustom not yet ported from Rust typing/custom.rs (struct TyCustom wrapping Arc<dyn TyCustomDyn>)
+// import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
+import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.typing.TypingError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingOrInternalError
+
+// Missing value types not yet ported from Rust (crate::values::*::value):
+//   - List (crate::values::list::value::List)
+//   - MutableDict (crate::values::dict::value::MutableDict)
+//   - Tuple (crate::values::tuple::value::Tuple)
+//   - MutableSet (crate::values::set::value::MutableSet)
+// These are used in Rust as type parameters to TyStarlarkValue::new::<T>().
+// In the Kotlin port, TyStarlarkValue provides named factory methods instead:
+//   TyStarlarkValue.list(), .dict(), .tuple(), .set()
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,158 +50,6 @@ import io.github.kotlinmania.starlark_kotlin.values.default
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-
-class CodeMap
-
-class Ty(private val repr: String = "") {
-    companion object {
-        fun any(): Ty = Ty("any")
-        fun never(): Ty = Ty("never")
-        fun none(): Ty = Ty("none")
-        fun bool(): Ty = Ty("bool")
-        fun int(): Ty = Ty("int")
-        fun unions(tys: List<Ty>): Ty = if (tys.size == 1) tys[0] else Ty("union")
-        fun union2(a: Ty, b: Ty): Ty = Ty("union")
-        fun basic(basic: TyBasic): Ty = Ty(basic.toString())
-        fun list(item: Ty): Ty = Ty("list")
-        fun tuple(items: List<Ty>): Ty = Ty("tuple")
-        fun dict(key: Ty, value: Ty): Ty = Ty("dict")
-        fun set(item: Ty): Ty = Ty("set")
-        fun function(params: ParamSpec, result: Ty): Ty = Ty("function")
-        fun anyTuple(): Ty = Ty("tuple")
-    }
-    fun isAny(): Boolean = repr == "any"
-    fun isNever(): Boolean = repr == "never"
-    fun iterUnion(): List<TyBasic> = listOf()
-    fun dupe(): Ty = this
-    fun clone(): Ty = Ty(repr)
-    fun typecheckUnionSimple(checker: (TyBasic) -> kotlin.Result<Ty>): kotlin.Result<Ty> =
-        kotlin.Result.success(any())
-    override fun toString(): String = repr
-}
-
-class ParamSpec(private val params: List<Param> = emptyList()) {
-    companion object {
-        fun any(): ParamSpec = ParamSpec()
-        fun empty(): ParamSpec = ParamSpec()
-        fun posOnly(required: List<Ty>, optional: List<Ty>): ParamSpec = ParamSpec()
-    }
-    fun params(): List<Param> = params
-    fun isAny(): Boolean = false
-    fun allRequiredPosOnlyNamedOnly(): Pair<List<Ty>, List<Pair<String, Ty>>>? = null
-    override fun equals(other: Any?): Boolean = other is ParamSpec && params == other.params
-    override fun hashCode(): Int = params.hashCode()
-}
-
-class Param(
-    val mode: ParamMode,
-    val ty: Ty,
-) {
-    fun allowsPos(): Boolean = mode is ParamMode.PosOnly || mode is ParamMode.PosOrName || mode is ParamMode.Args
-    fun name(): String? = when (mode) {
-        is ParamMode.PosOrName -> mode.name
-        is ParamMode.NameOnly -> mode.name
-        else -> null
-    }
-    fun nameDisplay(): String = name() ?: "<unnamed>"
-}
-
-class TyCallArgs(
-    val pos: MutableList<Spanned<Ty>> = mutableListOf(),
-    val named: MutableList<Spanned<Pair<String, Ty>>> = mutableListOf(),
-    val args: Spanned<Ty>? = null,
-    val kwargs: Spanned<Ty>? = null,
-)
-
-class TyCallable(private val params: ParamSpec = ParamSpec(), private val result: Ty = Ty()) {
-    fun params(): ParamSpec = params
-    fun result(): Ty = result
-    fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): kotlin.Result<Ty> =
-        kotlin.Result.success(result)
-}
-
-sealed class TyBasic {
-
-    data object Any : TyBasic()
-
-    class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
-
-    class Iter(val item: ArcTy) : TyBasic()
-
-    class Callable(val callable: TyCallable) : TyBasic()
-    data object Type : TyBasic()
-
-    class List(val item: ArcTy) : TyBasic()
-
-    class Tuple(val tuple: TyTuple) : TyBasic()
-
-    class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
-
-    class Custom(val custom: TyCustom) : TyBasic()
-
-    class Set(val item: ArcTy) : TyBasic()
-
-    companion object {
-        fun int(): TyBasic = StarlarkValue(TyStarlarkValue.int())
-        fun anyList(): TyBasic = List(ArcTy.any())
-        fun anyDict(): TyBasic = Dict(ArcTy.any(), ArcTy.any())
-        fun anySet(): TyBasic = Set(ArcTy.any())
-    }
-
-    fun dupe(): TyBasic = this
-    fun isTuple(): Boolean = this is Tuple
-    fun isList(): Boolean = this is List
-}
-
-class TyStarlarkValue(private val name: String = "") {
-    companion object {
-        fun <T> new(): TyStarlarkValue = TyStarlarkValue()
-        fun int(): TyStarlarkValue = TyStarlarkValue("int")
-        fun tuple(): TyStarlarkValue = TyStarlarkValue("tuple")
-    }
-    fun validateCall(span: Span, oracle: TypingOracleCtx): Ty = Ty.any()
-    fun iterItem(): kotlin.Result<Ty> = kotlin.Result.success(Ty.any())
-    fun index(index: TyBasic): Ty = Ty.any()
-    fun slice(): kotlin.Result<Ty> = kotlin.Result.success(Ty.any())
-    fun attr(attr: String): kotlin.Result<Ty> = kotlin.Result.failure(TypingNoContextError)
-    fun unOp(unOp: TypingUnOp): kotlin.Result<TyStarlarkValue> = kotlin.Result.failure(TypingNoContextError)
-    fun binOp(binOp: TypingBinOp, rhs: TyBasic): Ty = Ty.any()
-    fun rbinOp(binOp: TypingBinOp, lhs: TyBasic): Ty = Ty.any()
-    fun isList(): Boolean = name == "list"
-    fun isSet(): Boolean = name == "set"
-    fun isDict(): Boolean = name == "dict"
-    fun isTuple(): Boolean = name == "tuple"
-    fun isCallable(): Boolean = false
-    fun isType(): Boolean = name == "type"
-}
-
-class TyCustom(internal val inner: Any? = null) {
-    fun intersectsWith(y: TyBasic, oracle: TypingOracleCtx): kotlin.Result<Boolean> =
-        kotlin.Result.success(false)
-    fun validateCallDyn(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): kotlin.Result<Ty> =
-        kotlin.Result.success(Ty.any())
-    fun attributeDyn(attr: String): kotlin.Result<Ty> = kotlin.Result.failure(TypingNoContextError)
-    fun indexDyn(index: TyBasic, oracle: TypingOracleCtx): Ty = Ty.any()
-    fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, oracle: TypingOracleCtx): Ty = Ty.any()
-    fun iterItemDyn(): kotlin.Result<Ty> = kotlin.Result.failure(TypingNoContextError)
-}
-
-class ListType
-class MutableDictType
-class TupleType
-class MutableSetType
-
-object TypingNoContextError : Exception()
-
-enum class BinOp {
-    And, Or, Equal, NotEqual, In, NotIn,
-    Less, LessOrEqual, Greater, GreaterOrEqual,
-    Subtract, Add, Multiply, Percent, Divide, FloorDivide,
-    BitAnd, BitOr, BitXor, LeftShift, RightShift,
-}
 
 sealed class TypingOracleCtxError : Exception() {
     class IncompatibleType(val got: String, val require: String) : TypingOracleCtxError() {
@@ -405,7 +277,7 @@ class TypingOracleCtx(
     ): kotlin.Result<Ty> {
         val vr = validateArgs(fun_.params(), args, span)
         if (vr.isFailure) return kotlin.Result.failure(vr.exceptionOrNull()!!)
-        return kotlin.Result.success(fun_.result().dupe())
+        return kotlin.Result.success(fun_.result())
     }
 
     private fun validateCallBasic(
@@ -437,7 +309,7 @@ class TypingOracleCtx(
         args: TyCallArgs,
     ): kotlin.Result<Ty> {
         if (fun_.isAny() || fun_.isNever()) {
-            return kotlin.Result.success(fun_.dupe())
+            return kotlin.Result.success(fun_)
         }
 
         val successful = mutableListOf<Ty>()
@@ -459,7 +331,7 @@ class TypingOracleCtx(
             } else {
                 kotlin.Result.failure(Exception(mkErrorAsMaybeInternal(
                     span,
-                    TypingOracleCtxError.CallArgumentsIncompatible(fn = fun_.dupe()),
+                    TypingOracleCtxError.CallArgumentsIncompatible(fn = fun_),
                 ).toString()))
             }
         }
@@ -488,7 +360,7 @@ class TypingOracleCtx(
         } else {
             kotlin.Result.failure(Exception(mkError(
                 iter.span,
-                TypingOracleCtxError.NotIterable(ty = iter.node.clone()),
+                TypingOracleCtxError.NotIterable(ty = iter.node),
             ).message))
         }
     }
@@ -517,7 +389,7 @@ class TypingOracleCtx(
                 kotlin.Result.success(array.item.toTy())
             }
             is TyBasic.Dict -> {
-                val ir = intersects(Ty.basic(index.node.dupe()), array.key.toTy())
+                val ir = intersects(Ty.basic(index.node), array.key.toTy())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
                 if (!ir.getOrThrow()) {
                     return kotlin.Result.failure(TypingNoContextError)
@@ -525,7 +397,7 @@ class TypingOracleCtx(
                 kotlin.Result.success(array.value.toTy())
             }
             is TyBasic.Set -> {
-                val ir = intersects(Ty.basic(index.node.dupe()), array.item.toTy())
+                val ir = intersects(Ty.basic(index.node), array.item.toTy())
                 if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
                 if (!ir.getOrThrow()) {
                     return kotlin.Result.failure(TypingNoContextError)
@@ -581,7 +453,7 @@ class TypingOracleCtx(
         return if (array is TyBasic.StarlarkValue) {
             array.value.slice()
         } else if (array.isTuple() || array.isList()) {
-            kotlin.Result.success(Ty.basic(array.dupe()))
+            kotlin.Result.success(Ty.basic(array))
         } else {
             kotlin.Result.failure(TypingNoContextError)
         }
@@ -631,11 +503,11 @@ class TypingOracleCtx(
                 ))
                 "keys" -> kotlin.Result.success(Ty.function(
                     ParamSpec.empty(),
-                    Ty.basic(TyBasic.List(array.key.dupe())),
+                    Ty.basic(TyBasic.List(array.key)),
                 ))
                 "values" -> kotlin.Result.success(Ty.function(
                     ParamSpec.empty(),
-                    Ty.basic(TyBasic.List(array.value.dupe())),
+                    Ty.basic(TyBasic.List(array.value)),
                 ))
                 "items" -> kotlin.Result.success(Ty.function(
                     ParamSpec.empty(),
@@ -659,7 +531,7 @@ class TypingOracleCtx(
         } else {
             kotlin.Result.failure(Exception(mkError(
                 span,
-                TypingOracleCtxError.AttributeNotAvailable(ty = array.clone(), attr = attr),
+                TypingOracleCtxError.AttributeNotAvailable(ty = array, attr = attr),
             ).message))
         }
     }
@@ -708,7 +580,7 @@ class TypingOracleCtx(
                     else kotlin.Result.failure(TypingNoContextError)
                 }
                 TypingBinOp.In -> {
-                    val ir = intersects(lhs.item.toTy(), Ty.basic(rhs.node.dupe()))
+                    val ir = intersects(lhs.item.toTy(), Ty.basic(rhs.node))
                     if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.bool())
                     else kotlin.Result.failure(TypingNoContextError)
@@ -727,7 +599,7 @@ class TypingOracleCtx(
                 TypingBinOp.Mul -> {
                     val ir = intersectsBasic(rhs.node, TyBasic.int())
                     if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
-                    if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(lhs.dupe()))
+                    if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(lhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
                 else -> kotlin.Result.success(TyStarlarkValue.new<ListType>().binOp(binOp, rhs.node))
@@ -741,14 +613,14 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) {
                         kotlin.Result.success(Ty.union2(
                             Ty.dict(lhs.key.toTy(), lhs.value.toTy()),
-                            Ty.basic(rhs.node.dupe()),
+                            Ty.basic(rhs.node),
                         ))
                     } else {
                         kotlin.Result.failure(TypingNoContextError)
                     }
                 }
                 TypingBinOp.In -> {
-                    val ir = intersects(Ty.basic(rhs.node.dupe()), lhs.key.toTy())
+                    val ir = intersects(Ty.basic(rhs.node), lhs.key.toTy())
                     if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.bool())
                     else kotlin.Result.failure(TypingNoContextError)
@@ -759,7 +631,7 @@ class TypingOracleCtx(
                 kotlin.Result.success(lhs.custom.binOpDyn(binOp, rhs.node, this))
             is TyBasic.Set -> when (binOp) {
                 TypingBinOp.In -> {
-                    val ir = intersects(Ty.basic(rhs.node.dupe()), lhs.item.toTy())
+                    val ir = intersects(Ty.basic(rhs.node), lhs.item.toTy())
                     if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.bool())
                     else kotlin.Result.failure(TypingNoContextError)
@@ -770,7 +642,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) {
                         kotlin.Result.success(Ty.union2(
                             Ty.set(lhs.item.toTy()),
-                            Ty.basic(rhs.node.dupe()),
+                            Ty.basic(rhs.node),
                         ))
                     } else {
                         kotlin.Result.failure(TypingNoContextError)
@@ -793,7 +665,7 @@ class TypingOracleCtx(
                 TypingBinOp.Mul -> {
                     val ir = intersectsBasic(lhs, TyBasic.int())
                     if (ir.isFailure) return kotlin.Result.failure(ir.exceptionOrNull()!!)
-                    if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(rhs.dupe()))
+                    if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(rhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
                 else -> kotlin.Result.success(TyStarlarkValue.new<ListType>().rbinOp(binOp, lhs))
@@ -831,8 +703,8 @@ class TypingOracleCtx(
             span,
             TypingOracleCtxError.BinaryOperatorNotAvailable(
                 binOp = binOp,
-                left = Ty.basic(lhs.node.dupe()),
-                right = Ty.basic(rhs.node.dupe()),
+                left = Ty.basic(lhs.node),
+                right = Ty.basic(rhs.node),
             ),
         ).toString()))
     }
@@ -1008,10 +880,10 @@ class TypingOracleCtx(
     ): kotlin.Result<Boolean> {
         val callArgs = TyCallArgs(
             pos = xP.map { ty ->
-                Spanned(ty.dupe(), Span.default())
+                Spanned(ty, Span.default())
             }.toMutableList(),
             named = xN.map { (name, ty) ->
-                Spanned(Pair(name, ty.dupe()), Span.default())
+                Spanned(Pair(name, ty), Span.default())
             }.toMutableList(),
             args = null,
             kwargs = null,

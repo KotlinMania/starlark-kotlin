@@ -39,7 +39,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackBool
 import io.github.kotlinmania.starlark_kotlin.tests.getAttr
 import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
@@ -85,7 +84,7 @@ private val ASSERTS_STAR: FrozenModule by lazy {
     }
 }
 
-private fun assertEquals(a: Value, b: Value): Result<NoneType> {
+internal fun assertEquals(a: Value, b: Value): Result<NoneType> {
     return if (!a.equals(b).getOrElse { return Result.failure(it) }) {
         Result.failure(Exception("assert_eq: expected $a, got $b"))
     } else {
@@ -102,7 +101,7 @@ private fun assertDifferent(a: Value, b: Value): Result<NoneType> {
 }
 
 private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
-    val cmp = a.compareTo(b).getOrElse { return Result.failure(it) }
+    val cmp = a.compare(b).getOrElse { return Result.failure(it) }
     return if (cmp >= 0) {
         Result.failure(Exception("assert_lt: but $a >= $b"))
     } else {
@@ -215,7 +214,8 @@ fun testFunctions(builder: GlobalsBuilder) {
     builder.setFunction("assert_type") { args, eval ->
         val v = args.positional(0)
         val ty = args.positional(1)
-        TypeCompiled.new(ty, eval.heap()).getOrElse { return@setFunction Result.failure(it) }
+        runCatching { TypeCompiled.new(ty, eval.heap()) }
+            .getOrElse { return@setFunction Result.failure(it) }
             .checkType(v, "v").getOrElse { return@setFunction Result.failure(it) }
         Result.success(NoneType)
     }

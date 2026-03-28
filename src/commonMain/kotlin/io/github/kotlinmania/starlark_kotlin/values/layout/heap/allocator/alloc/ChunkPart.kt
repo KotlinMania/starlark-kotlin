@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
 
 /// Chunk is shared by multiple `ChunkPart`s.
@@ -95,7 +95,7 @@ internal class ChunkPart(
             allocation.allocatedBytesWithMetadata()
         } else {
             // We cannot know for sure, so try the best to estimate.
-            len().bytes() + Chunk.HEADER_SIZE.bytes() / chunkRefCount()
+            (len().bytes() + Chunk.HEADER_SIZE.bytes() / chunkRefCount().toUInt()).toInt()
         }
     }
 

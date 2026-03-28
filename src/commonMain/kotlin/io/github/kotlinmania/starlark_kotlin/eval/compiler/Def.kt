@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
@@ -53,13 +53,12 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.bc.bytecode.Bc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParam
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParamIndices
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParamKind
-import io.github.kotlinmania.starlark_kotlin.syntax.def.DefParams
+import io.github.kotlinmania.starlark_kotlin.typing.DefParam
+import io.github.kotlinmania.starlark_kotlin.typing.DefParamKind
+// DefParamIndices and DefParams not yet ported
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable_param.ParamIsRequired
+import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.AtomicFrozenRefOption
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
@@ -67,8 +66,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 // ---- DefError ----
@@ -198,7 +198,7 @@ internal fun <T> ParameterCompiled<T>.hasType(): Boolean {
  */
 internal fun <T> ParameterCompiled<T>.ty(): Ty {
     val (_, t) = nameTy()
-    return t?.asTy()?.clone() ?: Ty.any()
+    return t?.asTy() ?: Ty.any()
 }
 
 /**
@@ -458,6 +458,7 @@ internal fun Compiler.parameter(
             pName,
             this.exprForType(x.ty)?.node,
         )
+        else -> throw IllegalStateException("Unexpected parameter kind: $kind")
     }
     return IrSpanned(span, node)
 }
@@ -492,7 +493,7 @@ internal fun Compiler.function(
 
     val ty = Ty.function(
         parametersCompiled.toTyParams(),
-        compiledReturnType?.asTy()?.clone() ?: Ty.any(),
+        compiledReturnType?.asTy() ?: Ty.any(),
     )
 
     this.enterScope(scopeId)
@@ -670,7 +671,7 @@ internal class DefGen<V>(
             // Safety: `slots` is unique because `allocaFrame` just allocated the frame,
             // so there are no references to the frame except `eval.currentFrame`.
             val slots = eval.currentFrame.localsMut()
-            parameters.collectInline(args, slots, eval.heap())
+            runCatching { parameters.collectInline(args, slots, eval.heap()) }
                 .getOrElse { return@allocaFrame Result.failure(it) }
             invokeRaw(me, eval)
         }
@@ -770,10 +771,10 @@ internal class DefGen<V>(
         val paramTys = MutableList(parameters.len()) { Ty.any() }
         for ((idx, _, ty) in parameterTypes) {
             // Local slot number for parameter is the same as parameter index.
-            paramTys[idx.value.toInt()] = ty.asTy().clone()
+            paramTys[idx.index.toInt()] = ty.asTy()
         }
 
-        val retType = returnType?.asTy()?.clone() ?: Ty.any()
+        val retType = returnType?.asTy() ?: Ty.any()
 
         val functionDocs = DocFunction.fromDocstring(
             DocStringKind.Starlark,
@@ -836,7 +837,7 @@ internal fun newDef(
         returnType = returnType,
         defInfo = stmt,
         captured = captured,
-        module = AtomicFrozenRefOption(eval.topFrameDefFrozenModule(false).getOrElse { return Result.failure(it) }),
+        module = AtomicFrozenRefOption(runCatching { eval.topFrameDefFrozenModule(false) }.getOrElse { return Result.failure(it) }),
         optimizedOnFreezeStmt = StmtCompiledCell.new(),
         frozen = false,
     )
@@ -872,7 +873,7 @@ internal fun FrozenDef.postFreeze(
                 heap = heap,
                 frozenHeap = frozenHeap,
             ),
-            this.parameters.len(),
+            this.parameters.len().toUInt(),
         ))
         .asBc(
             this.defInfo.stmtCompileContext,

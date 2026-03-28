@@ -34,7 +34,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 // #[derive(Copy, Clone, Dupe, Debug, PartialOrd, Ord, PartialEq, Eq, Hash, derive_more::Display)]
 // #[display("&{}", _0)]
 // pub(crate) struct BcSlot(pub(crate) u32);
-data class BcSlot(val value: UInt) : Comparable<BcSlot> {
+data class BcSlot(val index: UInt) : Comparable<BcSlot> {
 
     // impl BcSlot
 
@@ -46,12 +46,12 @@ data class BcSlot(val value: UInt) : Comparable<BcSlot> {
 
     // impl Add<u32> for BcSlot
     // fn add(self, rhs: u32) -> BcSlot
-    operator fun plus(rhs: UInt): BcSlot = BcSlot(value + rhs)
+    operator fun plus(rhs: UInt): BcSlot = BcSlot(index + rhs)
 
-    override fun compareTo(other: BcSlot): Int = value.compareTo(other.value)
+    override fun compareTo(other: BcSlot): Int = index.compareTo(other.index)
 
     // #[display("&{}", _0)]
-    override fun toString(): String = "&$value"
+    override fun toString(): String = "&$index"
 }
 
 /**
@@ -95,12 +95,12 @@ data class BcSlotRange(
     // impl BcSlotRange
 
     // pub(crate) fn len(self) -> u32
-    fun len(): UInt = end.value - start.value
+    fun len(): UInt = end.index - start.index
 
     // pub(crate) fn iter(self) -> impl Iterator<Item = BcSlot>
     fun iter(): Sequence<BcSlot> =
         // (self.start.0..self.end.0).map(BcSlot)
-        (start.value..<end.value).asSequence().map { BcSlot(it) }
+        (start.index..<end.index).asSequence().map { BcSlot(it) }
 
     // pub(crate) fn to_in(self) -> BcSlotInRange
     fun toIn(): BcSlotInRange = BcSlotInRange(
@@ -148,7 +148,7 @@ data class BcSlotInRange(
     // impl BcSlotInRange
 
     // pub(crate) fn len(self) -> u32
-    fun len(): UInt = end.slot.value - start.slot.value
+    fun len(): UInt = end.slot.index - start.slot.index
 
     // pub(crate) fn to_range_from(self) -> BcSlotInRangeFrom
     fun toRangeFrom(): BcSlotInRangeFrom = BcSlotInRangeFrom(start)
@@ -156,7 +156,7 @@ data class BcSlotInRange(
     // pub(crate) fn iter(self) -> impl Iterator<Item = BcSlotIn>
     fun iter(): Sequence<BcSlotIn> =
         // (self.start.0.0..self.end.0.0).map(|s| BcSlotIn(BcSlot(s)))
-        (start.slot.value..<end.slot.value).asSequence().map { BcSlotIn(BcSlot(it)) }
+        (start.slot.index..<end.slot.index).asSequence().map { BcSlotIn(BcSlot(it)) }
 
     /**
      * Add an element to the slot range if possible.

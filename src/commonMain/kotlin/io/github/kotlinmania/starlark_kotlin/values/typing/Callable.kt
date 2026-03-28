@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
@@ -33,8 +33,8 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallableParamAny
+import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
@@ -45,7 +45,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.unpackValueErr
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackFrozen
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.typing.hasInvoke
@@ -60,7 +59,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 internal class TypingCallable : StarlarkValue, AllocFrozenValue {
 
     // #[starlark_value(type = "typing.Callable")]
-    override fun starlarkType(): String = "typing.Callable"
+    override val TYPE: String get() = "typing.Callable"
 
     override fun toString(): String = starlarkType()
 
@@ -71,11 +70,11 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
 
     // fn at2(&self, param_types: Value<'v>, ret: Value<'v>, heap: Heap<'v>, _private: Private) -> crate::Result<Value<'v>>
     fun at2(paramTypes: Value, ret: Value, heap: Heap): Result<Value> {
-        val paramTypesList = UnpackList.unpackValueErr<Value>(paramTypes).getOrElse { return Result.failure(it) }
-        val retTy = TypeCompiled.new(ret, heap).getOrElse { return Result.failure(it) }.asTy()
+        val paramTypesList = runCatching { UnpackList.unpackValueErr<Value>(paramTypes) }.getOrElse { return Result.failure(it) }
+        val retTy = runCatching { TypeCompiled.new(ret, heap) }.getOrElse { return Result.failure(it) }.asTy()
         val paramTys = mutableListOf<Ty>()
         for (p in paramTypesList.items) {
-            val ty = TypeCompiled.new(p, heap).getOrElse { return Result.failure(it) }.asTy()
+            val ty = runCatching { TypeCompiled.new(p, heap) }.getOrElse { return Result.failure(it) }.asTy()
             paramTys.add(ty)
         }
 
@@ -101,7 +100,7 @@ internal class TypingCallableAt2(
 ) : StarlarkValue {
 
     // #[starlark_value(type = "typing.Callable")]
-    override fun starlarkType(): String = "typing.Callable"
+    override val TYPE: String get() = "typing.Callable"
 
     override fun toString(): String = callable.toString()
 

@@ -29,9 +29,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeFor
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeIfThen
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ClauseCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ComprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot

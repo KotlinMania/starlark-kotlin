@@ -1,17 +1,14 @@
 // port-lint: source src/eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
-import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.length
 import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.values.types.typeMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.invokeMethod
 import io.github.kotlinmania.starlark_kotlin.values.toBool
 import io.github.kotlinmania.starlark_kotlin.values.sub
@@ -21,7 +18,7 @@ import io.github.kotlinmania.starlark_kotlin.values.percent
 import io.github.kotlinmania.starlark_kotlin.values.mul
 import io.github.kotlinmania.starlark_kotlin.values.leftShift
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackIntValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.unpackIntValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.info
 import io.github.kotlinmania.starlark_kotlin.values.layout.getRef
 import io.github.kotlinmania.starlark_kotlin.values.key
@@ -41,13 +38,9 @@ import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.checkType
 import io.github.kotlinmania.starlark_kotlin.stdlib.invokeWithLoc
 import io.github.kotlinmania.starlark_kotlin.stdlib.add
 import io.github.kotlinmania.starlark_kotlin.pagable.vtable
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.toRange
+import io.github.kotlinmania.starlark_kotlin.eval.bc.toRange
 import io.github.kotlinmania.starlark_kotlin.docs.params
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.returnType
-import io.github.kotlinmania.starlark_kotlin.analysis.span
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
-import io.github.kotlinmania.starlark_kotlin.values.default
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 // Types from values.layout
@@ -56,7 +49,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 // Types from values.layout.typed
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.Hashed
+import starlark_map.Hashed
 // Types from values.layout.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 // Types from values.layout.heap.profile
@@ -513,7 +506,7 @@ object InstrEqIntImpl : InstrNoFlowImpl {
         val r = if (aInt != null) {
             aInt.asRef() == b.asRef()
         } else {
-            val eq = b.value.equals(aVal)
+            val eq = b.toValue().equals(aVal)
             if (eq.isFailure) return kotlin.Result.failure(eq.exceptionOrNull()!!)
             eq.getOrThrow()
         }
@@ -912,7 +905,7 @@ object InstrDictConstKeysImpl : InstrNoFlowImpl {
         arg: Any,
     ): kotlin.Result<Unit> {
         val a = arg as DictConstKeysArg
-        val values = frame.getBcSlotRange(a.values.toRange(a.keys.size))
+        val values = frame.getBcSlotRange(a.values.toRange(a.keys.size.toUInt()))
         val dict = SmallMap.withCapacity<Value, Value>(a.keys.size)
         for ((k, v) in a.keys.zip(values)) {
             dict.insertHashed(HashedValue(k.key.toValue()), v)

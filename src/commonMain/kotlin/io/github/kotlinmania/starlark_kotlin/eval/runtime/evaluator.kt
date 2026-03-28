@@ -27,10 +27,10 @@ import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.SoftErrorHandler
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.CopySlotFromParent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.DefInfo
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.cheap_call_stack.CheapCallStack
@@ -47,9 +47,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.FrozenValueCaptured
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.ValueCaptured
-import io.github.kotlinmania.starlark_kotlin.values.types.string.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.stdlib.StderrPrintHandler
 import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
@@ -77,25 +77,21 @@ import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Profile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Collected
 import io.github.kotlinmania.starlark_kotlin.docs.Module
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.none.isNone
 import io.github.kotlinmania.starlark_kotlin.values.types.gen
 import io.github.kotlinmania.starlark_kotlin.values.layout.value_captured.valueCapturedGet
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.newFrozen
+import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.mode
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.exportAs
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.startPtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.checkReturnType
 import io.github.kotlinmania.starlark_kotlin.environment.getSlotName
 import io.github.kotlinmania.starlark_kotlin.environment.getSlot
-import io.github.kotlinmania.starlark_kotlin.any.downcastRef
 import io.github.kotlinmania.starlark_kotlin.analysis.used
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {

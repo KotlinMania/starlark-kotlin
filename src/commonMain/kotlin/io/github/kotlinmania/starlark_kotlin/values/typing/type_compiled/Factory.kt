@@ -1,5 +1,11 @@
 // port-lint: source src/values/typing/type_compiled/factory.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factory
+package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledImplAsStarlarkValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,62 +25,17 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.factor
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Ty(private val kind: String = "") {
-    companion object {
-        fun any(): Ty = Ty("any")
-        fun none(): Ty = Ty("none")
-        fun bool(): Ty = Ty("bool")
-        fun int(): Ty = Ty("int")
-        fun string(): Ty = Ty("string")
-    }
-    override fun equals(other: Any?): Boolean = other is Ty && kind == other.kind
-    override fun hashCode(): Int = kind.hashCode()
-    fun clone(): Ty = Ty(kind)
-}
-
-class TypeCompiled(private val value: Value = Value()) {
-    companion object {
-        fun alloc(matcher: TypeMatcher, ty: Ty, heap: Heap): TypeCompiled = TypeCompiled()
-        fun any(): TypeCompiled = TypeCompiled()
-        fun uncheckedNew(value: Value): TypeCompiled = TypeCompiled(value)
-    }
-    fun toValue(): TypeCompiled = this
-}
-
-class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(val matcher: T, val ty: Ty) {
-    companion object {
-        fun <T : TypeMatcher> allocStatic(matcher: T, ty: Ty): TypeCompiledImplAsStarlarkValue<T> =
-            TypeCompiledImplAsStarlarkValue(matcher, ty)
-    }
-    fun toFrozenValue(): FrozenValue = FrozenValue()
-}
-
-class AllocStaticSimple<T>(val value: T) {
-    fun toFrozenValue(): FrozenValue = FrozenValue()
-}
-
-interface TypeMatcherAlloc {
-    fun <T : TypeMatcher> alloc(matcher: T): TypeCompiled
-    fun custom(custom: TyCustom): TypeCompiled
-    fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeCompiled
-    fun any(): TypeCompiled
-    fun none(): TypeCompiled
-    fun bool(): TypeCompiled
-    fun int(): TypeCompiled
-    fun str(): TypeCompiled
-    fun ty(ty: Ty): TypeCompiled { return any() }
-}
+// TypeMatcherAlloc<R> is defined in Alloc.kt (same package)
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 
 /// Allocate a `Ty` with a `TypeMatcher` in starlark heap as `TypeCompiled`.
 class TypeCompiledFactory(
     private val heap: Heap,
     private val ty: Ty,
-) : TypeMatcherAlloc {
+) : TypeMatcherAlloc<TypeCompiled> {
 
-    override fun <T : TypeMatcher> alloc(matcher: T): TypeCompiled {
-        return TypeCompiled.alloc(matcher, ty.clone(), heap)
+    override fun alloc(matcher: TypeMatcher): TypeCompiled {
+        return TypeCompiled.alloc(matcher, ty, heap)
     }
 
     override fun custom(custom: TyCustom): TypeCompiled {

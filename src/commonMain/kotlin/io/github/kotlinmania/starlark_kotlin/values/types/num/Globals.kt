@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.types.num.value.Num
-import io.github.kotlinmania.starlark_kotlin.values.types.num.value.NumRef
 
 /**
  * Register numerical global functions.

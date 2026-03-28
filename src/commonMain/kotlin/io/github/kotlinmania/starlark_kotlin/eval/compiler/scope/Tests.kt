@@ -30,10 +30,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCount
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.analysis.ForP
 import io.github.kotlinmania.starlark_kotlin.analysis.DefP
-import io.github.kotlinmania.starlark_kotlin.values.layout.value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
@@ -49,13 +49,9 @@ import io.github.kotlinmania.starlark_kotlin.typing.For
 import io.github.kotlinmania.starlark_kotlin.analysis.visitLvalue
 import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.bindingId
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.analysis.lhs
-import io.github.kotlinmania.starlark_kotlin.analysis.ident
 import io.github.kotlinmania.starlark_kotlin.typing.ForP
 import io.github.kotlinmania.starlark_kotlin.typing.DefP
 import io.github.kotlinmania.starlark_kotlin.docs.params
-import io.github.kotlinmania.starlark_kotlin.docs.name
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.codemap.*
@@ -87,6 +83,7 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
         val slot = when (val s = binding.slot!!) {
             is Slot.Module -> "m=${s.value}"
             is Slot.Local -> "l=${s.value}"
+            else -> throw IllegalStateException("Unexpected slot: $s")
         }
         val assignCount = when (binding.assignCount) {
             AssignCount.AtMostOnce -> ""
@@ -110,6 +107,7 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
                 val resolved = when (val payload = ident.node.payload!!) {
                     is ResolvedIdent.Slot -> payload.bindingId.value.toString()
                     is ResolvedIdent.Global -> "G"
+                    else -> throw IllegalStateException("Unexpected resolved ident: $payload")
                 }
                 r.append(" ${ident.node.ident}:$resolved")
             }
@@ -129,8 +127,8 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
         fun visitStmtChildren(stmt: CstStmt) {
             stmt.visitChildren { visit ->
                 when (visit) {
-                    is Visit.Stmt -> visitStmt(visit.Stmt)
-                    is Visit.Expr -> visitExpr(visit.Expr)
+                    is Visit.Stmt -> visitStmt(visit.stmt)
+                    is Visit.Expr -> visitExpr(visit.expr)
                 }
             }
         }

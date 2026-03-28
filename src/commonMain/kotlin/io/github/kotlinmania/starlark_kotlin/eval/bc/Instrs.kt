@@ -626,8 +626,8 @@ private fun formatInstrArg(arg: Any?, endArg: BcInstrEndArg?): String {
  * from the End instruction's [BcInstrEndArg.localNames].
  */
 private fun formatSlotWithName(slot: BcSlot, endArg: BcInstrEndArg?): String {
-    val names = endArg?.localNames?.value
-    val idx = slot.value.toInt()
+    val names = endArg?.localNames?.asRef()
+    val idx = slot.index.toInt()
     return if (names != null && idx < names.size) {
         "&${names[idx]}"
     } else {

@@ -1,7 +1,11 @@
 // port-lint: source src/values/types/string/iter.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
-
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

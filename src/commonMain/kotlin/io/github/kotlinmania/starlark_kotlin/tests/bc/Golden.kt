@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.bc
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.owned.downcast
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.bc

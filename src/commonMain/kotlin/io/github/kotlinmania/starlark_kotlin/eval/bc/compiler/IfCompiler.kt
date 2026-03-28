@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
@@ -26,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.PatchAddr
-import io.github.kotlinmania.starlark_kotlin.values.op
 import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Common code for compiling if statements and if expressions.
@@ -72,7 +72,7 @@ private fun writeIfElseImpl(
     if (f != null) {
         val endAddr = bc.writeBr(cond.span)
 
-        bc.restoreDefinitelyAssigned(definitelyAssigned.clone())
+        bc.restoreDefinitelyAssigned(definitelyAssigned.copy())
 
         bc.patchAddrs(elseAddrs)
         f(bc)

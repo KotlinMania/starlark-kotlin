@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
 
 /**
  * Register the `tuple` builtin function.

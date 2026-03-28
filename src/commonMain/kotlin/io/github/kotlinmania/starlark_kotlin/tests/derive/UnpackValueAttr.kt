@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 @Suppress("unused")
 private class ValueWithLifetimeParam(val value: Value) : StarlarkValue {
     // #[starlark_value(type = "ValueWithLifetimeParam", StarlarkTypeRepr, UnpackValue)]
-    override fun starlarkType(): String = "ValueWithLifetimeParam"
+    override val TYPE: String get() = "ValueWithLifetimeParam"
     override fun toString(): String = "ValueWithLifetimeParam"
 }
 
@@ -40,6 +40,6 @@ private class ValueWithLifetimeParam(val value: Value) : StarlarkValue {
 @Suppress("unused")
 private class ValueWithoutParam(val value: String) : StarlarkValue {
     // #[starlark_value(type = "ValueWithoutParam", StarlarkTypeRepr, UnpackValue)]
-    override fun starlarkType(): String = "ValueWithoutParam"
+    override val TYPE: String get() = "ValueWithoutParam"
     override fun toString(): String = "ValueWithoutParam"
 }

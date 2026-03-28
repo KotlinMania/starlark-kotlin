@@ -27,9 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.string.toRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.toStr
 import io.github.kotlinmania.starlark_kotlin.assert.disableGc
 import io.github.kotlinmania.starlark_kotlin.assert.assertEquals

@@ -33,18 +33,12 @@ import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ptrEq
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
-import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.values.types.list.pop
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.insertHashed
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.values.default
 
 private sealed class SetFromValue {
     data class Set(val set: SmallSet<Value>) : SetFromValue()

@@ -49,16 +49,16 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.FrozenPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.Pointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Pointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
@@ -73,13 +73,13 @@ import io.github.kotlinmania.starlark_kotlin.values.reprStackPush
 import io.github.kotlinmania.starlark_kotlin.values.jsonStackPush
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.demand.requestValueImpl
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.Def
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.call.FrozenBoundMethod
+// FrozenBoundMethod not yet ported from Rust eval/compiler/call.rs
 import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
@@ -90,7 +90,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.record.FrozenRecord
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStruct
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 
@@ -306,6 +305,7 @@ class Value internal constructor(
                     ))
                 }
             }
+            else -> throw IllegalStateException("Unexpected StarlarkIntRef: $num")
         }
     }
 
@@ -762,13 +762,15 @@ class Value internal constructor(
         checkCallable().getOrElse { return Result.failure(it) }
 
         val sig = TyCallable.new(
-            ParamSpec.newParts(
-                pos.map { ty -> Pair(ParamIsRequired.Yes, ty) },
-                emptyList(),
-                args,
-                named.map { (n, ty) -> Triple(ArcStr.from(n), ParamIsRequired.Yes, ty) },
-                kwargs,
-            ).getOrElse { return Result.failure(it) },
+            runCatching {
+                ParamSpec.newParts(
+                    pos.map { ty -> Pair(ParamIsRequired.Yes, ty) },
+                    emptyList(),
+                    args,
+                    named.map { (n, ty) -> Triple(ArcStr.from(n), ParamIsRequired.Yes, ty) },
+                    kwargs,
+                )
+            }.getOrElse { return Result.failure(it) },
             ret,
         )
 
@@ -985,7 +987,7 @@ class Value internal constructor(
 
     // fn equals_not_ptr_eq(self, other: Value<'v>) -> crate::Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
-        stackGuard().getOrElse { return Result.failure(it) }
+        runCatching { stackGuard() }.getOrElse { return Result.failure(it) }
         return getRef().equals(other)
     }
 
@@ -994,7 +996,7 @@ class Value internal constructor(
      */
     // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     fun compare(other: Value): Result<Int> {
-        stackGuard().getOrElse { return Result.failure(it) }
+        runCatching { stackGuard() }.getOrElse { return Result.failure(it) }
         return getRef().compare(other)
     }
 

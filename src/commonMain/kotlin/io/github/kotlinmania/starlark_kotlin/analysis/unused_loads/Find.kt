@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.assert.parse
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.typing.Slot
 import io.github.kotlinmania.starlark_kotlin.typing.ResolvedIdent
@@ -39,9 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmts
 import io.github.kotlinmania.starlark_kotlin.environment.slot
 import io.github.kotlinmania.starlark_kotlin.codemap.sourceLine
 import io.github.kotlinmania.starlark_kotlin.codemap.findLine
-import io.github.kotlinmania.starlark_kotlin.analysis.node
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.end
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.begin
@@ -126,7 +123,7 @@ internal class CstIdent(
 
 /// Placeholder for FileSpanRef.
 // starlark_syntax::codemap::FileSpanRef
-internal class FileSpanRef(
+class FileSpanRef(
     val file: CodeMap,
     val span: Span,
 )
@@ -157,15 +154,17 @@ internal fun findUnusedLoads(
     val heap = FrozenHeap.new()
     val (codemap, statement, dialect) = module.intoParts()
     val codemapRef = heap.allocAny(codemap)
-    val moduleScopes = ModuleScopes.checkModuleErr(
-        names,
-        heap,
-        emptyMap(),
-        statement,
-        ScopeResolverGlobals.unknown(),
-        codemapRef,
-        dialect,
-    ).getOrElse { return Result.failure(it) }
+    val moduleScopes = runCatching {
+        ModuleScopes.checkModuleErr(
+            names,
+            heap,
+            emptyMap(),
+            statement,
+            ScopeResolverGlobals.unknown(),
+            codemapRef,
+            dialect,
+        )
+    }.getOrElse { return Result.failure(it) }
 
     // --- Collect load statements ---
 

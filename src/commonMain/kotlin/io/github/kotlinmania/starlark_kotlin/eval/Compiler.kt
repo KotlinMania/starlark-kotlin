@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopeData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeNames

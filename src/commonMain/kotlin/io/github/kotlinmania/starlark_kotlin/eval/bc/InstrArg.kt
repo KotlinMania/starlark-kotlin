@@ -36,11 +36,11 @@ import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // ---- TruncateValueRepr ----
 
@@ -436,11 +436,11 @@ private class BcSlotDisplay(
     private val endArg: BcInstrEndArg?,
 ) {
     override fun toString(): String {
-        val name = endArg?.localNames?.asRef()?.getOrNull(slot.value.toInt())
+        val name = endArg?.localNames?.asRef()?.getOrNull(slot.index.toInt())
         return if (name != null) {
             "&${name.asStr()}"
         } else {
-            "&${slot.value}"
+            "&${slot.index}"
         }
     }
 }

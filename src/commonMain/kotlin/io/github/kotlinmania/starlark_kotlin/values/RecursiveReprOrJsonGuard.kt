@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values
 //! Detect recursion when doing `repr` or `to_json`.
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.types.list.pop
 import io.github.kotlinmania.starlark_kotlin.values.types.int.ptrValue
 

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
 import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

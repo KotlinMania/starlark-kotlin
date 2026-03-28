@@ -29,7 +29,7 @@ internal fun testDeriveAttrs() {
     // struct Nested { foo: String }
     class Nested(val foo: String) : StarlarkValue, StarlarkAttrs {
         // #[starlark_value(type = "nested")]
-        override fun starlarkType(): String = "nested"
+        override val TYPE: String get() = "nested"
         override fun toString(): String = foo
 
         override fun getAttr(attribute: String): Any? = when (attribute) {
@@ -50,7 +50,7 @@ internal fun testDeriveAttrs() {
         val escaped: String, // r#escaped
     ) : StarlarkValue, StarlarkAttrs {
         // #[starlark_value(type = "example")]
-        override fun starlarkType(): String = "example"
+        override val TYPE: String get() = "example"
         override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, type_=$type_, escaped=$escaped)"
 
         // starlark_attrs!()

@@ -19,55 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class Ty {
-    fun isAny(): Boolean = false
-    fun isStarlarkValue(): TyStarlarkValue? = null
-    fun iterUnion(): List<TyBasic> = emptyList()
-    fun clone(): Ty = this
-}
-
-sealed class TyBasic {
-    data object Any : TyBasic()
-    class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
-    class List(val item: Ty) : TyBasic()
-    class Tuple(val tuple: TyTuple) : TyBasic()
-    class Dict(val key: Ty, val value: Ty) : TyBasic()
-    class Iter(val item: Ty) : TyBasic()
-    class Callable(val callable: TyCallable) : TyBasic()
-    data object Type : TyBasic()
-    class Custom(val custom: TyCustom) : TyBasic()
-    class Set(val item: Ty) : TyBasic()
-
-    companion object {
-        fun none(): TyBasic = StarlarkValue(TyStarlarkValue("NoneType"))
-        fun anyList(): TyBasic = List(Ty())
-    }
-}
-
-class TyStarlarkValue(val name: String = "") {
-    fun isStr(): Boolean = name == "string"
-    fun isInt(): Boolean = name == "int"
-    fun starlarkTypeId(): String = name
-    fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.alloc(StarlarkTypeIdMatcher.new(this))
-}
-
-class TyTuple {
-    fun <R> matcher(alloc: TypeMatcherAlloc<R>): R = alloc.any()
-}
-
-class TyCallable
-
-class TyCustom {
-    fun <R> matcherWithTypeCompiledFactory(alloc: TypeMatcherAlloc<R>): R = alloc.any()
-}
-
-class TypeMatcherFactory {
-    fun <R> typeCompiled(alloc: TypeMatcherAlloc<R>): R = alloc.any()
-}
 
 /// Runtime type matcher interface.
 ///

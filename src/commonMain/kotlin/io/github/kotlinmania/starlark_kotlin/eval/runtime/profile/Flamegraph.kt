@@ -144,9 +144,9 @@ internal fun testFlamegraphWriter() {
 // #[test] fn test_flamegraph_data()
 internal fun testFlamegraphData() {
     val data = FlameGraphData()
-    data.root().child(ArcStr("a")).add(10u)
-    data.root().child(ArcStr("a")).child(ArcStr("b")).add(20u)
-    data.root().child(ArcStr("a")).add(30u)
+    data.root().child(ArcStr.from("a")).add(10u)
+    data.root().child(ArcStr.from("a")).child(ArcStr.from("b")).add(20u)
+    data.root().child(ArcStr.from("a")).add(30u)
     val result = data.write()
     check("a 40\na;b 20\n" == result)
 }
@@ -155,18 +155,18 @@ internal fun testFlamegraphData() {
 internal fun testMerge() {
     val a = FlameGraphData()
     a.root().add(10u)
-    a.root().child(ArcStr("a")).add(100u)
-    a.root().child(ArcStr("b")).child(ArcStr("c")).add(1000u)
+    a.root().child(ArcStr.from("a")).add(100u)
+    a.root().child(ArcStr.from("b")).child(ArcStr.from("c")).add(1000u)
     val b = FlameGraphData()
     b.root().add(20u)
-    b.root().child(ArcStr("a")).add(200u)
+    b.root().child(ArcStr.from("a")).add(200u)
 
     val c = FlameGraphData.merge(listOf(a, b))
 
     val expected = FlameGraphData()
     expected.root().add(30u)
-    expected.root().child(ArcStr("a")).add(300u)
-    expected.root().child(ArcStr("b")).child(ArcStr("c")).add(1000u)
+    expected.root().child(ArcStr.from("a")).add(300u)
+    expected.root().child(ArcStr.from("b")).child(ArcStr.from("c")).add(1000u)
 
     check(expected == c)
 }

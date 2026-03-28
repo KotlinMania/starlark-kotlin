@@ -21,8 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.ionspin.kotlin.bignum.integer.Sign
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.NumRef
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
@@ -39,8 +38,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackNum
-import io.github.kotlinmania.starlark_kotlin.values.unpackValueOpt
 
 /**
  * `int` implementation for larger integers.

@@ -23,9 +23,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -82,7 +82,7 @@ internal class AValueTuple(
         val frozenValues = mutableListOf<FrozenValue>()
         for (v in content) {
             val frozen = freezer.freeze(v)
-            if (frozen.isError()) return FreezeResult.error(frozen.errorValue())
+            if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
             frozenValues.add(frozen.get())
         }
 

@@ -23,11 +23,11 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.call_args.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.custom.TyCustomImpl
-import io.github.kotlinmania.starlark_kotlin.typing.error.TypingNoContextError
+import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
 import io.github.kotlinmania.starlark_kotlin.typing.function.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.ctx.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId

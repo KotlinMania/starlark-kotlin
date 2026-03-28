@@ -2,10 +2,15 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
 import io.github.kotlinmania.starlark_kotlin.values.owned.unpackStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 import io.github.kotlinmania.starlark_kotlin.tests.collectRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 
 
 /*
@@ -30,8 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
  * String interpolation-related code.
  * Based on https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
  */
-
-// Real types should be imported from their respective packages
 
 // `i32::abs(i32::MIN)` panics as `i32::MIN` has no corresponding
 // positive value that fits inside `i32`. For this edge case,

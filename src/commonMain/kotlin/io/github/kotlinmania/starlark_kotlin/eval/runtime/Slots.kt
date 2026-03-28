@@ -19,22 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlot
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
 
 /// Not captured.
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, Freeze, VisitSpanMut, Allocative)]
 // pub(crate) struct LocalSlotId(pub(crate) u32)
-internal data class LocalSlotId(val value: UInt) {
+internal data class LocalSlotId(val index: UInt) {
     /// Each local slot is a valid BC slot.
     /// When it is:
     /// * known to be initialized
     /// * or used for writing
     /// * but not captured
     // pub(crate) fn to_bc_slot(self) -> BcSlot
-    fun toBcSlot(): BcSlot = BcSlot(value)
+    fun toBcSlot(): BcSlot = BcSlot(index)
 
     // pub(crate) fn to_captured_or_not(self) -> LocalSlotIdCapturedOrNot
-    fun toCapturedOrNot(): LocalSlotIdCapturedOrNot = LocalSlotIdCapturedOrNot(value)
+    fun toCapturedOrNot(): LocalSlotIdCapturedOrNot = LocalSlotIdCapturedOrNot(index)
 }
 
 /// Captured local slot id.
@@ -50,9 +50,9 @@ internal data class LocalSlotId(val value: UInt) {
 /// `x` slots (in both `f` and `lambda`) are captured.
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, VisitSpanMut)]
 // pub(crate) struct LocalCapturedSlotId(pub(crate) u32)
-internal data class LocalCapturedSlotId(val value: UInt) {
+internal data class LocalCapturedSlotId(val index: UInt) {
     // pub(crate) fn to_bc_slot(self) -> BcSlot
-    fun toBcSlot(): BcSlot = BcSlot(value)
+    fun toBcSlot(): BcSlot = BcSlot(index)
 }
 
 /// Local slot id, when we don't know if it is captured or not.
@@ -60,4 +60,4 @@ internal data class LocalCapturedSlotId(val value: UInt) {
 /// This is used only during AST analysis.
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace)]
 // pub(crate) struct LocalSlotIdCapturedOrNot(pub(crate) u32)
-internal data class LocalSlotIdCapturedOrNot(val value: UInt)
+data class LocalSlotIdCapturedOrNot(val index: UInt)

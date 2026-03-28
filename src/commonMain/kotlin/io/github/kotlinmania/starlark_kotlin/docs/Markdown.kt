@@ -292,7 +292,7 @@ internal fun renderDocType(
         name,
         t.docs,
         prefix,
-        t.members.iter().map { (n, m) -> Pair(n, m.clone()) },
+        t.members.iter().map { (n, m) -> Pair(n, m) },
         constructor,
         renderConfig,
     )

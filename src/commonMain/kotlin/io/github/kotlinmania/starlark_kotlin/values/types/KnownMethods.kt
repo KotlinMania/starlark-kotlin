@@ -24,12 +24,11 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
 import io.github.kotlinmania.starlark_kotlin.values.types.set.setMethods
 import io.github.kotlinmania.starlark_kotlin.values.types.list.listMethods
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictMethods
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /// Method and a `Methods` container which declares it.
 // #[derive(Clone, Copy, Dupe)]

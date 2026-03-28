@@ -1,7 +1,6 @@
 // port-lint: source src/values/types/range/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.range
-
-import io.github.kotlinmania.starlark_kotlin.values.types.string.registerFunction
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 
 /*

@@ -2,7 +2,6 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
 import io.github.kotlinmania.starlark_kotlin.values.types.list.None
-import io.github.kotlinmania.starlark_kotlin.values.owned.default
 import io.github.kotlinmania.starlark_kotlin.values.length
 import io.github.kotlinmania.starlark_kotlin.values.sizeHint
 import io.github.kotlinmania.starlark_kotlin.values.next
@@ -10,7 +9,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.toValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.layout.newEmptyString
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.positions
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
-import io.github.kotlinmania.starlark_kotlin.values.default
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 
 
 /*

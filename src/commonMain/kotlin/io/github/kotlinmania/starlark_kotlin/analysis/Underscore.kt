@@ -5,16 +5,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.Disabled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.docs.name
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.string.elems
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.thenExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.forP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.elseExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.cond
-import io.github.kotlinmania.starlark_kotlin.entries
-import io.github.kotlinmania.starlark_kotlin.docs.args
 import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Ident
@@ -58,7 +53,7 @@ private sealed class AssignTarget {
 }
 
 /// A variable identifier in an assign LHS.
-private class CstAssignIdent(
+internal class CstAssignIdent(
     val ident: String,
     val span: Span = Span(),
 ) {
@@ -73,28 +68,29 @@ private class AssignP(
 )
 
 /// Load argument with local binding.
-private class LoadArg(
+internal class LoadArg(
     val local: Spanned<Ident>,
 )
 
 /// Load statement payload.
-private class LoadP(
+internal class LoadP(
     val module: Spanned<String>,
     val args: List<LoadArg>,
 )
 
 // Extension: visit lvalues in an AssignTargetP.
-private fun Spanned<AssignTarget>.visitLvalue(visitor: (CstAssignIdent) -> Unit) {
+internal fun Spanned<AssignTarget>.visitLvalue(visitor: (CstAssignIdent) -> Unit) {
     when (val t = this.node) {
         is AssignTargetP.Tuple -> t.elements.forEach { Spanned(it).visitLvalue(visitor) }
-        is AssignTargetP.Identifier -> visitor(t.ident)
+        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as CstAssignIdent)
         is AssignTargetP.Index -> {}
         is AssignTargetP.Dot -> {}
+        else -> {}
     }
 }
 
 // Extension: visit immediate child statements in an AstStmt.
-private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
+internal fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
     when (val s = this.node) {
         is StmtP.Statements -> s.stmts.forEach(visitor)
         is StmtP.Def -> visitor(s.def.body)
@@ -109,7 +105,7 @@ private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
 }
 
 // Extension: visit immediate child expressions in an AstStmt.
-private fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
+internal fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
     when (val s = this.node) {
         is StmtP.Expression -> visitor(s.expr)
         is StmtP.Return -> s.expr?.let(visitor)
@@ -134,7 +130,7 @@ private fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
 }
 
 // Extension: visit child expressions in an AstExpr.
-private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+internal fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
     when (val e = this.node) {
         is ExprP.Call -> {
             visitor(e.func)

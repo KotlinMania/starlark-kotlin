@@ -236,6 +236,7 @@ internal fun setdefault(
             entry.insert(d)
             Result.success(d)
         }
+        else -> throw IllegalStateException("Unexpected entry: $entry")
     }
 }
 

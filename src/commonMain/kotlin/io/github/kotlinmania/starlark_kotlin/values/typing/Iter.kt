@@ -46,9 +46,9 @@ class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
 // pub(crate) struct TypingIterable;
 internal class TypingIterable : StarlarkValue, AllocFrozenValue {
     // #[starlark_value(type = "typing.Iterable")]
-    override fun starlarkType(): String = TYPE
+    override val TYPE: String get() = TYPE_NAME
 
-    override fun toString(): String = TYPE
+    override fun toString(): String = TYPE_NAME
 
     // fn eval_type(&self) -> Option<Ty>
     fun evalType(): Ty? = Ty.iter(Ty.any())
@@ -60,7 +60,7 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
     }
 
     companion object {
-        const val TYPE: String = "typing.Iterable"
+        const val TYPE_NAME: String = "typing.Iterable"
 
         // static ANY: AllocStaticSimple<TypingIterable> = AllocStaticSimple::alloc(TypingIterable)
         private val ANY = AllocStaticSimple.alloc(TypingIterable())

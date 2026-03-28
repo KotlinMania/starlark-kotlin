@@ -22,20 +22,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 //! Write operators like `+=`.
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotsN
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotsN
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.stmt.AssignModifyLhs
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignModifyLhs
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.docs.Module
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.array
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.field
-import io.github.kotlinmania.starlark_kotlin.analysis.local
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 
 // trait AssignOnWriteBc
 // impl AssignOnWriteBc for AssignOp
@@ -96,7 +91,7 @@ internal fun AssignModifyLhs.writeBc(
                     val field = Symbol(field.asStr())
                     bc.writeInstr<InstrObjectField>(
                         span,
-                        Triple(objectSlot, field.clone(), lhsRhs.get(0).toOut()),
+                        Triple(objectSlot, field, lhsRhs.get(0).toOut()),
                     )
                     rhs.writeBc(lhsRhs.get(1).toOut(), bc)
                     op.writeBc(

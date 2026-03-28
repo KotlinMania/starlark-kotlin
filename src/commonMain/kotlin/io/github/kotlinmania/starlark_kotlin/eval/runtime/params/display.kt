@@ -176,6 +176,7 @@ internal fun <T, D> fmtParamSpecMaybeMultiline(
                 is FmtParam.Star -> {
                     printer.f.append(star)
                 }
+                null -> {}
             }
             i++
             current = if (iter.hasNext()) iter.next() else null

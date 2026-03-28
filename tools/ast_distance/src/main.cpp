@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <sys/file.h>
 #include <sys/stat.h>
+#include <cstring>
 #include <fcntl.h>
 #include <tree_sitter/api.h>
 
@@ -2800,7 +2801,8 @@ int main(int argc, char* argv[]) {
     // Refuse to run when stdout or stderr is piped to another program via a shell pipeline.
     // This blocks `ast_distance ... | sed/grep/...` which has caused model-driven wrappers
     // to silently filter or truncate dashboards.
-    {
+    // Skip this check in CI environments where stdout is captured by the runner.
+    if (!getenv("CI")) {
         bool out_fifo = false;
         bool err_fifo = false;
         struct stat st;

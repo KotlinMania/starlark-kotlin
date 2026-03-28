@@ -25,9 +25,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.any_array.AnyArray
 import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
 import io.github.kotlinmania.starlark_kotlin.values.types.array.ValueEmptyArray
@@ -36,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.it
 import io.github.kotlinmania.starlark_kotlin.values.types.any_array.offsetOfContent
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.layout.toValueTyped
@@ -44,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
 private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> {
-    return AValueImpl.new(Array.new(0, cap))
+    return AValueImpl.new(Array.new(0, cap.toInt()))
 }
 
 // fn any_array_avalue<T: Debug + 'static>(cap: usize) -> AValueImpl<...>
@@ -93,14 +92,14 @@ internal object AValueArray : AValue {
         (content as Trace).trace(tracer)
 
         // Note when copying we are dropping extra capacity.
-        val newArray = Array.new(content.size.toUInt(), content.size.toUInt())
+        val newArray = Array.new(content.size, content.size)
         for (i in content.indices) {
             newArray.contentMut()[i] = content[i]
         }
         return newArray.toValue()
     }
 
-    override fun unpack(): StarlarkValue = Array.new(0, 0u)
+    override fun unpack(): StarlarkValue = Array.new(0, 0)
 }
 
 /// AValue implementation for AnyArray (typed frozen-heap-only array).

@@ -109,4 +109,4 @@ private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Right -> ref.value
 }
 
-private fun Dict.clone(): Dict = Dict(content.clone())
+internal fun Dict.clone(): Dict = Dict(content.clone())

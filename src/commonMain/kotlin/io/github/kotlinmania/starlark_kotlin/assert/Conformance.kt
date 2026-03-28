@@ -2,7 +2,6 @@
 package io.github.kotlinmania.starlark_kotlin.assert
 
 import io.github.kotlinmania.starlark_kotlin.starlark_error.Error
-import io.github.kotlinmania.starlark_kotlin.analysis.span
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

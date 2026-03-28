@@ -23,10 +23,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlot
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotInRange
-import io.github.kotlinmania.starlark_kotlin.eval.bc.stack_ptr.BcSlotOut
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin2
@@ -38,10 +38,10 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrameSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrSlowArg
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getHashed
-import io.github.kotlinmania.starlark_kotlin.values.layout.pointer.unpackIntValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.unpackIntValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
 
@@ -476,6 +476,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                         Builtin2.LeftShift -> bc2.writeInstr("InstrLeftShift", span, arg)
                         Builtin2.RightShift -> bc2.writeInstr("InstrRightShift", span, arg)
                         Builtin2.ArrayIndex -> bc2.writeInstr("InstrArrayIndex", span, arg)
+                        is Builtin2.Compare -> bc2.writeInstr("InstrCompare", span, arg)
                     }
                 }
             }

@@ -24,4 +24,4 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 // #[derive(Freeze)]
 // struct TestUnitStruct;
 @Suppress("unused")
-private class TestUnitStruct
+private class BasicTestUnitStruct

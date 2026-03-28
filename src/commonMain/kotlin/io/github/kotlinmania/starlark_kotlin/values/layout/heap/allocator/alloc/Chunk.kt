@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 
 // #[repr(C)]
 // struct ChunkData {
@@ -33,12 +33,12 @@ private class ChunkData(
 ) {
     val refCount = atomic(1)
     /// The backing data buffer.
-    val data: ByteArray = ByteArray(len.bytes())
+    val data: ByteArray = ByteArray(len.bytes().toInt())
 
     companion object {
         // fn layout_for_len(len: AlignedSize) -> Layout
         fun layoutForLen(len: AlignedSize): Int {
-            return HEADER_SIZE_BYTES + len.bytes()
+            return HEADER_SIZE_BYTES + len.bytes().toInt()
         }
 
         // fn alloc_ref_count_1(len: AlignedSize) -> NonNull<ChunkData>
@@ -153,7 +153,7 @@ internal class Chunk private constructor(
     // pub(crate) fn ptr_at_offset(&self, offset: AlignedSize) -> NonNull<usize>
     // Kotlin: returns the byte offset into the data array.
     fun ptrAtOffset(offset: AlignedSize): Int {
-        return offset.bytes()
+        return offset.bytes().toInt()
     }
 
     /// Access the raw backing data array.

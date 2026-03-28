@@ -1,6 +1,10 @@
 // port-lint: source src/values/types/string/dot_format.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -60,12 +64,12 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
 /**
  * Evaluate `"<before>{}<after>".format(arg)`.
  */
-internal fun <V> formatOne(
+internal fun formatOne(
     before: String,
-    arg: Value<V>,
+    arg: Value,
     after: String,
-    heap: Heap<V>
-): StringValue<V> {
+    heap: Heap
+): StringValue {
     return when (val argStr = StringValue.new(arg)) {
         null -> {
             val result = StringBuilder(before.length + after.length + 10)
@@ -83,15 +87,15 @@ internal fun <V> formatOne(
  * or grab things sequentially, but not both.
  * FormatArgs knows which we are doing and keeps them in mind.
  */
-private class FormatArgs<V, T : Iterator<Value<V>>>(
+private class FormatArgs<T : Iterator<Value>>(
     // Initially we have the iterator set and the args empty.
     // If we ever ask by index, we decant the iterator into args.
     private var iterator: T,
-    private var args: MutableList<Value<V>> = mutableListOf(),
+    private var args: MutableList<Value> = mutableListOf(),
     private var byIndex: Boolean = false,
     private var byOrder: Boolean = false
 ) {
-    fun nextOrdered(): Result<Value<V>> {
+    fun nextOrdered(): Result<Value> {
         return if (byIndex) {
             Result.failure(IllegalArgumentException(
                 "Cannot mix manual field specification and automatic field numbering in format string"
@@ -106,7 +110,7 @@ private class FormatArgs<V, T : Iterator<Value<V>>>(
         }
     }
 
-    fun byIndex(index: Int): Result<Value<V>> {
+    fun byIndex(index: Int): Result<Value> {
         return if (byOrder) {
             Result.failure(IllegalArgumentException(
                 "Cannot mix manual field specification and automatic field numbering in format string"
@@ -125,13 +129,13 @@ private class FormatArgs<V, T : Iterator<Value<V>>>(
     }
 }
 
-internal fun <V> format(
+internal fun format(
     thisString: String,
-    args: Iterator<Value<V>>,
-    kwargs: Dict<V>,
+    args: Iterator<Value>,
+    kwargs: Dict,
     stringPool: StringPool,
-    heap: Heap<V>
-): Result<StringValue<V>> = runCatching {
+    heap: Heap
+): Result<StringValue> = runCatching {
     val parser = FormatParser(thisString)
     val result = stringPool.alloc().let { StringBuilder() }
     val formatArgs = FormatArgs(args)
@@ -152,16 +156,16 @@ internal fun <V> format(
     r
 }
 
-private fun <V, T : Iterator<Value<V>>> formatCapture(
+private fun <T : Iterator<Value>> formatCapture(
     field: String,
     conv: FormatConv,
-    args: FormatArgs<V, T>,
-    kwargs: Dict<V>,
+    args: FormatArgs<T>,
+    kwargs: Dict,
     result: StringBuilder
 ): Result<Unit> = runCatching {
-    val convS: (Value<V>, StringBuilder) -> Unit = { x, r -> x.collectStr(r) }
-    val convR: (Value<V>, StringBuilder) -> Unit = { x, r -> x.collectRepr(r) }
-    val convFn: (Value<V>, StringBuilder) -> Unit = when (conv) {
+    val convS: (Value, StringBuilder) -> Unit = { x, r -> x.collectStr(r) }
+    val convR: (Value, StringBuilder) -> Unit = { x, r -> x.collectRepr(r) }
+    val convFn: (Value, StringBuilder) -> Unit = when (conv) {
         FormatConv.Str -> convS
         FormatConv.Repr -> convR
     }

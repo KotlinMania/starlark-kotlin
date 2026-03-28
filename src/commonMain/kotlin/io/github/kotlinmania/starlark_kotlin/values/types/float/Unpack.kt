@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.num.value.NumRef
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 
 /** Unpack `int` or `float` into `Double`. */
 class UnpackFloat(val value: Double) {

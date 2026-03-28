@@ -1,3 +1,4 @@
+
 // port-lint: source src/values/layout/value_captured.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
@@ -58,8 +59,8 @@ internal class ValueCaptured private constructor(
         // pub(crate) fn new(payload: Option<Value<'v>>) -> ValueCaptured<'v>
         internal fun new(payload: Value?): ValueCaptured {
             if (payload != null) {
-                assert(payload.downcastRef<ValueCaptured>() == null)
-                assert(payload.downcastRef<FrozenValueCaptured>() == null)
+                check(payload.downcastRef<ValueCaptured>() == null)
+                check(payload.downcastRef<FrozenValueCaptured>() == null)
             }
             return ValueCaptured(payload)
         }
@@ -68,8 +69,8 @@ internal class ValueCaptured private constructor(
     // impl ValueCaptured
     // pub(crate) fn set(&self, value: Value<'v>)
     internal fun set(value: Value) {
-        assert(value.downcastRef<ValueCaptured>() == null)
-        assert(value.downcastRef<FrozenValueCaptured>() == null)
+        check(value.downcastRef<ValueCaptured>() == null)
+        check(value.downcastRef<FrozenValueCaptured>() == null)
         this.payload = value
     }
 

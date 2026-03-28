@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.tests.derive.freeze.Test
+import kotlin.test.Test
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
 import io.github.kotlinmania.starlark_kotlin.values.eq

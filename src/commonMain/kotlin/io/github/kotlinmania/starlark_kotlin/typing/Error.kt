@@ -53,7 +53,7 @@ class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
 }
 
 /// Internal error, bug in the typechecker.
-class InternalError(private val exception: EvalException) {
+class InternalError(private val exception: EvalException) : Exception(exception.message, exception) {
     companion object {
         fun msg(message: Any, span: Span, codemap: CodeMap): InternalError {
             return InternalError(
@@ -129,12 +129,12 @@ class TypingError(private val exception: EvalException) {
 }
 
 /// Like [TypingError], but without a message or span.
-object TypingNoContextError
+class TypingNoContextError : Exception("typing error (no context)")
 
 /// Either a typing error or an internal error.
 /// * Typing error means, types are not compatible.
 /// * Internal error means, bug in the typechecker.
-sealed class TypingOrInternalError {
+sealed class TypingOrInternalError : Exception() {
     class Typing(val error: TypingError) : TypingOrInternalError()
     class Internal(val error: InternalError) : TypingOrInternalError()
 
@@ -144,7 +144,7 @@ sealed class TypingOrInternalError {
     }
 }
 
-sealed class TypingNoContextOrInternalError {
+sealed class TypingNoContextOrInternalError : Exception() {
     data object Typing : TypingNoContextOrInternalError()
     class Internal(val error: InternalError) : TypingNoContextOrInternalError()
 

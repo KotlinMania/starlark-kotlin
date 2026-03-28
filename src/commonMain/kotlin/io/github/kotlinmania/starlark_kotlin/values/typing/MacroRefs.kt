@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
 import io.github.kotlinmania.starlark_kotlin.values.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.compiled.TypeCompiled
+import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
 private class TypingMacroRefsError(repr: String) : Exception("LHS is not a type: \`$repr\`")
 

@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStrN
 import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
-import io.github.kotlinmania.starlark_kotlin.values.types.string.payloadLenForLen
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
 
 /// A constant string that can be converted to a [FrozenValue].

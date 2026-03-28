@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.typing
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,3 +1,4 @@
+
 // port-lint: source src/eval/bc/frame.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc.frame
 
@@ -121,8 +122,8 @@ internal class BcFrame(
      */
     // pub(crate) fn get_slot(&self, slot: LocalSlotIdCapturedOrNot) -> Option<Value<'v>>
     fun getSlot(slot: LocalSlotIdCapturedOrNot): Value? {
-        assert(slot.value < localCount.toUInt())
-        return slots[slot.value.toInt()]
+        check(slot.index < localCount.toUInt())
+        return slots[slot.index.toInt()]
     }
 
     /**
@@ -130,40 +131,40 @@ internal class BcFrame(
      */
     // pub(crate) fn get_bc_slot(&self, slot: BcSlotIn) -> Value<'v>
     fun getBcSlot(slot: BcSlotIn): Value {
-        assert(slot.get().value < (localCount + maxStackSize).toUInt())
+        check(slot.get().index < (localCount + maxStackSize).toUInt())
         // Slot must always be initialized.
-        return slots[slot.get().value.toInt()]!!
+        return slots[slot.get().index.toInt()]!!
     }
 
     // pub(crate) fn set_slot(&mut self, slot: LocalSlotIdCapturedOrNot, value: Value<'v>)
     fun setSlot(slot: LocalSlotIdCapturedOrNot, value: Value) {
-        assert(slot.value < localCount.toUInt())
-        slots[slot.value.toInt()] = value
+        check(slot.index < localCount.toUInt())
+        slots[slot.index.toInt()] = value
     }
 
     // pub(crate) fn get_bc_slot_range(&self, slots: BcSlotInRange) -> &[Value<'v>]
     fun getBcSlotRange(range: BcSlotInRange): List<Value> {
-        assert(range.end.get().value <= (localCount + maxStackSize).toUInt())
-        val start = range.start.get().value.toInt()
+        check(range.end.get().index <= (localCount + maxStackSize).toUInt())
+        val start = range.start.get().index.toInt()
         val end = start + range.len().toInt()
         return (start until end).map { slots[it]!! }
     }
 
     // pub(crate) fn set_bc_slot(&mut self, slot: BcSlotOut, value: Value<'v>)
     fun setBcSlot(slot: BcSlotOut, value: Value) {
-        assert(slot.get().value < (localCount + maxStackSize).toUInt())
-        slots[slot.get().value.toInt()] = value
+        check(slot.get().index < (localCount + maxStackSize).toUInt())
+        slots[slot.get().index.toInt()] = value
     }
 
     // pub(crate) fn set_iter_index(&mut self, iter_index: LoopDepth, index: usize)
     fun setIterIndex(iterIndex: LoopDepth, index: Int) {
-        assert(iterIndex < maxLoopDepth)
+        check(iterIndex < maxLoopDepth)
         loopIndices[iterIndex.depth] = index
     }
 
     // pub(crate) fn get_iter_index(&self, iter_index: LoopDepth) -> usize
     fun getIterIndex(iterIndex: LoopDepth): Int {
-        assert(iterIndex < maxLoopDepth)
+        check(iterIndex < maxLoopDepth)
         return loopIndices[iterIndex.depth]
     }
 }
@@ -233,7 +234,7 @@ class BcFramePtr(
     // pub(crate) fn get_slot_slow(self, slot: LocalSlotIdCapturedOrNot) -> Option<Value<'v>>
     fun getSlotSlow(slot: LocalSlotIdCapturedOrNot): Value? {
         val f = frame!!
-        assert(slot.value < f.localCount.toUInt())
+        check(slot.index < f.localCount.toUInt())
         return f.getSlot(slot)
     }
 
@@ -245,7 +246,7 @@ class BcFramePtr(
     // pub(crate) fn set_slot_slow(self, slot: LocalSlotIdCapturedOrNot, value: Value<'v>)
     fun setSlotSlow(slot: LocalSlotIdCapturedOrNot, value: Value) {
         val f = frame!!
-        assert(slot.value < f.localCount.toUInt())
+        check(slot.index < f.localCount.toUInt())
         f.setSlot(slot, value)
     }
 

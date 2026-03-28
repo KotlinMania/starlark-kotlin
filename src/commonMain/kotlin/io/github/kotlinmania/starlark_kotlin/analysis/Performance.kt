@@ -2,12 +2,10 @@
 package io.github.kotlinmania.starlark_kotlin.analysis
 
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.docs.name
-import io.github.kotlinmania.starlark_kotlin.docs.args
 import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
+import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 
 /*
@@ -29,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalue.size
  */
 
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark_kotlin.values.types.list.List
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
 

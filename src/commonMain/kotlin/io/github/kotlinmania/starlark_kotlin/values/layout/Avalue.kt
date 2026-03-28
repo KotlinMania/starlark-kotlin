@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalue.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalue
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,17 +27,18 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
-import io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDictEmpty
 import io.github.kotlinmania.starlark_kotlin.values.types.list.value.ListData
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
-internal interface AValue {
+interface AValue {
 
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array
@@ -97,7 +98,7 @@ internal interface AValue {
 }
 
 /** A value with extended ([AValue]) vtable methods. */
-internal class AValueImpl<T : AValue>(
+class AValueImpl<T : AValue>(
     internal val value: StarlarkValue,
 ) {
     companion object {

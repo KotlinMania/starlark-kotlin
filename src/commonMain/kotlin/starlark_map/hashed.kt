@@ -28,9 +28,9 @@ package starlark_map
  * Kotlin uses [hashCode] for hashed collections, so we mirror that behaviour by
  * hashing only [hash].
  */
-class Hashed<K> private constructor(
-    private val hash: StarlarkHashValue,
-    private val key: K,
+class Hashed<K> internal constructor(
+    internal val hash: StarlarkHashValue,
+    internal val key: K,
 ) {
     companion object {
         /**

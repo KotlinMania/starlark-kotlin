@@ -1,46 +1,19 @@
 // port-lint: source src/typing/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
-import io.github.kotlinmania.starlark_kotlin.values.types.string.start
-import io.github.kotlinmania.starlark_kotlin.values.types.string.literal
-import io.github.kotlinmania.starlark_kotlin.values.types.range.stop
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.elements
-import io.github.kotlinmania.starlark_kotlin.values.owned.asRef
-import io.github.kotlinmania.starlark_kotlin.values.op
-import io.github.kotlinmania.starlark_kotlin.values.attr
-import io.github.kotlinmania.starlark_kotlin.typing.ExprP
-import io.github.kotlinmania.starlark_kotlin.typing.CstExpr
+import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.star
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.kv
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.eval.bc.over
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.clauses
-import io.github.kotlinmania.starlark_kotlin.entries
-import io.github.kotlinmania.starlark_kotlin.docs.name
-import io.github.kotlinmania.starlark_kotlin.docs.args
-import io.github.kotlinmania.starlark_kotlin.debug.condition
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.pos
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
-import io.github.kotlinmania.starlark_kotlin.analysis.span
-import io.github.kotlinmania.starlark_kotlin.analysis.rhs
-import io.github.kotlinmania.starlark_kotlin.analysis.node
-import io.github.kotlinmania.starlark_kotlin.analysis.lhs
-import io.github.kotlinmania.starlark_kotlin.analysis.ident
-import io.github.kotlinmania.starlark_kotlin.analysis.func
-import io.github.kotlinmania.starlark_kotlin.analysis.expr
-import io.github.kotlinmania.starlark_kotlin.analysis.body
-import io.github.kotlinmania.starlark_kotlin.values.types.list.List
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Int
-import io.github.kotlinmania.starlark_kotlin.analysis.dubious.Float
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.asRef
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -217,6 +190,7 @@ internal class TypingContext(
                     AssignOp.BitXor -> TypingBinOp.BitXor
                     AssignOp.LeftShift -> TypingBinOp.LeftShift
                     AssignOp.RightShift -> TypingBinOp.RightShift
+                    else -> throw IllegalStateException("Unexpected assign op: ${x.op}")
                 }
                 resultToTyWithInternalError(
                     oracle.exprBinOpTy(span, lhs, attr, rhs)
@@ -244,10 +218,10 @@ internal class TypingContext(
                 for (ty in idTy.iterUnion()) {
                     when (ty) {
                         is TyBasic.List -> {
-                            res.add(Ty.list(e.clone()))
+                            res.add(Ty.list(e))
                         }
                         is TyBasic.Dict -> {
-                            res.add(Ty.dict(index.node.clone(), e.clone()))
+                            res.add(Ty.dict(index.node, e))
                         }
                         else -> {
                             // Either it's not something we can apply this to, in which case do nothing.
@@ -261,11 +235,13 @@ internal class TypingContext(
                 val probablyList = when (val r = oracle.probablyAList(types[x.id] ?: Ty.any())) {
                     is TypingResult.Ok -> r.value
                     is TypingResult.Err -> return TypingResult.Err(r.error)
+                    else -> throw IllegalStateException("Unexpected result: $r")
                 }
                 if (probablyList) {
                     val elemTy = when (val r = expressionType(x.expr)) {
                         is TypingResult.Ok -> r.value
                         is TypingResult.Err -> return TypingResult.Err(r.error)
+                        else -> throw IllegalStateException("Unexpected result: $r")
                     }
                     TypingResult.Ok(Ty.list(elemTy))
                 } else {
@@ -277,11 +253,13 @@ internal class TypingContext(
                 val probablyList = when (val r = oracle.probablyAList(types[x.id] ?: Ty.any())) {
                     is TypingResult.Ok -> r.value
                     is TypingResult.Err -> return TypingResult.Err(r.error)
+                    else -> throw IllegalStateException("Unexpected result: $r")
                 }
                 if (probablyList) {
                     val elemTy = when (val r = expressionType(x.expr)) {
                         is TypingResult.Ok -> r.value
                         is TypingResult.Err -> return TypingResult.Err(r.error)
+                        else -> throw IllegalStateException("Unexpected result: $r")
                     }
                     TypingResult.Ok(Ty.list(fromIterated(elemTy, x.expr.span)))
                 } else {
@@ -298,12 +276,12 @@ internal class TypingContext(
             is AssignTargetP.Tuple -> TypingResult.Ok(approximation("expression_assignment", x))
             is AssignTargetP.Index -> exprIndex(x.span, node.pair.first, node.pair.second)
             is AssignTargetP.Dot -> TypingResult.Ok(approximation("expression_assignment", x))
-            is AssignTargetP.Identifier -> {
+            is AssignTargetP.Identifier<*, *> -> {
                 val payload = node.ident.payload
                 if (payload != null) {
                     val ty = types[payload]
                     if (ty != null) {
-                        return TypingResult.Ok(ty.clone())
+                        return TypingResult.Ok(ty)
                     }
                 }
                 TypingResult.Err(InternalError.msg(
@@ -478,18 +456,18 @@ internal class TypingContext(
             is ResolvedIdent.Slot -> when (val slot = resolved.slot) {
                 is SlotKind.Module -> moduleVarTypes
                     .types[slot.id]
-                    ?.clone()
                     ?: Ty.any()
                 is SlotKind.Other -> {
                     val ty = types[resolved.bindingId]
                     if (ty != null) {
-                        ty.clone()
+                        ty
                     } else {
                         // All types must be resolved to this point,
                         // this code is unreachable.
                         Ty.any()
                     }
                 }
+                else -> Ty.any()
             }
             is ResolvedIdent.Global -> Ty.ofValue(resolved.global.toValue())
             null -> {
@@ -498,6 +476,7 @@ internal class TypingContext(
                 // so this code is reachable.
                 Ty.any()
             }
+            else -> Ty.any()
         }
     }
 
@@ -541,15 +520,15 @@ internal class TypingContext(
                 TypingResult.Ok(Ty.any())
             }
             is ExprP.Slice -> exprSlice(span, node.expr, node.start, node.stop, node.stride)
-            is ExprP.Identifier -> TypingResult.Ok(exprIdent(node.ident))
-            is ExprP.Lambda -> {
+            is ExprP.Identifier<*, *> -> TypingResult.Ok(exprIdent(node.ident as CstIdent))
+            is ExprP.Lambda<*, *> -> {
                 approximation("We don't type check lambdas", Unit)
                 TypingResult.Ok(Ty.anyCallable())
             }
             is ExprP.Literal -> when (node.literal) {
                 is AstLiteral.Int -> TypingResult.Ok(Ty.int())
                 is AstLiteral.Float -> TypingResult.Ok(Ty.float())
-                is AstLiteral.StringLit -> TypingResult.Ok(Ty.string())
+                is AstLiteral.String -> TypingResult.Ok(Ty.string())
                 is AstLiteral.Ellipsis -> TypingResult.Ok(Ty.any())
             }
             is ExprP.Not -> {
@@ -586,7 +565,7 @@ internal class TypingContext(
                     TypingResult.Ok(Ty.union2(t, f))
                 }
             }
-            is ExprP.List -> {
+            is ExprP.ListExpr -> {
                 val ts = mutableListOf<Ty>()
                 for (elem in node.elements) {
                     val ty = when (val r = expressionType(elem)) {

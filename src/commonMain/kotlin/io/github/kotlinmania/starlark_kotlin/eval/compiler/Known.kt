@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  */
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 
 /**

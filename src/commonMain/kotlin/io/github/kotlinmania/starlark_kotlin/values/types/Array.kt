@@ -24,11 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.array
 //! This object is used internally, and not visible outside of `starlark` crate.
 
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.list.displayList
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 /// Fixed-capacity list.
 ///

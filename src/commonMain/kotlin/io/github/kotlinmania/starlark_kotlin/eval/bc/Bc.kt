@@ -21,21 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /** Bytecode interpreter. */
 
-typealias addr = Unit
-typealias bytecode = Unit
-typealias call = Unit
-typealias compiler = Unit
-typealias definitely_assigned = Unit
-typealias for_loop = Unit
-typealias frame = Unit
-typealias if_debug = Unit
-typealias instr = Unit
-typealias instr_arg = Unit
-typealias instr_impl = Unit
-typealias instrs = Unit
-typealias native_function = Unit
-typealias opcode = Unit
-typealias repr = Unit
-typealias slow_arg = Unit
-typealias stack_ptr = Unit
-typealias writer = Unit
+// Rust module declarations (pub(crate) mod ...) are structural and have no
+// Kotlin equivalent -- sub-packages are established by the files that live in
+// them.  The original port translated each `mod foo;` as
+// `typealias foo = Unit`, but those typealiases introduce classifiers that
+// clash with identically-named sub-packages (e.g. typealias compiler vs
+// package eval.bc.compiler), causing "Package conflicts with classifier"
+// errors.  Removed.

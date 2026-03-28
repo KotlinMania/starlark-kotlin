@@ -1,5 +1,6 @@
 // port-lint: source src/values/types/float/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.float
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-// Real types should be imported from their respective packages
+import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 
 /**
  * Sealed class representing the type hierarchy for float() parameter.
