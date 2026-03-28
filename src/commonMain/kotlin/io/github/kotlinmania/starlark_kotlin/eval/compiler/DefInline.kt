@@ -2,7 +2,6 @@
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.LocalAsValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -47,7 +46,7 @@ private fun isReturnTypeIs(stmt: StmtsCompiled): FrozenStringValue? {
     val typeIs = ret.expr.node.asTypeIs() ?: return null
     val (x, t) = typeIs
     val local = x.node.asLocalNonCaptured() ?: return null
-    if (local.index != 0) return null
+    if (local.index != 0u) return null
     return t
 }
 
@@ -80,7 +79,7 @@ private class IsSafeToInlineExpr(
             is ExprCompiled.Def -> false
             is ExprCompiled.Local -> {
                 // `l >= paramCount` should be unreachable, but it is safer this way.
-                expr.slot.index < paramCount
+                expr.slot.index < paramCount.toUInt()
             }
             is ExprCompiled.Call -> {
                 isSafeToInlineExpr(expr.call.node.fun_.node)
@@ -144,7 +143,7 @@ private fun isReturnSafeToInlineExpr(
     if (first == null) {
         // Empty function is equivalent to `return None`.
         return IrSpanned(
-            FrameSpan.default(),
+            FrameSpan.DEFAULT,
             ExprCompiled.ValueExpr(FrozenValue.newNone()),
         )
     }
@@ -161,7 +160,7 @@ internal fun inlineDefBody(
     params: ParametersCompiled<IrSpanned<ExprCompiled>>,
     body: StmtsCompiled,
 ): InlineDefBody? {
-    if (params.params.size == 1 && params.params[0].acceptsPositional()) {
+    if (params.params.size == 1 && params.params[0].node.acceptsPositional()) {
         val t = isReturnTypeIs(body)
         if (t != null) {
             return InlineDefBody.ReturnTypeIs(t)
@@ -198,7 +197,7 @@ internal class InlineDefCallSite(
     }
 
     fun inlineArgs(args: ArgsCompiledValue): ArgsCompiledValue {
-        return args.mapExprs { inline(it) }
+        return args.mapExprs<CannotInline> { inline(it) }
     }
 
     fun inlineCall(
@@ -220,7 +219,7 @@ internal class InlineDefCallSite(
         return when (val node = expr.node) {
             is ExprCompiled.ValueExpr -> IrSpanned(span, node)
             is ExprCompiled.Local -> {
-                val value = slots[node.slot.index]
+                val value = slots[node.slot.index.toInt()]
                 val localAsValue = FrozenValueTyped.new<LocalAsValue>(value)
                 val inlinedExpr = if (localAsValue != null) {
                     ExprCompiled.Local(localAsValue.asRef().local)

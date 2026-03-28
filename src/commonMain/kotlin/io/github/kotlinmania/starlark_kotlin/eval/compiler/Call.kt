@@ -10,6 +10,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.values.types.function.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.localAsValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
 
 /*
@@ -145,7 +146,7 @@ internal class CallCompiled(
                 when (e) {
                     is ExprCompiled.ValueExpr -> e.value.toValue()
                     is ExprCompiled.Local -> if (e.slot.index < paramCount) {
-                        localAsValue(e)?.toValue()
+                        localAsValue(e.slot)?.toValue()
                     } else {
                         null
                     }

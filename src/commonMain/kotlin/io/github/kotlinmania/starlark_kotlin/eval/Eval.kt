@@ -109,11 +109,11 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     moduleDefInfo = moduleEnv.frozenHeap().allocAny(
         DefInfo.forModule(
             codemapRef,
-            localNames,
-            moduleEnv.frozenHeap().allocAnySlice(scopeNames.parent),
+            localNames.deref(),
+            moduleEnv.frozenHeap().allocAnySlice(scopeNames.parent).deref(),
             globalsRef,
         )
-    )
+    ).deref()
 
     runCatching {
         callStack.allocIfNeeded(

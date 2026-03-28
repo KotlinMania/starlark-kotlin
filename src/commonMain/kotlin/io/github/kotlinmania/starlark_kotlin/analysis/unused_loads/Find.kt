@@ -242,7 +242,7 @@ internal fun findUnusedLoads(
                 if (arg.used) {
                     false
                 } else if (hasUnusedMarkerInRange(FileSpanRef(
-                        file = codemapRef,
+                        file = codemapRef.deref(),
                         span = arg.arg.spanWithTrailingComma(),
                     ))
                 ) {

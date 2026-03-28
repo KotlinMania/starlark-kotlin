@@ -25,13 +25,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_
  * To be able to propagate the local slot number through parameter binding machinery.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTyped
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 
 /**
  * Local slot id as `FrozenValue`. This object is only used during compilation
@@ -46,7 +44,7 @@ internal class LocalAsValue(
     // #[starlark_value(type = "LocalAsValue")]
     // impl<'v> StarlarkValue<'v> for LocalAsValue
 
-    override fun typeName(): String = "LocalAsValue"
+    override val TYPE: String get() = "LocalAsValue"
 
     override fun toString(): String = "LocalAsValue(local=$local)"
 }
@@ -62,13 +60,13 @@ internal class LocalAsValue(
 // pub(crate) fn local_as_value(local: LocalSlotId) -> Option<FrozenValueTyped<'static, LocalAsValue>>
 internal fun localAsValue(local: LocalSlotId): FrozenValueTyped<LocalAsValue>? {
     // 100 is practically enough.
-    return LOCALS.getOrNull(local.index)
+    return LOCALS.getOrNull(local.index.toInt())
 }
 
 // static LOCALS: Lazy<(FrozenHeapRef, [FrozenValueTyped<'static, LocalAsValue>; 100])>
 private val LOCALS: List<FrozenValueTyped<LocalAsValue>> by lazy {
     val heap = FrozenHeap()
     List(100) { i ->
-        heap.allocSimpleTyped(LocalAsValue(LocalSlotId(i)))
+        heap.allocSimpleTyped(LocalAsValue(LocalSlotId(i.toUInt())))
     }
 }

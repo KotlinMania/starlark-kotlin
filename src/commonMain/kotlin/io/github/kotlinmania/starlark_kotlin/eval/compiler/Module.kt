@@ -105,7 +105,7 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload>>): Result<Unit> {
     }
 
     for (loadArg in load.node.args) {
-        val (slot, _captured) = scopeData.getAssignIdentSlot(loadArg.local, codemap)
+        val (slot, _captured) = scopeData.getAssignIdentSlot(loadArg.local, codemap.deref())
         val moduleSlot = when (slot) {
             is Slot.Local -> error("symbol need to be resolved to module")
             is Slot.Module -> slot
@@ -135,7 +135,7 @@ internal fun Compiler.evalRegularTopLevelStmt(
             EvalException.newAnyhow(
                 ModuleError.UnexpectedStatement,
                 stmt.span,
-                codemap,
+                codemap.deref(),
             )
         )
     }
@@ -173,7 +173,7 @@ internal fun Compiler.evalTopLevelStmt(
             EvalException.newAnyhow(
                 ModuleError.TopLevelStmtCountMismatch,
                 stmt.span,
-                codemap,
+                codemap.deref(),
             )
         )
     }
@@ -210,7 +210,7 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
     }
 
     val oracle = TypingOracleCtx(
-        codemap = codemap,
+        codemap = codemap.deref(),
     )
     val moduleVarTypes = mkModuleVarTypes()
     for (top in stmts) {
@@ -219,7 +219,7 @@ internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
                 BindingsCollect.collectOne(
                     top,
                     TypecheckMode.Compiler,
-                    codemap,
+                    codemap.deref(),
                     mutableListOf(),
                 )
             }.getOrElse { e -> return Result.failure((e as InternalError).intoEvalException()) }
