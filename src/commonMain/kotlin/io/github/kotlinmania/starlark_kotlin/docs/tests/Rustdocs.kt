@@ -59,9 +59,9 @@ private class OutputTypeRepr : StarlarkValue, StarlarkTypeRepr {
 // fn globals(builder: &mut GlobalsBuilder)
 private fun globals(builder: GlobalsBuilder) {
     // const Input: StarlarkValueAsType<InputTypeRepr> = StarlarkValueAsType::new()
-    builder.set("Input", StarlarkValueAsType.new<InputTypeRepr>())
+    builder.set("Input", StarlarkValueAsType.new(InputTypeRepr()))
     // const Output: StarlarkValueAsType<OutputTypeRepr> = StarlarkValueAsType::new()
-    builder.set("Output", StarlarkValueAsType.new<OutputTypeRepr>())
+    builder.set("Output", StarlarkValueAsType.new(OutputTypeRepr()))
 
     // fn simple(arg_int: i32, arg_bool: bool, arg_vec: UnpackList<&str>, arg_dict: SmallMap<String, (bool, i32)>) -> anyhow::Result<NoneType>
     builder.setFunction("simple") { _args: Arguments, _eval: Evaluator ->

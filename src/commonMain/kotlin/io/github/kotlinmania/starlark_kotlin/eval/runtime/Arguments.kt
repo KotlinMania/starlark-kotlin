@@ -245,7 +245,7 @@ class ArgumentsPos<S : ArgSymbol>(
 // #[derive(Default, Clone, Dupe_)]
 // pub struct Arguments<'v, 'a>(pub(crate) ArgumentsFull<'v, 'a, Symbol>);
 class Arguments(
-    internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
+    @PublishedApi internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
 ) {
     internal val inner: ArgumentsFull<Symbol>
         get() = full
@@ -661,7 +661,7 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
  * For other types performs an unchecked cast of the underlying [Value].
  */
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified T> unpackValueAs(v: Value): T {
+@PublishedApi internal inline fun <reified T> unpackValueAs(v: Value): T {
     return when (T::class) {
         Value::class -> v as T
         String::class -> v.unpackStrErr().getOrThrow() as T

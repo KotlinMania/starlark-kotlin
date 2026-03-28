@@ -91,10 +91,11 @@ internal interface SwitchHaveSimd<R> {
 }
 
 /**
- * Platform-specific implementation of [SwitchHaveSimd.switch].
+ * Implementation of [SwitchHaveSimd.switch].
  *
  * The Rust version checks for SSE2 support at compile time and dispatches
- * to the appropriate implementation. In Kotlin, this is delegated to
- * platform-specific code via expect/actual.
+ * to the appropriate implementation. In Kotlin, we always use the non-SIMD path.
  */
-internal expect fun <R> SwitchHaveSimd<R>.switchImpl(): R
+internal fun <R> SwitchHaveSimd<R>.switchImpl(): R {
+    return noSimd()
+}

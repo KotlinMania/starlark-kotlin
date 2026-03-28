@@ -1,20 +1,17 @@
 package io.github.kotlinmania.starlark_kotlin.values
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.IntValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.BoolValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.NoneValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 
 /**
  * Extension functions to mimic Rust's ToValue trait.
  * Provides conversions from raw Kotlin primitives into Starlark values.
+ *
+ * Note: String -> Value requires a Heap (use Heap.allocStr instead).
  */
 
-fun String.toValue(): Value = StringValue(this)
+fun Int.toValue(): Value = Value.newInt(InlineInt(this))
 
-fun Int.toValue(): Value = IntValue(this)
-
-fun Boolean.toValue(): Value = if (this) BoolValue.TRUE else BoolValue.FALSE
+fun Boolean.toValue(): Value = Value.newBool(this)
 
 fun Value.toValue(): Value = this

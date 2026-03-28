@@ -49,7 +49,7 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
         TyCallable.new(
             ParamSpec.kwargs(Ty.any()),
             Ty.custom(TyNamespace(
-                fields = sortedMapOf(),
+                fields = emptyMap(),
                 extra = true,
             )),
         )
@@ -70,7 +70,7 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
         }
         val extra = args.kwargs != null
         return Result.success(Ty.custom(TyNamespace(
-            fields = sortedMapOf(*fields.toTypedArray()),
+            fields = fields.sortedBy { it.first.toString() }.toMap(),
             extra = extra,
         )))
     }

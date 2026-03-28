@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
 /// `StarlarkTypeRepr` for iterable types.
 // pub struct StarlarkIter<T: StarlarkTypeRepr>(PhantomData<T>, NonInstantiable)

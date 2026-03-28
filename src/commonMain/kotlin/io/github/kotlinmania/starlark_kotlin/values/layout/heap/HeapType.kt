@@ -196,7 +196,7 @@ class Heap internal constructor(
 
     /// Allocate a value and return ValueTyped of it.
     /// Can fail if the AllocValue trait generates a different type on the heap.
-    inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
+    internal inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
         return ValueTyped.new<T>(alloc(x))
             ?: error("just allocated value must have the right type")
     }
@@ -207,7 +207,7 @@ class Heap internal constructor(
     }
 
     /// Allocate a value and return ValueOf of it.
-    inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
+    internal inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
         val value = alloc(x)
         return ValueOf.unpackValueImpl<T>(value)
             ?: error("just allocated value must be unpackable to the type of value")
@@ -426,7 +426,7 @@ typealias FrozenHeapName = Any
 
 /// FrozenHeap when it is no longer modified and can be shared between threads.
 /// Although, arena is not safe to share between threads, but at least refs is.
-class FrozenFrozenHeap(
+class FrozenFrozenHeap internal constructor(
     val arena: Arena,
     val refs: List<FrozenHeapRef>,
     val name: Any? = null,
@@ -493,7 +493,7 @@ class FrozenHeapRef(
 }
 
 /// Used to perform garbage collection by Trace.trace.
-class Tracer(
+class Tracer internal constructor(
     internal val arena: Arena = Arena(),
 ) {
     /// Walk over a value during garbage collection.

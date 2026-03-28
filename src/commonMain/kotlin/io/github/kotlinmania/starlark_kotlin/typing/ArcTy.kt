@@ -142,6 +142,10 @@ class ArcTy private constructor(
         return deref()
     }
 
+    // Delegation of Ty methods (Rust auto-derefs via Deref<Target=Ty>)
+    fun isAny(): Boolean = inner is ArcTyInner.Any
+    fun isNever(): Boolean = inner is ArcTyInner.Never
+
     // pub(crate) fn display_with<'a>(&'a self, config: &'a TypeRenderConfig) -> ArcTyDisplay<'a>
     internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay {
         return ArcTyDisplay(this, config)

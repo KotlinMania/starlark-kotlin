@@ -33,8 +33,7 @@ class TypeAnnotTests {
 
     @Test
     fun testTypesDisable() {
-        val dialect = Dialect.Standard.copy()
-        dialect.enableTypes = DialectTypes.Disable
+        val dialect = Dialect.Standard.copy(enableTypes = DialectTypes.Disable)
         val a = Assert()
         a.dialect(dialect)
         a.fail(PROGRAM, "type annotations are not allowed in this dialect")
@@ -42,8 +41,7 @@ class TypeAnnotTests {
 
     @Test
     fun testTypesParseOnly() {
-        val dialect = Dialect.Standard.copy()
-        dialect.enableTypes = DialectTypes.ParseOnly
+        val dialect = Dialect.Standard.copy(enableTypes = DialectTypes.ParseOnly)
         val a = Assert()
         a.dialect(dialect)
         a.pass(PROGRAM)
@@ -51,8 +49,7 @@ class TypeAnnotTests {
 
     @Test
     fun testTypesEnable() {
-        val dialect = Dialect.Standard.copy()
-        dialect.enableTypes = DialectTypes.Enable
+        val dialect = Dialect.Standard.copy(enableTypes = DialectTypes.Enable)
         val a = Assert()
         a.dialect(dialect)
         a.fail(PROGRAM, "does not match the type annotation")

@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 
@@ -41,7 +40,7 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
          *
          * Returns the Starlark type representation: `Ty.dict(K.starlarkTypeRepr(), V.starlarkTypeRepr())`.
          */
-        inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
+        internal inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
             return Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
         }
     }
@@ -56,7 +55,7 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
  *
  * The error type is [Either]<K.Error, V.Error>.
  */
-fun <K : UnpackValue, V : UnpackValue> unpackDictType(
+fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value
 ): Result<DictType<K, V>?> {
     return when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
@@ -67,6 +66,6 @@ fun <K : UnpackValue, V : UnpackValue> unpackDictType(
     }
 }
 
-private fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
+internal fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty {
     return Ty.any()
 }

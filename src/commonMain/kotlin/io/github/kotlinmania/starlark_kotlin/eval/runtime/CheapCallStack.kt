@@ -177,7 +177,7 @@ internal class CheapCallStack {
     }
 
     // pub(crate) fn to_diagnostic_frames(&self, inlined_frames) -> CallStack
-    fun toDiagnosticFrames(inlinedFrames: InlinedFrames): CallStack {
+    internal fun toDiagnosticFrames(inlinedFrames: InlinedFrames): CallStack {
         // The first entry is just the entire module, so skip it
         val frames = mutableListOf<Frame>()
         for (i in 1 until count) {

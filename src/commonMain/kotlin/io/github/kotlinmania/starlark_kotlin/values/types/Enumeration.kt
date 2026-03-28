@@ -51,5 +51,4 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Froz
 // Re-exports (mirrors Rust's pub use declarations)
 internal typealias EnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumType
 internal typealias FrozenEnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumType
-internal typealias EnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumValue
-internal typealias FrozenEnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.FrozenEnumValue
+internal typealias EnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumValueGen

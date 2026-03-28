@@ -107,9 +107,9 @@ class NativeCallableParamSpec(
     internal fun paramSpec(): ParamSpec {
         return ParamSpec.newParts(
             posOnly = posOnly.map { p -> Pair(p.isRequired(), p.ty) },
-            posOrNamed = posOrNamed.map { p -> Triple(ArcStr.newStatic(p.name), p.isRequired(), p.ty) },
+            posOrName = posOrNamed.map { p -> Triple(p.name, p.isRequired(), p.ty) },
             args = args?.ty,
-            namedOnly = namedOnly.map { p -> Triple(ArcStr.newStatic(p.name), p.isRequired(), p.ty) },
+            namedOnly = namedOnly.map { p -> Triple(p.name, p.isRequired(), p.ty) },
             kwargs = kwargs?.ty,
         )
     }

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.values.types.list.display
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.bc
 
 // #[test]
 // fn test_def_const_inlined()

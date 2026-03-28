@@ -132,7 +132,7 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     builder.setInner("MAGIC", 42.allocFrozenValue(builder.frozenHeap()), false)
 
     // const Obj: StarlarkValueAsType<Obj> = StarlarkValueAsType::new()
-    builder.set("Obj", StarlarkValueAsType.new<MarkdownObj>())
+    builder.set("Obj", StarlarkValueAsType.new(MarkdownObj()))
 
     /// Docs for func1
     ///

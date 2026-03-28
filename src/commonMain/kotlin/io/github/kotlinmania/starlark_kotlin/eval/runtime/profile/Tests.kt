@@ -26,9 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMo
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.normalizeForGoldenTests
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.merge
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.genCsv
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.genFlameData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.genProfile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile

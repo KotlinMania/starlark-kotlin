@@ -1,7 +1,6 @@
 // port-lint: source src/analysis/types.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.resolve
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span

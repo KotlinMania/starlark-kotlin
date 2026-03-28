@@ -95,13 +95,13 @@ class SetMut internal constructor(
         /**
          * Error class for non-set values.
          */
-        private class NotSetError(typeName: String) :
+        internal class NotSetError(typeName: String) :
             Exception("Value is not set, value type: `$typeName`")
 
         /**
          * Cold/inline(never) error path.
          */
-        private fun error(x: Value): Throwable {
+        internal fun error(x: Value): Throwable {
             return if (x.downcastRef<SetGen<FrozenSetData>>() != null) {
                 ValueError.CannotMutateImmutableValue
             } else {
@@ -112,7 +112,7 @@ class SetMut internal constructor(
         /**
          * Downcast the value to a mutable set reference.
          */
-        inline fun fromValue(x: Value): Result<SetMut> {
+        internal inline fun fromValue(x: Value): Result<SetMut> {
             val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()
             return when (ptr) {
                 null -> Result.failure(error(x))

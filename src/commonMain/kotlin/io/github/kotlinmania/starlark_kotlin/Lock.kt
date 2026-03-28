@@ -1,0 +1,21 @@
+package io.github.kotlinmania.starlark_kotlin
+
+/**
+ * Multiplatform ReentrantLock abstraction.
+ * On JVM/Android delegates to java.util.concurrent.locks.ReentrantLock.
+ * On Native uses kotlin.concurrent.AtomicInt-based spin lock.
+ * On JS/WasmJS is a no-op (single-threaded).
+ */
+expect class ReentrantLock() {
+    fun lock()
+    fun unlock()
+}
+
+inline fun <T> ReentrantLock.withLock(action: () -> T): T {
+    lock()
+    try {
+        return action()
+    } finally {
+        unlock()
+    }
+}

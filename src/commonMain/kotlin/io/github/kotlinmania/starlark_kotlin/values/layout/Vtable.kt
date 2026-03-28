@@ -52,7 +52,7 @@ class StarlarkValueRawPtr(
             return StarlarkValueRawPtr(header)
         }
 
-        fun newPointerI32(ptr: PointerI32): StarlarkValueRawPtr {
+        internal fun newPointerI32(ptr: PointerI32): StarlarkValueRawPtr {
             return StarlarkValueRawPtr(ptr)
         }
     }

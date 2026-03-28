@@ -90,7 +90,7 @@ private class QuotedCsvValue(val quoted: String)
 
 // pub(crate) trait CsvValue + impl for various types
 private fun formatCsvValue(value: Any): String = when (value) {
-    is SmallDuration -> "%.3f".format(value.toDuration().inWholeMilliseconds / 1000.0)
+    is SmallDuration -> run { val s = value.toDuration().inWholeMilliseconds / 1000.0; "${((s * 1000).toLong() / 1000.0)}" }
     is String -> quoteStrForCsv(value)
     is Int -> value.toString()
     is Long -> value.toString()

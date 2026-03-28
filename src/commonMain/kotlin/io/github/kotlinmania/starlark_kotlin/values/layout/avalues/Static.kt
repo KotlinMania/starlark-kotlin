@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.Tracer

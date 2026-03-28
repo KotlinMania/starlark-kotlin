@@ -51,7 +51,7 @@ import starlark_map.Hashed
  * map key constraints.
  */
 class SymbolMap<T> private constructor(
-    private val table: HashMap<Long, MutableList<Pair<Symbol, T>>>,
+    private val table: HashMap<ULong, MutableList<Pair<Symbol, T>>>,
     private var size: Int,
 ) {
 

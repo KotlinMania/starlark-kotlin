@@ -21,11 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStrN
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked
+
+/// Internal string representation with packed body bytes.
+/// In Rust, this is `StarlarkStrN<const N: usize>` with const generics for the body size.
+/// In Kotlin, we use a dynamic LongArray.
+internal class StarlarkStrN(
+    val len: Int,
+    val hash: UInt,
+    val body: LongArray,
+)
 
 /// A constant string that can be converted to a [FrozenValue].
 ///

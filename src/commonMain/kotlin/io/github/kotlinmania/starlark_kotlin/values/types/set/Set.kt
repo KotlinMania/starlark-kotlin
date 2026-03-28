@@ -58,13 +58,13 @@ internal fun registerSet(globals: GlobalsBuilder) {
         specialBuiltinFunction = SpecialBuiltinFunction.Set
     ) { arg: ValueOfUnchecked<StarlarkIter<Value>>?, heap: Heap ->
         val set = when (arg) {
-            null -> SetData.default()
+            null -> SetData()
             else -> {
                 val pos = arg
                 when (val setRef = SetRef.unpackValueOpt(pos.get())) {
                     null -> {
                         val it = pos.get().iterate(heap).getOrElse { return@registerFunction Result.failure(it) }
-                        val data = SetData.default<Any?>()
+                        val data = SetData()
                         for (el in it) {
                             val hashedEl = el.getHashed().getOrElse { return@registerFunction Result.failure(it) }
                             data.content.insertHashed(hashedEl)

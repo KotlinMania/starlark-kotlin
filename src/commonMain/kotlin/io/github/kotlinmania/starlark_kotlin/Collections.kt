@@ -34,8 +34,8 @@ package io.github.kotlinmania.starlark_kotlin
  */
 
 // Re-exports from starlark_map equivalent (mirrors Rust's pub use starlark_map::*)
-internal typealias EquivalentExport = io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-internal typealias HashedExport = io.github.kotlinmania.starlark_kotlin.collections.Hashed
+internal typealias EquivalentExport<T> = io.github.kotlinmania.starlark_kotlin.collections.Equivalent<T>
+internal typealias HashedExport<K> = io.github.kotlinmania.starlark_kotlin.collections.Hashed<K>
 internal typealias StarlarkHashValueExport = io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 internal typealias StarlarkHasherExport = io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 internal typealias SmallMapExport<K, V> = io.github.kotlinmania.starlark_kotlin.collections.SmallMap<K, V>

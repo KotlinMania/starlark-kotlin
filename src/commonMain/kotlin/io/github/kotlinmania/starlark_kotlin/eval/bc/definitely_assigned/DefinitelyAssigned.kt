@@ -51,7 +51,7 @@ class BcDefinitelyAssigned private constructor(
     /** Is local variable definitely assigned at given program point? */
     // pub(crate) fn is_definitely_assigned(&self, local: LocalSlotId) -> bool
     internal fun isDefinitelyAssigned(local: LocalSlotId): Boolean {
-        return definitelyAssigned[local.index]
+        return definitelyAssigned[local.index.toInt()]
     }
 
     /**
@@ -67,7 +67,7 @@ class BcDefinitelyAssigned private constructor(
      */
     // pub(crate) fn mark_definitely_assigned(&mut self, local: LocalSlotId)
     internal fun markDefinitelyAssigned(local: LocalSlotId) {
-        definitelyAssigned[local.index] = true
+        definitelyAssigned[local.index.toInt()] = true
     }
 
     /**

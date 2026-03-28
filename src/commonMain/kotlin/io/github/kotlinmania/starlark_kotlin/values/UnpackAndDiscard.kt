@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.array.unpack
  *
  * This can be used when type needs to be checked, but the unpacked value is not needed.
  */
-class UnpackAndDiscard<T : Any> private constructor(
+class UnpackAndDiscard<T : Any> internal constructor(
     // Kotlin: KClass replaces PhantomData for type info.
     private val targetType: KClass<T>,
 ) : StarlarkTypeRepr {
@@ -45,7 +45,7 @@ class UnpackAndDiscard<T : Any> private constructor(
     companion object {
         // impl UnpackValue for UnpackAndDiscard
         // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
-        inline fun <reified T : Any> unpackValueImpl(value: Value): UnpackAndDiscard<T>? {
+        internal inline fun <reified T : Any> unpackValueImpl(value: Value): UnpackAndDiscard<T>? {
             val result = UnpackValue.unpack<T>(value)
             return if (result != null) {
                 UnpackAndDiscard(T::class)

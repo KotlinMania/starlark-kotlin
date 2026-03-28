@@ -27,17 +27,20 @@ import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTup
 // fn named_positional_functions(globals: &mut GlobalsBuilder)
 private fun namedPositionalFunctions(globals: GlobalsBuilder) {
     // fn positional(#[starlark(require = pos)] x: i32) -> anyhow::Result<i32>
-    globals.setFunction("positional") { x: Int ->
+    globals.setFunction("positional") { args, _ ->
+        val x = args.positional<Int>(0)
         Result.success(x)
     }
 
     // fn named(x: i32) -> anyhow::Result<i32>
-    globals.setFunction("named") { x: Int ->
+    globals.setFunction("named") { args, _ ->
+        val x = args.positional<Int>(0)
         Result.success(x)
     }
 
     // fn named_only(#[starlark(require = named)] x: i32) -> anyhow::Result<i32>
-    globals.setFunction("named_only") { x: Int ->
+    globals.setFunction("named_only") { args, _ ->
+        val x = args.positional<Int>(0)
         Result.success(x)
     }
 
@@ -45,7 +48,9 @@ private fun namedPositionalFunctions(globals: GlobalsBuilder) {
     //     #[starlark(args)] star_args: UnpackTuple<i32>,
     //     x: i32,
     // ) -> anyhow::Result<i32>
-    globals.setFunction("named_after_args") { starArgs: UnpackTuple<Int>, x: Int ->
+    globals.setFunction("named_after_args") { args, _ ->
+        val starArgs = args.positional<UnpackTuple<Int>>(0)
+        val x = args.positional<Int>(1)
         Result.success(x + starArgs.items.sum())
     }
 
@@ -54,8 +59,10 @@ private fun namedPositionalFunctions(globals: GlobalsBuilder) {
     //     #[starlark(args)] args: UnpackTuple<i32>,
     //     #[starlark(require = named)] x: i32,
     // ) -> anyhow::Result<i32>
-    globals.setFunction("named_after_args_explicitly_marked") { args: UnpackTuple<Int>, x: Int ->
-        Result.success(x + args.items.sum())
+    globals.setFunction("named_after_args_explicitly_marked") { args, _ ->
+        val starArgs = args.positional<UnpackTuple<Int>>(0)
+        val x = args.positional<Int>(1)
+        Result.success(x + starArgs.items.sum())
     }
 }
 

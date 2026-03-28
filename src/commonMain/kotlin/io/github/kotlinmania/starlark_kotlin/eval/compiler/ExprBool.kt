@@ -24,7 +24,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.analysis.arg
 
 /// Boolean expression.
 // pub(crate) enum ExprCompiledBool
@@ -64,8 +63,8 @@ internal sealed class ExprCompiledBool {
             return when (val node = expr.node) {
                 is ExprCompiled.Builtin1Expr -> {
                     if (node.op == Builtin1.Not) {
-                        val x = new(node.arg)
-                        val xConst = x.constValue()
+                        val x = new(node.expr)
+                        val xConst = x.node.constValue()
                         if (xConst != null) {
                             newBool(span, !xConst)
                         } else {
@@ -73,7 +72,7 @@ internal sealed class ExprCompiledBool {
                                 node = Expr(
                                     ExprCompiled.Builtin1Expr(
                                         Builtin1.Not,
-                                        IrSpanned(node = x.intoExpr(), span = x.span),
+                                        x.intoExpr(),
                                     )
                                 ),
                                 span = span,
@@ -87,8 +86,8 @@ internal sealed class ExprCompiledBool {
                     val op = node.op
                     val x = new(node.lhs)
                     val y = new(node.rhs)
-                    val xConst = x.constValue()
-                    val yConst = y.constValue()
+                    val xConst = x.node.constValue()
+                    val yConst = y.node.constValue()
                     when {
                         op == ExprLogicalBinOp.And && xConst == false -> newBool(span, false)
                         op == ExprLogicalBinOp.Or && xConst == true -> newBool(span, true)
@@ -103,11 +102,8 @@ internal sealed class ExprCompiledBool {
                                 span = span,
                                 node = Expr(
                                     ExprCompiled.seq(
-                                        IrSpanned(node = x.intoExpr(), span = x.span),
-                                        IrSpanned(
-                                            node = newBool(y.span, false).intoExpr(),
-                                            span = y.span,
-                                        ),
+                                        x.intoExpr(),
+                                        newBool(y.span, false).intoExpr(),
                                     ).node,
                                 ),
                             )
@@ -119,11 +115,8 @@ internal sealed class ExprCompiledBool {
                                 span = span,
                                 node = Expr(
                                     ExprCompiled.seq(
-                                        IrSpanned(node = x.intoExpr(), span = x.span),
-                                        IrSpanned(
-                                            node = newBool(y.span, true).intoExpr(),
-                                            span = y.span,
-                                        ),
+                                        x.intoExpr(),
+                                        newBool(y.span, true).intoExpr(),
                                     ).node,
                                 ),
                             )
@@ -132,8 +125,8 @@ internal sealed class ExprCompiledBool {
                             node = Expr(
                                 ExprCompiled.LogicalBinOp(
                                     op,
-                                    IrSpanned(node = x.intoExpr(), span = x.span),
-                                    IrSpanned(node = y.intoExpr(), span = y.span),
+                                    x.intoExpr(),
+                                    y.intoExpr(),
                                 )
                             ),
                             span = span,
@@ -150,6 +143,3 @@ internal sealed class ExprCompiledBool {
 // impl IrSpanned<ExprCompiledBool>
 internal fun IrSpanned<ExprCompiledBool>.intoExpr(): IrSpanned<ExprCompiled> =
     IrSpanned(span = span, node = node.intoExpr())
-
-private fun IrSpanned<ExprCompiledBool>.intoExpr(): ExprCompiled = node.intoExpr()
-private fun IrSpanned<ExprCompiledBool>.constValue(): Boolean? = node.constValue()

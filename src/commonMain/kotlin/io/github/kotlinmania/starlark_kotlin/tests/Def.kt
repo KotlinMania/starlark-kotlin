@@ -187,8 +187,8 @@ value = {"test": "hello"}
     val f = m.get("function")!!
     val x = m.get("value")!!
     Module.withTempHeap { module ->
-        val fVal = module.heap().accessOwnedFrozenValue(f)
-        val xVal = module.heap().accessOwnedFrozenValue(x)
+        val fVal = module.heap().accessOwnedFrozenValue(f).getOrThrow()
+        val xVal = module.heap().accessOwnedFrozenValue(x).getOrThrow()
         val eval = Evaluator(module)
         val res = eval.evalFunction(fVal, listOf(xVal), emptyList())
         check(res.getOrThrow().toStr() == "hello")

@@ -45,6 +45,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
 import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTypedStatic
+import kotlin.concurrent.Volatile
 
 /**
  * Methods of an object.

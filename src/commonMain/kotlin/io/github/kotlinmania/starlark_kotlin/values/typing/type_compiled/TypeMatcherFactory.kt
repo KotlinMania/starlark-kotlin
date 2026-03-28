@@ -56,7 +56,7 @@ internal interface TypeMatcherFactoryDyn {
 }
 
 /** Boxed [TypeMatcher]. */
-class TypeMatcherFactory(
+class TypeMatcherFactory internal constructor(
     internal val factory: TypeMatcherFactoryDyn,
 ) {
     // impl TypeMatcherFactory

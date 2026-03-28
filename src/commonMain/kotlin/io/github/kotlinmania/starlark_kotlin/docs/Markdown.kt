@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.docs.RenderConfig
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
 import io.github.kotlinmania.starlark_kotlin.docs.renderCode
 
 /// Configuration for layout rendering.
@@ -181,7 +180,7 @@ private fun renderDefaultLayout(
     val details = renderDocString(DSOpts.Details, function.docs)
     val examples = renderDocString(DSOpts.Examples, function.docs)
 
-    val parameterDocs = renderFunctionParameters(function.params.docParamsWithStarredNames())
+    val parameterDocs = renderFunctionParameters(function.params.docParamsWithStarredNames().asIterable())
     val returnDocs = renderDocString(DSOpts.Combined, function.ret.docs)
 
     return buildString {
@@ -230,7 +229,7 @@ private fun renderSignatureAtBottomLayout(
     val details = renderDocString(DSOpts.Details, function.docs)
     val examples = renderDocString(DSOpts.Examples, function.docs)
 
-    val parameterDocs = renderFunctionParameters(function.params.docParamsWithStarredNames())
+    val parameterDocs = renderFunctionParameters(function.params.docParamsWithStarredNames().asIterable())
 
     return buildString {
         if (summary != null) {
@@ -292,7 +291,7 @@ internal fun renderDocType(
         name,
         t.docs,
         prefix,
-        t.members.iter().map { (n, m) -> Pair(n, m) },
+        t.members.iter().map { (n, m) -> Pair(n, m) }.asIterable(),
         constructor,
         renderConfig,
     )
@@ -321,7 +320,7 @@ fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): Stri
             "",
             item.module.members.iter().mapNotNull { (n, m) ->
                 m.tryAsMemberWithCollapsedObject().getOrNull()?.let { Pair(n, it) }
-            },
+            }.asIterable(),
             null,
             renderConfig,
         )
@@ -425,7 +424,7 @@ fun DocModule.renderMarkdownPageForMultipageRender(
         name,
         this.docs,
         "",
-        this.members.iter().mapNotNull { (n, m) -> m.tryAsMember()?.let { Pair(n, it) } },
+        this.members.iter().mapNotNull { (n, m) -> m.tryAsMember()?.let { Pair(n, it) } }.asIterable(),
         null,
         renderConfig,
     )

@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.codemap
 
 import kotlin.math.max
 import kotlin.math.min
-import io.github.kotlinmania.starlark_kotlin.values.typing.bool
 
 /**
  * A small value representing a position in a `CodeMap`'s file.
@@ -57,7 +56,7 @@ data class Span(
 
     fun endSpan(): Span = Span(end, end)
 
-    fun contains(pos: Pos): bool = begin <= pos && pos <= end
+    fun contains(pos: Pos): Boolean = begin <= pos && pos <= end
 
     fun intersects(span: Span): Boolean =
         contains(span.begin) || contains(span.end) || span.contains(begin)

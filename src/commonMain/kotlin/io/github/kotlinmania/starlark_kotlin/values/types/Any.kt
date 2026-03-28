@@ -55,7 +55,7 @@ class StarlarkAny<T>(
 
         /// Extract from a [Value] that contains a [StarlarkAny] underneath. Returns null if
         /// the value does not match the expected type.
-        inline fun <reified T> get(x: Value): T? {
+        internal inline fun <reified T> get(x: Value): T? {
             val starlarkAny: StarlarkAny<T> = x.downcastRef() ?: return null
             return starlarkAny.inner
         }

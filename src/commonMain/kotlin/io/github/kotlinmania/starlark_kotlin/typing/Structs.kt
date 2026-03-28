@@ -53,7 +53,7 @@ data class TyStruct(
 
     companion object {
         /** Any struct. */
-        fun any(): TyStruct = TyStruct(fields = sortedMapOf(), extra = true)
+        fun any(): TyStruct = TyStruct(fields = emptyMap(), extra = true)
     }
 
     override fun asName(): String = "struct"
@@ -88,7 +88,7 @@ data class TyStruct(
         if (extra != other.extra) return null
         if (fields.keys != other.fields.keys) return null
 
-        val mergedFields = sortedMapOf<String, Ty>()
+        val mergedFields = mutableMapOf<String, Ty>()
         for ((key, thisVal) in fields) {
             val otherVal = other.fields[key] ?: return null
             mergedFields[key] = Ty.union2(thisVal, otherVal)

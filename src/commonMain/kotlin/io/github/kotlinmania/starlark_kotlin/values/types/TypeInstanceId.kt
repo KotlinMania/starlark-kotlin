@@ -20,6 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  */
 
 
+import kotlin.concurrent.atomics.AtomicLong
+
 /** Globally unique identifier for a type, like record type or enum type. */
 data class TypeInstanceId(private val id: Long) : Comparable<TypeInstanceId> {
 
@@ -28,11 +30,11 @@ data class TypeInstanceId(private val id: Long) : Comparable<TypeInstanceId> {
     }
 
     companion object {
-        private val lastId = atomic(0L)
+        private val lastId = AtomicLong(0L)
 
         /** Generate a new unique identifier. */
         fun gen(): TypeInstanceId {
-            return TypeInstanceId(lastId.incrementAndGet())
+            return TypeInstanceId(lastId.addAndFetch(1L))
         }
     }
 }

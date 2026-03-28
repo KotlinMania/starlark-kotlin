@@ -83,7 +83,7 @@ internal fun chr(i: Int): Result<Char> {
 
     return try {
         val codePoint = cp.toInt()
-        if (Character.isValidCodePoint(codePoint)) {
+        if (codePoint in 0..0x10FFFF) {
             Result.success(Char(codePoint))
         } else {
             Result.failure(

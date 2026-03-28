@@ -50,11 +50,11 @@ class DocString(
 // pub struct DocModule
 class DocModule(
     val docs: DocString? = null,
-    val members: SmallMap<String, DocItem> = SmallMap(),
+    val members: SmallMap<String, DocItem> = SmallMap.new(),
 ) {
     // pub fn filter<P>(self, mut predicate: P) -> Self
     fun filter(predicate: (Pair<String, DocItem>) -> Boolean): DocModule {
-        val filtered = SmallMap<String, DocItem>()
+        val filtered = SmallMap.new<String, DocItem>()
         for ((k, v) in members) {
             if (predicate(Pair(k, v))) {
                 filtered[k] = v
@@ -226,7 +226,7 @@ sealed class DocMember {
 class DocType(
     val docs: DocString? = null,
     /// Name and details of each attr/function that can be accessed on this type.
-    val members: SmallMap<String, DocMember> = SmallMap(),
+    val members: SmallMap<String, DocMember> = SmallMap.new(),
     val ty: Ty,
     val constructor: DocFunction? = null,
 ) {
@@ -240,7 +240,7 @@ class DocType(
             } else {
                 DocType(
                     docs = null,
-                    members = SmallMap(),
+                    members = SmallMap.new(),
                     ty = ty,
                     constructor = null,
                 )

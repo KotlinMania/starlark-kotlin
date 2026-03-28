@@ -31,9 +31,9 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds

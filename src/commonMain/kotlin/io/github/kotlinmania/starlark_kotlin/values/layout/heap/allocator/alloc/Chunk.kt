@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import kotlin.concurrent.atomics.AtomicInt
 
 // #[repr(C)]
 // struct ChunkData {
@@ -31,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 private class ChunkData(
     val len: AlignedSize,
 ) {
-    val refCount = atomic(1)
+    val refCount = AtomicInt(1)
     /// The backing data buffer.
     val data: ByteArray = ByteArray(len.bytes().toInt())
 
@@ -114,7 +115,7 @@ internal class Chunk private constructor(
     // #[inline]
     // pub(crate) fn ref_count(&self) -> u32
     fun refCount(): Int {
-        return chunkData?.refCount?.value ?: 0
+        return chunkData?.refCount?.load() ?: 0
     }
 
     // #[cfg(test)]
@@ -165,7 +166,7 @@ internal class Chunk private constructor(
         if (isEmpty()) {
             return default()
         }
-        val prev = chunkData!!.refCount.getAndIncrement()
+        val prev = chunkData!!.refCount.fetchAndAdd(1)
         if (prev > Int.MAX_VALUE / 2) {
             error("Refcount overflow")
         }
@@ -177,7 +178,7 @@ internal class Chunk private constructor(
     // Kotlin: GC handles deallocation; decrement ref count for accounting.
     fun release() {
         if (isEmpty()) return
-        chunkData!!.refCount.decrementAndGet()
+        chunkData!!.refCount.fetchAndAdd(-1)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -517,15 +517,15 @@ internal fun testProvidesStaticTypeId() {
     test(TypeWithStaticLifetime::class, TypeWithStaticLifetime(TypeWhichDoesNotImplementAnyLifetime()))
 }
 
+// Helper interface extracted from test (Kotlin doesn't support local interfaces)
+private interface TestMy
+
 // #[test]
 // fn test_provides_static_type_when_type_parameter_has_bound_with_lifetime() {
 internal fun testProvidesStaticTypeWhenTypeParameterHasBoundWithLifetime() {
-    // trait My<'a> {}
-    interface My
-
     // #[derive(ProvidesStaticType)]
     // struct FooBar<'x, P: My<'x>>(&'x P);
-    class FooBar<P : My>(val value: P) : ProvidesStaticType {
+    class FooBar<P : TestMy>(val value: P) : ProvidesStaticType {
         override val staticType: KClass<*> get() = FooBar::class
     }
 }

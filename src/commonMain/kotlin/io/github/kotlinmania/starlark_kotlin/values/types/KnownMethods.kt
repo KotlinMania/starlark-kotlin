@@ -74,11 +74,11 @@ private class KnownMethods(
                     val method = FrozenValueTyped.new<NativeMethod>(member)
                     if (method != null) {
                         // First wins, e. g. `list.clear` is hit, and `dict.clear` is miss.
-                        methods.putIfAbsent(name, KnownMethod(
+                        methods.getOrPut(name) { KnownMethod(
                             typeMethods = tm,
                             method = method,
                             imp = method.asRef().function,
-                        ))
+                        ) }
                         hasAtLeastOneMethod = true
                     }
                 }

@@ -158,7 +158,7 @@ class RecordGen internal constructor(
     // impl StarlarkValue for RecordGen
 
     // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         val otherRecord = fromValue(other) ?: return Result.success(false)
         val typEquals = typ.equals(otherRecord.typ).getOrElse { return Result.failure(it) }
         if (!typEquals) return Result.success(false)
@@ -166,19 +166,19 @@ class RecordGen internal constructor(
     }
 
     // fn get_attr(&self, attribute: &str, heap: Heap<'v>) -> Option<Value<'v>>
-    fun getAttr(attribute: String, heap: Heap): Value? {
+    override fun getAttr(attribute: String, heap: Heap): Value? {
         return getAttrHashed(Hashed.new(attribute), heap)
     }
 
     // fn get_attr_hashed(&self, attribute: Hashed<&str>, _heap: Heap<'v>) -> Option<Value<'v>>
-    fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val fields = getRecordFields()
         val i = fields.getIndexOf(attribute.key()) ?: return null
         return values[i]
     }
 
     // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         typ.writeHash(hasher).getOrElse { return Result.failure(it) }
         for (v in values) {
             v.writeHash(hasher).getOrElse { return Result.failure(it) }
@@ -187,12 +187,12 @@ class RecordGen internal constructor(
     }
 
     // fn dir_attr(&self) -> Vec<String>
-    fun dirAttr(): List<String> {
+    override fun dirAttr(): List<String> {
         return getRecordFields().keys().toList()
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty? {
         return getRecordType().instanceTy()
     }
 

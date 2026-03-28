@@ -67,7 +67,7 @@ class TyCallable private constructor(
                         if (i != 0) {
                             sb.append(", ")
                         }
-                        p.fmtWithConfig(sb, config)
+                        sb.append(p.fmtWithConfig(config))
                     }
                     sb.append("]")
                 } else {

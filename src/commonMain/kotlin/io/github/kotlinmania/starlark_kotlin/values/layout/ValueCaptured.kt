@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import kotlin.concurrent.Volatile
 
 // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
 // #[display("{:?}", self)] // This type should never be user visible

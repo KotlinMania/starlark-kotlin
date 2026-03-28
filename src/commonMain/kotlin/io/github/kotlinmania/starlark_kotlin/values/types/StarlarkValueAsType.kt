@@ -92,18 +92,11 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> @PublishedApi internal construct
         /// Constructor.
         ///
         /// Use [newNoDocs] if `T` is not a `StarlarkValue`.
-        inline fun <reified T> new(): StarlarkValueAsType<T>
+        inline fun <reified T> new(instance: T): StarlarkValueAsType<T>
             where T : StarlarkTypeRepr, T : StarlarkValue
         {
-            val instance = T::class.objectInstance
-            val tyFn: () -> Ty = {
-                instance?.getTypeStarlarkRepr()
-                    ?: error("StarlarkValueAsType.new requires T to be an object/singleton")
-            }
-            val docFn: () -> DocItem = {
-                DocItem.Type(DocType.fromStarlarkValue(instance
-                    ?: error("StarlarkValueAsType.new requires T to be an object/singleton")))
-            }
+            val tyFn: () -> Ty = { instance.getTypeStarlarkRepr() }
+            val docFn: () -> DocItem = { DocItem.Type(DocType.fromStarlarkValue(instance)) }
             return StarlarkValueAsType(
                 inner = StarlarkValueAsTypeStarlarkValue(tyFn, docFn),
                 tyRepr = tyFn,
@@ -112,12 +105,8 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> @PublishedApi internal construct
 
         // pub const fn new_no_docs() -> Self
         /// Constructor.
-        inline fun <reified T : StarlarkTypeRepr> newNoDocs(): StarlarkValueAsType<T> {
-            val instance = T::class.objectInstance
-            val tyFn: () -> Ty = {
-                instance?.starlarkTypeRepr()
-                    ?: error("StarlarkValueAsType.newNoDocs requires T to be an object/singleton")
-            }
+        inline fun <reified T : StarlarkTypeRepr> newNoDocs(instance: T): StarlarkValueAsType<T> {
+            val tyFn: () -> Ty = { instance.starlarkTypeRepr() }
             val docFn: () -> DocItem = {
                 DocItem.Member(
                     DocMember.Property(

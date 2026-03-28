@@ -77,13 +77,13 @@ data class TyUserFields(
         // Safe default: assuming the type is not abstract,
         // so fields are provided by `TyStarlarkValue`.
         fun noFields(): TyUserFields = TyUserFields(
-            known = sortedMapOf(),
+            known = emptyMap(),
             unknown = false,
         )
 
         /** All fields are not known. */
         fun unknown(): TyUserFields = TyUserFields(
-            known = sortedMapOf(),
+            known = emptyMap(),
             unknown = true,
         )
 

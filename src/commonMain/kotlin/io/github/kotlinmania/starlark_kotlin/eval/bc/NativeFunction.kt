@@ -41,7 +41,7 @@ class BcNativeFunction private constructor(
 
     companion object {
         // pub(crate) fn new(fun: FrozenValueTyped<'static, NativeFunction>) -> BcNativeFunction
-        fun new(func: FrozenValueTyped<NativeFunction>): BcNativeFunction {
+        internal fun new(func: FrozenValueTyped<NativeFunction>): BcNativeFunction {
             return BcNativeFunction(
                 func = func,
                 imp = func.asRef().function,
@@ -51,7 +51,7 @@ class BcNativeFunction private constructor(
 
     // #[inline]
     // pub(crate) fn fun(&self) -> FrozenValueTyped<'static, NativeFunction>
-    fun func(): FrozenValueTyped<NativeFunction> = func
+    internal fun func(): FrozenValueTyped<NativeFunction> = func
 
     // #[inline]
     // pub(crate) fn to_value<'v>(&self) -> Value<'v>

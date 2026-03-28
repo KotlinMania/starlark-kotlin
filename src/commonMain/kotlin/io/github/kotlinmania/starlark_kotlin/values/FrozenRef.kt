@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.Box
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.intoInner
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult

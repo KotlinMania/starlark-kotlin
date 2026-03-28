@@ -25,10 +25,11 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
@@ -51,19 +52,16 @@ class AValueSimple<T : StarlarkValue>(
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
-    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize {
-        return ValueAllocSize.ofBytes(0)
-    }
-
     // unsafe fn heap_freeze(me, freezer) -> FreezeResult<FrozenValue>
     override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
-        return freezer.freeze(inner)
+        val direct = tryFreezeDirectly(inner, freezer)
+        if (direct != null) return direct
+        return heapFreezeSimpleImpl(inner, freezer)
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value<'v>
     override fun heapCopy(tracer: Tracer): Value {
-        return tracer.trace(inner)
+        return heapCopyImpl(inner, tracer) { _, _ -> }
     }
 
     override fun unpack(): StarlarkValue = inner

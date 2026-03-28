@@ -6,116 +6,12 @@
   "agents_md": "AGENTS.md",
   "tasks": [
     {
-      "source_path": "src/ordered_map.rs",
-      "source_qualified": "ordered_map",
-      "target_path": "ordered_map.kt",
-      "dependent_count": 1,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/ordered_set.rs",
-      "source_qualified": "ordered_set",
-      "target_path": "ordered_set.kt",
-      "dependent_count": 1,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/sorted_vec.rs",
-      "source_qualified": "sorted_vec",
-      "target_path": "sorted_vec.kt",
-      "dependent_count": 1,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/unordered_map.rs",
-      "source_qualified": "unordered_map",
-      "target_path": "unordered_map.kt",
-      "dependent_count": 1,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/vec_map/hint.rs",
-      "source_qualified": "vec_map.hint",
-      "target_path": "vec_map/hint.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/vec2/iter.rs",
-      "source_qualified": "vec2.iter",
-      "target_path": "vec2/iter.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/vec_map/iter.rs",
-      "source_qualified": "vec_map.iter",
-      "target_path": "vec_map/iter.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/vec_map/simd.rs",
-      "source_qualified": "vec_map.simd",
-      "target_path": "vec_map/simd.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/unordered_set.rs",
-      "source_qualified": "unordered_set",
-      "target_path": "unordered_set.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/sorting/insertion.rs",
-      "source_qualified": "sorting.insertion",
-      "target_path": "sorting/insertion.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/sorting.rs",
-      "source_qualified": "sorting",
-      "target_path": "sorting.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/sorted_set.rs",
-      "source_qualified": "sorted_set",
-      "target_path": "sorted_set.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/sorted_map.rs",
-      "source_qualified": "sorted_map",
-      "target_path": "sorted_map.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/small_set/iter.rs",
-      "source_qualified": "small_set.iter",
-      "target_path": "small_set/iter.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
-      "source_path": "src/small_map/iter.rs",
-      "source_qualified": "small_map.iter",
-      "target_path": "small_map/iter.kt",
-      "dependent_count": 0,
-      "status": "pending"
-    },
-    {
       "source_path": "build.rs",
       "source_qualified": "build",
-      "target_path": "build.kt",
+      "target_path": "",
       "dependent_count": 0,
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-03-28T03:11:08"
     },
     {
       "source_path": "src/hash_value.rs",
@@ -166,12 +62,36 @@
       "completed_at": "2026-02-05T14:28:49"
     },
     {
+      "source_path": "src/ordered_map.rs",
+      "source_qualified": "ordered_map",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:06:12"
+    },
+    {
+      "source_path": "src/ordered_set.rs",
+      "source_qualified": "ordered_set",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:08:12"
+    },
+    {
       "source_path": "src/small_map.rs",
       "source_qualified": "small_map",
       "target_path": "",
       "dependent_count": 4,
       "status": "completed",
       "completed_at": "2026-02-05T14:17:33"
+    },
+    {
+      "source_path": "src/small_map/iter.rs",
+      "source_qualified": "small_map.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:21:09"
     },
     {
       "source_path": "src/small_set.rs",
@@ -182,6 +102,70 @@
       "completed_at": "2026-02-05T14:28:27"
     },
     {
+      "source_path": "src/small_set/iter.rs",
+      "source_qualified": "small_set.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:21:20"
+    },
+    {
+      "source_path": "src/sorted_map.rs",
+      "source_qualified": "sorted_map",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:20:51"
+    },
+    {
+      "source_path": "src/sorted_set.rs",
+      "source_qualified": "sorted_set",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:20:46"
+    },
+    {
+      "source_path": "src/sorted_vec.rs",
+      "source_qualified": "sorted_vec",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:08:48"
+    },
+    {
+      "source_path": "src/sorting.rs",
+      "source_qualified": "sorting",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:19:00"
+    },
+    {
+      "source_path": "src/sorting/insertion.rs",
+      "source_qualified": "sorting.insertion",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:18:48"
+    },
+    {
+      "source_path": "src/unordered_map.rs",
+      "source_qualified": "unordered_map",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:09:54"
+    },
+    {
+      "source_path": "src/unordered_set.rs",
+      "source_qualified": "unordered_set",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:17:34"
+    },
+    {
       "source_path": "src/vec2.rs",
       "source_qualified": "vec2",
       "target_path": "",
@@ -190,12 +174,44 @@
       "completed_at": "2026-02-05T14:27:24"
     },
     {
+      "source_path": "src/vec2/iter.rs",
+      "source_qualified": "vec2.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:14:57"
+    },
+    {
       "source_path": "src/vec_map.rs",
       "source_qualified": "vec_map",
       "target_path": "",
       "dependent_count": 2,
       "status": "completed",
       "completed_at": "2026-02-05T14:28:15"
+    },
+    {
+      "source_path": "src/vec_map/hint.rs",
+      "source_qualified": "vec_map.hint",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:20:59"
+    },
+    {
+      "source_path": "src/vec_map/iter.rs",
+      "source_qualified": "vec_map.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:13:46"
+    },
+    {
+      "source_path": "src/vec_map/simd.rs",
+      "source_qualified": "vec_map.simd",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-28T03:10:33"
     }
   ]
 }

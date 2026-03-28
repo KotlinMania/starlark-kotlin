@@ -27,8 +27,8 @@ import io.github.kotlinmania.starlark_kotlin.read_line.ReadLine
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
+import io.github.kotlinmania.starlark_kotlin.ReentrantLock
+import io.github.kotlinmania.starlark_kotlin.withLock
 
 // A breakpoint takes over the console UI, so having two going at once confuses everything.
 // Have a global mutex to ensure one at a time.

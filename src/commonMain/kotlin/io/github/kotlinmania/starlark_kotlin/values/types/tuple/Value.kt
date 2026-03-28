@@ -61,7 +61,7 @@ class TupleGen<V>(
     }
 
     /// Iterate over the elements of the tuple.
-    fun iter(): Iterator<Value> where V : ValueLike {
+    fun iter(): Iterator<Value> {
         return content.map { (it as ValueLike).toValue() }.iterator()
     }
 

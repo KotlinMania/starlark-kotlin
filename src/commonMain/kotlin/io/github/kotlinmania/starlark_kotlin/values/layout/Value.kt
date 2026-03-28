@@ -449,6 +449,7 @@ class Value internal constructor(
      * Get a pointer to an [AValue].
      */
     // pub(crate) fn get_ref(self) -> AValueDyn<'v>
+    @PublishedApi
     internal fun getRef(): AValueDyn {
         return if (ptr.unpackIsInt()) {
             val intVal = ptr.unpackIntValue()

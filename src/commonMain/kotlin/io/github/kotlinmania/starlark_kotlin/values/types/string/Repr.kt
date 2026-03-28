@@ -1,7 +1,7 @@
 // port-lint: source src/values/types/string/repr.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.hint.unlikely
+import io.github.kotlinmania.starlark_kotlin.unlikely
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -76,9 +76,9 @@ private fun pushEscape(toEscape: Char, buffer: StringBuilder) {
         else -> {
             val codePoint = toEscape.code
             when {
-                codePoint < 0x100 -> buffer.append("\\x%02x".format(codePoint))
-                codePoint < 0x10000 -> buffer.append("\\u%04x".format(codePoint))
-                else -> buffer.append("\\U%08x".format(codePoint))
+                codePoint < 0x100 -> buffer.append("\\x${codePoint.toString(16).padStart(2, '0')}")
+                codePoint < 0x10000 -> buffer.append("\\u${codePoint.toString(16).padStart(4, '0')}")
+                else -> buffer.append("\\U${codePoint.toString(16).padStart(8, '0')}")
             }
         }
     }

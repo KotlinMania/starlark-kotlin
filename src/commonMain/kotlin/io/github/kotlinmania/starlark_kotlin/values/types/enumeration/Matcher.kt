@@ -20,9 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.type_instance_id.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.matcher.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
 
@@ -31,7 +28,7 @@ internal data class EnumTypeMatcher(
 ) : TypeMatcher {
     // impl TypeMatcher for EnumTypeMatcher
     override fun matches(value: Value): Boolean {
-        val en = EnumValue.fromValue(value) ?: return false
+        val en = EnumType.fromValue(value) ?: return false
         return en.id == id
     }
 }

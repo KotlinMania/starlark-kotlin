@@ -203,7 +203,7 @@ internal fun BcFrame.trace(tracer: Tracer) {
 // pub(crate) struct BcFramePtr<'v> {
 //     slots_ptr: *mut Option<Value<'v>>,
 // }
-class BcFramePtr(
+class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {
     companion object {

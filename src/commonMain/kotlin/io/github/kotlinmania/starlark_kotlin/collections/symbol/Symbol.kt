@@ -63,7 +63,7 @@ class Symbol private constructor(
         return bytes.decodeToString()
     }
 
-    fun asAlignedPaddedStr(): AlignedPaddedStr =
+    internal fun asAlignedPaddedStr(): AlignedPaddedStr =
         AlignedPaddedStr(asStr())
 
     fun asStrHashed(): Hashed<String> =

@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -65,7 +66,7 @@ internal class AValueComplex(
     override fun offsetOfExtra(): Int = 0
 
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
-    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(0)
+    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(me: *mut AValueRepr<Self::StarlarkValue>, freezer: &Freezer) -> FreezeResult<FrozenValue>
     override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
@@ -116,7 +117,7 @@ internal class AValueComplexNoFreeze(
     override fun offsetOfExtra(): Int = 0
 
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
-    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(0)
+    override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
     override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {

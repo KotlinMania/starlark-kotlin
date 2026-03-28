@@ -22,9 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ModuleScopeData
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeNames
+// ModuleScopeData, ScopeId, ScopeNames are in the same package (eval.compiler)
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef

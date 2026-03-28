@@ -119,7 +119,7 @@ object BTreeMapStarlarkTypeRepr {
 object BTreeMapUnpackValue {
     fun <K : Comparable<K>, T : Any> unpackValueImpl(value: Value): Result<MutableMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
-        val r = sortedMapOf<K, T>()
+        val r = mutableMapOf<K, T>()
         for ((k, v) in dict.deref().iter()) {
             @Suppress("UNCHECKED_CAST")
             val unpackedK = (k as? K) ?: return Result.success(null)

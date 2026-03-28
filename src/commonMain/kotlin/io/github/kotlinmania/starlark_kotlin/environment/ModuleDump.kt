@@ -29,7 +29,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 /** Print a lot of module internals for debugging. */
 fun FrozenModule.dumpDebug(): String {
     return buildString {
-        appendLine("Eval duration: ${"%.3f".format(evalDuration.inWholeMilliseconds / 1000.0)}s")
+        val secs = evalDuration.inWholeMilliseconds / 1000.0
+        appendLine("Eval duration: ${((secs * 1000).toLong() / 1000.0)}s")
         appendLine("Heap stats:")
         append(frozenHeap().dumpDebug())
 

@@ -24,7 +24,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 
-private class TypingMacroRefsError(repr: String) : Exception("LHS is not a type: \`$repr\`")
+private class TypingMacroRefsError(repr: String) : Exception("LHS is not a type: `$repr`")
 
 /** Implementation of `bitOr` for [StarlarkValue] implementations which are types. */
 fun starlarkValueBitOrForType(

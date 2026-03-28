@@ -30,14 +30,14 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
  */
 data class BcInstrSlowArg(
     /** Instruction code span. */
-    val span: FrameSpan = FrameSpan.default(),
+    val span: FrameSpan = FrameSpan.DEFAULT,
     /** Spans when an instruction needs multiple spans. */
     val spans: MutableList<FrameSpan> = mutableListOf(),
 )
 
 data class BcInstrEndArg(
     /** Offset of end instruction. */
-    val endAddr: BcAddr = BcAddr.default(),
+    val endAddr: BcAddr = BcAddr(0u),
     /** Spans of all instructions. */
     val slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>> = mutableListOf(),
     /** Frame local names. */

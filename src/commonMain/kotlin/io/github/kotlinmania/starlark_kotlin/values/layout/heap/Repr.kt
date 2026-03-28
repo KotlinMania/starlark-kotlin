@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.types.int.AValueDyn
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.memorySize
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
@@ -50,7 +48,7 @@ class AValueHeader(
 
     /// Unpack the header into its dynamic value accessor.
     // pub(crate) fn unpack<'v>(&'v self) -> AValueDyn<'v>
-    fun unpack(): AValueDyn {
+    internal fun unpack(): AValueDyn {
         return vtable.unpackDyn()
     }
 
@@ -160,7 +158,7 @@ sealed class AValueOrForward {
     class Forward(val forward: AValueForward) : AValueOrForward()
 
     // pub(crate) fn unpack(&self) -> AValueOrForwardUnpack<'_>
-    fun unpack(): AValueOrForwardUnpack = when (this) {
+    internal fun unpack(): AValueOrForwardUnpack = when (this) {
         is Header -> AValueOrForwardUnpack.Header(header)
         is Forward -> AValueOrForwardUnpack.Forward(forward)
     }
@@ -172,7 +170,7 @@ sealed class AValueOrForward {
     }
 
     // pub(crate) fn unpack_forward(&self) -> Option<&AValueForward>
-    fun unpackForward(): AValueForward? = when (this) {
+    internal fun unpackForward(): AValueForward? = when (this) {
         is Header -> null
         is Forward -> forward
     }

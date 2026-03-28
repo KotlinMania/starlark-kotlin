@@ -49,8 +49,9 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.concurrent.atomics.AtomicInt
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
+import io.github.kotlinmania.starlark_kotlin.runBlocking
+import io.github.kotlinmania.starlark_kotlin.ReentrantLock
+import io.github.kotlinmania.starlark_kotlin.withLock
 
 internal object implementation {
 
@@ -116,7 +117,7 @@ private class MessageChannel<T> {
     }
 
     fun recv(): Result<T> {
-        return kotlinx.coroutines.runBlocking {
+        return runBlocking {
             try {
                 Result.success(channel.receive())
             } catch (e: Exception) {

@@ -113,7 +113,7 @@ sealed class TyBasic : Comparable<TyBasic> {
     internal fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {
         when (this) {
             is Any -> sb.append(TypingAny.TYPE)
-            is StarlarkValue -> value.fmtWithConfig(sb, config)
+            is StarlarkValue -> sb.append(value.fmtWithConfig(config))
             is Iter -> {
                 if (item.isAny()) {
                     sb.append("typing.Iterable")
@@ -129,7 +129,7 @@ sealed class TyBasic : Comparable<TyBasic> {
                     sb.append("list[${item.displayWith(config)}]")
                 }
             }
-            is Tuple -> tuple.fmtWithConfig(sb, config)
+            is Tuple -> sb.append(tuple.fmtWithConfig(config))
             is Dict -> {
                 if (key.isAny() && value.isAny()) {
                     sb.append("dict")

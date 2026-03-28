@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.newFrozen
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
-private sealed class OwnedError(override val message: String) : Exception(message) {
+internal sealed class OwnedError(override val message: String) : Exception(message) {
     class WrongType(typeName: String, actual: String) : OwnedError(
         "Expected value of type `$typeName` but got `$actual`"
     )
@@ -44,9 +44,9 @@ private sealed class OwnedError(override val message: String) : Exception(messag
 /// See the other methods which unpack the code, access it as a
 /// [Value] (which has a suitable lifetime) or add references to other heaps.
 class OwnedFrozenValue(
-    private val owner: FrozenHeapRef,
+    @PublishedApi internal val owner: FrozenHeapRef,
     // Invariant: this FrozenValue must be kept alive by the `owner` field.
-    private val value: FrozenValue,
+    @PublishedApi internal val value: FrozenValue,
 ) {
 
     companion object {
@@ -73,7 +73,7 @@ class OwnedFrozenValue(
     fun unpackStr(): String? = value.unpackStr()
 
     /// Check if `self` references a value of type [T].
-    inline fun <reified T : StarlarkValue> downcast(): Result<OwnedFrozenValueTyped<T>> {
+    internal inline fun <reified T : StarlarkValue> downcast(): Result<OwnedFrozenValueTyped<T>> {
         val typed = FrozenValueTyped.new<T>(value)
         return if (typed != null) {
             Result.success(OwnedFrozenValueTyped(owner, typed))

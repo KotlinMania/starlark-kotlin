@@ -300,7 +300,7 @@ internal class FrozenModuleData(
 /// released unless you obtain a reference to the frozen heap.
 ///
 /// pub struct Module<'v>
-class Module(
+class Module internal constructor(
     private val heap: Heap,
     private val frozenHeap: FrozenHeap = FrozenHeap(),
     private val names: MutableNames = MutableNames(),

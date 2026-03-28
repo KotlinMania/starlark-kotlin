@@ -23,13 +23,9 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.string.String
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.analysis.Statements
-import io.github.kotlinmania.starlark_kotlin.analysis.Expression
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.analysis.stmts
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 
 /// Controls the formatting to use when parsing [DocString]s from raw docstrings.
@@ -105,7 +101,7 @@ private fun dedent(text: String): String {
 
 // remove_rust_comments
 // ```(\w*)\n.*?``` with DOTALL
-private val CODEBLOCK_RE = Regex("""```(\w*)\n.*?```""", RegexOption.DOT_MATCHES_ALL)
+private val CODEBLOCK_RE = Regex("""```(\w*)\n[\s\S]*?```""")
 // ^# .*$\n with MULTILINE
 private val COMMENT_RE = Regex("""^# .*$\n""", RegexOption.MULTILINE)
 
