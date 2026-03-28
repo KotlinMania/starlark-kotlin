@@ -19,232 +19,156 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import kotlin.jvm.JvmInline
-
 /**
  * A trait to represent zero-cost conversions.
- *
- * Kotlin commonMain cannot derive or verify raw memory layouts the way Rust can. This file keeps the
- * Rust proof surface and uses unchecked casts for the actual reinterpretation sites.
  */
 
-// `pub use starlark_derive::Coerce;`
-// Kotlin has no direct equivalent of the Rust derive macro in commonMain.
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+
+// pub use starlark_derive::Coerce;
 
 /**
  * A marker interface such that the existence of `From: Coerce<To>` implies
  * that `From` can be treated as `To` without any data manipulation.
- * Particularly useful for containers, e.g. `Vec<From>` can be treated as
- * `Vec<To>` in _O(1)_. If such an instance is available,
+ * Particularly useful for containers, e.g. `List<From>` can be treated as
+ * `List<To>` in _O(1)_. If such an instance is available,
  * you can use [coerce] to perform the conversion.
  *
  * Importantly, you must make sure the runtime does not change the type representation
  * between the different types, and it must be safe for the `From` to be treated as `To`,
  * namely same (or less restrictive) alignment, no additional invariants,
- * and a value can be dropped as `To`.
+ * value can be dropped as `To`.
+ *
+ * If you only need [coerce] on newtype references, then ref-cast provides that.
  */
-interface Coerce<To, From> {
-    fun coerce(value: From): To
-}
+interface Coerce<To>
 
 /**
  * A marker interface such that the existence of `From: CoerceKey<To>` implies
  * that `From` can be treated as `To` without any data manipulation.
- * Furthermore, above and beyond [Coerce], any provided `Hash`, `Eq`, `PartialEq`,
- * `Ord`, and `PartialOrd` behaviour must give identical results on the `From`
- * and `To` values.
+ * Furthermore, above and beyond [Coerce], any provided [hashCode],
+ * [equals], and [Comparable] implementations must give identical results
+ * on the `From` and `To` values.
  *
  * This interface is mostly expected to be a requirement for the keys of associative-map
  * containers, hence the `Key` in the name.
  */
-interface CoerceKey<To, From> : Coerce<To, From>
+interface CoerceKey<To> : Coerce<To>
 
-/** Kotlin stand-in for Rust references used in the blanket impls below. */
-@JvmInline
-value class Borrowed<T>(
-    val value: T,
-)
+// --- Blanket coercion implementations ---
+// In Rust these are unsafe impl blocks that serve as compile-time guarantees.
+// In Kotlin we implement the same conversions as typed functions.
 
-/**
- * Kotlin stand-in for Rust's `Box<T>`.
- *
- * In Rust, `Box<T>` is an owned heap pointer. In Kotlin all reference types are heap-allocated,
- * so this wrapper exists only to satisfy the coercion API surface.
- */
-data class Box<T>(val value: T)
-
-/**
- * Kotlin stand-in for Rust's 1-tuple `(T,)`.
- *
- * Kotlin has no single-element tuple syntax; this data class provides an equivalent.
- */
-data class Tuple1<A>(val first: A)
-
-/**
- * Kotlin stand-in for Rust's `std::marker::PhantomData<T>`.
- *
- * In Rust, `PhantomData<T>` is a zero-size type used as a variance/lifetime marker.
- * In Kotlin it is a plain class that carries no data and is used only to satisfy type bounds.
- */
-class PhantomData<T>
-
-/** Kotlin stand-in for `ManuallyDrop<T>`. */
-class ManuallyDrop<T> private constructor(
-    private val value: T,
-) {
-    fun deref(): T = value
-
-    companion object {
-        fun <T> new(value: T): ManuallyDrop<T> = ManuallyDrop(value)
-    }
-}
-
-/** Kotlin stand-in for `Layout::new::<T>()`. */
-object CoerceLayout {
-    inline fun <reified T> new(): CoerceLayout = this
-}
-
+/** unsafe impl<'a, From, To> Coerce<&'a To> for &'a From where From: Coerce<To> */
 @Suppress("UNCHECKED_CAST")
-@PublishedApi
-internal fun <To, From> cast(value: From): To = value as To
+fun <From, To> coerceRef(x: From): To = x as To
 
-class BorrowedCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<Borrowed<To>, Borrowed<From>> {
-    override fun coerce(value: Borrowed<From>): Borrowed<To> = cast(value)
-}
+/** unsafe impl<'a, From, To> CoerceKey<&'a To> for &'a From where From: CoerceKey<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeyRef(x: From): To = x as To
 
-class BorrowedCoerceKey<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : CoerceKey<Borrowed<To>, Borrowed<From>> {
-    override fun coerce(value: Borrowed<From>): Borrowed<To> = cast(value)
-}
+/** unsafe impl<From, To> Coerce<[To]> for [From] where From: Coerce<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceSlice(x: List<From>): List<To> = x as List<To>
 
-class SliceCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<List<To>, List<From>> {
-    override fun coerce(value: List<From>): List<To> = cast(value)
-}
+/** unsafe impl<From, To> CoerceKey<[To]> for [From] where From: CoerceKey<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeySlice(x: List<From>): List<To> = x as List<To>
 
-class SliceCoerceKey<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : CoerceKey<List<To>, List<From>> {
-    override fun coerce(value: List<From>): List<To> = cast(value)
-}
+/** unsafe impl<From, To> Coerce<Vec<To>> for Vec<From> where From: Coerce<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceVec(x: MutableList<From>): MutableList<To> = x as MutableList<To>
 
-class VecCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<MutableList<To>, MutableList<From>> {
-    override fun coerce(value: MutableList<From>): MutableList<To> = cast(value)
-}
+/** unsafe impl<From, To> CoerceKey<Vec<To>> for Vec<From> where From: CoerceKey<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeyVec(x: MutableList<From>): MutableList<To> = x as MutableList<To>
 
-class VecCoerceKey<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : CoerceKey<MutableList<To>, MutableList<From>> {
-    override fun coerce(value: MutableList<From>): MutableList<To> = cast(value)
-}
+/** unsafe impl<From, To> Coerce<Box<To>> for Box<From> where From: Coerce<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceBox(x: From): To = x as To
 
-class BoxCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<Box<To>, Box<From>> {
-    override fun coerce(value: Box<From>): Box<To> = cast(value)
-}
+/** unsafe impl<From, To> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeyBox(x: From): To = x as To
 
-class BoxCoerceKey<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : CoerceKey<Box<To>, Box<From>> {
-    override fun coerce(value: Box<From>): Box<To> = cast(value)
-}
+/** unsafe impl<From, To> Coerce<HashSet<To>> for HashSet<From> where From: CoerceKey<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceHashSet(x: Set<From>): Set<To> = x as Set<To>
 
-class HashSetCoerce<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : Coerce<Set<To>, Set<From>> {
-    override fun coerce(value: Set<From>): Set<To> = cast(value)
-}
+/** unsafe impl<FromK, FromV, ToK, ToV> Coerce<HashMap<ToK, ToV>> for HashMap<FromK, FromV>
+ *  where FromK: CoerceKey<ToK>, FromV: Coerce<ToV> */
+@Suppress("UNCHECKED_CAST")
+fun <FromK, FromV, ToK, ToV> coerceHashMap(x: Map<FromK, FromV>): Map<ToK, ToV> = x as Map<ToK, ToV>
 
-class HashMapCoerce<ToK, ToV, FromK, FromV>(
-    private val keyCoerce: CoerceKey<ToK, FromK>,
-    private val valueCoerce: Coerce<ToV, FromV>,
-) : Coerce<Map<ToK, ToV>, Map<FromK, FromV>> {
-    override fun coerce(value: Map<FromK, FromV>): Map<ToK, ToV> = cast(value)
-}
+/** unsafe impl<From1: Coerce<To1>, To1> Coerce<(To1,)> for (From1,) */
+@Suppress("UNCHECKED_CAST")
+fun <From1, To1> coerceSingle(x: From1): To1 = x as To1
 
-class Tuple1Coerce<To1, From1>(
-    private val firstCoerce: Coerce<To1, From1>,
-) : Coerce<Tuple1<To1>, Tuple1<From1>> {
-    override fun coerce(value: Tuple1<From1>): Tuple1<To1> = cast(value)
-}
+/** unsafe impl<From1: CoerceKey<To1>, To1> CoerceKey<(To1,)> for (From1,) */
+@Suppress("UNCHECKED_CAST")
+fun <From1, To1> coerceKeySingle(x: From1): To1 = x as To1
 
-class Tuple1CoerceKey<To1, From1>(
-    private val firstCoerce: CoerceKey<To1, From1>,
-) : CoerceKey<Tuple1<To1>, Tuple1<From1>> {
-    override fun coerce(value: Tuple1<From1>): Tuple1<To1> = cast(value)
-}
+/** unsafe impl<From1: Coerce<To1>, From2: Coerce<To2>, To1, To2> Coerce<(To1, To2)> for (From1, From2) */
+@Suppress("UNCHECKED_CAST")
+fun <From1, From2, To1, To2> coercePair(x: Pair<From1, From2>): Pair<To1, To2> = x as Pair<To1, To2>
 
-class PairCoerce<To1, To2, From1, From2>(
-    private val firstCoerce: Coerce<To1, From1>,
-    private val secondCoerce: Coerce<To2, From2>,
-) : Coerce<Pair<To1, To2>, Pair<From1, From2>> {
-    override fun coerce(value: Pair<From1, From2>): Pair<To1, To2> = cast(value)
-}
+/** unsafe impl<From1: CoerceKey<To1>, From2: CoerceKey<To2>, To1, To2> CoerceKey<(To1, To2)> for (From1, From2) */
+@Suppress("UNCHECKED_CAST")
+fun <From1, From2, To1, To2> coerceKeyPair(x: Pair<From1, From2>): Pair<To1, To2> = x as Pair<To1, To2>
 
-class PairCoerceKey<To1, To2, From1, From2>(
-    private val firstCoerce: CoerceKey<To1, From1>,
-    private val secondCoerce: CoerceKey<To2, From2>,
-) : CoerceKey<Pair<To1, To2>, Pair<From1, From2>> {
-    override fun coerce(value: Pair<From1, From2>): Pair<To1, To2> = cast(value)
-}
+/** unsafe impl<From: Coerce<To>, To, const N: usize> Coerce<[To; N]> for [From; N] */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceArray(x: Array<From>): Array<To> = x as Array<To>
 
-class ArrayCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<Array<To>, Array<From>> {
-    override fun coerce(value: Array<From>): Array<To> = cast(value)
-}
+/** unsafe impl<From: CoerceKey<To>, To, const N: usize> CoerceKey<[To; N]> for [From; N] */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeyArray(x: Array<From>): Array<To> = x as Array<To>
 
-class ArrayCoerceKey<To, From>(
-    private val inner: CoerceKey<To, From>,
-) : CoerceKey<Array<To>, Array<From>> {
-    override fun coerce(value: Array<From>): Array<To> = cast(value)
-}
+/** unsafe impl<From, To> Coerce<PhantomData<To>> for PhantomData<From> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coercePhantomData(x: From): To = x as To
 
-class PhantomDataCoerce<To, From> : Coerce<PhantomData<To>, PhantomData<From>> {
-    override fun coerce(value: PhantomData<From>): PhantomData<To> = cast(value)
-}
+// We can't define a blanket Coerce<T> for T because that conflicts with the specific traits above.
+// Therefore, we define instances where we think they might be useful, rather than trying to do every concrete type.
 
-object StringCoerce : Coerce<String, String>, CoerceKey<String, String> {
-    override fun coerce(value: String): String = value
-}
+/** unsafe impl Coerce<String> for String */
+fun coerceString(x: String): String = x
 
-object StrCoerce : Coerce<CharSequence, CharSequence>, CoerceKey<CharSequence, CharSequence> {
-    override fun coerce(value: CharSequence): CharSequence = value
-}
+/** unsafe impl CoerceKey<String> for String */
+fun coerceKeyString(x: String): String = x
 
-object UnitCoerce : Coerce<Unit, Unit>, CoerceKey<Unit, Unit> {
-    override fun coerce(value: Unit): Unit = value
-}
+/** unsafe impl Coerce<str> for str */
+fun coerceStr(x: String): String = x
 
-class SmallMapCoerce<ToK, ToV, FromK, FromV>(
-    private val keyCoerce: CoerceKey<ToK, FromK>,
-    private val valueCoerce: Coerce<ToV, FromV>,
-) : Coerce<SmallMap<ToK, ToV>, SmallMap<FromK, FromV>> {
-    override fun coerce(value: SmallMap<FromK, FromV>): SmallMap<ToK, ToV> = cast(value)
-}
+/** unsafe impl CoerceKey<str> for str */
+fun coerceKeyStr(x: String): String = x
 
-class SmallSetCoerce<To, From>(
-    private val inner: Coerce<To, From>,
-) : Coerce<SmallSet<To>, SmallSet<From>> {
-    override fun coerce(value: SmallSet<From>): SmallSet<To> = cast(value)
-}
+/** unsafe impl Coerce<()> for () */
+fun coerceUnit(x: Unit): Unit = x
+
+/** unsafe impl CoerceKey<()> for () */
+fun coerceKeyUnit(x: Unit): Unit = x
+
+/** unsafe impl<FromK, FromV, ToK, ToV> Coerce<SmallMap<ToK, ToV>> for SmallMap<FromK, FromV>
+ *  where FromK: CoerceKey<ToK>, FromV: Coerce<ToV> */
+@Suppress("UNCHECKED_CAST")
+fun <FromK, FromV, ToK, ToV> coerceSmallMap(x: SmallMap<FromK, FromV>): SmallMap<ToK, ToV> = x as SmallMap<ToK, ToV>
+
+/** unsafe impl<From, To> Coerce<SmallSet<To>> for SmallSet<From> where From: Coerce<To> */
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceSmallSet(x: SmallSet<From>): SmallSet<To> = x as SmallSet<To>
 
 /**
  * Safely convert between types which have a [Coerce] relationship.
  * Often the second type argument will need to be given explicitly,
  * e.g. `coerce<FromType, ToType>(x)`.
  */
-inline fun <reified From, reified To> coerce(x: From): To {
-    check(CoerceLayout.new<From>() == CoerceLayout.new<To>())
-    val dropped = ManuallyDrop.new(x)
-    return cast(dropped.deref())
+@Suppress("UNCHECKED_CAST")
+inline fun <From, reified To> coerce(x: From): To {
+    // In Rust: assert_eq!(Layout::new::<From>(), Layout::new::<To>());
+    // Layout assertions are not available in Kotlin Multiplatform.
+    // let x = ManuallyDrop::new(x);
+    // unsafe { ptr::read(x.deref() as *const From as *const To) }
+    return x as To
 }
