@@ -241,7 +241,7 @@ y = 8 * 9 + 2
 f
 """,
         Dialect.AllOptionsInternal,
-    )
+    ).getOrThrow()
     val globals = Globals.standard()
     Heap.temp { heap ->
         val module = Module.withHeap(heap)
@@ -250,7 +250,7 @@ f
 
         val eval = Evaluator(module)
         eval.enableProfile(ProfileMode.HeapSummaryAllocated)
-        val f = eval.evalModule(ast, globals)
+        val f = eval.evalModule(ast, globals).getOrThrow()
 
         // first check module profiling works
         HeapProfile.writeSummarizedHeapProfile(module.heap())
@@ -259,7 +259,7 @@ f
         // second check function profiling works
         val eval2 = Evaluator(module2)
         eval2.enableProfile(ProfileMode.HeapSummaryAllocated)
-        eval2.evalFunction(f, listOf(Value.testingNewInt(100)), listOf())
+        eval2.evalFunction(f, listOf(Value.testingNewInt(100)), listOf()).getOrThrow()
 
         HeapProfile.writeSummarizedHeapProfile(module2.heap())
         HeapProfile.writeFlameHeapProfile(module2.heap())
@@ -268,7 +268,7 @@ f
         val eval3 = Evaluator(module3)
         module3.heap().alloc("Thing that goes before")
         eval3.enableProfile(ProfileMode.HeapSummaryAllocated)
-        eval3.evalFunction(f, listOf(Value.testingNewInt(100)), listOf())
+        eval3.evalFunction(f, listOf(Value.testingNewInt(100)), listOf()).getOrThrow()
 
         module3.heap().alloc("Thing that goes after")
         HeapProfile.writeSummarizedHeapProfile(module3.heap())

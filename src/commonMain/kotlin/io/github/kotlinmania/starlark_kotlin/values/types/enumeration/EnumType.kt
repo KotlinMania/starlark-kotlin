@@ -169,7 +169,7 @@ class EnumTypeGen internal constructor(
     // fn invoke(...)
     fun invoke(me: Value, args: Arguments, eval: Evaluator): Value {
         args.noNamedArgs()
-        val v = args.positional1(eval.heap())
+        val v = args.positional1(eval.heap()).getOrThrow()
         return construct(v)
     }
 

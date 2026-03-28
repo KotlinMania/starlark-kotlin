@@ -83,7 +83,7 @@ internal fun map(
     val it = seq.get().iterate(eval.heap())
     val res = mutableListOf<Value>()
     for (v in it) {
-        res.add(func.get().invokePos(listOf(v), eval))
+        res.add(func.get().invokePos(listOf(v), eval).getOrThrow())
     }
     return Result.success(res)
 }

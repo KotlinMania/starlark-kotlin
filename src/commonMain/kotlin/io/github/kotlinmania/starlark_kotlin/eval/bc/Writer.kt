@@ -243,7 +243,7 @@ internal class BcWriter(
 
     /// Write load constant instruction.
     fun writeConst(span: FrameSpan, value: FrozenValue, slot: BcSlotOut) {
-        check(slot.get().index < localCount() + stackSize)
+        check(slot.get().index < (localCount() + stackSize).toUInt())
         writeInstr("InstrConst", span, value to slot)
     }
 
@@ -253,7 +253,7 @@ internal class BcWriter(
         slot: LocalSlotId,
         target: BcSlotOut,
     ) {
-        check(slot.index < localCount())
+        check(slot.index < localCount().toUInt())
         val definiteSlot = tryDefinitelyAssigned(slot)
         if (definiteSlot != null) {
             writeMov(span, definiteSlot, target)
@@ -267,14 +267,14 @@ internal class BcWriter(
         source: LocalCapturedSlotId,
         target: BcSlotOut,
     ) {
-        check(source.index < localCount())
-        check(target.get().index < localCount() + stackSize)
+        check(source.index < localCount().toUInt())
+        check(target.get().index < (localCount() + stackSize).toUInt())
         writeInstrRetArg("InstrLoadLocalCaptured", span, source to target)
     }
 
     fun writeMov(span: FrameSpan, source: BcSlotIn, target: BcSlotOut) {
-        check(source.get().index < localCount() + stackSize)
-        check(target.get().index < localCount() + stackSize)
+        check(source.get().index < (localCount() + stackSize).toUInt())
+        check(target.get().index < (localCount() + stackSize).toUInt())
 
         // Do not emit no-op `Mov`.
         // It can occur when compiling code like `x = x`.
@@ -291,8 +291,8 @@ internal class BcWriter(
         source: BcSlotIn,
         target: LocalCapturedSlotId,
     ) {
-        check(source.get().index < localCount() + stackSize)
-        check(target.index < localCount())
+        check(source.get().index < (localCount() + stackSize).toUInt())
+        check(target.index < localCount().toUInt())
         writeInstrRetArg("InstrStoreLocalCaptured", span, source to target)
     }
 
@@ -446,7 +446,7 @@ internal class BcWriter(
     /// Convert local variable to BC slot if it is known to be definitely assigned
     /// at this execution point.
     fun tryDefinitelyAssigned(local: LocalSlotId): BcSlotIn? {
-        check(local.index < localCount())
+        check(local.index < localCount().toUInt())
         return if (definitelyAssigned.isDefinitelyAssigned(local)) {
             local.toBcSlot().toIn()
         } else {
@@ -513,7 +513,7 @@ internal class BcWriter(
             // but they are released after the callback returns.
             // So resulting slots are sequential.
             expr(end, item, this)
-            end = BcSlot(end.index + 1)
+            end = BcSlot(end.index + 1.toUInt())
         }
         val range = if (end.index == start.index) {
             // This is not really necessary, empty range is equally valid
@@ -524,7 +524,7 @@ internal class BcWriter(
             BcSlotRange(start, end).toIn()
         }
         val r = k(range, this)
-        stackSub(end.index - start.index)
+        stackSub((end.index - start.index).toInt())
         return r
     }
 

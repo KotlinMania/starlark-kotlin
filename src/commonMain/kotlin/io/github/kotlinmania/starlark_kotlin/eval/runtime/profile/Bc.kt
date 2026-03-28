@@ -294,7 +294,7 @@ internal fun testSmoke() {
         val eval = Evaluator(module)
         eval.enableProfile(ProfileMode.Bytecode)
         eval.evalModule(
-            AstModule.parse("bc.star", "repr([1, 2])", Dialect.Standard),
+            AstModule.parse("bc.star", "repr([1, 2])", Dialect.Standard).getOrThrow(),
             globals,
         )
         val csv = eval.genBcProfile().genCsv()
@@ -309,7 +309,7 @@ internal fun testSmoke2() {
         val eval = Evaluator(module)
         eval.enableProfile(ProfileMode.BytecodePairs)
         eval.evalModule(
-            AstModule.parse("bc.star", "repr([1, 2])", Dialect.Standard),
+            AstModule.parse("bc.star", "repr([1, 2])", Dialect.Standard).getOrThrow(),
             globals,
         )
         val csv = eval.genBcPairsProfile().genCsv()

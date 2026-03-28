@@ -68,7 +68,7 @@ test()
 R = test()
 """,
                 Dialect.AllOptionsInternal,
-            ),
+            ).getOrThrow(),
             GlobalsBuilder.extended().with(::testFunctions).build(),
         )
 

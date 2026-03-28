@@ -96,7 +96,7 @@ fun zip(
                 v.add(heap.alloc(listOf(e)))
                 idx += 1
             } else if (idx < v.size) {
-                v[idx] = v[idx].add(heap.alloc(listOf(e)), heap)
+                v[idx] = v[idx].add(heap.alloc(listOf(e)), heap).getOrThrow()
                 idx += 1
             }
         }

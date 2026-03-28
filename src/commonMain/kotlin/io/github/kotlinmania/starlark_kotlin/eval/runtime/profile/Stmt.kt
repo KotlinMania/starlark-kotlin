@@ -324,7 +324,7 @@ xx(*[1])
 xx(*[2])
 """,
             Dialect.AllOptionsInternal,
-        )
+        ).getOrThrow()
         eval.enableProfile(ProfileMode.Coverage)
         val globals = GlobalsBuilder.standard()
         testFunctions(globals)
