@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.eval.bc.withCallStack
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 /// A value or an unbound method or unbound attribute.
 // #[derive(Clone)]

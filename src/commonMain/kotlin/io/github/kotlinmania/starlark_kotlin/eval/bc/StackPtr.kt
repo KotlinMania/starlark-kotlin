@@ -75,6 +75,8 @@ class BcSlotsN(
         return start + i
     }
 
+    fun get(i: Int): BcSlot = get(i.toUInt())
+
     companion object {
         // pub(crate) fn from_range(range: BcSlotRange) -> BcSlotsN<N>
         fun fromRange(n: Int, range: BcSlotRange): BcSlotsN {
@@ -91,7 +93,7 @@ class BcSlotsN(
 data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,
-) {
+) : Iterable<BcSlot> {
     // impl BcSlotRange
 
     // pub(crate) fn len(self) -> u32
@@ -101,6 +103,8 @@ data class BcSlotRange(
     fun iter(): Sequence<BcSlot> =
         // (self.start.0..self.end.0).map(BcSlot)
         (start.index..<end.index).asSequence().map { BcSlot(it) }
+
+    override fun iterator(): Iterator<BcSlot> = iter().iterator()
 
     // pub(crate) fn to_in(self) -> BcSlotInRange
     fun toIn(): BcSlotInRange = BcSlotInRange(

@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstAssignIdent
@@ -44,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.payload.CstType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
@@ -70,6 +69,8 @@ import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 
 // ---- DefError ----
 
@@ -128,7 +129,7 @@ internal sealed class ParameterCompiled<out T> {
         /** Name. */
         val paramName: ParameterName,
         /** Type. */
-        val type: TypeCompiled<FrozenValue>?,
+        val type: TypeCompiled?,
         /** Default value. */
         val defaultValue: T?,
     ) : ParameterCompiled<T>()
@@ -138,7 +139,7 @@ internal sealed class ParameterCompiled<out T> {
      */
     data class Args<T>(
         val paramName: ParameterName,
-        val type: TypeCompiled<FrozenValue>?,
+        val type: TypeCompiled?,
     ) : ParameterCompiled<T>()
 
     /**
@@ -146,7 +147,7 @@ internal sealed class ParameterCompiled<out T> {
      */
     data class KwArgs<T>(
         val paramName: ParameterName,
-        val type: TypeCompiled<FrozenValue>?,
+        val type: TypeCompiled?,
     ) : ParameterCompiled<T>()
 }
 
@@ -178,7 +179,7 @@ internal fun <T> ParameterCompiled<T>.captured(): Captured {
 /**
  * Returns a pair of the parameter name and its optional type.
  */
-internal fun <T> ParameterCompiled<T>.nameTy(): Pair<ParameterName, TypeCompiled<FrozenValue>?> {
+internal fun <T> ParameterCompiled<T>.nameTy(): Pair<ParameterName, TypeCompiled?> {
     return when (this) {
         is ParameterCompiled.Normal -> Pair(paramName, type)
         is ParameterCompiled.Args -> Pair(paramName, type)
@@ -418,7 +419,7 @@ internal class DefInfo(
 internal data class DefCompiled(
     val functionName: String,
     val params: ParametersCompiled<IrSpanned<ExprCompiled>>,
-    val returnType: TypeCompiled<FrozenValue>?,
+    val returnType: TypeCompiled?,
     val info: FrozenRef<DefInfo>,
 )
 
@@ -571,9 +572,9 @@ internal class DefGen<V>(
      * Sparse indexed array: `(slotId, argName, typeCompiled)` implies the parameter at
      * `slotId` named `argName` must have the given type.
      */
-    private val parameterTypes: List<Triple<LocalSlotId, String, TypeCompiled<FrozenValue>>>,
+    private val parameterTypes: List<Triple<LocalSlotId, String, TypeCompiled>>,
     /** The return type annotation for the function. */
-    val returnType: TypeCompiled<FrozenValue>?,
+    val returnType: TypeCompiled?,
     /**
      * Data created during function compilation but before function instantiation.
      * [DefInfo] can be shared by multiple `def` instances; for example,
@@ -822,8 +823,8 @@ internal interface DefLike {
  */
 internal fun newDef(
     parameters: ParametersSpec<Value>,
-    parameterTypes: List<Triple<LocalSlotId, String, TypeCompiled<FrozenValue>>>,
-    returnType: TypeCompiled<FrozenValue>?,
+    parameterTypes: List<Triple<LocalSlotId, String, TypeCompiled>>,
+    returnType: TypeCompiled?,
     stmt: DefInfo,
     eval: Evaluator,
 ): Result<Value> {

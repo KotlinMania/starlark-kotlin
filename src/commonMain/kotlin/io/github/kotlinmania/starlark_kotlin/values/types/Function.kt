@@ -56,6 +56,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.asTy
 import io.github.kotlinmania.starlark_kotlin.values.documentation
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 // #[derive(Debug, thiserror::Error)]
 // enum FunctionError

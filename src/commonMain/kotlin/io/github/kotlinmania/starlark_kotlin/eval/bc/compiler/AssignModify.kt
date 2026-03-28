@@ -44,17 +44,17 @@ private fun AssignOp.writeBc(
 ) {
     val arg = Triple(v0, v1, target)
     when (this) {
-        AssignOp.Add -> bc.writeInstr<InstrAddAssign>(span, arg)
-        AssignOp.Subtract -> bc.writeInstr<InstrSub>(span, arg)
-        AssignOp.Multiply -> bc.writeInstr<InstrMultiply>(span, arg)
-        AssignOp.Divide -> bc.writeInstr<InstrDivide>(span, arg)
-        AssignOp.FloorDivide -> bc.writeInstr<InstrFloorDivide>(span, arg)
-        AssignOp.Percent -> bc.writeInstr<InstrPercent>(span, arg)
-        AssignOp.BitAnd -> bc.writeInstr<InstrBitAnd>(span, arg)
-        AssignOp.BitOr -> bc.writeInstr<InstrBitOrAssign>(span, arg)
-        AssignOp.BitXor -> bc.writeInstr<InstrBitXor>(span, arg)
-        AssignOp.LeftShift -> bc.writeInstr<InstrLeftShift>(span, arg)
-        AssignOp.RightShift -> bc.writeInstr<InstrRightShift>(span, arg)
+        AssignOp.Add -> bc.writeInstr("InstrAddAssign", span, arg)
+        AssignOp.Subtract -> bc.writeInstr("InstrSub", span, arg)
+        AssignOp.Multiply -> bc.writeInstr("InstrMultiply", span, arg)
+        AssignOp.Divide -> bc.writeInstr("InstrDivide", span, arg)
+        AssignOp.FloorDivide -> bc.writeInstr("InstrFloorDivide", span, arg)
+        AssignOp.Percent -> bc.writeInstr("InstrPercent", span, arg)
+        AssignOp.BitAnd -> bc.writeInstr("InstrBitAnd", span, arg)
+        AssignOp.BitOr -> bc.writeInstr("InstrBitOrAssign", span, arg)
+        AssignOp.BitXor -> bc.writeInstr("InstrBitXor", span, arg)
+        AssignOp.LeftShift -> bc.writeInstr("InstrLeftShift", span, arg)
+        AssignOp.RightShift -> bc.writeInstr("InstrRightShift", span, arg)
     }
 }
 
@@ -65,14 +65,14 @@ private fun AssignOp.writeBc(
 internal fun AssignModifyLhs.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is AssignModifyLhs.Dot -> {
-            object_.markDefinitelyAssignedAfter(bc)
+            expr.markDefinitelyAssignedAfter(bc)
         }
         is AssignModifyLhs.Array -> {
-            array.markDefinitelyAssignedAfter(bc)
+            expr.markDefinitelyAssignedAfter(bc)
             index.markDefinitelyAssignedAfter(bc)
         }
         is AssignModifyLhs.LocalCaptured -> {}
-        is AssignModifyLhs.Local -> bc.markDefinitelyAssigned(local.node)
+        is AssignModifyLhs.Local -> bc.markDefinitelyAssigned(slot.node)
         is AssignModifyLhs.Module -> {}
     }
 }
@@ -86,10 +86,10 @@ internal fun AssignModifyLhs.writeBc(
 ) {
     when (this) {
         is AssignModifyLhs.Dot -> {
-            object_.writeBcCb(bc) { objectSlot, bc ->
-                bc.allocSlotsC { lhsRhs: BcSlotsN<*>, bc ->
-                    val field = Symbol(field.asStr())
-                    bc.writeInstr<InstrObjectField>(
+            expr.writeBcCb(bc) { objectSlot, bc ->
+                bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+                    val field = Symbol.new(name)
+                    bc.writeInstr("InstrObjectField", 
                         span,
                         Triple(objectSlot, field, lhsRhs.get(0).toOut()),
                     )
@@ -101,7 +101,7 @@ internal fun AssignModifyLhs.writeBc(
                         span,
                         bc,
                     )
-                    bc.writeInstr<InstrSetObjectField>(
+                    bc.writeInstr("InstrSetObjectField", 
                         span,
                         Triple(lhsRhs.get(1).toIn(), objectSlot, field),
                     )
@@ -109,13 +109,13 @@ internal fun AssignModifyLhs.writeBc(
             }
         }
         is AssignModifyLhs.Array -> {
-            writeNExprs(listOf(array, index), bc) { slots, bc ->
+            writeNExprs(listOf(expr, index), bc) { slots, bc ->
                 val (arraySlot, indexSlot) = slots
-                bc.allocSlotsC { tempSlots: BcSlotsN<*>, bc ->
+                bc.allocSlotsC(2) { tempSlots: BcSlotsN, bc ->
                     val tempSlot = tempSlots.get(0)
                     val rhsSlot = tempSlots.get(1)
 
-                    bc.writeInstr<InstrArrayIndex>(span, Triple(arraySlot, indexSlot, tempSlot.toOut()))
+                    bc.writeInstr("InstrArrayIndex", span, Triple(arraySlot, indexSlot, tempSlot.toOut()))
                     rhs.writeBc(rhsSlot.toOut(), bc)
                     op.writeBc(
                         tempSlot.toIn(),
@@ -124,15 +124,15 @@ internal fun AssignModifyLhs.writeBc(
                         span,
                         bc,
                     )
-                    bc.writeInstr<InstrArrayIndexSet>(
+                    bc.writeInstr("InstrArrayIndexSet", 
                         span,
                         Triple(arraySlot, indexSlot, tempSlot.toIn()),
                     )
                 }
             }
         }
-        is AssignModifyLhs.Local -> bc.allocSlotsC { lhsRhs: BcSlotsN<*>, bc ->
-            val slot = local.node
+        is AssignModifyLhs.Local -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+            val slot = this.slot.node
             bc.writeLoadLocal(span, slot, lhsRhs.get(0).toOut())
             rhs.writeBc(lhsRhs.get(1).toOut(), bc)
 
@@ -145,8 +145,8 @@ internal fun AssignModifyLhs.writeBc(
             )
             bc.writeMov(span, lhsRhs.get(1).toIn(), slot.toBcSlot().toOut())
         }
-        is AssignModifyLhs.LocalCaptured -> bc.allocSlotsC { lhsRhs: BcSlotsN<*>, bc ->
-            val slot = localCaptured.node
+        is AssignModifyLhs.LocalCaptured -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+            val slot = this.slot.node
             bc.writeLoadLocalCaptured(span, slot, lhsRhs.get(0).toOut())
             rhs.writeBc(lhsRhs.get(1).toOut(), bc)
 
@@ -159,9 +159,9 @@ internal fun AssignModifyLhs.writeBc(
             )
             bc.writeStoreLocalCaptured(span, lhsRhs.get(1).toIn(), slot)
         }
-        is AssignModifyLhs.Module -> bc.allocSlotsC { lhsRhs: BcSlotsN<*>, bc ->
-            val slot = Module.node
-            bc.writeInstr<InstrLoadModule>(span, Pair(slot, lhsRhs.get(0).toOut()))
+        is AssignModifyLhs.Module -> bc.allocSlotsC(2) { lhsRhs: BcSlotsN, bc ->
+            val slot = this.slot.node
+            bc.writeInstr("InstrLoadModule", span, Pair(slot, lhsRhs.get(0).toOut()))
             rhs.writeBc(lhsRhs.get(1).toOut(), bc)
             op.writeBc(
                 lhsRhs.get(0).toIn(),
@@ -170,7 +170,7 @@ internal fun AssignModifyLhs.writeBc(
                 span,
                 bc,
             )
-            bc.writeInstr<InstrStoreModule>(span, Pair(lhsRhs.get(1).toIn(), slot))
+            bc.writeInstr("InstrStoreModule", span, Pair(lhsRhs.get(1).toIn(), slot))
         }
     }
 }

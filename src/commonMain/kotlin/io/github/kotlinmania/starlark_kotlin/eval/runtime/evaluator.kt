@@ -93,6 +93,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.used
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Stmt
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :

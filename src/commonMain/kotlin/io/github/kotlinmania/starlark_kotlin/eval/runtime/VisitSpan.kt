@@ -24,12 +24,11 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
 import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Node
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -54,8 +53,8 @@ internal fun <V : VisitSpanMut> IrSpanned<V>.visitSpans(visitor: (FrameSpan) -> 
 internal fun FrozenValue.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
 /// [VisitSpanMut] impl for [TypeCompiled] — no spans.
-// impl VisitSpanMut for TypeCompiled<FrozenValue>
-internal fun TypeCompiled<FrozenValue>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
+// impl VisitSpanMut for TypeCompiled
+internal fun TypeCompiled.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
 /// [VisitSpanMut] impl for [String] — no spans.
 // impl VisitSpanMut for String

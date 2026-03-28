@@ -6,6 +6,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

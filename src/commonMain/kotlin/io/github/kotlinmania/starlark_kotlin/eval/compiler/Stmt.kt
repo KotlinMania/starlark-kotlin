@@ -29,9 +29,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.small_vec_1.SmallVec1
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.SmallVec1
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
@@ -41,19 +40,18 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictMut
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.GC_THRESHOLD
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
-import io.github.kotlinmania.starlark_kotlin.eval.bc.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.bc.LocalCapturedSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.getType
@@ -64,19 +62,7 @@ import io.github.kotlinmania.starlark_kotlin.values.iterate
 import io.github.kotlinmania.starlark_kotlin.values.index
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.fromValue
-import io.github.kotlinmania.starlark_kotlin.analysis.Tuple
-import io.github.kotlinmania.starlark_kotlin.analysis.Statements
-import io.github.kotlinmania.starlark_kotlin.analysis.Return
-import io.github.kotlinmania.starlark_kotlin.analysis.Pass
-import io.github.kotlinmania.starlark_kotlin.analysis.IfElse
-import io.github.kotlinmania.starlark_kotlin.analysis.If
-import io.github.kotlinmania.starlark_kotlin.analysis.For
-import io.github.kotlinmania.starlark_kotlin.analysis.Expression
-import io.github.kotlinmania.starlark_kotlin.analysis.Def
-import io.github.kotlinmania.starlark_kotlin.analysis.Continue
-import io.github.kotlinmania.starlark_kotlin.analysis.Break
-import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
-import io.github.kotlinmania.starlark_kotlin.analysis.Assign
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.id
 import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.items
 import io.github.kotlinmania.starlark_kotlin.values.types.list.isListType
@@ -86,9 +72,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.array.double
 import io.github.kotlinmania.starlark_kotlin.values.layout.isStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.garbageCollect
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocatedBytes
-import io.github.kotlinmania.starlark_kotlin.typing.Slot
 import io.github.kotlinmania.starlark_kotlin.typing.Pass
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.IfElse
 import io.github.kotlinmania.starlark_kotlin.typing.If
 import io.github.kotlinmania.starlark_kotlin.typing.For
@@ -149,7 +133,7 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs {
 //     PossibleGc,
 //     Return(IrSpanned<ExprCompiled>),
 //     Expr(IrSpanned<ExprCompiled>),
-//     Assign(IrSpanned<AssignCompiledValue>, Option<IrSpanned<TypeCompiled<FrozenValue>>>, IrSpanned<ExprCompiled>),
+//     Assign(IrSpanned<AssignCompiledValue>, Option<IrSpanned<TypeCompiled>>, IrSpanned<ExprCompiled>),
 //     AssignModify(AssignModifyLhs, AssignOp, IrSpanned<ExprCompiled>),
 //     If(Box<(IrSpanned<ExprCompiled>, StmtsCompiled, StmtsCompiled)>),
 //     For(Box<(IrSpanned<AssignCompiledValue>, IrSpanned<ExprCompiled>, StmtsCompiled)>),
@@ -162,7 +146,7 @@ internal sealed class StmtCompiled {
     data class Expr(val expr: IrSpanned<ExprCompiled>) : StmtCompiled()
     data class Assign(
         val lhs: IrSpanned<AssignCompiledValue>,
-        val ty: IrSpanned<TypeCompiled<FrozenValue>>?,
+        val ty: IrSpanned<TypeCompiled>?,
         val rhs: IrSpanned<ExprCompiled>,
     ) : StmtCompiled()
     data class AssignModify(

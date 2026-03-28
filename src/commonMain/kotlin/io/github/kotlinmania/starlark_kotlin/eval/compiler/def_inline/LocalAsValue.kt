@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.slots.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 /**
  * Local slot id as `FrozenValue`. This object is only used during compilation

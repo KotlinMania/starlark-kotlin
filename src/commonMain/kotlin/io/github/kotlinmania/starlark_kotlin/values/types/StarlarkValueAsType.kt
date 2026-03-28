@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 // #[derive(Debug, NoSerialize, Allocative, ProvidesStaticType)]
 // struct StarlarkValueAsTypeStarlarkValue(fn() -> Ty, fn() -> DocItem);

@@ -38,8 +38,8 @@ private class TypeMatcherFactoryImpl(
         return TypeMatcherBoxAlloc.alloc(matcher)
     }
 
-    // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled<Value<'v>>
-    override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled<Value> {
+    // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>
+    override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled {
         return factory.alloc(matcher)
     }
 
@@ -48,11 +48,11 @@ private class TypeMatcherFactoryImpl(
 
 // pub(crate) trait TypeMatcherFactoryDyn: Allocative + Debug + Send + Sync + 'static {
 //     fn matcher_box(&self) -> TypeMatcherBox;
-//     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled<Value<'v>>;
+//     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>;
 // }
 interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
-    fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled<Value>
+    fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled
 }
 
 /** Boxed [TypeMatcher]. */

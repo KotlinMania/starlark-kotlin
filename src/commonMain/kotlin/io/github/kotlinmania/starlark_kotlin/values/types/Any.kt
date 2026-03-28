@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 /// A type that can be passed around as a Starlark [Value], but in most
 /// ways is uninteresting/opaque to Starlark. Constructed with

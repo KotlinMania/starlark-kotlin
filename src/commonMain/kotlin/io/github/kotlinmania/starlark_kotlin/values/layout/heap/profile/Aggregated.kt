@@ -6,6 +6,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_co
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 
 
 /*

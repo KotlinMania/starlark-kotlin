@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 //! Compile and evaluate module top-level statements.
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.BindingsCollect
@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
@@ -46,7 +45,6 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.typing.solveBindings
 import io.github.kotlinmania.starlark_kotlin.typing.ofValue
-import io.github.kotlinmania.starlark_kotlin.typing.Slot
 import io.github.kotlinmania.starlark_kotlin.typing.ModuleVarTypes
 import io.github.kotlinmania.starlark_kotlin.typing.intoEvalException
 import io.github.kotlinmania.starlark_kotlin.typing.bindings.bindings

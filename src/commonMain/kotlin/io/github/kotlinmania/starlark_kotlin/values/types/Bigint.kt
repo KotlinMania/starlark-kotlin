@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 /**
  * `int` implementation for larger integers.

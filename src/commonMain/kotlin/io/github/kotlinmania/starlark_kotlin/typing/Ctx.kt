@@ -4,7 +4,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
 import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
@@ -14,6 +14,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstIdent
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

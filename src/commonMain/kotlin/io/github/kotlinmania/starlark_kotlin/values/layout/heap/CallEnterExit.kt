@@ -24,6 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 
 /// A type which is either drop or non-drop.
 // pub(crate) trait MaybeDrop: Debug + Sync + Send + Allocative + 'static {}

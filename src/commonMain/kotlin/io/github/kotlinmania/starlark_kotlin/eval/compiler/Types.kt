@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
@@ -28,9 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypePathP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.CstStmt
@@ -43,7 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Path
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Index2
 import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
-import io.github.kotlinmania.starlark_kotlin.analysis.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.analysis.Index
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.typeAnyOf
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.toInner
@@ -58,11 +56,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.getAttrError
 import io.github.kotlinmania.starlark_kotlin.typing.Union
 import io.github.kotlinmania.starlark_kotlin.typing.TypePathP
 import io.github.kotlinmania.starlark_kotlin.typing.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.typing.Slot
-import io.github.kotlinmania.starlark_kotlin.typing.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.typing.Path
 import io.github.kotlinmania.starlark_kotlin.typing.Index2
-import io.github.kotlinmania.starlark_kotlin.typing.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.tests.xs
 import io.github.kotlinmania.starlark_kotlin.tests.opt.i1
 import io.github.kotlinmania.starlark_kotlin.tests.frozenHeap
@@ -102,10 +97,10 @@ private sealed class TypesError(message: String) : Exception(message) {
 // pub(crate) fn expr_for_type(
 //     &mut self,
 //     expr: Option<&CstTypeExpr>,
-// ) -> Option<IrSpanned<TypeCompiled<FrozenValue>>>
+// ) -> Option<IrSpanned<TypeCompiled>>
 internal fun Compiler.exprForType(
     expr: CstTypeExpr?,
-): IrSpanned<TypeCompiled<FrozenValue>>? {
+): IrSpanned<TypeCompiled>? {
     if (!checkTypes) {
         return null
     }
@@ -139,11 +134,11 @@ internal fun Compiler.exprForType(
 //     &mut self,
 //     value: Value<'v>,
 //     span: Span,
-// ) -> Result<TypeCompiled<Value<'v>>, EvalException>
+// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.allocValueForType(
     value: Value,
     span: Span,
-): TypeCompiled<Value> {
+): TypeCompiled {
     return try {
         TypeCompiled.new(value, eval.heap())
     } catch (e: Exception) {
@@ -201,10 +196,10 @@ private fun Compiler.evalPath(path: TypePathP<CstPayload>): Value {
 // fn eval_expr_as_type(
 //     &mut self,
 //     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-// ) -> Result<TypeCompiled<Value<'v>>, EvalException>
+// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.evalExprAsType(
     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-): TypeCompiled<Value> {
+): TypeCompiled {
     val span = expr.span
     val value = evalExpr(expr)
     return allocValueForType(value, span)

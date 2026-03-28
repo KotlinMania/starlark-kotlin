@@ -14,6 +14,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

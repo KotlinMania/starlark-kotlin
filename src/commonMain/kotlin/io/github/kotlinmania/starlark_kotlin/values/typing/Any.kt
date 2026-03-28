@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
 // pub(crate) struct TypingAny

@@ -30,13 +30,12 @@ import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
@@ -60,6 +59,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 
 // ---------------------------------------------------------------------------
 // MaybeNot

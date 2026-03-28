@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
 
 /**
  * The result of calling `type()` on strings.

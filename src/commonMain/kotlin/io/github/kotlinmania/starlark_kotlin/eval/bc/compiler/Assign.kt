@@ -85,12 +85,12 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
         is AssignCompiledValue.Dot -> {
             n.obj.writeBcCb(bc) { objectSlot, bc2 ->
                 val symbol = Symbol.new(n.field)
-                bc2.writeInstr<InstrSetObjectField>(span, Triple(value, objectSlot, symbol))
+                bc2.writeInstr("InstrSetObjectField", span, Triple(value, objectSlot, symbol))
             }
         }
         is AssignCompiledValue.Index -> {
             writeNExprs(listOf(n.array, n.index), bc) { slots, bc2 ->
-                bc2.writeInstr<InstrSetArrayIndex>(span, Triple(value, slots[0], slots[1]))
+                bc2.writeInstr("InstrSetArrayIndex", span, Triple(value, slots[0], slots[1]))
             }
         }
         is AssignCompiledValue.Tuple -> {
@@ -105,12 +105,12 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
 
             if (allLocal != null) {
                 val args = bc.heap.allocAnySlice(allLocal)
-                bc.writeInstr<InstrUnpack>(span, Pair(value, args))
+                bc.writeInstr("InstrUnpack", span, Pair(value, args))
             } else {
                 bc.allocSlots(n.elements.size) { slots, bc2 ->
                     val args: List<BcSlotOut> = slots.map { s -> s.toOut() }
                     val argsRef = bc2.heap.allocAnySlice(args)
-                    bc2.writeInstr<InstrUnpack>(span, Pair(value, argsRef))
+                    bc2.writeInstr("InstrUnpack", span, Pair(value, argsRef))
 
                     for ((x, slot) in n.elements.zip(slots)) {
                         IrSpanned(span = x.span, node = x.node).writeBc(slot.toIn(), bc2)
@@ -125,7 +125,7 @@ internal fun IrSpanned<AssignCompiledValue>.writeBc(value: BcSlotIn, bc: BcWrite
             bc.writeStoreLocalCaptured(span, value, n.slot)
         }
         is AssignCompiledValue.Module -> {
-            bc.writeInstr<InstrStoreModuleAndExport>(span, Triple(value, n.slot, n.name))
+            bc.writeInstr("InstrStoreModuleAndExport", span, Triple(value, n.slot, n.name))
         }
     }
 }

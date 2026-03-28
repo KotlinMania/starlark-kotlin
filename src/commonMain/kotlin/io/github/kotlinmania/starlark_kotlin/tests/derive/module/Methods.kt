@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 // #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
 // struct Applaud { value: i32 }

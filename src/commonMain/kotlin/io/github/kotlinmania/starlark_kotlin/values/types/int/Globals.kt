@@ -3,6 +3,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

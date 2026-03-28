@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Expression
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.analysis.stmts
-import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 
 /// Controls the formatting to use when parsing [DocString]s from raw docstrings.
 // #[derive(Copy, Clone, Dupe)]

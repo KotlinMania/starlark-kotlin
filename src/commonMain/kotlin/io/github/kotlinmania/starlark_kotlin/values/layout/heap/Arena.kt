@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typeName
 import io.github.kotlinmania.starlark_kotlin.values.layout.totalMemoryForProfile
 import io.github.kotlinmania.starlark_kotlin.values.empty
 import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 
 /// Min size of allocated object including header.
 /// Should be able to fit `BlackHole` or forward.

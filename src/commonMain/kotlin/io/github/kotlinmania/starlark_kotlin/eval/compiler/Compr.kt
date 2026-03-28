@@ -1,7 +1,6 @@
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP

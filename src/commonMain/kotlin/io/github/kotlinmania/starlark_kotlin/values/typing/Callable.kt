@@ -50,6 +50,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.allocSimple
 import io.github.kotlinmania.starlark_kotlin.typing.hasInvoke
 import io.github.kotlinmania.starlark_kotlin.typing.ofValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)

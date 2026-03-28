@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.scope_resolver_globals.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Slot
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ResolvedIdent
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
@@ -43,8 +43,6 @@ import io.github.kotlinmania.starlark_kotlin.analysis.Def
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.typing.Slot
-import io.github.kotlinmania.starlark_kotlin.typing.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.typing.For
 import io.github.kotlinmania.starlark_kotlin.analysis.visitLvalue
 import io.github.kotlinmania.starlark_kotlin.analysis.visitExpr

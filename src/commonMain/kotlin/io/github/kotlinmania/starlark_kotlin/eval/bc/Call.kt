@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.stdlib.ArgumentsFull
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsPos
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl

@@ -5,7 +5,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.typing.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan

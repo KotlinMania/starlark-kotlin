@@ -2,8 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.LocalAsValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.LocalAsValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue

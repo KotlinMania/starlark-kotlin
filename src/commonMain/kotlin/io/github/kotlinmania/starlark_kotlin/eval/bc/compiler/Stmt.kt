@@ -279,7 +279,7 @@ private fun IrSpanned<StmtCompiled>.writeBcInner(
 
 /// Helper to write type check instruction if type annotation is present.
 private fun checkType(
-    ty: IrSpanned<TypeCompiled<FrozenValue>>?,
+    ty: IrSpanned<TypeCompiled>?,
     slotExpr: BcSlotIn,
     bc: BcWriter,
 ) {

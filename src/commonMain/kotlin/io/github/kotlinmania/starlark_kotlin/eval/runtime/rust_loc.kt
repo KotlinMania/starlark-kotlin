@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.newUnchecked

@@ -57,6 +57,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
 import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopy
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 
 enum class HeapKind {
     Unfrozen,

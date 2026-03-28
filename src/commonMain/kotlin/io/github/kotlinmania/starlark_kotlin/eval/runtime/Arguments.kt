@@ -372,7 +372,7 @@ class Arguments(
      * will _not_ have been validated to be strings (as they must be).
      * The arguments may also overlap with named, which would be an error.
      */
-    // pub(crate) fn unpack_kwargs(&self) -> crate::Result<Option<DictRef<'v>>>
+    // pub(crate) fn unpack_kwargs(&self) -> crate::Result<Option<DictRef>>
     internal fun unpackKwargs(): Result<DictRef?> {
         return when (val kw = full.kwargs) {
             null -> Result.success(null)
@@ -581,7 +581,7 @@ class Arguments(
 // pub(crate) fn frozen_to_v<'v>(&self) -> &Arguments<'v, 'a>
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
 
-private fun DictRef<*>.dict(): Dict<*> {
+private fun DictRef.dict(): Dict<*> {
     return when (val ref = aref) {
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
@@ -589,21 +589,21 @@ private fun DictRef<*>.dict(): Dict<*> {
     }
 }
 
-private fun DictRef<*>.len(): Int {
+private fun DictRef.len(): Int {
     return dict().len()
 }
 
-private fun DictRef<*>.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
+private fun DictRef.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
     @Suppress("UNCHECKED_CAST")
     return dict().iterHashed() as Sequence<Pair<Hashed<Value>, Value>>
 }
 
-private fun DictRef<*>.keys(): Sequence<Value> {
+private fun DictRef.keys(): Sequence<Value> {
     @Suppress("UNCHECKED_CAST")
     return dict().keys() as Sequence<Value>
 }
 
-private fun DictRef<*>.downcastRefKeyString(): SmallMap<StringValue, Value>? {
+private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
     @Suppress("UNCHECKED_CAST")
     return dict().downcastRefKeyString() as SmallMap<StringValue, Value>?
 }

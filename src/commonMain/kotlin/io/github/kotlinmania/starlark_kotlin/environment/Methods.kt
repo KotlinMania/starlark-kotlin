@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethFn
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
 import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 
 /**
  * Methods of an object.

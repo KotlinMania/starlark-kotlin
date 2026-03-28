@@ -75,6 +75,8 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 // Types from collections.symbol
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

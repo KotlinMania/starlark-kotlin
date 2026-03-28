@@ -45,6 +45,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.setCheckCancelled
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.heap
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 
 class UncategorizedTests {
 

@@ -34,9 +34,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
@@ -64,9 +64,7 @@ import io.github.kotlinmania.starlark_kotlin.analysis.AssignModify
 import io.github.kotlinmania.starlark_kotlin.analysis.Assign
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdentP
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.typing.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.For
-import io.github.kotlinmania.starlark_kotlin.typing.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.typing.ctx.CstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.forStmt
 import io.github.kotlinmania.starlark_kotlin.errors.did_you_mean.didYouMean
