@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData

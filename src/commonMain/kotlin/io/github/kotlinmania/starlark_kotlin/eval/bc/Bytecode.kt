@@ -22,12 +22,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Unsorted/core interpreter stuff.
 
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import kotlin.reflect.KClass
 
 /// Ready to execute bytecode.
 // #[derive(Default)]
@@ -44,13 +46,12 @@ class Bc(
     companion object {
         /// Find span for instruction.
         // pub(crate) fn slow_arg_at_ptr(addr_ptr: BcPtrAddr<'_>) -> &BcInstrSlowArg
-        fun slowArgAtPtr(addrPtr: BcPtrAddr): BcInstrSlowArg {
+        fun slowArgAtPtr(addrPtr: BcPtrAddr, bcInstrs: BcInstrs): BcInstrSlowArg {
             var ptr = addrPtr
             while (true) {
-                val opcode = ptr.getOpcode()
+                val opcode = bcInstrs.getOpcodeAt(ptr)
                 if (opcode == BcOpcode.End) {
-                    val endOfBc = ptr.getInstr<InstrEnd>()
-                    val endArg = endOfBc.arg as BcInstrEndArg
+                    val endArg = bcInstrs.getArgAt(ptr) as BcInstrEndArg
                     val slowArgs = endArg.slowArgs
                     val endAddr = endArg.endAddr
                     val codeStartPtr = ptr.sub(endAddr)
@@ -69,10 +70,11 @@ class Bc(
         // pub(crate) fn wrap_error_for_instr_ptr(ptr: BcPtrAddr, e: crate::Error, eval: &Evaluator) -> EvalException
         fun wrapErrorForInstrPtr(
             ptr: BcPtrAddr,
-            e: Exception,
+            e: StarlarkError,
             eval: Evaluator,
+            bcInstrs: BcInstrs,
         ): EvalException {
-            val span = slowArgAtPtr(ptr).span
+            val span = slowArgAtPtr(ptr, bcInstrs).span
             return addSpanToExprError(e, span, eval)
         }
     }
@@ -82,7 +84,7 @@ class Bc(
     /// Frame must be allocated properly, otherwise it will likely result in memory corruption.
     // pub(crate) fn run<'v, EC: EvaluationCallbacks>(&self, eval: &mut Evaluator, ec: &mut EC) -> Result<Value, EvalException>
     fun run(eval: Evaluator, ec: EvaluationCallbacks): Result<Value> {
-        return runBlock(eval, ec, instrs.startPtr())
+        return runBlock(eval, ec, instrs.startPtr(), instrs)
     }
 
     // pub(crate) fn dump_debug(&self) -> String
@@ -104,18 +106,21 @@ private fun step(
     ec: EvaluationCallbacks,
     frame: BcFramePtr,
     ip: BcPtrAddr,
+    bcInstrs: BcInstrs,
 ): InstrControl {
-    val opcode = ip.getOpcode()
+    val opcode = bcInstrs.getOpcodeAt(ip)
 
     val handler = object : BcOpcodeHandler<InstrControl> {
-        override fun <I : BcInstr> handle(): InstrControl {
-            val repr = ip.getInstr<I>()
-            return repr.arg.run(eval, frame, ip)
+        override fun <I : BcInstr> handle(instrClass: KClass<I>): InstrControl {
+            val arg = bcInstrs.getArgAt(ip) as? BcInstrArg
+                ?: return InstrControl.Err(StarlarkError("missing instruction arg at $ip"))
+            return arg.run(eval, frame, ip)
         }
     }
 
     runCatching { ec.beforeInstr(eval, ip, opcode) }.getOrElse {
-        return InstrControl.Err(it)
+        val starlarkError = if (it is StarlarkError) it else StarlarkError(it.message ?: "unknown error", it)
+        return InstrControl.Err(starlarkError)
     }
     return opcode.dispatch(handler)
 }
@@ -126,17 +131,18 @@ fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,
     startIp: BcPtrAddr,
+    bcInstrs: BcInstrs,
 ): Result<Value> {
     // Copy frame pointer to local variable to generate more efficient code.
     val frame = eval.currentFrame
 
     var ip = startIp
     while (true) {
-        when (val control = step(eval, ec, frame, ip)) {
+        when (val control = step(eval, ec, frame, ip, bcInstrs)) {
             is InstrControl.Next -> ip = control.ip
             is InstrControl.Return -> return Result.success(control.value)
             is InstrControl.Err -> {
-                val evalException = Bc.wrapErrorForInstrPtr(ip, control.error, eval)
+                val evalException = Bc.wrapErrorForInstrPtr(ip, control.error, eval, bcInstrs)
                 return Result.failure(evalException)
             }
         }

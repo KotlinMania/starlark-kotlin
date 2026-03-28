@@ -3,14 +3,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.localAsValue
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.FrozenEnumType
+import io.github.kotlinmania.starlark_kotlin.values.types.string.parseFormatOne
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -162,10 +165,13 @@ internal class CallCompiled(
             }
 
             return args.allValuesGeneric(exprToValue) { arguments ->
-                val slots = arrayOfNulls<Value>(frozenDef.asRef().parameters.len())
-                frozenDef.asRef().parameters
-                    .collect(arguments.frozenToV(), slots, ctx.heap())
-                    .getOrNull() ?: return@allValuesGeneric null
+                val slots = MutableList<Value?>(frozenDef.asRef().parameters.len()) { null }
+                try {
+                    frozenDef.asRef().parameters
+                        .collect(arguments.frozenToV(), slots, ctx.heap())
+                } catch (_: Exception) {
+                    return@allValuesGeneric null
+                }
 
                 val frozenSlots = mutableListOf<FrozenValue>()
                 for (slot in slots) {
@@ -175,10 +181,13 @@ internal class CallCompiled(
                 }
 
                 val inlinedExpr = IrSpanned(span, expr.node)
-                inlinedExpr.visitSpans { exprSpan ->
-                    exprSpan.inlinedFrames.inlineInto(span, frozenDef.toFrozenValue(), InlinedFrameAlloc.new(ctx.frozenHeap()))
+                val spanAlloc = InlinedFrameAlloc.new(ctx.frozenHeap())
+                inlinedExpr.span.inlinedFrames.inlineInto(span, frozenDef.toFrozenValue(), spanAlloc)
+                try {
+                    InlineDefCallSite(ctx, frozenSlots).inline(inlinedExpr)
+                } catch (_: CannotInline) {
+                    null
                 }
-                InlineDefCallSite(ctx, frozenSlots).inline(inlinedExpr).getOrNull()
             }
         }
 
@@ -211,9 +220,12 @@ internal class CallCompiled(
         ): ExprCompiled? {
             val enumType = fun_.node.asValue()?.downcastFrozenRef<FrozenEnumType>() ?: return null
             val arg = args.onePos()?.let { it.node.asValue() } ?: return null
-            val constructed = enumType.asRef().construct(arg.toValue()).getOrNull()
-                ?: return null
-            return ExprCompiled.ValueExpr(constructed)
+            val constructed = try {
+                enumType.value.construct(arg.toValue())
+            } catch (_: Exception) {
+                return null
+            }
+            return ExprCompiled.ValueExpr(constructed.unpackFrozen() ?: return null)
         }
 
         /** Optimize `"aaa{}bbb".format(arg)`. */
@@ -223,15 +235,17 @@ internal class CallCompiled(
             ctx: OptCtx,
         ): ExprCompiled? {
             val boundMethod: FrozenValueTyped<FrozenBoundMethod> = fun_.node.asFrozenBoundMethod() ?: return null
-            val format = FrozenStringValue.new(boundMethod.asRef().this_) ?: return null
-            if (boundMethod.asRef().method.name != "format") {
+            val format = FrozenStringValue.new(boundMethod.asRef().thisValue) ?: return null
+            if (boundMethod.asRef().method.asRef().name != "format") {
                 return null
             }
             val arg = args.onePos() ?: return null
 
-            val (before, after) = parseFormatOne(format) ?: return null
+            val (before, after) = parseFormatOne(format.asStr()) ?: return null
 
-            return ExprCompiled.formatOne(before, arg, after, ctx)
+            val beforeFsv = ctx.frozenHeap().allocStrIntern(before)
+            val afterFsv = ctx.frozenHeap().allocStrIntern(after)
+            return ExprCompiled.formatOne(beforeFsv, arg, afterFsv, ctx)
         }
 
         fun call(

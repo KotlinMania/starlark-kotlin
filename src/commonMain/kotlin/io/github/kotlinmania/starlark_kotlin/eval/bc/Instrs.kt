@@ -326,7 +326,7 @@ class BcInstrs private constructor(
      * In Rust, this reads the [BcInstrHeader] from the raw byte buffer via pointer cast.
      * In Kotlin, instructions are stored as header/arg pairs in a list.
      */
-    private fun getOpcodeAt(ptr: BcPtrAddr): BcOpcode {
+    internal fun getOpcodeAt(ptr: BcPtrAddr): BcOpcode {
         val idx = ptr.offset
         if (idx >= instrs.size) return BcOpcode.End
         val element = instrs[idx]
@@ -339,7 +339,7 @@ class BcInstrs private constructor(
      *
      * The argument is stored at the index immediately following the header.
      */
-    private fun getArgAt(ptr: BcPtrAddr): Any? {
+    internal fun getArgAt(ptr: BcPtrAddr): Any? {
         val idx = ptr.offset + 1
         if (idx >= instrs.size) return null
         return instrs[idx]
@@ -468,6 +468,9 @@ class BcInstrsWriter {
         fun new(): BcInstrsWriter = BcInstrsWriter()
     }
 
+    /** Current number of elements in the instructions list. */
+    fun instrsSize(): Int = instrs.size
+
     // fn instrs_len_bytes(&self) -> usize
     /**
      * Length of instructions buffer.
@@ -569,7 +572,7 @@ class BcInstrsWriter {
     fun finish(
         slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>>,
         stmtLocs: BcStatementLocations,
-        localNames: List<String>,
+        localNames: List<io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue>,
     ): BcInstrs {
         // self.write::<InstrEnd>(BcInstrEndArg {
         //     end_addr: self.ip(),
@@ -581,11 +584,7 @@ class BcInstrsWriter {
             BcInstrEndArg(
                 endAddr = ip(),
                 slowArgs = slowArgs,
-                localNames = io.github.kotlinmania.starlark_kotlin.values.FrozenRef.new(
-                    localNames.map {
-                        io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue(it)
-                    }
-                ),
+                localNames = io.github.kotlinmania.starlark_kotlin.values.FrozenRef.new(localNames),
             ),
         )
         // let instrs = mem::take(&mut self.instrs);

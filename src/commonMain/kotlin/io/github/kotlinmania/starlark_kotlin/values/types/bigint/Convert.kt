@@ -26,18 +26,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
 /// In Kotlin, we cannot implement interfaces on primitives, so we provide
 /// extension functions and converter objects.
 
+import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
 
 /// Starlark type repr for all integer types.
 /// Canonical type is i32's repr.
@@ -45,7 +45,7 @@ private fun intStarlarkTypeRepr(): Ty = IntTypeReprCanonical.starlarkTypeRepr()
 
 /// Canonical integer type repr reference.
 internal object IntTypeReprCanonical : StarlarkTypeRepr {
-    override fun starlarkTypeRepr(): Ty = Ty()
+    override fun starlarkTypeRepr(): Ty = Ty.int()
 }
 
 // --- UInt (u32) conversions ---
@@ -58,14 +58,14 @@ object UIntTypeRepr : StarlarkTypeRepr {
 /// impl AllocValue for u32
 object UIntAllocValue : AllocValue {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
-    override fun allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(0u))
+    override fun allocValue(heap: Heap): Value = StarlarkInt.from(0u).allocValue(heap)
 }
 
 /// Allocate a UInt on a Starlark heap.
-fun UInt.allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(this))
+fun UInt.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /// Allocate a UInt on a frozen Starlark heap.
-fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkInt.from(this))
+fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- ULong (u64) conversions ---
 
@@ -75,10 +75,10 @@ object ULongTypeRepr : StarlarkTypeRepr {
 }
 
 /// Allocate a ULong on a Starlark heap.
-fun ULong.allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(this))
+fun ULong.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /// Allocate a ULong on a frozen Starlark heap.
-fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkInt.from(this))
+fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- Long (i64) conversions ---
 
@@ -88,18 +88,18 @@ object LongTypeRepr : StarlarkTypeRepr {
 }
 
 /// Allocate a Long on a Starlark heap.
-fun Long.allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(this))
+fun Long.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /// Allocate a Long on a frozen Starlark heap.
-fun Long.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkInt.from(this))
+fun Long.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- Int (i32 / isize) conversions ---
 
 /// Allocate an Int on a Starlark heap.
-fun Int.allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(this))
+fun Int.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /// Allocate an Int on a frozen Starlark heap.
-fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkInt.from(this))
+fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- BigInteger (BigInt) conversions ---
 
@@ -109,20 +109,20 @@ object BigIntegerTypeRepr : StarlarkTypeRepr {
 }
 
 /// Allocate a BigInteger on a Starlark heap.
-fun BigInteger.allocValue(heap: Heap): Value = heap.alloc(StarlarkInt.from(this))
+fun BigInteger.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /// Allocate a BigInteger on a frozen Starlark heap.
-fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkInt.from(this))
+fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- UnpackValue implementations ---
 
 /// Unpack a UInt from a Starlark Value.
 /// impl UnpackValue for u32
-fun Value.unpackUInt(): Result<UInt?> = unpackInteger()
+fun Value.unpackUInt(): Result<UInt?> = unpackInteger().map { it?.toUInt() }
 
 /// Unpack a ULong from a Starlark Value.
 /// impl UnpackValue for u64
-fun Value.unpackULong(): Result<ULong?> = unpackInteger()
+fun Value.unpackULong(): Result<ULong?> = unpackInteger().map { it?.toULong() }
 
 /// Unpack a Long from a Starlark Value.
 /// impl UnpackValue for i64
@@ -130,7 +130,7 @@ fun Value.unpackLong(): Result<Long?> = unpackInteger()
 
 /// Unpack an Int from a Starlark Value.
 /// impl UnpackValue for isize / usize
-fun Value.unpackInt(): Result<Int?> = unpackInteger()
+fun Value.unpackInt(): Result<Int?> = unpackInteger().map { it?.toInt() }
 
 /// Unpack a BigInteger from a Starlark Value.
 /// impl UnpackValue for BigInt

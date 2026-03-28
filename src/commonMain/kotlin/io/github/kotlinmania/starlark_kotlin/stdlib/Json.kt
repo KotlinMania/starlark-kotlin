@@ -24,8 +24,15 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictGen
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictData
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import kotlinx.serialization.json.Json
@@ -35,6 +42,8 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
 
 // ---- JsonNumber: analogous to serde_json::Number ----
 
@@ -94,6 +103,31 @@ object JsonNumberTypeRepr : StarlarkTypeRepr {
 // impl<'v> AllocValue<'v> for serde_json::Number
 
 /**
+ * Allocate a [StarlarkInt] as a Starlark [Value] on the heap.
+ *
+ * For small ints that fit in an [InlineInt], no heap allocation is needed.
+ * For big ints, the value is allocated on the heap via [StarlarkBigInt.allocValue].
+ */
+private fun allocStarlarkInt(starlarkInt: StarlarkInt, heap: Heap): Value {
+    return when (starlarkInt) {
+        is StarlarkInt.Small -> Value.newInt(starlarkInt.value)
+        is StarlarkInt.Big -> starlarkInt.value.allocValue(heap)
+    }
+}
+
+/**
+ * Allocate a [StarlarkInt] as a frozen Starlark value.
+ *
+ * Same dispatch as [allocStarlarkInt], but on a [FrozenHeap].
+ */
+private fun allocFrozenStarlarkInt(starlarkInt: StarlarkInt, heap: FrozenHeap): FrozenValue {
+    return when (starlarkInt) {
+        is StarlarkInt.Small -> FrozenValue.newInt(starlarkInt.value)
+        is StarlarkInt.Big -> starlarkInt.value.allocFrozenValue(heap)
+    }
+}
+
+/**
  * Allocate a [JsonNumber] as a Starlark [Value] on the heap.
  *
  * Tries to represent the number in the most compact form:
@@ -101,12 +135,12 @@ object JsonNumberTypeRepr : StarlarkTypeRepr {
  * then falls back to BigInt for arbitrarily large integers.
  */
 fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
-    number.asU64()?.let { return heap.alloc(StarlarkInt.from(it)) }
-    number.asI64()?.let { return heap.alloc(StarlarkInt.from(it)) }
-    number.asF64()?.let { return heap.alloc(StarlarkFloat(it)) }
+    number.asU64()?.let { return allocStarlarkInt(StarlarkInt.from(it), heap) }
+    number.asI64()?.let { return allocStarlarkInt(StarlarkInt.from(it), heap) }
+    number.asF64()?.let { return heap.allocSimple(StarlarkFloat(it)) }
     val bigStr = number.toString()
     val big = StarlarkInt.fromStrRadix(bigStr, 10)
-    if (big.isSuccess) return heap.alloc(big.getOrThrow())
+    if (big.isSuccess) return allocStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
 }
 
@@ -121,12 +155,12 @@ fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
  * Same conversion logic as [allocJsonNumber], but on a [FrozenHeap].
  */
 fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
-    number.asU64()?.let { return heap.alloc(StarlarkInt.from(it)) }
-    number.asI64()?.let { return heap.alloc(StarlarkInt.from(it)) }
-    number.asF64()?.let { return heap.alloc(StarlarkFloat(it)) }
+    number.asU64()?.let { return allocFrozenStarlarkInt(StarlarkInt.from(it), heap) }
+    number.asI64()?.let { return allocFrozenStarlarkInt(StarlarkInt.from(it), heap) }
+    number.asF64()?.let { return heap.allocSimple(StarlarkFloat(it)) }
     val bigStr = number.toString()
     val big = StarlarkInt.fromStrRadix(bigStr, 10)
-    if (big.isSuccess) return heap.alloc(big.getOrThrow())
+    if (big.isSuccess) return allocFrozenStarlarkInt(big.getOrThrow(), heap)
     error("Unrepresentable number: $number")
 }
 
@@ -178,9 +212,12 @@ fun allocJsonValue(json: JsonValue, heap: Heap): Value {
         is JsonValue.Null -> Value.newNone()
         is JsonValue.Bool -> Value.newBool(json.value)
         is JsonValue.Number -> allocJsonNumber(json.value, heap)
-        is JsonValue.Str -> heap.alloc(json.value)
-        is JsonValue.Array -> heap.alloc(json.value.map { allocJsonValue(it, heap) })
-        is JsonValue.Object -> heap.alloc(json.value.mapValues { allocJsonValue(it.value, heap) })
+        is JsonValue.Str -> heap.allocStr(json.value)
+        is JsonValue.Array -> heap.allocListIter(json.value.map { allocJsonValue(it, heap) })
+        is JsonValue.Object -> allocJsonMapOnHeap(
+            json.value.mapValues { allocJsonValue(it.value, heap) },
+            heap,
+        )
     }
 }
 
@@ -199,9 +236,12 @@ fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue {
         is JsonValue.Null -> FrozenValue.newNone()
         is JsonValue.Bool -> FrozenValue.newBool(json.value)
         is JsonValue.Number -> allocFrozenJsonNumber(json.value, heap)
-        is JsonValue.Str -> heap.alloc(json.value)
-        is JsonValue.Array -> heap.alloc(json.value.map { allocFrozenJsonValue(it, heap) })
-        is JsonValue.Object -> heap.alloc(json.value.mapValues { allocFrozenJsonValue(it.value, heap) })
+        is JsonValue.Str -> heap.allocStr(json.value).toFrozenValue()
+        is JsonValue.Array -> heap.allocListIter(json.value.map { allocFrozenJsonValue(it, heap) })
+        is JsonValue.Object -> allocFrozenJsonMapOnHeap(
+            json.value.mapValues { allocFrozenJsonValue(it.value, heap) },
+            heap,
+        )
     }
 }
 
@@ -221,7 +261,8 @@ object JsonMapTypeRepr : StarlarkTypeRepr {
 
 /** Allocate a JSON map as a Starlark dict value. */
 fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
-    return heap.alloc(map.mapValues { allocJsonValue(it.value, heap) })
+    val converted = map.mapValues { allocJsonValue(it.value, heap) }
+    return allocJsonMapOnHeap(converted, heap)
 }
 
 // ---- AllocFrozenValue for JSON Map ----
@@ -231,7 +272,40 @@ fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
 
 /** Allocate a JSON map as a frozen Starlark dict value. */
 fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
-    return heap.alloc(map.entries.associate { (k, v) -> k to allocFrozenJsonValue(v, heap) })
+    val converted = map.mapValues { allocFrozenJsonValue(it.value, heap) }
+    return allocFrozenJsonMapOnHeap(converted, heap)
+}
+
+// ---- Internal helpers: Map<String, Value> -> Starlark dict ----
+
+/**
+ * Build a Starlark dict [Value] from a [Map] of string keys to already-allocated [Value]s.
+ *
+ * Allocates each string key on the heap, hashes it, builds a [SmallMap], and wraps in a [Dict].
+ */
+private fun allocJsonMapOnHeap(map: Map<String, Value>, heap: Heap): Value {
+    val sm = SmallMap.withCapacity<Value, Value>(map.size)
+    for ((k, v) in map) {
+        val keyValue = heap.allocStr(k)
+        sm.insertHashed(keyValue.getHashed().getOrThrow(), v)
+    }
+    return Dict.new(sm).allocValue(heap)
+}
+
+/**
+ * Build a frozen Starlark dict from a [Map] of string keys to already-allocated [FrozenValue]s.
+ *
+ * Allocates each string key on the frozen heap, hashes it, builds a [SmallMap],
+ * and wraps in a [FrozenDictData] + [DictGen].
+ */
+private fun allocFrozenJsonMapOnHeap(map: Map<String, FrozenValue>, heap: FrozenHeap): FrozenValue {
+    val sm = SmallMap.withCapacity<FrozenValue, FrozenValue>(map.size)
+    for ((k, v) in map) {
+        val keyFrozen = heap.allocStr(k).toFrozenValue()
+        val keyHash = keyFrozen.toValue().getHash().getOrThrow()
+        sm.insertHashed(Hashed.newUnchecked(keyHash, keyFrozen), v)
+    }
+    return heap.allocSimple(DictGen(FrozenDictData(sm)))
 }
 
 // ---- JSON Parsing via kotlinx.serialization.json ----

@@ -19,6 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.debug.Breakpoint
 import io.github.kotlinmania.starlark_kotlin.debug.DapAdapter
 import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient
@@ -31,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.debug.ResolvedBreakpoints
 import io.github.kotlinmania.starlark_kotlin.debug.ScopesInfo
 import io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsArguments
 import io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsResponseBody
-import io.github.kotlinmania.starlark_kotlin.debug.Source
 import io.github.kotlinmania.starlark_kotlin.debug.StackFrame
 import io.github.kotlinmania.starlark_kotlin.debug.StackTraceArguments
 import io.github.kotlinmania.starlark_kotlin.debug.StackTraceResponseBody
@@ -39,25 +41,16 @@ import io.github.kotlinmania.starlark_kotlin.debug.StepKind
 import io.github.kotlinmania.starlark_kotlin.debug.Variable
 import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
 import io.github.kotlinmania.starlark_kotlin.debug.VariablesInfo
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.toBool
-import io.github.kotlinmania.starlark_kotlin.syntax.stmtLocations
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.toFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.callStack
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtForDap
-import io.github.kotlinmania.starlark_kotlin.debug.localVariables
 import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
-import io.github.kotlinmania.starlark_kotlin.codemap.filename
-import io.github.kotlinmania.starlark_kotlin.analysis.location
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.debug.localVariables
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.concurrent.atomics.AtomicInt
+import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.withLock
 
 internal object implementation {
 
@@ -143,7 +136,7 @@ private class DapAdapterImpl(
         source: String,
         breakpoints: ResolvedBreakpoints,
     ): Result<Unit> {
-        return synchronized(state.breakpoints) {
+        return state.breakpointsLock.withLock {
             state.breakpoints.setBreakpoints(source, breakpoints)
         }
     }
@@ -152,7 +145,7 @@ private class DapAdapterImpl(
         return withCtx { span, eval ->
             val frame = eval.callStackTopFrame()
             val name = frame?.name ?: ""
-            Result.success(convertFrame(0, name, span.toFileSpan()))
+            Result.success(convertFrame(0, name, FileSpan(span.file, span.span)))
         }
     }
 
@@ -162,7 +155,7 @@ private class DapAdapterImpl(
         // We also have them in the wrong order
         return withCtx { span, eval ->
             val frames = eval.callStack().intoFrames()
-            var next: FileSpan? = span.toFileSpan()
+            var next: FileSpan? = FileSpan(span.file, span.span)
             val res = mutableListOf<StackFrame>()
             for ((i, x) in frames.reversed().withIndex()) {
                 res.add(convertFrame(i, x.name, next))
@@ -179,7 +172,7 @@ private class DapAdapterImpl(
     override fun scopes(): Result<ScopesInfo> {
         return withCtx { _, eval ->
             val vars = eval.localVariables()
-            Result.success(ScopesInfo(numLocals = vars.size))
+            Result.success(ScopesInfo(numLocals = vars.len()))
         }
     }
 
@@ -187,9 +180,9 @@ private class DapAdapterImpl(
         return withCtx { _, eval ->
             val vars = eval.localVariables()
             Result.success(VariablesInfo(
-                locals = vars.map { (name, value) ->
+                locals = vars.iter().map { (name, value) ->
                     Variable.fromValue(PathSegment.Attr(name), value)
-                }
+                }.toList()
             ))
         }
     }
@@ -199,10 +192,10 @@ private class DapAdapterImpl(
             val accessPath = path.accessPath
             var value = when (val scope = path.scope) {
                 is io.github.kotlinmania.starlark_kotlin.debug.Scope.Local -> {
-                    val vars = eval.localVariables().toMutableMap()
+                    val vars = eval.localVariables()
                     // since vars is owned within this closure scope we can just remove value from the map
                     // obtaining owned variable as the rest of the map will be dropped anyway
-                    vars.remove(scope.name)
+                    vars.shiftRemove(scope.name)
                         ?: return@withCtx Result.failure(Exception("Local variable ${scope.name} not found"))
                 }
                 is io.github.kotlinmania.starlark_kotlin.debug.Scope.Expr -> {
@@ -266,7 +259,7 @@ private class DapAdapterEvalHookImpl private constructor(
     private val state: SharedAdapterState,
     private val receiver: MessageChannel<ToEvalMessage>,
     private var step: Pair<StepKind, Int>?,
-) : DapAdapterEvalHook {
+) : DapAdapterEvalHook, io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFuncDyn {
 
     companion object {
         fun create(state: SharedAdapterState, receiver: MessageChannel<ToEvalMessage>): DapAdapterEvalHookImpl {
@@ -275,7 +268,15 @@ private class DapAdapterEvalHookImpl private constructor(
     }
 
     override fun addDapHooks(eval: Evaluator) {
-        eval.beforeStmtForDap(this::beforeStmt)
+        eval.beforeStmtForDap(BeforeStmtFunc.fromDyn(this))
+    }
+
+    override fun call(
+        span: FileSpanRef,
+        continued: Boolean,
+        eval: Evaluator,
+    ) {
+        beforeStmt(span, continued, eval).getOrThrow()
     }
 
     private fun beforeStmt(
@@ -293,7 +294,7 @@ private class DapAdapterEvalHookImpl private constructor(
         val stop = if (state.disableBreakpoints.load() > 0) {
             false
         } else {
-            val breakpoint = synchronized(state.breakpoints) {
+            val breakpoint = state.breakpointsLock.withLock {
                 state.breakpoints.at(spanLoc)
             }
             when {
@@ -353,7 +354,7 @@ private class BreakpointConfig {
     private val breakpoints: MutableMap<String, Map<Span, Breakpoint>> = mutableMapOf()
 
     fun at(spanLoc: FileSpanRef): Breakpoint? {
-        return breakpoints[spanLoc.filename()]?.get(spanLoc.span)
+        return breakpoints[spanLoc.file.filename()]?.get(spanLoc.span)
     }
 
     fun setBreakpoints(
@@ -377,6 +378,8 @@ private class SharedAdapterState(
     // These breakpoints must all match statements as per before_stmt.
     // Those values for which we abort the execution.
     val breakpoints: BreakpointConfig,
+    // Lock protecting access to breakpoints (replaces Rust's Mutex)
+    val breakpointsLock: ReentrantLock = ReentrantLock(),
     // Set while we are doing evaluate calls (>= 1 means disable)
     val disableBreakpoints: AtomicInt,
 )
@@ -426,7 +429,7 @@ private fun convertFrame(id: Int, name: String, location: FileSpan?): StackFrame
             column = span.begin.column + 1,
             endLine = span.end.line + 1,
             endColumn = span.end.column + 1,
-            source = location.filename(),
+            source = location.file.filename(),
         )
     }
     return s

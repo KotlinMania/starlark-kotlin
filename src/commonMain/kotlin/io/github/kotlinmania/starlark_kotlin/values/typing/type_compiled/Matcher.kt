@@ -97,6 +97,6 @@ internal class TypeMatcherBoxAllocImpl : TypeMatcherAlloc<TypeMatcherBox> {
     }
 
     override fun fromTypeMatcherFactory(factory: TypeMatcherFactory): TypeMatcherBox {
-        return factory.factoryMatcherBox()
+        return factory.factory.matcherBox()
     }
 }

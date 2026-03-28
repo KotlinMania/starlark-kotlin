@@ -4,15 +4,18 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.toValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
@@ -83,34 +86,36 @@ interface TypeCompiledDyn {
 class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     internal val typeCompiledImpl: T,
     internal val ty: Ty,
-) : TypeCompiledDyn {
+) : StarlarkValue, TypeCompiledDyn {
+
+    override val TYPE: String get() = "type"
 
     override fun asTyDyn(): Ty = ty
 
     override fun isRuntimeWildcardDyn(): Boolean = typeCompiledImpl.isWildcard()
 
     override fun toFrozenDyn(heap: FrozenHeap): TypeCompiled {
-        return TypeCompiled(heap.allocSimple(this))
+        return TypeCompiled(heap.allocSimple(this).toValue())
     }
 
-    fun typeMatchesValue(value: Value): Boolean {
+    override fun typeMatchesValue(value: Value): Boolean {
         return typeCompiledImpl.matches(value)
     }
 
-    fun provide(demand: Demand) {
+    override fun provide(demand: Demand) {
         // demand.provideRefStatic<TypeCompiledDyn>(this)
     }
 
-    fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
         // Hash::hash(&self.ty, hasher)
         return kotlin.Result.success(Unit)
     }
 
-    fun evalType(): Ty? {
+    override fun evalType(): Ty? {
         return ty
     }
 
-    fun getMethods(): Methods? {
+    override fun getMethods(): Methods? {
         return MethodsStatic().methods(::typeCompiledMethods)
     }
 
@@ -129,7 +134,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
             imp: T,
             ty: Ty,
         ): AllocStaticSimple<TypeCompiledImplAsStarlarkValue<T>> {
-            return AllocStaticSimple(TypeCompiledImplAsStarlarkValue(imp, ty))
+            return AllocStaticSimple.alloc(TypeCompiledImplAsStarlarkValue(imp, ty))
         }
     }
 }
@@ -160,7 +165,7 @@ fun typeCompiledCheckMatches(thisValue: Value, value: Value): NoneType {
             TypeCompiled(thisValue).toString(),
         )
     }
-    return NoneType.INSTANCE
+    return NoneType
 }
 
 /// Methods for compiled type values.
@@ -235,15 +240,15 @@ class TypeCompiled(
     fun toFrozen(heap: FrozenHeap): TypeCompiled {
         val frozen = inner.toValue().unpackFrozen()
         return if (frozen != null) {
-            TypeCompiled(frozen)
+            TypeCompiled(frozen.toValue())
         } else {
-            toValue().downcast().toFrozenDyn(heap)
+            downcast().toFrozenDyn(heap)
         }
     }
 
     override fun hashCode(): Int {
         val h = inner.toValue().getHash()
-        return if (h.isSuccess) h.getOrThrow() else 0
+        return if (h.isSuccess) h.getOrThrow().get().toInt() else 0
     }
 
     override fun equals(other: Any?): Boolean {
@@ -270,7 +275,7 @@ class TypeCompiled(
             ty: Ty,
             heap: Heap,
         ): TypeCompiled {
-            return TypeCompiled(heap.allocSimple(TypeCompiledImplAsStarlarkValue(typeCompiledImpl, ty)))
+            return TypeCompiled(heap.allocSimple<TypeCompiledImplAsStarlarkValue<TypeMatcher>>(TypeCompiledImplAsStarlarkValue(typeCompiledImpl, ty)))
         }
 
         internal fun typeListOf(t: TypeCompiled, heap: Heap): TypeCompiled {
@@ -353,14 +358,14 @@ class TypeCompiled(
 
         /// `typing.Any`.
         fun any(): TypeCompiled {
-            val anything = TypeCompiledImplAsStarlarkValue.allocStatic(IsAny(), Ty.any())
-            return uncheckedNew(anything.toFrozenValue())
+            val anything = TypeCompiledImplAsStarlarkValue.allocStatic(IsAny, Ty.any())
+            return uncheckedNew(anything.toFrozenValue().toValue())
         }
     }
 }
 
 private fun invalidTypeAnnotation(ty: Value, heap: Heap): TypingError {
-    if (DictRef.fromValue(ty) != null) {
+    if (dictRefFromValue(ty) != null) {
         return TypingError.Dict
     }
     if (ListRef.fromValue(ty) != null) {

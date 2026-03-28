@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
@@ -393,8 +393,8 @@ class Assert(
     }
 
     /** Set specific fields in the [Dialect] that future tests will use. */
-    fun dialectSet(f: (Dialect) -> Unit) {
-        f(dialect)
+    fun dialectSet(f: (Dialect) -> Dialect) {
+        dialect = f(dialect)
     }
 
     /**

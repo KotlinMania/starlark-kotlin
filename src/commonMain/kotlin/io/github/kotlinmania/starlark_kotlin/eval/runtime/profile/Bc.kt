@@ -26,24 +26,26 @@ import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.profiler_type.ProfilerType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.bc.COUNT
-import io.github.kotlinmania.starlark_kotlin.values.types.string.format
-import io.github.kotlinmania.starlark_kotlin.typing.ordinal
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.genBcProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.genBcPairsProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.enableProfile
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.eval.bc.byNumber
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import kotlin.math.roundToLong
+
+// Format a Double to 3 decimal places (KMP-safe, no String.format)
+private fun formatF3(value: Double): String {
+    val rounded = (value * 1000.0).roundToLong()
+    val intPart = rounded / 1000
+    val fracPart = kotlin.math.abs(rounded % 1000)
+    return if (value < 0) "-${kotlin.math.abs(intPart)}.${fracPart.toString().padStart(3, '0')}"
+    else "$intPart.${fracPart.toString().padStart(3, '0')}"
+}
 
 // pub(crate) struct BcProfilerType
 internal object BcProfilerType : ProfilerType<BcProfileData> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.Bytecode
+    override val profileMode: ProfileMode = ProfileMode.Bytecode
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): BcProfileData? =
         when (profileData) {
@@ -54,13 +56,13 @@ internal object BcProfilerType : ProfilerType<BcProfileData> {
     override fun dataToGeneric(data: BcProfileData): ProfileDataImpl =
         ProfileDataImpl.Bc(data)
 
-    override fun mergeProfilesImpl(profiles: List<BcProfileData>): BcProfileData =
-        BcProfileData.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<BcProfileData>): Result<BcProfileData> =
+        Result.success(BcProfileData.merge(profiles))
 }
 
 // pub(crate) struct BcPairsProfilerType
 internal object BcPairsProfilerType : ProfilerType<BcPairsProfileData> {
-    override val PROFILE_MODE: ProfileMode = ProfileMode.BytecodePairs
+    override val profileMode: ProfileMode = ProfileMode.BytecodePairs
 
     override fun dataFromGeneric(profileData: ProfileDataImpl): BcPairsProfileData? =
         when (profileData) {
@@ -71,8 +73,8 @@ internal object BcPairsProfilerType : ProfilerType<BcPairsProfileData> {
     override fun dataToGeneric(data: BcPairsProfileData): ProfileDataImpl =
         ProfileDataImpl.BcPairs(data)
 
-    override fun mergeProfilesImpl(profiles: List<BcPairsProfileData>): BcPairsProfileData =
-        BcPairsProfileData.merge(profiles)
+    override fun mergeProfilesImpl(profiles: List<BcPairsProfileData>): Result<BcPairsProfileData> =
+        Result.success(BcPairsProfileData.merge(profiles))
 }
 
 // #[derive(Debug, thiserror::Error)]
@@ -87,7 +89,7 @@ internal sealed class BcProfileError : Exception() {
 
 // #[derive(Default, Clone, Dupe, Copy, Debug)]
 // struct BcInstrStat
-private data class BcInstrStat(
+internal data class BcInstrStat(
     var count: ULong = 0u,
 ) {
     operator fun plusAssign(other: BcInstrStat) {
@@ -97,7 +99,7 @@ private data class BcInstrStat(
 
 // #[derive(Default, Clone, Copy, Dupe, Debug)]
 // struct BcInstrPairsStat
-private data class BcInstrPairsStat(
+internal data class BcInstrPairsStat(
     var count: ULong = 0u,
 ) {
     operator fun plusAssign(other: BcInstrPairsStat) {
@@ -129,13 +131,13 @@ internal class BcProfileData(
         val csv = CsvWriter(listOf("Opcode", "Count", "Count / Total"))
         csv.writeDisplay("TOTAL")
         csv.writeValue(total.count)
-        csv.writeDisplay("%.3f".format(1.0))
+        csv.writeDisplay(formatF3(1.0))
         csv.finishRow()
 
         for ((opcode, instrStats) in sorted) {
             csv.writeDebug(opcode)
             csv.writeValue(instrStats.count)
-            csv.writeDisplay("%.3f".format(instrStats.count.toDouble() / total.count.toDouble()))
+            csv.writeDisplay(formatF3(instrStats.count.toDouble() / total.count.toDouble()))
             csv.finishRow()
         }
         return csv.finish()
@@ -181,7 +183,11 @@ internal class BcPairsProfileData(
             .map { (opcodes, stat) -> Pair(opcodes, stat) }
             .sortedWith(compareByDescending<Pair<Pair<BcOpcode, BcOpcode>, BcInstrPairsStat>> {
                 it.second.count
-            }.thenBy { it.first })
+            }.thenBy {
+                it.first.first.ordinal
+            }.thenBy {
+                it.first.second.ordinal
+            })
 
         val countTotal = sorted.sumOf { it.second.count }
         val csv = CsvWriter(listOf("Opcode[0]", "Opcode[1]", "Count", "Count / Total"))
@@ -190,7 +196,7 @@ internal class BcPairsProfileData(
             csv.writeDebug(o0)
             csv.writeDebug(o1)
             csv.writeValue(instrStats.count)
-            csv.writeDisplay("%.3f".format(instrStats.count.toDouble() / countTotal.toDouble()))
+            csv.writeDisplay(formatF3(instrStats.count.toDouble() / countTotal.toDouble()))
             csv.finishRow()
         }
         return csv.finish()
@@ -217,7 +223,7 @@ internal class BcPairsProfileData(
 }
 
 // enum BcProfileDataMode
-private sealed class BcProfileDataMode {
+internal sealed class BcProfileDataMode {
     data class Bc(val data: BcProfileData) : BcProfileDataMode()
     data class BcPairs(val data: BcPairsProfileData) : BcProfileDataMode()
     data object Disabled : BcProfileDataMode()

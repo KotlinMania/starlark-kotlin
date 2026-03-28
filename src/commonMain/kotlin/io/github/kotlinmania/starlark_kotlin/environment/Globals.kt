@@ -54,7 +54,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark_kotlin.LibraryExtension
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
@@ -288,6 +288,26 @@ class GlobalsBuilder private constructor(
     /** Set a value in the [GlobalsBuilder]. */
     fun set(name: String, value: AllocFrozenValue) {
         val frozenValue = value.allocFrozenValue(heap)
+        setInner(name, frozenValue, false)
+    }
+
+    /**
+     * Set a constant value in the [GlobalsBuilder].
+     *
+     * Convenience method that allocates the value on the builder's frozen heap.
+     * Supports primitives (Int, Long, Boolean, String) and [AllocFrozenValue] types.
+     *
+     * Corresponds to the `const` syntax inside Rust's `#[starlark_module]` macro.
+     */
+    fun setConst(name: String, value: Any) {
+        val frozenValue = when (value) {
+            is AllocFrozenValue -> value.allocFrozenValue(heap)
+            is Int -> value.allocFrozenValue(heap)
+            is Long -> value.allocFrozenValue(heap)
+            is Boolean -> FrozenValue.newBool(value)
+            is String -> heap.allocStr(value).toFrozenValue()
+            else -> error("setConst: unsupported value type ${value::class.simpleName}")
+        }
         setInner(name, frozenValue, false)
     }
 

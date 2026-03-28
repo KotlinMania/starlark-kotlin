@@ -32,14 +32,16 @@ import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import kotlin.math.max
 
 /** Generic list container, parameterized on the data type. */
 class ListGen<T>(val data: T) : StarlarkValue {
     override val TYPE: String get() = ListData.TYPE
-    fun isSpecial(): Boolean = true
-    fun getMethods(): Methods? = listMethods()
+    override fun isSpecial(): Boolean = true
+    override fun getMethods(): Methods? = listMethods()
     override fun toString(): String = data.toString()
 }
 
@@ -177,22 +179,22 @@ class ListData(
 
 // impl AllocValue for Vec<V>
 fun <T : AllocValue> List<T>.allocValue(heap: Heap): Value =
-    heap.alloc(AllocList(this.map { it.allocValue(heap) }))
+    heap.allocListIter(this.map { it.allocValue(heap) })
 
 // impl AllocFrozenValue for Vec<V>
 fun <T : AllocFrozenValue> List<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
-    heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
+    heap.allocList(this.map { it.allocFrozenValue(heap) })
 
 // impl StarlarkTypeRepr for &[V]
 inline fun <reified V : StarlarkTypeRepr> sliceStarlarkTypeRepr(): Ty = Ty.anyList()
 
 // impl AllocValue for &[V]
 fun <T : AllocValue> Array<T>.allocValue(heap: Heap): Value =
-    heap.alloc(AllocList(this.map { it.allocValue(heap) }))
+    heap.allocListIter(this.map { it.allocValue(heap) })
 
 // impl AllocFrozenValue for &[V]
 fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
-    heap.alloc(AllocList(this.map { it.allocFrozenValue(heap) }))
+    heap.allocList(this.map { it.allocFrozenValue(heap) })
 
 /**
  * Define the frozen list type.
@@ -346,14 +348,14 @@ fun ListGen<out ListLike>.toBool(): Boolean = data.content().isNotEmpty()
 // fn equals
 fun ListGen<out ListLike>.starlarkEquals(other: Value): Result<Boolean> {
     val otherRef = ListRef.fromValue(other) ?: return Result.success(false)
-    return equalsSlice(data.content(), otherRef.content()) { x, y -> x.equals(y) }
+    return equalsSlice<Exception, Value, Value>(data.content(), otherRef.content()) { x, y -> x.equals(y) }
 }
 
 // fn compare
 fun ListGen<out ListLike>.starlarkCompare(other: Value): Result<Int> {
     val otherRef = ListRef.fromValue(other)
         ?: return ValueError.unsupportedWith(ListData.TYPE, "cmp()", other)
-    return compareSlice(data.content(), otherRef.content()) { x, y -> x.compare(y) }
+    return compareSlice<Exception, Value, Value>(data.content(), otherRef.content()) { x, y -> x.compare(y) }
 }
 
 // fn at
@@ -444,8 +446,8 @@ fun getTypeStarlarkRepr(): Ty = Ty.anyList()
 fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
 
 // Heap extensions for list allocation
-fun Heap.allocList(content: List<Value>): Value = alloc(AllocList(content))
-fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = alloc(AllocList(a + b))
+fun Heap.allocList(content: List<Value>): Value = allocListIter(content)
+fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = allocListIter(a + b)
 
 // -- isListType check
 fun isListType(value: Value): Boolean {

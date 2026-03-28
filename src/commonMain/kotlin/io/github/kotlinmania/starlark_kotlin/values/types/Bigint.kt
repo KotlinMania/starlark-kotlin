@@ -23,7 +23,8 @@ import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp as OracleTypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -40,6 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.and
 import io.github.kotlinmania.starlark_kotlin.values.types.int.not
 import io.github.kotlinmania.starlark_kotlin.values.types.int.or
 import io.github.kotlinmania.starlark_kotlin.values.types.int.xor
+import io.github.kotlinmania.starlark_kotlin.values.types.float.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
@@ -157,119 +159,134 @@ class StarlarkBigInt private constructor(
     // Rust: impl<'v> StarlarkValue<'v> for StarlarkBigInt
 
     /** StarlarkBigInt is always non-zero, so always truthy. */
-    fun toBool(): Boolean = true
+    override fun toBool(): Boolean = true
 
     /** Unary minus. Rust: `fn minus` */
-    fun minus(heap: Heap): Result<Value> {
+    override fun minus(heap: Heap): Result<Value> {
         return Result.success(StarlarkInt.from(-value).allocValue(heap))
     }
 
     /** Unary plus. Rust: `fn plus` */
-    fun plus(heap: Heap): Result<Value> {
+    override fun plus(heap: Heap): Result<Value> {
         return Result.success(StarlarkInt.from(value).allocValue(heap))
     }
 
     /** Equality check against another Starlark value. Rust: `fn equals` */
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         return Result.success(
             NumRef.Int(StarlarkIntRef.Big(this)) == other.unpackNum()
         )
     }
 
     /** Comparison against another Starlark value. Rust: `fn compare` */
-    fun compare(other: Value): Result<Int> {
+    override fun compare(other: Value): Result<Int> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "compare", other)
         return Result.success(NumRef.Int(StarlarkIntRef.Big(this)).compareTo(otherNum))
     }
 
     /** Addition. Returns null if rhs is not numeric. Rust: `fn add` */
-    fun add(rhs: Value, heap: Heap): Result<Value>? {
+    override fun add(rhs: Value, heap: Heap): Result<Value>? {
         val rhsNum = rhs.unpackNum() ?: return null
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) + rhsNum))
     }
 
     /** Subtraction. Rust: `fn sub` */
-    fun sub(other: Value, heap: Heap): Result<Value> {
+    override fun sub(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "-", other)
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) - otherNum))
     }
 
     /** Multiplication. Returns null if rhs is not numeric. Rust: `fn mul` */
-    fun mul(other: Value, heap: Heap): Result<Value>? {
+    override fun mul(other: Value, heap: Heap): Result<Value>? {
         val otherNum = other.unpackNum() ?: return null
         return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) * otherNum))
     }
 
     /** True division. Rust: `fn div` */
-    fun div(other: Value, heap: Heap): Result<Value> {
+    override fun div(other: Value, heap: Heap): Result<Value> {
         val otherNum = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "/", other)
-        return NumRef.Int(StarlarkIntRef.Big(this)).div(otherNum).map { heap.alloc(it) }
+        return NumRef.Int(StarlarkIntRef.Big(this)).div(otherNum).map { it.allocValue(heap) }
     }
 
     /** Floor division. Rust: `fn floor_div` */
-    fun floorDiv(other: Value, heap: Heap): Result<Value> {
+    override fun floorDiv(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "//", other)
         return NumRef.Int(StarlarkIntRef.Big(this)).floorDiv(rhs).map { heap.alloc(it) }
     }
 
     /** Modulo. Rust: `fn percent` */
-    fun percent(other: Value, heap: Heap): Result<Value> {
+    override fun percent(other: Value, heap: Heap): Result<Value> {
         val rhs = other.unpackNum()
             ?: return ValueError.unsupportedWith(INT_TYPE, "%", other)
         return NumRef.Int(StarlarkIntRef.Big(this)).percent(rhs).map { heap.alloc(it) }
     }
 
     /** Bitwise AND. Rust: `fn bit_and` */
-    fun bitAnd(other: Value, heap: Heap): Result<Value> {
+    override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, "&", other)
         return Result.success((StarlarkIntRef.Big(this) and rhs).allocValue(heap))
     }
 
     /** Bitwise XOR. Rust: `fn bit_xor` */
-    fun bitXor(other: Value, heap: Heap): Result<Value> {
+    override fun bitXor(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, "^", other)
         return Result.success((StarlarkIntRef.Big(this) xor rhs).allocValue(heap))
     }
 
     /** Bitwise OR. Rust: `fn bit_or` */
-    fun bitOr(other: Value, heap: Heap): Result<Value> {
+    override fun bitOr(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, "|", other)
         return Result.success((StarlarkIntRef.Big(this) or rhs).allocValue(heap))
     }
 
     /** Bitwise NOT. Rust: `fn bit_not` */
-    fun bitNot(heap: Heap): Result<Value> {
+    override fun bitNot(heap: Heap): Result<Value> {
         return Result.success(StarlarkIntRef.Big(this).not().allocValue(heap))
     }
 
     /** Left shift. Rust: `fn left_shift` */
-    fun leftShift(other: Value, heap: Heap): Result<Value> {
+    override fun leftShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, "<<", other)
         return StarlarkIntRef.Big(this).leftShift(rhs).map { it.allocValue(heap) }
     }
 
     /** Right shift. Rust: `fn right_shift` */
-    fun rightShift(other: Value, heap: Heap): Result<Value> {
+    override fun rightShift(other: Value, heap: Heap): Result<Value> {
         val rhs = StarlarkIntRef.unpackValueOpt(other)
             ?: return ValueError.unsupportedWith(INT_TYPE, ">>", other)
         return StarlarkIntRef.Big(this).rightShift(rhs).map { it.allocValue(heap) }
     }
 
     /** Type-checks a binary operation. Rust: `fn bin_op_ty` */
-    fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? {
-        return typecheckNumBinOp(NumTy.Int, op, rhs)
+    override fun binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? {
+        val oracleOp = when (op) {
+            TypingBinOp.Add -> OracleTypingBinOp.ADD
+            TypingBinOp.Sub -> OracleTypingBinOp.SUB
+            TypingBinOp.Mul -> OracleTypingBinOp.MUL
+            TypingBinOp.Div -> OracleTypingBinOp.DIV
+            TypingBinOp.FloorDiv -> OracleTypingBinOp.FLOOR_DIV
+            TypingBinOp.Percent -> OracleTypingBinOp.PERCENT
+            TypingBinOp.BitAnd -> OracleTypingBinOp.BIT_AND
+            TypingBinOp.BitOr -> OracleTypingBinOp.BIT_OR
+            TypingBinOp.BitXor -> OracleTypingBinOp.BIT_XOR
+            TypingBinOp.LeftShift -> OracleTypingBinOp.LEFT_SHIFT
+            TypingBinOp.RightShift -> OracleTypingBinOp.RIGHT_SHIFT
+            TypingBinOp.In -> OracleTypingBinOp.IN
+            TypingBinOp.Less -> OracleTypingBinOp.LESS
+        }
+        return typecheckNumBinOp(NumTy.Int, oracleOp, rhs)
     }
 
     /** Writes this value's hash. Rust: `fn write_hash` */
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         NumRef.Int(StarlarkIntRef.Big(this))
             .getHash64()
             .let { hasher.writeU64(it) }
@@ -277,7 +294,7 @@ class StarlarkBigInt private constructor(
     }
 
     /** Returns the typechecker type. Rust: `fn typechecker_ty` */
-    fun typecheckerTy(): Ty? = Ty.int()
+    override fun typecheckerTy(): Ty? = Ty.int()
 }
 
 // Tests are in commonTest.

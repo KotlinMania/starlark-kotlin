@@ -29,7 +29,10 @@ data class AllocCounts(
 
     // #[cfg(test)]
     // pub(crate) fn normalize_for_golden_tests(&mut self)
-    // Tests are in commonTest, not here.
+    internal fun normalizeForGoldenTests() {
+        // Value sizes depend on compiler version, so normalize them.
+        bytes = count.toLong() * 8
+    }
 
     // impl AddAssign for AllocCounts
     // fn add_assign(&mut self, other: AllocCounts)

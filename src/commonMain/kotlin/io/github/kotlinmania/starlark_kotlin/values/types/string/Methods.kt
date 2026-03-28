@@ -128,7 +128,7 @@ internal fun elems(
     thisStr: StringValue,
     heap: Heap,
 ): Result<Value> {
-    return Result.success(iterateChars(thisStr, heap).get())
+    return Result.success(iterateChars(thisStr, heap))
 }
 
 /**
@@ -181,7 +181,7 @@ internal fun codepoints(
     thisStr: StringValue,
     heap: Heap,
 ): Result<Value> {
-    return Result.success(iterateCodepoints(thisStr, heap).get())
+    return Result.success(iterateCodepoints(thisStr, heap))
 }
 
 /**

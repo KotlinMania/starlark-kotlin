@@ -22,17 +22,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign
 /** Compile assignment lhs. */
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSetArrayIndex
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrSetObjectField
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrStoreModuleAndExport
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr_impl.InstrUnpack
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
+import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
 
 // impl AssignCompiledValue
 

@@ -146,6 +146,12 @@ sealed class StarlarkInt {
             { v -> InlineInt.tryFrom(v.toInt()).getOrNull()?.takeIf { it.toI32().toULong() == v } },
             { BigInteger.fromULong(it) }
         )
+
+        // Rust: impl From<TokenInt> for StarlarkInt
+        fun from(value: io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt): StarlarkInt = when (value) {
+            is io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt.I32 -> from(value.value)
+            is io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt.BigInt -> from(value.value)
+        }
     }
 }
 
@@ -201,43 +207,44 @@ sealed class StarlarkIntRef {
     }
 
     private fun isZero(): Boolean = when (this) {
-        is Small -> value == 0
+        is Small -> value == InlineInt.ZERO
         is Big -> false
     }
 
-    private fun signumBig(b: BigInteger): Int = when (b.sign) {
-        Sign.POSITIVE -> 1
-        Sign.NEGATIVE -> -1
-        Sign.ZERO -> 0
+    private fun signumBig(b: BigInteger): Int {
+        val cmp = b.compareTo(BigInteger.ZERO)
+        return when {
+            cmp > 0 -> 1
+            cmp < 0 -> -1
+            else -> 0
+        }
     }
 
     private fun floorDivSmallSmall(a: InlineInt, b: InlineInt): Result<StarlarkInt> = runCatching {
-        if (b == 0) {
+        if (b == InlineInt.ZERO) {
             throw StarlarkIntError.FloorDivisionByZero(StarlarkInt.Small(a), StarlarkInt.Small(b))
         }
         val sig = b.signum() * a.signum()
-        val offset = if (sig < 0 && a % b != 0) 1 else 0
+        val offset = if (sig < 0 && (a % b) != InlineInt.ZERO) 1 else 0
         when (val div = a.checkedDiv(b)) {
             null -> floorDivBigBig(a.toBigInt(), b.toBigInt()).getOrThrow()
             else -> {
-                val result = div.checkedSubI32(offset).getOrElse {
-                    throw Exception("unreachable")
-                }
+                val result = div.checkedSubI32(offset)
+                    ?: throw Exception("unreachable")
                 StarlarkInt.Small(result)
             }
         }
     }
 
     private fun floorDivBigBig(a: BigInteger, b: BigInteger): Result<StarlarkInt> = runCatching {
-        if (b.isZero()) {
+        if (b == BigInteger.ZERO) {
             throw StarlarkIntError.FloorDivisionByZero(
-                StarlarkInt.from(a.copy()),
-                StarlarkInt.from(b.copy())
+                StarlarkInt.from(a),
+                StarlarkInt.from(b)
             )
         }
         val sig = signumBig(b) * signumBig(a)
-        // TODO(nga): optimize.
-        val offset = if (sig < 0 && !(a % b).isZero()) {
+        val offset = if (sig < 0 && (a % b) != BigInteger.ZERO) {
             1
         } else {
             0
@@ -260,21 +267,20 @@ sealed class StarlarkIntRef {
     }
 
     private fun percentSmall(a: InlineInt, b: InlineInt): Result<InlineInt> = runCatching {
-        if (b == 0) {
+        if (b == InlineInt.ZERO) {
             throw StarlarkIntError.ModuloByZero(StarlarkInt.Small(a), StarlarkInt.Small(b))
         }
         // In Rust `i32::min_value() % -1` is overflow, but we should eval it to zero.
-        if (a == Int.MIN_VALUE && b == -1) {
+        if (a.toI32() == Int.MIN_VALUE && b.toI32() == -1) {
             return@runCatching InlineInt.ZERO
         }
         val r = a % b
-        if (r == 0) {
+        if (r == InlineInt.ZERO) {
             InlineInt.ZERO
         } else {
             if (b.signum() != r.signum()) {
-                r.checkedAdd(b).getOrElse {
-                    throw Exception("unreachable")
-                }
+                r.checkedAdd(b)
+                    ?: throw Exception("unreachable")
             } else {
                 r
             }
@@ -282,17 +288,17 @@ sealed class StarlarkIntRef {
     }
 
     private fun percentBig(a: BigInteger, b: BigInteger): Result<StarlarkInt> = runCatching {
-        if (b.isZero()) {
+        if (b == BigInteger.ZERO) {
             throw StarlarkIntError.ModuloByZero(
-                StarlarkInt.from(a.copy()),
-                StarlarkInt.from(b.copy())
+                StarlarkInt.from(a),
+                StarlarkInt.from(b)
             )
         }
         val r = a % b
-        if (r.isZero()) {
+        if (r == BigInteger.ZERO) {
             StarlarkInt.Small(InlineInt.ZERO)
         } else {
-            StarlarkInt.from(if (b.sign != r.sign) {
+            StarlarkInt.from(if (signumBig(b) != signumBig(r)) {
                 r + b
             } else {
                 r
@@ -432,11 +438,14 @@ sealed class StarlarkIntRef {
     companion object {
         fun unpack(value: Value): StarlarkIntRef? {
             value.unpackInlineInt()?.let { return Small(it) }
-            value.downcastRef<StarlarkBigInt>()?.let { return Big(it) }
+            // StarlarkBigInt doesn't implement StarlarkValue yet, so we can't use
+            // downcastRef. Access the raw underlying ptr instead.
+            val rawPtr = value.getRef().value.ptr
+            if (rawPtr is StarlarkBigInt) return Big(rawPtr)
             return null
         }
 
-        /// Alias for [unpack] matching the Rust `UnpackValue::unpack_value_opt` trait method.
+        /** Alias for [unpack] matching the Rust `UnpackValue::unpack_value_opt` trait method. */
         fun unpackValueOpt(value: Value): StarlarkIntRef? = unpack(value)
     }
 }
@@ -468,7 +477,7 @@ infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt = when (this) {
 
 operator fun StarlarkIntRef.not(): StarlarkInt = when (this) {
     is StarlarkIntRef.Small -> StarlarkInt.Small(!value)
-    is StarlarkIntRef.Big -> StarlarkInt.from(!toBig())
+    is StarlarkIntRef.Big -> StarlarkInt.from(toBig().not())
 }
 
 operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {

@@ -162,3 +162,13 @@ data class FileSpan(
 
     override fun toString(): String = "${file.filename}:${resolveSpan()}"
 }
+
+/**
+ * A file, and a line and column range within it.
+ * In Rust this is a borrowing reference (`&CodeMap`), but in Kotlin
+ * it is structurally identical to [FileSpan].
+ */
+class FileSpanRef(
+    val file: CodeMap,
+    val span: Span,
+)

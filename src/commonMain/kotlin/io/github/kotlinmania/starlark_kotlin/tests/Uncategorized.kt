@@ -20,31 +20,28 @@ package io.github.kotlinmania.starlark_kotlin.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.list_or_tuple.UnpackListOrTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.SmallMapUnpackValue
 import kotlin.test.Test
+import kotlin.test.assertTrue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.types.float.testingNewInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.tests.derive.unpackValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.setCheckCancelled
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
 class UncategorizedTests {
 
@@ -294,19 +291,25 @@ xs[1] += 1
 
             override fun toString(): String = "\$${items}"
 
+            override fun starlarkTypeRepr(): Ty = Ty.any()
+
             fun add(other: Select): Select {
                 val result = items.toMutableList()
                 result.addAll(other.items)
                 return Select(result)
             }
 
+            private fun fromValue(value: Value): Select? {
+                return value.downcastRef<Select>()
+            }
+
             override fun radd(lhs: Value, heap: Heap): Result<Value>? {
-                val lhsSelect = UnpackValue.unpackValue<Select>(lhs) ?: return null
+                val lhsSelect = fromValue(lhs) ?: return null
                 return Result.success(heap.alloc(lhsSelect.add(this)))
             }
 
             override fun add(rhs: Value, heap: Heap): Result<Value>? {
-                val rhsSelect = UnpackValue.unpackValue<Select>(rhs) ?: return null
+                val rhsSelect = fromValue(rhs) ?: return null
                 return Result.success(heap.alloc(this.add(rhsSelect)))
             }
 
@@ -322,10 +325,13 @@ xs[1] += 1
         // #[starlark_module]
         // fn module(build: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("select") { args, _ ->
-                val xs = UnpackListOrTuple.unpackValue<Int>(args.positional(0))
-                    ?: return@setFunction Result.failure(Exception("expected list"))
-                Result.success(Select(xs.items.toMutableList()))
+            builder.setFunction("select") { args, eval ->
+                val arg = args.positionalAll().firstOrNull()
+                    ?: return@setFunction Result.failure<Value>(Exception("expected list"))
+                val iter = arg.iterate(eval.heap()).getOrThrow()
+                val ints = mutableListOf<Int>()
+                for (v in iter) { ints.add(v.unpackI32() ?: throw Exception("expected int")) }
+                Result.success<Value>(eval.heap().alloc(Select(ints)))
             }
         }
 
@@ -427,9 +433,9 @@ assert_eq(names[str], "str")
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("rust_failure") { _, _ ->
                 fail3().onFailure {
-                    return@setFunction Result.failure(Exception("rust failure", it))
+                    return@setFunction Result.failure<Any>(Exception("rust failure", it))
                 }
-                Result.success(NoneType)
+                Result.success<Any>(NoneType)
             }
         }
 
@@ -515,7 +521,7 @@ add3(8)""",
     fun testLoadReexport() {
         run {
             val a = Assert()
-            a.dialectSet { d -> d.enableLoadReexport = true }
+            a.dialectSet { d -> d.copy(enableLoadReexport = true) }
             a.module("a", "x = 1")
             a.module("b", "load('a', 'x')")
             a.pass("load('b', 'x')\nassert_eq(x, 1)")
@@ -523,7 +529,7 @@ add3(8)""",
 
         run {
             val a = Assert()
-            a.dialectSet { d -> d.enableLoadReexport = false }
+            a.dialectSet { d -> d.copy(enableLoadReexport = false) }
             a.module("a", "x = 1")
             a.module("b", "load('a', 'x')")
             a.fail(
@@ -555,7 +561,7 @@ add3(8)""",
             }
             val frozenImport = import.freeze().getOrThrow()
 
-            Module.withTempHeap { mUsesPublic ->
+            Module.withTempHeap<Result<Unit>> { mUsesPublic ->
                 mUsesPublic.importPublicSymbols(frozenImport)
                 run {
                     val eval = Evaluator(mUsesPublic)
@@ -565,7 +571,7 @@ add3(8)""",
                 Result.success(Unit)
             }.getOrThrow()
 
-            Module.withTempHeap { mUsesPrivate ->
+            Module.withTempHeap<Result<Unit>> { mUsesPrivate ->
                 mUsesPrivate.importPublicSymbols(frozenImport)
                 run {
                     val eval = Evaluator(mUsesPrivate)
@@ -757,10 +763,16 @@ bar(["a","b","c"])
 
         // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
         // struct Wrapper<'v>(RefCell<SmallMap<String, Value<'v>>>)
-        class Wrapper(val map: MutableMap<String, Value> = mutableMapOf()) : StarlarkValue, AllocValue {
+        class Wrapper(val map: MutableMap<String, Value> = mutableMapOf()) : ComplexValue, AllocValue, Trace {
             override val TYPE: String get() = "wrapper"
 
+            override fun starlarkTypeRepr(): Ty = Ty.any()
+
             override fun toString(): String = map.toString()
+
+            override fun trace(tracer: Tracer) {
+                // Values in the map would be traced in a real implementation
+            }
 
             override fun getAttr(attribute: String, heap: Heap): Value? {
                 return map[attribute]
@@ -981,7 +993,7 @@ animal("Joe")
             val eval = Evaluator(m)
             val ast = AstModule.parse("code.bzl", code, Dialect.Standard).getOrThrow()
             val res: Value = eval.evalModule(ast, globals).getOrThrow()
-            val animal = SmallMap.unpackValue<String, Value>(res)
+            val animal = SmallMapUnpackValue.unpackValueImpl<String, Value>(res).getOrThrow()
             println("animal = $animal")
             Result.success(Unit)
         }.getOrThrow()
@@ -990,7 +1002,7 @@ animal("Joe")
     @Test
     fun testFuzzer59102() {
         // From https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59102
-        val src = "\"\u{e0070}"
+        val src = "\"\uDB40\uDC70"
         val res = AstModule.parse("hello_world.star", src, Dialect.Standard)
         // The panic actually only happens when we format the result
         val unused = res.toString()

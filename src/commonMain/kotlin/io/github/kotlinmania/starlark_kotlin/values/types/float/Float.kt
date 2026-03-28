@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.*
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
@@ -34,6 +34,31 @@ import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
 import kotlin.math.*
 
 private const val WRITE_PRECISION: Int = 6
+
+/** Format a Double with a fixed number of decimal places (like "%.Nf"). */
+private fun formatFixed(f: Double, decimals: Int): String {
+    val negative = f < 0.0 || (1.0 / f) == Double.NEGATIVE_INFINITY
+    val abs = if (negative) -f else f
+    val factor = 10.0.pow(decimals.toDouble())
+    val rounded = (abs * factor + 0.5).toLong()
+    val intPart = rounded / factor.toLong()
+    val fracPart = rounded % factor.toLong()
+    val fracStr = fracPart.toString().padStart(decimals, '0')
+    return buildString {
+        if (negative) append('-')
+        append(intPart)
+        append('.')
+        append(fracStr)
+    }
+}
+
+/** Format an Int with sign and zero-padded to at least [width] digits (like "%+0Nd"). */
+private fun formatSignedPadded(value: Int, width: Int): String {
+    val sign = if (value >= 0) "+" else "-"
+    val digits = abs(value).toString()
+    val padded = digits.padStart(width - 1, '0')
+    return "$sign$padded"
+}
 
 private fun writeNonFinite(output: Appendable, f: Double) {
     require(f.isNaN() || f.isInfinite())
@@ -46,7 +71,7 @@ private fun writeNonFinite(output: Appendable, f: Double) {
 
 internal fun writeDecimal(output: Appendable, f: Double) {
     if (!f.isFinite()) writeNonFinite(output, f)
-    else output.append("%.${WRITE_PRECISION}f".format(f))
+    else output.append(formatFixed(f, WRITE_PRECISION))
 }
 
 internal fun writeScientific(
@@ -91,7 +116,7 @@ internal fun writeScientific(
 
         // add exponent part
         output.append(exponentChar)
-        output.append("%+03d".format(exponent))
+        output.append(formatSignedPadded(exponent, 3))
     }
 }
 
@@ -107,7 +132,7 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
             writeScientific(output, f, exponentChar, true)
         } else if (f - floor(f) == 0.0) {
             // make sure there's a fractional part even if the number doesn't have it
-            output.append("%.1f".format(f))
+            output.append(formatFixed(f, 1))
         } else {
             // rely on the built-in formatting otherwise
             output.append(f.toString())
@@ -116,7 +141,7 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
 }
 
 /** Runtime representation of Starlark `float` type. */
-data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue {
+data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, AllocValue, AllocFrozenValue {
 
     override val TYPE: String get() = Companion.TYPE
 
@@ -144,6 +169,10 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue {
 
     override fun starlarkTypeRepr(): Ty = Ty.float()
 
+    override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
+
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
+
     override fun toString(): String {
         val s = StringBuilder()
         writeCompact(s, value, 'e')
@@ -151,11 +180,9 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue {
     }
 }
 
-// impl AllocValue for StarlarkFloat
-fun StarlarkFloat.allocValue(heap: Heap): Value = heap.allocSimple(this)
+// impl AllocValue for StarlarkFloat -- implemented via AllocValue interface on StarlarkFloat
 
-// impl AllocFrozenValue for StarlarkFloat
-fun StarlarkFloat.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
+// impl AllocFrozenValue for StarlarkFloat -- implemented via AllocFrozenValue interface on StarlarkFloat
 
 // impl StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
@@ -180,7 +207,7 @@ fun StarlarkFloat.collectRepr(s: StringBuilder) { s.append(toString()) }
 fun StarlarkFloat.toBool(): Boolean = value != 0.0
 
 fun StarlarkFloat.writeHash(hasher: StarlarkHasher): Result<Unit> {
-    hasher.write(NumRef.from(value).getHash64())
+    hasher.writeU64(NumRef.from(value).getHash64())
     return Result.success(Unit)
 }
 
@@ -209,7 +236,7 @@ fun StarlarkFloat.mul(other: Value, heap: Heap): Result<Value>? {
 
 fun StarlarkFloat.div(other: Value, heap: Heap): Result<Value> {
     val rhs = other.unpackNum() ?: return ValueError.unsupportedWith(StarlarkFloat.TYPE, "/", other)
-    return NumRef.Float(this).div(rhs).map { heap.alloc(it) }
+    return NumRef.Float(this).div(rhs).map { heap.alloc(StarlarkFloat(it)) }
 }
 
 fun StarlarkFloat.percent(other: Value, heap: Heap): Result<Value> {

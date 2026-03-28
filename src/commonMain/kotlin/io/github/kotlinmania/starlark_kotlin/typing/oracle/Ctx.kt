@@ -15,8 +15,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-// Missing: TyCustom not yet ported from Rust typing/custom.rs (struct TyCustom wrapping Arc<dyn TyCustomDyn>)
-// import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
+import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
+import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.typing.TyTuple
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
@@ -603,10 +603,10 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(lhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new("list").binOp(binOp, rhs.node))
+                else -> TyStarlarkValue.new("list").binOp(binOp, rhs.node)
             }
             is TyBasic.Tuple ->
-                kotlin.Result.success(TyStarlarkValue.new("tuple").binOp(binOp, rhs.node))
+                TyStarlarkValue.new("tuple").binOp(binOp, rhs.node)
             is TyBasic.Dict -> when (binOp) {
                 TypingBinOp.BitOr -> {
                     val ir = intersectsBasic(rhs.node, TyBasic.anyDict())
@@ -626,7 +626,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.bool())
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new("dict").binOp(binOp, rhs.node))
+                else -> TyStarlarkValue.new("dict").binOp(binOp, rhs.node)
             }
             is TyBasic.Custom ->
                 lhs.custom.binOpDyn(binOp, rhs.node, this)
@@ -649,7 +649,7 @@ class TypingOracleCtx(
                         kotlin.Result.failure(TypingNoContextError)
                     }
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new("set").binOp(binOp, rhs.node))
+                else -> TyStarlarkValue.new("set").binOp(binOp, rhs.node)
             }
         }
     }
@@ -669,7 +669,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.basic(rhs))
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.new("list").rbinOp(binOp, lhs))
+                else -> TyStarlarkValue.new("list").rbinOp(binOp, lhs)
             }
             is TyBasic.Tuple -> when (binOp) {
                 TypingBinOp.Mul -> {
@@ -678,7 +678,7 @@ class TypingOracleCtx(
                     if (ir.getOrThrow()) kotlin.Result.success(Ty.anyTuple())
                     else kotlin.Result.failure(TypingNoContextError)
                 }
-                else -> kotlin.Result.success(TyStarlarkValue.tuple().rbinOp(binOp, lhs))
+                else -> TyStarlarkValue.tuple().rbinOp(binOp, lhs)
             }
             else -> kotlin.Result.failure(TypingNoContextError)
         }

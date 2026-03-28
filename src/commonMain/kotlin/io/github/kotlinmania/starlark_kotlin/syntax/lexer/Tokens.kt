@@ -19,7 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.syntax.lexer
  * limitations under the License.
  */
 
-class TokenInt
+import com.ionspin.kotlin.bignum.integer.BigInteger
+
+sealed class TokenInt {
+    data class I32(val value: Int) : TokenInt()
+    /** Only if larger than `i32`. */
+    data class BigInt(val value: BigInteger) : TokenInt()
+
+    override fun toString(): String = when (this) {
+        is I32 -> value.toString()
+        is BigInt -> value.toString()
+    }
+}
 class TokenString
 class Token
 class TokenFString

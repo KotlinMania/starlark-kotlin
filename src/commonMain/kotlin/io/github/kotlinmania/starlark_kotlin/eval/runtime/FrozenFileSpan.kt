@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span

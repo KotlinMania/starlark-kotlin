@@ -24,6 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 import kotlin.math.max
 import io.github.kotlinmania.starlark_kotlin.eval.bc.definitely_assigned.BcDefinitelyAssigned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BC_INSTR_ALIGN
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrHeader
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
@@ -34,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 
 // --- BcStmtLoc ---
 
-internal class BcStmtLoc(
+class BcStmtLoc(
     val span: FrameSpan,
 )
 
@@ -54,7 +55,7 @@ class BcStatementLocations(
         fun new(): BcStatementLocations = BcStatementLocations()
 
         private fun idxFor(addr: BcAddr): Int {
-            val addrVal = addr.offset
+            val addrVal = addr.value.toInt()
             return addrVal / BC_INSTR_ALIGN
         }
     }
@@ -107,7 +108,7 @@ class BcStatementLocations(
 }
 
 /// For loop during bytecode write.
-private class BcWriterForLoop(
+internal class BcWriterForLoop(
     /// Iterator variable.
     val iter: BcSlotIn,
     /// Variable to store the next value in.
@@ -151,7 +152,7 @@ internal class BcWriter(
             heap: FrozenHeap,
         ): BcWriter {
             check(paramCount <= localNames.size)
-            val definitelyAssigned = BcDefinitelyAssigned.new(localNames.size)
+            val definitelyAssigned = BcDefinitelyAssigned(localNames.size)
             for (i in 0 until paramCount) {
                 definitelyAssigned.markDefinitelyAssigned(LocalSlotId(i.toUInt()))
             }
@@ -168,6 +169,12 @@ internal class BcWriter(
                 forLoops = mutableListOf(),
                 maxLoopDepth = LoopDepth(0),
             )
+        }
+
+        /// Map instruction name (e.g. "InstrConst") to BcOpcode (e.g. BcOpcode.Const).
+        internal fun instrNameToOpcode(instrName: String): BcOpcode {
+            val opcodeName = instrName.removePrefix("Instr")
+            return BcOpcode.valueOf(opcodeName)
         }
     }
 
@@ -201,10 +208,15 @@ internal class BcWriter(
         if (lastOpcode.isCall()) {
             stmtLocs.pushPrev(ip())
         }
-        lastOpcode = BcOpcode.forInstr(instrName)
+        val opcode = instrNameToOpcode(instrName)
+        lastOpcode = opcode
 
         slowArgs.add(ip() to slowArg)
-        return instrs.write(instrName, arg)
+        val header = BcInstrHeader.forOpcode(opcode)
+        // The arg is stored at (current instrs size + 1) since write adds header then arg.
+        val argIndex = instrs.instrsSize() + 1
+        val addr = instrs.write(header, arg)
+        return addr to argIndex
     }
 
     fun markBeforeStmt(span: FrameSpan) {
@@ -463,7 +475,7 @@ internal class BcWriter(
     }
 
     fun restoreDefinitelyAssigned(saved: BcDefinitelyAssigned) {
-        saved.assertSmallerThen(definitelyAssigned)
+        saved.assertSmallerThan(definitelyAssigned)
         definitelyAssigned = saved
     }
 
@@ -519,7 +531,7 @@ internal class BcWriter(
             // This is not really necessary, empty range is equally valid
             // with any starting point, but this makes bytecode output
             // (in particular, in golden tests) more readable.
-            BcSlotInRange()
+            BcSlotInRange.default()
         } else {
             BcSlotRange(start, end).toIn()
         }
@@ -529,6 +541,8 @@ internal class BcWriter(
     }
 
     fun allocFileSpan(span: FrameSpan): FrameSpan {
-        return heap.allocAny(span)
+        // In Rust, this allocates the span on the frozen heap via alloc_any.
+        // In Kotlin, the GC manages memory so we just return the span.
+        return span
     }
 }

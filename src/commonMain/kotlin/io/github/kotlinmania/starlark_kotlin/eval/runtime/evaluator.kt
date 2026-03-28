@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.FileSpanRef
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.collections.Alloca

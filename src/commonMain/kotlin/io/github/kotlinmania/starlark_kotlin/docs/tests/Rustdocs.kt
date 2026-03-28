@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
@@ -182,7 +182,7 @@ internal fun innerObjectFunctionsHaveDocs() {
 // fn module(builder: &mut GlobalsBuilder)
 private fun moduleFunctions(builder: GlobalsBuilder) {
     // const MAGIC: i32 = 42
-    builder.set("MAGIC", 42)
+    builder.setConst("MAGIC", 42)
 
     /// Docs for func1
     // fn func1(foo: String) -> anyhow::Result<String>

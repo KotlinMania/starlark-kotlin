@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 
 /// Information about the data stored on a heap. Accessible through
@@ -35,35 +34,29 @@ class HeapSummary(
 ) {
     /// (Count, total size) by type.
     // pub fn summary(&self) -> HashMap<String, (usize, usize)>
-    fun summary(): Map<String, Pair<Int, Int>> {
-        return summary.entries.associate { (k, v) ->
-            k to Pair(v.count, v.bytes)
-        }
-    }
-
-    // pub(crate) fn total(&self) -> AllocCounts
-    internal fun total(): AllocCounts {
-        var result = AllocCounts()
-        for (v in summary.values) {
-            result += v
+    fun summary(): Map<String, Pair<Int, Long>> {
+        val result = mutableMapOf<String, Pair<Int, Long>>()
+        for ((k, v) in summary) {
+            result[k] = Pair(v.count, v.bytes)
         }
         return result
     }
 
+    // pub(crate) fn total(&self) -> AllocCounts
+    internal fun total(): AllocCounts {
+        return AllocCounts.sum(summary.values())
+    }
+
     /// Total number of bytes allocated.
     // pub fn total_allocated_bytes(&self) -> usize
-    fun totalAllocatedBytes(): Int {
+    fun totalAllocatedBytes(): Long {
         return total().bytes
     }
 
     // pub(crate) fn add(&mut self, t: &'static str, s: AllocCounts)
     internal fun add(t: String, s: AllocCounts) {
-        val existing = summary[t]
-        if (existing != null) {
-            existing += s
-        } else {
-            summary[t] = AllocCounts(s.bytes, s.count)
-        }
+        val existing = summary.entry(t).orDefault { AllocCounts() }
+        existing += s
     }
 
     companion object {
@@ -72,12 +65,8 @@ class HeapSummary(
             val summary = SmallMap<String, AllocCounts>()
             for (heap in heaps) {
                 for ((k, v) in heap.summary) {
-                    val existing = summary[k]
-                    if (existing != null) {
-                        existing += v
-                    } else {
-                        summary[k] = AllocCounts(v.bytes, v.count)
-                    }
+                    val existing = summary.entry(k).orDefault { AllocCounts() }
+                    existing += v
                 }
             }
             return HeapSummary(summary)
@@ -88,7 +77,7 @@ class HeapSummary(
     fun copy(): HeapSummary {
         val newSummary = SmallMap<String, AllocCounts>()
         for ((k, v) in summary) {
-            newSummary.insert(k, v.copy())
+            newSummary.entry(k).orDefault { v.copy() }
         }
         return HeapSummary(newSummary)
     }
@@ -96,7 +85,7 @@ class HeapSummary(
     // #[cfg(test)]
     // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
-        for (v in summary.values) {
+        for (v in summary.values()) {
             v.normalizeForGoldenTests()
         }
     }

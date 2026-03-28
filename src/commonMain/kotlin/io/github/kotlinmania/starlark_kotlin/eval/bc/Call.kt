@@ -23,18 +23,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.stdlib.ArgNames
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsPos
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
-import io.github.kotlinmania.starlark_kotlin.util.asStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
 
 /// Call arguments.
@@ -106,7 +101,7 @@ class BcCallArgsPos(
 // impl BcCallArgsFull<Symbol>
 /// Resolve symbol-based call args to resolved arg names for a specific def.
 // pub(crate) fn resolve(self, def: &FrozenDef) -> BcCallArgsFull<ResolvedArgName>
-fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
+internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
     return BcCallArgsFull(
         posNamed = posNamed,
         names = names.map { (name, value) ->
@@ -133,14 +128,19 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
         return ArgumentsFull(
             pos = pos,
             named = named,
-            names = ArgNames.newUnique(full.names),
+            names = ArgNames.newUnique(full.names.map { (s, fsv) -> Pair(s, fsv.toStringValue()) }),
             args = argsVal,
             kwargs = kwargsVal,
         )
     }
 
-    override fun fmtAppend(ip: Any, endArg: Any?, f: StringBuilder) {
-        f.append(" $full")
+    // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
+        f.append(" {$full}")
+    }
+
+    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+        // No jump addresses in call args.
     }
 }
 
@@ -161,8 +161,13 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
         )
     }
 
-    override fun fmtAppend(ip: Any, endArg: Any?, f: StringBuilder) {
+    // impl BcInstrArg for BcCallArgsPos
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
+    }
+
+    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+        // No jump addresses in call args.
     }
 }
 
@@ -182,14 +187,19 @@ class BcCallArgsFullForDef(
         return ArgumentsFull(
             pos = pos,
             named = named,
-            names = ArgNames.newUnique(full.names),
+            names = ArgNames.newUnique(full.names.map { (s, fsv) -> Pair(s, fsv.toStringValue()) }),
             args = argsVal,
             kwargs = kwargsVal,
         )
     }
 
-    override fun fmtAppend(ip: Any, endArg: Any?, f: StringBuilder) {
-        f.append(" $full")
+    // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
+        f.append(" {$full}")
+    }
+
+    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+        // No jump addresses in call args.
     }
 }
 
@@ -204,7 +214,12 @@ class BcCallArgsPosForDef(
         return ArgumentsPos(pos = pos)
     }
 
-    override fun fmtAppend(ip: Any, endArg: Any?, f: StringBuilder) {
+    // impl BcInstrArg for BcCallArgsPos
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
+    }
+
+    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+        // No jump addresses in call args.
     }
 }

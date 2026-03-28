@@ -26,7 +26,9 @@ import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.convertSliceIndices
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 
 @JvmInline
 value class NonZeroI32 private constructor(val value: Int) {
@@ -65,24 +67,24 @@ data class Range(
         }
     }
 
-    private fun equalsRange(other: Range): Boolean {
-        val selfLength = length()
-        val otherLength = other.length()
+    private fun equalsRange(other: Range): Result<Boolean> {
+        val selfLength = length().getOrElse { return Result.failure(it) }
+        val otherLength = other.length().getOrElse { return Result.failure(it) }
         if (selfLength == 0 || otherLength == 0) {
-            return selfLength == otherLength
+            return Result.success(selfLength == otherLength)
         }
         if (start != other.start) {
-            return false
+            return Result.success(false)
         }
         if (selfLength == 1 || otherLength == 1) {
-            return selfLength == otherLength
+            return Result.success(selfLength == otherLength)
         }
         check(selfLength > 1)
         check(otherLength > 1)
         if (step.get() == other.step.get()) {
-            return selfLength == otherLength
+            return Result.success(selfLength == otherLength)
         } else {
-            return false
+            return Result.success(false)
         }
     }
 
@@ -111,19 +113,19 @@ data class Range(
         )
     }
 
-    fun toBool(): Boolean {
+    override fun toBool(): Boolean {
         return (start < stop && step.get() > 0)
             || (start > stop && step.get() < 0)
     }
 
-    fun length(): Int {
+    override fun length(): Result<Int> {
         if (start == stop) {
-            return 0
+            return Result.success(0)
         }
 
         // If step is into opposite direction of stop, then length is zero.
         if ((stop >= start) != (step.get() > 0)) {
-            return 0
+            return Result.success(0)
         }
 
         // Convert range and step to unsigned
@@ -140,112 +142,116 @@ data class Range(
         }
         val i = ((dist - 1u) / step + 1u).toInt()
         if (i >= 0) {
-            return i
+            return Result.success(i)
         } else {
-            throw ValueError.IntegerOverflow
+            return Result.failure(ValueError.IntegerOverflow)
         }
     }
 
-    fun at(index: Value, heap: Heap): Value {
-        val index = convertIndex(index, length()).getOrThrow()
+    override fun at(index: Value, heap: Heap): Result<Value> {
+        val len = length().getOrElse { return Result.failure(it) }
+        val idx = convertIndex(index, len).getOrElse { return Result.failure(it) }
         // Must not overflow if `length` is computed correctly
-        return heap.alloc(start + step.get() * index)
+        return Result.success((start + step.get() * idx).allocValue(heap))
     }
 
-    fun equals(other: Value): Boolean {
-        val other = other.downcastRef<Range>()
-        return if (other != null) {
-            equalsRange(other)
+    override fun equals(other: Value): Result<Boolean> {
+        val otherRange = other.downcastRef<Range>()
+        return if (otherRange != null) {
+            equalsRange(otherRange)
         } else {
-            false
+            Result.success(false)
         }
     }
 
-    fun slice(
+    override fun slice(
         start: Value?,
         stop: Value?,
         stride: Value?,
         heap: Heap
-    ): Value {
-        val (start, stop, step) = convertSliceIndices(length(), start, stop, stride).getOrThrow()
-        return heap.alloc(Range(
+    ): Result<Value> {
+        val len = length().getOrElse { return Result.failure(it) }
+        val (sliceStart, sliceStop, sliceStep) = convertSliceIndices(len, start, stop, stride)
+            .getOrElse { return Result.failure(it) }
+        return Result.success(heap.allocSimple(Range(
             start = this.start
                 .checkedAdd(
-                    start
+                    sliceStart
                         .checkedMul(this.step.get())
                 ),
             stop = this.start
                 .checkedAdd(
-                    stop.checkedMul(this.step.get())
+                    sliceStop.checkedMul(this.step.get())
                 ),
             step = NonZeroI32.new(
-                step.checkedMul(this.step.get())
+                sliceStep.checkedMul(this.step.get())
             )!!
-        ))
+        )))
     }
 
-    fun iterate(me: Value, heap: Heap): Value {
-        return me
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
+        return Result.success(me)
     }
 
-    fun iterNext(index: Int, heap: Heap): Value? {
+    override fun iterNext(index: Int, heap: Heap): Value? {
         val remRange = remRangeAtIter(index) ?: return null
 
         if (!remRange.toBool()) {
             return null
         }
 
-        return heap.alloc(remRange.start)
+        return remRange.start.allocValue(heap)
     }
 
-    fun iterSizeHint(index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         val remRange = remRangeAtIter(index) ?: return Pair(0, 0)
-        return try {
-            val length = remRange.length()
-            Pair(length, length)
-        } catch (_: Exception) {
+        val len = remRange.length()
+        return if (len.isSuccess) {
+            val l = len.getOrThrow()
+            Pair(l, l)
+        } else {
             Pair(0, null)
         }
     }
 
-    fun iterStop() {}
+    override fun iterStop() {}
 
-    fun isIn(other: Value): Boolean {
-        val other = other.unpackNum()?.asInt() ?: run {
+    override fun isIn(other: Value): Result<Boolean> {
+        val otherInt = other.unpackNum()?.asInt() ?: run {
             // Consider `"a" in range(3)`
             //
             // Should we error or return false?
             // Go Starlark errors. Python returns false.
             // Discussion at https://github.com/bazelbuild/starlark/issues/175
-            return false
+            return Result.success(false)
         }
         if (!toBool()) {
-            return false
+            return Result.success(false)
         }
-        if (start == other) {
-            return true
+        if (start == otherInt) {
+            return Result.success(true)
         }
         if (step.get() > 0) {
-            if (other < start || other >= stop) {
-                return false
+            if (otherInt < start || otherInt >= stop) {
+                return Result.success(false)
             }
-            return (other - start).toULong() % step.get().toULong() == 0uL
+            return Result.success((otherInt - start).toULong() % step.get().toULong() == 0uL)
         } else {
-            if (other > start || other <= stop) {
-                return false
+            if (otherInt > start || otherInt <= stop) {
+                return Result.success(false)
             }
-            return (start - other).toULong() % (-step.get()).toULong() == 0uL
+            return Result.success((start - otherInt).toULong() % (-step.get()).toULong() == 0uL)
         }
     }
 
-    fun getTypeStarlarkRepr(): Ty {
+    override fun getTypeStarlarkRepr(): Ty {
         return Ty.starlarkValue(TyStarlarkValue.new("range"))
     }
 
     /** For tests. */
     override fun equals(other: Any?): Boolean {
         if (other !is Range) return false
-        return equalsRange(other)
+        return equalsRange(other).getOrThrow()
     }
 
     override fun hashCode(): Int {
@@ -283,24 +289,24 @@ private fun rangeStop(stop: Int): Range {
 }
 
 internal fun testLengthStop() {
-    check(0 == rangeStop(0).length())
-    check(17 == rangeStop(17).length())
+    check(0 == rangeStop(0).length().getOrThrow())
+    check(17 == rangeStop(17).length().getOrThrow())
 }
 
 internal fun testLengthStartStop() {
-    check(20 == rangeStartStop(10, 30).length())
-    check(0 == rangeStartStop(10, -30).length())
-    check(Int.MAX_VALUE == rangeStartStop(0, Int.MAX_VALUE).length())
-    check(runCatching { rangeStartStop(-1, Int.MAX_VALUE).length() }.isFailure)
+    check(20 == rangeStartStop(10, 30).length().getOrThrow())
+    check(0 == rangeStartStop(10, -30).length().getOrThrow())
+    check(Int.MAX_VALUE == rangeStartStop(0, Int.MAX_VALUE).length().getOrThrow())
+    check(rangeStartStop(-1, Int.MAX_VALUE).length().isFailure)
 }
 
 internal fun testLengthStartStopStep() {
-    check(5 == range(0, 10, 2).length())
-    check(5 == range(0, 9, 2).length())
-    check(0 == range(0, 10, -2).length())
-    check(5 == range(10, 0, -2).length())
-    check(5 == range(9, 0, -2).length())
-    check(1 == range(4, 14, 10).length())
+    check(5 == range(0, 10, 2).length().getOrThrow())
+    check(5 == range(0, 9, 2).length().getOrThrow())
+    check(0 == range(0, 10, -2).length().getOrThrow())
+    check(5 == range(10, 0, -2).length().getOrThrow())
+    check(5 == range(9, 0, -2).length().getOrThrow())
+    check(1 == range(4, 14, 10).length().getOrThrow())
 }
 
 internal fun testEq() {
@@ -325,7 +331,7 @@ internal fun testRangeExhaustive() {
 
     for (x in ranges) {
         val full = iterateRange(x)
-        check(x.length() == full.size)
+        check(x.length().getOrThrow() == full.size)
         for ((i, v) in full.withIndex()) {
             check(x.start + x.step.get() * i == v)
         }

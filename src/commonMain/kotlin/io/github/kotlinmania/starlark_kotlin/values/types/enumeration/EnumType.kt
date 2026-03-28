@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
@@ -40,9 +41,9 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
@@ -52,7 +53,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumTypeMa
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.AllocList
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 
 // #[derive(thiserror::Error, Debug)]
@@ -118,17 +118,19 @@ class EnumTypeGen internal constructor(
     // impl Freeze for EnumTypeGen<Value>
     // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
     override fun freeze(freezer: Freezer): FreezeResult<EnumTypeGen> {
-        val frozenElements = freezeSmallMap(
-            elements,
-            freezer,
-            { v, f -> v.freeze(f) },
-            { v, f -> v.freeze(f) },
-        )
-        if (frozenElements.isFailure) return FreezeResult.failure(frozenElements.exceptionOrNull()!!)
+        val frozenElements = SmallMap.new<Value, Value>()
+        for ((hashedKey, v) in elements.iterHashed()) {
+            val frozenKey = freezer.freeze(hashedKey.key())
+            if (frozenKey.isFailure) return FreezeResult.failure(frozenKey.exceptionOrNull()!!)
+            val frozenVal = freezer.freeze(v)
+            if (frozenVal.isFailure) return FreezeResult.failure(frozenVal.exceptionOrNull()!!)
+            val newHashedKey = Hashed.newUnchecked(hashedKey.hash(), frozenKey.getOrThrow().toValue())
+            frozenElements.insertHashedUniqueUnchecked(newHashedKey, frozenVal.getOrThrow().toValue())
+        }
         return FreezeResult.success(EnumTypeGen(
             id = id,
             tyEnumData = tyEnumData,
-            elements = frozenElements.getOrThrow(),
+            elements = frozenElements,
             frozen = true,
         ))
     }
@@ -170,66 +172,66 @@ class EnumTypeGen internal constructor(
     // impl StarlarkValue for EnumTypeGen
 
     // fn invoke(...)
-    fun invoke(me: Value, args: Arguments, eval: Evaluator): Value {
-        args.noNamedArgs().getOrThrow()
-        val v = args.positional1(eval.heap()).getOrThrow()
-        return construct(v)
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+        args.noNamedArgs().getOrElse { return Result.failure(it) }
+        val v = args.positional1(eval.heap()).getOrElse { return Result.failure(it) }
+        return Result.success(construct(v))
     }
 
     // fn get_attr(&self, attribute: &str, _heap: Heap<'v>) -> Option<Value<'v>>
-    fun getAttr(attribute: String, heap: Heap): Value? {
+    override fun getAttr(attribute: String, heap: Heap): Value? {
         return elements().get(ValueStr(attribute))
     }
 
     // fn dir_attr(&self) -> Vec<String>
-    fun dirAttr(): List<String> {
+    override fun dirAttr(): List<String> {
         return elements().keys().map { it.unpackStr()!! }.toList()
     }
 
     // fn length(&self) -> crate::Result<i32>
-    fun length(): Int = elements().len()
+    override fun length(): Result<Int> = Result.success(elements().len())
 
     // fn at(&self, index: Value, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun at(index: Value, heap: Heap): Value {
-        val i = convertIndex(index, elements().len()).getOrThrow()
-        return elements().getIndex(i)!!.second
+    override fun at(index: Value, heap: Heap): Result<Value> {
+        val i = convertIndex(index, elements().len()).getOrElse { return Result.failure(it) }
+        return Result.success(elements().getIndex(i)!!.second)
     }
 
     // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    fun iterate(me: Value, heap: Heap): Value = me
+    override fun iterate(me: Value, heap: Heap): Result<Value> = Result.success(me)
 
     // unsafe fn iter_size_hint(&self, index: usize) -> (usize, Option<usize>)
-    fun iterSizeHint(index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         val rem = elements().len() - index
         return Pair(rem, rem)
     }
 
     // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
-    fun iterNext(index: Int, heap: Heap): Value? {
+    override fun iterNext(index: Int, heap: Heap): Value? {
         val values = elements().values().toList()
         return if (index < values.size) values[index] else null
     }
 
     // unsafe fn iter_stop(&self)
-    fun iterStop() {}
+    override fun iterStop() {}
 
     // fn get_methods() -> Option<&'static Methods>
-    fun getMethods(): Methods? {
+    override fun getMethods(): Methods? {
         return enumTypeMethodsStatic.methods(::enumTypeMethods)
     }
 
     // fn eval_type(&self) -> Option<Ty>
-    fun evalType(): Ty? {
+    override fun evalType(): Ty? {
         return tyEnumData()?.tyEnumValue
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty? {
         return tyEnumData()?.tyEnumType
     }
 
     // fn export_as(&self, variable_name: &str, _eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<()>
-    fun exportAs(variableName: String, eval: Evaluator) {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val tyEnumValue = Ty.custom(
                 TyUser.new(
@@ -244,11 +246,11 @@ class EnumTypeGen internal constructor(
 
             // The unwrap here is safe because the new() method requires the elements be
             // of type StringValue<'v>
-            val fieldsMap = mutableMapOf<String, Ty>().apply {
+            val fieldsMap = linkedMapOf<String, Ty>().apply {
                 for (key in elements().keys()) {
                     put(key.unpackStr()!!, tyEnumValue)
                 }
-            }.toSortedMap()
+            }
 
             val tyEnumType = Ty.custom(
                 TyUser.new(
@@ -282,6 +284,7 @@ class EnumTypeGen internal constructor(
                 tyEnumType = tyEnumType,
             )
         }
+        return Result.success(Unit)
     }
 
     companion object {
@@ -367,7 +370,7 @@ private fun enumTypeMethods(builder: MethodsBuilder) {
     ) { _, thisValue, heap ->
         val enumTypeGen = thisValue.downcastRef<EnumTypeGen>()!!
         val valuesList = enumTypeGen.elements().keys().toList()
-        Result.success(heap.alloc(AllocList(valuesList)))
+        Result.success(heap.allocListIter(valuesList))
     }
 }
 

@@ -1,7 +1,6 @@
 // port-lint: source src/values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.clone
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
@@ -17,6 +16,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 
 
 /*
@@ -68,7 +70,7 @@ class SmallMapEntry<K, V>(private val map: MutableMap<K, V>, private val key: K)
 
 /// A mapping from function Value to FunctionId, which must be continuous
 private class FunctionIds(
-    val values: MutableMap<Long, StringId> = mutableMapOf(),
+    val values: MutableMap<RawPointer, StringId> = mutableMapOf(),
     val strings: StringIndex = StringIndex(),
 ) {
     fun getValue(x: Value): StringId {
@@ -84,7 +86,7 @@ private class FunctionIds(
 /// A stack frame, its caller and the functions it called, and the allocations it made itself.
 private class StackFrameData(
     val callees: SmallMap<StringId, StackFrameBuilder> = SmallMap.new(),
-    var allocs: HeapSummary = HeapSummary.default(),
+    var allocs: HeapSummary = HeapSummary(),
     /// Time spent in this frame excluding callees.
     /// Double, because enter/exit are recorded twice, in drop and non-drop heaps.
     var timeX2: SmallDuration = SmallDuration.default(),
@@ -135,7 +137,7 @@ internal class StackCollector(
         val unpacked = value.unpack()
         val v = when {
             unpacked is AValueOrForwardUnpack.Header && retained == null -> {
-                unpacked.header.unpackValue(HeapKind.Unfrozen)
+                Value.newPtrQueryIsStr(unpacked.header)
             }
             unpacked is AValueOrForwardUnpack.Forward && retained != null -> {
                 unpacked.forward.forwardPtr().unpackValue(retained)
@@ -151,7 +153,7 @@ internal class StackCollector(
             typ,
             AllocCounts(
                 count = 1,
-                bytes = v.getRef().totalMemoryForProfile(),
+                bytes = v.getRef().memorySize().bytes().toLong(),
             ),
         )
     }
@@ -196,7 +198,7 @@ internal class StackFrame(
     /// Aggregated callees.
     val callees: SmallMap<StringId, StackFrame> = SmallMap.new(),
     /// Aggregated allocations in this frame, without callees.
-    val allocs: HeapSummary = HeapSummary.default(),
+    val allocs: HeapSummary = HeapSummary(),
     /// Time spend in this frame excluding callees.
     /// `x2` because enter/exit are recorded twice, in drop and non-drop heaps.
     val timeX2: SmallDuration = SmallDuration.default(),
@@ -263,11 +265,11 @@ internal class StackFrameWithContext(
     /// Accumulate this stack frame's data into the given FlameGraphNode
     fun genFlameGraphData(node: FlameGraphNode) {
         for ((k, v) in frame.allocs.summary) {
-            node.child(k).add(v.bytes)
+            node.child(ArcStr.newStatic(k)).add(v.bytes.toULong())
         }
 
         for ((id, frameCtx) in callees()) {
-            val childNode = node.child(id)
+            val childNode = node.child(ArcStr.newStatic(id))
             frameCtx.genFlameGraphData(childNode)
         }
     }
@@ -278,8 +280,8 @@ internal class StackFrameWithContext(
 /// Can be:
 /// * written as CSV or flamegraph
 /// * merged with another data
-class AggregateHeapProfileInfo(
-    val strings: StringIndex = StringIndex.default(),
+internal class AggregateHeapProfileInfo(
+    val strings: StringIndex = StringIndex(),
     val root: StackFrame = StackFrame.default(),
 ) {
     fun root(): StackFrameWithContext {
@@ -321,7 +323,7 @@ class AggregateHeapProfileInfo(
             profiles: Iterable<AggregateHeapProfileInfo>,
         ): AggregateHeapProfileInfo {
             val profilesList = profiles.toList()
-            val strings = StringIndex.default()
+            val strings = StringIndex()
             val roots = profilesList.map { it.root() }
             val root = StackFrame.merge(roots, strings)
             return AggregateHeapProfileInfo(strings, root)

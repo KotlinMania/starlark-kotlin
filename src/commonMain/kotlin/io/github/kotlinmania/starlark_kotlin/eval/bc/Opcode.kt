@@ -23,6 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrRepr
 
 /// Callback for the `dispatch` function.
 interface BcOpcodeHandler<R> {
@@ -175,6 +176,17 @@ enum class BcOpcode {
 
     private fun <R> doDispatch(handler: BcOpcodeHandler<R>): R {
         return handler.handle(BcInstr::class)
+    }
+
+    /// Size of instruction representation.
+    // pub(crate) fn size_of_repr(self) -> usize  (in Rust: repr.rs)
+    fun sizeOfRepr(): Int {
+        val handler = object : BcOpcodeHandler<Int> {
+            override fun <I : BcInstr> handle(instrClass: KClass<I>): Int {
+                return BcInstrRepr.sizeOf(instrClass)
+            }
+        }
+        return dispatch(handler)
     }
 
     // Bypass compiler bug: use .name == "string" instead of `this == Op`

@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.compileArgs
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
@@ -42,6 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
@@ -61,6 +63,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
@@ -73,7 +76,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.BOOL_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.StarlarkBool
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.float.allocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
@@ -159,7 +161,7 @@ internal sealed class Builtin1 {
             is TypeIs -> Value.newBool(v.toValue().getTypeValue() == type)
             is FormatOne -> {
                 val result = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
-                    before, v.toValue(), after, ctx.heap()
+                    before.asStr(), v.toValue(), after.asStr(), ctx.heap()
                 )
                 result.toValue()
             }
@@ -624,7 +626,7 @@ internal sealed class ExprCompiled {
             val argVal = arg.node.asValue()
             if (argVal != null) {
                 val value = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
-                    before, argVal.toValue(), after, ctx.heap()
+                    before.asStr(), argVal.toValue(), after.asStr(), ctx.heap()
                 )
                 val frozen = ctx.frozenHeap().allocStrIntern(value.asStr())
                 return ValueExpr(frozen.toFrozenValue())
@@ -699,7 +701,7 @@ internal sealed class ExprCompiled {
                             if (condExpr.op is Builtin1.Not) {
                                 ifExpr(condExpr.expr, f, t)
                             } else {
-                                val fullCond = IrSpanned(node = condExpr, span = condSpan)
+                                val fullCond = IrSpanned<ExprCompiled>(node = condExpr, span = condSpan)
                                 val span = fullCond.span.merge(t.span).merge(f.span)
                                 IrSpanned(
                                     node = If(fullCond, t, f),
@@ -711,7 +713,7 @@ internal sealed class ExprCompiled {
                             seq(condExpr.first, ifExpr(condExpr.second, t, f))
                         }
                         else -> {
-                            val fullCond = IrSpanned(node = condExpr, span = condSpan)
+                            val fullCond = IrSpanned<ExprCompiled>(node = condExpr, span = condSpan)
                             val span = fullCond.span.merge(t.span).merge(f.span)
                             IrSpanned(
                                 node = If(fullCond, t, f),
@@ -788,11 +790,11 @@ internal sealed class ExprCompiled {
             }
             val floatVal = v.downcastRef<StarlarkFloat>()
             if (floatVal != null) {
-                return ValueExpr(heap.alloc(floatVal))
+                return ValueExpr(heap.allocSimple(floatVal))
             }
             val rangeVal = v.downcastRef<Range>()
             if (rangeVal != null) {
-                return ValueExpr(heap.alloc(rangeVal))
+                return ValueExpr(heap.allocSimple(rangeVal))
             }
             val listVal = ListRef.fromValue(v)
             if (listVal != null) {
@@ -860,7 +862,7 @@ internal sealed class ExprCompiled {
                     val member = v.member
                     when (member) {
                         is UnboundValue.Method -> ctx.frozenHeap().allocSimple(
-                            BoundMethodGen(left, member.method)
+                            BoundMethodGen(member.method, left)
                         )
                         is UnboundValue.Attr -> null
                         else -> null
@@ -967,21 +969,21 @@ internal sealed class ExprCompiled {
                 }
                 is TupleExpr -> {
                     if (node.elements.all { it.node.isPureInfallible() }) {
-                        ValueExpr(Tuple.getTypeValueStatic().toFrozenValue())
+                        ValueExpr(constFrozenString(TupleGen.TYPE).toFrozenValue())
                     } else {
                         typCall(span, v)
                     }
                 }
                 is ListExpr -> {
                     if (node.elements.all { it.node.isPureInfallible() }) {
-                        ValueExpr(ListData.getTypeValueStatic().toFrozenValue())
+                        ValueExpr(constFrozenString(ListData.TYPE).toFrozenValue())
                     } else {
                         typCall(span, v)
                     }
                 }
                 is DictExpr -> {
                     if (node.entries.isEmpty()) {
-                        ValueExpr(Dict.getTypeValueStatic().toFrozenValue())
+                        ValueExpr(constFrozenString(Dict.TYPE).toFrozenValue())
                     } else {
                         typCall(span, v)
                     }
@@ -990,7 +992,7 @@ internal sealed class ExprCompiled {
                     if ((node.op is Builtin1.Not || node.op is Builtin1.TypeIs)
                         && node.expr.node.isPureInfallible()
                     ) {
-                        ValueExpr(StarlarkBool.getTypeValueStatic().toFrozenValue())
+                        ValueExpr(constFrozenString(BOOL_TYPE).toFrozenValue())
                     } else {
                         typCall(span, v)
                     }
@@ -1038,7 +1040,7 @@ internal sealed class ExprCompiled {
                 val lenResult = argVal.toValue().length()
                 if (lenResult.isSuccess) {
                     val len = lenResult.getOrThrow()
-                    val inlineInt = InlineInt.tryFrom(len)
+                    val inlineInt = InlineInt.tryFrom(len).getOrNull()
                     if (inlineInt != null) {
                         return ValueExpr(FrozenValue.newInt(inlineInt))
                     }
@@ -1249,10 +1251,16 @@ private fun tryEvalTypeIs(
 
 /** Compile an AST literal to a frozen value. */
 private fun AstLiteral.compile(heap: FrozenHeap): FrozenValue = when (this) {
-    is AstLiteral.Int -> heap.alloc(StarlarkInt.from(value.node))
-    is AstLiteral.Float -> heap.alloc(value.node)
-    is AstLiteral.String -> heap.alloc(value.node)
-    is AstLiteral.Ellipsis -> heap.alloc(Ellipsis)
+    is AstLiteral.Int -> {
+        val si = StarlarkInt.from(value.node)
+        when (si) {
+            is StarlarkInt.Small -> FrozenValue.newInt(si.value)
+            is StarlarkInt.Big -> heap.allocSimple(si.value)
+        }
+    }
+    is AstLiteral.Float -> StarlarkFloat(value.node).allocFrozenValue(heap)
+    is AstLiteral.String -> heap.allocStrIntern(value.node).toFrozenValue()
+    is AstLiteral.Ellipsis -> heap.alloc(io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis)
 }
 
 // ---------------------------------------------------------------------------
@@ -1311,8 +1319,8 @@ private fun <P : AstPayload> reducesToString(
 
 private fun getAttrNoAttrError(x: Value, attribute: Symbol): Exception {
     val attrStr = attribute.asStr()
-    val candidates = x.dirAttr().map { it.asStr() }
-    val suggestion = didYouMean(attrStr, candidates.asSequence())
+    val candidates = x.dirAttr()
+    val suggestion = didYouMean(attrStr, candidates)
     return if (suggestion == null) {
         ValueError.NoAttr(x.getType(), attrStr)
     } else {
@@ -1411,8 +1419,8 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
                     // We can't look up the local variables in advance, because they are different each time
                     // we go through a new function call.
                     when (binding.captured) {
-                        Captured.Yes -> ExprCompiled.LocalCaptured(LocalCapturedSlotId(slot.id.value))
-                        Captured.No -> ExprCompiled.Local(LocalSlotId(slot.id.value))
+                        Captured.Yes -> ExprCompiled.LocalCaptured(LocalCapturedSlotId(slot.id.index))
+                        Captured.No -> ExprCompiled.Local(LocalSlotId(slot.id.index))
                     }
                 }
                 is Slot.Module -> {
@@ -1444,7 +1452,7 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
 
 private fun Compiler.optCtx(): OptCtx {
     val paramCount = this.currentScope().paramCount()
-    return OptCtx.new(this.eval, paramCount.toUInt())
+    return OptCtx.new(OptCtxEvalForEvaluator(this.eval), paramCount.toUInt())
 }
 
 // ---------------------------------------------------------------------------
@@ -1477,7 +1485,7 @@ internal fun Compiler.expr(
                 this.function(
                     "lambda", frozenSignatureSpan, lambda.payload,
                     lambda.params, null, suite
-                ).getOrThrow()
+                )
             }
             is ExprP.Tuple<*> -> {
                 @Suppress("UNCHECKED_CAST")
@@ -1517,7 +1525,8 @@ internal fun Compiler.expr(
             is ExprP.Call<*> -> {
                 @Suppress("UNCHECKED_CAST")
                 val left = this.expr(node.expr as CstExpr).getOrThrow()
-                val args = this.args(node.args).getOrThrow()
+                @Suppress("UNCHECKED_CAST")
+                val args = this.compileArgs(node.args as CallArgsP<CstPayload>).getOrThrow()
                 CallCompiled.call(span, left, args, this.optCtx())
             }
             is ExprP.Index<*> -> {
@@ -1568,13 +1577,14 @@ internal fun Compiler.expr(
                 ExprCompiled.unOp(span, Builtin1.BitNot, inner, this.optCtx())
             }
             is ExprP.Op<*> -> {
-                val reduced = reducesToString(node.op, node.lhs, node.rhs)
+                @Suppress("UNCHECKED_CAST")
+                val reduced = reducesToString(node.op, node.lhs as CstExpr, node.rhs as CstExpr)
                 if (reduced != null) {
                     // Note there's const propagation for `+` on compiled expressions,
                     // but special handling of `+` on AST might be slightly more efficient
                     // (no unnecessary allocations on the heap). So keep it.
-                    val v = this.eval.moduleEnv.frozenHeap().alloc(reduced)
-                    ExprCompiled.ValueExpr(v)
+                    val v = this.eval.moduleEnv.frozenHeap().allocStrIntern(reduced)
+                    ExprCompiled.ValueExpr(v.toFrozenValue())
                 } else {
                     @Suppress("UNCHECKED_CAST")
                     val right: CstExpr = if (node.op == BinOp.In || node.op == BinOp.NotIn) {
@@ -1647,11 +1657,11 @@ internal fun Compiler.expr(
                 // Desugar f"foo{x}bar{y}" to "foo{}bar{}.format(x, y)"
                 val heap = this.eval.moduleEnv.frozenHeap()
 
-                val format = IrSpanned(
-                    node = ExprCompiled.ValueExpr(heap.alloc(fstring.node.format.node)),
+                val format = IrSpanned<ExprCompiled>(
+                    node = ExprCompiled.ValueExpr(heap.allocStrIntern(fstring.node.format.node).toFrozenValue()),
                     span = fstringSpan,
                 )
-                val method = IrSpanned(
+                val method = IrSpanned<ExprCompiled>(
                     node = ExprCompiled.dot(format, Symbol.new("format"), this.optCtx()),
                     span = fstringSpan,
                 )

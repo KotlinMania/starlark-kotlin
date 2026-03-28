@@ -24,8 +24,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsFull
-import io.github.kotlinmania.starlark_kotlin.eval.bc.call.BcCallArgsPos
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
@@ -34,6 +32,8 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrRepr
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -318,7 +318,7 @@ class FrozenValueInstrArg(val value: FrozenValue) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [FrozenValueNotSpecial].
  */
-class FrozenValueNotSpecialInstrArg(val value: FrozenValueNotSpecial) : BcInstrArg {
+internal class FrozenValueNotSpecialInstrArg(val value: FrozenValueNotSpecial) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         FrozenValueInstrArg(value.toFrozenValue()).fmtAppend(ip, endArg, f)
     }
@@ -450,7 +450,7 @@ private class BcSlotDisplay(
 /**
  * [BcInstrArg] implementation for [LocalSlotId].
  */
-class LocalSlotIdInstrArg(val slot: LocalSlotId) : BcInstrArg {
+internal class LocalSlotIdInstrArg(val slot: LocalSlotId) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${BcSlotDisplay(slot.toBcSlot(), endArg)}")
     }
@@ -463,7 +463,7 @@ class LocalSlotIdInstrArg(val slot: LocalSlotId) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [LocalCapturedSlotId].
  */
-class LocalCapturedSlotIdInstrArg(val slot: LocalCapturedSlotId) : BcInstrArg {
+internal class LocalCapturedSlotIdInstrArg(val slot: LocalCapturedSlotId) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${BcSlotDisplay(slot.toBcSlot(), endArg)}")
     }
@@ -583,7 +583,7 @@ class LoopDepthInstrArg(val depth: LoopDepth) : BcInstrArg {
 /**
  * [BcInstrArg] implementation for [KnownMethod].
  */
-class KnownMethodInstrArg(val method: KnownMethod) : BcInstrArg {
+internal class KnownMethodInstrArg(val method: KnownMethod) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" <m>")
     }
@@ -661,7 +661,7 @@ class SmallMapInstrArg(
             if (i != 0) {
                 f.append(", ")
             }
-            f.append("${TruncateValueRepr(entry.key)}: ${TruncateValueRepr(entry.value)}")
+            f.append("${TruncateValueRepr(entry.first)}: ${TruncateValueRepr(entry.second)}")
         }
         f.append("}")
     }
@@ -674,7 +674,7 @@ class SmallMapInstrArg(
 /**
  * [BcInstrArg] implementation for [InstrDefData].
  */
-class InstrDefDataInstrArg(val data: InstrDefData) : BcInstrArg {
+internal class InstrDefDataInstrArg(val data: InstrDefData) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" InstrDefData")
     }
@@ -739,8 +739,8 @@ fun BcOpcode.fmtAppendArg(
     f: StringBuilder,
 ) {
     this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle(instrClass: KClass<I>) {
-            val instr = ptr.getInstr(instrClass, ptr)
+        override fun <I : BcInstr> handle(instrClass: KClass<I>): Unit {
+            val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
             val arg = instr.arg
             if (arg is BcInstrArg) {
                 arg.fmtAppend(ip, endArg, f)
@@ -764,8 +764,8 @@ fun BcOpcode.visitJumpAddr(
     consumer: (BcAddr) -> Unit,
 ) {
     this.dispatch(object : BcOpcodeHandler<Unit> {
-        override fun <I : BcInstr> handle(instrClass: KClass<I>) {
-            val instr = ptr.getInstr(instrClass, ptr)
+        override fun <I : BcInstr> handle(instrClass: KClass<I>): Unit {
+            val instr: BcInstrRepr<I> = ptr.getInstr(instrClass, ptr)
             val arg = instr.arg
             if (arg is BcInstrArg) {
                 arg.visitJumpAddr(addr, consumer)

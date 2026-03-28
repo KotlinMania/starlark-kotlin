@@ -19,44 +19,66 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.instant.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.payload_and_span.Payload
-import io.github.kotlinmania.starlark_kotlin.values.typeName
+import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
 import io.github.kotlinmania.starlark_kotlin.values.layout.totalMemoryForProfile
-import io.github.kotlinmania.starlark_kotlin.values.empty
-import io.github.kotlinmania.starlark_kotlin.tests.derive.module.repr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 
 /// Min size of allocated object including header.
 /// Should be able to fit `BlackHole` or forward.
 // pub(crate) const MIN_ALLOC: AlignedSize
-internal val MIN_ALLOC: AlignedSize = AlignedSize.ofBytes(16)
+internal val MIN_ALLOC: AlignedSize = AlignedSize.newBytes(16)
+
+/// Build an [AValueVTable] from a [StarlarkValue] instance.
+/// This mirrors the Rust `AValueHeader::new::<T>()` which creates
+/// a static vtable from the type parameter at compile time.
+private fun vtableForValue(value: StarlarkValue): AValueVTable {
+    val typeId = ConstTypeId.of(value::class)
+    return AValueVTable(
+        staticTypeOfValue = typeId,
+        starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
+        typeName = value.TYPE,
+        isStr = false,
+        memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
+        heapFreezeFn = { _, _ -> error("vtableForValue: heapFreeze not supported") },
+        heapCopyFn = { _, _ -> error("vtableForValue: heapCopy not supported") },
+        starlarkValue = value,
+    )
+}
 
 /// Reservation is morally a Reservation<T>, but we treat is as an
 /// existential. Tied to the lifetime of the heap.
 // pub(crate) struct Reservation<'v, T: AValue<'v>>
-class Reservation<T : AValue>(
-    private val repr: AValueRepr<StarlarkValue>,
+class Reservation<T : AValue> internal constructor(
+    private val list: MutableList<AValueOrForward>,
+    private val index: Int,
+    private val header: AValueHeader,
 ) {
     // pub(crate) fn fill(self, x: T::StarlarkValue)
     fun fill(x: StarlarkValue) {
-        repr.Payload = x
+        val newHeader = AValueHeader(vtableForValue(x))
+        val newRepr = AValueRepr(header = newHeader, payload = x)
+        list[index] = AValueOrForward.Header(newRepr.header)
     }
 
     // pub(crate) fn ptr(&self) -> &'v AValueHeader
     fun ptr(): AValueHeader {
-        return repr.header
+        return header
     }
 }
 
@@ -75,7 +97,7 @@ internal interface ArenaVisitor {
 // #[derive(Default)]
 // pub(crate) struct Arena<A: ArenaAllocator>
 // Kotlin: GC handles memory. Arena is a simple list of allocated values.
-class Arena {
+internal class Arena {
     /// Arena for things which don't need dropping (e.g. strings).
     // non_drop: A,
     private val nonDrop: MutableList<AValueOrForward> = mutableListOf()
@@ -108,23 +130,24 @@ class Arena {
 
     // pub(crate) fn reserve_with_extra<'v2, T: AValue<'v2>>(&self, extra_len: usize) -> (Reservation, extra)
     fun <T : AValue> reserveWithExtra(extraLen: Int): Reservation<T> {
-        val repr = AValueRepr<StarlarkValue>(
-            header = AValueHeader.empty(),
-            payload = null,
-        )
-        val entry = AValueOrForward.value(repr)
+        // In Rust, a BlackHole is written as a placeholder until fill() is called.
+        // In Kotlin, we insert a placeholder Header entry.
+        val blackHoleHeader = AValueHeader(AValueVTable.newBlackHole())
+        val entry = AValueOrForward.Header(blackHoleHeader)
+        val index = drop.size
         drop.add(entry)
-        return Reservation(repr)
+        return Reservation(drop, index, blackHoleHeader)
     }
 
     /// Allocate a type `T`.
     // pub(crate) fn alloc<'v, 'v2, T: AValue<'v2>>(&'v self, x: AValueImpl<'v2, T>) -> &'v AValueRepr
     fun <T : AValue> alloc(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
+        val header = AValueHeader(vtableForValue(x.value))
         val repr = AValueRepr(
-            header = AValueHeader.forValue(x.value),
+            header = header,
             payload = x.value,
         )
-        val entry = AValueOrForward.value(repr)
+        val entry = AValueOrForward.Header(repr.header)
         drop.add(entry)
         return repr
     }
@@ -137,13 +160,10 @@ class Arena {
 
     // pub(crate) fn alloc_str(&self, x: &str) -> *mut AValueHeader
     fun allocStr(x: String): AValueHeader {
-        val repr = AValueRepr<StarlarkValue>(
-            header = AValueHeader.forString(x),
-            payload = null,
-        )
-        val entry = AValueOrForward.value(repr)
+        val header = VALUE_STR_A_VALUE_PTR
+        val entry = AValueOrForward.Header(header)
         nonDrop.add(entry)
-        return repr.header
+        return header
     }
 
     // fn for_each_ordered<'a>(&'a mut self, f: impl FnMut(ArenaVisitEvent<'a>))
@@ -157,7 +177,7 @@ class Arena {
     }
 
     // pub(crate) unsafe fn visit_arena<'v>(&'v mut self, heap_kind, forward_heap_kind, visitor)
-    fun visitArena(
+    internal fun visitArena(
         heapKind: HeapKind,
         forwardHeapKind: HeapKind,
         visitor: ArenaVisitor,
@@ -195,14 +215,14 @@ class Arena {
 
     // pub(crate) fn allocated_summary(&self) -> HeapSummary
     fun allocatedSummary(): HeapSummary {
-        val entries = mutableMapOf<String, AllocCounts>()
+        val summary = SmallMap<String, AllocCounts>()
         forEachUnordered { header ->
-            val typeName = header.typeName()
-            val counts = entries.getOrPut(typeName) { AllocCounts() }
+            val typeName = header.vtable.typeName
+            val counts = summary.entry(typeName).orInsertWith { AllocCounts() }
             counts.count += 1
             counts.bytes += header.totalMemoryForProfile()
         }
-        return HeapSummary(summary = entries)
+        return HeapSummary(summary = summary)
     }
 
     override fun toString(): String {
