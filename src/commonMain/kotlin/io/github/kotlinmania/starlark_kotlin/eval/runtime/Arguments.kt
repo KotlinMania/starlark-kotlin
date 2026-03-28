@@ -93,7 +93,7 @@ sealed class FunctionError(
 // pub(crate) trait ArgSymbol: Debug + Coerce<Self> + 'static
 interface ArgSymbol {
     // fn get_index_from_param_spec<'v, V: ValueLike<'v>>(&self, ps: &ParametersSpec<V>) -> Option<usize>
-    fun <V : ValueLike> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
+    fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
 
     // fn small_hash(&self) -> StarlarkHashValue
     fun smallHash(): StarlarkHashValue
@@ -111,7 +111,7 @@ data class ResolvedArgName(
     val paramIndex: Int?,
 ) : ArgSymbol {
     // impl ArgSymbol for ResolvedArgName
-    override fun <V : ValueLike> getIndexFromParamSpec(
+    override fun <V> getIndexFromParamSpec(
         ps: ParametersSpec<V>,
     ): Int? {
         return paramIndex

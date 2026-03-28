@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.toStringValue

@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.nameForCallStack
 import io.github.kotlinmania.starlark_kotlin.analysis.location
 import io.github.kotlinmania.starlark_kotlin.codemap.fullSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 
 /// When a function `a` is inlined into `b`, this struct contains
 /// the inlined frame for expressions in `a` which now reside in `b`.

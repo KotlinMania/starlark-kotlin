@@ -139,7 +139,7 @@ internal class HashTable<T> {
 /**
  * Placeholder for Hashed<T> from collections module.
  */
-interface Hashed<T> {
+internal interface Hashed<T> {
     fun hash(): StarlarkHashValue
     fun value(): T
 }

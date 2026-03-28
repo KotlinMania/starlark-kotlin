@@ -85,7 +85,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
  * into_any, as_any, plus _dyn variants of all TyCustomImpl methods, and
  * union2_dyn/intersects_dyn for cross-type operations.
  */
-interface TyCustomDyn {
+internal interface TyCustomDyn {
     fun eqToken(): Any
     fun hashCodeDyn(): Int
     fun cmpToken(): Pair<Comparable<*>, String>
@@ -114,7 +114,7 @@ interface TyCustomDyn {
  *
  * Bridges a concrete [TyCustomImpl] to the [TyCustomDyn] dynamic dispatch interface.
  */
-class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
+internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
     override fun eqToken(): Any = inner
 
     override fun hashCodeDyn(): Int = inner.hashCode()
@@ -216,7 +216,7 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     fun matcherWithTypeCompiledFactory(factory: TypeMatcherFactory<Any>): Any =
         inner.matcherWithTypeCompiledFactory(factory)
 
-    fun matcherBox(): TypeMatcherBox = inner.matcherBoxDyn()
+    internal fun matcherBox(): TypeMatcherBox = inner.matcherBoxDyn()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -229,7 +229,7 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     override fun toString(): String = inner.toString()
 }
 
-object TypeMatcherBoxAlloc : TypeMatcherFactory<TypeMatcherBox> {
+internal object TypeMatcherBoxAlloc : TypeMatcherFactory<TypeMatcherBox> {
     override fun int(): TypeMatcherBox = object : TypeMatcherBox {
         override fun matches(typeName: String): Boolean = typeName == "int"
     }

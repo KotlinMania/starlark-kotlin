@@ -162,7 +162,7 @@ fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
 // impl<'v> Heap<'v>
 
 // pub(crate) fn alloc_array(self, cap: usize) -> ValueTyped<'v, Array<'v>>
-fun Heap.allocArray(cap: Int): ValueTyped<Array> {
+internal fun Heap.allocArray(cap: Int): ValueTyped<Array> {
     if (cap == 0) {
         return ValueEmptyArray.unpack().toValueTyped()
     }

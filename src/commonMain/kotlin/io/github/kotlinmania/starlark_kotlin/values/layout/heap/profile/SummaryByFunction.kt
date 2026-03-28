@@ -75,7 +75,7 @@ internal data class FuncInfo(
 /// However, we are always updating the top of the call stack,
 /// so pull out top_stack/top_info as a cache.
 // pub(crate) struct HeapSummaryByFunction
-class HeapSummaryByFunction(
+internal class HeapSummaryByFunction(
     /// Information about all functions.
     private val info: MutableMap<String, FuncInfo> = mutableMapOf(),
 ) {

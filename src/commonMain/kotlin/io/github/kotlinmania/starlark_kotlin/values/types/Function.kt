@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.arc_ty.ArcTy

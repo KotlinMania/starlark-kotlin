@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 
 /** Create a [FrozenStringValue]. */
 fun constFrozenString(s: String): FrozenStringValue {

@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 
 /// Wrapper to handle the packing and most of the unsafety.
 ///
@@ -47,7 +48,7 @@ private class PackedImpl(
 /// The Rust version uses bit packing and other tricks so that it is only
 /// 8 bytes in size, while being allocation free for lengths zero and one.
 // pub struct ThinBoxSliceFrozenValue<'v>(PackedImpl, PhantomData<&'v ()>)
-class ThinBoxSliceFrozenValue(
+class ThinBoxSliceFrozenValue private constructor(
     private val packed: PackedImpl,
 ) : AbstractList<FrozenValue>() {
 

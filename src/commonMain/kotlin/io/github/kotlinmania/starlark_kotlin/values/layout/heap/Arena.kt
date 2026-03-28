@@ -61,7 +61,7 @@ class Reservation<T : AValue>(
 }
 
 // pub(crate) trait ArenaVisitor<'v>
-interface ArenaVisitor {
+internal interface ArenaVisitor {
     // fn enter_bump(&mut self)
     fun enterBump()
     // fn regular_value(&mut self, value: &'v AValueOrForward)

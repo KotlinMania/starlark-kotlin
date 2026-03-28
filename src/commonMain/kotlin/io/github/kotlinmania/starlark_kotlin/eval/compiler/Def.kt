@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator

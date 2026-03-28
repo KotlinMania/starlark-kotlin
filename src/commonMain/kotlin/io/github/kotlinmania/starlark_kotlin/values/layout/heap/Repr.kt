@@ -109,7 +109,7 @@ class AValueRepr<T>(
 /// In Kotlin, where the JVM handles GC, this is a simplified wrapper
 /// that stores a reference to the moved value.
 // pub(crate) struct ForwardPtr
-class ForwardPtr private constructor(
+internal class ForwardPtr private constructor(
     private val target: Any?,
 ) {
     companion object {
@@ -137,7 +137,7 @@ class ForwardPtr private constructor(
 ///
 /// In Kotlin this is a simplified data holder since we don't overwrite memory.
 // pub(crate) struct AValueForward
-class AValueForward(
+internal class AValueForward(
     /// The forward pointer to the moved object.
     private val forward: ForwardPtr,
     /// Size of the original allocation.
@@ -187,7 +187,7 @@ sealed class AValueOrForward {
 
 /// AValueOrForward as enum.
 // pub(crate) enum AValueOrForwardUnpack<'a>
-sealed class AValueOrForwardUnpack {
+internal sealed class AValueOrForwardUnpack {
     class Header(val header: AValueHeader) : AValueOrForwardUnpack()
     class Forward(val forward: AValueForward) : AValueOrForwardUnpack()
 }

@@ -116,7 +116,7 @@ private class StackFrameBuilder(
 }
 
 /// An accumulator for stack frames that lets us visit the heap.
-class StackCollector(
+internal class StackCollector(
     /// What we are collecting.
     /// When unset, we are collecting allocated memory (not retained).
     /// When set, must be set to correct heap type (unfrozen or frozen), we are traversing.
@@ -192,7 +192,7 @@ class StackCollector(
 }
 
 /// Aggregated stack frame data.
-class StackFrame(
+internal class StackFrame(
     /// Aggregated callees.
     val callees: SmallMap<StringId, StackFrame> = SmallMap.new(),
     /// Aggregated allocations in this frame, without callees.
@@ -248,7 +248,7 @@ class StackFrame(
     }
 }
 
-class StackFrameWithContext(
+internal class StackFrameWithContext(
     val frame: StackFrame,
     val strings: StringIndex,
 ) {
@@ -329,7 +329,7 @@ class AggregateHeapProfileInfo(
     }
 }
 
-class RetainedHeapProfile(
+internal class RetainedHeapProfile(
     val info: AggregateHeapProfileInfo,
     val mode: RetainedHeapProfileMode,
 ) {

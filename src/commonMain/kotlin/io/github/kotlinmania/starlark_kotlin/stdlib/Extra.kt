@@ -45,7 +45,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkIter
 /// filter(lambda x: x > 2, [1, 2, 3, 4]) == [3, 4]
 /// filter(None, [True, None, False]) == [True, False]
 /// ```
-fun filter(
+internal fun filter(
     func: NoneOr<ValueOfUnchecked<StarlarkFunction>>,
     seq: ValueOfUnchecked<StarlarkIter<Value>>,
     eval: Evaluator,
@@ -75,7 +75,7 @@ fun filter(
 /// map(abs, [7, -5, -6]) == [7, 5, 6]
 /// map(lambda x: x * 2, [1, 2, 3, 4]) == [2, 4, 6, 8]
 /// ```
-fun map(
+internal fun map(
     func: ValueOfUnchecked<StarlarkFunction>,
     seq: ValueOfUnchecked<StarlarkIter<Value>>,
     eval: Evaluator,

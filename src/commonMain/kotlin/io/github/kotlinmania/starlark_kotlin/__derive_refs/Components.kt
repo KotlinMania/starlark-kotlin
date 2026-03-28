@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocParam
 import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL

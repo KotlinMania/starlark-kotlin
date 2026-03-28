@@ -30,31 +30,23 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FunctionError
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.display.ParamFmt
-import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.FunctionError
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParamFmt
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.fmtParamSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.iterate
-import io.github.kotlinmania.starlark_kotlin.util.asStr
-import io.github.kotlinmania.starlark_kotlin.typing.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.getValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.key
-import io.github.kotlinmania.starlark_kotlin.values.hash
-import io.github.kotlinmania.starlark_kotlin.typing.ctx.named
-import io.github.kotlinmania.starlark_kotlin.typing.fmtParamSpec
-import io.github.kotlinmania.starlark_kotlin.inner
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.smallHash
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.getIndexFromParamSpec
-import io.github.kotlinmania.starlark_kotlin.docs.kwargs
-import io.github.kotlinmania.starlark_kotlin.analysis.unused_loads.names
-import io.github.kotlinmania.starlark_kotlin.values.types.string.Dict
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParamFmt
+import starlark_map.small_map.SmallMap
 
 /// Describe parameter for [`ParametersSpec`].
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]
@@ -91,7 +83,7 @@ sealed class ParameterKind<out V> {
 
 // #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq, PartialOrd, Ord)]
 // enum CurrentParameterStyle
-private enum class CurrentParameterStyle {
+internal enum class CurrentParameterStyle {
     /// Parameter can be only filled positionally.
     PosOnly,
     /// Parameter can be filled positionally or by name.
@@ -104,7 +96,7 @@ private enum class CurrentParameterStyle {
 
 /// Builder for [`ParametersSpec`]
 // pub(crate) struct ParametersSpecBuilder<V>
-class ParametersSpecBuilder<V>(
+internal class ParametersSpecBuilder<V>(
     private val functionName: String,
     private val params: MutableList<Pair<String, ParameterKind<V>>> = mutableListOf(),
     private val names: SymbolMap<UInt> = SymbolMap(),
@@ -268,7 +260,7 @@ class ParametersSpec<V>(
     companion object {
         /// Create a new [`ParametersSpec`] with the given function name and an advance capacity hint.
         // pub(crate) fn with_capacity(function_name: String, capacity: usize) -> ParametersSpecBuilder<V>
-        fun <V> withCapacity(functionName: String, capacity: Int = 0): ParametersSpecBuilder<V> =
+        internal fun <V> withCapacity(functionName: String, capacity: Int = 0): ParametersSpecBuilder<V> =
             ParametersSpecBuilder(
                 functionName = functionName,
                 params = ArrayList(capacity),
@@ -393,7 +385,7 @@ class ParametersSpec<V>(
     internal fun resolveName(name: Hashed<String>): ResolvedArgName {
         val hash = name.hash()
         val paramIndex = names.getHashedStr(name)
-        return ResolvedArgName(hash = hash, paramIndex = paramIndex)
+        return ResolvedArgName(hash = hash, paramIndex = paramIndex?.toInt())
     }
 
     // pub(crate) fn has_args_or_kwargs(&self) -> bool
@@ -474,7 +466,7 @@ class ParametersSpec<V>(
     /// for Def and NativeFunction that are hot-spots
     // pub(crate) fn collect_inline(...)
     internal fun collectInline(
-        args: ArgumentsImpl,
+        args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
         heap: Heap,
     ) {
@@ -483,7 +475,7 @@ class ParametersSpec<V>(
 
     // fn collect_inline_impl(...)
     private fun collectInlineImpl(
-        args: ArgumentsImpl,
+        args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
         heap: Heap,
     ) {
@@ -507,41 +499,43 @@ class ParametersSpec<V>(
 
     // fn collect_slow(...)
     private fun collectSlow(
-        args: ArgumentsImpl,
+        args: ArgumentsImpl<*>,
         slots: MutableList<Value?>,
         heap: Heap,
     ) {
         /// Lazily initialized `kwargs` object.
         class LazyKwargs {
-            var kwargs: MutableMap<StringValue, Value>? = null
+            var kwargs: SmallMap<Value, Value>? = null
 
             // Return true if the value is a duplicate
             fun insert(key: Hashed<StringValue>, value: Value): Boolean {
+                val valueKey = Hashed.newUnchecked(key.hash(), key.key().toValue())
                 val mp = kwargs
                 if (mp == null) {
-                    val newMp = mutableMapOf<StringValue, Value>()
-                    newMp[key.key()] = value
+                    val newMp = SmallMap.withCapacity<Value, Value>(12)
+                    newMp.insertHashedUniqueUnchecked(valueKey, value)
                     kwargs = newMp
                     return false
                 }
-                return mp.put(key.key(), value) != null
+                return mp.insertHashed(valueKey, value) != null
             }
 
             fun insertUniqueUnchecked(key: Hashed<StringValue>, value: Value) {
+                val valueKey = Hashed.newUnchecked(key.hash(), key.key().toValue())
                 val mp = kwargs
                 if (mp == null) {
-                    val newMp = mutableMapOf<StringValue, Value>()
-                    newMp[key.key()] = value
+                    val newMp = SmallMap.withCapacity<Value, Value>(12)
+                    newMp.insertHashedUniqueUnchecked(valueKey, value)
                     kwargs = newMp
                 } else {
-                    mp[key.key()] = value
+                    mp.insertHashedUniqueUnchecked(valueKey, value)
                 }
             }
 
             fun alloc(heap: Heap): Value {
-                val kwargsMap = kwargs
-                val dict = if (kwargsMap != null) Dict(kwargsMap) else Dict()
-                return heap.alloc(dict)
+                val kwargsMap = kwargs ?: SmallMap.new()
+                val dict = Dict(kwargsMap)
+                return dict.allocValue(heap)
             }
         }
 
@@ -594,7 +588,7 @@ class ParametersSpec<V>(
 
         // Next up are the *args parameters
         args.args()?.let { paramArgs ->
-            for (v in paramArgs.iterate(heap)) {
+            for (v in paramArgs.iterate(heap).getOrThrow()) {
                 if (nextPosition < indices.numPositional.toInt()) {
                     slots[nextPosition] = v
                     nextPosition++
@@ -613,10 +607,13 @@ class ParametersSpec<V>(
         args.kwargs()?.let { paramKwargs ->
             val dictRef = dictRefFromValue(paramKwargs)
                 ?: throw FunctionError.KwArgsIsNotDict
-            for ((k, v) in dictRef.iterHashed()) {
-                val s = StringValue.new(k.key())
+            val dict: Dict by dictRef
+            for ((k, v) in dict.content.iterHashed()) {
+                val keyValue = k.key() // Value
+                val s = StringValue.new(keyValue)
                     ?: throw FunctionError.ArgsValueIsNotString
-                val paramIndex = names.getHashedStringValue(Hashed.newUnchecked(k.hash(), s))
+                val hashedStr = Hashed.newUnchecked(k.hash(), s.asStr())
+                val paramIndex = names.getHashedStringValue(hashedStr)
                 if (paramIndex == null) {
                     val repeat = kwargs.insert(Hashed.newUnchecked(k.hash(), s), v)
                     if (repeat) {
@@ -679,7 +676,7 @@ class ParametersSpec<V>(
             slots[kwargsPos.toInt()] = kwargs.alloc(heap)
         } else if (kwargs.kwargs != null) {
             throw FunctionError.ExtraNamedArg(
-                names = kwargs.kwargs!!.keys.map { it.asStr() },
+                names = kwargs.kwargs!!.keys().map { it.toStr() }.toList(),
                 function = signature(),
             )
         }

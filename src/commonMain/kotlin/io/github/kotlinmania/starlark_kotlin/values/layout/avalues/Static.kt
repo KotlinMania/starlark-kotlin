@@ -72,7 +72,7 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
 
 /// Allocate simple value statically.
 // pub struct AllocStaticSimple<T: StarlarkValue<'static>>(AValueRepr<AValueImpl<AValueBasic<T>>>)
-class AllocStaticSimple<T : StarlarkValue>(
+class AllocStaticSimple<T : StarlarkValue> internal constructor(
     private val repr: AValueRepr<AValueImpl<AValueBasic<T>>>,
 ) {
     companion object {

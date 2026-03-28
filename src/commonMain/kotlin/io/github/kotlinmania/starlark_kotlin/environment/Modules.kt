@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer

@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
+import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.docs.DocType
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecBuilder
@@ -52,6 +53,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 import io.github.kotlinmania.starlark_kotlin.LibraryExtension
 
 /** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */

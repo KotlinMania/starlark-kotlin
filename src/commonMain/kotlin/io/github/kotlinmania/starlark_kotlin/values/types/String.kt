@@ -37,4 +37,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 // Re-exports (mirrors Rust's `pub use str_type::STRING_TYPE` and `pub use str_type::StarlarkStr`)
 internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark_kotlin.values.types.string.STRING_TYPE
-internal typealias StarlarkStrExport = io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+internal typealias StarlarkStrExport = io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr

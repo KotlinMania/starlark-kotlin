@@ -50,7 +50,7 @@ private class TypeMatcherFactoryImpl(
 //     fn matcher_box(&self) -> TypeMatcherBox;
 //     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>;
 // }
-interface TypeMatcherFactoryDyn {
+internal interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled
 }
