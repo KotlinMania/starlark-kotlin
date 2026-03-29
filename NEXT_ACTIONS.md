@@ -4,17 +4,17 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (557/470 files)
-- **Matched Files:** 470
+- **Current Progress:** 100.0% (500/468 files)
+- **Matched Files:** 468
 - **Average Similarity:** 0.46
-- **Critical Issues:** 294 files with <0.60 similarity
+- **Critical Issues:** 293 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
 ### 1. layout.heap
 - **Similarity:** 0.17 (needs 68% improvement)
 - **Dependencies:** 109
-- **Priority Score:** 90.2
+- **Priority Score:** 90.0
 - **Action:** Deep review - likely missing major functionality
 
 ### 2. assert
@@ -24,9 +24,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Deep review - likely missing major functionality
 
 ### 3. layout.value
-- **Similarity:** 0.70 (needs 15% improvement)
+- **Similarity:** 0.71 (needs 14% improvement)
 - **Dependencies:** 178
-- **Priority Score:** 52.5
+- **Priority Score:** 52.0
 - **Action:** Review and complete missing sections
 
 ### 4. values.freeze
@@ -66,9 +66,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Deep review - likely missing major functionality
 
 ### 10. params.display
-- **Similarity:** 0.67 (needs 18% improvement)
+- **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
-- **Priority Score:** 25.0
+- **Priority Score:** 24.1
 - **Action:** Review and complete missing sections
 
 ## Priority 2: Port Missing High-Value Files
@@ -91,7 +91,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark rust ../../src kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>
