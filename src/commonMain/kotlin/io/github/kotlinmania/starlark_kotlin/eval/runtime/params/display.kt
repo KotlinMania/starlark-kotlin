@@ -138,48 +138,40 @@ internal fun <T, D> fmtParamSpecMaybeMultiline(
 
     val printer = Printer(f, escapeStars)
 
-    val iter = iterFmtParamSpec(posOnly, posNamed, args, namedOnly, kwargs).iterator()
+    val iter = iterFmtParamSpec(posOnly, posNamed, args, namedOnly, kwargs).toList()
 
-    val first = if (iter.hasNext()) iter.next() else null
-    val notEmpty = first != null
+    val notEmpty = iter.isNotEmpty()
 
-    if (first != null) {
-        var i = 0
-        var current: FmtParam<ParamFmt<T, D>>? = first
-        while (current != null) {
-            if (i == 0) {
-                if (indent != null) {
-                    printer.f.append(indent)
-                }
+    for ((i, param) in iter.withIndex()) {
+        if (i == 0) {
+            if (indent != null) {
+                printer.f.append(indent)
+            }
+        } else {
+            if (indent != null) {
+                printer.f.append(",\n")
+                printer.f.append(indent)
             } else {
-                if (indent != null) {
-                    printer.f.append(",\n")
-                    printer.f.append(indent)
-                } else {
-                    printer.f.append(", ")
-                }
+                printer.f.append(", ")
             }
-            val star = if (printer.escapeStars) "\\*" else "*"
-            when (val param = current) {
-                is FmtParam.Regular -> {
-                    printer.writeParam(param.value.name, param.value.ty, param.value.default)
-                }
-                is FmtParam.Args -> {
-                    printer.writeParam("${star}${param.value.name}", param.value.ty, param.value.default)
-                }
-                is FmtParam.Kwargs -> {
-                    printer.writeParam("${star}${star}${param.value.name}", param.value.ty, param.value.default)
-                }
-                is FmtParam.Slash -> {
-                    printer.f.append("/")
-                }
-                is FmtParam.Star -> {
-                    printer.f.append(star)
-                }
-                null -> {}
+        }
+        val star = if (printer.escapeStars) "\\*" else "*"
+        when (param) {
+            is FmtParam.Regular -> {
+                printer.writeParam(param.value.name, param.value.ty, param.value.default)
             }
-            i++
-            current = if (iter.hasNext()) iter.next() else null
+            is FmtParam.Args -> {
+                printer.writeParam("${star}${param.value.name}", param.value.ty, param.value.default)
+            }
+            is FmtParam.Kwargs -> {
+                printer.writeParam("${star}${star}${param.value.name}", param.value.ty, param.value.default)
+            }
+            is FmtParam.Slash -> {
+                printer.f.append("/")
+            }
+            is FmtParam.Star -> {
+                printer.f.append(star)
+            }
         }
     }
 

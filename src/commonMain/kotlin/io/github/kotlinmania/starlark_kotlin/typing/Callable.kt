@@ -71,10 +71,14 @@ class TyCallable private constructor(
                     }
                     sb.append("]")
                 } else {
-                    sb.append("\"${params().displayWith(config)}\"")
+                    sb.append("\"")
+                    sb.append(params().displayWith(config))
+                    sb.append("\"")
                 }
             }
-            sb.append(", ${result().displayWith(config)}]")
+            sb.append(", ")
+            sb.append(result().displayWith(config))
+            sb.append("]")
         }
     }
 

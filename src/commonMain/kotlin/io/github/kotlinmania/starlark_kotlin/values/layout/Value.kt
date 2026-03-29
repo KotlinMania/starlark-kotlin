@@ -845,20 +845,25 @@ class Value internal constructor(
     ): Result<Unit> {
         // First, provide a good error message when the value is not callable
         // without invoking a typechecker.
-        checkCallable().getOrElse { return Result.failure(it) }
+        try {
+            checkCallable().getOrThrow()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
 
-        val sig = TyCallable.new(
-            runCatching {
-                ParamSpec.newParts(
-                    pos.map { ty -> Pair(ParamIsRequired.Yes, ty) },
-                    emptyList(),
-                    args,
-                    named.map { (n, ty) -> Triple(n, ParamIsRequired.Yes, ty) },
-                    kwargs,
-                )
-            }.getOrElse { return Result.failure(it) },
-            ret,
-        )
+        val paramSpec = try {
+            ParamSpec.newParts(
+                pos.map { ty -> Pair(ParamIsRequired.Yes, ty) },
+                emptyList(),
+                args,
+                named.map { (n, ty) -> Triple(n, ParamIsRequired.Yes, ty) },
+                kwargs,
+            )
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+
+        val sig = TyCallable.new(paramSpec, ret)
 
         // Ty.ofValue: use typechecker type if available, else type repr
         val ty = getRef().typecheckerTy() ?: getTypeStarlarkRepr()
@@ -1054,10 +1059,14 @@ class Value internal constructor(
     // pub fn get_hashed(self) -> crate::Result<Hashed<Self>>
     fun getHashed(): Result<Hashed<Value>> {
         val str = unpackStarlarkStr()
-        val hash = if (str != null) {
-            str.getHash().getOrElse { return Result.failure(it) }
-        } else {
-            getHash().getOrElse { return Result.failure(it) }
+        val hash = try {
+            if (str != null) {
+                str.getHash().getOrThrow()
+            } else {
+                getHash().getOrThrow()
+            }
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
         return Result.success(Hashed.newUnchecked(hash, this))
     }
@@ -1077,7 +1086,11 @@ class Value internal constructor(
 
     // fn equals_not_ptr_eq(self, other: Value<'v>) -> crate::Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
-        runCatching { stackGuard() }.getOrElse { return Result.failure(it) }
+        try {
+            stackGuard()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
         return getRef().equals(other)
     }
 
@@ -1086,7 +1099,11 @@ class Value internal constructor(
      */
     // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     fun compare(other: Value): Result<Int> {
-        runCatching { stackGuard() }.getOrElse { return Result.failure(it) }
+        try {
+            stackGuard()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
         return getRef().compare(other)
     }
 
@@ -1140,7 +1157,11 @@ class Value internal constructor(
      */
     // pub fn get_attr_error(self, attribute: &str, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun getAttrError(attribute: String, heap: Heap): Result<Value> {
-        val v = getAttr(attribute, heap).getOrElse { return Result.failure(it) }
+        val v = try {
+            getAttr(attribute, heap).getOrThrow()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
         return if (v == null) {
             ValueError.unsupportedOwned(getType(), ".$attribute", null)
         } else {
@@ -1203,6 +1224,13 @@ class Value internal constructor(
 
     // fn display_for_type_error(self) -> impl Display + 'v
     private fun displayForTypeError(): String {
+        // fn split_at_safe(s: &str, index: usize) -> (&str, &str)
+        fun splitAtSafe(s: String, index: Int): Pair<String, String> {
+            // In Kotlin strings are always valid character sequences
+            val safeIndex = index.coerceIn(0, s.length)
+            return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
+        }
+
         var repr = toRepr()
         val maxLen = 60
 
@@ -1331,12 +1359,12 @@ fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
 
 // impl Equivalent<FrozenValue> for Value<'_>
 fun Value.equivalent(key: FrozenValue): Boolean {
-    return key.equals(this).getOrDefault(false)
+    return key.equals(this).getOrThrow()
 }
 
 // impl Equivalent<Value<'_>> for FrozenValue
 fun FrozenValue.equivalent(key: Value): Boolean {
-    return this.equals(key).getOrDefault(false)
+    return this.equals(key).getOrThrow()
 }
 
 /**
@@ -1759,10 +1787,14 @@ interface ValueLike : ValueLifetimeless {
     fun getHashed(): Result<Hashed<out ValueLike>> {
         val v = toValue()
         val str = v.unpackStarlarkStr()
-        val hash = if (str != null) {
-            str.getHash().getOrElse { return Result.failure(it) }
-        } else {
-            v.getHash().getOrElse { return Result.failure(it) }
+        val hash = try {
+            if (str != null) {
+                str.getHash().getOrThrow()
+            } else {
+                v.getHash().getOrThrow()
+            }
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
         return Result.success(Hashed.newUnchecked(hash, this))
     }
@@ -1839,14 +1871,6 @@ private fun _testSendSync() {
     // Compile-time assertion in Rust that FrozenValue is Send + Sync.
     // In Kotlin, all objects can be shared across threads.
     val v: FrozenValue? = null
-}
-
-// Private helper: split string at safe character boundary.
-// fn split_at_safe(s: &str, index: usize) -> (&str, &str)
-private fun splitAtSafe(s: String, index: Int): Pair<String, String> {
-    // In Kotlin strings are always valid character sequences
-    val safeIndex = index.coerceIn(0, s.length)
-    return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
 }
 
 // Static value references are imported from their defining modules.

@@ -76,14 +76,13 @@ interface AllocStringValue : AllocValue {
 }
 
 // impl AllocValue for FrozenValue
-fun FrozenValue.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value = toValue()
+fun FrozenValue.allocValue(_heap: Heap): Value = toValue()
 
 // impl AllocValue for Value
-fun Value.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value = this
+fun Value.allocValue(_heap: Heap): Value = this
 
 // impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
-inline fun <A, B> Either<A, B>.allocValue(heap: Heap): Value
-    where A : AllocValue, B : AllocValue =
+inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
     when (this) {
         is Either.Left -> value.allocValue(heap)
         is Either.Right -> value.allocValue(heap)
@@ -115,11 +114,10 @@ interface AllocFrozenStringValue : AllocFrozenValue {
 }
 
 // impl AllocFrozenValue for FrozenValue
-fun FrozenValue.allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue = this
+fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue = this
 
 // impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
-inline fun <A, B> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue
-    where A : AllocFrozenValue, B : AllocFrozenValue =
+inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is Either.Left -> value.allocFrozenValue(heap)
         is Either.Right -> value.allocFrozenValue(heap)
