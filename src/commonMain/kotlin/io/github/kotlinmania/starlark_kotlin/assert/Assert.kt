@@ -42,17 +42,18 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
 
-/** Functional type alias for value equality assertion. */
-internal typealias AssertEquals = (Value, Value) -> Result<NoneType>
-
-/** Functional type alias for value inequality assertion. */
-internal typealias AssertDifferent = (Value, Value) -> Result<NoneType>
-
-/** Functional type alias for less-than assertion. */
-internal typealias AssertLessThan = (Value, Value) -> Result<NoneType>
-
-/** Functional type alias for the asserts_star starlark module builder. */
-internal typealias AssertsStar = (GlobalsBuilder) -> Unit
+/**
+ * Print error diagnostic to stderr (or stdout as multiplatform fallback).
+ *
+ * Mirrors `Error::eprint` in the Rust implementation.
+ */
+private fun io.github.kotlinmania.starlark_kotlin.Error.eprint() {
+    if (hasDiagnostic()) {
+        println(this)
+    } else {
+        println(this)
+    }
+}
 
 private fun mkEnvironment(): GlobalsBuilder {
     return GlobalsBuilder.extended().with(::testFunctions)
@@ -76,7 +77,7 @@ private val ASSERTS_STAR: FrozenModule by lazy {
     }
 }
 
-internal fun assertEquals(a: Value, b: Value): Result<NoneType> {
+private fun assertEquals(a: Value, b: Value): Result<NoneType> {
     return if (!a.equals(b).getOrElse { return Result.failure(it) }) {
         Result.failure(Exception("assert_eq: expected $a, got $b"))
     } else {
@@ -147,16 +148,16 @@ private fun assertsStar(builder: GlobalsBuilder) {
         }
     }
 
-    builder.setFunction("eq") { args, _ -> eq(args.positional(0), args.positional(1)) }
-    builder.setFunction("ne") { args, _ -> ne(args.positional(0), args.positional(1)) }
-    builder.setFunction("lt") { args, _ -> lt(args.positional(0), args.positional(1)) }
-    builder.setFunction("contains") { args, _ -> contains(args.positional(0), args.positional(1)) }
-    builder.setFunction("true") { args, _ -> true_(args.positional(0)) }
-    builder.setFunction("freeze") { args, _ -> freeze(args.positional(0)) }
-    builder.setFunction("fails") { args, eval -> fails(args.positional(0), args.positional<Value>(1).toString(), eval) }
+    builder.setFunction("eq") { args, _ -> eq(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("ne") { args, _ -> ne(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("lt") { args, _ -> lt(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("contains") { args, _ -> contains(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("true") { args, _ -> true_(args.positionalAll()[0]) }
+    builder.setFunction("freeze") { args, _ -> freeze(args.positionalAll()[0]) }
+    builder.setFunction("fails") { args, eval -> fails(args.positionalAll()[0], args.positionalAll()[1].toString(), eval) }
 }
 
-fun testFunctions(builder: GlobalsBuilder) {
+internal fun testFunctions(builder: GlobalsBuilder) {
     // Used by one of the test methods in Go
     val fibonacci: List<Int> = listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)
     run {
@@ -217,14 +218,14 @@ fun testFunctions(builder: GlobalsBuilder) {
     }
 
     builder.setFunction("hasfields") { _, _ -> hasfields() }
-    builder.setFunction("assert_eq") { args, _ -> assertEq(args.positional(0), args.positional(1)) }
-    builder.setFunction("assert_ne") { args, _ -> assertNe(args.positional(0), args.positional(1)) }
-    builder.setFunction("assert_lt") { args, _ -> assertLt(args.positional(0), args.positional(1)) }
-    builder.setFunction("assert_true") { args, _ -> assertTrue(args.positional(0)) }
-    builder.setFunction("assert_false") { args, _ -> assertFalse(args.positional(0)) }
+    builder.setFunction("assert_eq") { args, _ -> assertEq(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("assert_ne") { args, _ -> assertNe(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("assert_lt") { args, _ -> assertLt(args.positionalAll()[0], args.positionalAll()[1]) }
+    builder.setFunction("assert_true") { args, _ -> assertTrue(args.positionalAll()[0]) }
+    builder.setFunction("assert_false") { args, _ -> assertFalse(args.positionalAll()[0]) }
     builder.setFunction("garbage_collect") { _, eval -> garbageCollect(eval) }
-    builder.setFunction("assert_type") { args, eval -> assertType(args.positional(0), args.positional(1), eval.heap()) }
-    builder.setFunction("noop") { args, _ -> noop(args.positionalAll(), args.positionalAll().lastOrNull() ?: Value.newNone()) }
+    builder.setFunction("assert_type") { args, eval -> assertType(args.positionalAll()[0], args.positionalAll()[1], eval.heap()) }
+    builder.setFunction("noop") { args, _ -> noop(args.positionalAll(), args.full.kwargs ?: Value.newNone()) }
 }
 
 /** Environment in which to run assertion tests. */
@@ -350,6 +351,9 @@ class Assert(
                 result.getOrThrow()
             } else {
                 val err = result.exceptionOrNull()!!
+                if (err is io.github.kotlinmania.starlark_kotlin.Error) {
+                    err.eprint()
+                }
                 error("starlark::assert::$func, failed to execute!\nCode:\n$program\nGot error: $err")
             }
         }
@@ -447,6 +451,7 @@ class Assert(
                 val errMsg = inner.toString()
                 for (msg in msgs) {
                     if (!errMsg.contains(msg)) {
+                        original.eprint()
                         error(
                             "starlark::assert::$func, failed with the wrong message!\n" +
                                 "Code:\n$program\n" +
@@ -595,79 +600,95 @@ class Assert(
         }
     }
 
+    /**
+     * Companion object providing static convenience methods that delegate
+     * to the top-level free functions. These correspond to the Rust module-level
+     * `pub fn` declarations that are re-exported via `pub use assert::*`.
+     */
     companion object {
         /** See [Assert.eq]. */
-        fun eq(lhs: String, rhs: String) {
-            Assert().eq(lhs, rhs)
-        }
+        fun eq(lhs: String, rhs: String) = io.github.kotlinmania.starlark_kotlin.assert.eq(lhs, rhs)
 
         /** See [Assert.fail]. */
-        fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
-            return Assert().fail(program, msg)
-        }
+        fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error =
+            io.github.kotlinmania.starlark_kotlin.assert.fail(program, msg)
 
-        internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error {
-            val trimmed = program.trim()
-            val e = fails(trimmed, emptyList())
-            val output = "Program:\n\n$trimmed\n\nError:\n\n$e\n"
-            io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate(path, output)
-            return e
-        }
+        // #[cfg(test)]
+        internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error =
+            io.github.kotlinmania.starlark_kotlin.assert.failGolden(path, program)
 
-        internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
-            val a = Assert()
-            a.disableStaticTypechecking()
-            return a.fail(program, msg)
-        }
+        // #[cfg(test)]
+        internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error =
+            io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck(program, msg)
 
         /** See [Assert.fails]. */
-        fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
-            return Assert().fails(program, msgs)
-        }
+        fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error =
+            io.github.kotlinmania.starlark_kotlin.assert.fails(program, msgs)
 
-        internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
-            val a = Assert()
-            a.disableStaticTypechecking()
-            return a.fails(program, msgs)
-        }
+        // #[cfg(test)]
+        internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error =
+            io.github.kotlinmania.starlark_kotlin.assert.failsSkipTypecheck(program, msgs)
 
         /** See [Assert.isTrue]. */
-        fun isTrue(program: String) {
-            Assert().isTrue(program)
-        }
+        fun isTrue(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isTrue(program)
 
         /** See [Assert.isFalse]. */
-        fun isFalse(program: String) {
-            Assert().isFalse(program)
-        }
+        fun isFalse(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isFalse(program)
 
-        internal fun isTrueSkipTypecheck(program: String) {
-            val a = Assert()
-            a.disableStaticTypechecking()
-            a.isTrue(program)
-        }
+        // #[cfg(test)]
+        internal fun isTrueSkipTypecheck(program: String) =
+            io.github.kotlinmania.starlark_kotlin.assert.isTrueSkipTypecheck(program)
 
         /** See [Assert.allTrue]. */
-        fun allTrue(expressions: String) {
-            val a = Assert()
-            a.disableStaticTypechecking()
-            a.allTrue(expressions)
-        }
+        fun allTrue(expressions: String) = io.github.kotlinmania.starlark_kotlin.assert.allTrue(expressions)
 
         /** See [Assert.pass]. */
-        fun pass(program: String): OwnedFrozenValue {
-            return Assert().pass(program)
-        }
+        fun pass(program: String): OwnedFrozenValue = io.github.kotlinmania.starlark_kotlin.assert.pass(program)
 
         /** See [Assert.passModule]. */
-        fun passModule(program: String): FrozenModule {
-            return Assert().passModule(program)
-        }
+        fun passModule(program: String): FrozenModule = io.github.kotlinmania.starlark_kotlin.assert.passModule(program)
     }
 }
 
-// Module-level convenience functions (Rust: pub fn all_true, is_true, is_false, etc.)
-// These match the Rust free functions re-exported from the assert module.
+// Rust module-level free functions, re-exported via `pub use assert::*`
+
+/** See [Assert.eq]. */
+fun eq(lhs: String, rhs: String) {
+    Assert().eq(lhs, rhs)
+}
+
+/** See [Assert.fail]. */
+fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
+    return Assert().fail(program, msg)
+}
+
+// #[cfg(test)]
+internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error {
+    val trimmed = program.trim()
+    val e = fails(trimmed, emptyList())
+    val output = "Program:\n\n$trimmed\n\nError:\n\n$e\n"
+    io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate(path, output)
+    return e
+}
+
+// #[cfg(test)]
+internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
+    val a = Assert()
+    a.disableStaticTypechecking()
+    return a.fail(program, msg)
+}
+
+/** See [Assert.fails]. */
+fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+    return Assert().fails(program, msgs)
+}
+
+// #[cfg(test)]
+internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+    val a = Assert()
+    a.disableStaticTypechecking()
+    return a.fails(program, msgs)
+}
 
 /** See [Assert.isTrue]. */
 fun isTrue(program: String) {
@@ -679,9 +700,17 @@ fun isFalse(program: String) {
     Assert().isFalse(program)
 }
 
+// #[cfg(test)]
+internal fun isTrueSkipTypecheck(program: String) {
+    val a = Assert()
+    a.disableStaticTypechecking()
+    a.isTrue(program)
+}
+
 /** See [Assert.allTrue]. */
 fun allTrue(expressions: String) {
     val a = Assert()
+    // TODO(nga): fix and enable.
     a.disableStaticTypechecking()
     a.allTrue(expressions)
 }
@@ -694,19 +723,4 @@ fun pass(program: String): OwnedFrozenValue {
 /** See [Assert.passModule]. */
 fun passModule(program: String): FrozenModule {
     return Assert().passModule(program)
-}
-
-/** See [Assert.fail]. */
-fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
-    return Assert().fail(program, msg)
-}
-
-/** See [Assert.fails]. */
-fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
-    return Assert().fails(program, msgs)
-}
-
-/** See [Assert.eq]. */
-fun eq(lhs: String, rhs: String) {
-    Assert().eq(lhs, rhs)
 }

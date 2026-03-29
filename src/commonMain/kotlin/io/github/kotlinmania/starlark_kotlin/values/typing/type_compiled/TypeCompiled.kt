@@ -19,16 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-/**
- * Compiled type expressions for efficient runtime type checking.
- *
- * Submodules:
- * - [alloc][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Alloc] - Allocation helpers for type matchers
- * - [compiled][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Compiled] - Compiled type representation
- * - [factory][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Factory] - Type matcher factory
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Globals] - Global type matchers
- * - [matcher][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Matcher] - Type matcher interface
- * - [matchers][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Matchers] - Concrete type matcher implementations
- * - [tests][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.Tests] - Tests for compiled types
- * - [typeMatcherFactory][io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory] - Factory interface
- */
+// pub(crate) mod alloc;
+// pub(crate) mod compiled;
+// pub(crate) mod factory;
+// pub(crate) mod globals;
+// pub(crate) mod matcher;
+// pub(crate) mod matchers;
+// pub(crate) mod tests;
+// pub(crate) mod type_matcher_factory;

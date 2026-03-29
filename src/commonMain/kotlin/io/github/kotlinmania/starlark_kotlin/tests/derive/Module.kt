@@ -1,5 +1,7 @@
-/* port-lint: source src/tests/derive/module.rs
- *
+// port-lint: source src/tests/derive/module.rs
+package io.github.kotlinmania.starlark_kotlin.tests.derive
+
+/*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
@@ -16,7 +18,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kotlinmania.starlark_kotlin.tests.derive
 
-// Rust mod declarations — each submodule is its own .kt file:
-// basic, defaultValue, generic, kwargs, methods, namedPositional, otherAttributes, returnImpl
+/**
+ * Tests for the `#[starlark_module]` derive macro.
+ *
+ * This module mirrors `src/tests/derive/module.rs` which declares test submodules.
+ *
+ * ## Submodules
+ *
+ * | Rust submodule       | Kotlin package                              |
+ * |----------------------|---------------------------------------------|
+ * | `basic`              | `tests.derive.module.basic`                 |
+ * | `default_value`      | `tests.derive.module.defaultValue`          |
+ * | `generic`            | `tests.derive.module.generic`               |
+ * | `kwargs`             | `tests.derive.module.kwargs`                |
+ * | `methods`            | `tests.derive.module.methods`               |
+ * | `named_positional`   | `tests.derive.module.namedPositional`       |
+ * | `other_attributes`   | `tests.derive.module.otherAttributes`       |
+ * | `return_impl`        | `tests.derive.module.returnImpl`            |
+ * | `special_params`     | `tests.derive.module.specialParams`         |
+ * | `type_annotation`    | `tests.derive.module.typeAnnotation`        |
+ * | `unpack_value`       | `tests.derive.module.unpackValue`           |
+ */

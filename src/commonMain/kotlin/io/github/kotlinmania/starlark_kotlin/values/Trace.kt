@@ -1,4 +1,6 @@
 // port-lint: source src/values/trace.rs
+package io.github.kotlinmania.starlark_kotlin.values
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -16,8 +18,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.github.kotlinmania.starlark_kotlin.values
 
 // use std::cell::Cell;
 // use std::cell::OnceCell;
@@ -61,9 +61,11 @@ import kotlinx.datetime.Instant
 
 /**
  * Called by the garbage collection, and must walk over every contained [Value] in the type.
- * Marked `unsafe` because if you miss a nested [Value], it will probably segfault.
  *
- * For the most cases `#[derive(Trace)]` is enough to implement this trait:
+ * In Rust this trait is marked `unsafe` because if you miss a nested [Value],
+ * it will probably segfault.
+ *
+ * For most cases a derived implementation is enough:
  *
  * ```kotlin
  * class MySet(val keys: MutableList<Value>) : Trace {
@@ -104,6 +106,8 @@ fun <T : Trace> MutableCollection<T>.trace(tracer: Tracer) {
 
 // unsafe impl<'v, K: Trace<'v>, V: Trace<'v>> Trace<'v> for SmallMap<K, V>
 fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
+    // Rust calls iter_mut_unchecked to get mutable references to keys and values.
+    // In Kotlin, objects are reference types so tracing via iter() is equivalent.
     for ((k, v) in this.iter()) {
         k.trace(tracer)
         v.trace(tracer)
@@ -112,6 +116,8 @@ fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for SmallSet<T>
 fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
+    // Rust calls iter_mut_unchecked to get mutable references.
+    // In Kotlin, objects are reference types so tracing via iter() is equivalent.
     for (v in this.iter()) {
         v.trace(tracer)
     }
@@ -119,49 +125,58 @@ fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Hashed<T>
 fun <T : Trace> Hashed<T>.trace(tracer: Tracer) {
+    // Rust calls key_mut() for mutable access.
+    // In Kotlin the key is a reference type, so key() suffices.
     this.key().trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Option<T>
-fun <T : Trace> traceNullable(self: T?, tracer: Tracer) {
-    if (self != null) {
-        self.trace(tracer)
+fun <T : Trace> traceNullable(value: T?, tracer: Tracer) {
+    if (value != null) {
+        value.trace(tracer)
     }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for RefCell<T>
-fun <T : Trace> traceRefCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+// In Kotlin there is no RefCell; the value is accessed directly.
+fun <T : Trace> traceRefCell(value: T, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Cell<T>
-fun <T : Trace> traceCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+// In Kotlin there is no Cell; the value is accessed directly.
+fun <T : Trace> traceCell(value: T, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for OnceCell<T>
-fun <T : Trace> traceOnceCell(self: T?, tracer: Tracer) {
-    if (self != null) {
-        self.trace(tracer)
+// OnceCell may or may not have a value, modeled as nullable.
+fun <T : Trace> traceOnceCell(value: T?, tracer: Tracer) {
+    if (value != null) {
+        value.trace(tracer)
     }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for UnsafeCell<T>
-fun <T : Trace> traceUnsafeCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+// In Kotlin there is no UnsafeCell; the value is accessed directly.
+fun <T : Trace> traceUnsafeCell(value: T, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v> + ?Sized> Trace<'v> for Box<T>
-fun <T : Trace> traceBox(self: T, tracer: Tracer) {
-    self.trace(tracer)
+// In Kotlin there is no Box; the value is a reference directly.
+fun <T : Trace> traceBoxed(value: T, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v> Trace<'v> for ()
-fun traceUnit(_tracer: Tracer) {}
+// Unit has nothing to trace.
+fun traceUnit(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {}
 
 // unsafe impl<'v, T1: Trace<'v>> Trace<'v> for (T1,)
-fun <T1 : Trace> traceTuple1(self: T1, tracer: Tracer) {
-    self.trace(tracer)
+// Single-element tuple. Kotlin has no 1-tuple, so this is a standalone function.
+fun <T1 : Trace> traceSingle(value: T1, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>> Trace<'v> for (T1, T2)
@@ -179,6 +194,7 @@ fun <T1 : Trace, T2 : Trace, T3 : Trace> Triple<T1, T2, T3>.trace(tracer: Tracer
 
 // unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>, T3: Trace<'v>, T4: Trace<'v>> Trace<'v>
 //     for (T1, T2, T3, T4)
+// Kotlin has no 4-tuple type, so this is a standalone function.
 fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> traceTuple4(
     t1: T1,
     t2: T2,
@@ -193,88 +209,138 @@ fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> traceTuple4(
 }
 
 // unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>> Trace<'v> for Either<T1, T2>
-fun <T1 : Trace, T2 : Trace> traceEither(self: Either<T1, T2>, tracer: Tracer) {
-    when (self) {
-        is Either.Left -> self.value.trace(tracer)
-        is Either.Right -> self.value.trace(tracer)
+fun <T1 : Trace, T2 : Trace> Either<T1, T2>.trace(tracer: Tracer) {
+    when (this) {
+        is Either.Left -> this.value.trace(tracer)
+        is Either.Right -> this.value.trace(tracer)
     }
 }
 
 // unsafe impl<'v> Trace<'v> for Value<'v>
+// In Rust, tracer.trace mutates the Value in-place via &mut.
+// In Kotlin, ValueHolder wraps a mutable Value reference.
 fun ValueHolder.trace(tracer: Tracer) {
     tracer.trace(this)
 }
 
 // unsafe impl<'v> Trace<'v> for FrozenValue
-fun FrozenValue.trace(_tracer: Tracer) {}
+// FrozenValue cannot contain unfrozen references, so tracing is a no-op.
+@Suppress("UNUSED_PARAMETER")
+fun FrozenValue.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for String
-fun String.trace(_tracer: Tracer) {}
+// Strings contain no Values, so tracing is a no-op.
+@Suppress("UNUSED_PARAMETER")
+fun String.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for usize
-fun traceUsize(self: ULong, _tracer: Tracer) {}
+// Primitive type, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceUSize(value: ULong, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for i32
-fun Int.trace(_tracer: Tracer) {}
+// Primitive type, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun Int.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for u32
-fun UInt.trace(_tracer: Tracer) {}
+// Primitive type, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun UInt.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for u64
-fun ULong.trace(_tracer: Tracer) {}
+// Primitive type, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun ULong.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for bool
-fun Boolean.trace(_tracer: Tracer) {}
+// Primitive type, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun Boolean.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicBool
-fun AtomicBoolean.trace(_tracer: Tracer) {}
+// Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun AtomicBoolean.trace(tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI8
-fun AtomicInt.traceI8(_tracer: Tracer) {}
+// Kotlin maps AtomicI8 to AtomicInt. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicI8(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU8
-fun AtomicInt.traceU8(_tracer: Tracer) {}
+// Kotlin maps AtomicU8 to AtomicInt. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicU8(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI16
-fun AtomicInt.traceI16(_tracer: Tracer) {}
+// Kotlin maps AtomicI16 to AtomicInt. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicI16(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU16
-fun AtomicInt.traceU16(_tracer: Tracer) {}
+// Kotlin maps AtomicU16 to AtomicInt. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicU16(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI32
-fun AtomicInt.traceI32(_tracer: Tracer) {}
+// Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicI32(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU32
-fun AtomicInt.traceU32(_tracer: Tracer) {}
+// Kotlin maps AtomicU32 to AtomicInt. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicU32(value: AtomicInt, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI64
-fun AtomicLong.traceI64(_tracer: Tracer) {}
+// Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicI64(value: AtomicLong, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU64
-fun AtomicLong.traceU64(_tracer: Tracer) {}
+// Kotlin maps AtomicU64 to AtomicLong. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicU64(value: AtomicLong, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicUsize
-fun AtomicLong.traceUsize(_tracer: Tracer) {}
+// Kotlin maps AtomicUsize to AtomicLong. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicUsize(value: AtomicLong, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicIsize
-fun AtomicLong.traceIsize(_tracer: Tracer) {}
+// Kotlin maps AtomicIsize to AtomicLong. Atomic primitive, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun traceAtomicIsize(value: AtomicLong, tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for std::time::Instant
-fun Instant.trace(_tracer: Tracer) {}
+// Instant contains no Values, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun Instant.trace(tracer: Tracer) {}
 
 // unsafe impl<'v, T: ?Sized> Trace<'v> for marker::PhantomData<T>
-fun <T> tracePhantomData(self: T?, _tracer: Tracer) {}
+// PhantomData is a zero-size marker in Rust; in Kotlin it is modeled as a nullable ignored value.
+@Suppress("UNUSED_PARAMETER")
+fun <T> tracePhantomData(value: T?, tracer: Tracer) {}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Arc<Mutex<T>>
-fun <T : Trace> traceArcMutex(self: T, tracer: Tracer) {
-    self.trace(tracer)
+// Arc<Mutex<T>> in Rust: lock the mutex, then trace the inner value.
+// In Kotlin, there is no Arc/Mutex in commonMain; we trace the value directly.
+fun <T : Trace> traceArcMutex(value: T, tracer: Tracer) {
+    value.trace(tracer)
 }
 
 // unsafe impl<'v, A, R> Trace<'v> for fn(A) -> R
-fun <A, R> traceFn1(self: (A) -> R, _tracer: Tracer) {}
+// Function pointers contain no Values, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun <A, R> traceFn1(value: (A) -> R, tracer: Tracer) {}
 
 // unsafe impl<'v, A, B, R> Trace<'v> for fn(A, B) -> R
-fun <A, B, R> traceFn2(self: (A, B) -> R, _tracer: Tracer) {}
+// Function pointers contain no Values, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun <A, B, R> traceFn2(value: (A, B) -> R, tracer: Tracer) {}
 
 // unsafe impl<'v, A, B, C, R> Trace<'v> for fn(A, B, C) -> R
-fun <A, B, C, R> traceFn3(self: (A, B, C) -> R, _tracer: Tracer) {}
+// Function pointers contain no Values, no-op.
+@Suppress("UNUSED_PARAMETER")
+fun <A, B, C, R> traceFn3(value: (A, B, C) -> R, tracer: Tracer) {}

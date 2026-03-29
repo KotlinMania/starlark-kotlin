@@ -1,5 +1,7 @@
 // port-lint: source src/coerce.rs
-// A trait to represent zero-cost conversions.
+/**
+ * A module to represent zero-cost conversions.
+ */
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -26,13 +28,13 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 // pub use starlark_derive::Coerce;
 
 /**
- * A marker trait such that the existence of `From: Coerce<To>` implies
- * that `From` can be treat as `To` without any data manipulation.
+ * A marker interface such that the existence of `From: Coerce<To>` implies
+ * that `From` can be treated as `To` without any data manipulation.
  * Particularly useful for containers, e.g. `Vec<From>` can be treated as
  * `Vec<To>` in _O(1)_. If such an instance is available,
  * you can use [coerce] to perform the conversion.
  *
- * Importantly, you must make sure Rust does not change the type representation
+ * Importantly, you must make sure the runtime does not change the type representation
  * between the different types (typically using a `repr` directive),
  * and it must be safe for the `From` to be treated as `To`, namely same (or less restrictive) alignment,
  * no additional invariants, value can be dropped as `To`.
@@ -41,18 +43,20 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
  * then the [ref-cast crate](https://crates.io/crates/ref-cast)
  * provides that, along with automatic derivations (no `unsafe` required).
  */
+// pub unsafe trait Coerce<To: ?Sized> {}
 interface Coerce<To>
 
 /**
- * A marker trait such that the existence of `From: CoerceKey<To>` implies
- * that `From` can be treat as `To` without any data manipulation.
+ * A marker interface such that the existence of `From: CoerceKey<To>` implies
+ * that `From` can be treated as `To` without any data manipulation.
  * Furthermore, above and beyond [Coerce], any provided [hashCode],
- * [equals], [Comparable] and [Comparable] traits must give identical results
+ * [equals], [Comparable] traits must give identical results
  * on the `From` and `To` values.
  *
- * This trait is mostly expected to be a requirement for the keys of associative-map
+ * This interface is mostly expected to be a requirement for the keys of associative-map
  * containers, hence the `Key` in the name.
  */
+// pub unsafe trait CoerceKey<To: ?Sized>: Coerce<To> {}
 interface CoerceKey<To> : Coerce<To>
 
 // unsafe impl<'a, From: ?Sized, To: ?Sized> Coerce<&'a To> for &'a From where From: Coerce<To> {}
@@ -79,13 +83,13 @@ fun <From, To> coerceVec(x: MutableList<From>): MutableList<To> = x as MutableLi
 @Suppress("UNCHECKED_CAST")
 fun <From, To> coerceKeyVec(x: MutableList<From>): MutableList<To> = x as MutableList<To>
 
-// unsafe impl<From: ?Sized, To: ?Sized> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> {}
-@Suppress("UNCHECKED_CAST")
-fun <From, To> coerceKeyBox(x: From): To = x as To
-
 // unsafe impl<From: ?Sized, To: ?Sized> Coerce<Box<To>> for Box<From> where From: Coerce<To> {}
 @Suppress("UNCHECKED_CAST")
 fun <From, To> coerceBox(x: From): To = x as To
+
+// unsafe impl<From: ?Sized, To: ?Sized> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> {}
+@Suppress("UNCHECKED_CAST")
+fun <From, To> coerceKeyBox(x: From): To = x as To
 
 // unsafe impl<From, To> Coerce<HashSet<To>> for HashSet<From> where From: CoerceKey<To> {}
 @Suppress("UNCHECKED_CAST")
@@ -125,6 +129,7 @@ fun <From, To> coerceArray(x: Array<From>): Array<To> = x as Array<To>
 fun <From, To> coerceKeyArray(x: Array<From>): Array<To> = x as Array<To>
 
 // unsafe impl<From, To> Coerce<PhantomData<To>> for PhantomData<From> {}
+// PhantomData has no Kotlin equivalent; this is a no-op type-level conversion.
 @Suppress("UNCHECKED_CAST")
 fun <From, To> coercePhantomData(x: From): To = x as To
 
@@ -164,8 +169,20 @@ fun <From, To> coerceSmallSet(x: SmallSet<From>): SmallSet<To> = x as SmallSet<T
  */
 @Suppress("UNCHECKED_CAST")
 inline fun <From, To> coerce(x: From): To {
+    // In Rust this asserts Layout equality and does a raw pointer read.
+    // In Kotlin, type erasure means this is an unchecked cast.
     // assert_eq!(Layout::new::<From>(), Layout::new::<To>());
     // let x = ManuallyDrop::new(x);
     // unsafe { ptr::read(x.deref() as *const From as *const To) }
     return x as To
 }
+
+// #[cfg(test)]
+// mod tests {
+//     Tests in the Rust source (test_ptr_coerce, test_coerce_type_and_lifetime_params,
+//     test_coerce_is_unsound) are deeply tied to Rust's memory layout, lifetime coercion,
+//     #[repr(C)], #[repr(transparent)], PhantomData, and associated types. These concepts
+//     have no meaningful Kotlin equivalent since Kotlin's type system and JVM/native runtime
+//     handle memory layout differently. The coerce operation in Kotlin is simply an
+//     unchecked cast, so the Rust-specific layout and soundness tests do not apply.
+// }
