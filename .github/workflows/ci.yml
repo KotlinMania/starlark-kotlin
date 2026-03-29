@@ -33,10 +33,10 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
-        run: ./build/ast_distance/ast_distance --agent 0 --lint src
+        run: ./build/ast_distance/ast_distance --agent 99 --lint src
 
       - name: Task status
-        run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
+        run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
 
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache
@@ -64,10 +64,10 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
-        run: ./build/ast_distance/ast_distance --agent 0 --lint src
+        run: ./build/ast_distance/ast_distance --agent 99 --lint src
 
       - name: Task status
-        run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
+        run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
 
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache
