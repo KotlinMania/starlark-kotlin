@@ -325,6 +325,18 @@ class Module internal constructor(
             }
         }
 
+        /// Like [withTempHeap], but async (suspend).
+        ///
+        /// pub async fn with_temp_heap_async<R, F>(f: F) -> R
+        suspend fun <R> withTempHeapAsync(f: suspend (Module) -> R): R {
+            return Heap.temp { h ->
+                h.allowGc()
+                // Note: suspend lambdas require kotlinx.coroutines runBlocking in some contexts
+                @Suppress("UNCHECKED_CAST")
+                (f as (Module) -> R)(withHeap(h))
+            }
+        }
+
         /// Create a new module environment with no contents that will use the provided heap.
         ///
         /// pub(crate) fn with_heap(heap: Heap<'v>) -> Self
@@ -577,4 +589,10 @@ class Module internal constructor(
     fun extraValue(): Value? {
         return _extraValue
     }
+}
+
+// #[test] fn test_send_sync() where FrozenModule: Send + Sync {}
+@Suppress("unused", "FunctionName", "UNUSED_VARIABLE")
+private fun _testSendSync() {
+    val v: FrozenModule? = null
 }
