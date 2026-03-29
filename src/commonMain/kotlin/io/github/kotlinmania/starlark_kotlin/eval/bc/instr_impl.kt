@@ -113,8 +113,7 @@ interface InstrNoFlowImpl {
 }
 
 class InstrNoFlow(val impl: InstrNoFlowImpl) : BcInstr {
-    override val arg: Any get() = impl
-    fun run(
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
@@ -938,14 +937,14 @@ object InstrDictNewImpl : InstrNoFlowImpl {
 // --- Comprehension ---
 
 object InstrComprListAppend : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    @Suppress("UNCHECKED_CAST")
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: Pair<BcSlotIn, BcSlotIn>,
+        arg: Any,
     ): InstrControl {
-        val (list, item) = arg
+        val (list, item) = arg as Pair<BcSlotIn, BcSlotIn>
         val listVal = frame.getBcSlot(list)
         val itemVal = frame.getBcSlot(item)
         val listData = ListData.fromValueUncheckedMut(listVal)
@@ -955,14 +954,14 @@ object InstrComprListAppend : BcInstr {
 }
 
 object InstrComprDictInsert : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    @Suppress("UNCHECKED_CAST")
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: Triple<BcSlotIn, BcSlotIn, BcSlotIn>,
+        arg: Any,
     ): InstrControl {
-        val (dict, key, value) = arg
+        val (dict, key, value) = arg as Triple<BcSlotIn, BcSlotIn, BcSlotIn>
         val dictVal = frame.getBcSlot(dict)
         val keyVal = frame.getBcSlot(key)
         val valueVal = frame.getBcSlot(value)
@@ -1013,14 +1012,14 @@ object InstrBr {
 }
 
 object InstrIfBr : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    @Suppress("UNCHECKED_CAST")
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: Pair<BcSlotIn, BcAddrOffset>,
+        arg: Any,
     ): InstrControl {
-        val (cond, target) = arg
+        val (cond, target) = arg as Pair<BcSlotIn, BcAddrOffset>
         val condVal = frame.getBcSlot(cond)
         return if (condVal.toBool()) {
             InstrControl.Next(ip.addRel(target))
@@ -1031,14 +1030,14 @@ object InstrIfBr : BcInstr {
 }
 
 object InstrIfNotBr : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    @Suppress("UNCHECKED_CAST")
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: Pair<BcSlotIn, BcAddrOffset>,
+        arg: Any,
     ): InstrControl {
-        val (cond, target) = arg
+        val (cond, target) = arg as Pair<BcSlotIn, BcAddrOffset>
         val condVal = frame.getBcSlot(cond)
         return if (!condVal.toBool()) {
             InstrControl.Next(ip.addRel(target))
@@ -1060,26 +1059,26 @@ data class InstrIterArg(
 )
 
 object InstrIter : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: InstrIterArg,
+        arg: Any,
     ): InstrControl {
-        val over = frame.getBcSlot(arg.over)
+        val iterArg = arg as InstrIterArg
+        val over = frame.getBcSlot(iterArg.over)
         val iter = over.getRef().iterate(over, eval.heap())
         if (iter.isFailure) return InstrControl.Err(asStarlarkError(iter.exceptionOrNull()!!))
         val iterVal = iter.getOrThrow()
         val next = iterVal.getRef().iterNext(0, eval.heap())
         return if (next != null) {
-            frame.setBcSlot(arg.iterSlot, iterVal)
-            frame.setBcSlot(arg.varSlot, next)
-            frame.setIterIndex(arg.loopDepth, 1)
+            frame.setBcSlot(iterArg.iterSlot, iterVal)
+            frame.setBcSlot(iterArg.varSlot, next)
+            frame.setIterIndex(iterArg.loopDepth, 1)
             InstrControl.Next(ip.addInstr(InstrIter::class))
         } else {
             iterVal.getRef().iterStop()
-            InstrControl.Next(ip.addRel(arg.end))
+            InstrControl.Next(ip.addRel(iterArg.end))
         }
     }
 }
@@ -1134,13 +1133,13 @@ object InstrBreak {
 
 /// Stop all the iterations to release mutation locks before `return`.
 object InstrIterStop : BcInstr {
-    override val arg: Any get() = Unit
-    fun run(
+    override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        iter: BcSlotIn,
+        arg: Any,
     ): InstrControl {
+        val iter = arg as BcSlotIn
         val iterVal = frame.getBcSlot(iter)
         iterVal.getRef().iterStop()
         return InstrControl.Next(ip.addInstr(InstrIterStop::class))

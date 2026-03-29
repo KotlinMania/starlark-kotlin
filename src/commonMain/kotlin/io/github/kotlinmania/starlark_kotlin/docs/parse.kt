@@ -434,9 +434,9 @@ private fun parseParams(kind: DocStringKind, argsSection: String): Map<String, S
             currentArg = argMatch.groupValues[1]
 
             val docMatchStr = argMatch.groupValues[2]
-            val docMatchStart = argMatch.groups[2]!!.range.first
+            val docMatchStart = line.indexOf(docMatchStr, argMatch.groupValues[1].length)
             currentText = mutableListOf(
-                " ".repeat(docMatchStart) + docMatchStr
+                " ".repeat(if (docMatchStart >= 0) docMatchStart else 0) + docMatchStr
             )
         } else if (currentArg != null && PARAM_INDENTED_RE.containsMatchIn(line)) {
             currentText.add(line)

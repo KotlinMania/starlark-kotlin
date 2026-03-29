@@ -263,8 +263,9 @@ class Ty private constructor(
      * E.g. the type `[bool]` would return `list`.
      * Types like [Ty.any] will return `null`.
      */
-    fun asName(): String? = when (val slice = alternatives.asSlice()) {
-        is List<TyBasic> -> if (slice.size == 1) slice[0].asName() else null
+    fun asName(): String? {
+        val slice = alternatives.asSlice()
+        return if (slice.size == 1) slice[0].asName() else null
     }
 
     /** This type is `TyStarlarkValue`. */

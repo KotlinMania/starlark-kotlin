@@ -59,14 +59,10 @@ sealed class InstrControl {
 // pub(crate) trait BcInstr: Sized + 'static
 interface BcInstr {
     /**
-     * Fixed instruction argument (which may encode additional arguments
-     * pushed or popped from the stack by the instruction implementation).
-     */
-    // type Arg: BcInstrArg;
-    val argType: BcInstrArg
-
-    /**
      * Execute the instruction.
+     *
+     * Rust's associated type `type Arg: BcInstrArg` has no runtime representation;
+     * in Kotlin the concrete arg is passed as [Any] and cast by each implementation.
      */
     // fn run<'v, 'b>(
     //     eval: &mut Evaluator<'v, '_, '_>,
@@ -78,6 +74,6 @@ interface BcInstr {
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: BcInstrArg,
+        arg: Any,
     ): InstrControl
 }
