@@ -38,7 +38,7 @@ Example:
 package io.github.kotlinmania.starlark_kotlin.values
 ```
 
-This enables accurate AST tracking and similarity scoring.
+This is how `ast_distance` tracks provenance — which Rust file each Kotlin file was translated from. Without this header, the file is invisible to all port analysis tooling. Never remove, move, or alter the header unless the file is being re-targeted to a different Rust source.
 
 ### 3. Quality Verification
 
@@ -81,9 +81,21 @@ See [AGENTS.md](./AGENTS.md) for complete porting patterns.
 
 ### This is a translation project.
 
-Every Kotlin file is a line-by-line port of a Rust source file in `tmp/starlark/src/`. The `// port-lint: source` header at the top of each `.kt` file tells you which Rust file it came from.
+Every Kotlin file is a line-by-line port of a Rust source file in `tmp/starlark/src/`. The `// port-lint: source` header at the top of each `.kt` file tells you which Rust file it came from. That header is how `ast_distance` tracks provenance — never remove or change it.
 
 **When you encounter a compile error, the fix is ALWAYS in the Rust source.** Do not invent solutions to make the Kotlin compiler happy. Do not make classes extend Exception because it "seems right." Do not change visibility, delete code, or add shims. Read the corresponding Rust file and translate faithfully.
+
+### No code stubs. Period.
+
+Do not write stub files, placeholder classes, empty implementations, or skeleton code. Every line of Kotlin must be a faithful translation of the corresponding Rust source. If you can't fully translate a file, don't create it at all — a missing file is better than a stub that will conflict with the real implementation later.
+
+This means:
+- **No `class Foo` with an empty body** when the Rust struct has fields and methods
+- **No `fun bar() = TODO()`** or `fun bar() { error("not implemented") }`
+- **No partial ports** that translate the class declaration but skip the methods
+- **No "placeholder until the evaluator is ready"** comments with commented-out code
+
+If a dependency doesn't exist yet, port that dependency first. If the dependency chain is too deep, pick a different file to work on.
 
 ### Use ast_distance for all analysis.
 
