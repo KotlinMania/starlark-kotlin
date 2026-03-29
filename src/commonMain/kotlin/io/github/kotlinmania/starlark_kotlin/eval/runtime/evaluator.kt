@@ -133,6 +133,10 @@ internal class EvaluationInstrumentation {
     // Whether we need to instrument evaluation or not, should be set if before_stmt or bc_profile are enabled.
     var enabled: Boolean = false
 
+    companion object {
+        fun new(): EvaluationInstrumentation = EvaluationInstrumentation()
+    }
+
     fun enableHeapOrFlameProfile() {
         heapOrFlameProfile = true
     }
