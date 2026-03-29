@@ -61,7 +61,7 @@ internal class OwnedHeap(
     /// Peak memory seen when a garbage collection takes place (may be lower than currently allocated)
     var peakAllocated: Int = 0,
     val arena: FastCell<Arena> = FastCell.default(Arena()),
-    val strInterner: StringValueInterner<Value> = StringValueInterner(),
+    val strInterner: StringValueInterner = StringValueInterner(),
     /// Memory I depend on.
     val refs: MutableSet<FrozenHeapRef> = mutableSetOf(),
     var banGc: Boolean = true,
@@ -97,16 +97,16 @@ class Heap internal constructor(
         }
     }
 
-    internal fun stringInterner(): StringValueInterner<Value> {
+    internal fun stringInterner(): StringValueInterner {
         // The lifetime of the interner is the lifetime of the heap.
         return owned.strInterner
     }
 
-    internal fun traceInterner(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
-        // In Rust, this traces the string interner's values. The Kotlin
-        // StringValueInterner uses placeholder Trace/Tracer types from its
-        // own file that don't match the real Tracer class. Since Kotlin's
-        // GC handles memory, string interning doesn't need explicit tracing.
+    internal fun traceInterner(tracer: Tracer) {
+        // In Rust, this traces the string interner's HashTable entries.
+        // Kotlin's GC handles memory management, so explicit tracing is a no-op,
+        // but we call through for structural parity.
+        owned.strInterner.trace(tracer)
     }
 
     fun referencedHeaps(): List<FrozenHeapRef> {

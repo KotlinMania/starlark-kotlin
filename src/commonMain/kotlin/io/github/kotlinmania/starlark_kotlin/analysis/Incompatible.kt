@@ -19,157 +19,53 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class IncompatSpan(val begin: Int = 0, val end: Int = 0)
-class IncompatCodeMap {
-    fun fileSpan(span: IncompatSpan): IncompatFileSpan = IncompatFileSpan()
-}
-class IncompatFileSpan {
-    override fun toString(): String = "<span>"
-}
-class IncompatSpanned<T>(val node: T, val span: IncompatSpan = IncompatSpan())
+// use std::collections::HashMap;
+// use std::collections::HashSet;
 
-sealed class IncompatStmt {
-    data class Return(val expr: IncompatAstExpr?) : IncompatStmt()
-    data class Expression(val expr: IncompatAstExpr) : IncompatStmt()
-    data class Statements(val stmts: List<IncompatAstStmt>) : IncompatStmt()
-    data class Def(val def: IncompatDefP) : IncompatStmt()
-    data class Assign(val assign: IncompatAssign) : IncompatStmt()
-    data class AssignModify(val lhs: IncompatAstAssignTarget, val op: IncompatBinOp, val rhs: IncompatAstExpr) : IncompatStmt()
-    data class Load(val load: IncompatLoadStmt) : IncompatStmt()
-    class Other : IncompatStmt()
-}
+// use maplit::hashmap;
+// use once_cell::sync::Lazy;
+// use starlark_syntax::syntax::ast::AssignTarget;
+// use starlark_syntax::syntax::ast::AstAssignIdent;
+// use starlark_syntax::syntax::ast::AstExpr;
+// use starlark_syntax::syntax::ast::AstStmt;
+// use starlark_syntax::syntax::ast::BinOp;
+// use starlark_syntax::syntax::ast::DefP;
+// use starlark_syntax::syntax::ast::Expr;
+// use starlark_syntax::syntax::ast::LoadArgP;
+// use starlark_syntax::syntax::ast::Stmt;
+// use starlark_syntax::syntax::module::AstModuleFields;
+// use thiserror::Error;
 
-class IncompatAssign(
-    val lhs: IncompatAstAssignTarget,
-    val rhs: IncompatAstExpr,
-)
+// use crate::analysis::EvalSeverity;
+// use crate::analysis::types::LintT;
+// use crate::analysis::types::LintWarning;
+// use crate::codemap::CodeMap;
+// use crate::codemap::FileSpan;
+// use crate::codemap::Span;
+// use crate::syntax::AstModule;
 
-sealed class IncompatAssignTarget {
-    data class Identifier(val name: IncompatSpanned<IncompatIdent>) : IncompatAssignTarget()
-    class Other : IncompatAssignTarget()
-}
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 
-class IncompatAstAssignTarget(val node: IncompatAssignTarget, val span: IncompatSpan = IncompatSpan()) {
-    fun visitLvalue(visitor: (IncompatAstAssignIdent) -> Unit) {
-        when (val t = node) {
-            is IncompatAssignTarget.Identifier -> visitor(IncompatAstAssignIdent(t.name.node.ident, t.name.span))
-            is IncompatAssignTarget.Other -> {}
-        }
-    }
-}
-
-class IncompatDefP(
-    val name: IncompatAstAssignIdent,
-    val body: IncompatAstStmt,
-)
-
-class IncompatLoadStmt(
-    val args: List<IncompatLoadArgP>,
-)
-
-class IncompatLoadArgP(
-    val local: IncompatAstAssignIdent,
-    val remote: String,
-)
-
-class IncompatAstAssignIdent(val ident: String, val span: IncompatSpan = IncompatSpan())
-
-sealed class IncompatExpr {
-    data class Call(val func: IncompatAstExpr, val args: IncompatCallArgs) : IncompatExpr()
-    data class Identifier(val name: IncompatSpanned<IncompatIdent>) : IncompatExpr()
-    data class Op(val lhs: IncompatAstExpr, val op: IncompatBinOp, val rhs: IncompatAstExpr) : IncompatExpr()
-    class Other : IncompatExpr()
-}
-
-class IncompatCallArgs(val args: List<IncompatAstExpr>)
-
-class IncompatIdent(val ident: String) {
-    override fun toString(): String = ident
-}
-
-enum class IncompatBinOp {
-    Equal,
-    NotEqual,
-    Add,
-    Other,
-}
-
-typealias IncompatAstStmt = IncompatSpanned<IncompatStmt>
-typealias IncompatAstExpr = IncompatSpanned<IncompatExpr>
-
-class IncompatEvalSeverity {
-    companion object {
-        val Warning = IncompatEvalSeverity()
-    }
-}
-
-class IncompatLintT<T>(
-    val location: IncompatFileSpan,
-    val problem: T,
-) {
-    companion object {
-        fun <T> new(codemap: IncompatCodeMap, span: IncompatSpan, problem: T): IncompatLintT<T> {
-            return IncompatLintT(codemap.fileSpan(span), problem)
-        }
-    }
-}
-
-interface IncompatLintWarning {
-    fun severity(): IncompatEvalSeverity
-    fun shortName(): String
-}
-
-class IncompatAstModule(
-    internal val codemap: IncompatCodeMap,
-    internal val statement: IncompatAstStmt,
-) {
-    fun codemap(): IncompatCodeMap = codemap
-    fun statement(): IncompatAstStmt = statement
-}
-
-// visit_stmt helper
-private fun IncompatAstStmt.visitStmt(visitor: (IncompatAstStmt) -> Unit) {
-    when (val s = this.node) {
-        is IncompatStmt.Statements -> s.stmts.forEach(visitor)
-        is IncompatStmt.Def -> visitor(s.def.body)
-        else -> {}
-    }
-}
-
-// visit_expr helper: visit immediate child expressions in a statement
-private fun IncompatAstStmt.visitExpr(visitor: (IncompatAstExpr) -> Unit) {
-    when (val s = this.node) {
-        is IncompatStmt.Expression -> visitor(s.expr)
-        is IncompatStmt.Statements -> s.stmts.forEach { it.visitExpr(visitor) }
-        is IncompatStmt.Def -> s.def.body.visitExpr(visitor)
-        is IncompatStmt.Assign -> {
-            visitor(s.assign.rhs)
-        }
-        is IncompatStmt.AssignModify -> {
-            visitor(s.rhs)
-        }
-        else -> {}
-    }
-}
-
-// visit_expr helper for expressions
-private fun IncompatAstExpr.visitExpr(visitor: (IncompatAstExpr) -> Unit) {
-    when (val e = this.node) {
-        is IncompatExpr.Call -> {
-            visitor(e.func)
-            e.args.args.forEach(visitor)
-        }
-        is IncompatExpr.Op -> {
-            visitor(e.lhs)
-            visitor(e.rhs)
-        }
-        else -> {}
-    }
-}
-
-sealed class Incompatibility : IncompatLintWarning {
+// #[derive(Error, Debug)]
+// pub(crate) enum Incompatibility {
+//     #[error("Type check `{0}` should be written `{1}`")]
+//     IncompatibleTypeCheck(String, String),
+//     #[error("Duplicate top-level assignment of `{0}`, first defined at {1}")]
+//     DuplicateTopLevelAssign(String, FileSpan),
+// }
+sealed class Incompatibility : LintWarning {
     /// Type check should be written differently.
     data class IncompatibleTypeCheck(
         val original: String,
@@ -182,16 +78,23 @@ sealed class Incompatibility : IncompatLintWarning {
     /// Duplicate top-level assignment.
     data class DuplicateTopLevelAssign(
         val name: String,
-        val firstDefined: IncompatFileSpan,
+        val firstDefined: FileSpan,
     ) : Incompatibility() {
         override fun toString(): String =
             "Duplicate top-level assignment of `$name`, first defined at $firstDefined"
     }
 
-    override fun severity(): IncompatEvalSeverity {
-        return IncompatEvalSeverity.Warning
+    // impl LintWarning for Incompatibility {
+    //     fn severity(&self) -> EvalSeverity {
+    //         EvalSeverity::Warning
+    //     }
+    override fun severity(): EvalSeverity {
+        return EvalSeverity.Warning
     }
 
+    //     fn short_name(&self) -> &'static str {
+    //         match self { ... }
+    //     }
     override fun shortName(): String {
         return when (this) {
             is IncompatibleTypeCheck -> "incompatible-type-check"
@@ -200,6 +103,7 @@ sealed class Incompatibility : IncompatLintWarning {
     }
 }
 
+// static TYPES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| { ... });
 private val TYPES: Map<String, String> = mapOf(
     "bool" to "True",
     "tuple" to "()",
@@ -208,22 +112,83 @@ private val TYPES: Map<String, String> = mapOf(
     "int" to "0",
 )
 
-private fun lookupType(x: IncompatAstExpr, types: Map<String, String>): String? {
+// --- Visitor helpers ---
+// Rust has visit_stmt / visit_expr / visit_lvalue as methods on the AST types
+// in starlark_syntax. In Kotlin, these are not on the types, so we implement
+// them as local extension functions.
+
+// visit_stmt helper: visit immediate child statements
+private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val s = this.node) {
+        is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach(visitor)
+        is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
+        else -> {}
+    }
+}
+
+// visit_expr helper: visit immediate child expressions in a statement
+private fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val s = this.node) {
+        is StmtP.Expression<*> -> visitor(s.expr as AstExpr)
+        is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach { it.visitExpr(visitor) }
+        is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitExpr(visitor)
+        is StmtP.Assign<*> -> {
+            visitor(s.assign.rhs as AstExpr)
+        }
+        is StmtP.AssignModify<*> -> {
+            visitor(s.rhs as AstExpr)
+        }
+        else -> {}
+    }
+}
+
+// visit_expr helper for expressions: visit immediate child expressions
+private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val e = this.node) {
+        is ExprP.Call<*> -> {
+            visitor(e.expr as AstExpr)
+            for (arg in e.args.args) {
+                visitor(arg.node.expr() as AstExpr)
+            }
+        }
+        is ExprP.Op<*> -> {
+            visitor(e.lhs as AstExpr)
+            visitor(e.rhs as AstExpr)
+        }
+        else -> {}
+    }
+}
+
+// visit_lvalue helper: visit all identifier lvalues in an assignment target
+private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    when (val t = this.node) {
+        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
+        is AssignTargetP.Tuple<*> -> (t.elements as List<AstAssignTarget>).forEach { it.visitLvalue(visitor) }
+        else -> {} // Index, Dot don't contain identifiers
+    }
+}
+
+// fn lookup_type<'a>(x: &AstExpr, types: &HashMap<&str, &'a str>) -> Option<&'a str>
+private fun lookupType(x: AstExpr, types: Map<String, String>): String? {
     return when (val e = x.node) {
-        is IncompatExpr.Identifier -> types[e.name.node.ident]
+        is ExprP.Identifier<*, *> -> types[(e.ident as AstIdent).node.ident]
         else -> null
     }
 }
 
 // Return true if this expression matches `type($x)`
-private fun isTypeCall(x: IncompatAstExpr): Boolean {
+// fn is_type_call(x: &AstExpr) -> bool
+private fun isTypeCall(x: AstExpr): Boolean {
     return when (val e = x.node) {
-        is IncompatExpr.Call -> {
+        is ExprP.Call<*> -> {
             if (e.args.args.size == 1) {
-                when (val func = e.func.node) {
-                    is IncompatExpr.Identifier -> func.name.node.ident == "type"
-                    else -> false
-                }
+                @Suppress("UNCHECKED_CAST")
+                val func = (e.expr as AstExpr).node
+                func is ExprP.Identifier<*, *> && (func.ident as AstIdent).node.ident == "type"
             } else {
                 false
             }
@@ -232,25 +197,27 @@ private fun isTypeCall(x: IncompatAstExpr): Boolean {
     }
 }
 
+// fn match_bad_type_equality(...)
+@Suppress("UNCHECKED_CAST")
 private fun matchBadTypeEquality(
-    codemap: IncompatCodeMap,
-    x: IncompatAstExpr,
+    codemap: CodeMap,
+    x: AstExpr,
     types: Map<String, String>,
-    res: MutableList<IncompatLintT<Incompatibility>>,
+    res: MutableList<LintT<Incompatibility>>,
 ) {
     // If we see type(x) == y (or negated), where y is in our types table, suggest a replacement
     when (val e = x.node) {
-        is IncompatExpr.Op -> {
-            if ((e.op == IncompatBinOp.Equal || e.op == IncompatBinOp.NotEqual) && isTypeCall(e.lhs)) {
-                val replacement = lookupType(e.rhs, types)
+        is ExprP.Op<*> -> {
+            if ((e.op == BinOp.Equal || e.op == BinOp.NotEqual) && isTypeCall(e.lhs as AstExpr)) {
+                val replacement = lookupType(e.rhs as AstExpr, types)
                 if (replacement != null) {
                     res.add(
-                        IncompatLintT.new(
+                        LintT.new(
                             codemap,
                             x.span,
                             Incompatibility.IncompatibleTypeCheck(
                                 x.toString(),
-                                "${e.lhs.node}${e.op}type($replacement)",
+                                "${(e.lhs as AstExpr).node}${e.op}type($replacement)",
                             ),
                         )
                     )
@@ -261,13 +228,14 @@ private fun matchBadTypeEquality(
     }
 }
 
-private fun badTypeEquality(module: IncompatAstModule, res: MutableList<IncompatLintT<Incompatibility>>) {
+// fn bad_type_equality(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
+private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
     fun check(
-        codemap: IncompatCodeMap,
-        x: IncompatAstExpr,
+        codemap: CodeMap,
+        x: AstExpr,
         types: Map<String, String>,
-        res: MutableList<IncompatLintT<Incompatibility>>,
+        res: MutableList<LintT<Incompatibility>>,
     ) {
         matchBadTypeEquality(codemap, x, types, res)
         x.visitExpr { check(codemap, it, types, res) }
@@ -278,66 +246,70 @@ private fun badTypeEquality(module: IncompatAstModule, res: MutableList<Incompat
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-private fun duplicateTopLevelAssignment(module: IncompatAstModule, res: MutableList<IncompatLintT<Incompatibility>>) {
-    val defined = HashMap<String, Pair<IncompatSpan, Boolean>>() // (name, (location, is_load))
+// fn duplicate_top_level_assignment(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
+@Suppress("UNCHECKED_CAST")
+private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+    val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, is_load))
     val exported = HashSet<String>() // name's already exported by is_load
 
     fun ident(
-        x: IncompatAstAssignIdent,
+        x: AstAssignIdent,
         isLoad: Boolean,
-        codemap: IncompatCodeMap,
-        defined: HashMap<String, Pair<IncompatSpan, Boolean>>,
-        res: MutableList<IncompatLintT<Incompatibility>>,
+        codemap: CodeMap,
+        defined: HashMap<String, Pair<Span, Boolean>>,
+        res: MutableList<LintT<Incompatibility>>,
     ) {
-        val old = defined[x.ident]
+        val old = defined[x.node.ident]
         if (old != null) {
             res.add(
-                IncompatLintT.new(
+                LintT.new(
                     codemap,
                     x.span,
-                    Incompatibility.DuplicateTopLevelAssign(x.ident, codemap.fileSpan(old.first)),
+                    Incompatibility.DuplicateTopLevelAssign(x.node.ident, codemap.fileSpan(old.first)),
                 )
             )
         } else {
-            defined[x.ident] = Pair(x.span, isLoad)
+            defined[x.node.ident] = Pair(x.span, isLoad)
         }
     }
 
     fun stmt(
-        x: IncompatAstStmt,
-        codemap: IncompatCodeMap,
-        defined: HashMap<String, Pair<IncompatSpan, Boolean>>,
+        x: AstStmt,
+        codemap: CodeMap,
+        defined: HashMap<String, Pair<Span, Boolean>>,
         exported: HashSet<String>,
-        res: MutableList<IncompatLintT<Incompatibility>>,
+        res: MutableList<LintT<Incompatibility>>,
     ) {
         when (val s = x.node) {
-            is IncompatStmt.Assign -> {
-                val lhs = s.assign.lhs
-                val rhs = s.assign.rhs
+            is StmtP.Assign<*> -> {
+                val lhsNode = (s.assign.lhs as AstAssignTarget).node
+                val rhsNode = (s.assign.rhs as AstExpr).node
                 when {
-                    lhs.node is IncompatAssignTarget.Identifier
-                        && rhs.node is IncompatExpr.Identifier
-                        && (lhs.node as IncompatAssignTarget.Identifier).name.node.ident ==
-                            (rhs.node as IncompatExpr.Identifier).name.node.ident
-                        && defined[(lhs.node as IncompatAssignTarget.Identifier).name.node.ident]?.second == true
-                        && !exported.contains((lhs.node as IncompatAssignTarget.Identifier).name.node.ident) -> {
+                    lhsNode is AssignTargetP.Identifier<*, *>
+                        && rhsNode is ExprP.Identifier<*, *>
+                        && (lhsNode.ident as AstAssignIdent).node.ident ==
+                            (rhsNode.ident as AstIdent).node.ident
+                        && defined[(lhsNode.ident as AstAssignIdent).node.ident]?.second == true
+                        && !exported.contains((lhsNode.ident as AstAssignIdent).node.ident) -> {
                         // Normally this would be an error, but if we load()'d it,
                         // this is how we'd reexport through Starlark.
                         // But only allow one export
-                        exported.add((lhs.node as IncompatAssignTarget.Identifier).name.node.ident)
+                        exported.add((lhsNode.ident as AstAssignIdent).node.ident)
                     }
-                    else -> lhs.visitLvalue { ident(it, false, codemap, defined, res) }
+                    else -> (s.assign.lhs as AstAssignTarget).visitLvalue { ident(it, false, codemap, defined, res) }
                 }
             }
-            is IncompatStmt.AssignModify -> {
-                s.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
+            is StmtP.AssignModify<*> -> {
+                (s.lhs as AstAssignTarget).visitLvalue { ident(it, false, codemap, defined, res) }
             }
-            is IncompatStmt.Def -> {
-                ident(s.def.name, false, codemap, defined, res)
+            is StmtP.Def<*, *> -> {
+                // Stmt::Def(DefP { name, .. }) => ident(name, false, codemap, defined, res),
+                ident(s.def.name as AstAssignIdent, false, codemap, defined, res)
             }
-            is IncompatStmt.Load -> {
-                for (arg in s.load.args) {
-                    ident(arg.local, true, codemap, defined, res)
+            is StmtP.Load<*, *> -> {
+                // for LoadArgP { local, .. } in &load.args { ident(local, true, ...) }
+                for (arg in s.loadStmt.args) {
+                    ident(arg.local as AstAssignIdent, true, codemap, defined, res)
                 }
             }
             // Visit statements, but don't descend under def - only top-level statements are interesting
@@ -355,8 +327,9 @@ private fun duplicateTopLevelAssignment(module: IncompatAstModule, res: MutableL
 }
 
 /// Lint an AST module for incompatibilities.
-fun incompatibleLint(module: IncompatAstModule): List<IncompatLintT<Incompatibility>> {
-    val res = mutableListOf<IncompatLintT<Incompatibility>>()
+// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Incompatibility>>
+internal fun incompatibleLint(module: AstModule): List<LintT<Incompatibility>> {
+    val res = mutableListOf<LintT<Incompatibility>>()
     badTypeEquality(module, res)
     duplicateTopLevelAssignment(module, res)
     return res

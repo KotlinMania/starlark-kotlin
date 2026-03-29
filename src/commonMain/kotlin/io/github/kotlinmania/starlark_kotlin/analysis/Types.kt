@@ -111,8 +111,8 @@ class EvalMessage(
     override fun toString(): String {
         return buildString {
             append("$severity: $path:")
-            if (Span != null) {
-                append("$Span")
+            if (span != null) {
+                append("$span")
             }
             append(" $description")
         }

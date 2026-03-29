@@ -19,220 +19,167 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-/**
- * Implementations of alloc and unpack traits for string.
- *
- * This file provides extension functions for String and Char types to support
- * allocation on heaps and unpacking from values in the Starlark runtime.
- *
- * Note: The actual type definitions (FrozenHeap, Heap, Value, etc.) are declared
- * elsewhere and will be linked when the core value system is fully ported.
- *
- * Rust source implementations:
- * - impl AllocFrozenValue for String
- * - impl AllocFrozenStringValue for String
- * - impl<A_> AllocFrozenValue for &'a str
- * - impl<A_> AllocFrozenStringValue for &'a str
- * - impl AllocValue for String
- * - impl AllocStringValue for String
- * - impl StarlarkTypeRepr for char
- * - impl AllocValue for char
- * - impl AllocStringValue for char
- * - impl StarlarkTypeRepr for &'_ String
- * - impl AllocValue for &'_ String
- * - impl AllocStringValue for &'_ String
- * - impl AllocValue for &'_ str
- * - impl AllocStringValue for &'_ str
- * - impl UnpackValue for &'v str
- * - impl UnpackValue for String
- *
- * Kotlin adaptations:
- * - String is already a reference type in Kotlin, so we don't need separate
- *   implementations for borrowed (&str) vs owned (String) strings
- * - Extension functions replace trait implementations
- * - Generic type parameter V represents the lifetime parameter 'v from Rust
- */
+//! Implementations of alloc and unpack traits for string.
 
-// Placeholder type declarations for types not yet fully ported
-// These match the interfaces from the Rust traits but are declared as expect
-// to be provided by platform-specific implementations later
+// use std::convert::Infallible;
 
-// Note: Many of these types are already declared in other files in this package
-// (StrType.kt, Methods.kt, etc.) but with different signatures.
-// We avoid redeclaring them here to prevent conflicts.
+// use crate::typing::Ty;
+// use crate::values::AllocFrozenValue;
+// use crate::values::AllocValue;
+// use crate::values::FrozenHeap;
+// use crate::values::FrozenStringValue;
+// use crate::values::FrozenValue;
+// use crate::values::Heap;
+// use crate::values::StringValue;
+// use crate::values::UnpackValue;
+// use crate::values::Value;
+// use crate::values::alloc_value::AllocFrozenStringValue;
+// use crate::values::alloc_value::AllocStringValue;
+// use crate::values::type_repr::StarlarkTypeRepr;
 
-// The following extension functions implement the allocation and unpacking
-// functionality without requiring the full type definitions.
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StringTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
-// impl AllocFrozenValue for String
-// impl AllocFrozenStringValue for String
-
-/**
- * Allocates a [String] on a frozen heap.
- *
- * Corresponds to Rust:
- * ```rust
- * impl AllocFrozenValue for String {
- *     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
- *         self.alloc_frozen_string_value(heap).to_frozen_value()
- *     }
- * }
- * ```
- */
-// Note: These functions are commented out to avoid conflicts with existing expect declarations
-// They will be uncommented when the core types are properly defined
-/*
+// impl AllocFrozenValue for String {
+//     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
+//         self.alloc_frozen_string_value(heap).to_frozen_value()
+//     }
+// }
 fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue {
     return this.allocFrozenStringValue(heap).toFrozenValue()
 }
 
+// impl AllocFrozenStringValue for String {
+//     fn alloc_frozen_string_value(self, heap: &FrozenHeap) -> FrozenStringValue {
+//         heap.alloc_str(self.as_str())
+//     }
+// }
 fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue {
-    return heap.allocStr(this)
+    return heap.allocStrIntern(this)
 }
-*/
 
-// impl<A_> AllocFrozenValue for &'a str
-// impl<A_> AllocFrozenStringValue for &'a str
-// Kotlin note: String is already a reference type, covered by the above implementations
+// impl<'a> AllocFrozenValue for &'a str {
+//     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
+//         self.alloc_frozen_string_value(heap).to_frozen_value()
+//     }
+// }
+// impl<'a> AllocFrozenStringValue for &'a str {
+//     fn alloc_frozen_string_value(self, heap: &FrozenHeap) -> FrozenStringValue {
+//         heap.alloc_str(self)
+//     }
+// }
+// Kotlin note: String is already a reference type, so &str and String share the same
+// extension functions above.
 
-// impl AllocValue for String
-// impl AllocStringValue for String
-
-/**
- * Allocates a [String] on a heap.
- *
- * Corresponds to Rust:
- * ```rust
- * impl AllocValue for String {
- *     fn alloc_value(self, heap: Heap) -> Value {
- *         self.alloc_string_value(heap).to_value()
- *     }
- * }
- * ```
- */
-// Note: These functions are commented out to avoid conflicts with existing expect declarations
-// They will be uncommented when the core types are properly defined
-/*
-fun <V> String.allocValue(heap: Heap<V>): Value<V> {
+// impl<'v> AllocValue<'v> for String {
+//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
+//         self.alloc_string_value(heap).to_value()
+//     }
+// }
+fun String.allocValue(heap: Heap): Value {
     return this.allocStringValue(heap).toValue()
 }
 
-fun <V> String.allocStringValue(heap: Heap<V>): StringValue<V> {
-    return heap.allocStr(this)
+// impl<'v> AllocStringValue<'v> for String {
+//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
+//         heap.alloc_str(self.as_str())
+//     }
+// }
+fun String.allocStringValue(heap: Heap): StringValue {
+    return StringValue.newUnchecked(heap.allocStr(this))
 }
-*/
 
-// impl StarlarkTypeRepr for char
+// impl StarlarkTypeRepr for char {
+//     type Canonical = <String as StarlarkTypeRepr>::Canonical;
+//
+//     fn starlark_type_repr() -> Ty {
+//         String::starlark_type_repr()
+//     }
+// }
+// Kotlin note: Char uses the same type representation as String in Starlark because
+// individual characters are represented as single-character strings.
+// See StringTypeRepr in TypeRepr.kt.
+object CharTypeRepr : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty = StringTypeRepr.starlarkTypeRepr()
+}
 
-/**
- * Type representation for [Char] in Starlark.
- *
- * Corresponds to Rust:
- * ```rust
- * impl StarlarkTypeRepr for char {
- *     type Canonical = <String as StarlarkTypeRepr>::Canonical;
- *
- *     fn starlark_type_repr() -> Ty {
- *         String::starlark_type_repr()
- *     }
- * }
- * ```
- *
- * Note: Char uses the same type representation as String in Starlark because
- * individual characters are represented as single-character strings.
- */
-// Kotlin note: Associated types will be handled differently when StarlarkTypeRepr is fully ported
-
-// impl AllocValue for char
-// impl AllocStringValue for char
-
-/**
- * Allocates a [Char] on a heap as a single-character string.
- *
- * Corresponds to Rust:
- * ```rust
- * impl AllocValue for char {
- *     fn alloc_value(self, heap: Heap) -> Value {
- *         self.alloc_string_value(heap).to_value()
- *     }
- * }
- * ```
- */
-// Note: These functions are commented out to avoid conflicts with existing expect declarations
-// They will be uncommented when the core types are properly defined
-/*
-fun <V> Char.allocValue(heap: Heap<V>): Value<V> {
+// impl<'v> AllocValue<'v> for char {
+//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
+//         self.alloc_string_value(heap).to_value()
+//     }
+// }
+fun Char.allocValue(heap: Heap): Value {
     return this.allocStringValue(heap).toValue()
 }
 
-fun <V> Char.allocStringValue(heap: Heap<V>): StringValue<V> {
-    return heap.allocChar(this)
+// impl<'v> AllocStringValue<'v> for char {
+//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
+//         heap.alloc_char(self)
+//     }
+// }
+fun Char.allocStringValue(heap: Heap): StringValue {
+    // Rust has heap.alloc_char(self). Kotlin Heap does not have allocChar,
+    // so we convert to a single-character string and allocate that.
+    return this.toString().allocStringValue(heap)
 }
-*/
 
-// impl StarlarkTypeRepr for &'_ String
-// impl AllocValue for &'_ String
-// impl AllocStringValue for &'_ String
-// impl AllocValue for &'_ str
-// impl AllocStringValue for &'_ str
+// impl StarlarkTypeRepr for &'_ String {
+//     type Canonical = <String as StarlarkTypeRepr>::Canonical;
+//
+//     fn starlark_type_repr() -> Ty {
+//         String::starlark_type_repr()
+//     }
+// }
+// impl<'v> AllocValue<'v> for &'_ String {
+//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
+//         self.alloc_string_value(heap).to_value()
+//     }
+// }
+// impl<'v> AllocStringValue<'v> for &'_ String {
+//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
+//         heap.alloc_str(self.as_str())
+//     }
+// }
+// impl<'v> AllocValue<'v> for &'_ str {
+//     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
+//         self.alloc_string_value(heap).to_value()
+//     }
+// }
+// impl<'v> AllocStringValue<'v> for &'_ str {
+//     fn alloc_string_value(self, heap: Heap<'v>) -> StringValue<'v> {
+//         heap.alloc_str(self)
+//     }
+// }
 // Kotlin note: String is already a reference type in Kotlin, so all string reference
-// implementations are covered by the String extension functions above
+// implementations (&str, &String) are covered by the String extension functions above.
 
-// impl UnpackValue for &'v str
-
-/**
- * Unpacks a borrowed string from a [Value].
- *
- * Corresponds to Rust:
- * ```rust
- * impl UnpackValue for &'v str {
- *     type Error = Infallible;
- *
- *     fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error> {
- *         Ok(value.unpack_str())
- *     }
- * }
- * ```
- *
- * Returns the string if the value is a string, null otherwise.
- * Error type is Nothing (Infallible in Rust), meaning this operation never fails.
- */
-// Note: This function is commented out to avoid conflicts with existing expect declarations
-// It will be uncommented when the core types are properly defined
-/*
-fun <V> unpackValueImplBorrowedString(value: Value<V>): Result<String?> {
+// impl<'v> UnpackValue<'v> for &'v str {
+//     type Error = Infallible;
+//
+//     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
+//         Ok(value.unpack_str())
+//     }
+// }
+fun unpackValueImplBorrowedString(value: Value): Result<String?> {
     return Result.success(value.unpackStr())
 }
-*/
 
-// impl UnpackValue for String
-
-/**
- * Unpacks an owned string from a [Value].
- *
- * Corresponds to Rust:
- * ```rust
- * impl UnpackValue for String {
- *     type Error = Infallible;
- *
- *     fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error> {
- *         Ok(value.unpack_str().map(ToOwned::to_owned))
- *     }
- * }
- * ```
- *
- * Returns a new owned String if the value is a string, null otherwise.
- * Error type is Nothing (Infallible in Rust), meaning this operation never fails.
- *
- * Kotlin note: Since Kotlin strings are immutable and already behave like references,
- * we don't need to explicitly clone/own them. The `.map(ToOwned::to_owned)` operation
- * from Rust is effectively a no-op in Kotlin, but the semantic intent is preserved
- * (converting from borrowed to owned).
- */
-// Note: This function is commented out to avoid conflicts with existing expect declarations
-// It will be uncommented when the core types are properly defined
-/*
-fun <V> unpackValueImplOwnedString(value: Value<V>): Result<String?> {
-    return Result.success(value.unpackStr()?.let { it })
+// impl<'v> UnpackValue<'v> for String {
+//     type Error = Infallible;
+//
+//     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
+//         Ok(value.unpack_str().map(ToOwned::to_owned))
+//     }
+// }
+fun unpackValueImplOwnedString(value: Value): Result<String?> {
+    // In Kotlin, strings are immutable reference types, so there's no
+    // borrow-vs-owned distinction. The .map(ToOwned::to_owned) is a no-op.
+    return Result.success(value.unpackStr())
 }
-*/

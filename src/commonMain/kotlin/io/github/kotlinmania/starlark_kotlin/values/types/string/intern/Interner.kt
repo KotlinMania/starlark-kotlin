@@ -19,42 +19,54 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
  * limitations under the License.
  */
 
-/**
- * Generic interner for starlark strings.
- */
+// Generic interner for starlark strings.
 
-// Import statements - these types should be defined in their respective modules
-// For now, using placeholder imports assuming standard structure
-// import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+// use hashbrown::HashTable;
+// use crate as starlark;
+// use crate::collections::Hashed;
+// use crate::values::FrozenStringValue;
+// use crate::values::StringValue;
+// use crate::values::Trace;
+
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-// import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-// import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
 /**
  * [FrozenStringValue] interner.
+ *
+ * Caches frozen string allocations so that identical strings share the same value.
  */
+// #[derive(Default)]
+// pub(crate) struct FrozenStringValueInterner {
+//     map: HashTable<FrozenStringValue>,
+// }
 internal class FrozenStringValueInterner {
-    private val map: HashTable<FrozenStringValue> = HashTable()
+    // HashTable<FrozenStringValue> in Rust.
+    // In Kotlin, we use a HashMap keyed by hash+content for O(1) lookup.
+    private val map: HashMap<ULong, MutableList<FrozenStringValue>> = HashMap()
 
+    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> FrozenStringValue) -> FrozenStringValue
     fun intern(
         s: Hashed<String>,
-        alloc: () -> FrozenStringValue
+        alloc: () -> FrozenStringValue,
     ): FrozenStringValue {
-        // Find existing entry with matching hash and content
-        val found = map.find(s.hash().promote()) { x ->
-            s == x.getHashedStr()
+        val hash = s.hash().promote()
+        val bucket = map[hash]
+        if (bucket != null) {
+            for (existing in bucket) {
+                if (s == existing.getHashedStr()) {
+                    return existing
+                }
+            }
         }
 
-        return if (found != null) {
-            found
-        } else {
-            // Not found, allocate new and insert
-            val frozenString = alloc()
-            map.insertUnique(s.hash().promote(), frozenString) { x ->
-                x.getHash().promote()
-            }
-            frozenString
-        }
+        // Not found, allocate new and insert
+        val frozenString = alloc()
+        map.getOrPut(hash) { mutableListOf() }.add(frozenString)
+        return frozenString
     }
 
     companion object {
@@ -63,118 +75,50 @@ internal class FrozenStringValueInterner {
 }
 
 /**
- * [StringValue] interner with lifetime parameter.
+ * [StringValue] interner.
+ *
+ * Caches string allocations so that identical strings share the same value.
  */
-internal class StringValueInterner<V> : Trace<V> {
-    private val map: HashTable<StringValue<V>> = HashTable()
+// #[derive(Default, Trace)]
+// pub(crate) struct StringValueInterner<'v> {
+//     map: HashTable<StringValue<'v>>,
+// }
+internal class StringValueInterner : Trace {
+    // HashTable<StringValue> in Rust.
+    // In Kotlin, we use a HashMap keyed by hash for O(1) lookup.
+    private val map: HashMap<ULong, MutableList<StringValue>> = HashMap()
 
+    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> StringValue<'v>) -> StringValue<'v>
     fun intern(
         s: Hashed<String>,
-        alloc: () -> StringValue<V>
-    ): StringValue<V> {
-        // Find existing entry with matching hash and content
-        val found = map.find(s.hash().promote()) { x ->
-            s == x.getHashedStr()
+        alloc: () -> StringValue,
+    ): StringValue {
+        val hash = s.hash().promote()
+        val bucket = map[hash]
+        if (bucket != null) {
+            for (existing in bucket) {
+                if (s == existing.getHashedStr()) {
+                    return existing
+                }
+            }
         }
 
-        return if (found != null) {
-            found
-        } else {
-            // Not found, allocate new and insert
-            val stringValue = alloc()
-            map.insertUnique(s.hash().promote(), stringValue) { x ->
-                x.getHash().promote()
-            }
-            stringValue
-        }
+        // Not found, allocate new and insert
+        val stringValue = alloc()
+        map.getOrPut(hash) { mutableListOf() }.add(stringValue)
+        return stringValue
     }
 
-    override fun trace(tracer: Tracer<V>) {
-        // Trace all values in the hash table for garbage collection
-        map.forEach { value ->
-            value.trace(tracer)
-        }
+    // #[derive(Trace)] generates trace for the HashTable field.
+    // In Rust, this walks the HashTable and traces each StringValue's inner Value.
+    // In Kotlin, the GC handles reference tracking, so this is effectively a no-op.
+    // We keep the method for structural parity with the Rust Trace derive.
+    override fun trace(tracer: Tracer) {
+        // Kotlin's GC manages StringValue references automatically.
+        // No manual pointer adjustment needed.
     }
 
     companion object {
-        fun <V> default(): StringValueInterner<V> = StringValueInterner()
+        fun default(): StringValueInterner = StringValueInterner()
     }
 }
-
-// Placeholder type aliases and interfaces until the actual types are ported
-// These should be removed once the proper types are available from their modules
-
-/**
- * Placeholder for HashTable from hashbrown crate.
- * A hash table that stores values with hash-based lookup.
- */
-internal class HashTable<T> {
-    private val storage: MutableList<Entry<T>> = mutableListOf()
-
-    /**
-     * Find an entry with the given hash and matching predicate.
-     */
-    fun find(hash: ULong, predicate: (T) -> Boolean): T? {
-        return storage.firstOrNull { it.hash == hash && predicate(it.value) }?.value
-    }
-
-    /**
-     * Insert a value with unique hash.
-     * The hasher function extracts the hash from the value for storage.
-     */
-    fun insertUnique(hash: ULong, value: T, hasher: (T) -> ULong) {
-        storage.add(Entry(hasher(value), value))
-    }
-
-    /**
-     * Iterate over all values.
-     */
-    fun forEach(action: (T) -> Unit) {
-        storage.forEach { action(it.value) }
-    }
-
-    private data class Entry<T>(val hash: ULong, val value: T)
-}
-
-/**
- * Placeholder for Hashed<T> from collections module.
- */
-internal interface Hashed<T> {
-    fun hash(): StarlarkHashValue
-    fun value(): T
-}
-
-/**
- * Placeholder for StarlarkHashValue.
- */
-internal interface StarlarkHashValue {
-    fun promote(): ULong
-}
-
-
-/**
- * Placeholder for StringValue with lifetime.
- */
-internal interface StringValue<V> : Traceable<V> {
-    fun getHashedStr(): Hashed<String>
-    fun getHash(): StarlarkHashValue
-}
-
-/**
- * Placeholder for Trace trait.
- */
-internal interface Trace<V> {
-    fun trace(tracer: Tracer<V>)
-}
-
-/**
- * Placeholder for Traceable marker.
- */
-internal interface Traceable<V> {
-    fun trace(tracer: Tracer<V>)
-}
-
-/**
- * Placeholder for Tracer.
- */
-internal interface Tracer<V>
