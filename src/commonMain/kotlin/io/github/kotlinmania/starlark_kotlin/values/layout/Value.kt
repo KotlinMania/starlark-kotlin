@@ -43,7 +43,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
@@ -94,10 +93,14 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStruct
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValueLike
+import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.none.VALUE_NONE
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.VALUE_FALSE_TRUE
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
 // VALUE_EMPTY_STRING is in the same package (values.layout) via StaticString.kt
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
@@ -309,8 +312,15 @@ class Value internal constructor(
      */
     // pub(crate) fn unpack_num(self) -> Option<NumRef<'v>>
     internal fun unpackNum(): NumRef? {
-        // Delegate to NumRef which handles both int and float unpacking.
-        return NumRef.unpackValueImpl(this)
+        val int = StarlarkIntRef.unpack(this)
+        if (int != null) {
+            return NumRef.Int(int)
+        }
+        val float = downcastRef<StarlarkFloat>()
+        if (float != null) {
+            return NumRef.Float(float)
+        }
+        return null
     }
 
     /**
@@ -433,13 +443,13 @@ class Value internal constructor(
      */
     // pub fn unpack_str_err(self) -> crate::Result<&'v str>
     fun unpackStrErr(): Result<String> {
-        val str = unpackStr()
-        return if (str != null) {
-            Result.success(str)
+        val s = unpackStr()
+        return if (s != null) {
+            Result.success(s)
         } else {
             Result.failure(
                 IllegalArgumentException(
-                    "Expected `string`, but got `${toStringForTypeError()}`"
+                    "Expected value of type `string` but got `${toStringForTypeError()}`"
                 )
             )
         }
@@ -908,7 +918,7 @@ class Value internal constructor(
                 } else if (rStr.isEmpty()) {
                     Result.success(this)
                 } else {
-                    Result.success(heap.allocStr(lStr + rStr))
+                    Result.success(heap.allocStrConcat(lStr, rStr).toValue())
                 }
             }
         }
