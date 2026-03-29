@@ -2,7 +2,25 @@
 package io.github.kotlinmania.starlark_kotlin
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.stdlib.breakpointGlobal
 import io.github.kotlinmania.starlark_kotlin.stdlib.callStackGlobal
+import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.registerGlobals
+import io.github.kotlinmania.starlark_kotlin.stdlib.internal.registerInternal
+import io.github.kotlinmania.starlark_kotlin.stdlib.partialStdlib
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerDebug
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerFilter
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerJson
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerMap
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerPprint
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerPrint
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerPrepr
+import io.github.kotlinmania.starlark_kotlin.stdlib.registerPstr
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.registerEnum
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.registerNamespace
+import io.github.kotlinmania.starlark_kotlin.values.types.record.registerRecord
+import io.github.kotlinmania.starlark_kotlin.values.types.set.registerSet
+import io.github.kotlinmania.starlark_kotlin.values.types.structs.registerStruct
+import io.github.kotlinmania.starlark_kotlin.values.typing.registerTyping
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -109,45 +127,22 @@ enum class LibraryExtension {
             RecordType -> registerRecord(builder)
             EnumType -> registerEnum(builder)
             SetType -> registerSet(builder)
-            Map -> extraMap(builder)
-            Filter -> extraFilter(builder)
-            Partial -> partialPartial(builder)
-            Debug -> extraDebug(builder)
-            Print -> extraPrint(builder)
-            Pprint -> extraPprint(builder)
-            Pstr -> extraPstr(builder)
-            Prepr -> extraPrepr(builder)
+            Map -> registerMap(builder)
+            Filter -> registerFilter(builder)
+            Partial -> partialStdlib(builder)
+            Debug -> registerDebug(builder)
+            Print -> registerPrint(builder)
+            Pprint -> registerPprint(builder)
+            Pstr -> registerPstr(builder)
+            Prepr -> registerPrepr(builder)
             Breakpoint -> breakpointGlobal(builder)
-            Json -> jsonJson(builder)
+            Json -> registerJson(builder)
             Typing -> registerTyping(builder)
             Internal -> registerInternal(builder)
             CallStack -> callStackGlobal(builder)
         }
     }
 }
-
-// GlobalsBuilder is imported from environment package
-
-// Placeholder registration functions — these will be replaced when submodules are ported
-private fun registerGlobals(builder: GlobalsBuilder) {}
-private fun registerStruct(builder: GlobalsBuilder) {}
-private fun registerNamespace(builder: GlobalsBuilder) {}
-private fun registerRecord(builder: GlobalsBuilder) {}
-private fun registerEnum(builder: GlobalsBuilder) {}
-private fun registerSet(builder: GlobalsBuilder) {}
-private fun extraMap(builder: GlobalsBuilder) {}
-private fun extraFilter(builder: GlobalsBuilder) {}
-private fun partialPartial(builder: GlobalsBuilder) {}
-private fun extraDebug(builder: GlobalsBuilder) {}
-private fun extraPrint(builder: GlobalsBuilder) {}
-private fun extraPprint(builder: GlobalsBuilder) {}
-private fun extraPstr(builder: GlobalsBuilder) {}
-private fun extraPrepr(builder: GlobalsBuilder) {}
-private fun breakpointGlobal(builder: GlobalsBuilder) {}
-private fun jsonJson(builder: GlobalsBuilder) {}
-private fun registerTyping(builder: GlobalsBuilder) {}
-private fun registerInternal(builder: GlobalsBuilder) {}
-// callStackGlobal is defined in CallStack.kt
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

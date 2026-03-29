@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
-import io.github.kotlinmania.starlark_kotlin.stdlib.Symbol
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped

@@ -1,9 +1,6 @@
 // port-lint: source src/stdlib/partial.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -22,101 +19,106 @@ import io.github.kotlinmania.starlark_kotlin.values.toValue
  * limitations under the License.
  */
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-open class Value {
-    fun toStr(): String = ""
-    fun fmt(): String = ""
-    open fun toValue(): Value = this
-    open fun freeze(freezer: Freezer): Value = this
-    fun invokeWithLoc(loc: Any?, params: Arguments, eval: Evaluator): kotlin.Result<Value> =
-        kotlin.Result.success(Value())
-    companion object
-}
-class FrozenValue : Value() {
-    override fun toValue(): Value = this
-    companion object
-}
-class FrozenStringValue(val value: String = "") {
-    override fun toString(): String = value
-}
-class StringValue(val value: String = "") {
-    fun asStrHashed(): HashedStr = HashedStr(value)
-    override fun toString(): String = value
-    fun freeze(freezer: Freezer): FrozenStringValue = FrozenStringValue(value)
-    companion object {
-        fun new(v: Value): StringValue? = null
-    }
-}
-class HashedStr(val str: String)
-class Symbol(val str: String, val hash: Int = str.hashCode()) {
-    fun asStr(): String = str
-    fun hash(): Int = hash
-    companion object {
-        fun newHashed(s: HashedStr): Symbol = Symbol(s.str)
-    }
-}
-class Tuple {
-    fun content(): List<Value> = emptyList()
-    companion object {
-        fun fromValue(value: Value): Tuple? = null
-    }
-}
-class DictRef {
-    fun keys(): List<Value> = emptyList()
-    fun values(): List<Value> = emptyList()
-}
-class Evaluator {
-    fun <T> allocaConcat(a: List<T>, b: List<T>, block: (List<T>, Evaluator) -> kotlin.Result<Value>): kotlin.Result<Value> {
-        return block(a + b, this)
-    }
-}
-class Arguments(val full: ArgumentsFull = ArgumentsFull()) {
-    companion object
-}
-class ArgumentsFull(
-    val pos: List<Value> = emptyList(),
-    val named: List<Value> = emptyList(),
-    val names: ArgNames = ArgNames(emptyList()),
-    val args: Value? = null,
-    val kwargs: Value? = null,
-)
-class ArgNames(val entries: List<Pair<Symbol, StringValue>>) {
-    fun names(): List<Pair<Symbol, StringValue>> = entries
-    companion object {
-        fun newUnique(names: List<Pair<Symbol, StringValue>>): ArgNames = ArgNames(names)
-    }
-}
-class Freezer
-// GlobalsBuilder imported from environment package
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 
-const val FUNCTION_TYPE: String = "function"
-
+// #[starlark_module]
+// pub fn partial(builder: &mut GlobalsBuilder)
 /// Construct a partial application. In almost all cases it is simpler to use a `lambda`.
-// Rust: #[starlark_module] pub fn partial(builder: &mut GlobalsBuilder)
-// The starlark_module macro generates a native function registration.
-// In Kotlin, we use setFunction to register the partial builtin.
 fun partialStdlib(builder: GlobalsBuilder) {
-    builder.setFunction("partial") { _, _ ->
-        // Partial function registration placeholder.
-        // Full argument handling is implemented in createPartial/invokePartial.
-        null
+    // fn partial(func: Value, #[starlark(args)] args: Value, #[starlark(kwargs)] kwargs: DictRef)
+    builder.setFunction("partial") { callArgs, eval ->
+        val func = callArgs.positional<Value>(0)
+        // Remaining positional args are collected as *args into a tuple
+        val args = eval.heap().allocTuple(callArgs.positionalAll().drop(1))
+        // kwargs dict
+        val kwargsValue = callArgs.full.kwargs
+        val kwargs: DictRef? = if (kwargsValue != null) dictRefFromValue(kwargsValue) else null
+
+        check(TupleGen.fromValue(args) != null)
+        val names = mutableListOf<Pair<Symbol, StringValue>>()
+        val named = mutableListOf<Value>()
+        if (kwargs != null) {
+            for ((k, v) in kwargs.iter()) {
+                val sv = StringValue.new(k)!!
+                // We duplicate string here.
+                // If this becomes hot, we should do better.
+                names.add(Pair(
+                    Symbol.newHashed(sv.getHashedStr()),
+                    sv,
+                ))
+                named.add(v)
+            }
+        }
+        val namesIndex = HashMap<ULong, Int>()
+        for ((i, entry) in names.withIndex()) {
+            val (k, _) = entry
+            namesIndex[k.hash()] = i
+        }
+        val partial = Partial(
+            func = func,
+            pos = args,
+            named = named,
+            names = names,
+            namesIndex = namesIndex,
+        )
+        eval.heap().allocComplex(partial)
     }
 }
 
+// #[derive(Debug, Coerce, Trace, NoSerialize, ProvidesStaticType, Allocative)]
+// #[repr(C)]
+// struct PartialGen<V, S>
 /// Generic partial application value.
-open class PartialGen<V : Value, S>(
+open class PartialGen<V : Any, S : Any>(
     val func: V,
     // Always references a tuple.
     val pos: V,
     val named: List<V>,
     val names: List<Pair<Symbol, S>>,
-    val namesIndex: HashMap<Int, Int> = HashMap(),
-) {
+    val namesIndex: HashMap<ULong, Int> = HashMap(),
+) : StarlarkValue, Trace {
+    override val TYPE: String get() = FUNCTION_TYPE
+
+    // impl<'v, V: ValueLike<'v>, S> PartialGen<V, S>
+    // fn pos_content(&self) -> &'v [Value<'v>]
     fun posContent(): List<Value> {
-        return Tuple.fromValue(pos.toValue())?.content() ?: emptyList()
+        @Suppress("UNCHECKED_CAST")
+        val posValue = when (pos) {
+            is Value -> pos
+            is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
+                (pos as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+            else -> return emptyList()
+        }
+        return TupleGen.fromValue(posValue)?.content() ?: emptyList()
     }
 
+    // impl Display for PartialGen<V, S>
+    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("partial(")
@@ -124,7 +126,7 @@ open class PartialGen<V : Value, S>(
         sb.append(", *[")
         for ((i, v) in posContent().withIndex()) {
             if (i != 0) sb.append(",")
-            sb.append(v.fmt())
+            sb.append(v)
         }
         sb.append("], **{")
         for ((i, entry) in names.zip(named).withIndex()) {
@@ -132,116 +134,152 @@ open class PartialGen<V : Value, S>(
             if (i != 0) sb.append(",")
             sb.append(kPair.first.asStr())
             sb.append(":")
-            sb.append(v.toValue().fmt())
+            @Suppress("UNCHECKED_CAST")
+            val value = when (v) {
+                is Value -> v
+                is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
+                    (v as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+                else -> v
+            }
+            sb.append(value)
         }
         sb.append("})")
         return sb.toString()
     }
 
-    fun nameForCallStack(me: Value): String = "partial"
+    // #[starlark_value(type = FUNCTION_TYPE)]
+    // impl StarlarkValue for PartialGen<V, S>
+
+    // fn name_for_call_stack(&self, _me: Value<'v>) -> String
+    override fun nameForCallStack(me: Value): String = "partial"
+
+    // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
+    override fun invoke(
+        me: Value,
+        args: Arguments,
+        eval: Evaluator,
+    ): Result<Value> {
+        // apply the partial arguments first, then the remaining arguments I was given
+
+        val selfPos = posContent()
+        @Suppress("UNCHECKED_CAST")
+        val selfNamed = named.map { v ->
+            when (v) {
+                is Value -> v
+                is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
+                    (v as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+                else -> v as Value
+            }
+        }
+        @Suppress("UNCHECKED_CAST")
+        val selfNames = names.map { (sym, sv) ->
+            val strVal = when (sv) {
+                is StringValue -> sv
+                is FrozenStringValue ->
+                    StringValue.new((sv as FrozenStringValue).toValue())!!
+                else -> sv as StringValue
+            }
+            Pair(sym, strVal)
+        }
+
+        // Check for duplicate named arguments
+        for ((symbol, _) in args.full.names.names()) {
+            val found = namesIndex.entries.any { (hash, idx) ->
+                hash == symbol.hash() && names[idx].first.asStr() == symbol.asStr()
+            }
+            if (found) {
+                return Result.failure(
+                    IllegalArgumentException(
+                        "partial() got multiple values for argument `${symbol.asStr()}`"
+                    )
+                )
+            }
+        }
+
+        // Concatenate partial args with call args
+        // In Rust this uses eval.alloca_concat for stack allocation;
+        // in Kotlin we simply concatenate lists.
+        val pos = selfPos + args.full.pos
+        val namedConcat = selfNamed + args.full.named
+        val namesConcat = selfNames + args.full.names.names()
+
+        val params = Arguments(
+            ArgumentsFull(
+                pos = pos,
+                named = namedConcat,
+                names = ArgNames(namesConcat),
+                args = args.full.args,
+                kwargs = args.full.kwargs,
+            )
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        val funcValue = when (func) {
+            is Value -> func
+            is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
+                (func as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+            else -> func as Value
+        }
+        return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
+    }
+
+    // Trace implementation
+    override fun trace(tracer: Tracer) {
+        // In Kotlin, GC handles tracing. No-op.
+    }
 }
 
+private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
+
+// type Partial<'v> = PartialGen<Value<'v>, StringValue<'v>>;
 /// Partial application with live values.
 class Partial(
     func: Value,
     pos: Value,
     named: List<Value>,
     names: List<Pair<Symbol, StringValue>>,
-    namesIndex: HashMap<Int, Int> = HashMap(),
-) : PartialGen<Value, StringValue>(func, pos, named, names, namesIndex)
+    namesIndex: HashMap<ULong, Int> = HashMap(),
+) : PartialGen<Value, StringValue>(func, pos, named, names, namesIndex),
+    ComplexValue,
+    Freeze<FrozenPartial> {
 
+    // impl Freeze for Partial
+    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenPartial> {
+        val frozenFunc = freezer.freeze(func)
+        if (frozenFunc.isFailure) return Result.failure(frozenFunc.exceptionOrNull()!!)
+        val frozenPos = freezer.freeze(pos)
+        if (frozenPos.isFailure) return Result.failure(frozenPos.exceptionOrNull()!!)
+        val frozenNamed = mutableListOf<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue>()
+        for (v in named) {
+            val f = freezer.freeze(v)
+            if (f.isFailure) return Result.failure(f.exceptionOrNull()!!)
+            frozenNamed.add(f.getOrThrow())
+        }
+        val frozenNames = mutableListOf<Pair<Symbol, FrozenStringValue>>()
+        for ((s, sv) in names) {
+            val fv = sv.freeze(freezer)
+            if (fv.isFailure) return Result.failure(fv.exceptionOrNull()!!)
+            frozenNames.add(Pair(s, fv.getOrThrow()))
+        }
+        return Result.success(FrozenPartial(
+            func = frozenFunc.getOrThrow(),
+            pos = frozenPos.getOrThrow(),
+            named = frozenNamed,
+            names = frozenNames,
+            namesIndex = namesIndex,
+        ))
+    }
+}
+
+// type FrozenPartial = PartialGen<FrozenValue, FrozenStringValue>;
 /// Partial application with frozen values.
 class FrozenPartial(
-    func: FrozenValue,
-    pos: FrozenValue,
-    named: List<FrozenValue>,
+    func: io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue,
+    pos: io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue,
+    named: List<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue>,
     names: List<Pair<Symbol, FrozenStringValue>>,
-    namesIndex: HashMap<Int, Int> = HashMap(),
-) : PartialGen<FrozenValue, FrozenStringValue>(func, pos, named, names, namesIndex)
-
-/// Freeze a Partial into a FrozenPartial.
-fun freezePartial(partial: Partial, freezer: Freezer): FrozenPartial {
-    return FrozenPartial(
-        func = partial.func.freeze(freezer) as FrozenValue,
-        pos = partial.pos.freeze(freezer) as FrozenValue,
-        named = partial.named.map { it.freeze(freezer) as FrozenValue },
-        names = partial.names.map { (s, x) -> Pair(s, x.freeze(freezer)) },
-        namesIndex = partial.namesIndex,
-    )
-}
-
-/// Construct a partial application.
-fun createPartial(
-    func: Value,
-    args: Value,
-    kwargs: DictRef,
-): Partial {
-    check(Tuple.fromValue(args) != null)
-    val names = kwargs.keys().map { x ->
-        val sv = StringValue.new(x)!!
-        Pair(
-            // We duplicate string here.
-            // If this becomes hot, we should do better.
-            Symbol.newHashed(sv.asStrHashed()),
-            sv,
-        )
-    }
-    val namesIndex = HashMap<Int, Int>()
-    for ((i, entry) in names.withIndex()) {
-        val (k, _) = entry
-        namesIndex[k.hash()] = i
-    }
-    return Partial(
-        func = func,
-        pos = args,
-        named = kwargs.values(),
-        names = names,
-        namesIndex = namesIndex,
-    )
-}
-
-/// Invoke a partial application.
-fun invokePartial(
-    partial: PartialGen<*, *>,
-    args: Arguments,
-    eval: Evaluator,
-): kotlin.Result<Value> {
-    // apply the partial arguments first, then the remaining arguments I was given
-
-    val selfPos = partial.posContent()
-    @Suppress("UNCHECKED_CAST")
-    val selfNamed = partial.named as List<Value>
-    @Suppress("UNCHECKED_CAST")
-    val selfNames = partial.names as List<Pair<Symbol, Any>>
-    val selfNamesPairs = selfNames.map { Pair(it.first, StringValue(it.second.toString())) }
-
-    for ((symbol, _) in args.full.names.names()) {
-        val found = partial.namesIndex.entries.any { (hash, idx) ->
-            hash == symbol.hash() && partial.names[idx].first.asStr() == symbol.asStr()
-        }
-        if (found) {
-            return kotlin.Result.failure(
-                IllegalArgumentException(
-                    "partial() got multiple values for argument `${symbol.asStr()}`"
-                )
-            )
-        }
-    }
-
-    return eval.allocaConcat(selfPos, args.full.pos) { pos, eval1 ->
-        eval1.allocaConcat(selfNamed, args.full.named) { named, eval2 ->
-            eval2.allocaConcat(selfNamesPairs, args.full.names.names()) { names, eval3 ->
-                val params = Arguments(
-                    ArgumentsFull(
-                        pos = pos,
-                        named = named,
-                        names = ArgNames.newUnique(names),
-                        args = args.full.args,
-                        kwargs = args.full.kwargs,
-                    )
-                )
-                partial.func.toValue().invokeWithLoc(null, params, eval3)
-            }
-        }
-    }
-}
+    namesIndex: HashMap<ULong, Int> = HashMap(),
+) : PartialGen<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue, FrozenStringValue>(
+    func, pos, named, names, namesIndex
+)

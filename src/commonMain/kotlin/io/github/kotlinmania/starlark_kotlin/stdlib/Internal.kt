@@ -23,30 +23,22 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.internal
 ///
 /// None of this code is meant to be used in production. Can be changed any time.
 
-// Placeholder types referenced from other modules
-// These will be replaced with real imports as the port progresses
-class InternalValue {
-    companion object {
-        fun tyOfValue(value: InternalValue): InternalTy = InternalTy()
+import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+
+// #[starlark_module]
+// fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
+private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
+    // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
+    globals.setFunction("ty_of_value_debug") { args, _ ->
+        val value: Value = args.full.pos.firstOrNull() ?: Value.newNone()
+        Ty.ofValue(value).toString()
     }
 }
-class InternalTy {
-    override fun toString(): String = "Ty(..)"
-}
-class InternalGlobalsBuilder {
-    fun set(name: String, value: Any) {}
-    fun namespaceNoDocs(name: String, init: (InternalGlobalsBuilder) -> Unit) {}
-}
 
-private fun starlarkRustInternalMembers(globals: InternalGlobalsBuilder) {
-    globals.set("ty_of_value_debug", object : Any() {
-        fun invoke(value: InternalValue): Result<String> {
-            return Result.success(InternalValue.tyOfValue(value).toString())
-        }
-    })
-}
-
-fun registerInternal(globals: InternalGlobalsBuilder) {
+// pub(crate) fn register_internal(globals: &mut GlobalsBuilder)
+fun registerInternal(globals: GlobalsBuilder) {
     globals.namespaceNoDocs("starlark_rust_internal") { s ->
         starlarkRustInternalMembers(s)
     }
