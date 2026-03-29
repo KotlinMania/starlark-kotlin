@@ -28,11 +28,13 @@ import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
-    val first = it.next()
-    if (first != null) {
-        val second = it.next()
-        if (second != null && it.next() == null) {
-            return Result.success(Pair(first, second))
+    if (it.hasNext()) {
+        val first = it.next()
+        if (it.hasNext()) {
+            val second = it.next()
+            if (!it.hasNext()) {
+                return Result.success(Pair(first, second))
+            }
         }
     }
     return Result.failure(

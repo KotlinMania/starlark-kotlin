@@ -24,6 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -89,7 +90,7 @@ private fun equalsSlice(
 class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
     internal val values: List<Value>,
-) : StarlarkValue, Freeze<RecordGen> {
+) : ComplexValue, Freeze<RecordGen> {
 
     companion object {
         /// `type(x)` for records.

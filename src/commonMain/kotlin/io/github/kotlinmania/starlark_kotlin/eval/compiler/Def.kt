@@ -680,7 +680,7 @@ internal class DefGen<V>(
     internal val optimizedOnFreezeStmt: StmtCompiledCell,
     /** Whether this DefGen holds frozen values. */
     private val frozen: Boolean,
-) : StarlarkValue, Trace {
+) : ComplexValue, Trace {
 
     override fun toString(): String = parameters.signature()
 
@@ -961,8 +961,7 @@ internal fun newDef(
         optimizedOnFreezeStmt = StmtCompiledCell.new(),
         frozen = false,
     )
-    @Suppress("UNCHECKED_CAST")
-    return Result.success(eval.heap().allocComplex(def as ComplexValue))
+    return Result.success(eval.heap().allocComplex(def))
 }
 
 // ---- FrozenDef.postFreeze ----

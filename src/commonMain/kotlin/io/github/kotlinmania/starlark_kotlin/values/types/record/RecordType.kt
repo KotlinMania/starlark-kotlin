@@ -88,7 +88,7 @@ class RecordTypeGen internal constructor(
     /// The V is the type the field must satisfy (e.g. `"string"`)
     internal val fields: SmallMap<String, Field>,
     private val frozen: Boolean,
-) : StarlarkValue, Freeze<RecordTypeGen> {
+) : ComplexValue, Freeze<RecordTypeGen> {
 
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
@@ -196,12 +196,11 @@ class RecordTypeGen internal constructor(
                 }
                 values.add(value)
             }
-            @Suppress("UNCHECKED_CAST")
             ev.heap().allocComplex(
                 RecordGen(
                     typ = thisValue,
                     values = values,
-                ) as ComplexValue
+                )
             )
         })
     }

@@ -135,18 +135,6 @@ value class InlineInt internal constructor(private val value: Int) : Comparable<
                     }
                     value.toInt()
                 }
-                is UInt -> {
-                    if (value > Int.MAX_VALUE.toUInt()) {
-                        return Result.failure(InlineIntOverflow())
-                    }
-                    value.toInt()
-                }
-                is ULong -> {
-                    if (value > Int.MAX_VALUE.toULong()) {
-                        return Result.failure(InlineIntOverflow())
-                    }
-                    value.toInt()
-                }
                 else -> return Result.failure(InlineIntOverflow())
             }
 
