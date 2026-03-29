@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-
 /**
- * Utilities to test Starlark code execution, using the [Assert] type and top-level functions.
+ * Utilities to test Starlark code execution, using the [Assert][io.github.kotlinmania.starlark_kotlin.assert.Assert]
+ * type and top-level functions.
  *
  * There are two general approaches. You can either use the functions in this module directly, e.g.:
  *
@@ -31,8 +30,8 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
  * assert.eq("1+2", "3")
  * ```
  *
- * Or create an [Assert] object, which supports the same assertions, but also lets you modify the
- * environment in which the tests are run, e.g.:
+ * Or create an [Assert][io.github.kotlinmania.starlark_kotlin.assert.Assert] object, which supports
+ * the same assertions, but also lets you modify the environment in which the tests are run, e.g.:
  *
  * ```kotlin
  * import io.github.kotlinmania.starlark_kotlin.assert.Assert
@@ -46,11 +45,9 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
  * The tests in question may be run multiple times, in different modes, to maximise test coverage.
  * For example, execution tests are run at different garbage collection settings. Parsing tests are run
  * with both Unix and Windows newlines.
- *
- * Submodules:
- * - [assert][io.github.kotlinmania.starlark_kotlin.assert.Assert] - Main assertion type
- * - [conformance][io.github.kotlinmania.starlark_kotlin.assert.Conformance] - Conformance testing
- *
- * Re-exports:
- * - [Assert]
  */
+
+// mod assert;
+// mod conformance;
+
+// pub use assert::*;

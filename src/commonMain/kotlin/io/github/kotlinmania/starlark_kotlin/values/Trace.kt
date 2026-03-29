@@ -19,10 +19,39 @@
 
 package io.github.kotlinmania.starlark_kotlin.values
 
+// use std::cell::Cell;
+// use std::cell::OnceCell;
+// use std::cell::RefCell;
+// use std::cell::UnsafeCell;
+// use std::marker;
+// use std::sync::Arc;
+// use std::sync::Mutex;
+// use std::sync::atomic::AtomicBool;
+// use std::sync::atomic::AtomicI8;
+// use std::sync::atomic::AtomicI16;
+// use std::sync::atomic::AtomicI32;
+// use std::sync::atomic::AtomicI64;
+// use std::sync::atomic::AtomicIsize;
+// use std::sync::atomic::AtomicU8;
+// use std::sync::atomic::AtomicU16;
+// use std::sync::atomic::AtomicU32;
+// use std::sync::atomic::AtomicU64;
+// use std::sync::atomic::AtomicUsize;
+
+// use either::Either;
+// use hashbrown::HashTable;
+// use starlark_map::Hashed;
+// use starlark_map::small_set::SmallSet;
+
+// use crate::collections::SmallMap;
+// use crate::values::FrozenValue;
+// use crate::values::Tracer;
+// use crate::values::Value;
+
+import io.github.kotlinmania.starlark_kotlin.Either
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -58,105 +87,98 @@ interface Trace {
     fun trace(tracer: Tracer)
 }
 
-/**
- * Mutable holder interface, corresponding to Rust's `RefCell<T>`, `Cell<T>`, `UnsafeCell<T>`, and `Arc<Mutex<T>>`.
- *
- * Enables mutable access during tracing.
- */
-// RefCell<T>, Cell<T>, UnsafeCell<T> all expose get_mut() for tracing
-interface MutableHolder<T> {
-    fun getMut(): T
-}
-
-/**
- * Either a left or right value, corresponding to Rust's `either::Either<L, R>`.
- */
-// either::Either<L, R>
-sealed class Either<out L, out R> {
-    // Either::Left
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    // Either::Right
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
-}
-
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Vec<T>
-fun <T : Trace> traceList(self: MutableList<T>, tracer: Tracer) =
-    self.forEach { x -> x.trace(tracer) }
+fun <T : Trace> MutableList<T>.trace(tracer: Tracer) {
+    this.forEach { x -> x.trace(tracer) }
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for [T]
-fun <T : Trace> traceSlice(self: Array<T>, tracer: Tracer) =
-    self.forEach { x -> x.trace(tracer) }
+fun <T : Trace> Array<T>.trace(tracer: Tracer) {
+    this.forEach { x -> x.trace(tracer) }
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for HashTable<T>
-fun <T : Trace> traceHashTable(self: MutableCollection<T>, tracer: Tracer) =
-    self.forEach { e -> e.trace(tracer) }
+fun <T : Trace> MutableCollection<T>.trace(tracer: Tracer) {
+    this.forEach { e -> e.trace(tracer) }
+}
 
 // unsafe impl<'v, K: Trace<'v>, V: Trace<'v>> Trace<'v> for SmallMap<K, V>
-fun <K : Trace, V : Trace> traceSmallMap(self: SmallMap<K, V>, tracer: Tracer) {
-    for ((k, v) in self.iter()) {
+fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
+    for ((k, v) in this.iter()) {
         k.trace(tracer)
         v.trace(tracer)
     }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for SmallSet<T>
-fun <T : Trace> traceSmallSet(self: SmallSet<T>, tracer: Tracer) {
-    for (v in self.iter()) {
+fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
+    for (v in this.iter()) {
         v.trace(tracer)
     }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Hashed<T>
-fun <T : Trace> traceHashed(self: Hashed<T>, tracer: Tracer) =
-    self.key().trace(tracer)
+fun <T : Trace> Hashed<T>.trace(tracer: Tracer) {
+    this.key().trace(tracer)
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Option<T>
 fun <T : Trace> traceNullable(self: T?, tracer: Tracer) {
-    if (self != null) self.trace(tracer)
+    if (self != null) {
+        self.trace(tracer)
+    }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for RefCell<T>
-fun <T : Trace> traceRefCell(self: MutableHolder<T>, tracer: Tracer) =
-    self.getMut().trace(tracer)
+fun <T : Trace> traceRefCell(self: T, tracer: Tracer) {
+    self.trace(tracer)
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Cell<T>
-fun <T : Trace> traceCell(self: MutableHolder<T>, tracer: Tracer) =
-    self.getMut().trace(tracer)
+fun <T : Trace> traceCell(self: T, tracer: Tracer) {
+    self.trace(tracer)
+}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for OnceCell<T>
 fun <T : Trace> traceOnceCell(self: T?, tracer: Tracer) {
-    if (self != null) self.trace(tracer)
+    if (self != null) {
+        self.trace(tracer)
+    }
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for UnsafeCell<T>
-fun <T : Trace> traceUnsafeCell(self: MutableHolder<T>, tracer: Tracer) =
-    self.getMut().trace(tracer)
+fun <T : Trace> traceUnsafeCell(self: T, tracer: Tracer) {
+    self.trace(tracer)
+}
 
 // unsafe impl<'v, T: Trace<'v> + ?Sized> Trace<'v> for Box<T>
-fun <T : Trace> traceBox(self: T, tracer: Tracer) =
+fun <T : Trace> traceBox(self: T, tracer: Tracer) {
     self.trace(tracer)
+}
 
 // unsafe impl<'v> Trace<'v> for ()
-fun Unit.trace(tracer: Tracer) = Unit
+fun traceUnit(_tracer: Tracer) {}
 
 // unsafe impl<'v, T1: Trace<'v>> Trace<'v> for (T1,)
-fun <T1 : Trace> traceTuple1(self: T1, tracer: Tracer) =
+fun <T1 : Trace> traceTuple1(self: T1, tracer: Tracer) {
     self.trace(tracer)
+}
 
 // unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>> Trace<'v> for (T1, T2)
-fun <T1 : Trace, T2 : Trace> traceTuple2(self: Pair<T1, T2>, tracer: Tracer) {
-    self.first.trace(tracer)
-    self.second.trace(tracer)
+fun <T1 : Trace, T2 : Trace> Pair<T1, T2>.trace(tracer: Tracer) {
+    this.first.trace(tracer)
+    this.second.trace(tracer)
 }
 
 // unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>, T3: Trace<'v>> Trace<'v> for (T1, T2, T3)
-fun <T1 : Trace, T2 : Trace, T3 : Trace> traceTuple3(self: Triple<T1, T2, T3>, tracer: Tracer) {
-    self.first.trace(tracer)
-    self.second.trace(tracer)
-    self.third.trace(tracer)
+fun <T1 : Trace, T2 : Trace, T3 : Trace> Triple<T1, T2, T3>.trace(tracer: Tracer) {
+    this.first.trace(tracer)
+    this.second.trace(tracer)
+    this.third.trace(tracer)
 }
 
-// unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>, T3: Trace<'v>, T4: Trace<'v>> Trace<'v> for (T1, T2, T3, T4)
+// unsafe impl<'v, T1: Trace<'v>, T2: Trace<'v>, T3: Trace<'v>, T4: Trace<'v>> Trace<'v>
+//     for (T1, T2, T3, T4)
 fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> traceTuple4(
     t1: T1,
     t2: T2,
@@ -179,77 +201,80 @@ fun <T1 : Trace, T2 : Trace> traceEither(self: Either<T1, T2>, tracer: Tracer) {
 }
 
 // unsafe impl<'v> Trace<'v> for Value<'v>
-fun ValueHolder.trace(tracer: Tracer) = tracer.trace(this)
+fun ValueHolder.trace(tracer: Tracer) {
+    tracer.trace(this)
+}
 
 // unsafe impl<'v> Trace<'v> for FrozenValue
-fun FrozenValue.trace(tracer: Tracer) = Unit
+fun FrozenValue.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for String
-fun String.trace(tracer: Tracer) = Unit
+fun String.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for usize
-fun traceUsize(self: ULong, tracer: Tracer) = Unit
+fun traceUsize(self: ULong, _tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for i32
-fun Int.trace(tracer: Tracer) = Unit
+fun Int.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for u32
-fun UInt.trace(tracer: Tracer) = Unit
+fun UInt.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for u64
-fun ULong.trace(tracer: Tracer) = Unit
+fun ULong.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for bool
-fun Boolean.trace(tracer: Tracer) = Unit
+fun Boolean.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicBool
-fun AtomicBoolean.trace(tracer: Tracer) = Unit
+fun AtomicBoolean.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI8
-fun traceAtomicI8(self: AtomicInt, tracer: Tracer) = Unit
+fun AtomicInt.traceI8(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU8
-fun traceAtomicU8(self: AtomicInt, tracer: Tracer) = Unit
+fun AtomicInt.traceU8(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI16
-fun traceAtomicI16(self: AtomicInt, tracer: Tracer) = Unit
+fun AtomicInt.traceI16(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU16
-fun traceAtomicU16(self: AtomicInt, tracer: Tracer) = Unit
+fun AtomicInt.traceU16(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI32
-fun AtomicInt.traceI32(tracer: Tracer) = Unit
+fun AtomicInt.traceI32(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU32
-fun traceAtomicU32(self: AtomicInt, tracer: Tracer) = Unit
+fun AtomicInt.traceU32(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicI64
-fun AtomicLong.traceI64(tracer: Tracer) = Unit
+fun AtomicLong.traceI64(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicU64
-fun traceAtomicU64(self: AtomicLong, tracer: Tracer) = Unit
+fun AtomicLong.traceU64(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicUsize
-fun traceAtomicUsize(self: AtomicLong, tracer: Tracer) = Unit
+fun AtomicLong.traceUsize(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for AtomicIsize
-fun traceAtomicIsize(self: AtomicLong, tracer: Tracer) = Unit
+fun AtomicLong.traceIsize(_tracer: Tracer) {}
 
 // unsafe impl<'v> Trace<'v> for std::time::Instant
-fun Instant.trace(tracer: Tracer) = Unit
+fun Instant.trace(_tracer: Tracer) {}
 
 // unsafe impl<'v, T: ?Sized> Trace<'v> for marker::PhantomData<T>
-fun <T> tracePhantomData(self: T?, tracer: Tracer) = Unit
+fun <T> tracePhantomData(self: T?, _tracer: Tracer) {}
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Arc<Mutex<T>>
-fun <T : Trace> traceArcMutex(self: MutableHolder<T>, tracer: Tracer) =
-    self.getMut().trace(tracer)
+fun <T : Trace> traceArcMutex(self: T, tracer: Tracer) {
+    self.trace(tracer)
+}
 
 // unsafe impl<'v, A, R> Trace<'v> for fn(A) -> R
-fun <A, R> traceFn1(self: (A) -> R, tracer: Tracer) = Unit
+fun <A, R> traceFn1(self: (A) -> R, _tracer: Tracer) {}
 
 // unsafe impl<'v, A, B, R> Trace<'v> for fn(A, B) -> R
-fun <A, B, R> traceFn2(self: (A, B) -> R, tracer: Tracer) = Unit
+fun <A, B, R> traceFn2(self: (A, B) -> R, _tracer: Tracer) {}
 
 // unsafe impl<'v, A, B, C, R> Trace<'v> for fn(A, B, C) -> R
-fun <A, B, C, R> traceFn3(self: (A, B, C) -> R, tracer: Tracer) = Unit
+fun <A, B, C, R> traceFn3(self: (A, B, C) -> R, _tracer: Tracer) {}

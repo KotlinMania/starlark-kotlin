@@ -142,7 +142,33 @@ class StarlarkBigInt private constructor(
         return false
     }
 
-    // Rust: impl Serialize -- serialization handled separately in Kotlin.
+    // Rust: impl Serialize for StarlarkBigInt
+    /**
+     * Serializes this big int as a number.
+     * Prefers Long (i64) if it fits, otherwise ULong (u64), otherwise string-based number.
+     *
+     * Rust: `fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>`
+     */
+    fun serialize(): Any {
+        // Always serialize as a number, prefer i64 if it fits, otherwise u64
+        val longVal = try {
+            value.longValue(exactRequired = true)
+        } catch (_: ArithmeticException) {
+            null
+        }
+        if (longVal != null) {
+            return longVal
+        }
+        val ulongVal = try {
+            value.ulongValue(exactRequired = true)
+        } catch (_: ArithmeticException) {
+            null
+        }
+        if (ulongVal != null) {
+            return ulongVal
+        }
+        return value.toString()
+    }
 
     /** Allocates this value on the given heap. Rust: `impl AllocValue for StarlarkBigInt` */
     fun allocValue(heap: Heap): Value {
@@ -297,4 +323,4 @@ class StarlarkBigInt private constructor(
     override fun typecheckerTy(): Ty? = Ty.int()
 }
 
-// Tests are in commonTest.
+// #[cfg(test)] mod tests -- see BigintTest.kt in commonTest

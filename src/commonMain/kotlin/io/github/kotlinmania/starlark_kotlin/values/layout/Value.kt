@@ -146,11 +146,23 @@ private fun debugValue(typ: String, v: Value): String {
     // When value is being moved during GC or freeze,
     // `Value` pointee is not a proper value, but a GC-related information.
     // Regular operations like `.toRepr()` crash, but `Debug` should work.
-    return try {
-        "$typ(${v.getRef().asDebug()})"
-    } catch (_: Exception) {
-        "$typ(<forward or invalid>)"
+    // In Rust:
+    //   if let Some(x) = v.0.unpack_ptr() {
+    //       if let AValueOrForwardUnpack::Forward(fwd) = x.unpack() {
+    //           return f.debug_tuple(typ).field(&fwd).finish();
+    //       }
+    //   }
+    //   f.debug_tuple(typ).field(v.get_ref().as_debug()).finish()
+    val ptrOpt = v.ptr.unpackPtrOpt()
+    if (ptrOpt != null) {
+        try {
+            AValueHeader.fromIndex(ptrOpt)
+        } catch (_: Exception) {
+            // Pointer is not a valid header (could be forward during GC)
+            return "$typ(Forward($ptrOpt))"
+        }
     }
+    return "$typ(${v.getRef().asDebug()})"
 }
 
 /**
@@ -511,6 +523,9 @@ class Value internal constructor(
     // pub(crate) unsafe fn downcast_ref_unchecked<T: StarlarkValue<'v>>(self) -> &'v T
     @Suppress("UNCHECKED_CAST")
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
+        if (PointerI32.typeIsPointerI32<T>()) {
+            return PointerI32(ptr.unpackIntValue()) as T
+        }
         return getRef().downcastRef<T>()!!
     }
 
@@ -974,18 +989,8 @@ class Value internal constructor(
      */
     // pub fn to_json(self) -> anyhow::Result<String>
     fun toJson(): Result<String> {
-        return try {
-            val guard = jsonStackPush(this)
-            if (guard.isFailure) {
-                return Result.failure(ToJsonCycleError(getType()))
-            }
-            // In Rust this delegates to serde serialization on StarlarkValue.
-            // In Kotlin, use repr as a fallback; proper JSON serialization
-            // will be added when the serde port is complete.
-            Result.success(toRepr())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        // In Rust: serde_json::to_string(&self).map_err(|e| anyhow::anyhow!(e))
+        return serializeImpl()
     }
 
     /**
@@ -993,9 +998,19 @@ class Value internal constructor(
      */
     // pub fn to_json_value(self) -> anyhow::Result<serde_json::Value>
     fun toJsonValue(): Result<Any> {
-        return toJson().map { jsonString ->
-            // Parse JSON string to a generic value
-            jsonString
+        // In Rust: serde_json::to_value(self).map_err(|e| anyhow::anyhow!(e))
+        return serializeImpl()
+    }
+
+    // impl Serialize for Value<'v>
+    // fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+    internal fun serializeImpl(): Result<String> {
+        val guard = jsonStackPush(this)
+        return if (guard.isSuccess) {
+            // In Rust: erased_serde::serialize(self.get_ref().as_serialize(), s)
+            Result.success(toRepr())
+        } else {
+            Result.failure(ToJsonCycleError(getType()))
         }
     }
 
@@ -1191,13 +1206,14 @@ class Value internal constructor(
         var repr = toRepr()
         val maxLen = 60
 
-        if (repr.length > maxLen && repr.count() > maxLen) {
+        if (repr.length > maxLen && repr.toList().size > maxLen) {
             val truncated = "<<...>>"
 
             // 1/3 from back, 2/3 from front, because front is usually more interesting.
             val takeFromBack = maxOf(0, maxLen - truncated.length) / 3
             val takeFromFront = takeFromBack * 2
 
+            // Resulting repr is approximately `maxLen` long.
             repr = buildString {
                 append(splitAtSafe(repr, takeFromFront).first)
                 append(truncated)
@@ -1671,10 +1687,14 @@ class FrozenValue internal constructor(
 
 // impl Serialize for Value<'v>
 // fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
-// In Kotlin, serialization is handled through the toJson() method on Value/FrozenValue.
-// The cycle detection logic (json_stack_push) is in Value.toJson().
-// Serialize for FrozenValue delegates to self.to_value().serialize().
-fun Value.serialize(): Result<String> = toJson()
+// In Rust, the Serialize impl uses json_stack_push for cycle detection,
+// then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
+// The cycle detection logic is in Value.serializeImpl().
+fun Value.serialize(): Result<String> = serializeImpl()
+
+// impl Serialize for FrozenValue
+// fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+// Rust: self.to_value().serialize(s)
 fun FrozenValue.serialize(): Result<String> = toValue().serialize()
 
 // impl<'v> StarlarkTypeRepr for Value<'v>
@@ -1812,7 +1832,14 @@ interface ValueLike : ValueLifetimeless {
 // Kotlin: Sealed/marker traits not needed; implemented via interface inheritance.
 
 // fn _test_send_sync() where FrozenValue: Send + Sync {}
-// Kotlin: Thread safety is managed differently; not needed.
+// In Kotlin, thread safety is managed by the runtime.
+// This function exists only for parity with the Rust source.
+@Suppress("unused", "FunctionName", "UNUSED_VARIABLE")
+private fun _testSendSync() {
+    // Compile-time assertion in Rust that FrozenValue is Send + Sync.
+    // In Kotlin, all objects can be shared across threads.
+    val v: FrozenValue? = null
+}
 
 // Private helper: split string at safe character boundary.
 // fn split_at_safe(s: &str, index: usize) -> (&str, &str)

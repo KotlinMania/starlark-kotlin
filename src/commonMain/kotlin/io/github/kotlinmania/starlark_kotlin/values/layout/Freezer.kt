@@ -21,52 +21,68 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /** Used to `freeze` values by [Freeze.freeze][io.github.kotlinmania.starlark_kotlin.values.Freeze.freeze]. */
+// pub struct Freezer<'fv>
 class Freezer internal constructor(
     /** Freezing into this heap. */
+    // pub(crate) heap: &'fv FrozenHeap,
     internal val heap: FrozenHeap,
 ) {
     /** Defs frozen by this freezer. */
+    // pub(crate) frozen_defs: RefCell<Vec<FrozenRef<'static, FrozenDef>>>,
     internal val frozenDefs: MutableList<FrozenRef<FrozenDef>> = mutableListOf()
 
+    companion object {
+        // pub(crate) fn new(heap: &'fv FrozenHeap) -> Self
+        internal fun new(heap: FrozenHeap): Freezer {
+            return Freezer(heap = heap)
+        }
+    }
+
     /** Allocate a new value while freezing. Usually not a great idea. */
+    // pub fn alloc<'v, T: AllocFrozenValue>(&'v self, val: T) -> FrozenValue
     fun <T : AllocFrozenValue> alloc(value: T): FrozenValue {
         return value.allocFrozenValue(heap)
     }
 
+    // pub(crate) fn reserve<'v, 'v2, T>(&'v self) -> (FrozenValue, Reservation<'v2, T>)
+    // where
+    //     T: AValue<'v2, ExtraElem = ()>,
+    //     T::StarlarkValue: HeapSendable<'v2>,
+    //     T::StarlarkValue: HeapSyncable<'v2>,
     internal fun <T : AValue> reserve(): Pair<FrozenValue, Reservation<T>> {
-        val (fv, r, _) = heap.reserveWithExtra<T>(0)
+        val (fv, r, extra) = heap.reserveWithExtra<T>(0)
+        check(extra == Unit) // debug_assert!(extra.is_empty())
         return Pair(fv, r)
     }
 
     /** Freeze a nested value while freezing yourself. */
+    // pub fn freeze(&self, value: Value) -> FreezeResult<FrozenValue>
     fun freeze(value: Value): FreezeResult<FrozenValue> {
         // Case 1: We have our value encoded in our pointer
-        val unpacked = value.unpackFrozen()
-        if (unpacked != null) {
-            return Result.success(unpacked)
+        val x = value.unpackFrozen()
+        if (x != null) {
+            return Result.success(x)
         }
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val ptrIndex = value.ptr.unpackPtrOpt()!!
         val header = AValueHeader.fromIndex(ptrIndex)
         val aValueOrForward = AValueOrForward.Header(header)
-        return when (val result = aValueOrForward.unpack()) {
+        return when (val unpacked = aValueOrForward.unpack()) {
             is AValueOrForwardUnpack.Forward -> {
-                Result.success(result.forward.forwardPtr().unpackFrozenValue())
+                Result.success(unpacked.forward.forwardPtr().unpackFrozenValue())
             }
             is AValueOrForwardUnpack.Header -> {
-                result.header.unpack().heapFreeze(this)
+                unpacked.header.unpack().heapFreeze(this)
             }
         }
     }
@@ -76,6 +92,7 @@ class Freezer internal constructor(
      *
      * Can be used to allocate additional values while freezing.
      */
+    // pub fn frozen_heap(&self) -> &'fv FrozenHeap
     fun frozenHeap(): FrozenHeap {
         return heap
     }

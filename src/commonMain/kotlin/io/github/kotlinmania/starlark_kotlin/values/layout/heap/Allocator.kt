@@ -1,5 +1,5 @@
-// port-lint: source src/collections/symbol.rs
-package io.github.kotlinmania.starlark_kotlin.collections
+// port-lint: source src/values/layout/heap/allocator.rs
+package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,5 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-// pub(crate) mod map;
-// pub(crate) mod symbol;
+/**
+ * Heap allocator module declarations.
+ *
+ * This module mirrors `src/values/layout/heap/allocator.rs` which declares submodules.
+ *
+ * ## Submodules
+ *
+ * | Rust submodule | Kotlin package                                     |
+ * |----------------|----------------------------------------------------|
+ * | `alloc`        | `values.layout.heap.allocator.alloc`                |
+ * | `api`          | `values.layout.heap.allocator`  (Api.kt)            |
+ * | `bumpalo`      | `values.layout.heap.allocator`  (Bumpalo.kt)        |
+ */

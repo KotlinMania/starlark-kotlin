@@ -1,6 +1,4 @@
-// port-lint: source tests/derive/module.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
-
+// port-lint: source src/tests/derive/module.rs
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -18,15 +16,16 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
-// mod basic;
-// mod default_value;
-// mod generic;
-// mod kwargs;
-// mod methods;
-// mod named_positional;
-// mod other_attributes;
-// mod return_impl;
-// mod special_params;
-// mod type_annotation;
-// mod unpack_value;
+// mod basic → Basic.kt
+// mod default_value → DefaultValue.kt
+// mod generic → Generic.kt
+// mod kwargs → Kwargs.kt
+// mod methods → Methods.kt
+// mod named_positional → NamedPositional.kt
+// mod other_attributes → OtherAttributes.kt
+// mod return_impl → ReturnImpl.kt
+// mod special_params → SpecialParams.kt
+// mod type_annotation → TypeAnnotation.kt
+// mod unpack_value → UnpackValue.kt
