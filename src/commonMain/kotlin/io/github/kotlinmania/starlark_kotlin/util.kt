@@ -1,8 +1,8 @@
-// port-lint: source src/pagable/error.rs
-package io.github.kotlinmania.starlark_kotlin.pagable
+// port-lint: source src/util.rs
+package io.github.kotlinmania.starlark_kotlin
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,10 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  * limitations under the License.
  */
 
-/** Errors that can occur during pagable serialization/deserialization. */
-sealed class PagableError(message: String) : Exception(message) {
-    /** The type was not registered in the vtable registry. */
-    class TypeNotRegistered(
-        val typeId: String,
-    ) : PagableError("Type `$typeId` was not registered for deserialization.")
-}
+import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+
+/**
+ * Utilities.
+ *
+ * Submodules (Kotlin packages under util):
+ * - pub(crate) mod arc_or_static      -> util.arc_or_static
+ * - pub(crate) mod arc_str            -> util.arc_str
+ * - pub(crate) mod non_static_type_id -> util.non_static_type_id
+ * - pub(crate) mod refcell            -> util.refcell
+ * - pub(crate) mod rtabort            -> util.rtabort
+ *
+ * Re-exports:
+ * - pub use crate::util::arc_str::ArcStr
+ */

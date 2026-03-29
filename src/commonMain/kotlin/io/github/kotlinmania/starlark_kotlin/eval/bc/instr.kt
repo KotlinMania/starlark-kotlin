@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/instr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.instr
+package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.instr
 
 /** Define the bytecode instruction. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

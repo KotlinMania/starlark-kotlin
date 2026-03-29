@@ -4,17 +4,17 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (500/468 files)
-- **Matched Files:** 468
+- **Current Progress:** 100.0% (557/470 files)
+- **Matched Files:** 470
 - **Average Similarity:** 0.46
-- **Critical Issues:** 293 files with <0.60 similarity
+- **Critical Issues:** 294 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
 ### 1. layout.heap
-- **Similarity:** 0.17 (needs 68% improvement)
+- **Similarity:** 0.18 (needs 67% improvement)
 - **Dependencies:** 109
-- **Priority Score:** 90.0
+- **Priority Score:** 89.8
 - **Action:** Deep review - likely missing major functionality
 
 ### 2. assert
@@ -30,15 +30,16 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Review and complete missing sections
 
 ### 4. values.freeze
-- **Similarity:** 0.06 (needs 79% improvement)
+- **Similarity:** 0.00 (needs 85% improvement)
 - **Dependencies:** 42
-- **Priority Score:** 39.4
+- **Priority Score:** 42.0
+- **TODOs:** 2
 - **Action:** Deep review - likely missing major functionality
 
 ### 5. values.trace
-- **Similarity:** 0.30 (needs 55% improvement)
+- **Similarity:** 0.32 (needs 53% improvement)
 - **Dependencies:** 52
-- **Priority Score:** 36.2
+- **Priority Score:** 35.6
 - **Action:** Deep review - likely missing major functionality
 
 ### 6. typing.ty
@@ -56,7 +57,7 @@ Based on AST analysis, here are the concrete next steps.
 ### 8. coerce
 - **Similarity:** 0.13 (needs 72% improvement)
 - **Dependencies:** 34
-- **Priority Score:** 29.5
+- **Priority Score:** 29.4
 - **Action:** Deep review - likely missing major functionality
 
 ### 9. derive.unpack_value
@@ -91,7 +92,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark rust ../../src kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>

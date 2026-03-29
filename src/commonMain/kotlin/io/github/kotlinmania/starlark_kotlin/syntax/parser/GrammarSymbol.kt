@@ -62,4 +62,59 @@ sealed class GrammarSymbol {
     data class Variant48(val value: AstFloat) : GrammarSymbol()
     data class Variant49(val value: AstFString) : GrammarSymbol()
     data class Variant50(val value: AstInt) : GrammarSymbol()
+
+    /** Extract the inner value from this wrapper for use in reducer action functions. */
+    fun unwrap(): Any? = when (this) {
+        is Variant0 -> value
+        is Variant1 -> value
+        is Variant2 -> value
+        is Variant3 -> value
+        is Variant4 -> value
+        is Variant5 -> value
+        is Variant6 -> value
+        is Variant7 -> value
+        is Variant8 -> value
+        is Variant9 -> value
+        is Variant10 -> value
+        is Variant11 -> value
+        is Variant12 -> value
+        is Variant13 -> value
+        is Variant14 -> value
+        is Variant15 -> value
+        is Variant16 -> value
+        is Variant17 -> value
+        is Variant18 -> value
+        is Variant19 -> value
+        is Variant20 -> value
+        is Variant21 -> value
+        is Variant22 -> value
+        is Variant23 -> value
+        is Variant24 -> value
+        is Variant25 -> value
+        is Variant26 -> value
+        is Variant27 -> value
+        is Variant28 -> value
+        is Variant29 -> value
+        is Variant30 -> value
+        is Variant31 -> value
+        is Variant32 -> value
+        is Variant33 -> value
+        is Variant34 -> value
+        is Variant35 -> value
+        is Variant36 -> value
+        is Variant37 -> value
+        is Variant38 -> value
+        is Variant39 -> value
+        is Variant40 -> value
+        is Variant41 -> value
+        is Variant42 -> value
+        is Variant43 -> value
+        is Variant44 -> value
+        is Variant45 -> value
+        is Variant46 -> value
+        is Variant47 -> value
+        is Variant48 -> value
+        is Variant49 -> value
+        is Variant50 -> value
+    }
 }

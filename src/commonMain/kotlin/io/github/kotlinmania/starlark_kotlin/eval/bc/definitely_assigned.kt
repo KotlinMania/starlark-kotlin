@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/definitely_assigned.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.definitely_assigned
+package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

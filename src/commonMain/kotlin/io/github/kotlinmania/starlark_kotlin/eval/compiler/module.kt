@@ -23,7 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.allocaFrame
+import io.github.kotlinmania.starlark_kotlin.eval.bc.allocaFrame
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt

@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /// Unsorted/core interpreter stuff.
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrControl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException

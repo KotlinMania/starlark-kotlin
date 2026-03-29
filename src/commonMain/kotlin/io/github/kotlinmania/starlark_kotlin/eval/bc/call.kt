@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /// Call-related bytecode interpreter code.
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull

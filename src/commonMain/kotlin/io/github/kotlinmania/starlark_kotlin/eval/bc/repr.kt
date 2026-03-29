@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/repr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.repr
+package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,13 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.repr
 /// Instruction representation in memory.
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcodeHandler
-
-interface BcInstr {
-    /** The argument type for this instruction. */
-    val arg: Any
-}
 
 /// Instructions are aligned to store `u64` even on 32-bit machines.
 const val BC_INSTR_ALIGN: Int = 8

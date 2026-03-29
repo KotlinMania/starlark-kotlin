@@ -1,6 +1,6 @@
 
 // port-lint: source src/eval/bc/frame.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.frame
+package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,10 +24,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.frame
  * Local variables and stack, in single allocation.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.LoopDepth
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

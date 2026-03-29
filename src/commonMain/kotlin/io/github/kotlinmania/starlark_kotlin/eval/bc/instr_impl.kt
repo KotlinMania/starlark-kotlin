@@ -1,8 +1,8 @@
 // port-lint: source src/eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.instr.InstrControl
-import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrControl
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 // Types from eval.bc.frame (sub-package)
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
 // Types from values.types.dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 // Types from eval.runtime.params.spec

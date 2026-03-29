@@ -35,8 +35,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrs
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.frame.trace
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
+import io.github.kotlinmania.starlark_kotlin.eval.bc.trace
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo

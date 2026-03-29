@@ -1,6 +1,6 @@
 // port-lint: source src/eval/bc/instrs.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.repr.BcInstrHeader
+import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

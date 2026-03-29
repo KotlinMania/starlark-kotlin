@@ -9,13 +9,19 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 
 fun <T> T.ast(begin: Int, end: Int): Spanned<T> = Spanned(this, Span(Pos(begin), Pos(end)))
 
+/** Pop a symbol from the stack and unwrap the GrammarSymbol to its inner value. */
+private fun MutableList<Triple<Int, GrammarSymbol, Int>>.popUnwrap(): Triple<Int, Any?, Int> {
+    val sym = removeLast()
+    return Triple(sym.first, sym.second.unwrap(), sym.third)
+}
+
 @Suppress("UNCHECKED_CAST", "UNUSED_VARIABLE")
 object GrammarReducers {
     fun reduce(ruleId: Int, symbols: MutableList<Triple<Int, GrammarSymbol, Int>>, state: ParserState, lookahead_start: Int?): Pair<Int, Int> {
         when (ruleId) {
         0 -> {
             // // ","? = "," => ActionFn(215);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action215(state, __sym0);
@@ -32,7 +38,7 @@ object GrammarReducers {
         }
         2 -> {
             // // ";"? = ";" => ActionFn(205);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action205(state, __sym0);
@@ -57,7 +63,7 @@ object GrammarReducers {
         }
         5 -> {
             // // "\n"* = "\n"+ => ActionFn(197);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action197(state, __sym0);
@@ -66,7 +72,7 @@ object GrammarReducers {
         }
         6 -> {
             // // "\n"+ = "\n" => ActionFn(186);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action186(state, __sym0);
@@ -75,8 +81,8 @@ object GrammarReducers {
         }
         7 -> {
             // // "\n"+ = "\n"+, "\n" => ActionFn(187);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action187(state, __sym0, __sym1);
@@ -85,8 +91,8 @@ object GrammarReducers {
         }
         8 -> {
             // // (":" <Test?>) = ":", Test => ActionFn(263);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action263(state, __sym0, __sym1);
@@ -95,7 +101,7 @@ object GrammarReducers {
         }
         9 -> {
             // // (":" <Test?>) = ":" => ActionFn(264);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action264(state, __sym0);
@@ -104,8 +110,8 @@ object GrammarReducers {
         }
         10 -> {
             // // (":" <Test?>)? = ":", Test => ActionFn(271);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action271(state, __sym0, __sym1);
@@ -114,7 +120,7 @@ object GrammarReducers {
         }
         11 -> {
             // // (":" <Test?>)? = ":" => ActionFn(272);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action272(state, __sym0);
@@ -131,8 +137,8 @@ object GrammarReducers {
         }
         13 -> {
             // // (";" <SmallStmt>) = ";", SmallStmt => ActionFn(209);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action209(state, __sym0, __sym1);
@@ -149,7 +155,7 @@ object GrammarReducers {
         }
         15 -> {
             // // (";" <SmallStmt>)* = (";" <SmallStmt>)+ => ActionFn(208);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action208(state, __sym0);
@@ -158,8 +164,8 @@ object GrammarReducers {
         }
         16 -> {
             // // (";" <SmallStmt>)+ = ";", SmallStmt => ActionFn(285);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action285(state, __sym0, __sym1);
@@ -168,9 +174,9 @@ object GrammarReducers {
         }
         17 -> {
             // // (";" <SmallStmt>)+ = (";" <SmallStmt>)+, ";", SmallStmt => ActionFn(286);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action286(state, __sym0, __sym1, __sym2);
@@ -179,8 +185,8 @@ object GrammarReducers {
         }
         18 -> {
             // // (<Argument> ",") = Argument, "," => ActionFn(221);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action221(state, __sym0, __sym1);
@@ -197,7 +203,7 @@ object GrammarReducers {
         }
         20 -> {
             // // (<Argument> ",")* = (<Argument> ",")+ => ActionFn(220);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action220(state, __sym0);
@@ -206,8 +212,8 @@ object GrammarReducers {
         }
         21 -> {
             // // (<Argument> ",")+ = Argument, "," => ActionFn(291);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action291(state, __sym0, __sym1);
@@ -216,9 +222,9 @@ object GrammarReducers {
         }
         22 -> {
             // // (<Argument> ",")+ = (<Argument> ",")+, Argument, "," => ActionFn(292);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action292(state, __sym0, __sym1, __sym2);
@@ -227,8 +233,8 @@ object GrammarReducers {
         }
         23 -> {
             // // (<DefParameter> ",") = DefParameter, "," => ActionFn(204);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action204(state, __sym0, __sym1);
@@ -245,7 +251,7 @@ object GrammarReducers {
         }
         25 -> {
             // // (<DefParameter> ",")* = (<DefParameter> ",")+ => ActionFn(203);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action203(state, __sym0);
@@ -254,8 +260,8 @@ object GrammarReducers {
         }
         26 -> {
             // // (<DefParameter> ",")+ = DefParameter, "," => ActionFn(295);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action295(state, __sym0, __sym1);
@@ -264,9 +270,9 @@ object GrammarReducers {
         }
         27 -> {
             // // (<DefParameter> ",")+ = (<DefParameter> ",")+, DefParameter, "," => ActionFn(296);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action296(state, __sym0, __sym1, __sym2);
@@ -275,8 +281,8 @@ object GrammarReducers {
         }
         28 -> {
             // // (<DictEntry> ",") = DictEntry, "," => ActionFn(229);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action229(state, __sym0, __sym1);
@@ -293,7 +299,7 @@ object GrammarReducers {
         }
         30 -> {
             // // (<DictEntry> ",")* = (<DictEntry> ",")+ => ActionFn(228);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action228(state, __sym0);
@@ -302,8 +308,8 @@ object GrammarReducers {
         }
         31 -> {
             // // (<DictEntry> ",")+ = DictEntry, "," => ActionFn(299);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action299(state, __sym0, __sym1);
@@ -312,9 +318,9 @@ object GrammarReducers {
         }
         32 -> {
             // // (<DictEntry> ",")+ = (<DictEntry> ",")+, DictEntry, "," => ActionFn(300);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action300(state, __sym0, __sym1, __sym2);
@@ -323,8 +329,8 @@ object GrammarReducers {
         }
         33 -> {
             // // (<Expr> ",") = Expr, "," => ActionFn(214);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action214(state, __sym0, __sym1);
@@ -341,7 +347,7 @@ object GrammarReducers {
         }
         35 -> {
             // // (<Expr> ",")* = (<Expr> ",")+ => ActionFn(213);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action213(state, __sym0);
@@ -350,8 +356,8 @@ object GrammarReducers {
         }
         36 -> {
             // // (<Expr> ",")+ = Expr, "," => ActionFn(303);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action303(state, __sym0, __sym1);
@@ -360,9 +366,9 @@ object GrammarReducers {
         }
         37 -> {
             // // (<Expr> ",")+ = (<Expr> ",")+, Expr, "," => ActionFn(304);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action304(state, __sym0, __sym1, __sym2);
@@ -371,8 +377,8 @@ object GrammarReducers {
         }
         38 -> {
             // // (<LambdaParameter> ",") = LambdaParameter, "," => ActionFn(236);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action236(state, __sym0, __sym1);
@@ -389,7 +395,7 @@ object GrammarReducers {
         }
         40 -> {
             // // (<LambdaParameter> ",")* = (<LambdaParameter> ",")+ => ActionFn(235);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action235(state, __sym0);
@@ -398,8 +404,8 @@ object GrammarReducers {
         }
         41 -> {
             // // (<LambdaParameter> ",")+ = LambdaParameter, "," => ActionFn(309);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action309(state, __sym0, __sym1);
@@ -408,9 +414,9 @@ object GrammarReducers {
         }
         42 -> {
             // // (<LambdaParameter> ",")+ = (<LambdaParameter> ",")+, LambdaParameter, "," => ActionFn(310);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action310(state, __sym0, __sym1, __sym2);
@@ -419,8 +425,8 @@ object GrammarReducers {
         }
         43 -> {
             // // (<LoadStmtSyms> <Comma>) = LoadStmtSyms, Comma => ActionFn(173);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action173(state, __sym0, __sym1);
@@ -437,7 +443,7 @@ object GrammarReducers {
         }
         45 -> {
             // // (<LoadStmtSyms> <Comma>)* = (<LoadStmtSyms> <Comma>)+ => ActionFn(172);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action172(state, __sym0);
@@ -446,8 +452,8 @@ object GrammarReducers {
         }
         46 -> {
             // // (<LoadStmtSyms> <Comma>)+ = LoadStmtSyms, Comma => ActionFn(313);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action313(state, __sym0, __sym1);
@@ -456,9 +462,9 @@ object GrammarReducers {
         }
         47 -> {
             // // (<LoadStmtSyms> <Comma>)+ = (<LoadStmtSyms> <Comma>)+, LoadStmtSyms, Comma => ActionFn(314);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action314(state, __sym0, __sym1, __sym2);
@@ -467,7 +473,7 @@ object GrammarReducers {
         }
         48 -> {
             // // (<LoadStmtSyms>) = LoadStmtSyms => ActionFn(170);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action170(state, __sym0);
@@ -476,7 +482,7 @@ object GrammarReducers {
         }
         49 -> {
             // // (<LoadStmtSyms>)? = LoadStmtSyms => ActionFn(317);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action317(state, __sym0);
@@ -493,7 +499,7 @@ object GrammarReducers {
         }
         51 -> {
             // // (<Stmt> "\n"*) = Stmt => ActionFn(257);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action257(state, __sym0);
@@ -502,8 +508,8 @@ object GrammarReducers {
         }
         52 -> {
             // // (<Stmt> "\n"*) = Stmt, "\n"+ => ActionFn(258);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action258(state, __sym0, __sym1);
@@ -520,7 +526,7 @@ object GrammarReducers {
         }
         54 -> {
             // // (<Stmt> "\n"*)* = (<Stmt> "\n"*)+ => ActionFn(194);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action194(state, __sym0);
@@ -529,7 +535,7 @@ object GrammarReducers {
         }
         55 -> {
             // // (<Stmt> "\n"*)+ = Stmt => ActionFn(322);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action322(state, __sym0);
@@ -538,8 +544,8 @@ object GrammarReducers {
         }
         56 -> {
             // // (<Stmt> "\n"*)+ = Stmt, "\n"+ => ActionFn(323);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action323(state, __sym0, __sym1);
@@ -548,8 +554,8 @@ object GrammarReducers {
         }
         57 -> {
             // // (<Stmt> "\n"*)+ = (<Stmt> "\n"*)+, Stmt => ActionFn(324);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action324(state, __sym0, __sym1);
@@ -558,9 +564,9 @@ object GrammarReducers {
         }
         58 -> {
             // // (<Stmt> "\n"*)+ = (<Stmt> "\n"*)+, Stmt, "\n"+ => ActionFn(325);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action325(state, __sym0, __sym1, __sym2);
@@ -569,8 +575,8 @@ object GrammarReducers {
         }
         59 -> {
             // // (<Test> ",") = Test, "," => ActionFn(224);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action224(state, __sym0, __sym1);
@@ -587,7 +593,7 @@ object GrammarReducers {
         }
         61 -> {
             // // (<Test> ",")* = (<Test> ",")+ => ActionFn(223);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action223(state, __sym0);
@@ -596,8 +602,8 @@ object GrammarReducers {
         }
         62 -> {
             // // (<Test> ",")+ = Test, "," => ActionFn(330);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action330(state, __sym0, __sym1);
@@ -606,9 +612,9 @@ object GrammarReducers {
         }
         63 -> {
             // // (<Test> ",")+ = (<Test> ",")+, Test, "," => ActionFn(331);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action331(state, __sym0, __sym1, __sym2);
@@ -633,7 +639,7 @@ object GrammarReducers {
         }
         66 -> {
             // // ASTA<Argument_> = Argument_ => ActionFn(432);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action432(state, __sym0);
@@ -642,7 +648,7 @@ object GrammarReducers {
         }
         67 -> {
             // // ASTE<DictComp_> = DictComp_ => ActionFn(433);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action433(state, __sym0);
@@ -651,7 +657,7 @@ object GrammarReducers {
         }
         68 -> {
             // // ASTE<LambDef_> = LambDef_ => ActionFn(434);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action434(state, __sym0);
@@ -660,7 +666,7 @@ object GrammarReducers {
         }
         69 -> {
             // // ASTE<ListComp_> = ListComp_ => ActionFn(435);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action435(state, __sym0);
@@ -669,7 +675,7 @@ object GrammarReducers {
         }
         70 -> {
             // // ASTP<DefParameter_> = DefParameter_ => ActionFn(436);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action436(state, __sym0);
@@ -678,7 +684,7 @@ object GrammarReducers {
         }
         71 -> {
             // // ASTP<LambdaParameter_> = LambdaParameter_ => ActionFn(437);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action437(state, __sym0);
@@ -687,7 +693,7 @@ object GrammarReducers {
         }
         72 -> {
             // // ASTS<AssignStmt_> = AssignStmt_ => ActionFn(438);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action438(state, __sym0);
@@ -696,7 +702,7 @@ object GrammarReducers {
         }
         73 -> {
             // // ASTS<DefStmt_> = DefStmt_ => ActionFn(439);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action439(state, __sym0);
@@ -705,7 +711,7 @@ object GrammarReducers {
         }
         74 -> {
             // // ASTS<ExprStmt_> = ExprStmt_ => ActionFn(440);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action440(state, __sym0);
@@ -714,7 +720,7 @@ object GrammarReducers {
         }
         75 -> {
             // // ASTS<ForStmt_> = ForStmt_ => ActionFn(441);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action441(state, __sym0);
@@ -723,7 +729,7 @@ object GrammarReducers {
         }
         76 -> {
             // // ASTS<IfBody_> = IfBody_ => ActionFn(442);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action442(state, __sym0);
@@ -732,7 +738,7 @@ object GrammarReducers {
         }
         77 -> {
             // // ASTS<IfStmt_> = IfStmt_ => ActionFn(443);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action443(state, __sym0);
@@ -741,7 +747,7 @@ object GrammarReducers {
         }
         78 -> {
             // // ASTS<LoadStmt_> = LoadStmt_ => ActionFn(444);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action444(state, __sym0);
@@ -750,9 +756,9 @@ object GrammarReducers {
         }
         79 -> {
             // // AndTest = AndTest, "and", NotTest => ActionFn(445);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action445(state, __sym0, __sym1, __sym2);
@@ -761,7 +767,7 @@ object GrammarReducers {
         }
         80 -> {
             // // AndTest = NotTest => ActionFn(115);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action115(state, __sym0);
@@ -770,7 +776,7 @@ object GrammarReducers {
         }
         81 -> {
             // // Argument = Argument_ => ActionFn(524);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action524(state, __sym0);
@@ -779,7 +785,7 @@ object GrammarReducers {
         }
         82 -> {
             // // Argument? = Argument => ActionFn(217);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action217(state, __sym0);
@@ -796,7 +802,7 @@ object GrammarReducers {
         }
         84 -> {
             // // Argument_ = Test => ActionFn(83);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action83(state, __sym0);
@@ -805,9 +811,9 @@ object GrammarReducers {
         }
         85 -> {
             // // Argument_ = "IDENTIFIER", "=", Test => ActionFn(565);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action565(state, __sym0, __sym1, __sym2);
@@ -816,8 +822,8 @@ object GrammarReducers {
         }
         86 -> {
             // // Argument_ = "*", Test => ActionFn(85);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action85(state, __sym0, __sym1);
@@ -826,8 +832,8 @@ object GrammarReducers {
         }
         87 -> {
             // // Argument_ = "**", Test => ActionFn(86);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action86(state, __sym0, __sym1);
@@ -836,9 +842,9 @@ object GrammarReducers {
         }
         88 -> {
             // // ArithExpr = ArithExpr, "+", ProductExpr => ActionFn(446);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action446(state, __sym0, __sym1, __sym2);
@@ -847,9 +853,9 @@ object GrammarReducers {
         }
         89 -> {
             // // ArithExpr = ArithExpr, "-", ProductExpr => ActionFn(447);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action447(state, __sym0, __sym1, __sym2);
@@ -858,7 +864,7 @@ object GrammarReducers {
         }
         90 -> {
             // // ArithExpr = ProductExpr => ActionFn(139);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action139(state, __sym0);
@@ -867,7 +873,7 @@ object GrammarReducers {
         }
         91 -> {
             // // AssignIdent = "IDENTIFIER" => ActionFn(566);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action566(state, __sym0);
@@ -876,7 +882,7 @@ object GrammarReducers {
         }
         92 -> {
             // // AssignOp = "=" => ActionFn(51);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action51(state, __sym0);
@@ -885,7 +891,7 @@ object GrammarReducers {
         }
         93 -> {
             // // AssignOp = "+=" => ActionFn(52);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action52(state, __sym0);
@@ -894,7 +900,7 @@ object GrammarReducers {
         }
         94 -> {
             // // AssignOp = "-=" => ActionFn(53);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action53(state, __sym0);
@@ -903,7 +909,7 @@ object GrammarReducers {
         }
         95 -> {
             // // AssignOp = "*=" => ActionFn(54);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action54(state, __sym0);
@@ -912,7 +918,7 @@ object GrammarReducers {
         }
         96 -> {
             // // AssignOp = "/=" => ActionFn(55);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action55(state, __sym0);
@@ -921,7 +927,7 @@ object GrammarReducers {
         }
         97 -> {
             // // AssignOp = "//=" => ActionFn(56);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action56(state, __sym0);
@@ -930,7 +936,7 @@ object GrammarReducers {
         }
         98 -> {
             // // AssignOp = "%=" => ActionFn(57);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action57(state, __sym0);
@@ -939,7 +945,7 @@ object GrammarReducers {
         }
         99 -> {
             // // AssignOp = "&=" => ActionFn(58);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action58(state, __sym0);
@@ -948,7 +954,7 @@ object GrammarReducers {
         }
         100 -> {
             // // AssignOp = "|=" => ActionFn(59);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action59(state, __sym0);
@@ -957,7 +963,7 @@ object GrammarReducers {
         }
         101 -> {
             // // AssignOp = "^=" => ActionFn(60);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action60(state, __sym0);
@@ -966,7 +972,7 @@ object GrammarReducers {
         }
         102 -> {
             // // AssignOp = "<<=" => ActionFn(61);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action61(state, __sym0);
@@ -975,7 +981,7 @@ object GrammarReducers {
         }
         103 -> {
             // // AssignOp = ">>=" => ActionFn(62);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action62(state, __sym0);
@@ -984,18 +990,30 @@ object GrammarReducers {
         }
         104 -> {
             // // AssignStmt = AssignStmt_ => ActionFn(530);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action530(state, __sym0);
             symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
             return 1 to 57
         }
+        105 -> {
+            // // AssignStmt_ = TestList, Type, AssignOp, TestList => ActionFn(64);
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
+            val __start = __sym0.first;
+            val __end = __sym3.third;
+            val __nt = __action64(state, __sym0, __sym1, __sym2, __sym3);
+            symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
+            return 4 to 58
+        }
         106 -> {
             // // BitAndExpr = BitAndExpr, "&", ShiftExpr => ActionFn(448);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action448(state, __sym0, __sym1, __sym2);
@@ -1004,7 +1022,7 @@ object GrammarReducers {
         }
         107 -> {
             // // BitAndExpr = ShiftExpr => ActionFn(133);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action133(state, __sym0);
@@ -1013,9 +1031,9 @@ object GrammarReducers {
         }
         108 -> {
             // // BitOrExpr = BitOrExpr, "|", BitXorExpr => ActionFn(449);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action449(state, __sym0, __sym1, __sym2);
@@ -1024,7 +1042,7 @@ object GrammarReducers {
         }
         109 -> {
             // // BitOrExpr = BitXorExpr => ActionFn(129);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action129(state, __sym0);
@@ -1033,9 +1051,9 @@ object GrammarReducers {
         }
         110 -> {
             // // BitXorExpr = BitXorExpr, "^", BitAndExpr => ActionFn(450);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action450(state, __sym0, __sym1, __sym2);
@@ -1044,7 +1062,7 @@ object GrammarReducers {
         }
         111 -> {
             // // BitXorExpr = BitAndExpr => ActionFn(131);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action131(state, __sym0);
@@ -1053,7 +1071,7 @@ object GrammarReducers {
         }
         112 -> {
             // // COMMA<Argument> = Argument => ActionFn(537);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action537(state, __sym0);
@@ -1070,8 +1088,8 @@ object GrammarReducers {
         }
         114 -> {
             // // COMMA<Argument> = (<Argument> ",")+, Argument => ActionFn(539);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action539(state, __sym0, __sym1);
@@ -1080,7 +1098,7 @@ object GrammarReducers {
         }
         115 -> {
             // // COMMA<Argument> = (<Argument> ",")+ => ActionFn(540);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action540(state, __sym0);
@@ -1089,7 +1107,7 @@ object GrammarReducers {
         }
         116 -> {
             // // COMMA<DefParameter> = DefParameter => ActionFn(543);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action543(state, __sym0);
@@ -1106,8 +1124,8 @@ object GrammarReducers {
         }
         118 -> {
             // // COMMA<DefParameter> = (<DefParameter> ",")+, DefParameter => ActionFn(545);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action545(state, __sym0, __sym1);
@@ -1116,7 +1134,7 @@ object GrammarReducers {
         }
         119 -> {
             // // COMMA<DefParameter> = (<DefParameter> ",")+ => ActionFn(546);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action546(state, __sym0);
@@ -1125,7 +1143,7 @@ object GrammarReducers {
         }
         120 -> {
             // // COMMA<DictEntry> = DictEntry => ActionFn(547);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action547(state, __sym0);
@@ -1142,8 +1160,8 @@ object GrammarReducers {
         }
         122 -> {
             // // COMMA<DictEntry> = (<DictEntry> ",")+, DictEntry => ActionFn(549);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action549(state, __sym0, __sym1);
@@ -1152,7 +1170,7 @@ object GrammarReducers {
         }
         123 -> {
             // // COMMA<DictEntry> = (<DictEntry> ",")+ => ActionFn(550);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action550(state, __sym0);
@@ -1161,7 +1179,7 @@ object GrammarReducers {
         }
         124 -> {
             // // COMMA<LambdaParameter> = LambdaParameter => ActionFn(553);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action553(state, __sym0);
@@ -1178,8 +1196,8 @@ object GrammarReducers {
         }
         126 -> {
             // // COMMA<LambdaParameter> = (<LambdaParameter> ",")+, LambdaParameter => ActionFn(555);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action555(state, __sym0, __sym1);
@@ -1188,7 +1206,7 @@ object GrammarReducers {
         }
         127 -> {
             // // COMMA<LambdaParameter> = (<LambdaParameter> ",")+ => ActionFn(556);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action556(state, __sym0);
@@ -1197,7 +1215,7 @@ object GrammarReducers {
         }
         128 -> {
             // // COMMA<Test> = Test => ActionFn(332);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action332(state, __sym0);
@@ -1206,8 +1224,8 @@ object GrammarReducers {
         }
         129 -> {
             // // COMMA<Test> = (<Test> ",")+, Test => ActionFn(333);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action333(state, __sym0, __sym1);
@@ -1224,7 +1242,7 @@ object GrammarReducers {
         }
         131 -> {
             // // COMMA<Test> = (<Test> ",")+ => ActionFn(335);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action335(state, __sym0);
@@ -1233,7 +1251,7 @@ object GrammarReducers {
         }
         132 -> {
             // // Clause = ForClause => ActionFn(104);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action104(state, __sym0);
@@ -1242,8 +1260,8 @@ object GrammarReducers {
         }
         133 -> {
             // // Clause = "if", OrTest => ActionFn(105);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action105(state, __sym0, __sym1);
@@ -1260,7 +1278,7 @@ object GrammarReducers {
         }
         135 -> {
             // // Clause* = Clause+ => ActionFn(152);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action152(state, __sym0);
@@ -1269,7 +1287,7 @@ object GrammarReducers {
         }
         136 -> {
             // // Clause+ = Clause => ActionFn(230);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action230(state, __sym0);
@@ -1278,8 +1296,8 @@ object GrammarReducers {
         }
         137 -> {
             // // Clause+ = Clause+, Clause => ActionFn(231);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action231(state, __sym0, __sym1);
@@ -1288,7 +1306,7 @@ object GrammarReducers {
         }
         138 -> {
             // // Comma = "," => ActionFn(451);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action451(state, __sym0);
@@ -1297,7 +1315,7 @@ object GrammarReducers {
         }
         139 -> {
             // // CompClause = ForClause => ActionFn(541);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action541(state, __sym0);
@@ -1306,8 +1324,8 @@ object GrammarReducers {
         }
         140 -> {
             // // CompClause = ForClause, Clause+ => ActionFn(542);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action542(state, __sym0, __sym1);
@@ -1316,9 +1334,9 @@ object GrammarReducers {
         }
         141 -> {
             // // CompTest = BitOrExpr, "==", BitOrExpr => ActionFn(452);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action452(state, __sym0, __sym1, __sym2);
@@ -1327,9 +1345,9 @@ object GrammarReducers {
         }
         142 -> {
             // // CompTest = BitOrExpr, "!=", BitOrExpr => ActionFn(453);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action453(state, __sym0, __sym1, __sym2);
@@ -1338,9 +1356,9 @@ object GrammarReducers {
         }
         143 -> {
             // // CompTest = BitOrExpr, "<", BitOrExpr => ActionFn(454);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action454(state, __sym0, __sym1, __sym2);
@@ -1349,9 +1367,9 @@ object GrammarReducers {
         }
         144 -> {
             // // CompTest = BitOrExpr, ">", BitOrExpr => ActionFn(455);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action455(state, __sym0, __sym1, __sym2);
@@ -1360,9 +1378,9 @@ object GrammarReducers {
         }
         145 -> {
             // // CompTest = BitOrExpr, "<=", BitOrExpr => ActionFn(456);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action456(state, __sym0, __sym1, __sym2);
@@ -1371,9 +1389,9 @@ object GrammarReducers {
         }
         146 -> {
             // // CompTest = BitOrExpr, ">=", BitOrExpr => ActionFn(457);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action457(state, __sym0, __sym1, __sym2);
@@ -1382,9 +1400,9 @@ object GrammarReducers {
         }
         147 -> {
             // // CompTest = BitOrExpr, "in", BitOrExpr => ActionFn(458);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action458(state, __sym0, __sym1, __sym2);
@@ -1393,10 +1411,10 @@ object GrammarReducers {
         }
         148 -> {
             // // CompTest = BitOrExpr, "not", "in", BitOrExpr => ActionFn(459);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action459(state, __sym0, __sym1, __sym2, __sym3);
@@ -1405,7 +1423,7 @@ object GrammarReducers {
         }
         149 -> {
             // // CompTest = BitOrExpr => ActionFn(126);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action126(state, __sym0);
@@ -1414,7 +1432,7 @@ object GrammarReducers {
         }
         150 -> {
             // // DefParameter = DefParameter_ => ActionFn(528);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action528(state, __sym0);
@@ -1423,7 +1441,7 @@ object GrammarReducers {
         }
         151 -> {
             // // DefParameter? = DefParameter => ActionFn(200);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action200(state, __sym0);
@@ -1440,7 +1458,7 @@ object GrammarReducers {
         }
         153 -> {
             // // DefParameter_ = "/" => ActionFn(21);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action21(state, __sym0);
@@ -1449,10 +1467,10 @@ object GrammarReducers {
         }
         154 -> {
             // // DefParameter_ = AssignIdent, Type, "=", Test => ActionFn(22);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action22(state, __sym0, __sym1, __sym2, __sym3);
@@ -1461,8 +1479,8 @@ object GrammarReducers {
         }
         155 -> {
             // // DefParameter_ = AssignIdent, Type => ActionFn(23);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action23(state, __sym0, __sym1);
@@ -1471,9 +1489,9 @@ object GrammarReducers {
         }
         156 -> {
             // // DefParameter_ = "*", AssignIdent, Type => ActionFn(24);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action24(state, __sym0, __sym1, __sym2);
@@ -1482,7 +1500,7 @@ object GrammarReducers {
         }
         157 -> {
             // // DefParameter_ = "*" => ActionFn(25);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action25(state, __sym0);
@@ -1491,9 +1509,9 @@ object GrammarReducers {
         }
         158 -> {
             // // DefParameter_ = "**", AssignIdent, Type => ActionFn(26);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action26(state, __sym0, __sym1, __sym2);
@@ -1502,7 +1520,7 @@ object GrammarReducers {
         }
         159 -> {
             // // DefStmt = DefStmt_ => ActionFn(531);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action531(state, __sym0);
@@ -1511,14 +1529,14 @@ object GrammarReducers {
         }
         160 -> {
             // // DefStmt_ = "def", AssignIdent, "(", COMMA<DefParameter>, ")", ReturnType, ":", Suite => ActionFn(10);
-            val __sym7 = symbols.removeLast()
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym7 = symbols.popUnwrap()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym7.third;
             val __nt = __action10(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6, __sym7);
@@ -1527,7 +1545,7 @@ object GrammarReducers {
         }
         161 -> {
             // // DictComp = DictComp_ => ActionFn(525);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action525(state, __sym0);
@@ -1536,10 +1554,10 @@ object GrammarReducers {
         }
         162 -> {
             // // DictComp_ = "{", DictEntry, CompClause, "}" => ActionFn(102);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action102(state, __sym0, __sym1, __sym2, __sym3);
@@ -1548,9 +1566,9 @@ object GrammarReducers {
         }
         163 -> {
             // // DictEntry = Test, ":", Test => ActionFn(98);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action98(state, __sym0, __sym1, __sym2);
@@ -1559,7 +1577,7 @@ object GrammarReducers {
         }
         164 -> {
             // // DictEntry? = DictEntry => ActionFn(225);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action225(state, __sym0);
@@ -1576,8 +1594,8 @@ object GrammarReducers {
         }
         166 -> {
             // // ElseStmt = "elif", IfBody => ActionFn(40);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action40(state, __sym0, __sym1);
@@ -1586,9 +1604,9 @@ object GrammarReducers {
         }
         167 -> {
             // // ElseStmt = "else", ":", Suite => ActionFn(41);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action41(state, __sym0, __sym1, __sym2);
@@ -1597,7 +1615,7 @@ object GrammarReducers {
         }
         168 -> {
             // // ElseStmt? = ElseStmt => ActionFn(181);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action181(state, __sym0);
@@ -1614,7 +1632,7 @@ object GrammarReducers {
         }
         170 -> {
             // // Expr = BitOrExpr => ActionFn(127);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action127(state, __sym0);
@@ -1623,7 +1641,7 @@ object GrammarReducers {
         }
         171 -> {
             // // ExprList = L<Expr> => ActionFn(73);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action73(state, __sym0);
@@ -1632,7 +1650,7 @@ object GrammarReducers {
         }
         172 -> {
             // // ExprStmt = ExprStmt_ => ActionFn(532);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action532(state, __sym0);
@@ -1641,7 +1659,7 @@ object GrammarReducers {
         }
         173 -> {
             // // ExprStmt_ = Test => ActionFn(66);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action66(state, __sym0);
@@ -1650,8 +1668,8 @@ object GrammarReducers {
         }
         174 -> {
             // // FactorExpr = "+", FactorExpr => ActionFn(460);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action460(state, __sym0, __sym1);
@@ -1660,8 +1678,8 @@ object GrammarReducers {
         }
         175 -> {
             // // FactorExpr = "-", FactorExpr => ActionFn(461);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action461(state, __sym0, __sym1);
@@ -1670,8 +1688,8 @@ object GrammarReducers {
         }
         176 -> {
             // // FactorExpr = "~", FactorExpr => ActionFn(462);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action462(state, __sym0, __sym1);
@@ -1680,25 +1698,51 @@ object GrammarReducers {
         }
         177 -> {
             // // FactorExpr = PrimaryExpr => ActionFn(148);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action148(state, __sym0);
             symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
             return 1 to 88
         }
+        178 -> {
+            // // ForClause = "for", ExprList, "in", OrTest => ActionFn(106);
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
+            val __start = __sym0.first;
+            val __end = __sym3.third;
+            val __nt = __action106(state, __sym0, __sym1, __sym2, __sym3);
+            symbols.add(Triple(__start, GrammarSymbol.Variant42(__nt as ForClause), __end))
+            return 4 to 89
+        }
         179 -> {
             // // ForStmt = ForStmt_ => ActionFn(533);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action533(state, __sym0);
             symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
             return 1 to 90
         }
+        180 -> {
+            // // ForStmt_ = "for", ExprList, "in", Test, ":", Suite => ActionFn(43);
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
+            val __start = __sym0.first;
+            val __end = __sym5.third;
+            val __nt = __action43(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
+            symbols.add(Triple(__start, GrammarSymbol.Variant28(__nt as Stmt), __end))
+            return 6 to 91
+        }
         181 -> {
             // // Ident = "IDENTIFIER" => ActionFn(567);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action567(state, __sym0);
@@ -1707,7 +1751,7 @@ object GrammarReducers {
         }
         182 -> {
             // // IfBody = IfBody_ => ActionFn(534);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action534(state, __sym0);
@@ -1716,10 +1760,10 @@ object GrammarReducers {
         }
         183 -> {
             // // IfBody_ = Test, ":", Suite, ElseStmt => ActionFn(551);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action551(state, __sym0, __sym1, __sym2, __sym3);
@@ -1728,9 +1772,9 @@ object GrammarReducers {
         }
         184 -> {
             // // IfBody_ = Test, ":", Suite => ActionFn(552);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action552(state, __sym0, __sym1, __sym2);
@@ -1739,7 +1783,7 @@ object GrammarReducers {
         }
         185 -> {
             // // IfStmt = IfStmt_ => ActionFn(535);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action535(state, __sym0);
@@ -1748,8 +1792,8 @@ object GrammarReducers {
         }
         186 -> {
             // // IfStmt_ = "if", IfBody_ => ActionFn(39);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action39(state, __sym0, __sym1);
@@ -1758,8 +1802,8 @@ object GrammarReducers {
         }
         187 -> {
             // // L<Expr> = Expr, "," => ActionFn(463);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action463(state, __sym0, __sym1);
@@ -1768,9 +1812,9 @@ object GrammarReducers {
         }
         188 -> {
             // // L<Expr> = (<Expr> ",")+, Expr, "," => ActionFn(464);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action464(state, __sym0, __sym1, __sym2);
@@ -1779,7 +1823,7 @@ object GrammarReducers {
         }
         189 -> {
             // // L<Expr> = Expr => ActionFn(465);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action465(state, __sym0);
@@ -1788,8 +1832,8 @@ object GrammarReducers {
         }
         190 -> {
             // // L<Expr> = (<Expr> ",")+, Expr => ActionFn(466);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action466(state, __sym0, __sym1);
@@ -1798,8 +1842,8 @@ object GrammarReducers {
         }
         191 -> {
             // // L<Test> = Test, "," => ActionFn(467);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action467(state, __sym0, __sym1);
@@ -1808,9 +1852,9 @@ object GrammarReducers {
         }
         192 -> {
             // // L<Test> = (<Test> ",")+, Test, "," => ActionFn(468);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action468(state, __sym0, __sym1, __sym2);
@@ -1819,7 +1863,7 @@ object GrammarReducers {
         }
         193 -> {
             // // L<Test> = Test => ActionFn(469);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action469(state, __sym0);
@@ -1828,8 +1872,8 @@ object GrammarReducers {
         }
         194 -> {
             // // L<Test> = (<Test> ",")+, Test => ActionFn(470);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action470(state, __sym0, __sym1);
@@ -1838,7 +1882,7 @@ object GrammarReducers {
         }
         195 -> {
             // // LambDef = LambDef_ => ActionFn(526);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action526(state, __sym0);
@@ -1847,10 +1891,10 @@ object GrammarReducers {
         }
         196 -> {
             // // LambDef_ = "lambda", COMMA<LambdaParameter>, ":", Test => ActionFn(111);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action111(state, __sym0, __sym1, __sym2, __sym3);
@@ -1859,7 +1903,7 @@ object GrammarReducers {
         }
         197 -> {
             // // LambdaParameter = LambdaParameter_ => ActionFn(529);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action529(state, __sym0);
@@ -1868,7 +1912,7 @@ object GrammarReducers {
         }
         198 -> {
             // // LambdaParameter? = LambdaParameter => ActionFn(232);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action232(state, __sym0);
@@ -1885,7 +1929,7 @@ object GrammarReducers {
         }
         200 -> {
             // // LambdaParameter_ = "/" => ActionFn(14);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action14(state, __sym0);
@@ -1894,9 +1938,9 @@ object GrammarReducers {
         }
         201 -> {
             // // LambdaParameter_ = AssignIdent, "=", Test => ActionFn(15);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action15(state, __sym0, __sym1, __sym2);
@@ -1905,7 +1949,7 @@ object GrammarReducers {
         }
         202 -> {
             // // LambdaParameter_ = AssignIdent => ActionFn(16);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action16(state, __sym0);
@@ -1914,8 +1958,8 @@ object GrammarReducers {
         }
         203 -> {
             // // LambdaParameter_ = "*", AssignIdent => ActionFn(17);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action17(state, __sym0, __sym1);
@@ -1924,7 +1968,7 @@ object GrammarReducers {
         }
         204 -> {
             // // LambdaParameter_ = "*" => ActionFn(18);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action18(state, __sym0);
@@ -1933,8 +1977,8 @@ object GrammarReducers {
         }
         205 -> {
             // // LambdaParameter_ = "**", AssignIdent => ActionFn(19);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action19(state, __sym0, __sym1);
@@ -1943,7 +1987,7 @@ object GrammarReducers {
         }
         206 -> {
             // // ListComp = ListComp_ => ActionFn(527);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action527(state, __sym0);
@@ -1952,10 +1996,10 @@ object GrammarReducers {
         }
         207 -> {
             // // ListComp_ = "[", Test, CompClause, "]" => ActionFn(100);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action100(state, __sym0, __sym1, __sym2, __sym3);
@@ -1964,7 +2008,7 @@ object GrammarReducers {
         }
         208 -> {
             // // LoadStmt = LoadStmt_ => ActionFn(536);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action536(state, __sym0);
@@ -1973,8 +2017,8 @@ object GrammarReducers {
         }
         209 -> {
             // // LoadStmtBindingName = "IDENTIFIER", "=" => ActionFn(568);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action568(state, __sym0, __sym1);
@@ -1983,7 +2027,7 @@ object GrammarReducers {
         }
         210 -> {
             // // LoadStmtBindingName? = LoadStmtBindingName => ActionFn(166);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action166(state, __sym0);
@@ -2000,8 +2044,8 @@ object GrammarReducers {
         }
         212 -> {
             // // LoadStmtSyms = LoadStmtBindingName, "STRING" => ActionFn(571);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action571(state, __sym0, __sym1);
@@ -2010,7 +2054,7 @@ object GrammarReducers {
         }
         213 -> {
             // // LoadStmtSyms = "STRING" => ActionFn(572);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action572(state, __sym0);
@@ -2019,10 +2063,10 @@ object GrammarReducers {
         }
         214 -> {
             // // LoadStmt_ = "load", "(", "STRING", ")" => ActionFn(573);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action573(state, __sym0, __sym1, __sym2, __sym3);
@@ -2031,12 +2075,12 @@ object GrammarReducers {
         }
         215 -> {
             // // LoadStmt_ = "load", "(", "STRING", Comma, LoadStmtSyms, ")" => ActionFn(574);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action574(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2045,11 +2089,11 @@ object GrammarReducers {
         }
         216 -> {
             // // LoadStmt_ = "load", "(", "STRING", Comma, ")" => ActionFn(575);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action575(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2058,13 +2102,13 @@ object GrammarReducers {
         }
         217 -> {
             // // LoadStmt_ = "load", "(", "STRING", Comma, (<LoadStmtSyms> <Comma>)+, LoadStmtSyms, ")" => ActionFn(576);
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym6.third;
             val __nt = __action576(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6);
@@ -2073,12 +2117,12 @@ object GrammarReducers {
         }
         218 -> {
             // // LoadStmt_ = "load", "(", "STRING", Comma, (<LoadStmtSyms> <Comma>)+, ")" => ActionFn(577);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action577(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2087,8 +2131,8 @@ object GrammarReducers {
         }
         219 -> {
             // // NotTest = "not", NotTest => ActionFn(471);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action471(state, __sym0, __sym1);
@@ -2097,7 +2141,7 @@ object GrammarReducers {
         }
         220 -> {
             // // NotTest = CompTest => ActionFn(117);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action117(state, __sym0);
@@ -2106,7 +2150,7 @@ object GrammarReducers {
         }
         221 -> {
             // // Operand = Ident => ActionFn(472);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action472(state, __sym0);
@@ -2115,7 +2159,7 @@ object GrammarReducers {
         }
         222 -> {
             // // Operand = "INTEGER" => ActionFn(570);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action570(state, __sym0);
@@ -2124,7 +2168,7 @@ object GrammarReducers {
         }
         223 -> {
             // // Operand = "FLOAT" => ActionFn(563);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action563(state, __sym0);
@@ -2133,7 +2177,7 @@ object GrammarReducers {
         }
         224 -> {
             // // Operand = "STRING" => ActionFn(578);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action578(state, __sym0);
@@ -2142,7 +2186,7 @@ object GrammarReducers {
         }
         225 -> {
             // // Operand = "..." => ActionFn(476);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action476(state, __sym0);
@@ -2151,9 +2195,9 @@ object GrammarReducers {
         }
         226 -> {
             // // Operand = "[", COMMA<Test>, "]" => ActionFn(477);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action477(state, __sym0, __sym1, __sym2);
@@ -2162,7 +2206,7 @@ object GrammarReducers {
         }
         227 -> {
             // // Operand = ListComp => ActionFn(93);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action93(state, __sym0);
@@ -2171,9 +2215,9 @@ object GrammarReducers {
         }
         228 -> {
             // // Operand = "{", COMMA<DictEntry>, "}" => ActionFn(478);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action478(state, __sym0, __sym1, __sym2);
@@ -2182,7 +2226,7 @@ object GrammarReducers {
         }
         229 -> {
             // // Operand = DictComp => ActionFn(95);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action95(state, __sym0);
@@ -2191,9 +2235,9 @@ object GrammarReducers {
         }
         230 -> {
             // // Operand = "(", TestList, ")" => ActionFn(559);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action559(state, __sym0, __sym1, __sym2);
@@ -2202,8 +2246,8 @@ object GrammarReducers {
         }
         231 -> {
             // // Operand = "(", ")" => ActionFn(560);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action560(state, __sym0, __sym1);
@@ -2212,7 +2256,7 @@ object GrammarReducers {
         }
         232 -> {
             // // Operand = "FSTRING" => ActionFn(564);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action564(state, __sym0);
@@ -2221,8 +2265,8 @@ object GrammarReducers {
         }
         233 -> {
             // // OptionalSlice = ":", Test => ActionFn(81);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action81(state, __sym0, __sym1);
@@ -2231,9 +2275,9 @@ object GrammarReducers {
         }
         234 -> {
             // // OrTest = OrTest, "or", AndTest => ActionFn(481);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action481(state, __sym0, __sym1, __sym2);
@@ -2242,7 +2286,7 @@ object GrammarReducers {
         }
         235 -> {
             // // OrTest = AndTest => ActionFn(113);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action113(state, __sym0);
@@ -2251,25 +2295,37 @@ object GrammarReducers {
         }
         236 -> {
             // // PrimaryExpr = PrimaryExpr, ".", "IDENTIFIER" => ActionFn(569);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action569(state, __sym0, __sym1, __sym2);
             symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
             return 3 to 115
         }
+        237 -> {
+            // // PrimaryExpr = PrimaryExpr, "(", COMMA<Argument>, ")" => ActionFn(483);
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
+            val __start = __sym0.first;
+            val __end = __sym3.third;
+            val __nt = __action483(state, __sym0, __sym1, __sym2, __sym3);
+            symbols.add(Triple(__start, GrammarSymbol.Variant17(__nt as AstExpr), __end))
+            return 4 to 115
+        }
         238 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, ":", Test, "]" => ActionFn(484);
-            val __sym7 = symbols.removeLast()
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym7 = symbols.popUnwrap()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym7.third;
             val __nt = __action484(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6, __sym7);
@@ -2278,13 +2334,13 @@ object GrammarReducers {
         }
         239 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, ":", "]" => ActionFn(485);
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym6.third;
             val __nt = __action485(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6);
@@ -2293,12 +2349,12 @@ object GrammarReducers {
         }
         240 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", Test, "]" => ActionFn(486);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action486(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2307,13 +2363,13 @@ object GrammarReducers {
         }
         241 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", ":", Test, "]" => ActionFn(487);
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym6.third;
             val __nt = __action487(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6);
@@ -2322,12 +2378,12 @@ object GrammarReducers {
         }
         242 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", ":", "]" => ActionFn(488);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action488(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2336,11 +2392,11 @@ object GrammarReducers {
         }
         243 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ":", "]" => ActionFn(489);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action489(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2349,13 +2405,13 @@ object GrammarReducers {
         }
         244 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", Test, ":", Test, "]" => ActionFn(490);
-            val __sym6 = symbols.removeLast()
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym6 = symbols.popUnwrap()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym6.third;
             val __nt = __action490(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5, __sym6);
@@ -2364,12 +2420,12 @@ object GrammarReducers {
         }
         245 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", Test, ":", "]" => ActionFn(491);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action491(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2378,11 +2434,11 @@ object GrammarReducers {
         }
         246 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", Test, "]" => ActionFn(492);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action492(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2391,12 +2447,12 @@ object GrammarReducers {
         }
         247 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", ":", Test, "]" => ActionFn(493);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action493(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2405,11 +2461,11 @@ object GrammarReducers {
         }
         248 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", ":", "]" => ActionFn(494);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action494(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2418,10 +2474,10 @@ object GrammarReducers {
         }
         249 -> {
             // // PrimaryExpr = PrimaryExpr, "[", ":", "]" => ActionFn(495);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action495(state, __sym0, __sym1, __sym2, __sym3);
@@ -2430,10 +2486,10 @@ object GrammarReducers {
         }
         250 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, "]" => ActionFn(496);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action496(state, __sym0, __sym1, __sym2, __sym3);
@@ -2442,12 +2498,12 @@ object GrammarReducers {
         }
         251 -> {
             // // PrimaryExpr = PrimaryExpr, "[", Test, ",", Test, "]" => ActionFn(497);
-            val __sym5 = symbols.removeLast()
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym5 = symbols.popUnwrap()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym5.third;
             val __nt = __action497(state, __sym0, __sym1, __sym2, __sym3, __sym4, __sym5);
@@ -2456,7 +2512,7 @@ object GrammarReducers {
         }
         252 -> {
             // // PrimaryExpr = Operand => ActionFn(80);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action80(state, __sym0);
@@ -2465,9 +2521,9 @@ object GrammarReducers {
         }
         253 -> {
             // // ProductExpr = ProductExpr, "*", FactorExpr => ActionFn(498);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action498(state, __sym0, __sym1, __sym2);
@@ -2476,9 +2532,9 @@ object GrammarReducers {
         }
         254 -> {
             // // ProductExpr = ProductExpr, "%", FactorExpr => ActionFn(499);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action499(state, __sym0, __sym1, __sym2);
@@ -2487,9 +2543,9 @@ object GrammarReducers {
         }
         255 -> {
             // // ProductExpr = ProductExpr, "/", FactorExpr => ActionFn(500);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action500(state, __sym0, __sym1, __sym2);
@@ -2498,9 +2554,9 @@ object GrammarReducers {
         }
         256 -> {
             // // ProductExpr = ProductExpr, "//", FactorExpr => ActionFn(501);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action501(state, __sym0, __sym1, __sym2);
@@ -2509,7 +2565,7 @@ object GrammarReducers {
         }
         257 -> {
             // // ProductExpr = FactorExpr => ActionFn(144);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action144(state, __sym0);
@@ -2518,8 +2574,8 @@ object GrammarReducers {
         }
         258 -> {
             // // ReturnType = "->", TypeExpr => ActionFn(11);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action11(state, __sym0, __sym1);
@@ -2536,9 +2592,9 @@ object GrammarReducers {
         }
         260 -> {
             // // ShiftExpr = ShiftExpr, "<<", ArithExpr => ActionFn(502);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action502(state, __sym0, __sym1, __sym2);
@@ -2547,9 +2603,9 @@ object GrammarReducers {
         }
         261 -> {
             // // ShiftExpr = ShiftExpr, ">>", ArithExpr => ActionFn(503);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action503(state, __sym0, __sym1, __sym2);
@@ -2558,7 +2614,7 @@ object GrammarReducers {
         }
         262 -> {
             // // ShiftExpr = ArithExpr => ActionFn(136);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action136(state, __sym0);
@@ -2567,9 +2623,9 @@ object GrammarReducers {
         }
         263 -> {
             // // SimpleStmt<SmallStmt> = SmallStmt, ";", "\n" => ActionFn(504);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action504(state, __sym0, __sym1, __sym2);
@@ -2578,10 +2634,10 @@ object GrammarReducers {
         }
         264 -> {
             // // SimpleStmt<SmallStmt> = SmallStmt, (";" <SmallStmt>)+, ";", "\n" => ActionFn(505);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action505(state, __sym0, __sym1, __sym2, __sym3);
@@ -2590,8 +2646,8 @@ object GrammarReducers {
         }
         265 -> {
             // // SimpleStmt<SmallStmt> = SmallStmt, "\n" => ActionFn(506);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action506(state, __sym0, __sym1);
@@ -2600,9 +2656,9 @@ object GrammarReducers {
         }
         266 -> {
             // // SimpleStmt<SmallStmt> = SmallStmt, (";" <SmallStmt>)+, "\n" => ActionFn(507);
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym2.third;
             val __nt = __action507(state, __sym0, __sym1, __sym2);
@@ -2611,8 +2667,8 @@ object GrammarReducers {
         }
         267 -> {
             // // SmallStmt = "return", TestList => ActionFn(561);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action561(state, __sym0, __sym1);
@@ -2621,7 +2677,7 @@ object GrammarReducers {
         }
         268 -> {
             // // SmallStmt = "return" => ActionFn(562);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action562(state, __sym0);
@@ -2630,7 +2686,7 @@ object GrammarReducers {
         }
         269 -> {
             // // SmallStmt = "break" => ActionFn(509);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action509(state, __sym0);
@@ -2639,7 +2695,7 @@ object GrammarReducers {
         }
         270 -> {
             // // SmallStmt = "continue" => ActionFn(510);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action510(state, __sym0);
@@ -2648,7 +2704,7 @@ object GrammarReducers {
         }
         271 -> {
             // // SmallStmt = "pass" => ActionFn(511);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action511(state, __sym0);
@@ -2657,7 +2713,7 @@ object GrammarReducers {
         }
         272 -> {
             // // SmallStmt = AssignStmt => ActionFn(48);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action48(state, __sym0);
@@ -2666,7 +2722,7 @@ object GrammarReducers {
         }
         273 -> {
             // // SmallStmt = ExprStmt => ActionFn(49);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action49(state, __sym0);
@@ -2675,7 +2731,7 @@ object GrammarReducers {
         }
         274 -> {
             // // SmallStmt = LoadStmt => ActionFn(50);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action50(state, __sym0);
@@ -2692,7 +2748,7 @@ object GrammarReducers {
         }
         276 -> {
             // // Starlark = (<Stmt> "\n"*)+ => ActionFn(513);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action513(state, __sym0);
@@ -2701,7 +2757,7 @@ object GrammarReducers {
         }
         277 -> {
             // // Starlark = "\n"+ => ActionFn(514);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action514(state, __sym0);
@@ -2710,8 +2766,8 @@ object GrammarReducers {
         }
         278 -> {
             // // Starlark = "\n"+, (<Stmt> "\n"*)+ => ActionFn(515);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action515(state, __sym0, __sym1);
@@ -2720,7 +2776,7 @@ object GrammarReducers {
         }
         279 -> {
             // // Stmt = DefStmt => ActionFn(32);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action32(state, __sym0);
@@ -2729,7 +2785,7 @@ object GrammarReducers {
         }
         280 -> {
             // // Stmt = IfStmt => ActionFn(33);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action33(state, __sym0);
@@ -2738,7 +2794,7 @@ object GrammarReducers {
         }
         281 -> {
             // // Stmt = ForStmt => ActionFn(34);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action34(state, __sym0);
@@ -2747,7 +2803,7 @@ object GrammarReducers {
         }
         282 -> {
             // // Stmt = SimpleStmt<SmallStmt> => ActionFn(35);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action35(state, __sym0);
@@ -2756,7 +2812,7 @@ object GrammarReducers {
         }
         283 -> {
             // // Suite = SimpleStmt<SmallStmt> => ActionFn(30);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action30(state, __sym0);
@@ -2765,10 +2821,10 @@ object GrammarReducers {
         }
         284 -> {
             // // Suite = "\n"+, "INDENT", (<Stmt> "\n"*)+, "DEDENT" => ActionFn(516);
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym3.third;
             val __nt = __action516(state, __sym0, __sym1, __sym2, __sym3);
@@ -2777,11 +2833,11 @@ object GrammarReducers {
         }
         285 -> {
             // // Suite = "\n"+, "INDENT", "\n"+, (<Stmt> "\n"*)+, "DEDENT" => ActionFn(517);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action517(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2790,11 +2846,11 @@ object GrammarReducers {
         }
         286 -> {
             // // Test = OrTest, "if", OrTest, "else", Test => ActionFn(518);
-            val __sym4 = symbols.removeLast()
-            val __sym3 = symbols.removeLast()
-            val __sym2 = symbols.removeLast()
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym4 = symbols.popUnwrap()
+            val __sym3 = symbols.popUnwrap()
+            val __sym2 = symbols.popUnwrap()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym4.third;
             val __nt = __action518(state, __sym0, __sym1, __sym2, __sym3, __sym4);
@@ -2803,7 +2859,7 @@ object GrammarReducers {
         }
         287 -> {
             // // Test = OrTest => ActionFn(108);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action108(state, __sym0);
@@ -2812,7 +2868,7 @@ object GrammarReducers {
         }
         288 -> {
             // // Test = LambDef => ActionFn(109);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action109(state, __sym0);
@@ -2821,7 +2877,7 @@ object GrammarReducers {
         }
         289 -> {
             // // Test? = Test => ActionFn(161);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action161(state, __sym0);
@@ -2838,7 +2894,7 @@ object GrammarReducers {
         }
         291 -> {
             // // TestList = L<Test> => ActionFn(74);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action74(state, __sym0);
@@ -2847,7 +2903,7 @@ object GrammarReducers {
         }
         292 -> {
             // // TestList? = TestList => ActionFn(177);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action177(state, __sym0);
@@ -2864,8 +2920,8 @@ object GrammarReducers {
         }
         294 -> {
             // // Type = ":", TypeExpr => ActionFn(28);
-            val __sym1 = symbols.removeLast()
-            val __sym0 = symbols.removeLast()
+            val __sym1 = symbols.popUnwrap()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action28(state, __sym0, __sym1);
@@ -2880,9 +2936,18 @@ object GrammarReducers {
             symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
             return 0 to 128
         }
+        296 -> {
+            // // TypeExpr = Test => ActionFn(27);
+            val __sym0 = symbols.popUnwrap()
+            val __start = __sym0.first;
+            val __end = __sym0.third;
+            val __nt = __action27(state, __sym0);
+            symbols.add(Triple(__start, GrammarSymbol.Variant47(__nt as AstTypeExpr), __end))
+            return 1 to 129
+        }
         298 -> {
             // // float = "FLOAT" => ActionFn(519);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action519(state, __sym0);
@@ -2891,7 +2956,7 @@ object GrammarReducers {
         }
         299 -> {
             // // fstring = "FSTRING" => ActionFn(520);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action520(state, __sym0);
@@ -2900,7 +2965,7 @@ object GrammarReducers {
         }
         300 -> {
             // // identifier = "IDENTIFIER" => ActionFn(521);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action521(state, __sym0);
@@ -2909,7 +2974,7 @@ object GrammarReducers {
         }
         301 -> {
             // // integer = "INTEGER" => ActionFn(522);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action522(state, __sym0);
@@ -2918,7 +2983,7 @@ object GrammarReducers {
         }
         302 -> {
             // // string = "STRING" => ActionFn(523);
-            val __sym0 = symbols.removeLast()
+            val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action523(state, __sym0);
@@ -3177,9 +3242,7 @@ fun __action37(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val s = sym2.second as AstStmt
     val el = sym3.second as AstStmt?
     val __ret = run {
-{
     if (el == null) StmtP.If<AstNoPayload>(c, s) else StmtP.IfElse<AstNoPayload>(c, s, el)
-}
     }
     return __ret
 }
@@ -3405,10 +3468,8 @@ fun __action72(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val id = sym0.second as AstString?
     val n = sym1.second as AstString
     val __ret = run {
-{
     val id = id ?: n;
     Pair(Spanned(span = id.span, node = AssignIdentP<AstNoPayload, Unit>(ident = id.node, payload = Unit)), n)
-}
     }
     return __ret
 }
@@ -3451,10 +3512,8 @@ fun __action77(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val i3 = sym6.second as AstExpr?
     val r = sym8.second as Int
     val __ret = run {
-{
           ExprP.Slice<AstNoPayload>(e, i1, i2, i3)
               .ast(l, r)
-        }
     }
     return __ret
 }
@@ -3695,9 +3754,7 @@ fun __action111(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     val p = sym1.second as List<AstParameter>
     val e = sym3.second as AstExpr
     val __ret = run {
-{
     ExprP.Lambda<AstNoPayload, AstNoPayload>(LambdaP<AstNoPayload, AstNoPayload>(p, e, AstNoPayload))
-}
     }
     return __ret
 }
@@ -4107,14 +4164,12 @@ fun __action164(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     val f = sym3.second as Token?
     val r = sym4.second as Int
     val __ret = run {
-{
         if ((f != null) || !v.isEmpty()) {
             ExprP.Tuple<AstNoPayload>(v + e)
                 .ast(l, r)
         } else {
             e
         }
-    }
     }
     return __ret
 }
@@ -4126,14 +4181,12 @@ fun __action165(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     val f = sym3.second as Token?
     val r = sym4.second as Int
     val __ret = run {
-{
         if ((f != null) || !v.isEmpty()) {
             ExprP.Tuple<AstNoPayload>(v + e)
                 .ast(l, r)
         } else {
             e
         }
-    }
     }
     return __ret
 }
@@ -4286,14 +4339,12 @@ fun __action188(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     val v = sym2.second as List<AstStmt>
     val r = sym4.second as Int
     val __ret = run {
-{
         if (v.isEmpty()) {
             e
         } else {
             StmtP.Statements<AstNoPayload>((listOf(e) + v))
                 .ast(l, r)
         }
-    }
     }
     return __ret
 }

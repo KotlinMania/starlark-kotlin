@@ -38,9 +38,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
  *  - Accept: ruleId 296 or 297 (augmented start rules, not in GrammarReducers)
  */
 object Parser {
-    // Rule IDs for the LALRPOP augmented start production (not in GrammarReducers.reduce)
-    private const val ACCEPT_RULE_1 = 296
-    private const val ACCEPT_RULE_2 = 297
+    // Rule ID for the LALRPOP augmented start production (__Starlark = Starlark)
+    private const val ACCEPT_RULE = 297
 
     fun parse(state: ParserState, tokens: Iterator<Lexeme>): AstStmt {
         val states = mutableListOf(0)
@@ -60,10 +59,11 @@ object Parser {
 
             when {
                 action > 0 -> {
-                    // Shift: push state, push token as symbol
+                    // Shift: push state (action - 1), push token as symbol.
+                    // LALRPOP convention: shift target state = action - 1.
                     val (start, token, end) = lookahead
                         ?: throw parseError(state, currentState, null)
-                    states.add(action)
+                    states.add(action - 1)
                     symbols.add(Triple(start, token.toSymbol(), end))
                     lookahead = if (tokens.hasNext()) tokens.next() else null
                 }
@@ -72,7 +72,7 @@ object Parser {
                     // Reduce (or accept)
                     val ruleId = -(action) - 1
 
-                    if (ruleId == ACCEPT_RULE_1 || ruleId == ACCEPT_RULE_2) {
+                    if (ruleId == ACCEPT_RULE) {
                         // Accept: extract the result from the symbols stack
                         if (symbols.isEmpty()) {
                             throw parseError(state, currentState, lookahead)
