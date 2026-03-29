@@ -19,13 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.coerce
-import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
+import starlark_map.small_map.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -136,14 +138,14 @@ class ArgumentsTest {
             p.full.kwargs = Value.newNone()
             assertTrue(p.noNamedArgs().isFailure)
 
-            p.full.kwargs = heap.alloc(Dict.new(SmallMap.new<Value, Value>()))
+            p.full.kwargs = Dict.new(SmallMap.new<Value, Value>()).allocValue(heap)
             assertTrue(p.noNamedArgs().isSuccess)
             assertEquals(0, p.len().getOrThrow())
 
             val sm = SmallMap.new<StringValue, Value>()
             val test = stringValue(heap, "test")
             sm.insertHashed(test.getHashed(), Value.newNone())
-            p.full.kwargs = heap.alloc(Dict.new(coerce(sm)))
+            p.full.kwargs = Dict.new(coerce<SmallMap<StringValue, Value>, SmallMap<Value, Value>>(sm)).allocValue(heap)
             assertTrue(p.noNamedArgs().isFailure)
             assertEquals(1, p.len().getOrThrow())
 

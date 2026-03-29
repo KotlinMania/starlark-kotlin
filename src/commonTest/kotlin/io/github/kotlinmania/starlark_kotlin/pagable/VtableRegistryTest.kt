@@ -102,13 +102,13 @@ private class AnotherTestType
 private object TestVTableFactory {
     fun createTestVTable(typeName: String): io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable {
         return io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable(
-            staticTypeOfValue = io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId.of<Any>(),
+            staticTypeOfValue = io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId.of<Any>(),
             starlarkTypeId = io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId.fromTypeId(
-                io.github.kotlinmania.starlark_kotlin.values.layout.const_type_id.ConstTypeId.of<Any>()
+                io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId.of<Any>()
             ),
             typeName = typeName,
             isStr = false,
-            memorySizeFn = { io.github.kotlinmania.starlark_kotlin.values.layout.value_alloc_size.ValueAllocSize(0u) },
+            memorySizeFn = { io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize(io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize(0u)) },
             heapFreezeFn = { _, _ -> error("test vtable") },
             heapCopyFn = { _, _ -> error("test vtable") },
             starlarkValue = object : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {},

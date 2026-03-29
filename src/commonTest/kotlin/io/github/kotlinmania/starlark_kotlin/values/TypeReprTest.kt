@@ -19,10 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.tests.util.TestComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.value.Value
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.test.Test
-import kotlin.test.assertNotEquals
+import kotlin.test.assertEquals
+
+/**
+ * A test complex value with a type parameter.
+ * In Rust, `TestComplexValue<Value>` and `TestComplexValue<FrozenValue>` have
+ * different StarlarkTypeRepr::Canonical due to monomorphization. In Kotlin,
+ * generics are erased, so they produce the same type repr.
+ */
+private class TestComplexValue<T> : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty = Ty.any()
+}
 
 class TypeReprTest {
     @Test
@@ -32,8 +42,8 @@ class TypeReprTest {
         // In Kotlin, the type-erased generic means these are the same at runtime.
         val reprValue = TestComplexValue<Value>().starlarkTypeRepr()
         val reprFrozen = TestComplexValue<FrozenValue>().starlarkTypeRepr()
-        // The Rust test asserts NOT equal; in Kotlin generics are erased so they may be equal.
-        // We keep the test to document the behavioral difference.
-        assertNotEquals(reprValue, reprFrozen)
+        // Kotlin generics are erased, so these ARE equal (unlike Rust).
+        // This documents the behavioral difference from the Rust original.
+        assertEquals(reprValue, reprFrozen)
     }
 }

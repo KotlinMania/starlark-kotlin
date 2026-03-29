@@ -19,8 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.spanDisplay
-import io.github.kotlinmania.starlark_kotlin.syntax.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 import kotlin.test.Test
 
 /// Tests for unused load finding using golden file comparison.
@@ -49,9 +48,10 @@ class FindTestsTest {
                     for (span in spans) {
                         appendLine()
 
-                        val fileSpan = codemap.fileSpan(span)
-                        val display = spanDisplay(fileSpan.asRef(), "Unused load", false)
-                        append(display)
+                        val fileSpan = codemap.value.fileSpan(span)
+                        // spanDisplay is from starlark_syntax (not yet ported);
+                        // use a simplified display format.
+                        appendLine("Unused load at ${fileSpan.resolveSpan()}")
                     }
                 }
             }

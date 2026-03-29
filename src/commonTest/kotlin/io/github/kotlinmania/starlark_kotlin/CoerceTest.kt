@@ -63,6 +63,6 @@ private data class StructWithLifetimeAndTypeParams<X>(
     val marker: PhantomData<IntRef>,
 )
 private class Struct<T>(val assoc: Any?)
-@JvmInline
-private value class Newtype(val value: UByte)
+// @JvmInline not available in commonTest (JVM-only annotation)
+private class Newtype(val value: UByte)
 private data class IntRef(val value: Int)

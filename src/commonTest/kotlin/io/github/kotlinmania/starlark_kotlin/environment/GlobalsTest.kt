@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
  */
 
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -36,16 +36,17 @@ class GlobalsTest {
         globals.namespaceNoDocs("ns_hidden") { _ -> }
         globals.namespace("ns") { builder ->
             builder.namespaceNoDocs("nested_ns_hidden") { _ -> }
-            builder.set("x", FrozenValue.newNone())
+            builder.set("x", NoneType)
         }
         val docs = globals.build().documentation()
 
-        val entries = docs.members.entries.toList()
-        assertEquals(1, entries.size)
-        val (k, v) = entries.single()
+        val keys = docs.members.keys().toList()
+        assertEquals(1, keys.size)
+        val k = keys.single()
         assertEquals("ns", k)
+        val v = docs.members.get(k)!!
         val moduleDocs = assertIs<DocItem.Module>(v)
-        val memberKeys = moduleDocs.members.keys.toList()
+        val memberKeys = moduleDocs.module.members.keys().toList()
         assertEquals(1, memberKeys.size)
         assertEquals("x", memberKeys.single())
     }

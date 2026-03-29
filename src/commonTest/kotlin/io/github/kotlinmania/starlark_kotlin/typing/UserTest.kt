@@ -20,11 +20,11 @@ package io.github.kotlinmania.starlark_kotlin.typing
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.typing.basic.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.callable.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.callable.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.user.TyUserParams
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
+import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
+import io.github.kotlinmania.starlark_kotlin.typing.TyUser
+import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import kotlin.test.Test
 

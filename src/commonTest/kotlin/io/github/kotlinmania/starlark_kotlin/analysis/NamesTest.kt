@@ -20,13 +20,13 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  */
 
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class NamesTest {
     private fun module(x: String): AstModule =
-        AstModule.parse("X", x, Dialect.AllOptionsInternal)
+        AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
 
     private fun lint(m: AstModule, globals: Set<String>? = null): List<String> {
         val res = namesLint(m, globals)

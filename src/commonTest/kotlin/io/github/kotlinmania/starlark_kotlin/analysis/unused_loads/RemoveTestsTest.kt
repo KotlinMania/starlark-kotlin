@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.syntax.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 import kotlin.test.Test
 
 /// Tests for unused load removal using golden file comparison.
