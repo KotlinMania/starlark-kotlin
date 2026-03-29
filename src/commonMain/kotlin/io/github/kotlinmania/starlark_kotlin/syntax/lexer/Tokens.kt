@@ -33,4 +33,9 @@ sealed class TokenInt {
 }
 class TokenString
 class Token
-class TokenFString
+data class TokenFString(
+    /** The content of this TokenFString. */
+    val content: String,
+    /** Relative to the token, where does the actual string content start? */
+    val contentStartOffset: Int
+)

@@ -1315,22 +1315,140 @@ internal fun removesuffix(
 
 private data class StrIndices(val start: Int, val haystack: kotlin.String)
 
+// Port of starlark_syntax::convert_indices::convert_indices
+// Clamps val to [0, limit].
+private fun bound(value: Int, limit: Int): Int {
+    return when {
+        value <= 0 -> 0
+        value >= limit -> limit
+        else -> value
+    }
+}
+
+// Port of starlark_syntax::convert_indices::convert_indices
+private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
+    val s = start ?: 0
+    val e = end ?: len
+    val adjustedEnd = if (e < 0) e + len else e
+    val adjustedStart = if (s < 0) s + len else s
+    return Pair(bound(adjustedStart, len), bound(adjustedEnd, len))
+}
+
+// Port of starlark_syntax::fast_string::convert_str_indices
+// In Kotlin, strings are already character-indexed (unlike Rust's byte-indexed strings),
+// so the heavy byte-level optimization from fast_string.rs is not needed.
 private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIndices? {
-    throw NotImplementedError("convertStrIndices needs to be ported from fast_string module")
+    val len = str.codePointCount()
+    return when {
+        // (None, None) => full string
+        start == null && end == null -> StrIndices(0, str)
+        // (Some(start), None) where start >= 0
+        start != null && end == null && start >= 0 -> {
+            val byteStart = codePointOffset(str, start) ?: return null
+            StrIndices(start, str.substring(byteStart))
+        }
+        // (None, Some(end)) where end >= 0
+        start == null && end != null && end >= 0 -> {
+            val byteEnd = codePointOffsetClamped(str, end)
+            StrIndices(0, str.substring(0, byteEnd))
+        }
+        // (Some(start), Some(end)) where start >= 0 && end >= start
+        start != null && end != null && start >= 0 && end >= start -> {
+            val byteStart = codePointOffset(str, start) ?: return null
+            val remaining = str.substring(byteStart)
+            val byteEnd = codePointOffsetClamped(remaining, end - start)
+            StrIndices(start, remaining.substring(0, byteEnd))
+        }
+        // Both same sign and start > end => None
+        start != null && end != null
+            && ((start >= 0) == (end >= 0)) && start > end -> null
+        // Slow path: need full length for negative indices
+        else -> {
+            val (s, e) = convertIndices(len, start, end)
+            if (s > e) return null
+            val byteStart = codePointOffsetClamped(str, s)
+            val byteEnd = codePointOffsetClamped(str, e)
+            StrIndices(s, str.substring(byteStart, byteEnd))
+        }
+    }
 }
 
+// Count Unicode code points in a string (handles surrogate pairs).
+private fun kotlin.String.codePointCount(): Int {
+    var count = 0
+    var i = 0
+    while (i < this.length) {
+        val c = this[i]
+        if (c.isHighSurrogate() && i + 1 < this.length && this[i + 1].isLowSurrogate()) {
+            i += 2
+        } else {
+            i += 1
+        }
+        count++
+    }
+    return count
+}
+
+// Convert a code point index to a UTF-16 char offset. Returns null if index is out of bounds.
+private fun codePointOffset(str: kotlin.String, codePointIndex: Int): Int? {
+    var cpCount = 0
+    var i = 0
+    while (i < str.length && cpCount < codePointIndex) {
+        val c = str[i]
+        if (c.isHighSurrogate() && i + 1 < str.length && str[i + 1].isLowSurrogate()) {
+            i += 2
+        } else {
+            i += 1
+        }
+        cpCount++
+    }
+    return if (cpCount == codePointIndex) i else null
+}
+
+// Convert a code point index to a UTF-16 char offset, clamped to string length.
+private fun codePointOffsetClamped(str: kotlin.String, codePointIndex: Int): Int {
+    var cpCount = 0
+    var i = 0
+    while (i < str.length && cpCount < codePointIndex) {
+        val c = str[i]
+        if (c.isHighSurrogate() && i + 1 < str.length && str[i + 1].isLowSurrogate()) {
+            i += 2
+        } else {
+            i += 1
+        }
+        cpCount++
+    }
+    return i
+}
+
+// Port of starlark_syntax::fast_string::len
+// Find the length of the string in characters (code points).
 private fun strLen(str: kotlin.String): Int {
-    throw NotImplementedError("strLen needs to be ported from fast_string module")
+    return str.codePointCount()
 }
 
+// Port of starlark_syntax::fast_string::count_matches
+// Find the number of times a needle occurs within a string, non-overlapping.
 private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
-    throw NotImplementedError("countMatches needs to be ported from fast_string module")
+    if (needle.isEmpty()) return strLen(haystack) + 1
+    var count = 0
+    var startIndex = 0
+    while (true) {
+        val index = haystack.indexOf(needle, startIndex)
+        if (index < 0) break
+        count++
+        startIndex = index + needle.length
+    }
+    return count
 }
 
+// Port of starlark_syntax::fast_string::count_matches_byte
+// Find the number of times a needle byte/char occurs within a string.
 private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int {
-    throw NotImplementedError("countMatchesByte needs to be ported from fast_string module")
+    return haystack.count { it == byte }
 }
 
+// Delegate to the fully ported DotFormat.format function.
 private fun dotFormat(
     format: kotlin.String,
     args: Iterator<Value>,
@@ -1338,7 +1456,7 @@ private fun dotFormat(
     stringPool: StringPool,
     heap: Heap,
 ): Result<StringValue> {
-    throw NotImplementedError("dotFormat needs to be ported from dot_format module")
+    return format(format, args, kwargs, stringPool, heap)
 }
 
 /** Unpack a [Value] as a [StringValue], or throw if it is not a string. */
