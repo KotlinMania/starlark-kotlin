@@ -1,4 +1,5 @@
 // port-lint: source src/coerce.rs
+// A trait to represent zero-cost conversions.
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -17,10 +18,6 @@ package io.github.kotlinmania.starlark_kotlin
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * A trait to represent zero-cost conversions.
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
@@ -162,13 +159,11 @@ fun <From, To> coerceSmallSet(x: SmallSet<From>): SmallSet<To> = x as SmallSet<T
 /**
  * Safely convert between types which have a [Coerce] relationship.
  * Often the second type argument will need to be given explicitly,
- * e.g. `coerce<FromType, ToType>(x)`.
+ * e.g. `coerce<_, ToType>(x)`.
+ *
+ * Rust asserts `Layout::new::<From>() == Layout::new::<To>()` at runtime.
+ * Kotlin Multiplatform has no equivalent memory layout introspection,
+ * so the cast is unchecked; callers must uphold the same invariant.
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <From, reified To> coerce(x: From): To {
-    // In Rust: assert_eq!(Layout::new::<From>(), Layout::new::<To>());
-    // Layout assertions are not available in Kotlin Multiplatform.
-    // let x = ManuallyDrop::new(x);
-    // unsafe { ptr::read(x.deref() as *const From as *const To) }
-    return x as To
-}
+inline fun <From, To> coerce(x: From): To = x as To
