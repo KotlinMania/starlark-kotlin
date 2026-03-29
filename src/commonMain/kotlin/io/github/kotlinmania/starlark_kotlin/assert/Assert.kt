@@ -115,90 +115,75 @@ enum class GcStrategy {
 }
 
 /** Definitions to support assert.star as used by the Go test suite */
+// Deliberately qualify the GlobalsBuilder type to test that we can
 private fun assertsStar(builder: GlobalsBuilder) {
-    builder.setFunction("eq") { args, _ ->
-        assertEquals(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun eq(a: Value, b: Value): Result<NoneType> = assertEquals(a, b)
 
-    builder.setFunction("ne") { args, _ ->
-        assertDifferent(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun ne(a: Value, b: Value): Result<NoneType> = assertDifferent(a, b)
 
-    builder.setFunction("lt") { args, _ ->
-        assertLessThan(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun lt(a: Value, b: Value): Result<NoneType> = assertLessThan(a, b)
 
-    builder.setFunction("contains") { args, _ ->
-        val xs = args.positional<Value>(0)
-        val x = args.positional<Value>(1)
-        if (!xs.isIn(x).getOrElse { return@setFunction Result.failure<NoneType>(it) }) {
+    fun contains(xs: Value, x: Value): Result<NoneType> {
+        return if (!xs.isIn(x).getOrElse { return Result.failure(it) }) {
             Result.failure(Exception("assert.contains: expected $x to be in $xs"))
         } else {
             Result.success(NoneType)
         }
     }
 
-    builder.setFunction("true") { args, _ ->
-        assertEquals(Value.newBool(args.positional<Value>(0).toBool()), Value.newBool(true))
-    }
+    fun true_(x: Value): Result<NoneType> =
+        assertEquals(Value.newBool(x.toBool()), Value.newBool(true))
 
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
-    builder.setFunction("freeze") { args, _ ->
-        Result.success(args.positional<Value>(0))
-    }
+    fun freeze(x: Value): Result<Value> = Result.success(x)
 
-    builder.setFunction("fails") { args, eval ->
-        val f = args.positional<Value>(0)
-        @Suppress("UNUSED_VARIABLE")
-        val msg = args.positional<Value>(1) // msg - We don't actually check the message
-        when (val result = f.invokePos(emptyList(), eval)) {
+    fun fails(f: Value, @Suppress("UNUSED_PARAMETER") msg: String, eval: Evaluator): Result<NoneType> {
+        return when (val result = f.invokePos(emptyList(), eval)) {
             else -> if (result.isFailure) {
-                Result.success(NoneType)
+                Result.success(NoneType) // We don't actually check the message
             } else {
                 Result.failure(Exception("assert.fails: didn't fail"))
             }
         }
     }
+
+    builder.setFunction("eq") { args, _ -> eq(args.positional(0), args.positional(1)) }
+    builder.setFunction("ne") { args, _ -> ne(args.positional(0), args.positional(1)) }
+    builder.setFunction("lt") { args, _ -> lt(args.positional(0), args.positional(1)) }
+    builder.setFunction("contains") { args, _ -> contains(args.positional(0), args.positional(1)) }
+    builder.setFunction("true") { args, _ -> true_(args.positional(0)) }
+    builder.setFunction("freeze") { args, _ -> freeze(args.positional(0)) }
+    builder.setFunction("fails") { args, eval -> fails(args.positional(0), args.positional<Value>(1).toString(), eval) }
 }
 
 fun testFunctions(builder: GlobalsBuilder) {
     // Used by one of the test methods in Go
+    val fibonacci: List<Int> = listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)
     run {
         val heap = builder.frozenHeap()
-        val frozenList = heap.allocList(
-            listOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)
-                .map { it.allocFrozenValue(heap) }
-        )
+        val frozenList = heap.allocList(fibonacci.map { it.allocFrozenValue(heap) })
         builder.setInner("fibonacci", frozenList, false)
     }
 
-    /** Approximate version of a method used by the Go test suite */
-    builder.setFunction("hasfields") { _, _ ->
-        Result.success(AllocStruct.EMPTY)
-    }
+    // Approximate version of a method used by the Go test suite
+    fun hasfields(): Result<Any> = Result.success(AllocStruct.EMPTY)
 
-    builder.setFunction("assert_eq") { args, _ ->
-        assertEquals(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun assertEq(a: Value, b: Value): Result<NoneType> = assertEquals(a, b)
 
-    builder.setFunction("assert_ne") { args, _ ->
-        assertDifferent(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun assertNe(a: Value, b: Value): Result<NoneType> = assertDifferent(a, b)
 
-    builder.setFunction("assert_lt") { args, _ ->
-        assertLessThan(args.positional<Value>(0), args.positional<Value>(1))
-    }
+    fun assertLt(a: Value, b: Value): Result<NoneType> = assertLessThan(a, b)
 
-    builder.setFunction("assert_true") { args, _ ->
-        if (!args.positional<Value>(0).toBool()) {
+    fun assertTrue(a: Value): Result<NoneType> {
+        return if (!a.toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
         }
     }
 
-    builder.setFunction("assert_false") { args, _ ->
-        if (args.positional<Value>(0).toBool()) {
+    fun assertFalse(a: Value): Result<NoneType> {
+        return if (a.toBool()) {
             Result.failure(Exception("assertion failed"))
         } else {
             Result.success(NoneType)
@@ -206,18 +191,20 @@ fun testFunctions(builder: GlobalsBuilder) {
     }
 
     // This is only safe to call at the top-level of a Starlark module
-    builder.setFunction("garbage_collect") { _, eval ->
+    fun garbageCollect(eval: Evaluator): Result<NoneType> {
         eval.triggerGc()
-        Result.success(NoneType)
+        return Result.success(NoneType)
     }
 
-    builder.setFunction("assert_type") { args, eval ->
-        val v = args.positional<Value>(0)
-        val ty = args.positional<Value>(1)
-        runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return@setFunction Result.failure<NoneType>(it) }
-            .checkType(v, "v").getOrElse { return@setFunction Result.failure<NoneType>(it) }
-        Result.success(NoneType)
+    fun assertType(v: Value, ty: Value, heap: Heap): Result<NoneType> {
+        val compiled = try {
+            TypeCompiled.new(ty, heap)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+        val check = compiled.checkType(v, "v")
+        if (check.isFailure) return Result.failure(check.exceptionOrNull()!!)
+        return Result.success(NoneType)
     }
 
     /**
@@ -225,10 +212,19 @@ fun testFunctions(builder: GlobalsBuilder) {
      *
      * This function is unknown to optimizer, so it can be used in optimizer tests.
      */
-    builder.setFunction("noop") { args, _ ->
-        // kwargs are ignored
-        Result.success(args.positionalAll().firstOrNull() ?: Value.newNone())
+    fun noop(args: List<Value>, @Suppress("UNUSED_PARAMETER") kwargs: Value): Result<Value> {
+        return Result.success(args.firstOrNull() ?: Value.newNone())
     }
+
+    builder.setFunction("hasfields") { _, _ -> hasfields() }
+    builder.setFunction("assert_eq") { args, _ -> assertEq(args.positional(0), args.positional(1)) }
+    builder.setFunction("assert_ne") { args, _ -> assertNe(args.positional(0), args.positional(1)) }
+    builder.setFunction("assert_lt") { args, _ -> assertLt(args.positional(0), args.positional(1)) }
+    builder.setFunction("assert_true") { args, _ -> assertTrue(args.positional(0)) }
+    builder.setFunction("assert_false") { args, _ -> assertFalse(args.positional(0)) }
+    builder.setFunction("garbage_collect") { _, eval -> garbageCollect(eval) }
+    builder.setFunction("assert_type") { args, eval -> assertType(args.positional(0), args.positional(1), eval.heap()) }
+    builder.setFunction("noop") { args, _ -> noop(args.positionalAll(), args.positionalAll().lastOrNull() ?: Value.newNone()) }
 }
 
 /** Environment in which to run assertion tests. */

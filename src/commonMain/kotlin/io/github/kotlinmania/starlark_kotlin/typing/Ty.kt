@@ -19,21 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-/**
- * Configuration for rendering types.
- *
- * Corresponds to Rust's `TypeRenderConfig` enum.
- */
-sealed class TypeRenderConfig {
-    /** Uses the default rendering configuration. */
-    data object Default : TypeRenderConfig()
-
-    /** Uses linked type rendering for docs. */
-    data class LinkedType(
-        /** The function to render linked type element. */
-        val renderLinkedTyStarlarkValue: (TyStarlarkValue) -> String,
-    ) : TypeRenderConfig()
-}
+import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
 /**
  * A Starlark type.
@@ -362,26 +352,29 @@ class Ty private constructor(
      * @return true if the call is valid
      */
     fun checkCall(
-        pos: List<Ty>,
-        named: List<Pair<String, Ty>>,
+        pos: Iterable<Ty>,
+        named: Iterable<Pair<String, Ty>>,
         args: Ty?,
         kwargs: Ty?,
         expectedReturnType: Ty,
     ): Boolean {
-        // Simplified validation — full implementation requires TypingOracleCtx.
-        // Check if this type has a callable signature.
-        val callable = when {
-            iterUnion().size == 1 -> {
-                val basic = iterUnion()[0]
-                when (basic) {
-                    is TyBasic.Callable -> basic.callable
-                    is TyBasic.Custom -> basic.custom.asCallableDyn()
-                    else -> null
-                }
-            }
-            else -> null
-        }
-        return callable != null
+        val oracle = TypingOracleCtx(
+            codemap = CodeMap("", ""),
+        )
+        val ret = oracle.validateCall(
+            Span.DEFAULT,
+            this,
+            TyCallArgs(
+                pos = pos.map { p -> Spanned(span = Span.DEFAULT, node = p) },
+                named = named.map { p -> Spanned(span = Span.DEFAULT, node = p) },
+                args = args?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
+                kwargs = kwargs?.let { t -> Spanned(span = Span.DEFAULT, node = t) },
+            ),
+        )
+        if (ret.isFailure) return false
+        val ok = oracle.intersects(ret.getOrThrow(), expectedReturnType)
+        if (ok.isFailure) return false
+        return ok.getOrThrow()
     }
 
     /**
@@ -390,30 +383,22 @@ class Ty private constructor(
      * Two types intersect if there is at least one value that belongs to both types.
      */
     internal fun checkIntersects(other: Ty): Result<Boolean> {
-        // Simplified — full implementation requires TypingOracleCtx.
-        if (isAny() || other.isAny()) return Result.success(true)
-        if (isNever() || other.isNever()) return Result.success(false)
-
-        // Check if any basic type in this intersects with any basic type in other.
-        for (a in iterUnion()) {
-            for (b in other.iterUnion()) {
-                if (a == b) return Result.success(true)
-                // Check structural intersection for custom types.
-                if (a is TyBasic.Custom && b is TyBasic.Custom) {
-                    if (TyCustom.intersects(a.custom, b.custom)) {
-                        return Result.success(true)
-                    }
-                }
-            }
+        val oracle = TypingOracleCtx(
+            codemap = CodeMap("", ""),
+        )
+        val result = oracle.intersects(this, other)
+        return if (result.isSuccess) {
+            Result.success(result.getOrThrow())
+        } else {
+            Result.failure(result.exceptionOrNull()!!)
         }
-        return Result.success(false)
     }
 
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String {
         val xs = iterUnion()
         return when {
-            xs.isEmpty() -> "never"
+            xs.isEmpty() -> TypingNever.TYPE_NAME
             else -> {
                 val sb = StringBuilder()
                 for ((i, x) in xs.withIndex()) {
@@ -441,6 +426,22 @@ class Ty private constructor(
     override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
 
     override fun compareTo(other: Ty): Int = alternatives.compareTo(other.alternatives)
+}
+
+/**
+ * Configuration for rendering types.
+ *
+ * Corresponds to Rust's `TypeRenderConfig` enum.
+ */
+sealed class TypeRenderConfig {
+    /** Uses the default rendering configuration. */
+    data object Default : TypeRenderConfig()
+
+    /** Uses linked type rendering for docs. */
+    data class LinkedType(
+        /** The function to render linked type element. */
+        val renderLinkedTyStarlarkValue: (TyStarlarkValue) -> String,
+    ) : TypeRenderConfig()
 }
 
 /**
