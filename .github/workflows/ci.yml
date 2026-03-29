@@ -33,7 +33,7 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
-        run: ./build/ast_distance/ast_distance --lint src
+        run: ./build/ast_distance/ast_distance --agent 0 --lint src
 
       - name: Task status
         run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
@@ -64,7 +64,7 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
-        run: ./build/ast_distance/ast_distance --lint src
+        run: ./build/ast_distance/ast_distance --agent 0 --lint src
 
       - name: Task status
         run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
