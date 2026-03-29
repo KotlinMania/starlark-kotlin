@@ -21,6 +21,7 @@ package starlark_map.ordered_map
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class OrderedMapTest {
 
@@ -83,7 +84,7 @@ class OrderedMapTest {
 
         // Different order should NOT be equal
         val map3 = OrderedMap.fromIterator(listOf(Pair("b", 2), Pair("a", 1)))
-        assert(map1 != map3) { "Maps with different iteration order should not be equal" }
+        assertNotEquals(map1, map3, "Maps with different iteration order should not be equal")
     }
 
     @Test
@@ -190,7 +191,7 @@ class OrderedMapTest {
         assertEquals(0, map1.compareTo(map2))
 
         val map3 = OrderedMap.fromIterator(listOf(Pair("a", 1), Pair("c", 3)))
-        assert(map1.compareTo(map3) < 0)
+        assertEquals(true, map1.compareTo(map3) < 0)
     }
 
     @Test

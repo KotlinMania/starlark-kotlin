@@ -21,8 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.Heap
-import io.github.kotlinmania.starlark_kotlin.values.tuple.FrozenTupleRef
-import io.github.kotlinmania.starlark_kotlin.values.tuple.TupleRef
+import io.github.kotlinmania.starlark_kotlin.values.types.num.Num
+import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,17 +33,25 @@ class AllocTest {
     @Test
     fun testAllocTuple() {
         Heap.temp { heap ->
-            val a = heap.alloc(AllocTuple(emptyList<String>()))
-            val b = heap.alloc(AllocTuple(listOf(1, 2, 3).filter { false }))
+            // Rust uses [""; 0] (empty string array) and [1,2,3] (i32 array).
+            // In Kotlin, raw primitives don't implement AllocValue, so we use Num.Int.
+            val a = heap.alloc(AllocTuple(emptyList<Num>()))
+            val b = heap.alloc(AllocTuple(
+                listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)), Num.Int(StarlarkInt.from(3)))
+                    .filter { false }
+            ))
             assertEquals(0, TupleRef.fromValue(a)!!.content().size)
             assertTrue(a.ptrEq(b))
 
             // Fixed length iterator.
-            val c = heap.alloc(AllocTuple(listOf(1, 2)))
+            val c = heap.alloc(AllocTuple(listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)))))
             assertEquals(2, TupleRef.fromValue(c)!!.content().size)
 
             // Iterator of unknown length.
-            val d = heap.alloc(AllocTuple(listOf(1, 2, 3).filter { it > 1 }))
+            val d = heap.alloc(AllocTuple(
+                listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)), Num.Int(StarlarkInt.from(3)))
+                    .filterIndexed { i, _ -> i > 0 }
+            ))
             assertEquals(2, TupleRef.fromValue(d)!!.content().size)
         }
     }
@@ -50,17 +60,23 @@ class AllocTest {
     fun testAllocFrozenTuple() {
         val heap = FrozenHeap()
 
-        val a = heap.alloc(AllocTuple(emptyList<String>()))
-        val b = heap.alloc(AllocTuple(listOf(1, 2, 3).filter { false }))
+        val a = heap.alloc(AllocTuple(emptyList<Num>()))
+        val b = heap.alloc(AllocTuple(
+            listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)), Num.Int(StarlarkInt.from(3)))
+                .filter { false }
+        ))
         assertEquals(0, TupleRef.fromFrozenValue(a)!!.content().size)
         assertTrue(a.toValue().ptrEq(b.toValue()))
 
         // Fixed length iterator.
-        val c = heap.alloc(AllocTuple(listOf(1, 2)))
+        val c = heap.alloc(AllocTuple(listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)))))
         assertEquals(2, FrozenTupleRef.fromFrozenValue(c)!!.content().size)
 
         // Iterator of unknown length.
-        val d = heap.alloc(AllocTuple(listOf(1, 2, 3).filter { it > 1 }))
+        val d = heap.alloc(AllocTuple(
+            listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)), Num.Int(StarlarkInt.from(3)))
+                .filterIndexed { i, _ -> i > 0 }
+        ))
         assertEquals(2, FrozenTupleRef.fromFrozenValue(d)!!.content().size)
     }
 }

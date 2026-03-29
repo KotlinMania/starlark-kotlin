@@ -665,3 +665,48 @@ class Assert(
         }
     }
 }
+
+// Module-level convenience functions (Rust: pub fn all_true, is_true, is_false, etc.)
+// These match the Rust free functions re-exported from the assert module.
+
+/** See [Assert.isTrue]. */
+fun isTrue(program: String) {
+    Assert().isTrue(program)
+}
+
+/** See [Assert.isFalse]. */
+fun isFalse(program: String) {
+    Assert().isFalse(program)
+}
+
+/** See [Assert.allTrue]. */
+fun allTrue(expressions: String) {
+    val a = Assert()
+    a.disableStaticTypechecking()
+    a.allTrue(expressions)
+}
+
+/** See [Assert.pass]. */
+fun pass(program: String): OwnedFrozenValue {
+    return Assert().pass(program)
+}
+
+/** See [Assert.passModule]. */
+fun passModule(program: String): FrozenModule {
+    return Assert().passModule(program)
+}
+
+/** See [Assert.fail]. */
+fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
+    return Assert().fail(program, msg)
+}
+
+/** See [Assert.fails]. */
+fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
+    return Assert().fails(program, msgs)
+}
+
+/** See [Assert.eq]. */
+fun eq(lhs: String, rhs: String) {
+    Assert().eq(lhs, rhs)
+}

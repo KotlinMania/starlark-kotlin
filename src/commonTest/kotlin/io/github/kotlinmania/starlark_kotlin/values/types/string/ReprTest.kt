@@ -67,7 +67,7 @@ class ReprTest {
     @Test
     fun toReprSse() {
         for (i in 0 until 0x80) {
-            val s = String(ByteArray(33) { i.toByte() })
+            val s = ByteArray(33) { i.toByte() }.decodeToString()
             // Trigger debug assertions.
             stringReprForTest(s)
         }
@@ -76,7 +76,7 @@ class ReprTest {
     @Test
     fun toReprNoEscapeAllLengths() {
         for (len in 0 until 100) {
-            val s = String(ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() })
+            val s = ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() }.decodeToString()
             assertEquals("\"$s\"", stringReprForTest(s))
         }
     }
@@ -84,7 +84,7 @@ class ReprTest {
     @Test
     fun toReprTailEscapeAllLengths() {
         for (len in 0 until 100) {
-            val s = String(ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() })
+            val s = ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() }.decodeToString()
             assertEquals(
                 "\"$s\\n\"",
                 stringReprForTest("$s\n")
@@ -95,7 +95,7 @@ class ReprTest {
     @Test
     fun toReprMiddleEscapeAllLengths() {
         for (len in 0 until 100) {
-            val s = String(ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() })
+            val s = ByteArray(len) { i -> ('0'.code + (i % 10)).toByte() }.decodeToString()
             assertEquals(
                 "\"$s\\n$s\"",
                 stringReprForTest("$s\n$s")

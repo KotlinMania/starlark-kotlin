@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.aligned_size.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import kotlin.test.Test
