@@ -37,6 +37,9 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Lexer
+import io.github.kotlinmania.starlark_kotlin.syntax.parser.Parser
+import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 
 class AstLoad(
@@ -66,8 +69,19 @@ class AstModule(
         AstModuleParts(codemap, statement, dialect, typecheck)
     companion object {
         fun parse(filename: String, content: String, dialect: Dialect): Result<AstModule> {
-            // TODO: handwritten Kotlin recursive descent parser
-            return Result.failure(NotImplementedError("Porting pending: Handwritten parser needed to replace LALRPOP."))
+            val codemap = CodeMap(filename, content)
+            val lexer = Lexer(content, dialect, codemap)
+            val parserState = ParserState(dialect, codemap, mutableListOf())
+            return try {
+                val statement = Parser.parse(parserState, lexer)
+                if (parserState.errors.isNotEmpty()) {
+                    Result.failure(parserState.errors.first())
+                } else {
+                    Result.success(AstModule(codemap, statement, dialect, false))
+                }
+            } catch (e: io.github.kotlinmania.starlark_kotlin.typing.EvalException) {
+                Result.failure(e)
+            }
         }
     }
 
