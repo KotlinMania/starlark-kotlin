@@ -36,7 +36,7 @@ jobs:
         run: ./build/ast_distance/ast_distance --lint src
 
       - name: Task status
-        run: ./build/ast_distance/ast_distance --tasks tasks.json
+        run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
 
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache
@@ -67,7 +67,7 @@ jobs:
         run: ./build/ast_distance/ast_distance --lint src
 
       - name: Task status
-        run: ./build/ast_distance/ast_distance --tasks tasks.json
+        run: ./build/ast_distance/ast_distance --agent 0 --tasks tasks.json
 
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache
