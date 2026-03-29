@@ -193,7 +193,8 @@ fun FrozenValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
 
 /// [StarlarkTypeRepr] impl for [ValueTyped].
 // impl<'v, T: StarlarkValue<'v>> StarlarkTypeRepr for ValueTyped<'v, T>
-fun <T : StarlarkValue> ValueTyped<T>.starlarkTypeRepr(): Ty = TODO("T::starlarkTypeRepr()")
+fun <T : StarlarkValue> ValueTyped<T>.starlarkTypeRepr(): Ty =
+    asRef().typecheckerTy() ?: Ty.any()
 
 /// [AllocValue] impl for [ValueTyped].
 // impl<'v, T: StarlarkValue<'v>> AllocValue<'v> for ValueTyped<'v, T>
@@ -201,7 +202,8 @@ fun <T : StarlarkValue> ValueTyped<T>.allocValue(heap: Heap): Value = toValue()
 
 /// [StarlarkTypeRepr] impl for [FrozenValueTyped].
 // impl<'v, T: StarlarkValue<'v>> StarlarkTypeRepr for FrozenValueTyped<'v, T>
-fun <T : StarlarkValue> FrozenValueTyped<T>.starlarkTypeRepr(): Ty = TODO("T::starlarkTypeRepr()")
+fun <T : StarlarkValue> FrozenValueTyped<T>.starlarkTypeRepr(): Ty =
+    asRef().typecheckerTy() ?: Ty.any()
 
 /// [AllocValue] impl for [FrozenValueTyped].
 // impl<'v, 'f, T: StarlarkValue<'f>> AllocValue<'v> for FrozenValueTyped<'f, T>
