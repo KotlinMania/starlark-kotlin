@@ -19,12 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
+// use std::any;
+
+// use crate::typing::Ty;
+// use crate::values::AllocFrozenValue;
+// use crate::values::AllocValue;
+// use crate::values::FrozenHeap;
+// use crate::values::FrozenValue;
+// use crate::values::Heap;
+// use crate::values::UnpackValue;
+// use crate::values::Value;
+// use crate::values::int::pointer_i32::PointerI32;
+// use crate::values::layout::value::IntegerTooBigError;
+// use crate::values::type_repr::StarlarkTypeRepr;
+// use crate::values::types::int::int_or_big::StarlarkInt;
+// use crate::values::types::int::int_or_big::StarlarkIntRef;
+
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.IntegerTooBigError
 
-// Rust: impl AllocValue for i32
-// Rust: impl AllocFrozenValue for i32
+// impl<'v> AllocValue<'v> for i32
+// impl AllocFrozenValue for i32
 
 /**
  * Allocate an [Int] (Rust `i32`) on the Starlark heap.
@@ -33,12 +49,12 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.IntegerTooBigError
  */
 fun allocValueI32(value: Int): StarlarkInt = StarlarkInt.from(value)
 
-// Rust: impl StarlarkTypeRepr for i32
-
-/** Get the Starlark type representation for [Int] (Rust `i32`). */
+// impl StarlarkTypeRepr for i32
+//     fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
 fun i32StarlarkTypeRepr(): Ty = Ty.int()
 
-// Rust: impl UnpackValue for i32
+// impl UnpackValue<'_> for i32 {
+//     type Error = crate::Error;
 
 /**
  * Unpack an [Int] (Rust `i32`) from a Starlark [Value].
@@ -47,6 +63,7 @@ fun i32StarlarkTypeRepr(): Ty = Ty.int()
  * we know that `i32` is `InlineInt` on 64-bit platforms and never `BigInt`,
  * so this is faster.
  */
+// fn unpack_value_impl(value: Value) -> crate::Result<Option<Self>>
 fun unpackValueI32(value: Value): Result<Int?> {
     // Fast path: try to unpack as inline i32
     val v = value.unpackI32()

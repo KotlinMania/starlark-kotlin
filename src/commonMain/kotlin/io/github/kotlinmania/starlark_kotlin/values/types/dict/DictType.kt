@@ -19,42 +19,47 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
+// use std::marker::PhantomData;
+
+// use either::Either;
+
+// use crate::typing::Ty;
+// use crate::values::UnpackAndDiscard;
+// use crate::values::UnpackValue;
+// use crate::values::Value;
+// use crate::values::dict::UnpackDictEntries;
+// use crate::values::type_repr::StarlarkTypeRepr;
+
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 
-/**
- * A dict type marker.
- *
- * [StarlarkTypeRepr] provides `dict[K, V]`.
- * [UnpackValue] implementation verifies the types of entries and discards them.
- */
+/// A dict type marker.
+///
+/// [`StarlarkTypeRepr`] provides `dict[K, V]`.
+/// [`UnpackValue`] implementation verifies the types of entries and discards them.
+// pub struct DictType<K: StarlarkTypeRepr, V: StarlarkTypeRepr> {
+//     k: PhantomData<K>,
+//     v: PhantomData<V>,
+// }
 class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor() {
 
     companion object {
-        /** Factory method to create a [DictType] instance. */
         fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> instance(): DictType<K, V> = DictType()
 
-        /**
-         * StarlarkTypeRepr implementation for DictType<K, V>.
-         *
-         * Returns the Starlark type representation: `Ty.dict(K.starlarkTypeRepr(), V.starlarkTypeRepr())`.
-         */
+        // impl<K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for DictType<K, V>
+        //     fn starlark_type_repr() -> Ty {
+        //         Ty::dict(K::starlark_type_repr(), V::starlark_type_repr())
+        //     }
         inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
             return Ty.dict(K::class.starlarkTypeRepr(), V::class.starlarkTypeRepr())
         }
     }
 }
 
-/**
- * UnpackValue implementation for DictType<K, V> where K: UnpackValue, V: UnpackValue.
- *
- * Unpacks a value as a dict, verifying the types of entries and discarding them.
- * Returns a [DictType] marker if the value is a dict with matching key/value types,
- * or null if the value is not a dict.
- *
- * The error type is [Either]<K.Error, V.Error>.
- */
+// impl<'v, K: UnpackValue<'v>, V: UnpackValue<'v>> UnpackValue<'v> for DictType<K, V> {
+//     type Error = Either<K::Error, V::Error>;
+//     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value
 ): Result<DictType<K, V>?> {
