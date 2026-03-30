@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/none.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark_kotlin.values.types.none
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-//! The `None` type.
+/**
+ * The `None` type.
+ *
+ * Submodules:
+ * - [Globals.kt] — global None functions
+ * - [NoneOr.kt] — [NoneOr] optional type wrapper
+ * - [NoneType.kt] — [NoneType] type definition
+ *
+ * Public types (re-exported from submodules in Rust):
+ * - [NoneOr] — a value that is either None or a typed value
+ * - [NoneType] — the None type descriptor
+ */
 
-// pub(crate) mod globals;
-// mod none_or;
-// pub(crate) mod none_type;
-
-// pub use none_or::NoneOr;
-// pub use none_type::NoneType;
-internal typealias NoneOrExport = io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr<*>
-internal typealias NoneTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+// Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)
+// Rust: pub use none_or::NoneOr;
+// Rust: pub use none_type::NoneType;

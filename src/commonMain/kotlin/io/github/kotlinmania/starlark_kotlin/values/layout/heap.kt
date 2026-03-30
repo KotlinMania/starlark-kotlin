@@ -1,5 +1,6 @@
 // port-lint: source src/values/layout/heap.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+@file:Suppress("unused", "ObjectPropertyName")
+package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,19 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 // Starlark heap implementation.
-//
-// This file corresponds to the Rust module declaration `mod heap;` in
-// values/layout/mod.rs. The actual heap module contents are in the
-// values.layout.heap package (see Heap.kt in the heap/ subdirectory).
-//
-// Submodules (Kotlin packages under values.layout.heap):
-//   pub(crate) mod allocator    -> heap.allocator package
-//   pub(crate) mod arena        -> heap/Arena.kt
-//   mod branding                -> heap/Branding.kt (private)
-//   pub(crate) mod call_enter_exit -> heap/CallEnterExit.kt
-//   mod fast_cell               -> heap/FastCell.kt (private)
-//   pub(crate) mod heap_type    -> heap/HeapType.kt
-//   pub(crate) mod maybe_uninit_slice_util -> heap/MaybeUninitSliceUtil.kt
-//   pub(crate) mod profile      -> heap.profile package
-//   pub(crate) mod repr         -> heap/Repr.kt
-//   pub(crate) mod send         -> heap/Send.kt
+
+internal val allocator = "allocator"
+internal val arena = "arena"
+internal val branding = "branding"
+internal val call_enter_exit = "call_enter_exit"
+internal val fast_cell = "fast_cell"
+internal val heap_type = "heap_type"
+internal val maybe_uninit_slice_util = "maybe_uninit_slice_util"
+internal val profile = "profile"
+internal val repr = "repr"
+internal val send = "send"

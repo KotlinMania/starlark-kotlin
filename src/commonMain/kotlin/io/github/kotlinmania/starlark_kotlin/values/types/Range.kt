@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/range.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark_kotlin.values.types.range
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-//! The range type, constructed with `range()`.
+/**
+ * The range type, constructed with `range()`.
+ *
+ * Submodules:
+ * - [Globals.kt] — global range constructor function
+ * - [RangeType.kt] — [Range] type implementation
+ *
+ * Public types (re-exported from submodules in Rust):
+ * - [Range] — the range value type
+ */
 
-// pub(crate) mod globals;
-// mod range_type;
-
-// pub use range_type::Range;
-internal typealias RangeExport = io.github.kotlinmania.starlark_kotlin.values.types.range.Range
+// Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)
+// Rust: pub use range_type::Range;

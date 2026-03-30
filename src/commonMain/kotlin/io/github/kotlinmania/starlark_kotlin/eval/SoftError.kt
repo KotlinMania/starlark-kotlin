@@ -35,7 +35,7 @@ internal object HardErrorSoftErrorHandler : SoftErrorHandler {
     // fn soft_error(&self, _category: &str, error: crate::Error) -> Result<(), crate::Error> {
     //     Err(error)
     // }
-    override fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error) {
+    override fun softError(_category: String, error: io.github.kotlinmania.starlark_kotlin.Error) {
         throw error
     }
 }

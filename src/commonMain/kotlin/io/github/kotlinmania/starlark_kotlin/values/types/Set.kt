@@ -19,12 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-//! The set type
-// pub(crate) mod methods;
-// pub(crate) mod refs;
-// pub(crate) mod set;
-// pub(crate) mod value;
-// pub use crate::values::set::refs::SetMut;
-// pub use crate::values::set::refs::SetRef;
-internal typealias SetMutExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetMut
-internal typealias SetRefExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
+/**
+ * The set type.
+ *
+ * Submodules:
+ * - [Methods.kt] — set methods
+ * - [Refs.kt] — [SetMut], [SetRef] reference types
+ * - [Set.kt] — set type definition
+ * - [Value.kt] — set value implementation
+ *
+ * Public types (re-exported from submodules in Rust):
+ * - [SetMut] — mutable set reference
+ * - [SetRef] — immutable set reference
+ */
+
+// Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)
+// Rust: pub use crate::values::set::refs::SetMut;
+// Rust: pub use crate::values::set::refs::SetRef;

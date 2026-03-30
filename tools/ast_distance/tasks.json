@@ -1,0 +1,3769 @@
+{
+  "source_root": "tmp/starlark",
+  "target_root": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
+  "source_lang": "rust",
+  "target_lang": "kotlin",
+  "agents_md": "",
+  "tasks": [
+    {
+      "source_path": "src/__derive_refs.rs",
+      "source_qualified": "__derive_refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:28"
+    },
+    {
+      "source_path": "src/__derive_refs/components.rs",
+      "source_qualified": "__derive_refs.components",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:52"
+    },
+    {
+      "source_path": "src/__derive_refs/invoke_macro_error.rs",
+      "source_qualified": "__derive_refs.invoke_macro_error",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:26"
+    },
+    {
+      "source_path": "src/__derive_refs/param_spec.rs",
+      "source_qualified": "__derive_refs.param_spec",
+      "target_path": "",
+      "dependent_count": 20,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:08:44"
+    },
+    {
+      "source_path": "src/__derive_refs/parse_args.rs",
+      "source_qualified": "__derive_refs.parse_args",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:54"
+    },
+    {
+      "source_path": "src/__derive_refs/sig.rs",
+      "source_qualified": "__derive_refs.sig",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:19"
+    },
+    {
+      "source_path": "src/debug/adapter/implementation.rs",
+      "source_qualified": "adapter.implementation",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:12"
+    },
+    {
+      "source_path": "src/debug/adapter/tests.rs",
+      "source_qualified": "adapter.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:59"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/allocator.rs",
+      "source_qualified": "alloc.allocator",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:43"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chain.rs",
+      "source_qualified": "alloc.chain",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:18"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chunk.rs",
+      "source_qualified": "alloc.chunk",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:18"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chunk_part.rs",
+      "source_qualified": "alloc.chunk_part",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:44"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/per_thread.rs",
+      "source_qualified": "alloc.per_thread",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:31"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc.rs",
+      "source_qualified": "allocator.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:18"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/api.rs",
+      "source_qualified": "allocator.api",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:04"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/bumpalo.rs",
+      "source_qualified": "allocator.bumpalo",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:30"
+    },
+    {
+      "source_path": "src/analysis.rs",
+      "source_qualified": "analysis",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:18"
+    },
+    {
+      "source_path": "src/analysis/dubious.rs",
+      "source_qualified": "analysis.dubious",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:17"
+    },
+    {
+      "source_path": "src/analysis/find_call_name.rs",
+      "source_qualified": "analysis.find_call_name",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:15"
+    },
+    {
+      "source_path": "src/analysis/flow.rs",
+      "source_qualified": "analysis.flow",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:12"
+    },
+    {
+      "source_path": "src/analysis/incompatible.rs",
+      "source_qualified": "analysis.incompatible",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:11"
+    },
+    {
+      "source_path": "src/analysis/lint_message.rs",
+      "source_qualified": "analysis.lint_message",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:55"
+    },
+    {
+      "source_path": "src/analysis/names.rs",
+      "source_qualified": "analysis.names",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:10"
+    },
+    {
+      "source_path": "src/analysis/performance.rs",
+      "source_qualified": "analysis.performance",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:10"
+    },
+    {
+      "source_path": "src/analysis/types.rs",
+      "source_qualified": "analysis.types",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:09"
+    },
+    {
+      "source_path": "src/analysis/underscore.rs",
+      "source_qualified": "analysis.underscore",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:08"
+    },
+    {
+      "source_path": "src/analysis/unused_loads.rs",
+      "source_qualified": "analysis.unused_loads",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:04"
+    },
+    {
+      "source_path": "src/any.rs",
+      "source_qualified": "any",
+      "target_path": "",
+      "dependent_count": 8,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:12:48"
+    },
+    {
+      "source_path": "src/assert.rs",
+      "source_qualified": "assert",
+      "target_path": "",
+      "dependent_count": 84,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:58:12"
+    },
+    {
+      "source_path": "src/assert/assert.rs",
+      "source_qualified": "assert.assert",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:30"
+    },
+    {
+      "source_path": "src/assert/conformance.rs",
+      "source_qualified": "assert.conformance",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:33"
+    },
+    {
+      "source_path": "src/values/layout/avalues/array.rs",
+      "source_qualified": "avalues.array",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:34"
+    },
+    {
+      "source_path": "src/values/layout/avalues/complex.rs",
+      "source_qualified": "avalues.complex",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:39"
+    },
+    {
+      "source_path": "src/values/layout/avalues/list.rs",
+      "source_qualified": "avalues.list",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:47"
+    },
+    {
+      "source_path": "src/values/layout/avalues/simple.rs",
+      "source_qualified": "avalues.simple",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:13"
+    },
+    {
+      "source_path": "src/values/layout/avalues/static_.rs",
+      "source_qualified": "avalues.static_",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:49"
+    },
+    {
+      "source_path": "src/values/layout/avalues/str_.rs",
+      "source_qualified": "avalues.str_",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:36"
+    },
+    {
+      "source_path": "src/values/layout/avalues/tuple.rs",
+      "source_qualified": "avalues.tuple",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:29"
+    },
+    {
+      "source_path": "src/eval/bc/addr.rs",
+      "source_qualified": "bc.addr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:19"
+    },
+    {
+      "source_path": "src/tests/bc/and_or.rs",
+      "source_qualified": "bc.and_or",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:25"
+    },
+    {
+      "source_path": "src/eval/bc/bytecode.rs",
+      "source_qualified": "bc.bytecode",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:17"
+    },
+    {
+      "source_path": "src/eval/bc/call.rs",
+      "source_qualified": "bc.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:13"
+    },
+    {
+      "source_path": "src/eval/bc/compiler.rs",
+      "source_qualified": "bc.compiler",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:53"
+    },
+    {
+      "source_path": "src/tests/bc/compr.rs",
+      "source_qualified": "bc.compr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:19"
+    },
+    {
+      "source_path": "src/eval/bc/definitely_assigned.rs",
+      "source_qualified": "bc.definitely_assigned",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:19"
+    },
+    {
+      "source_path": "src/tests/bc/expr.rs",
+      "source_qualified": "bc.expr",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:14:25"
+    },
+    {
+      "source_path": "src/eval/bc/for_loop.rs",
+      "source_qualified": "bc.for_loop",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:16"
+    },
+    {
+      "source_path": "src/tests/bc/for_stmt.rs",
+      "source_qualified": "bc.for_stmt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:01"
+    },
+    {
+      "source_path": "src/eval/bc/frame.rs",
+      "source_qualified": "bc.frame",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:11:43"
+    },
+    {
+      "source_path": "src/tests/bc/golden.rs",
+      "source_qualified": "bc.golden",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:00"
+    },
+    {
+      "source_path": "src/eval/bc/if_debug.rs",
+      "source_qualified": "bc.if_debug",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:12"
+    },
+    {
+      "source_path": "src/tests/bc/if_stmt.rs",
+      "source_qualified": "bc.if_stmt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:56"
+    },
+    {
+      "source_path": "src/eval/bc/instr.rs",
+      "source_qualified": "bc.instr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:33"
+    },
+    {
+      "source_path": "src/eval/bc/instr_arg.rs",
+      "source_qualified": "bc.instr_arg",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:42"
+    },
+    {
+      "source_path": "src/eval/bc/instr_impl.rs",
+      "source_qualified": "bc.instr_impl",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:46"
+    },
+    {
+      "source_path": "src/eval/bc/instrs.rs",
+      "source_qualified": "bc.instrs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:50"
+    },
+    {
+      "source_path": "src/tests/bc/isinstance.rs",
+      "source_qualified": "bc.isinstance",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:55"
+    },
+    {
+      "source_path": "src/eval/bc/native_function.rs",
+      "source_qualified": "bc.native_function",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:19:00"
+    },
+    {
+      "source_path": "src/eval/bc/opcode.rs",
+      "source_qualified": "bc.opcode",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:58"
+    },
+    {
+      "source_path": "src/eval/bc/repr.rs",
+      "source_qualified": "bc.repr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:59"
+    },
+    {
+      "source_path": "src/eval/bc/slow_arg.rs",
+      "source_qualified": "bc.slow_arg",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:14"
+    },
+    {
+      "source_path": "src/eval/bc/stack_ptr.rs",
+      "source_qualified": "bc.stack_ptr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:16"
+    },
+    {
+      "source_path": "src/eval/bc/writer.rs",
+      "source_qualified": "bc.writer",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:17"
+    },
+    {
+      "source_path": "src/values/types/bigint/convert.rs",
+      "source_qualified": "bigint.convert",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:19"
+    },
+    {
+      "source_path": "src/values/types/bool/alloc.rs",
+      "source_qualified": "bool.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:37"
+    },
+    {
+      "source_path": "src/values/types/bool/globals.rs",
+      "source_qualified": "bool.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:34"
+    },
+    {
+      "source_path": "src/values/types/bool/type_repr.rs",
+      "source_qualified": "bool.type_repr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:38"
+    },
+    {
+      "source_path": "src/values/types/bool/unpack.rs",
+      "source_qualified": "bool.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:48"
+    },
+    {
+      "source_path": "src/values/types/bool/value.rs",
+      "source_qualified": "bool.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:19"
+    },
+    {
+      "source_path": "build.rs",
+      "source_qualified": "build",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:55"
+    },
+    {
+      "source_path": "src/values/typing/callable/param.rs",
+      "source_qualified": "callable.param",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:59"
+    },
+    {
+      "source_path": "src/cast.rs",
+      "source_qualified": "cast",
+      "target_path": "",
+      "dependent_count": 8,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:13:03"
+    },
+    {
+      "source_path": "src/coerce.rs",
+      "source_qualified": "coerce",
+      "target_path": "",
+      "dependent_count": 34,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:05:13"
+    },
+    {
+      "source_path": "src/collections.rs",
+      "source_qualified": "collections",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:29"
+    },
+    {
+      "source_path": "src/collections/aligned_padded_str.rs",
+      "source_qualified": "collections.aligned_padded_str",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:37"
+    },
+    {
+      "source_path": "src/collections/alloca.rs",
+      "source_qualified": "collections.alloca",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:52"
+    },
+    {
+      "source_path": "src/collections/maybe_uninit_backport.rs",
+      "source_qualified": "collections.maybe_uninit_backport",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:32"
+    },
+    {
+      "source_path": "src/collections/string_pool.rs",
+      "source_qualified": "collections.string_pool",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:45"
+    },
+    {
+      "source_path": "src/collections/symbol.rs",
+      "source_qualified": "collections.symbol",
+      "target_path": "",
+      "dependent_count": 15,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:09:44"
+    },
+    {
+      "source_path": "src/eval/compiler/args.rs",
+      "source_qualified": "compiler.args",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:27"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/assign.rs",
+      "source_qualified": "compiler.assign",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:42"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/assign_modify.rs",
+      "source_qualified": "compiler.assign_modify",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:36"
+    },
+    {
+      "source_path": "src/eval/compiler/call.rs",
+      "source_qualified": "compiler.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:36"
+    },
+    {
+      "source_path": "src/eval/compiler/compr.rs",
+      "source_qualified": "compiler.compr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:59"
+    },
+    {
+      "source_path": "src/eval/compiler/constants.rs",
+      "source_qualified": "compiler.constants",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:17"
+    },
+    {
+      "source_path": "src/eval/compiler/def.rs",
+      "source_qualified": "compiler.def",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:07"
+    },
+    {
+      "source_path": "src/eval/compiler/def_inline.rs",
+      "source_qualified": "compiler.def_inline",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:19"
+    },
+    {
+      "source_path": "src/eval/compiler/error.rs",
+      "source_qualified": "compiler.error",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:49"
+    },
+    {
+      "source_path": "src/eval/compiler/expr.rs",
+      "source_qualified": "compiler.expr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:52"
+    },
+    {
+      "source_path": "src/eval/compiler/expr_bool.rs",
+      "source_qualified": "compiler.expr_bool",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:57"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/if_compiler.rs",
+      "source_qualified": "compiler.if_compiler",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:39"
+    },
+    {
+      "source_path": "src/eval/compiler/known.rs",
+      "source_qualified": "compiler.known",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:59"
+    },
+    {
+      "source_path": "src/eval/compiler/module.rs",
+      "source_qualified": "compiler.module",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:01"
+    },
+    {
+      "source_path": "src/eval/compiler/opt_ctx.rs",
+      "source_qualified": "compiler.opt_ctx",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:14:40"
+    },
+    {
+      "source_path": "src/eval/compiler/scope.rs",
+      "source_qualified": "compiler.scope",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:07"
+    },
+    {
+      "source_path": "src/eval/compiler/small_vec_1.rs",
+      "source_qualified": "compiler.small_vec_1",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:28"
+    },
+    {
+      "source_path": "src/eval/compiler/span.rs",
+      "source_qualified": "compiler.span",
+      "target_path": "",
+      "dependent_count": 29,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:05:28"
+    },
+    {
+      "source_path": "src/eval/compiler/stmt.rs",
+      "source_qualified": "compiler.stmt",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:16:03"
+    },
+    {
+      "source_path": "src/eval/compiler/type_expr.rs",
+      "source_qualified": "compiler.type_expr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:23"
+    },
+    {
+      "source_path": "src/eval/compiler/types.rs",
+      "source_qualified": "compiler.types",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:21"
+    },
+    {
+      "source_path": "src/debug.rs",
+      "source_qualified": "debug",
+      "target_path": "",
+      "dependent_count": 53,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:03:32"
+    },
+    {
+      "source_path": "src/debug/adapter.rs",
+      "source_qualified": "debug.adapter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:18"
+    },
+    {
+      "source_path": "src/debug/evaluate.rs",
+      "source_qualified": "debug.evaluate",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:14"
+    },
+    {
+      "source_path": "src/debug/inspect.rs",
+      "source_qualified": "debug.inspect",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:57"
+    },
+    {
+      "source_path": "src/eval/compiler/def_inline/local_as_value.rs",
+      "source_qualified": "def_inline.local_as_value",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:29"
+    },
+    {
+      "source_path": "src/tests/derive/alloc_value.rs",
+      "source_qualified": "derive.alloc_value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:35"
+    },
+    {
+      "source_path": "src/tests/derive/attrs.rs",
+      "source_qualified": "derive.attrs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:17"
+    },
+    {
+      "source_path": "src/tests/derive/docs.rs",
+      "source_qualified": "derive.docs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:33"
+    },
+    {
+      "source_path": "src/tests/derive/freeze.rs",
+      "source_qualified": "derive.freeze",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:16"
+    },
+    {
+      "source_path": "src/tests/derive/module.rs",
+      "source_qualified": "derive.module",
+      "target_path": "",
+      "dependent_count": 21,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:07:22"
+    },
+    {
+      "source_path": "src/tests/derive/trace.rs",
+      "source_qualified": "derive.trace",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:02"
+    },
+    {
+      "source_path": "src/tests/derive/unpack_value.rs",
+      "source_qualified": "derive.unpack_value",
+      "target_path": "",
+      "dependent_count": 51,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:04:02"
+    },
+    {
+      "source_path": "src/tests/derive/unpack_value_attr.rs",
+      "source_qualified": "derive.unpack_value_attr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:24"
+    },
+    {
+      "source_path": "src/values/types/dict/alloc.rs",
+      "source_qualified": "dict.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:58"
+    },
+    {
+      "source_path": "src/values/types/dict/dict_type.rs",
+      "source_qualified": "dict.dict_type",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:15:31"
+    },
+    {
+      "source_path": "src/values/types/dict/globals.rs",
+      "source_qualified": "dict.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:57"
+    },
+    {
+      "source_path": "src/values/types/dict/methods.rs",
+      "source_qualified": "dict.methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:14"
+    },
+    {
+      "source_path": "src/values/types/dict/refs.rs",
+      "source_qualified": "dict.refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:15"
+    },
+    {
+      "source_path": "src/values/types/dict/traits.rs",
+      "source_qualified": "dict.traits",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:16"
+    },
+    {
+      "source_path": "src/values/types/dict/unpack.rs",
+      "source_qualified": "dict.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:17"
+    },
+    {
+      "source_path": "src/values/types/dict/value.rs",
+      "source_qualified": "dict.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:18"
+    },
+    {
+      "source_path": "src/docs.rs",
+      "source_qualified": "docs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:31"
+    },
+    {
+      "source_path": "src/docs/code.rs",
+      "source_qualified": "docs.code",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:09"
+    },
+    {
+      "source_path": "src/docs/markdown.rs",
+      "source_qualified": "docs.markdown",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:11"
+    },
+    {
+      "source_path": "src/docs/multipage.rs",
+      "source_qualified": "docs.multipage",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:12"
+    },
+    {
+      "source_path": "src/docs/parse.rs",
+      "source_qualified": "docs.parse",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:14"
+    },
+    {
+      "source_path": "src/docs/tests.rs",
+      "source_qualified": "docs.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:19"
+    },
+    {
+      "source_path": "src/values/types/enumeration/enum_type.rs",
+      "source_qualified": "enumeration.enum_type",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:17:19"
+    },
+    {
+      "source_path": "src/values/types/enumeration/globals.rs",
+      "source_qualified": "enumeration.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:21"
+    },
+    {
+      "source_path": "src/values/types/enumeration/matcher.rs",
+      "source_qualified": "enumeration.matcher",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:29"
+    },
+    {
+      "source_path": "src/values/types/enumeration/ty_enum_type.rs",
+      "source_qualified": "enumeration.ty_enum_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:30"
+    },
+    {
+      "source_path": "src/values/types/enumeration/value.rs",
+      "source_qualified": "enumeration.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:31"
+    },
+    {
+      "source_path": "src/environment.rs",
+      "source_qualified": "environment",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:26"
+    },
+    {
+      "source_path": "src/environment/globals.rs",
+      "source_qualified": "environment.globals",
+      "target_path": "",
+      "dependent_count": 21,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:07:38"
+    },
+    {
+      "source_path": "src/environment/methods.rs",
+      "source_qualified": "environment.methods",
+      "target_path": "",
+      "dependent_count": 17,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:09:28"
+    },
+    {
+      "source_path": "src/environment/module_dump.rs",
+      "source_qualified": "environment.module_dump",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:50"
+    },
+    {
+      "source_path": "src/environment/modules.rs",
+      "source_qualified": "environment.modules",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:53"
+    },
+    {
+      "source_path": "src/environment/names.rs",
+      "source_qualified": "environment.names",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:48"
+    },
+    {
+      "source_path": "src/environment/slots.rs",
+      "source_qualified": "environment.slots",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:46"
+    },
+    {
+      "source_path": "src/errors.rs",
+      "source_qualified": "errors",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:42"
+    },
+    {
+      "source_path": "src/errors/did_you_mean.rs",
+      "source_qualified": "errors.did_you_mean",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:15"
+    },
+    {
+      "source_path": "src/eval.rs",
+      "source_qualified": "eval",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:30"
+    },
+    {
+      "source_path": "src/eval/bc.rs",
+      "source_qualified": "eval.bc",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:18:26"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/call.rs",
+      "source_qualified": "eval.bc.compiler.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:30"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/compr.rs",
+      "source_qualified": "eval.bc.compiler.compr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:14"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/def.rs",
+      "source_qualified": "eval.bc.compiler.def",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:59"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/expr.rs",
+      "source_qualified": "eval.bc.compiler.expr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:49"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/stmt.rs",
+      "source_qualified": "eval.bc.compiler.stmt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:37"
+    },
+    {
+      "source_path": "src/eval/compiler.rs",
+      "source_qualified": "eval.compiler",
+      "target_path": "",
+      "dependent_count": 8,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:13:20"
+    },
+    {
+      "source_path": "src/eval/params.rs",
+      "source_qualified": "eval.params",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:20"
+    },
+    {
+      "source_path": "src/eval/runtime.rs",
+      "source_qualified": "eval.runtime",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:20"
+    },
+    {
+      "source_path": "src/eval/soft_error.rs",
+      "source_qualified": "eval.soft_error",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:36"
+    },
+    {
+      "source_path": "src/values/types/float/float.rs",
+      "source_qualified": "float.float",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:33"
+    },
+    {
+      "source_path": "src/values/types/float/globals.rs",
+      "source_qualified": "float.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:35"
+    },
+    {
+      "source_path": "src/values/types/float/unpack.rs",
+      "source_qualified": "float.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:49"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/basic.rs",
+      "source_qualified": "freeze.basic",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:18"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/bounds.rs",
+      "source_qualified": "freeze.bounds",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:20"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/enums.rs",
+      "source_qualified": "freeze.enums",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:22"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/identity.rs",
+      "source_qualified": "freeze.identity",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:31"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/validator.rs",
+      "source_qualified": "freeze.validator",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:32"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/validator_order.rs",
+      "source_qualified": "freeze.validator_order",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:33"
+    },
+    {
+      "source_path": "src/stdlib/funcs/globals.rs",
+      "source_qualified": "funcs.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:53"
+    },
+    {
+      "source_path": "src/stdlib/funcs/min_max.rs",
+      "source_qualified": "funcs.min_max",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:50"
+    },
+    {
+      "source_path": "src/stdlib/funcs/other.rs",
+      "source_qualified": "funcs.other",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:49"
+    },
+    {
+      "source_path": "src/stdlib/funcs/zip.rs",
+      "source_qualified": "funcs.zip",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:42"
+    },
+    {
+      "source_path": "fuzz/fuzz_targets/starlark.rs",
+      "source_qualified": "fuzz_targets.starlark",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:34"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator.rs",
+      "source_qualified": "heap.allocator",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:23"
+    },
+    {
+      "source_path": "src/values/layout/heap/arena.rs",
+      "source_qualified": "heap.arena",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:10"
+    },
+    {
+      "source_path": "src/values/layout/heap/branding.rs",
+      "source_qualified": "heap.branding",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:27"
+    },
+    {
+      "source_path": "src/values/layout/heap/call_enter_exit.rs",
+      "source_qualified": "heap.call_enter_exit",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:31"
+    },
+    {
+      "source_path": "src/values/layout/heap/fast_cell.rs",
+      "source_qualified": "heap.fast_cell",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:05"
+    },
+    {
+      "source_path": "src/values/layout/heap/heap_type.rs",
+      "source_qualified": "heap.heap_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:58"
+    },
+    {
+      "source_path": "src/values/layout/heap/maybe_uninit_slice_util.rs",
+      "source_qualified": "heap.maybe_uninit_slice_util",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:02"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile.rs",
+      "source_qualified": "heap.profile",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:28"
+    },
+    {
+      "source_path": "src/values/layout/heap/repr.rs",
+      "source_qualified": "heap.repr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:37"
+    },
+    {
+      "source_path": "src/values/layout/heap/send.rs",
+      "source_qualified": "heap.send",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:40"
+    },
+    {
+      "source_path": "src/hint.rs",
+      "source_qualified": "hint",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:28"
+    },
+    {
+      "source_path": "src/values/types/int/globals.rs",
+      "source_qualified": "int.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:44"
+    },
+    {
+      "source_path": "src/values/types/int/i32.rs",
+      "source_qualified": "int.i32",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:40"
+    },
+    {
+      "source_path": "src/values/types/int/inline_int.rs",
+      "source_qualified": "int.inline_int",
+      "target_path": "",
+      "dependent_count": 11,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:12:01"
+    },
+    {
+      "source_path": "src/values/types/int/int_or_big.rs",
+      "source_qualified": "int.int_or_big",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:37"
+    },
+    {
+      "source_path": "src/values/types/int/pointer_i32.rs",
+      "source_qualified": "int.pointer_i32",
+      "target_path": "",
+      "dependent_count": 9,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:12:32"
+    },
+    {
+      "source_path": "src/values/types/int/tests.rs",
+      "source_qualified": "int.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:21"
+    },
+    {
+      "source_path": "src/values/types/string/intern/interner.rs",
+      "source_qualified": "intern.interner",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:26"
+    },
+    {
+      "source_path": "src/values/layout/aligned_size.rs",
+      "source_qualified": "layout.aligned_size",
+      "target_path": "",
+      "dependent_count": 8,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:13:36"
+    },
+    {
+      "source_path": "src/values/layout/avalue.rs",
+      "source_qualified": "layout.avalue",
+      "target_path": "",
+      "dependent_count": 14,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:10:15"
+    },
+    {
+      "source_path": "src/values/layout/avalues.rs",
+      "source_qualified": "layout.avalues",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:33"
+    },
+    {
+      "source_path": "src/values/layout/complex.rs",
+      "source_qualified": "layout.complex",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:07"
+    },
+    {
+      "source_path": "src/values/layout/const_frozen_string.rs",
+      "source_qualified": "layout.const_frozen_string",
+      "target_path": "",
+      "dependent_count": 12,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:11:12"
+    },
+    {
+      "source_path": "src/values/layout/const_type_id.rs",
+      "source_qualified": "layout.const_type_id",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:30"
+    },
+    {
+      "source_path": "src/values/layout/freezer.rs",
+      "source_qualified": "layout.freezer",
+      "target_path": "",
+      "dependent_count": 36,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:04:52"
+    },
+    {
+      "source_path": "src/values/layout/heap.rs",
+      "source_qualified": "layout.heap",
+      "target_path": "",
+      "dependent_count": 109,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:57:12"
+    },
+    {
+      "source_path": "src/values/layout/identity.rs",
+      "source_qualified": "layout.identity",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:42"
+    },
+    {
+      "source_path": "src/values/layout/pointer.rs",
+      "source_qualified": "layout.pointer",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:48"
+    },
+    {
+      "source_path": "src/values/layout/static_string.rs",
+      "source_qualified": "layout.static_string",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:48"
+    },
+    {
+      "source_path": "src/values/layout/typed.rs",
+      "source_qualified": "layout.typed",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:56"
+    },
+    {
+      "source_path": "src/values/layout/value.rs",
+      "source_qualified": "layout.value",
+      "target_path": "",
+      "dependent_count": 178,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:56:28"
+    },
+    {
+      "source_path": "src/values/layout/value_alloc_size.rs",
+      "source_qualified": "layout.value_alloc_size",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:17:25"
+    },
+    {
+      "source_path": "src/values/layout/value_captured.rs",
+      "source_qualified": "layout.value_captured",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:03"
+    },
+    {
+      "source_path": "src/values/layout/value_lifetimeless.rs",
+      "source_qualified": "layout.value_lifetimeless",
+      "target_path": "",
+      "dependent_count": 12,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:11:28"
+    },
+    {
+      "source_path": "src/values/layout/value_not_special.rs",
+      "source_qualified": "layout.value_not_special",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:29"
+    },
+    {
+      "source_path": "src/values/layout/vtable.rs",
+      "source_qualified": "layout.vtable",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:06"
+    },
+    {
+      "source_path": "src/lib.rs",
+      "source_qualified": "lib",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:31"
+    },
+    {
+      "source_path": "src/values/types/list/alloc.rs",
+      "source_qualified": "list.alloc",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:19"
+    },
+    {
+      "source_path": "src/values/types/list/globals.rs",
+      "source_qualified": "list.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:41"
+    },
+    {
+      "source_path": "src/values/types/list/list_type.rs",
+      "source_qualified": "list.list_type",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:19:52"
+    },
+    {
+      "source_path": "src/values/types/list/methods.rs",
+      "source_qualified": "list.methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:29"
+    },
+    {
+      "source_path": "src/values/types/list/refs.rs",
+      "source_qualified": "list.refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:28"
+    },
+    {
+      "source_path": "src/values/types/list/unpack.rs",
+      "source_qualified": "list.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:25"
+    },
+    {
+      "source_path": "src/values/types/list/value.rs",
+      "source_qualified": "list.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:20"
+    },
+    {
+      "source_path": "src/macros.rs",
+      "source_qualified": "macros",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:16"
+    },
+    {
+      "source_path": "src/tests/derive/module/basic.rs",
+      "source_qualified": "module.basic",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:40"
+    },
+    {
+      "source_path": "src/tests/derive/module/default_value.rs",
+      "source_qualified": "module.default_value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:41"
+    },
+    {
+      "source_path": "src/tests/derive/module/generic.rs",
+      "source_qualified": "module.generic",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:45"
+    },
+    {
+      "source_path": "src/tests/derive/module/kwargs.rs",
+      "source_qualified": "module.kwargs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:47"
+    },
+    {
+      "source_path": "src/tests/derive/module/methods.rs",
+      "source_qualified": "module.methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:48"
+    },
+    {
+      "source_path": "src/tests/derive/module/named_positional.rs",
+      "source_qualified": "module.named_positional",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:50"
+    },
+    {
+      "source_path": "src/tests/derive/module/other_attributes.rs",
+      "source_qualified": "module.other_attributes",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:52"
+    },
+    {
+      "source_path": "src/tests/derive/module/return_impl.rs",
+      "source_qualified": "module.return_impl",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:53"
+    },
+    {
+      "source_path": "src/tests/derive/module/special_params.rs",
+      "source_qualified": "module.special_params",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:54"
+    },
+    {
+      "source_path": "src/tests/derive/module/type_annotation.rs",
+      "source_qualified": "module.type_annotation",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:56"
+    },
+    {
+      "source_path": "src/tests/derive/module/unpack_value.rs",
+      "source_qualified": "module.unpack_value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:58"
+    },
+    {
+      "source_path": "src/values/types/namespace/globals.rs",
+      "source_qualified": "namespace.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:01"
+    },
+    {
+      "source_path": "src/values/types/namespace/typing.rs",
+      "source_qualified": "namespace.typing",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:57"
+    },
+    {
+      "source_path": "src/values/types/namespace/value.rs",
+      "source_qualified": "namespace.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:44"
+    },
+    {
+      "source_path": "src/values/types/none/globals.rs",
+      "source_qualified": "none.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:20"
+    },
+    {
+      "source_path": "src/values/types/none/none_or.rs",
+      "source_qualified": "none.none_or",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:17:41"
+    },
+    {
+      "source_path": "src/values/types/none/none_type.rs",
+      "source_qualified": "none.none_type",
+      "target_path": "",
+      "dependent_count": 27,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:05:43"
+    },
+    {
+      "source_path": "src/values/types/num/globals.rs",
+      "source_qualified": "num.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:38"
+    },
+    {
+      "source_path": "src/values/types/num/typecheck.rs",
+      "source_qualified": "num.typecheck",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:43"
+    },
+    {
+      "source_path": "src/values/types/num/value.rs",
+      "source_qualified": "num.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:10"
+    },
+    {
+      "source_path": "src/tests/opt/constant_folding.rs",
+      "source_qualified": "opt.constant_folding",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:55"
+    },
+    {
+      "source_path": "src/tests/opt/def_inline.rs",
+      "source_qualified": "opt.def_inline",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:56"
+    },
+    {
+      "source_path": "src/tests/opt/eq.rs",
+      "source_qualified": "opt.eq",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:57"
+    },
+    {
+      "source_path": "src/tests/opt/if_rand.rs",
+      "source_qualified": "opt.if_rand",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:00"
+    },
+    {
+      "source_path": "src/tests/opt/list_add.rs",
+      "source_qualified": "opt.list_add",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:01"
+    },
+    {
+      "source_path": "src/tests/opt/speculative_exec.rs",
+      "source_qualified": "opt.speculative_exec",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:02"
+    },
+    {
+      "source_path": "src/tests/opt/type_is.rs",
+      "source_qualified": "opt.type_is",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:25"
+    },
+    {
+      "source_path": "src/tests/opt/types.rs",
+      "source_qualified": "opt.types",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:06"
+    },
+    {
+      "source_path": "src/typing/oracle/ctx.rs",
+      "source_qualified": "oracle.ctx",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:37"
+    },
+    {
+      "source_path": "src/typing/oracle/traits.rs",
+      "source_qualified": "oracle.traits",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:37"
+    },
+    {
+      "source_path": "src/pagable.rs",
+      "source_qualified": "pagable",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:15"
+    },
+    {
+      "source_path": "src/pagable/error.rs",
+      "source_qualified": "pagable.error",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:13"
+    },
+    {
+      "source_path": "src/pagable/vtable_register.rs",
+      "source_qualified": "pagable.vtable_register",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:12"
+    },
+    {
+      "source_path": "src/pagable/vtable_registry.rs",
+      "source_qualified": "pagable.vtable_registry",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:09"
+    },
+    {
+      "source_path": "src/eval/runtime/params/display.rs",
+      "source_qualified": "params.display",
+      "target_path": "",
+      "dependent_count": 76,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:58:55"
+    },
+    {
+      "source_path": "src/eval/runtime/params/parser.rs",
+      "source_qualified": "params.parser",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:03"
+    },
+    {
+      "source_path": "src/eval/runtime/params/spec.rs",
+      "source_qualified": "params.spec",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:02"
+    },
+    {
+      "source_path": "src/private.rs",
+      "source_qualified": "private",
+      "target_path": "",
+      "dependent_count": 15,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:10:00"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/aggregated.rs",
+      "source_qualified": "profile.aggregated",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:04"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/alloc_counts.rs",
+      "source_qualified": "profile.alloc_counts",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:11:07"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/bc.rs",
+      "source_qualified": "profile.bc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:00"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/by_type.rs",
+      "source_qualified": "profile.by_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:32"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/csv.rs",
+      "source_qualified": "profile.csv",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:59"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/data.rs",
+      "source_qualified": "profile.data",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:58"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/flamegraph.rs",
+      "source_qualified": "profile.flamegraph",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:57"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/heap.rs",
+      "source_qualified": "profile.heap",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:55"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/instant.rs",
+      "source_qualified": "profile.instant",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:16"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/mode.rs",
+      "source_qualified": "profile.mode",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:54"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/or_instrumentation.rs",
+      "source_qualified": "profile.or_instrumentation",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:53"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/profiler_type.rs",
+      "source_qualified": "profile.profiler_type",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:16:54"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/stmt.rs",
+      "source_qualified": "profile.stmt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:50"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/string_index.rs",
+      "source_qualified": "profile.string_index",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:31"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/summary_by_function.rs",
+      "source_qualified": "profile.summary_by_function",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:33"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/tests.rs",
+      "source_qualified": "profile.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:46"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/time_flame.rs",
+      "source_qualified": "profile.time_flame",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:45"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/typecheck.rs",
+      "source_qualified": "profile.typecheck",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:44"
+    },
+    {
+      "source_path": "src/values/types/range/globals.rs",
+      "source_qualified": "range.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:21"
+    },
+    {
+      "source_path": "src/values/types/range/range_type.rs",
+      "source_qualified": "range.range_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:30"
+    },
+    {
+      "source_path": "src/read_line.rs",
+      "source_qualified": "read_line",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:12"
+    },
+    {
+      "source_path": "src/values/types/record/field.rs",
+      "source_qualified": "record.field",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:07"
+    },
+    {
+      "source_path": "src/values/types/record/globals.rs",
+      "source_qualified": "record.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:08"
+    },
+    {
+      "source_path": "src/values/types/record/instance.rs",
+      "source_qualified": "record.instance",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:20"
+    },
+    {
+      "source_path": "src/values/types/record/matcher.rs",
+      "source_qualified": "record.matcher",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:28"
+    },
+    {
+      "source_path": "src/values/types/record/record_type.rs",
+      "source_qualified": "record.record_type",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:17"
+    },
+    {
+      "source_path": "src/values/types/record/ty_record_type.rs",
+      "source_qualified": "record.ty_record_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:35"
+    },
+    {
+      "source_path": "src/eval/runtime/arguments.rs",
+      "source_qualified": "runtime.arguments",
+      "target_path": "",
+      "dependent_count": 25,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:06:36"
+    },
+    {
+      "source_path": "src/eval/runtime/before_stmt.rs",
+      "source_qualified": "runtime.before_stmt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:18"
+    },
+    {
+      "source_path": "src/eval/runtime/cheap_call_stack.rs",
+      "source_qualified": "runtime.cheap_call_stack",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:06"
+    },
+    {
+      "source_path": "src/eval/runtime/evaluator.rs",
+      "source_qualified": "runtime.evaluator",
+      "target_path": "",
+      "dependent_count": 56,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:03:13"
+    },
+    {
+      "source_path": "src/eval/runtime/file_loader.rs",
+      "source_qualified": "runtime.file_loader",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:32"
+    },
+    {
+      "source_path": "src/eval/runtime/frame_span.rs",
+      "source_qualified": "runtime.frame_span",
+      "target_path": "",
+      "dependent_count": 26,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:06:15"
+    },
+    {
+      "source_path": "src/eval/runtime/frozen_file_span.rs",
+      "source_qualified": "runtime.frozen_file_span",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:14:57"
+    },
+    {
+      "source_path": "src/eval/runtime/inlined_frame.rs",
+      "source_qualified": "runtime.inlined_frame",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:07"
+    },
+    {
+      "source_path": "src/eval/runtime/params.rs",
+      "source_qualified": "runtime.params",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:06"
+    },
+    {
+      "source_path": "src/eval/runtime/profile.rs",
+      "source_qualified": "runtime.profile",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:01"
+    },
+    {
+      "source_path": "src/eval/runtime/rust_loc.rs",
+      "source_qualified": "runtime.rust_loc",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:45"
+    },
+    {
+      "source_path": "src/eval/runtime/slots.rs",
+      "source_qualified": "runtime.slots",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:41"
+    },
+    {
+      "source_path": "src/eval/runtime/small_duration.rs",
+      "source_qualified": "runtime.small_duration",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:17:09"
+    },
+    {
+      "source_path": "src/eval/runtime/visit_span.rs",
+      "source_qualified": "runtime.visit_span",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:39"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/payload.rs",
+      "source_qualified": "scope.payload",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:08"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/scope_resolver_globals.rs",
+      "source_qualified": "scope.scope_resolver_globals",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:19:00"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/tests.rs",
+      "source_qualified": "scope.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:24"
+    },
+    {
+      "source_path": "src/sealed.rs",
+      "source_qualified": "sealed",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:18"
+    },
+    {
+      "source_path": "src/values/types/set/methods.rs",
+      "source_qualified": "set.methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:48"
+    },
+    {
+      "source_path": "src/values/types/set/refs.rs",
+      "source_qualified": "set.refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:51"
+    },
+    {
+      "source_path": "src/values/types/set/set.rs",
+      "source_qualified": "set.set",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:51"
+    },
+    {
+      "source_path": "src/values/types/set/value.rs",
+      "source_qualified": "set.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:05"
+    },
+    {
+      "source_path": "src/stdlib.rs",
+      "source_qualified": "stdlib",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:54"
+    },
+    {
+      "source_path": "src/stdlib/breakpoint.rs",
+      "source_qualified": "stdlib.breakpoint",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:54"
+    },
+    {
+      "source_path": "src/stdlib/call_stack.rs",
+      "source_qualified": "stdlib.call_stack",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:12:17"
+    },
+    {
+      "source_path": "src/stdlib/extra.rs",
+      "source_qualified": "stdlib.extra",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:55"
+    },
+    {
+      "source_path": "src/stdlib/funcs.rs",
+      "source_qualified": "stdlib.funcs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:54"
+    },
+    {
+      "source_path": "src/stdlib/internal.rs",
+      "source_qualified": "stdlib.internal",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:40"
+    },
+    {
+      "source_path": "src/stdlib/json.rs",
+      "source_qualified": "stdlib.json",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:39"
+    },
+    {
+      "source_path": "src/stdlib/partial.rs",
+      "source_qualified": "stdlib.partial",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:35"
+    },
+    {
+      "source_path": "src/values/types/string/alloc_unpack.rs",
+      "source_qualified": "string.alloc_unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:16"
+    },
+    {
+      "source_path": "src/values/types/string/dot_format.rs",
+      "source_qualified": "string.dot_format",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:05"
+    },
+    {
+      "source_path": "src/values/types/string/globals.rs",
+      "source_qualified": "string.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:22"
+    },
+    {
+      "source_path": "src/values/types/string/intern.rs",
+      "source_qualified": "string.intern",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:24"
+    },
+    {
+      "source_path": "src/values/types/string/interpolation.rs",
+      "source_qualified": "string.interpolation",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:08"
+    },
+    {
+      "source_path": "src/values/types/string/iter.rs",
+      "source_qualified": "string.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:22"
+    },
+    {
+      "source_path": "src/values/types/string/methods.rs",
+      "source_qualified": "string.methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:16"
+    },
+    {
+      "source_path": "src/values/types/string/repr.rs",
+      "source_qualified": "string.repr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:14"
+    },
+    {
+      "source_path": "src/values/types/string/simd.rs",
+      "source_qualified": "string.simd",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:14"
+    },
+    {
+      "source_path": "src/values/types/string/str_type.rs",
+      "source_qualified": "string.str_type",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:13"
+    },
+    {
+      "source_path": "src/values/types/structs/alloc.rs",
+      "source_qualified": "structs.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:05"
+    },
+    {
+      "source_path": "src/values/types/structs/refs.rs",
+      "source_qualified": "structs.refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:56"
+    },
+    {
+      "source_path": "src/values/types/structs/structs.rs",
+      "source_qualified": "structs.structs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:53"
+    },
+    {
+      "source_path": "src/values/types/structs/unordered_hasher.rs",
+      "source_qualified": "structs.unordered_hasher",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:50"
+    },
+    {
+      "source_path": "src/values/types/structs/value.rs",
+      "source_qualified": "structs.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:17"
+    },
+    {
+      "source_path": "src/collections/symbol/map.rs",
+      "source_qualified": "symbol.map",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:21"
+    },
+    {
+      "source_path": "src/collections/symbol/symbol.rs",
+      "source_qualified": "symbol.symbol",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:20"
+    },
+    {
+      "source_path": "src/syntax.rs",
+      "source_qualified": "syntax",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:34"
+    },
+    {
+      "source_path": "src/tests.rs",
+      "source_qualified": "tests",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:04"
+    },
+    {
+      "source_path": "src/tests/basic.rs",
+      "source_qualified": "tests.basic",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:28"
+    },
+    {
+      "source_path": "src/tests/bc.rs",
+      "source_qualified": "tests.bc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:26"
+    },
+    {
+      "source_path": "src/tests/bc/call.rs",
+      "source_qualified": "tests.bc.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:23"
+    },
+    {
+      "source_path": "src/tests/bc/definitely_assigned.rs",
+      "source_qualified": "tests.bc.definitely_assigned",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:18"
+    },
+    {
+      "source_path": "src/tests/before_stmt.rs",
+      "source_qualified": "tests.before_stmt",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:49"
+    },
+    {
+      "source_path": "src/tests/call.rs",
+      "source_qualified": "tests.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:47"
+    },
+    {
+      "source_path": "src/typing/tests/callable.rs",
+      "source_qualified": "tests.callable",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:28"
+    },
+    {
+      "source_path": "src/tests/comprehension.rs",
+      "source_qualified": "tests.comprehension",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:41"
+    },
+    {
+      "source_path": "src/tests/def.rs",
+      "source_qualified": "tests.def",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:19:32"
+    },
+    {
+      "source_path": "src/tests/derive.rs",
+      "source_qualified": "tests.derive",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:37"
+    },
+    {
+      "source_path": "src/tests/for_loop.rs",
+      "source_qualified": "tests.for_loop",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:32"
+    },
+    {
+      "source_path": "src/tests/freeze_access_value.rs",
+      "source_qualified": "tests.freeze_access_value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:34"
+    },
+    {
+      "source_path": "src/tests/fstring.rs",
+      "source_qualified": "tests.fstring",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:38"
+    },
+    {
+      "source_path": "src/tests/go.rs",
+      "source_qualified": "tests.go",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:50"
+    },
+    {
+      "source_path": "src/typing/tests/list.rs",
+      "source_qualified": "tests.list",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:28"
+    },
+    {
+      "source_path": "src/docs/tests/markdown.rs",
+      "source_qualified": "tests.markdown",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:24"
+    },
+    {
+      "source_path": "src/tests/opt.rs",
+      "source_qualified": "tests.opt",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:52"
+    },
+    {
+      "source_path": "src/tests/replace_binary.rs",
+      "source_qualified": "tests.replace_binary",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:09"
+    },
+    {
+      "source_path": "src/tests/runtime.rs",
+      "source_qualified": "tests.runtime",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:10"
+    },
+    {
+      "source_path": "src/docs/tests/rustdocs.rs",
+      "source_qualified": "tests.rustdocs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:25"
+    },
+    {
+      "source_path": "src/typing/tests/special_function.rs",
+      "source_qualified": "tests.special_function",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:25"
+    },
+    {
+      "source_path": "src/typing/tests/tuple.rs",
+      "source_qualified": "tests.tuple",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:23"
+    },
+    {
+      "source_path": "src/tests/type_annot.rs",
+      "source_qualified": "tests.type_annot",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:11"
+    },
+    {
+      "source_path": "src/typing/tests/types.rs",
+      "source_qualified": "tests.types",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:23"
+    },
+    {
+      "source_path": "src/tests/uncategorized.rs",
+      "source_qualified": "tests.uncategorized",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:15"
+    },
+    {
+      "source_path": "src/tests/util.rs",
+      "source_qualified": "tests.util",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:18"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value/packed_impl.rs",
+      "source_qualified": "thin_box_slice_frozen_value.packed_impl",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:32"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value/thin_box.rs",
+      "source_qualified": "thin_box_slice_frozen_value.thin_box",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:22"
+    },
+    {
+      "source_path": "src/tests/derive/trace/bounds.rs",
+      "source_qualified": "trace.bounds",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:11"
+    },
+    {
+      "source_path": "src/tests/derive/trace/enums.rs",
+      "source_qualified": "trace.enums",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:12"
+    },
+    {
+      "source_path": "src/tests/derive/trace/statics.rs",
+      "source_qualified": "trace.statics",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:15"
+    },
+    {
+      "source_path": "src/values/types/tuple/alloc.rs",
+      "source_qualified": "tuple.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:52"
+    },
+    {
+      "source_path": "src/values/types/tuple/globals.rs",
+      "source_qualified": "tuple.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:44"
+    },
+    {
+      "source_path": "src/values/types/tuple/refs.rs",
+      "source_qualified": "tuple.refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:14"
+    },
+    {
+      "source_path": "src/values/types/tuple/rust_tuple.rs",
+      "source_qualified": "tuple.rust_tuple",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:15"
+    },
+    {
+      "source_path": "src/values/types/tuple/unpack.rs",
+      "source_qualified": "tuple.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:35"
+    },
+    {
+      "source_path": "src/values/types/tuple/value.rs",
+      "source_qualified": "tuple.value",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:21"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/alloc.rs",
+      "source_qualified": "type_compiled.alloc",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:27"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/compiled.rs",
+      "source_qualified": "type_compiled.compiled",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:35"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/factory.rs",
+      "source_qualified": "type_compiled.factory",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:05"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/globals.rs",
+      "source_qualified": "type_compiled.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:30"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/matcher.rs",
+      "source_qualified": "type_compiled.matcher",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:39"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/matchers.rs",
+      "source_qualified": "type_compiled.matchers",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:12"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/tests.rs",
+      "source_qualified": "type_compiled.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:38"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/type_matcher_factory.rs",
+      "source_qualified": "type_compiled.type_matcher_factory",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:15:14"
+    },
+    {
+      "source_path": "src/values/layout/typed/string.rs",
+      "source_qualified": "typed.string",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:51"
+    },
+    {
+      "source_path": "src/values/types/any.rs",
+      "source_qualified": "types.any",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:16"
+    },
+    {
+      "source_path": "src/values/types/any_array.rs",
+      "source_qualified": "types.any_array",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:11"
+    },
+    {
+      "source_path": "src/values/types/any_complex.rs",
+      "source_qualified": "types.any_complex",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:09"
+    },
+    {
+      "source_path": "src/values/types/array.rs",
+      "source_qualified": "types.array",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:17:59"
+    },
+    {
+      "source_path": "src/values/types/bigint.rs",
+      "source_qualified": "types.bigint",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:14:09"
+    },
+    {
+      "source_path": "src/values/types/bool.rs",
+      "source_qualified": "types.bool",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:07"
+    },
+    {
+      "source_path": "src/values/types/dict.rs",
+      "source_qualified": "types.dict",
+      "target_path": "",
+      "dependent_count": 12,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:11:45"
+    },
+    {
+      "source_path": "src/values/types/ellipsis.rs",
+      "source_qualified": "types.ellipsis",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:15:58"
+    },
+    {
+      "source_path": "src/values/types/enumeration.rs",
+      "source_qualified": "types.enumeration",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:04"
+    },
+    {
+      "source_path": "src/values/types/float.rs",
+      "source_qualified": "types.float",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:46"
+    },
+    {
+      "source_path": "src/values/types/function.rs",
+      "source_qualified": "types.function",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:55"
+    },
+    {
+      "source_path": "src/values/types/int.rs",
+      "source_qualified": "types.int",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:50"
+    },
+    {
+      "source_path": "src/values/types/known_methods.rs",
+      "source_qualified": "types.known_methods",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:14"
+    },
+    {
+      "source_path": "src/values/types/list.rs",
+      "source_qualified": "types.list",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:31"
+    },
+    {
+      "source_path": "src/values/types/list_or_tuple.rs",
+      "source_qualified": "types.list_or_tuple",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:09"
+    },
+    {
+      "source_path": "src/values/types/namespace.rs",
+      "source_qualified": "types.namespace",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:16"
+    },
+    {
+      "source_path": "src/values/types/none.rs",
+      "source_qualified": "types.none",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:47"
+    },
+    {
+      "source_path": "src/values/types/num.rs",
+      "source_qualified": "types.num",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:35"
+    },
+    {
+      "source_path": "src/values/types/range.rs",
+      "source_qualified": "types.range",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:18:43"
+    },
+    {
+      "source_path": "src/values/types/record.rs",
+      "source_qualified": "types.record",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:20"
+    },
+    {
+      "source_path": "src/values/types/set.rs",
+      "source_qualified": "types.set",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:52"
+    },
+    {
+      "source_path": "src/values/types/starlark_value_as_type.rs",
+      "source_qualified": "types.starlark_value_as_type",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:18:14"
+    },
+    {
+      "source_path": "src/values/types/string.rs",
+      "source_qualified": "types.string",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:56"
+    },
+    {
+      "source_path": "src/values/types/structs.rs",
+      "source_qualified": "types.structs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:12"
+    },
+    {
+      "source_path": "src/values/types/tuple.rs",
+      "source_qualified": "types.tuple",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:11"
+    },
+    {
+      "source_path": "src/values/types/type_instance_id.rs",
+      "source_qualified": "types.type_instance_id",
+      "target_path": "",
+      "dependent_count": 9,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:12:16"
+    },
+    {
+      "source_path": "src/values/types/unbound.rs",
+      "source_qualified": "types.unbound",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:27"
+    },
+    {
+      "source_path": "src/typing.rs",
+      "source_qualified": "typing",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:56"
+    },
+    {
+      "source_path": "src/values/typing/any.rs",
+      "source_qualified": "typing.any",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:40"
+    },
+    {
+      "source_path": "src/typing/arc_ty.rs",
+      "source_qualified": "typing.arc_ty",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:13:47"
+    },
+    {
+      "source_path": "src/typing/basic.rs",
+      "source_qualified": "typing.basic",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:31"
+    },
+    {
+      "source_path": "src/typing/bindings.rs",
+      "source_qualified": "typing.bindings",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:53"
+    },
+    {
+      "source_path": "src/typing/call_args.rs",
+      "source_qualified": "typing.call_args",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:39"
+    },
+    {
+      "source_path": "src/typing/callable.rs",
+      "source_qualified": "typing.callable",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:43"
+    },
+    {
+      "source_path": "src/typing/callable_param.rs",
+      "source_qualified": "typing.callable_param",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:47"
+    },
+    {
+      "source_path": "src/typing/ctx.rs",
+      "source_qualified": "typing.ctx",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:51"
+    },
+    {
+      "source_path": "src/typing/custom.rs",
+      "source_qualified": "typing.custom",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:52"
+    },
+    {
+      "source_path": "src/typing/error.rs",
+      "source_qualified": "typing.error",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:51"
+    },
+    {
+      "source_path": "src/typing/fill_types_for_lint.rs",
+      "source_qualified": "typing.fill_types_for_lint",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:49"
+    },
+    {
+      "source_path": "src/typing/function.rs",
+      "source_qualified": "typing.function",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:48"
+    },
+    {
+      "source_path": "src/values/typing/globals.rs",
+      "source_qualified": "typing.globals",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:26"
+    },
+    {
+      "source_path": "src/typing/interface.rs",
+      "source_qualified": "typing.interface",
+      "target_path": "",
+      "dependent_count": 5,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:19:15"
+    },
+    {
+      "source_path": "src/values/typing/iter.rs",
+      "source_qualified": "typing.iter",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:16"
+    },
+    {
+      "source_path": "src/values/typing/macro_refs.rs",
+      "source_qualified": "typing.macro_refs",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:13"
+    },
+    {
+      "source_path": "src/typing/macro_support.rs",
+      "source_qualified": "typing.macro_support",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:40"
+    },
+    {
+      "source_path": "src/typing/mode.rs",
+      "source_qualified": "typing.mode",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:39"
+    },
+    {
+      "source_path": "src/values/typing/never.rs",
+      "source_qualified": "typing.never",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:10"
+    },
+    {
+      "source_path": "src/typing/oracle.rs",
+      "source_qualified": "typing.oracle",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:38"
+    },
+    {
+      "source_path": "src/typing/small_arc_vec.rs",
+      "source_qualified": "typing.small_arc_vec",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:36"
+    },
+    {
+      "source_path": "src/typing/small_arc_vec_or_static.rs",
+      "source_qualified": "typing.small_arc_vec_or_static",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:35"
+    },
+    {
+      "source_path": "src/typing/starlark_value.rs",
+      "source_qualified": "typing.starlark_value",
+      "target_path": "",
+      "dependent_count": 76,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:58:30"
+    },
+    {
+      "source_path": "src/typing/structs.rs",
+      "source_qualified": "typing.structs",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:51"
+    },
+    {
+      "source_path": "src/typing/tests.rs",
+      "source_qualified": "typing.tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:31"
+    },
+    {
+      "source_path": "src/typing/tests/call.rs",
+      "source_qualified": "typing.tests.call",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:30"
+    },
+    {
+      "source_path": "src/typing/tuple.rs",
+      "source_qualified": "typing.tuple",
+      "target_path": "",
+      "dependent_count": 12,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:10:56"
+    },
+    {
+      "source_path": "src/typing/ty.rs",
+      "source_qualified": "typing.ty",
+      "target_path": "",
+      "dependent_count": 109,
+      "status": "completed",
+      "completed_at": "2026-03-29T23:57:29"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled.rs",
+      "source_qualified": "typing.type_compiled",
+      "target_path": "",
+      "dependent_count": 22,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:07:07"
+    },
+    {
+      "source_path": "src/values/typing/type_type.rs",
+      "source_qualified": "typing.type_type",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:35"
+    },
+    {
+      "source_path": "src/typing/typecheck.rs",
+      "source_qualified": "typing.typecheck",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:15:47"
+    },
+    {
+      "source_path": "src/typing/user.rs",
+      "source_qualified": "typing.user",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:10"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/find.rs",
+      "source_qualified": "unused_loads.find",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:03"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/find_tests.rs",
+      "source_qualified": "unused_loads.find_tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:55"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/remove.rs",
+      "source_qualified": "unused_loads.remove",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:54"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/remove_tests.rs",
+      "source_qualified": "unused_loads.remove_tests",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:53"
+    },
+    {
+      "source_path": "src/util.rs",
+      "source_qualified": "util",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:09"
+    },
+    {
+      "source_path": "src/util/arc_or_static.rs",
+      "source_qualified": "util.arc_or_static",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:34"
+    },
+    {
+      "source_path": "src/util/arc_str.rs",
+      "source_qualified": "util.arc_str",
+      "target_path": "",
+      "dependent_count": 21,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:07:53"
+    },
+    {
+      "source_path": "src/util/non_static_type_id.rs",
+      "source_qualified": "util.non_static_type_id",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:11"
+    },
+    {
+      "source_path": "src/util/refcell.rs",
+      "source_qualified": "util.refcell",
+      "target_path": "",
+      "dependent_count": 20,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:08:22"
+    },
+    {
+      "source_path": "src/util/rtabort.rs",
+      "source_qualified": "util.rtabort",
+      "target_path": "",
+      "dependent_count": 1,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:47"
+    },
+    {
+      "source_path": "src/values.rs",
+      "source_qualified": "values",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:32"
+    },
+    {
+      "source_path": "src/values/alloc_value.rs",
+      "source_qualified": "values.alloc_value",
+      "target_path": "",
+      "dependent_count": 42,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:04:18"
+    },
+    {
+      "source_path": "src/values/comparison.rs",
+      "source_qualified": "values.comparison",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:00"
+    },
+    {
+      "source_path": "src/values/demand.rs",
+      "source_qualified": "values.demand",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:15:10"
+    },
+    {
+      "source_path": "src/values/error.rs",
+      "source_qualified": "values.error",
+      "target_path": "",
+      "dependent_count": 17,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:09:13"
+    },
+    {
+      "source_path": "src/values/freeze.rs",
+      "source_qualified": "values.freeze",
+      "target_path": "",
+      "dependent_count": 42,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:04:37"
+    },
+    {
+      "source_path": "src/values/freeze_error.rs",
+      "source_qualified": "values.freeze_error",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:16:20"
+    },
+    {
+      "source_path": "src/values/frozen_ref.rs",
+      "source_qualified": "values.frozen_ref",
+      "target_path": "",
+      "dependent_count": 27,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:05:59"
+    },
+    {
+      "source_path": "src/values/index.rs",
+      "source_qualified": "values.index",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:24:22"
+    },
+    {
+      "source_path": "src/values/iter.rs",
+      "source_qualified": "values.iter",
+      "target_path": "",
+      "dependent_count": 17,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:08:58"
+    },
+    {
+      "source_path": "src/values/layout.rs",
+      "source_qualified": "values.layout",
+      "target_path": "",
+      "dependent_count": 6,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:16:37"
+    },
+    {
+      "source_path": "src/values/owned.rs",
+      "source_qualified": "values.owned",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:03"
+    },
+    {
+      "source_path": "src/values/owned_frozen_ref.rs",
+      "source_qualified": "values.owned_frozen_ref",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:33"
+    },
+    {
+      "source_path": "src/values/recursive_repr_or_json_guard.rs",
+      "source_qualified": "values.recursive_repr_or_json_guard",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:00"
+    },
+    {
+      "source_path": "src/values/stack_guard.rs",
+      "source_qualified": "values.stack_guard",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:33"
+    },
+    {
+      "source_path": "src/values/starlark_type_id.rs",
+      "source_qualified": "values.starlark_type_id",
+      "target_path": "",
+      "dependent_count": 7,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:13:53"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value.rs",
+      "source_qualified": "values.thin_box_slice_frozen_value",
+      "target_path": "",
+      "dependent_count": 2,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:30"
+    },
+    {
+      "source_path": "src/values/trace.rs",
+      "source_qualified": "values.trace",
+      "target_path": "",
+      "dependent_count": 52,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:03:47"
+    },
+    {
+      "source_path": "src/values/traits.rs",
+      "source_qualified": "values.traits",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:13"
+    },
+    {
+      "source_path": "src/values/type_repr.rs",
+      "source_qualified": "values.type_repr",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:21"
+    },
+    {
+      "source_path": "src/values/types.rs",
+      "source_qualified": "values.types",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:21:36"
+    },
+    {
+      "source_path": "src/values/typing.rs",
+      "source_qualified": "values.typing",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:33"
+    },
+    {
+      "source_path": "src/values/typing/callable.rs",
+      "source_qualified": "values.typing.callable",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:51"
+    },
+    {
+      "source_path": "src/values/typing/ty.rs",
+      "source_qualified": "values.typing.ty",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:23:59"
+    },
+    {
+      "source_path": "src/values/unpack.rs",
+      "source_qualified": "values.unpack",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:22:57"
+    },
+    {
+      "source_path": "src/values/unpack_and_discard.rs",
+      "source_qualified": "values.unpack_and_discard",
+      "target_path": "",
+      "dependent_count": 3,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:20:19"
+    },
+    {
+      "source_path": "src/values/value_of.rs",
+      "source_qualified": "values.value_of",
+      "target_path": "",
+      "dependent_count": 4,
+      "status": "completed",
+      "completed_at": "2026-03-30T02:19:57"
+    },
+    {
+      "source_path": "src/values/value_of_unchecked.rs",
+      "source_qualified": "values.value_of_unchecked",
+      "target_path": "",
+      "dependent_count": 20,
+      "status": "completed",
+      "completed_at": "2026-03-30T00:08:07"
+    },
+    {
+      "source_path": "src/wasm.rs",
+      "source_qualified": "wasm",
+      "target_path": "",
+      "dependent_count": 0,
+      "status": "completed",
+      "completed_at": "2026-03-30T04:25:32"
+    }
+  ]
+}

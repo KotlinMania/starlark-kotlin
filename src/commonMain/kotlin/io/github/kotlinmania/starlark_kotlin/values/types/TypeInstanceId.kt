@@ -19,22 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-// use std::sync::atomic;
-// use std::sync::atomic::AtomicU64;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-// use starlark_derive::Freeze;
-
-// use crate as starlark;
-
 import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-/// Globally unique identifier for a type, like record type or enum type.
-// #[derive(Debug, Copy, Clone, Dupe, Hash, Eq, PartialEq, Ord, PartialOrd, Allocative, Freeze)]
+/** Globally unique identifier for a type, like record type or enum type. */
 data class TypeInstanceId(
-    // u64
     private val id: Long,
 ) : Comparable<TypeInstanceId> {
 
@@ -42,18 +31,13 @@ data class TypeInstanceId(
         return id.compareTo(other.id)
     }
 
-    // impl TypeInstanceId
-
     companion object {
-        // static LAST_ID: AtomicU64 = AtomicU64::new(0);
         @OptIn(ExperimentalAtomicApi::class)
         private val LAST_ID = AtomicLong(0L)
 
-        /// Generate a new unique identifier.
-        // pub fn gen() -> TypeInstanceId
+        /** Generate a new unique identifier. */
         @OptIn(ExperimentalAtomicApi::class)
         fun gen(): TypeInstanceId {
-            // TypeInstanceId(LAST_ID.fetch_add(1, atomic::Ordering::SeqCst) + 1)
             return TypeInstanceId(LAST_ID.fetchAndAdd(1L) + 1L)
         }
     }

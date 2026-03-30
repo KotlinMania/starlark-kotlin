@@ -84,7 +84,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace {
     override fun getMethods(): Methods? = setMethods()
 
     // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(me: Value, heap: Heap): Result<Value> {
+    override fun iterate(me: Value, _heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }

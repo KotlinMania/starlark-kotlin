@@ -663,7 +663,7 @@ private class CharIteratorWithPos(private val source: String, startPos: Int) {
         return c
     }
 
-    fun unnext(c: Char) {
+    fun unnext(_c: Char) {
         pos--
     }
 }

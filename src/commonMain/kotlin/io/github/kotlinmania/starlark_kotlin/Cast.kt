@@ -19,48 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.cast
  * limitations under the License.
  */
 
-// #[inline(always)]
-// pub(crate) fn ptr_to_usize<T: ?Sized>(x: &T) -> usize
-//     x as *const T as *const () as usize
+/** Convert a reference to a usize-like integer (identity hash). */
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun ptrToUsize(x: Any): Int {
-    // Kotlin: No raw pointer casts. Use hashCode as usize-like value.
     return x.hashCode() and Int.MAX_VALUE
 }
 
-/// Undefined behaviour if the argument is zero, or does not satisfy the alignment
-/// of type `T`.
-// #[inline(always)]
-// pub(crate) unsafe fn usize_to_ptr<'a, T>(x: usize) -> &'a T
+/** Convert a usize-like integer back to a reference via lookup. */
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> usizeToPtr(x: Int, lookup: (Int) -> Any): T {
-    // debug_assert!(x != 0, "Zero is not a valid pointer");
     require(x != 0) { "Zero is not a valid pointer" }
-    // debug_assert!(x.is_multiple_of(std::mem::align_of::<T>()), "Pointer is not aligned");
     require(x > 0) { "Pointer is not aligned" }
-    // unsafe { &*(x as *const T) }
     return lookup(x) as T
 }
 
-// #[inline(always)]
-// pub(crate) unsafe fn ptr_lifetime<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T
-//     unsafe { &*(x as *const T) }
+/** Lifetime re-interpretation (identity in Kotlin — no lifetime system). */
 @Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 internal inline fun <T> ptrLifetime(x: T): T {
-    // Kotlin: Lifetime re-interpretation is identity - no lifetime system.
     return (x as Any) as T
 }
 
-/// `transmute!(from-type, to-type, value)` will do a [`transmute`](std::mem::transmute),
-/// but the original and result types must be specified.
-// macro_rules! transmute {
-//     ($from:ty, $to:ty, $e:expr) => {
-//         std::mem::transmute::<$from, $to>($e)
-//     };
-// }
+/** Transmute between types (unchecked cast in Kotlin). */
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 internal inline fun <From, To> transmute(value: From): To {
     return value as To
 }
-
-// pub(crate) use transmute;

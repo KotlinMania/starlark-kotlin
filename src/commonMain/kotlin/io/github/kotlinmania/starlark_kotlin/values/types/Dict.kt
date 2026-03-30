@@ -19,21 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-//! The dictionary type, a mutable associative-map, which iterates in insertion order.
+/**
+ * The dictionary type, a mutable associative-map, which iterates in insertion order.
+ *
+ * Submodules:
+ * - [Alloc.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDict] — allocation helper
+ * - [DictType.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.DictType] — type descriptor
+ * - [Globals.kt] — global dict constructor functions
+ * - [Methods.kt] — dict methods (keys, values, items, etc.)
+ * - [Refs.kt] — [DictMut], [DictRef], [FrozenDictRef] reference types
+ * - [Traits.kt] — StarlarkValue trait implementations for Dict
+ * - [Unpack.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries] — dict unpacking
+ * - [Value.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict] — the Dict value type
+ */
 
-// mod alloc;
-// mod dict_type;
-// pub(crate) mod globals;
-// pub(crate) mod methods;
-// mod refs;
-// mod traits;
-// pub(crate) mod unpack;
-// pub(crate) mod value;
-
-// pub use crate::values::dict::alloc::AllocDict;
-// pub use crate::values::dict::dict_type::DictType;
-// pub use crate::values::dict::refs::DictMut;
-// pub use crate::values::dict::refs::DictRef;
-// pub use crate::values::dict::refs::FrozenDictRef;
-// pub use crate::values::dict::unpack::UnpackDictEntries;
-// pub use crate::values::dict::value::Dict;
+// Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)
+// Rust: pub use crate::values::dict::alloc::AllocDict;
+// Rust: pub use crate::values::dict::dict_type::DictType;
+// Rust: pub use crate::values::dict::refs::DictMut;
+// Rust: pub use crate::values::dict::refs::DictRef;
+// Rust: pub use crate::values::dict::refs::FrozenDictRef;
+// Rust: pub use crate::values::dict::unpack::UnpackDictEntries;
+// Rust: pub use crate::values::dict::value::Dict;

@@ -19,57 +19,46 @@ package io.github.kotlinmania.starlark_kotlin.values.freeze_error
  * limitations under the License.
  */
 
-//! Error type for `Freeze` implementations. Freeze errors should only contain error messages
-//! and error contexts as strings and no metadatas.
-//! Conversion from anyhow is disallowed by design in order to enforce the above.
+import io.github.kotlinmania.starlark_kotlin.ErrorKind
 
-/// Alias for std::result::Result<T, FreezeError>
-// pub type FreezeResult<T> = std::result::Result<T, FreezeError>;
+/** Alias for `Result<T>` used in freeze operations. */
 typealias FreezeResult<T> = Result<T>
 
-/// freeze_error type, only carries the original error message and potentially an array of contexts
-// #[derive(Debug)]
-// pub struct FreezeError {
-//     pub err_msg: String,
-//     pub contexts: Vec<String>,
-// }
+/**
+ * Freeze error type, only carries the original error message and potentially an array of contexts.
+ *
+ * Conversion from arbitrary exceptions is disallowed by design in order to enforce
+ * that freeze errors only contain error messages and contexts as strings, no metadata.
+ */
 class FreezeError(
-    /// The base error message
+    /** The base error message. */
     val errMsg: String,
-    /// The error contexts that are added to the error message
+    /** The error contexts that are added to the error message. */
     val contexts: MutableList<String> = mutableListOf(),
 ) : Exception(errMsg) {
 
-    // impl From<FreezeError> for anyhow::Error
-    // #[cold]
-    // fn from(e: FreezeError) -> Self
+    /** Convert to an exception with layered context messages (mirrors `From<FreezeError> for anyhow::Error`). */
     fun toException(): Exception {
         val sb = StringBuilder(errMsg)
-        // for context in e.contexts.into_iter().rev()
         for (context in contexts.reversed()) {
             sb.append("\n  context: $context")
         }
         return Exception(sb.toString(), this)
     }
 
-    // impl From<FreezeError> for starlark_syntax::Error
-    // #[cold]
-    // fn from(e: FreezeError) -> Self
-    //     starlark_syntax::Error::new_kind(starlark_syntax::ErrorKind::Freeze(e.into()))
-    // Kotlin: FreezeError already extends Exception.
+    /** Convert to a starlark [io.github.kotlinmania.starlark_kotlin.Error] (mirrors `From<FreezeError> for starlark_syntax::Error`). */
+    fun toStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error {
+        return io.github.kotlinmania.starlark_kotlin.Error.newKind(ErrorKind.Freeze(this.toException()))
+    }
 
-    // impl FreezeError
-
-    /// Create a new freeze_error type
-    // pub fn new(err_msg: String) -> Self
     companion object {
+        /** Create a new freeze error. */
         fun new(errMsg: String): FreezeError {
             return FreezeError(errMsg)
         }
     }
 
-    /// Add error contexts to freeze_error
-    // pub fn context(mut self, context: &str) -> Self
+    /** Add error context to this freeze error. */
     fun context(context: String): FreezeError {
         contexts.add(context)
         return this
@@ -84,31 +73,23 @@ class FreezeError(
     }
 }
 
-/// Provides the `context` method for `FreezeResult`.
-///
-/// This is designed to only be called on `FreezeResult` types due to the nature of freeze_error.
-/// This is to prevent callers from accidentally expecting context to carry metadata.
-// pub trait FreezeErrorContext<T>: Sealed
+/**
+ * Provides the `context` method for [FreezeResult].
+ *
+ * This is designed to only be called on [FreezeResult] types due to the nature of freeze errors.
+ * This is to prevent callers from accidentally expecting context to carry metadata.
+ */
 interface FreezeErrorContext<T> : Sealed {
-    /// Add a string error context to an existing `FreezeResult` type.
-    // #[track_caller]
-    // fn freeze_error_context(self, context: &str) -> FreezeResult<T>;
     fun freezeErrorContext(context: String): FreezeResult<T>
 }
 
-/// Protects against downstream implementations
-// pub trait Sealed: Sized {}
+/** Protects against downstream implementations. */
 sealed interface Sealed
 
-// impl<T> Sealed for std::result::Result<T, FreezeError> {}
-
-// impl<T> FreezeErrorContext<T> for std::result::Result<T, FreezeError>
-// fn freeze_error_context(self, c: &str) -> FreezeResult<T>
+/** Extension to add context to a [FreezeResult]. */
 fun <T> Result<T>.freezeErrorContext(context: String): FreezeResult<T> {
     return when {
-        // Ok(x) => Ok(x),
         isSuccess -> this
-        // Err(e) => Err(e.context(c)),
         else -> {
             val e = exceptionOrNull()
             if (e is FreezeError) {

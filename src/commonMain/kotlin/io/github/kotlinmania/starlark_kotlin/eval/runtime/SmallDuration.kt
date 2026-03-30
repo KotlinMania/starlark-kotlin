@@ -68,6 +68,10 @@ internal data class SmallDuration(
         return nanos.toLong().nanoseconds
     }
 
+    // impl AddAssign for SmallDuration
+    // Kotlin: += works via reassignment (x = x + other) thanks to plus operators.
+    // Explicit plusAssign would cause ambiguity with plus operators on data classes.
+
     // impl Add<Duration> for SmallDuration
     // type Output = SmallDuration;
     // fn add(self, other: Duration) -> Self::Output

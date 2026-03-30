@@ -108,7 +108,7 @@ object Parser {
 
     private fun parseError(
         parserState: ParserState,
-        currentLRState: Int,
+        _currentLRState: Int,
         lookahead: Lexeme?
     ): EvalException {
         val msg = if (lookahead != null) {

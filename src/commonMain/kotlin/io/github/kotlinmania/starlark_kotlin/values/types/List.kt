@@ -19,17 +19,27 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-//! The list type, a mutable sequence of values.
+/**
+ * The list type, a mutable sequence of values.
+ *
+ * Submodules:
+ * - [Alloc.kt] — [AllocList] allocation helper
+ * - [Globals.kt] — global list constructor functions
+ * - [ListType.kt] — [ListType] type descriptor
+ * - [Methods.kt] — list methods (append, extend, etc.)
+ * - [Refs.kt] — [ListRef] reference type
+ * - [Unpack.kt] — [UnpackList] list unpacking
+ * - [Value.kt] — list value implementation
+ *
+ * Public types (re-exported from submodules in Rust):
+ * - [AllocList] — allocation helper for lists
+ * - [ListType] — type descriptor for list
+ * - [ListRef] — immutable list reference
+ * - [UnpackList] — helper for unpacking list values
+ */
 
-// pub(crate) mod alloc;
-// pub(crate) mod globals;
-// mod list_type;
-// pub(crate) mod methods;
-// mod refs;
-// pub(crate) mod unpack;
-// pub(crate) mod value;
-
-// pub use crate::values::types::list::alloc::AllocList;
-// pub use crate::values::types::list::list_type::ListType;
-// pub use crate::values::types::list::refs::ListRef;
-// pub use crate::values::types::list::unpack::UnpackList;
+// Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)
+// Rust: pub use crate::values::types::list::alloc::AllocList;
+// Rust: pub use crate::values::types::list::list_type::ListType;
+// Rust: pub use crate::values::types::list::refs::ListRef;
+// Rust: pub use crate::values::types::list::unpack::UnpackList;

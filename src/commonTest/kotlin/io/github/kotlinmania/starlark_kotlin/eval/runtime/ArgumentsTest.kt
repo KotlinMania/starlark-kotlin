@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.coerce
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
@@ -142,10 +141,10 @@ class ArgumentsTest {
             assertTrue(p.noNamedArgs().isSuccess)
             assertEquals(0, p.len().getOrThrow())
 
-            val sm = SmallMap.new<StringValue, Value>()
+            val sm = SmallMap.new<Value, Value>()
             val test = stringValue(heap, "test")
-            sm.insertHashed(test.getHashed(), Value.newNone())
-            p.full.kwargs = Dict.new(coerce<SmallMap<StringValue, Value>, SmallMap<Value, Value>>(sm)).allocValue(heap)
+            sm.insertHashed(test.getHashedValue(), Value.newNone())
+            p.full.kwargs = Dict.new(sm).allocValue(heap)
             assertTrue(p.noNamedArgs().isFailure)
             assertEquals(1, p.len().getOrThrow())
 
