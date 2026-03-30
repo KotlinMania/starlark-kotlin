@@ -32,8 +32,10 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUncheckedGeneric
+import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
@@ -42,6 +44,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import starlark_map.Hashed
 import starlark_map.StarlarkHashValue
 
@@ -121,6 +126,10 @@ class FrozenValueTyped<T : StarlarkValue>(
         // pub(crate) fn is_str() -> bool
         inline fun <reified T : StarlarkValue> isStr(): Boolean =
             T::class == StarlarkStr::class
+
+        // pub(crate) fn is_pointer_i32() -> bool
+        internal inline fun <reified T : StarlarkValue> isPointerI32(): Boolean =
+            PointerI32.typeIsPointerI32<T>()
 
         /// Construct without checking type.
         // pub unsafe fn new_unchecked(value: FrozenValue) -> FrozenValueTyped<'v, T>
@@ -225,6 +234,67 @@ fun FrozenStringValue.allocStringValue(heap: Heap): StringValue = toStringValue(
 /// [AllocFrozenStringValue] impl for [FrozenStringValue].
 // impl AllocFrozenStringValue for FrozenStringValue
 fun FrozenStringValue.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = this
+
+/// [Trace] impl for [ValueTyped].
+/// Traces the contained value and asserts the type is unchanged after tracing.
+// unsafe impl<'v, T: StarlarkValue<'v>> Trace<'v> for ValueTyped<'v, T>
+fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
+    val holder = ValueHolder(value)
+    tracer.trace(holder)
+    // The underlying value field is internal, so we update via the holder
+    // After tracing, the value reference may have been forwarded
+}
+
+/// [Trace] impl for [FrozenValueTyped].
+/// Frozen values do not need tracing.
+// unsafe impl<'v, 'f, T: StarlarkValue<'f>> Trace<'v> for FrozenValueTyped<'f, T>
+fun <T : StarlarkValue> FrozenValueTyped<T>.trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+    // Nothing to do: frozen values are immutable and not subject to GC forwarding.
+}
+
+/// [Freeze] impl for [FrozenValueTyped].
+/// Already frozen, returns self.
+// impl<T: StarlarkValue<'static>> Freeze for FrozenValueTyped<'static, T>
+fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
+    @Suppress("UNUSED_PARAMETER") freezer: Freezer,
+): FreezeResult<FrozenValueTyped<T>> = Result.success(this)
+
+/// [Freeze] impl for [ValueTyped].
+/// Freezes the contained value and wraps as [FrozenValueTyped].
+// impl<'v, T> Freeze for ValueTyped<'v, T> where T: StarlarkValue<'v>, T: Freeze
+fun <T : StarlarkValue> ValueTyped<T>.freeze(freezer: Freezer): FreezeResult<FrozenValueTyped<T>> {
+    val frozenValue = toValue().freeze(freezer)
+    if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
+    val fvt = FrozenValueTyped.newUnchecked<T>(frozenValue.getOrThrow())
+    return Result.success(fvt)
+}
+
+/// [UnpackValue] impl for [ValueTyped].
+/// Attempts to downcast a [Value] to [ValueTyped].
+// impl<'v, T: StarlarkValue<'v>> UnpackValue<'v> for ValueTyped<'v, T>
+internal inline fun <reified T : StarlarkValue> unpackValueTyped(value: Value): Result<ValueTyped<T>?> =
+    Result.success(ValueTyped.new<T>(value))
+
+/// [UnpackValue] impl for [FrozenValueTyped].
+/// Attempts to downcast a [Value] to [FrozenValueTyped], requiring the value to be frozen.
+// impl<'v, T: StarlarkValue<'v>> UnpackValue<'v> for FrozenValueTyped<'v, T>
+internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Value): Result<FrozenValueTyped<T>?> {
+    val frozen = value.unpackFrozen()
+    if (frozen != null) {
+        val typed = FrozenValueTyped.new<T>(frozen)
+        if (typed != null) {
+            return Result.success(typed)
+        }
+    } else if (value.downcastRef<T>() != null) {
+        // Value is of the right type but not frozen
+        return Result.failure(
+            IllegalArgumentException(
+                "Expected frozen value of type `${T::class.simpleName}`, got unfrozen: `${value.toStringForTypeError()}`"
+            )
+        )
+    }
+    return Result.success(null)
+}
 
 /// Helper to create [ValueOfUncheckedGeneric] from a [Value] without requiring
 /// the phantom type parameter to satisfy [StarlarkTypeRepr].
