@@ -212,6 +212,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace {
     // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? = Ty.anySet()
 
+    // fn get_type_starlark_repr() -> Ty
+    override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
+
     // impl Display for SetGen<T>
     override fun toString(): String {
         return fmtContainer("set([", "])", setLike().content().iter())
@@ -385,6 +388,9 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
         return data.content as SmallSet<Value>
     }
 }
+
+// impl Serialize for SetGen<T>
+fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
 // Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).
 // Note: registerAvalueSimpleFrozen!(FrozenSet) - to be implemented in registration system
