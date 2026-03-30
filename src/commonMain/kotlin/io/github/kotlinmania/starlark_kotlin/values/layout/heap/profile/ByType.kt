@@ -20,19 +20,24 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.sum
 
-/// Information about the data stored on a heap. Accessible through
-/// the function `allocated_summary` available on [`Heap`](crate::values::Heap)
-/// and [`FrozenHeap`](crate::values::FrozenHeap)
+/**
+ * Information about the data stored on a heap. Accessible through
+ * the function `allocated_summary` available on [`Heap`](crate::values::Heap)
+ * and [`FrozenHeap`](crate::values::FrozenHeap)
+ */
 // #[derive(Debug, Default, Clone, Allocative)]
 // pub struct HeapSummary
 class HeapSummary(
-    /// For each type, give the (number of entries, size of all entries).
-    /// The size may be approximate as it includes information from
-    /// the approximate `memory_size` function.
+    /**
+     * For each type, give the (number of entries, size of all entries).
+     * The size may be approximate as it includes information from
+     * the approximate `memory_size` function.
+     */
     internal val summary: SmallMap<String, AllocCounts> = SmallMap(),
 ) {
-    /// (Count, total size) by type.
+    /** (Count, total size) by type. */
     // pub fn summary(&self) -> HashMap<String, (usize, usize)>
     fun summary(): Map<String, Pair<Int, Long>> {
         val result = mutableMapOf<String, Pair<Int, Long>>()
@@ -44,10 +49,10 @@ class HeapSummary(
 
     // pub(crate) fn total(&self) -> AllocCounts
     internal fun total(): AllocCounts {
-        return AllocCounts.sum(summary.values())
+        return summary.values().toList().sum()
     }
 
-    /// Total number of bytes allocated.
+    /** Total number of bytes allocated. */
     // pub fn total_allocated_bytes(&self) -> usize
     fun totalAllocatedBytes(): Long {
         return total().bytes

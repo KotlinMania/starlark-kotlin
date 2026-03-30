@@ -129,7 +129,8 @@ fun <T : Trace> MutableCollection<T>.trace(tracer: Tracer) {
 //     }
 // }
 fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
-    for ((k, v) in this.iterMutUnchecked()) {
+    // Kotlin references are already mutable; no need for iter_mut_unchecked
+    for ((k, v) in this) {
         k.trace(tracer)
         v.trace(tracer)
     }
@@ -143,7 +144,8 @@ fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
 //     }
 // }
 fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
-    for (v in this.iterMutUnchecked()) {
+    // Kotlin references are already mutable; no need for iter_mut_unchecked
+    for (v in this) {
         v.trace(tracer)
     }
 }
@@ -154,7 +156,8 @@ fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
 //     }
 // }
 fun <T : Trace> Hashed<T>.trace(tracer: Tracer) {
-    this.keyMut().trace(tracer)
+    // Kotlin references are already mutable; key() suffices for key_mut()
+    this.key().trace(tracer)
 }
 
 // unsafe impl<'v, T: Trace<'v>> Trace<'v> for Option<T> {

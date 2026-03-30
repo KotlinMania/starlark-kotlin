@@ -23,4 +23,4 @@ package io.github.kotlinmania.starlark_kotlin.collections
 // pub(crate) mod map;
 internal val map = "map"
 // pub(crate) mod symbol;
-internal val symbol = "symbol"
+// internal val symbol = "symbol" // conflicts with collections.symbol package

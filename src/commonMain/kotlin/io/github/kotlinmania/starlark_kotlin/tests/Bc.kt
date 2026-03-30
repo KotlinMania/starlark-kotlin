@@ -25,7 +25,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 // mod and_or;
 internal val and_or = "and_or"
 // mod call;
-internal val call = "call"
+// internal val call = "call" // conflicts with tests.call package
 // mod compr;
 internal val compr = "compr"
 // mod definitely_assigned;

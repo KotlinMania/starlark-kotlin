@@ -27,7 +27,7 @@ internal val bc = "bc"
 // mod before_stmt;
 internal val before_stmt = "before_stmt"
 // mod call;
-internal val call = "call"
+// internal val call = "call" // conflicts with tests.call package
 // mod comprehension;
 internal val comprehension = "comprehension"
 // mod def;

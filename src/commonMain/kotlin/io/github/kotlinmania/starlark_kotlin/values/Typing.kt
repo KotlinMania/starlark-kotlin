@@ -23,7 +23,7 @@ package io.github.kotlinmania.starlark_kotlin.values
 /// Typechecker-related types.
 
 // pub(crate) mod any;
-internal val any = "any"
+// internal val any = "any" // conflicts with Types.kt declaration
 // pub(crate) mod callable;
 internal val callable = "callable"
 // pub(crate) mod globals;

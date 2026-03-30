@@ -26,14 +26,14 @@ package io.github.kotlinmania.starlark_kotlin.collections
 /// for larger collections. The API mirrors standard Rust collections.
 
 // pub use starlark_map::Equivalent;
-// pub use starlark_map::Hashed;
-// pub use starlark_map::StarlarkHashValue;
-// pub use starlark_map::StarlarkHasher;
+typealias Hashed<K> = starlark_map.Hashed<K>
+typealias StarlarkHashValue = starlark_map.StarlarkHashValue
+typealias StarlarkHasher = starlark_map.StarlarkHasher
 // pub use starlark_map::small_map::IntoIter;
 // pub use starlark_map::small_map::Iter;
 // pub use starlark_map::small_map::IterMut;
-// pub use starlark_map::small_map::SmallMap;
-// pub use starlark_map::small_set::SmallSet;
+typealias SmallMap<K, V> = starlark_map.small_map.SmallMap<K, V>
+typealias SmallSet<V> = starlark_map.small_set.SmallSet<V>
 
 // pub(crate) mod aligned_padded_str;
 internal val aligned_padded_str = "aligned_padded_str"
@@ -44,4 +44,4 @@ internal val maybe_uninit_backport = "maybe_uninit_backport"
 // pub(crate) mod string_pool;
 internal val string_pool = "string_pool"
 // pub(crate) mod symbol;
-internal val symbol = "symbol"
+// internal val symbol = "symbol" // conflicts with collections.symbol package

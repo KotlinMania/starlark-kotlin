@@ -22,7 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 // use crate::eval::runtime::slots::LocalSlotId;
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 
-/// Tracker for local variables which are definitely assigned.
+/**
+ * Tracker for local variables which are definitely assigned.
  *
  * For example, when compiling a program like:
  *

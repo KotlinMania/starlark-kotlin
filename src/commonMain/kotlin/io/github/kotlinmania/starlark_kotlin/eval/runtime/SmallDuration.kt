@@ -47,35 +47,25 @@ internal data class SmallDuration(
     // impl SmallDuration
 
     companion object {
+        val ZERO: SmallDuration = SmallDuration(0u)
+
         fun default(): SmallDuration = SmallDuration(0u)
-    }
 
-    // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
-    fun fromDuration(duration: Duration): SmallDuration {
-        return SmallDuration(duration.inWholeNanoseconds.toULong())
-    }
+        // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
+        fun fromDuration(duration: Duration): SmallDuration {
+            return SmallDuration(duration.inWholeNanoseconds.toULong())
+        }
 
-    // #[cfg(test)]
-    // pub(crate) fn from_millis(millis: u64) -> SmallDuration
-    internal fun fromMillis(millis: ULong): SmallDuration {
-        return fromDuration(millis.toLong().milliseconds)
+        // #[cfg(test)]
+        // pub(crate) fn from_millis(millis: u64) -> SmallDuration
+        internal fun fromMillis(millis: ULong): SmallDuration {
+            return fromDuration(millis.toLong().milliseconds)
+        }
     }
 
     // pub(crate) fn to_duration(self) -> Duration
     fun toDuration(): Duration {
         return nanos.toLong().nanoseconds
-    }
-
-    // impl AddAssign for SmallDuration
-    // fn add_assign(&mut self, other: Self)
-    operator fun plusAssign(other: SmallDuration) {
-        nanos += other.nanos
-    }
-
-    // impl AddAssign<Duration> for SmallDuration
-    // fn add_assign(&mut self, other: Duration)
-    operator fun plusAssign(other: Duration) {
-        nanos += other.inWholeNanoseconds.toULong()
     }
 
     // impl Add<Duration> for SmallDuration
@@ -103,6 +93,6 @@ internal data class SmallDuration(
 // impl<'a> Sum<&'a SmallDuration> for SmallDuration
 // fn sum<I>(iter: I) -> SmallDuration
 // where I: Iterator<Item = &'a SmallDuration>
-fun Iterable<SmallDuration>.sum(): SmallDuration {
+internal fun Iterable<SmallDuration>.sum(): SmallDuration {
     return fold(SmallDuration.default()) { acc, x -> acc + x }
 }

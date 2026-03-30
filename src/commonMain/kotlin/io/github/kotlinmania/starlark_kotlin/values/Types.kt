@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 // pub mod any;
-internal val any = "any"
+// internal val any = "any" // conflicts with Typing.kt declaration
 // pub mod any_array;
 internal val any_array = "any_array"
 // pub mod any_complex;

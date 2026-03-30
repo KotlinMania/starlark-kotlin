@@ -108,4 +108,4 @@ internal object ConstFrozenStringTests {
         // assert_eq!("abcdefghijk", const_frozen_string!("abcdefghijk").as_str());
         check("abcdefghijk" == constFrozenString("abcdefghijk").asStr())
     }
-// }
+}
