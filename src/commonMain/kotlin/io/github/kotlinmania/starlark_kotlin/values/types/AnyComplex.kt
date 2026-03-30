@@ -19,7 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_complex
  * limitations under the License.
  */
 
-/** A type `StarlarkAnyComplex` which can wrap any value into a `Value`. */
+//! A type [`StarlarkAnyComplex`] which can wrap any Rust value into a [`Value`].
+
+// use std::any;
+// use std::fmt;
+// use std::fmt::Debug;
+// use std::fmt::Display;
+
+// use allocative::Allocative;
+// use starlark_derive::NoSerialize;
+// use starlark_derive::starlark_value;
+
+// use crate as starlark;
+// use crate::any::ProvidesStaticType;
+// use crate::values::AllocValue;
+// use crate::values::Freeze;
+// use crate::values::Heap;
+// use crate::values::HeapSendable;
+// use crate::values::StarlarkValue;
+// use crate::values::Trace;
+// use crate::values::Value;
+// use crate::values::ValueLike;
+// use crate::values::layout::heap::send::HeapSyncable;
 
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
@@ -27,14 +48,12 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-/**
- * Allocate arbitrary value on the starlark heap without implementing full `StarlarkValue`.
- *
- * This is useful for data not directly visible to starlark code.
- *
- * This type is for "complex" values (with tracing during GC). For no GC version check
- * `StarlarkAny`.
- */
+/// Allocate arbitrary value on the starlark heap without implementing full [`StarlarkValue`].
+///
+/// This is useful for data not directly visible to starlark code.
+///
+/// This type is for "complex" values (with tracing during GC). For no GC version check
+/// [`StarlarkAny`](crate::values::types::any::StarlarkAny).
 // #[derive(Trace, Freeze, Allocative, ProvidesStaticType, NoSerialize)]
 // pub struct StarlarkAnyComplex<T> { pub value: T }
 class StarlarkAnyComplex<T : Any>(
