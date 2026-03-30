@@ -75,7 +75,7 @@ private class RecordTypeError private constructor(message: String) : Exception(m
     }
 }
 
-/// The result of `record()`, being the type of records.
+/** The result of `record()`, being the type of records. */
 // #[derive(Debug, Trace, NoSerialize, ProvidesStaticType, Allocative)]
 // pub struct RecordTypeGen<V: RecordCell> {
 //     pub(crate) id: TypeInstanceId,
@@ -86,7 +86,7 @@ class RecordTypeGen internal constructor(
     internal val id: TypeInstanceId,
     // Kotlin: combined OnceCell (unfrozen) and Option (frozen) into single nullable field.
     internal var tyRecordData: TyRecordData?,
-    /// The V is the type the field must satisfy (e.g. `"string"`)
+    /** The V is the type the field must satisfy (e.g. `"string"`) */
     internal val fields: SmallMap<String, Field>,
     private val frozen: Boolean,
 ) : ComplexValue, Freeze<RecordTypeGen> {
@@ -297,10 +297,10 @@ class RecordTypeGen internal constructor(
     }
 }
 
-/// Type alias for unfrozen record type.
+/** Type alias for unfrozen record type. */
 // pub type RecordType<'v> = RecordTypeGen<Value<'v>>;
 typealias RecordType = RecordTypeGen
-/// Type alias for frozen record type.
+/** Type alias for frozen record type. */
 // pub type FrozenRecordType = RecordTypeGen<FrozenValue>;
 typealias FrozenRecordType = RecordTypeGen
 

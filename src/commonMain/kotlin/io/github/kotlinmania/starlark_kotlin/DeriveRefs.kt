@@ -46,3 +46,10 @@ package io.github.kotlinmania.starlark_kotlin
  * pub use crate::values::layout::vtable::AValueVTable;
  * ```
  */
+
+/**
+ * Module marker for __derive_refs.
+ *
+ * See [DeriveRefsModule][io.github.kotlinmania.starlark_kotlin.__derive_refs.DeriveRefsModule]
+ * for the canonical module marker in the __derive_refs package.
+ */

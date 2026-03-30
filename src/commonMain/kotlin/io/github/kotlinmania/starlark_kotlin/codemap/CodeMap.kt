@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.codemap
 
 import kotlin.concurrent.Volatile
 
-/// A cheap unique identifier per CodeMap, used for profiling optimisations.
+/** A cheap unique identifier per CodeMap, used for profiling optimisations. */
 // In Rust this is a pointer-based identity (CodeMapId). In Kotlin we use an
 // incrementing counter so that each CodeMap instance gets a unique id.
 data class CodeMapId(val value: Long) {
@@ -38,15 +38,15 @@ data class CodeMapId(val value: Long) {
     }
 }
 
-/// Multiple [CodeMap]s, keyed by [CodeMapId].
+/** Multiple [CodeMap]s, keyed by [CodeMapId]. */
 // pub struct CodeMaps { codemaps: HashMap<CodeMapId, CodeMap> }
 class CodeMaps {
     private val codemaps: MutableMap<CodeMapId, CodeMap> = mutableMapOf()
 
-    /// Lookup by id.
+    /** Lookup by id. */
     fun get(id: CodeMapId): CodeMap? = codemaps[id]
 
-    /// Add codemap if not already present.
+    /** Add codemap if not already present. */
     fun add(codemap: CodeMap) {
         val id = codemap.id()
         if (id !in codemaps) {
@@ -54,7 +54,7 @@ class CodeMaps {
         }
     }
 
-    /// Add all codemaps.
+    /** Add all codemaps. */
     fun addAll(codemaps: CodeMaps) {
         for (codemap in codemaps.codemaps.values) {
             add(codemap)
@@ -81,7 +81,7 @@ class CodeMap(
         lines = linePositions
     }
 
-    /// Only used internally for profiling optimisations.
+    /** Only used internally for profiling optimisations. */
     fun id(): CodeMapId = _id
 
     fun fullSpan(): Span = Span(Pos(0), Pos(source.length))
@@ -116,14 +116,14 @@ class CodeMap(
         return ResolvedPos(line = line, column = column)
     }
 
-    /// Gets the file and its line and column ranges represented by a Span.
+    /** Gets the file and its line and column ranges represented by a Span. */
     fun resolveSpan(span: Span): ResolvedSpan {
         val begin = findLineCol(span.begin)
         val end = findLineCol(span.end)
         return ResolvedSpan(begin = begin, end = end)
     }
 
-    /// Filename method (mirrors Rust's CodeMap::filename()).
+    /** Filename method (mirrors Rust's CodeMap::filename()). */
     fun filename(): String = filename
 
     override fun equals(other: Any?): Boolean {
@@ -143,10 +143,10 @@ data class FileSpan(
 ) : Comparable<FileSpan> {
     fun sourceSpan(): String = file.sourceSpan(span)
 
-    /// Resolve the span to lines and columns.
+    /** Resolve the span to lines and columns. */
     fun resolveSpan(): ResolvedSpan = file.resolveSpan(span)
 
-    /// Resolve the span to a [ResolvedFileSpan].
+    /** Resolve the span to a [ResolvedFileSpan]. */
     fun resolve(): ResolvedFileSpan = ResolvedFileSpan(
         file = file.filename,
         span = file.resolveSpan(span),

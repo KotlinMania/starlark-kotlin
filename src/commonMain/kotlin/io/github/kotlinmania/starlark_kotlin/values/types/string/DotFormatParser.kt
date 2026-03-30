@@ -19,33 +19,33 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-/// Output the capture as `str` or `repr`.
+/** Output the capture as `str` or `repr`. */
 enum class FormatConv {
     Str,
     Repr,
 }
 
-/// Token in the format string.
+/** Token in the format string. */
 sealed class FormatToken {
-    /// Text to copy verbatim to the output.
+    /** Text to copy verbatim to the output. */
     data class Text(val text: String) : FormatToken()
     data class Capture(
-        /// Format part inside curly braces before the conversion.
+        /** Format part inside curly braces before the conversion. */
         val capture: String,
-        /// The position of this capture. This does not include the curly braces.
+        /** The position of this capture. This does not include the curly braces. */
         val pos: Int,
-        /// The conversion to apply to this capture.
+        /** The conversion to apply to this capture. */
         val conv: FormatConv
     ) : FormatToken()
     data class Escape(val escape: EscapeCurlyBrace) : FormatToken()
 }
 
-/// Emitted when processing an escape (`{{` or `}}`).
+/** Emitted when processing an escape (`{{` or `}}`). */
 enum class EscapeCurlyBrace {
     Open,
     Close;
 
-    /// Get what this represents.
+    /** Get what this represents. */
     fun asStr(): String {
         return when (this) {
             Open -> "{"
@@ -53,7 +53,7 @@ enum class EscapeCurlyBrace {
         }
     }
 
-    /// Get back the escaped form for this.
+    /** Get back the escaped form for this. */
     fun backToEscape(): String {
         return when (this) {
             Open -> "{{"
@@ -62,11 +62,11 @@ enum class EscapeCurlyBrace {
     }
 }
 
-/// Parser for `.format()` arguments.
+/** Parser for `.format()` arguments. */
 class FormatParser(private val view: String) {
     private var i: Int = 0
 
-    /// Parse the next token from the format string.
+    /** Parse the next token from the format string. */
     fun next(): Result<FormatToken?> {
         var start = i
 

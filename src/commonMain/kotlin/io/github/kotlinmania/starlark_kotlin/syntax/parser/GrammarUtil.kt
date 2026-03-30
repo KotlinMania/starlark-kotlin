@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
  * limitations under the License.
  */
 
-//! Code called by the parser to handle complex cases not handled by the grammar.
+/** Code called by the parser to handle complex cases not handled by the grammar. */
 
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
@@ -53,7 +53,7 @@ private enum class DialectError(val message: String) {
 }
 
 object GrammarUtil {
-    /// Ensure we produce normalised Statements, rather than singleton Statements.
+    /** Ensure we produce normalised Statements, rather than singleton Statements. */
     // pub fn statements(mut xs: Vec<AstStmt>, begin: usize, end: usize) -> AstStmt
     fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt {
         return if (xs.size == 1) {
@@ -304,8 +304,10 @@ object GrammarUtil {
     }
 }
 
-/// Check if the string is exactly one identifier and return it.
-/// Port of starlark_syntax::lexer::lex_exactly_one_identifier.
+/**
+ * Check if the string is exactly one identifier and return it.
+ * Port of starlark_syntax::lexer::lex_exactly_one_identifier.
+ */
 private fun lexExactlyOneIdentifier(s: String): String? {
     if (s.isEmpty()) return null
     // First char must be letter or underscore

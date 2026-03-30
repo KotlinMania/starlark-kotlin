@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_array
  * limitations under the License.
  */
 
-/// Utility to heap allocate arrays of values.
+/** Utility to heap allocate arrays of values. */
 
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 
@@ -38,8 +38,10 @@ internal class AnyArray<T>(
     val len: Int get() = content.size
 
     companion object {
-        /// This function is unsafe in Rust because it does not initialize content array,
-        /// but drops in destructor.
+        /**
+         * This function is unsafe in Rust because it does not initialize content array,
+         * but drops in destructor.
+         */
         // pub(crate) unsafe fn new(len: usize) -> AnyArray<T>
         // Kotlin: creates an empty array with the given capacity.
         fun <T> new(len: Int): AnyArray<T> {

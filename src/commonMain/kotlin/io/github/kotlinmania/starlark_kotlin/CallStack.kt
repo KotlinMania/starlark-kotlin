@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin
 
 const val CALL_STACK_TRACEBACK_PREFIX: String = "Traceback (most recent call last):"
 
-/// Owned call stack.
+/** Owned call stack. */
 // #[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 // pub struct CallStack {
 //     pub frames: Vec<Frame>,
@@ -29,11 +29,11 @@ const val CALL_STACK_TRACEBACK_PREFIX: String = "Traceback (most recent call las
 data class CallStack(
     val frames: List<Frame> = emptyList(),
 ) {
-    /// Is the call stack empty?
+    /** Is the call stack empty? */
     // pub fn is_empty(&self) -> bool
     fun isEmpty(): Boolean = frames.isEmpty()
 
-    /// Take the contained frames.
+    /** Take the contained frames. */
     // pub fn into_frames(self) -> Vec<Frame>
     fun intoFrames(): List<Frame> = frames
 

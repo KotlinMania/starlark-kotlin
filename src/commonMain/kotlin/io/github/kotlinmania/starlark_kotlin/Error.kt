@@ -138,43 +138,43 @@ data class Frame(
 /** The different kinds of errors that can be produced by starlark. */
 sealed class ErrorKind {
     /** An explicit `fail` invocation. */
-    data class Fail(val error: Throwable) : ErrorKind()
+    class Fail(val error: Throwable) : ErrorKind()
 
     /** Starlark call stack overflow. */
-    data class StackOverflow(val error: Throwable) : ErrorKind()
+    class StackOverflow(val error: Throwable) : ErrorKind()
 
     /**
      * An error approximately associated with a value.
      * Includes unsupported operations, missing attributes, things of that sort.
      */
-    data class Value(val error: Throwable) : ErrorKind()
+    class Value(val error: Throwable) : ErrorKind()
 
     /** Errors relating to the way a function is called (wrong number of args, etc.). */
-    data class Function(val error: Throwable) : ErrorKind()
+    class Function(val error: Throwable) : ErrorKind()
 
     /** Out of scope variables and similar. */
-    data class Scope(val error: Throwable) : ErrorKind()
+    class Scope(val error: Throwable) : ErrorKind()
 
     /** Syntax error. */
-    data class Parser(val error: Throwable) : ErrorKind()
+    class Parser(val error: Throwable) : ErrorKind()
 
     /** Freeze errors. Should have no metadata attached. */
-    data class Freeze(val error: Throwable) : ErrorKind()
+    class Freeze(val error: Throwable) : ErrorKind()
 
     /** Indicates a logic bug in starlark. */
-    data class Internal(val error: Throwable) : ErrorKind()
+    class Internal(val error: Throwable) : ErrorKind()
 
     /**
      * Error from user provided native function
      * (but not from native functions provided by starlark crate).
      */
-    data class Native(val error: Throwable) : ErrorKind()
+    class Native(val error: Throwable) : ErrorKind()
 
     /**
      * Fallback option.
      * For errors produced by starlark which have not yet been assigned their own kind.
      */
-    data class Other(val error: Throwable) : ErrorKind()
+    class Other(val error: Throwable) : ErrorKind()
 
     /** The source of the error, akin to [Throwable.cause]. */
     fun source(): Throwable? {

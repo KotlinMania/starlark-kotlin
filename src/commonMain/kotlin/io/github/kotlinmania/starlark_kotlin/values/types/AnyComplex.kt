@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_complex
  * limitations under the License.
  */
 
-/// A type `StarlarkAnyComplex` which can wrap any value into a `Value`.
+/** A type `StarlarkAnyComplex` which can wrap any value into a `Value`. */
 
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
@@ -27,27 +27,29 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-/// Allocate arbitrary value on the starlark heap without implementing full `StarlarkValue`.
-///
-/// This is useful for data not directly visible to starlark code.
-///
-/// This type is for "complex" values (with tracing during GC). For no GC version check
-/// `StarlarkAny`.
+/**
+ * Allocate arbitrary value on the starlark heap without implementing full `StarlarkValue`.
+ *
+ * This is useful for data not directly visible to starlark code.
+ *
+ * This type is for "complex" values (with tracing during GC). For no GC version check
+ * `StarlarkAny`.
+ */
 // #[derive(Trace, Freeze, Allocative, ProvidesStaticType, NoSerialize)]
 // pub struct StarlarkAnyComplex<T> { pub value: T }
 class StarlarkAnyComplex<T : Any>(
-    /// The value.
+    /** The value. */
     val value: T,
 ) : ComplexValue, Trace {
     companion object {
         // pub fn new(value: T) -> StarlarkAnyComplex<T>
-        /// Construct a new `StarlarkAnyComplex` value, which can be allocated on the heap.
+        /** Construct a new `StarlarkAnyComplex` value, which can be allocated on the heap. */
         fun <T : Any> new(value: T): StarlarkAnyComplex<T> {
             return StarlarkAnyComplex(value)
         }
 
         // pub fn get(value: Value<'v>) -> Option<&'v T>
-        /// Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`.
+        /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
         @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> get(value: Any): T? {
             val complex = value as? StarlarkAnyComplex<*> ?: return null
@@ -55,7 +57,7 @@ class StarlarkAnyComplex<T : Any>(
         }
 
         // pub fn get_err(value: Value<'v>) -> crate::Result<&'v T>
-        /// Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`.
+        /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
         @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> getErr(value: Any): T {
             val complex = value as? StarlarkAnyComplex<*>

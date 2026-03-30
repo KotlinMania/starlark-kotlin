@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-/// Types supporting documentation for code written in or for Starlark.
+/** Types supporting documentation for code written in or for Starlark. */
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -27,24 +27,28 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.FmtParam
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.iterFmtParamSpec
 
-/// The documentation provided by a user for a specific module, object, function, etc.
+/** The documentation provided by a user for a specific module, object, function, etc. */
 // #[derive(Debug, Clone, PartialEq, Trace, Default, Allocative)]
 // pub struct DocString
 data class DocString(
-    /// The first line of a doc string. This has whitespace trimmed from it.
+    /** The first line of a doc string. This has whitespace trimmed from it. */
     val summary: String = "",
-    /// The contents of a doc string that follow the summary, and a single blank line.
-    /// This also has whitespace trimmed from it, and it is dedented.
+    /**
+     * The contents of a doc string that follow the summary, and a single blank line.
+     * This also has whitespace trimmed from it, and it is dedented.
+     */
     val details: String? = null,
-    /// Examples provided as a part of the doc string. It's separated by a 'Examples:' string
+    /** Examples provided as a part of the doc string. It's separated by a 'Examples:' string */
     val examples: String? = null,
 ) {
     companion object
 }
 
-/// The documentation for a module/namespace.
-///
-/// See the docs on [DocType] for the distinction between that type and this one.
+/**
+ * The documentation for a module/namespace.
+ *
+ * See the docs on [DocType] for the distinction between that type and this one.
+ */
 // #[derive(Debug, Clone, PartialEq, Default, Allocative)]
 // pub struct DocModule
 class DocModule(
@@ -63,24 +67,28 @@ class DocModule(
     }
 }
 
-/// Documents a single function.
+/** Documents a single function. */
 // #[derive(Debug, Clone, PartialEq, Default, Allocative)]
 // pub struct DocFunction
 class DocFunction(
-    /// Documentation for the function. If parsed, this should generally be the first statement
-    /// of a function's body if that statement is a string literal. Any sections like "Args:",
-    /// "Returns", etc are kept intact. It is up to the consumer to remove these sections if
-    /// they are present.
+    /**
+     * Documentation for the function. If parsed, this should generally be the first statement
+     * of a function's body if that statement is a string literal. Any sections like "Args:",
+     * "Returns", etc are kept intact. It is up to the consumer to remove these sections if
+     * they are present.
+     */
     val docs: DocString? = null,
-    /// The parameters that this function takes. Docs for these parameters should generally be
-    /// extracted from the main docstring's details, but may be extracted from the definition if the
-    /// docstring is not present.
+    /**
+     * The parameters that this function takes. Docs for these parameters should generally be
+     * extracted from the main docstring's details, but may be extracted from the definition if the
+     * docstring is not present.
+     */
     val params: DocParams = DocParams(),
-    /// Details about what this function returns.
+    /** Details about what this function returns. */
     val ret: DocReturn = DocReturn(),
 ) {
     companion object
-    /// Used by LSP. Return starred name and the doc.
+    /** Used by LSP. Return starred name and the doc. */
     // pub fn find_param_with_name(&self, param_name: &str) -> Option<(String, &DocParam)>
     fun findParamWithName(paramName: String): Pair<String, DocParam>? {
         return params.docParamsWithStarredNames()
@@ -88,7 +96,7 @@ class DocFunction(
     }
 }
 
-/// Function parameters.
+/** Function parameters. */
 // #[derive(Debug, Clone, PartialEq, Default, Allocative)]
 // pub struct DocParams
 class DocParams(
@@ -98,7 +106,7 @@ class DocParams(
     val namedOnly: List<DocParam> = emptyList(),
     val kwargs: DocParam? = null,
 ) {
-    /// Iterate parameters ignoring information about positional-only, named-only.
+    /** Iterate parameters ignoring information about positional-only, named-only. */
     // pub(crate) fn doc_params(&self) -> impl Iterator<Item = &DocParam>
     internal fun docParams(): Sequence<DocParam> {
         return sequence {
@@ -121,13 +129,13 @@ class DocParams(
         }
     }
 
-    /// Mutable iteration over parameters.
+    /** Mutable iteration over parameters. */
     // pub(crate) fn doc_params_mut(&mut self) -> impl Iterator<Item = &mut DocParam>
     internal fun docParamsMut(): Iterator<DocParam> {
         return docParams().iterator()
     }
 
-    /// Non-star parameters.
+    /** Non-star parameters. */
     // pub fn regular_params(&self) -> impl Iterator<Item = &DocParam>
     fun regularParams(): Sequence<DocParam> {
         return sequence {
@@ -137,7 +145,7 @@ class DocParams(
         }
     }
 
-    /// Iterate params with `/` and `*` markers to output function signature.
+    /** Iterate params with `/` and `*` markers to output function signature. */
     // pub fn fmt_params(&self) -> impl Iterator<Item = FmtParam<&'_ DocParam>>
     fun fmtParams(): Sequence<FmtParam<DocParam>> {
         return iterFmtParamSpec(
@@ -150,40 +158,40 @@ class DocParams(
     }
 }
 
-/// A single parameter of a function.
+/** A single parameter of a function. */
 // #[derive(Debug, Clone, PartialEq, Allocative)]
 // pub struct DocParam
 class DocParam(
-    /// Does not include `*` or `**`.
+    /** Does not include `*` or `**`. */
     val name: String,
     var docs: DocString? = null,
-    /// Element type for `*args` and value type for `**kwargs`.
+    /** Element type for `*args` and value type for `**kwargs`. */
     val typ: Ty,
     var defaultValue: String? = null,
 ) {
-    /// Get the underlying [DocString] for this item, if it exists.
+    /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
     fun getDocString(): DocString? {
         return docs
     }
 
-    /// Get the summary of the underlying [DocString] for this item, if it exists.
+    /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
     fun getDocSummary(): String? {
         return getDocString()?.summary
     }
 }
 
-/// Details about the return value of a function.
+/** Details about the return value of a function. */
 // #[derive(Debug, Clone, PartialEq, Allocative)]
 // pub struct DocReturn
 class DocReturn(
-    /// Extra semantic details around the returned value's meaning.
+    /** Extra semantic details around the returned value's meaning. */
     val docs: DocString? = null,
     val typ: Ty = Ty.any(),
 )
 
-/// A single property of an object. These are explicitly not functions (see [DocMember]).
+/** A single property of an object. These are explicitly not functions (see [DocMember]). */
 // #[derive(Debug, Clone, PartialEq, Allocative)]
 // pub struct DocProperty
 class DocProperty(
@@ -191,7 +199,7 @@ class DocProperty(
     val typ: Ty,
 )
 
-/// A named member of an object.
+/** A named member of an object. */
 // pub enum DocMember
 sealed class DocMember {
     // Property(DocProperty)
@@ -199,7 +207,7 @@ sealed class DocMember {
     // Function(DocFunction)
     class Function(val function: DocFunction) : DocMember()
 
-    /// Get the underlying [DocString] for this item, if it exists.
+    /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
     fun getDocString(): DocString? {
         return when (this) {
@@ -208,23 +216,25 @@ sealed class DocMember {
         }
     }
 
-    /// Get the summary of the underlying [DocString] for this item, if it exists.
+    /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
     fun getDocSummary(): String? {
         return getDocString()?.summary
     }
 }
 
-/// The documentation for a type.
-///
-/// This is distinct from a module since, well, types and modules are different things, but more
-/// importantly because the members here are expected to be attributes on *values* of the type, not
-/// on the type itself.
+/**
+ * The documentation for a type.
+ *
+ * This is distinct from a module since, well, types and modules are different things, but more
+ * importantly because the members here are expected to be attributes on *values* of the type, not
+ * on the type itself.
+ */
 // #[derive(Debug, Clone, PartialEq, Allocative)]
 // pub struct DocType
 class DocType(
     val docs: DocString? = null,
-    /// Name and details of each attr/function that can be accessed on this type.
+    /** Name and details of each attr/function that can be accessed on this type. */
     val members: SmallMap<String, DocMember> = SmallMap.new(),
     val ty: Ty,
     val constructor: DocFunction? = null,
@@ -257,7 +267,7 @@ sealed class DocItem {
     // Member(DocMember)
     class Member(val member: DocMember) : DocItem()
 
-    /// Get the underlying [DocString] for this item, if it exists.
+    /** Get the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_string(&self) -> Option<&DocString>
     fun getDocString(): DocString? {
         return when (this) {
@@ -267,16 +277,18 @@ sealed class DocItem {
         }
     }
 
-    /// Get the summary of the underlying [DocString] for this item, if it exists.
+    /** Get the summary of the underlying [DocString] for this item, if it exists. */
     // pub fn get_doc_summary(&self) -> Option<&str>
     fun getDocSummary(): String? {
         return getDocString()?.summary
     }
 
-    /// Converts to a doc member, if possible.
-    ///
-    /// This conversion is trivial, except in the case of objects - those are flattened into a
-    /// single property that just indicates their type.
+    /**
+     * Converts to a doc member, if possible.
+     *
+     * This conversion is trivial, except in the case of objects - those are flattened into a
+     * single property that just indicates their type.
+     */
     // pub fn try_as_member_with_collapsed_object(&self) -> Result<DocMember, &DocModule>
     fun tryAsMemberWithCollapsedObject(): Result<DocMember> {
         return when (this) {

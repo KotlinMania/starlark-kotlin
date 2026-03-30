@@ -21,9 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-//! __derive_refs allows us to reference other crates in starlark_derive without users needing to be
-//!  aware of those dependencies. We make them public here and then can reference them like
-//!  `starlark::__derive_refs::foo`.
+/**
+ * __derive_refs allows us to reference other crates in starlark_derive without users needing to be
+ *  aware of those dependencies. We make them public here and then can reference them like
+ *  `starlark::__derive_refs::foo`.
+ */
 
 // Submodules:
 // pub mod components    -> __derive_refs.components (Components.kt)
@@ -35,3 +37,23 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
 // Re-exports for vtable registration macro.
 // pub use crate::values::layout::avalues::simple::AValueSimple;
 // pub use crate::values::layout::vtable::AValueVTable;
+
+/**
+ * Re-exports for derive macro references.
+ *
+ * In Rust, this module re-exports types from other crates so that
+ * starlark_derive can reference them without users being aware of
+ * those transitive dependencies.
+ */
+
+/**
+ * Serde re-exports for derive macro use.
+ *
+ * In Rust: `pub mod serde { pub use serde::{Serialize, Serializer, ser::Error}; }`
+ * In Kotlin: these would be available via kotlinx.serialization imports.
+ */
+internal object DeriveRefsSerde {
+    // pub use serde::Serialize;
+    // pub use serde::Serializer;
+    // pub use serde::ser::Error;
+}

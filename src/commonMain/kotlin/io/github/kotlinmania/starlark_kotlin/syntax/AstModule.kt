@@ -135,8 +135,10 @@ class AstModule(
 
 // --- replaceBinaryOperators helpers ---
 
-/// Convert a [BinOp] to its operator symbol string (trimmed).
-/// Mirrors Rust's `Display for BinOp`, but trimmed (the Rust Display includes surrounding spaces).
+/**
+ * Convert a [BinOp] to its operator symbol string (trimmed).
+ * Mirrors Rust's `Display for BinOp`, but trimmed (the Rust Display includes surrounding spaces).
+ */
 private fun BinOp.toSymbol(): String = when (this) {
     BinOp.Or -> "or"
     BinOp.And -> "and"
@@ -161,9 +163,11 @@ private fun BinOp.toSymbol(): String = when (this) {
     BinOp.RightShift -> ">>"
 }
 
-/// Rewrite an expression, replacing binary operators according to the [replace] map.
-/// If a binary operator's symbol is found in [replace], the Op node is replaced with
-/// a Call to the named function, passing the lhs and rhs as positional arguments.
+/**
+ * Rewrite an expression, replacing binary operators according to the [replace] map.
+ * If a binary operator's symbol is found in [replace], the Op node is replaced with
+ * a Call to the named function, passing the lhs and rhs as positional arguments.
+ */
 private fun rewriteExpr(expr: AstExpr, replace: Map<String, String>): AstExpr {
     val node = expr.node
     val rewritten = when (node) {
@@ -249,7 +253,7 @@ private fun rewriteArg(arg: ArgumentP<AstNoPayload>, replace: Map<String, String
     }
 }
 
-/// Rewrite a statement, recursively rewriting all contained expressions.
+/** Rewrite a statement, recursively rewriting all contained expressions. */
 @Suppress("UNCHECKED_CAST")
 private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
     val node = stmt.node

@@ -19,11 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-//! Defines [`SmallMap`] and [`SmallSet`] - collections with deterministic iteration and small
-//! memory footprint.
-//!
-//! These structures use vector backed storage if there are only a few elements, and an index
-//! for larger collections. The API mirrors standard Rust collections.
+/**
+ * Defines [`SmallMap`] and [`SmallSet`] - collections with deterministic iteration and small
+ * memory footprint.
+ *
+ * These structures use vector backed storage if there are only a few elements, and an index
+ * for larger collections. The API mirrors standard Rust collections.
+ */
 
 typealias Equivalent<T> = starlark_map.Equivalent<T>
 typealias Hashed<K> = starlark_map.Hashed<K>

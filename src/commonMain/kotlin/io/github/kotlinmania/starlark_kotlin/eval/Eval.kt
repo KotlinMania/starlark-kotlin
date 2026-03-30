@@ -19,8 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval
  * limitations under the License.
  */
 
-//! Evaluate some code, typically done by creating an [Evaluator], then calling
-//! [evalModule].
+/**
+ * Evaluate some code, typically done by creating an [Evaluator], then calling
+ * [evalModule].
+ */
 
 // pub(crate) mod bc;
 // pub(crate) mod compiler;
@@ -68,8 +70,10 @@ import kotlin.time.TimeSource
 
 // --- impl Evaluator ---
 
-/// Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
-/// [Module] as appropriate.
+/**
+ * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
+ * [Module] as appropriate.
+ */
 // pub fn eval_module(&mut self, ast: AstModule, globals: &Globals) -> crate::Result<Value<'v>>
 fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     val start = TimeSource.Monotonic.markNow()
@@ -148,7 +152,7 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     return res.mapCatching { it }
 }
 
-/// Evaluate a function stored in a [Value], passing in `positional` and `named` arguments.
+/** Evaluate a function stored in a [Value], passing in `positional` and `named` arguments. */
 // pub fn eval_function(&mut self, function: Value, positional: &[Value], named: &[(&str, Value)]) -> crate::Result<Value>
 fun Evaluator.evalFunction(
     function: Value,

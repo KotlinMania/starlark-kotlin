@@ -45,14 +45,16 @@ sealed class TypeExprUnpackError(message: String) : Exception(message) {
     class DotTypeBan(val name: String) : TypeExprUnpackError("`$name.type` is not allowed in type expression, use `$name` instead")
 }
 
-/// Types that are `""` or start with `"_"` are wildcard - they match everything
-/// (also deprecated).
+/**
+ * Types that are `""` or start with `"_"` are wildcard - they match everything
+ * (also deprecated).
+ */
 // pub fn type_str_literal_is_wildcard(s: &str) -> bool
 fun typeStrLiteralIsWildcard(s: String): Boolean {
     return s == "" || s.startsWith('_')
 }
 
-/// Path component of type.
+/** Path component of type. */
 // #[derive(Debug)]
 // pub struct TypePathP<'a, P: AstPayload>
 data class TypePathP<P : AstPayload, IP>(
@@ -60,7 +62,7 @@ data class TypePathP<P : AstPayload, IP>(
     val rem: List<Spanned<String>>,
 )
 
-/// This type should be used instead of `TypeExprP`, but a lot of code needs to be updated.
+/** This type should be used instead of `TypeExprP`, but a lot of code needs to be updated. */
 // #[derive(Debug)]
 // pub enum TypeExprUnpackP<'a, P: AstPayload>
 sealed class TypeExprUnpackP<P : AstPayload, IP> {
@@ -68,13 +70,13 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
     // Path(TypePathP<'a, P>)
     data class Path<P : AstPayload, IP>(val path: TypePathP<P, IP>) : TypeExprUnpackP<P, IP>()
-    /// `list[str]`.
+    /** `list[str]`. */
     // Index(&'a AstIdentP<P>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Index<P : AstPayload, IP>(val ident: AstIdentP<P, IP>, val index: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
-    /// `dict[str, int]` or `typing.Callable[[int], str]`.
+    /** `dict[str, int]` or `typing.Callable[[int], str]`. */
     // Index2(Spanned<TypePathP<'a, P>>, Box<Spanned<TypeExprUnpackP<'a, P>>>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Index2<P : AstPayload, IP>(val path: Spanned<TypePathP<P, IP>>, val i0: Spanned<TypeExprUnpackP<P, IP>>, val i1: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
-    /// List argument in `typing.Callable[[int], str]`.
+    /** List argument in `typing.Callable[[int], str]`. */
     // List(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
     data class List<P : AstPayload, IP>(val items: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>) : TypeExprUnpackP<P, IP>()
     // Union(Vec<Spanned<TypeExprUnpackP<'a, P>>>)
@@ -279,8 +281,10 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     }
 }
 
-/// Exception wrapper for WithDiagnostic results.
-/// Used to convert Rust's Result<_, WithDiagnostic<E>> pattern to Kotlin exceptions.
+/**
+ * Exception wrapper for WithDiagnostic results.
+ * Used to convert Rust's Result<_, WithDiagnostic<E>> pattern to Kotlin exceptions.
+ */
 class WithDiagnosticException(
     val diagnostic: WithDiagnostic<TypeExprUnpackError>,
 ) : Exception(diagnostic.value.message)
