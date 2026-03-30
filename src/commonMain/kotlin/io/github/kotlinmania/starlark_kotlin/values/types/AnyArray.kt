@@ -19,7 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_array
  * limitations under the License.
  */
 
-/** Utility to heap allocate arrays of values. */
+//! Utility to heap allocate arrays of values.
+
+// use std::fmt;
+// use std::fmt::Debug;
+// use std::mem;
+// use std::ptr;
+
+// use allocative::Allocative;
+// use starlark_derive::NoSerialize;
+// use starlark_derive::starlark_value;
+
+// use crate as starlark;
+// use crate::any::ProvidesStaticType;
+// use crate::values::StarlarkValue;
 
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 

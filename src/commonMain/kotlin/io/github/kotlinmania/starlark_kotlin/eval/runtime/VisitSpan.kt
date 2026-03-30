@@ -19,6 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
+// use starlark_syntax::syntax::def::DefParamIndices;
+// use starlark_syntax::syntax::def::DefRegularParamMode;
+
+// use crate::collections::symbol::symbol::Symbol;
+// use crate::environment::slots::ModuleSlotId;
+// use crate::eval::compiler::expr::CompareOp;
+// use crate::eval::compiler::span::IrSpanned;
+// use crate::eval::runtime::frame_span::FrameSpan;
+// use crate::values::FrozenRef;
+// use crate::values::FrozenValue;
+// use crate::values::layout::typed::FrozenValueTyped;
+// use crate::values::typing::type_compiled::compiled::TypeCompiled;
+
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark_kotlin.values.Tuple4
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -32,67 +45,67 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
-/** Visitor for code spans in the IR. */
+/// Visitor for code spans in the IR.
 // pub(crate) trait VisitSpanMut
 internal interface VisitSpanMut {
     // fn visit_spans(&mut self, visitor: &mut impl FnMut(&mut FrameSpan))
     fun visitSpans(visitor: (FrameSpan) -> FrameSpan)
 }
 
-/** [VisitSpanMut] impl for [IrSpanned]. */
+/// [VisitSpanMut] impl for [IrSpanned].
 // impl<V: VisitSpanMut> VisitSpanMut for IrSpanned<V>
 internal fun <V : VisitSpanMut> IrSpanned<V>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan): IrSpanned<V> {
     val newSpan = visitor(span)
     return IrSpanned(newSpan, node).also { node.visitSpans(visitor) }
 }
 
-/** [VisitSpanMut] impl for [FrozenValue] — no spans. */
+/// [VisitSpanMut] impl for [FrozenValue] — no spans.
 // impl VisitSpanMut for FrozenValue
 internal fun FrozenValue.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [TypeCompiled] — no spans. */
+/// [VisitSpanMut] impl for [TypeCompiled] — no spans.
 // impl VisitSpanMut for TypeCompiled
 internal fun TypeCompiled.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [String] — no spans. */
+/// [VisitSpanMut] impl for [String] — no spans.
 // impl VisitSpanMut for String
 internal fun String.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [Boolean] — no spans. */
+/// [VisitSpanMut] impl for [Boolean] — no spans.
 // impl VisitSpanMut for bool
 internal fun Boolean.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [UInt] — no spans. */
+/// [VisitSpanMut] impl for [UInt] — no spans.
 // impl VisitSpanMut for u32
 internal fun UInt.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [ModuleSlotId] — no spans. */
+/// [VisitSpanMut] impl for [ModuleSlotId] — no spans.
 // impl VisitSpanMut for ModuleSlotId
 internal fun ModuleSlotId.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [CompareOp] — no spans. */
+/// [VisitSpanMut] impl for [CompareOp] — no spans.
 // impl VisitSpanMut for CompareOp
 internal fun CompareOp.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for boxed values — delegates to inner. */
+/// [VisitSpanMut] impl for boxed values — delegates to inner.
 // impl<V: VisitSpanMut> VisitSpanMut for Box<V>
 internal fun <V : VisitSpanMut> V.visitSpansMutBoxed(visitor: (FrameSpan) -> FrameSpan) {
     visitSpans(visitor)
 }
 
-/** [VisitSpanMut] impl for [FrozenValueTyped] — no spans. */
+/// [VisitSpanMut] impl for [FrozenValueTyped] — no spans.
 // impl<T: StarlarkValue<'static>> VisitSpanMut for FrozenValueTyped<'static, T>
 internal fun <T : StarlarkValue> FrozenValueTyped<T>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [FrozenRef] — no spans. */
+/// [VisitSpanMut] impl for [FrozenRef] — no spans.
 // impl<T> VisitSpanMut for FrozenRef<'static, T>
 internal fun <T> FrozenRef<T>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [Symbol] — no spans. */
+/// [VisitSpanMut] impl for [Symbol] — no spans.
 // impl VisitSpanMut for Symbol
 internal fun Symbol.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [Pair] (2-tuple). */
+/// [VisitSpanMut] impl for [Pair] (2-tuple).
 // impl<A: VisitSpanMut, B: VisitSpanMut> VisitSpanMut for (A, B)
 internal fun <A : VisitSpanMut, B : VisitSpanMut> Pair<A, B>.visitSpansMut(
     visitor: (FrameSpan) -> FrameSpan,
@@ -101,7 +114,7 @@ internal fun <A : VisitSpanMut, B : VisitSpanMut> Pair<A, B>.visitSpansMut(
     second.visitSpans(visitor)
 }
 
-/** [VisitSpanMut] impl for [Triple] (3-tuple). */
+/// [VisitSpanMut] impl for [Triple] (3-tuple).
 // impl<A: VisitSpanMut, B: VisitSpanMut, C: VisitSpanMut> VisitSpanMut for (A, B, C)
 internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut> Triple<A, B, C>.visitSpansMut(
     visitor: (FrameSpan) -> FrameSpan,
@@ -111,7 +124,7 @@ internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut> Triple<A, B,
     third.visitSpans(visitor)
 }
 
-/** [VisitSpanMut] impl for [Tuple4] (4-tuple). */
+/// [VisitSpanMut] impl for [Tuple4] (4-tuple).
 // impl<A: VisitSpanMut, B: VisitSpanMut, C: VisitSpanMut, D: VisitSpanMut> VisitSpanMut for (A, B, C, D)
 internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut, D : VisitSpanMut> Tuple4<A, B, C, D>.visitSpansMut(
     visitor: (FrameSpan) -> FrameSpan,
@@ -122,7 +135,7 @@ internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut, D : VisitSpa
     fourth.visitSpans(visitor)
 }
 
-/** [VisitSpanMut] impl for [List]. */
+/// [VisitSpanMut] impl for [List].
 // impl<V: VisitSpanMut> VisitSpanMut for Vec<V>
 internal fun <V : VisitSpanMut> MutableList<V>.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) {
     for (v in this) {
@@ -130,16 +143,16 @@ internal fun <V : VisitSpanMut> MutableList<V>.visitSpansMut(visitor: (FrameSpan
     }
 }
 
-/** [VisitSpanMut] impl for nullable (Option). */
+/// [VisitSpanMut] impl for nullable (Option).
 // impl<V: VisitSpanMut> VisitSpanMut for Option<V>
 internal fun <V : VisitSpanMut> V?.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) {
     this?.visitSpans(visitor)
 }
 
-/** [VisitSpanMut] impl for [DefRegularParamMode] — no spans. */
+/// [VisitSpanMut] impl for [DefRegularParamMode] — no spans.
 // impl VisitSpanMut for DefRegularParamMode
 internal fun DefRegularParamMode.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
 
-/** [VisitSpanMut] impl for [DefParamIndices] — no spans. */
+/// [VisitSpanMut] impl for [DefParamIndices] — no spans.
 // impl VisitSpanMut for DefParamIndices
 internal fun DefParamIndices.visitSpansMut(visitor: (FrameSpan) -> FrameSpan) { }
