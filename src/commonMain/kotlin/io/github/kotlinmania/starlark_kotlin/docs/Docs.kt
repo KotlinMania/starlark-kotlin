@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.iterFmtParamSpe
 /// The documentation provided by a user for a specific module, object, function, etc.
 // #[derive(Debug, Clone, PartialEq, Trace, Default, Allocative)]
 // pub struct DocString
-class DocString(
+data class DocString(
     /// The first line of a doc string. This has whitespace trimmed from it.
     val summary: String = "",
     /// The contents of a doc string that follow the summary, and a single blank line.
