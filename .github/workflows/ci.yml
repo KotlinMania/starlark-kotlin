@@ -33,9 +33,11 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
+        continue-on-error: true
         run: ./build/ast_distance/ast_distance --agent 99 --lint src
 
       - name: Task status
+        continue-on-error: true
         run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
 
       - name: Gradle configuration check
@@ -64,9 +66,11 @@ jobs:
           cmake --build build/ast_distance --config Release --parallel
 
       - name: Porting lint (non-blocking)
+        continue-on-error: true
         run: ./build/ast_distance/ast_distance --agent 99 --lint src
 
       - name: Task status
+        continue-on-error: true
         run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
 
       - name: Gradle configuration check
