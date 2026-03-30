@@ -19,27 +19,27 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-// use std::borrow::Borrow
-// use std::cmp::Ordering
-// use std::fmt
-// use std::fmt::Display
-// use std::fmt::Formatter
-// use std::hash::Hash
-// use std::hash::Hasher
-// use std::ops::Deref
-// use std::ptr
-// use std::sync::atomic
+// use std::borrow::Borrow;
+// use std::cmp::Ordering;
+// use std::fmt;
+// use std::fmt::Display;
+// use std::fmt::Formatter;
+// use std::hash::Hash;
+// use std::hash::Hasher;
+// use std::ops::Deref;
+// use std::ptr;
+// use std::sync::atomic;
 
-// use allocative::Allocative
-// use dupe::Clone_
-// use dupe::Copy_
-// use dupe::Dupe_
+// use allocative::Allocative;
+// use dupe::Clone_;
+// use dupe::Copy_;
+// use dupe::Dupe_;
 
-// use crate::values::Freeze
-// use crate::values::FreezeResult
-// use crate::values::Freezer
-// use crate::values::Trace
-// use crate::values::Tracer
+// use crate::values::Freeze;
+// use crate::values::FreezeResult;
+// use crate::values::Freezer;
+// use crate::values::Trace;
+// use crate::values::Tracer;
 
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
@@ -47,18 +47,23 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-/**
- * A [FrozenRef] is essentially a [FrozenValue],
- * and has the same memory and access guarantees as it.
- * However, this keeps the type of the type `T` of the actual
- * [FrozenValue] as a reference, allowing manipulation of the actual typed data.
- */
+/// A [`FrozenRef`] is essentially a [`FrozenValue`](crate::values::FrozenValue),
+/// and has the same memory and access guarantees as it.
+/// However, this keeps the type of the type `T` of the actual
+/// [`FrozenValue`](crate::values::FrozenValue) as a
+/// reference, allowing manipulation of the actual typed data.
 // #[derive(Clone_, Dupe_, Copy_, Debug, Allocative)]
 // #[allocative(skip)] // Data is owned by heap.
-// pub struct FrozenRef<'fv, T: 'fv + ?Sized>
+// pub struct FrozenRef<'fv, T: 'fv + ?Sized> {
+//     pub(crate) value: &'fv T,
+// }
 class FrozenRef<T>(
     internal val value: T,
 ) : Trace, Freeze<FrozenRef<T>> {
+
+    // impl<'fv, T> Default for FrozenRef<'fv, [T]>
+    // fn default() -> FrozenRef<'fv, [T]>
+    //     FrozenRef { value: &[] }
 
     // impl<'fv, T: 'fv + ?Sized> FrozenRef<'fv, T>
 
@@ -68,38 +73,37 @@ class FrozenRef<T>(
             return FrozenRef(value)
         }
 
-        // impl<'fv, T> Default for FrozenRef<'fv, [T]>
         fun <T> default(): FrozenRef<List<T>> {
             return FrozenRef(emptyList())
         }
     }
 
+    /// Returns a reference to the underlying value.
     // pub fn as_ref(self) -> &'fv T
-    /** Returns a reference to the underlying value. */
     fun asRef(): T {
         return value
     }
 
+    /// Converts `self` into a new reference that points at something reachable from the previous.
     // pub fn map<F, U: 'fv + ?Sized>(self, f: F) -> FrozenRef<'fv, U>
     // where
     //     for<'v> F: FnOnce(&'v T) -> &'v U,
-    /** Converts `self` into a new reference that points at something reachable from the previous. */
     fun <U> map(f: (T) -> U): FrozenRef<U> {
         return FrozenRef(f(value))
     }
 
+    /// Fallible map the reference to another one.
     // pub fn try_map_result<F, U: 'fv + ?Sized, E>(self, f: F) -> Result<FrozenRef<'fv, U>, E>
     // where
     //     for<'v> F: FnOnce(&'v T) -> Result<&'v U, E>,
-    /** Fallible map the reference to another one. */
     fun <U> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
         return f(value).map { FrozenRef(it) }
     }
 
+    /// Optionally map the reference to another one.
     // pub fn try_map_option<F, U: 'fv + ?Sized>(self, f: F) -> Option<FrozenRef<'fv, U>>
     // where
     //     for<'v> F: FnOnce(&'v T) -> Option<&'v U>,
-    /** Optionally map the reference to another one. */
     fun <U> tryMapOption(f: (T) -> U?): FrozenRef<U>? {
         val mapped = f(value) ?: return null
         return FrozenRef(mapped)
@@ -112,7 +116,7 @@ class FrozenRef<T>(
     }
 
     // impl<'fv, T: ?Sized> Deref for FrozenRef<'fv, T>
-    // type Target = T
+    // type Target = T;
     // fn deref(&self) -> &T
     fun deref(): T {
         return value
@@ -153,7 +157,7 @@ class FrozenRef<T>(
     }
 
     // impl<'fv, T: 'fv + ?Sized> Freeze for FrozenRef<'fv, T>
-    // type Frozen = Self
+    // type Frozen = Self;
     // fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen>
     override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<FrozenRef<T>> {
         return Result.success(this)
@@ -174,9 +178,7 @@ fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int {
     return value.compareTo(other.value)
 }
 
-/**
- * `Atomic<Option<FrozenRef<T>>>`.
- */
+/// `Atomic<Option<FrozenRef<T>>>`.
 // pub(crate) struct AtomicFrozenRefOption<T>(atomic::AtomicPtr<T>);
 @OptIn(ExperimentalAtomicApi::class)
 internal class AtomicFrozenRefOption<T>(
@@ -190,6 +192,8 @@ internal class AtomicFrozenRefOption<T>(
     override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
         // Do nothing, because `AtomicFrozenRefOption` holds `FrozenRef`.
     }
+
+    // impl<T> AtomicFrozenRefOption<T>
 
     // pub(crate) fn new(module: Option<FrozenRef<T>>) -> AtomicFrozenRefOption<T>
     companion object {

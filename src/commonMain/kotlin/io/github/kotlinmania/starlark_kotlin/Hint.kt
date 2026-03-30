@@ -1,8 +1,8 @@
-// port-lint: source src/values/layout/value_lifetimeless.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+// port-lint: source src/hint.rs
+package io.github.kotlinmania.starlark_kotlin
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,14 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+// #[cfg(rust_nightly)]
+// pub(crate) use std::intrinsics::likely;
+// #[cfg(rust_nightly)]
+// pub(crate) use std::intrinsics::unlikely;
 
-/**
- * Implemented by [Value] and [FrozenValue].
- *
- * In Rust, this trait extends `Sealed` to prevent external implementations.
- * In Kotlin, we rely on `internal` visibility instead since sealed interfaces
- * cannot be extended from a different package.
- */
-interface ValueLifetimeless : Freeze<FrozenValue>
+// #[cfg(not(rust_nightly))]
+// #[inline]
+// pub(crate) fn likely(b: bool) -> bool
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun likely(b: Boolean): Boolean {
+    return b
+}
+
+// #[cfg(not(rust_nightly))]
+// #[inline]
+// pub(crate) fn unlikely(b: bool) -> bool
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun unlikely(b: Boolean): Boolean {
+    return b
+}
