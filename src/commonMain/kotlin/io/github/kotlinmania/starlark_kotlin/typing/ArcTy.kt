@@ -19,19 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
+// use std::fmt;
+// use std::fmt::Display;
+// use std::fmt::Formatter;
+// use std::ops::Deref;
+// use std::sync::Arc;
+
+// use allocative::Allocative;
+// use dupe::Dupe;
+
+// use crate::typing::Ty;
+// use crate::typing::ty::TypeRenderConfig;
 
 // #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Allocative)]
 // enum ArcTyInner {
-//     Any,
-//     Never,
-//     Str,
-//     Int,
-//     Bool,
-//     None,
-//     Arc(Arc<Ty>),
-// }
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
     data object Any : ArcTyInner()
@@ -41,10 +42,9 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object Bool : ArcTyInner()
     data object None : ArcTyInner()
     /// Default implementation.
-    // Arc(Arc<Ty>)
+    // Arc(Arc<Ty>),
     data class Wrapped(val ty: Ty) : ArcTyInner()
 
-    // Ordering: Any < Never < Str < Int < Bool < None < Wrapped
     private fun ordinal(): kotlin.Int = when (this) {
         is Any -> 0
         is Never -> 1
@@ -65,7 +65,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
         }
     }
 
-    // impl Display for ArcTyInner
     override fun toString(): String {
         return when (this) {
             is Any -> Ty.any().toString()
@@ -101,7 +100,6 @@ class ArcTy private constructor(
     override fun toString(): String = inner.toString()
 
     // impl ArcTy
-
     companion object {
         // pub(crate) fn any() -> ArcTy
         internal fun any(): ArcTy {
@@ -142,7 +140,6 @@ class ArcTy private constructor(
         return deref()
     }
 
-    // Delegation of Ty methods (Rust auto-derefs via Deref<Target=Ty>)
     fun isAny(): Boolean = inner is ArcTyInner.Any
     fun isNever(): Boolean = inner is ArcTyInner.Never
 
@@ -151,8 +148,7 @@ class ArcTy private constructor(
         return ArcTyDisplay(this, config)
     }
 
-    // impl Deref for ArcTy
-    // fn deref(&self) -> &Ty
+    // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
     fun deref(): Ty {
         return when (val i = inner) {
             is ArcTyInner.Any -> Ty.any()
@@ -174,7 +170,6 @@ internal class ArcTyDisplay(
     private val ty: ArcTy,
     private val config: TypeRenderConfig,
 ) {
-    // impl Display for ArcTyDisplay
     override fun toString(): String {
         return ty.deref().fmtWithConfig(config)
     }
