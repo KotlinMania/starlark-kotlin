@@ -21,39 +21,39 @@ package io.github.kotlinmania.starlark_kotlin.collections
 
 //! Reuse string allocation.
 
+/// Pool of strings.
 // #[derive(Default, Debug)]
 // pub(crate) struct StringPool {
+//     /// Empty strings with (typically) non-zero capacity.
 //     strings: Vec<String>,
 // }
-/**
- * Pool of [StringBuilder] instances for reuse, reducing allocation pressure.
- *
- * Since Kotlin strings are immutable, we pool [StringBuilder] instead.
- */
+// Kotlin: Since Kotlin strings are immutable, we pool StringBuilder instead.
 internal class StringPool {
     private val builders = mutableListOf<StringBuilder>()
 
+    // impl StringPool
+
+    /// Fetch a string from the pool or create an empty one.
+    ///
+    /// It is OK to not return a string to the pool.
     // pub(crate) fn alloc(&mut self) -> String
-    /**
-     * Fetch a [StringBuilder] from the pool or create a new empty one.
-     *
-     * It is OK to not return a builder to the pool.
-     */
     fun alloc(): StringBuilder {
+        // let string = self.strings.pop().unwrap_or_default();
         val builder = if (builders.isNotEmpty()) builders.removeLast() else StringBuilder()
+        // debug_assert!(string.is_empty());
         check(builder.isEmpty()) { "Pooled builder should be empty" }
         return builder
     }
 
+    /// Return the string back to the pool.
+    ///
+    /// Only strings previously allocated with this pool should be returned,
+    /// otherwise pool may grow too much.
     // pub(crate) fn release(&mut self, mut s: String)
-    /**
-     * Return a [StringBuilder] back to the pool.
-     *
-     * Only builders previously allocated with this pool should be returned,
-     * otherwise the pool may grow too much.
-     */
     fun release(s: StringBuilder) {
+        // s.clear();
         s.clear()
+        // self.strings.push(s);
         builders.add(s)
     }
 }

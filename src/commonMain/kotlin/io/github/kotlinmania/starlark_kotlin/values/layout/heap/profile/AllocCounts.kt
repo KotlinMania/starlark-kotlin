@@ -19,7 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_c
  * limitations under the License.
  */
 
-/** Allocations counters. */
+// use std::iter::Sum;
+// use std::ops::Add;
+// use std::ops::AddAssign;
+
+// use allocative::Allocative;
+// use dupe::Dupe;
+
+/// Allocations counters.
+// #[derive(Default, Copy, Clone, Dupe, Debug, Allocative)]
+// pub(crate) struct AllocCounts {
+//     pub(crate) bytes: usize,
+//     pub(crate) count: usize,
+// }
 data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
@@ -42,6 +54,7 @@ data class AllocCounts(
     }
 
     // impl Add for AllocCounts
+    // type Output = AllocCounts;
     // fn add(self, other: AllocCounts) -> AllocCounts
     operator fun plus(other: AllocCounts): AllocCounts {
         return AllocCounts(
@@ -51,10 +64,13 @@ data class AllocCounts(
     }
 
     companion object {
-        // impl<'a> Sum<&'a AllocCounts> for AllocCounts
-        // fn sum<I>(iter: I) -> AllocCounts
-        fun sum(counts: Iterable<AllocCounts>): AllocCounts {
-            return counts.fold(AllocCounts()) { acc, x -> acc + x }
-        }
+        fun default(): AllocCounts = AllocCounts()
     }
+}
+
+// impl<'a> Sum<&'a AllocCounts> for AllocCounts
+// fn sum<I>(iter: I) -> AllocCounts
+// where I: Iterator<Item = &'a AllocCounts>
+fun Iterable<AllocCounts>.sum(): AllocCounts {
+    return fold(AllocCounts.default()) { acc, x -> acc + x }
 }

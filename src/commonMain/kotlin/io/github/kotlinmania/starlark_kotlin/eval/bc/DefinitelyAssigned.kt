@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
+// use crate::eval::runtime::slots::LocalSlotId;
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 
-/**
- * Tracker for local variables which are definitely assigned.
+/// Tracker for local variables which are definitely assigned.
  *
  * For example, when compiling a program like:
  *
@@ -37,14 +37,17 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
  * because we know for sure it is assigned: we checked that when evaluating `foo(x)`.
  */
 // #[derive(Clone, Debug, PartialEq, Eq)]
-// pub(crate) struct BcDefinitelyAssigned
+// pub(crate) struct BcDefinitelyAssigned {
+//     definitely_assigned: Vec<bool>,
+// }
 class BcDefinitelyAssigned private constructor(
-    /** Map from local variable slot to flag indicating whether it is definitely assigned
-     * at the current program point. */
+    /// Map from local variable slot to flag indicating whether it is definitely assigned
+    /// at the current program point.
     private val definitelyAssigned: BooleanArray,
 ) {
     // impl BcDefinitelyAssigned
 
+    // pub(crate) fn new(local_count: u32) -> BcDefinitelyAssigned
     constructor(localCount: Int) : this(BooleanArray(localCount))
 
     /** Is local variable definitely assigned at given program point? */

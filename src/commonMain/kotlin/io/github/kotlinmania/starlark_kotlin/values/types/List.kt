@@ -1,8 +1,8 @@
-// port-lint: source src/eval/bc/for_loop.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+// port-lint: source src/values/types/list.rs
+package io.github.kotlinmania.starlark_kotlin.values.types.list
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-/**
- * Depth of the loop. For example,
- *
- * ```text
- * def foo():
- *   for i in range(10): # depth 0
- *     for j in range(20): # depth 1
- *       pass
- * ```
- */
-data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
-    override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
-    override fun toString(): String = depth.toString()
-}
+//! The list type, a mutable sequence of values.
+
+// pub(crate) mod alloc;
+// pub(crate) mod globals;
+// mod list_type;
+// pub(crate) mod methods;
+// mod refs;
+// pub(crate) mod unpack;
+// pub(crate) mod value;
+
+// pub use crate::values::types::list::alloc::AllocList;
+// pub use crate::values::types::list::list_type::ListType;
+// pub use crate::values::types::list::refs::ListRef;
+// pub use crate::values::types::list::unpack::UnpackList;

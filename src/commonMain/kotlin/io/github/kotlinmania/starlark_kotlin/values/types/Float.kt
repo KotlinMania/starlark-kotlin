@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/num.rs
+// port-lint: source src/values/types/float.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
@@ -19,11 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/**
- * Helpers for numerical values.
- *
- * Submodules:
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.num.Globals] - global num functions
- * - [typecheck][io.github.kotlinmania.starlark_kotlin.values.types.num.Typecheck] - numeric type checking
- * - [value][io.github.kotlinmania.starlark_kotlin.values.types.num.Value] - numeric value types
- */
+//! The floating point number type (3.14, 4e2).
+
+// pub(crate) mod float;
+// pub(crate) mod globals;
+// pub(crate) mod unpack;
+
+// pub use crate::values::types::float::float::StarlarkFloat;
+// pub use crate::values::types::float::unpack::UnpackFloat;
+internal typealias StarlarkFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+internal typealias UnpackFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.UnpackFloat

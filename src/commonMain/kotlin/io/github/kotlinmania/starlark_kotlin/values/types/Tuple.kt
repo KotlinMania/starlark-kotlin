@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/**
- * The tuple type, an immutable sequence of values.
- *
- * Submodules:
- * - [alloc][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Alloc] - allocation helpers
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Globals] - global tuple functions
- * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Refs] - tuple references
- * - [rustTuple][io.github.kotlinmania.starlark_kotlin.values.types.tuple.RustTuple] - Kotlin tuple bridge
- * - [unpack][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Unpack] - unpacking helpers
- * - [value][io.github.kotlinmania.starlark_kotlin.values.types.tuple.Value] - tuple value type
- */
+//! The list type, an immutable sequence of values.
 
-// Re-exports (mirrors Rust's pub use declarations)
+// pub(crate) mod alloc;
+// pub(crate) mod globals;
+// pub(crate) mod refs;
+// pub(crate) mod rust_tuple;
+// pub(crate) mod unpack;
+// pub(crate) mod value;
+
+// pub use crate::values::types::tuple::alloc::AllocTuple;
+// pub use crate::values::types::tuple::refs::FrozenTupleRef;
+// pub use crate::values::types::tuple::refs::TupleRef;
+// pub use crate::values::types::tuple::unpack::UnpackTuple;
 internal typealias AllocTupleExport<T> = io.github.kotlinmania.starlark_kotlin.values.types.tuple.AllocTuple<T>
 internal typealias FrozenTupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
 internal typealias TupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef

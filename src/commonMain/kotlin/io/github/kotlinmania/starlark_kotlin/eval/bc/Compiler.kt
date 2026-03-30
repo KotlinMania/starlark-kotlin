@@ -19,21 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-/**
- * Compile module or function to bytecode.
- *
- * This module mirrors `src/eval/bc/compiler.rs` which declares submodules.
- *
- * ## Submodules
- *
- * | Rust submodule    | Kotlin package                        |
- * |-------------------|---------------------------------------|
- * | `assign`          | `eval.bc.compiler.assign`             |
- * | `assign_modify`   | `eval.bc.compiler.assign_modify`      |
- * | `call`            | `eval.bc.compiler.call`               |
- * | `compr`           | `eval.bc.compiler.compr`              |
- * | `def`             | `eval.bc.compiler.def`                |
- * | `expr`            | `eval.bc.compiler.expr`               |
- * | `if_compiler`     | `eval.bc.compiler.if_compiler`        |
- * | `stmt`            | `eval.bc.compiler.stmt`               |
- */
+//! Compile module or function to bytecode.
+
+// pub(crate) mod assign;
+// pub(crate) mod assign_modify;
+// pub(crate) mod call;
+// pub(crate) mod compr;
+// pub(crate) mod def;
+// pub(crate) mod expr;
+// pub(crate) mod if_compiler;
+// pub(crate) mod stmt;

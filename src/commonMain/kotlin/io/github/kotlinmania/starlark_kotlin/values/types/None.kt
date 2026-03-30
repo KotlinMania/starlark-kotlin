@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/set.rs
+// port-lint: source src/values/types/none.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
@@ -19,16 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/**
- * The set type.
- *
- * Submodules:
- * - [methods][io.github.kotlinmania.starlark_kotlin.values.types.set.Methods] - set methods
- * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.set.Refs] - set references (SetRef, SetMut)
- * - [set][io.github.kotlinmania.starlark_kotlin.values.types.set.Set] - set globals
- * - [value][io.github.kotlinmania.starlark_kotlin.values.types.set.Value] - set value type
- */
+//! The `None` type.
 
-// Re-exports (mirrors Rust's pub use declarations)
-internal typealias SetMutExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetMut
-internal typealias SetRefExport = io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
+// pub(crate) mod globals;
+// mod none_or;
+// pub(crate) mod none_type;
+
+// pub use none_or::NoneOr;
+// pub use none_type::NoneType;
+internal typealias NoneOrExport = io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr<*>
+internal typealias NoneTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType

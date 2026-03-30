@@ -19,20 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/**
- * The integer type.
- *
- * For small values, we try not to allocate on the [Heap][io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap],
- * but instead use special values. If the value doesn't fit in the special representation,
- * we use BigInt to store it.
- *
- * Submodules:
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.int.Globals] - global int functions
- * - [i32][io.github.kotlinmania.starlark_kotlin.values.types.int.I32] - 32-bit int operations
- * - [inlineInt][io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt] - inline int representation
- * - [intOrBig][io.github.kotlinmania.starlark_kotlin.values.types.int.IntOrBig] - int or big int union
- * - [pointerI32][io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32] - pointer-based i32
- */
+//! The integer type.
+//!
+//! For small values, we try not to allocate on the [`Heap`](crate::values::Heap),
+//! but instead use special values. If the value doesn't fit in the special representation,
+//! we use [`BigInt`](num_bigint::BigInt) to store it.
 
-// Re-export public API (mirrors Rust's `pub use pointer_i32::INT_TYPE`)
+// pub(crate) mod globals;
+// mod i32;
+// pub(crate) mod inline_int;
+// pub(crate) mod int_or_big;
+// pub(crate) mod pointer_i32;
+// mod tests;
+
+// pub use pointer_i32::INT_TYPE;
 internal val INT_TYPE = io.github.kotlinmania.starlark_kotlin.values.types.int.INT_TYPE

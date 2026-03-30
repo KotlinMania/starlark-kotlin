@@ -19,6 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
+// use std::ops::Sub;
+// use std::time::Duration;
+
+// use allocative::Allocative;
+
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
@@ -30,10 +35,11 @@ import kotlin.time.toDuration
 //     #[cfg(not(test))] std::time::Instant,
 //     #[cfg(test)] u64, // Millis.
 // );
-// Kotlin: uses kotlin.time.TimeSource.Monotonic for real time.
 internal class ProfilerInstant private constructor(
     private val nanos: Long,
 ) : Comparable<ProfilerInstant> {
+
+    // impl ProfilerInstant
 
     companion object {
         // #[cfg(test)]
@@ -53,6 +59,10 @@ internal class ProfilerInstant private constructor(
     // #[inline]
     // pub(crate) fn duration_since(&self, earlier: ProfilerInstant) -> Duration
     fun durationSince(earlier: ProfilerInstant): Duration {
+        // #[cfg(not(test))]
+        // self.0.duration_since(earlier.0)
+        // #[cfg(test)]
+        // Duration::from_millis(self.0.checked_sub(earlier.0).unwrap())
         val diffNanos = nanos - earlier.nanos
         require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
         return diffNanos.toDuration(DurationUnit.NANOSECONDS)
@@ -61,30 +71,32 @@ internal class ProfilerInstant private constructor(
     // #[inline]
     // pub(crate) fn elapsed(&self) -> Duration
     fun elapsed(): Duration {
+        // #[cfg(not(test))]
+        // self.0.elapsed()
+        // #[cfg(test)]
+        // ProfilerInstant::now().duration_since(*self)
         return now().durationSince(this)
     }
 
     // impl Sub for ProfilerInstant
-    // fn sub(self, rhs: Self) -> Duration
+    // type Output = Duration;
+    // #[inline]
+    // fn sub(self, rhs: Self) -> Self::Output
     operator fun minus(rhs: ProfilerInstant): Duration {
         return durationSince(rhs)
     }
 
-    // impl Ord for ProfilerInstant
     override fun compareTo(other: ProfilerInstant): Int {
         return nanos.compareTo(other.nanos)
     }
 
-    // impl PartialEq for ProfilerInstant
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ProfilerInstant) return false
         return nanos == other.nanos
     }
 
-    // impl Hash for ProfilerInstant
     override fun hashCode(): Int = nanos.hashCode()
 
-    // impl Debug for ProfilerInstant
     override fun toString(): String = "ProfilerInstant(nanos=$nanos)"
 }

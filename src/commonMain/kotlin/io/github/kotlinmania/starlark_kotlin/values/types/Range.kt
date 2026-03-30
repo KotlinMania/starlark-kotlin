@@ -1,5 +1,5 @@
-// port-lint: source src/eval/soft_error.rs
-package io.github.kotlinmania.starlark_kotlin.eval
+// port-lint: source src/values/types/range.rs
+package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,18 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval
  * limitations under the License.
  */
 
-/** Deprecation handler provided by a user. */
-interface SoftErrorHandler {
-    /**
-     * Handle deprecation error. If this function returns normally, the error will be ignored,
-     * otherwise the error will be propagated.
-     */
-    fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error)
-}
+//! The range type, constructed with `range()`.
 
-/** Default handler: warnings are treated as errors. */
-internal object HardErrorSoftErrorHandler : SoftErrorHandler {
-    override fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error) {
-        throw error
-    }
-}
+// pub(crate) mod globals;
+// mod range_type;
+
+// pub use range_type::Range;
+internal typealias RangeExport = io.github.kotlinmania.starlark_kotlin.values.types.range.Range

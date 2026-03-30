@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/float.rs
+// port-lint: source src/values/types/string.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
 
 /*
@@ -19,15 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-/**
- * The floating point number type (3.14, 4e2).
- *
- * Submodules:
- * - [float][io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat] - StarlarkFloat type
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.float.Globals] - global float functions
- * - [unpack][io.github.kotlinmania.starlark_kotlin.values.types.float.Unpack] - float unpacking
- */
+//! The string type. All strings must be valid UTF8.
 
-// Re-exports (mirrors Rust's `pub use` declarations)
-internal typealias StarlarkFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-internal typealias UnpackFloatExport = io.github.kotlinmania.starlark_kotlin.values.types.float.UnpackFloat
+// mod alloc_unpack;
+// pub(crate) mod dot_format;
+// pub(crate) mod globals;
+// pub(crate) mod intern;
+// pub(crate) mod interpolation;
+// pub(crate) mod iter;
+// pub(crate) mod methods;
+// pub(crate) mod repr;
+// pub(crate) mod simd;
+// pub(crate) mod str_type;
+
+// pub use crate::values::types::string::str_type::STRING_TYPE;
+// pub use crate::values::types::string::str_type::StarlarkStr;
+internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark_kotlin.values.types.string.STRING_TYPE
+internal typealias StarlarkStrExport = io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
