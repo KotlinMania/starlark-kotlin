@@ -1,6 +1,5 @@
 // port-lint: source src/__derive_refs.rs
-@file:Suppress("unused")
-
+@file:Suppress("unused", "ObjectPropertyName")
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -21,35 +20,26 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-/**
- * `__derive_refs` allows us to reference other crates in starlark_derive without users needing
- * to be aware of those dependencies. We make them public here and then can reference them like
- * `starlark::__derive_refs::foo`.
- *
- * This module mirrors `src/__derive_refs.rs`.
- *
- * ## Submodules
- *
- * | Rust submodule          | Kotlin package                          |
- * |-------------------------|-----------------------------------------|
- * | `components`            | `derive_refs.components`                |
- * | `invoke_macro_error`    | `derive_refs.invoke_macro_error`        |
- * | `param_spec`            | `derive_refs.param_spec`                |
- * | `parse_args`            | `derive_refs.parse_args`                |
- * | `sig`                   | `derive_refs.sig`                       |
- *
- * ## Public re-exports (`pub use`)
- *
- * ```rust
- * pub use inventory;
- * pub use crate::values::layout::avalues::simple::AValueSimple;
- * pub use crate::values::layout::vtable::AValueVTable;
- * ```
- */
+// #![doc(hidden)]
 
-/**
- * Module marker for __derive_refs.
- *
- * See [DeriveRefsModule][io.github.kotlinmania.starlark_kotlin.__derive_refs.DeriveRefsModule]
- * for the canonical module marker in the __derive_refs package.
- */
+/// __derive_refs allows us to reference other crates in starlark_derive without users needing to be
+///  aware of those dependencies. We make them public here and then can reference them like
+///  `starlark::__derive_refs::foo`.
+
+// pub mod serde { ... }
+internal val serde = "serde"
+// pub use inventory;
+internal val inventory = "inventory"
+// pub mod components;
+internal val components = "components"
+// pub mod invoke_macro_error;
+internal val invoke_macro_error = "invoke_macro_error"
+// pub mod param_spec;
+internal val param_spec = "param_spec"
+// pub mod parse_args;
+internal val parse_args = "parse_args"
+// pub mod sig;
+internal val sig = "sig"
+
+// pub use crate::values::layout::avalues::simple::AValueSimple;
+// pub use crate::values::layout::vtable::AValueVTable;

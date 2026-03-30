@@ -1,9 +1,9 @@
-// port-lint: source src/values/typing/type_compiled.rs
+// port-lint: source src/tests/bc.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -20,19 +20,23 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-internal val alloc = "alloc"
-// pub(crate) mod compiled;
-internal val compiled = "compiled"
-// pub(crate) mod factory;
-internal val factory = "factory"
-// pub(crate) mod globals;
-internal val globals = "globals"
-// pub(crate) mod matcher;
-internal val matcher = "matcher"
-// pub(crate) mod matchers;
-internal val matchers = "matchers"
-// pub(crate) mod tests;
-internal val tests = "tests"
-// pub(crate) mod type_matcher_factory;
-internal val type_matcher_factory = "type_matcher_factory"
+/// Bytecode generation tests.
+
+// mod and_or;
+internal val and_or = "and_or"
+// mod call;
+internal val call = "call"
+// mod compr;
+internal val compr = "compr"
+// mod definitely_assigned;
+internal val definitely_assigned = "definitely_assigned"
+// mod expr;
+internal val expr = "expr"
+// mod for_stmt;
+internal val for_stmt = "for_stmt"
+// pub(crate) mod golden;
+internal val golden = "golden"
+// mod if_stmt;
+internal val if_stmt = "if_stmt"
+// mod isinstance;
+internal val isinstance = "isinstance"

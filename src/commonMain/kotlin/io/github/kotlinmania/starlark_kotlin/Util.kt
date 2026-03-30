@@ -1,9 +1,9 @@
-// port-lint: source src/values/typing/type_compiled.rs
+// port-lint: source src/util.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark_kotlin
 
 /*
- * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -20,19 +20,17 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-internal val alloc = "alloc"
-// pub(crate) mod compiled;
-internal val compiled = "compiled"
-// pub(crate) mod factory;
-internal val factory = "factory"
-// pub(crate) mod globals;
-internal val globals = "globals"
-// pub(crate) mod matcher;
-internal val matcher = "matcher"
-// pub(crate) mod matchers;
-internal val matchers = "matchers"
-// pub(crate) mod tests;
-internal val tests = "tests"
-// pub(crate) mod type_matcher_factory;
-internal val type_matcher_factory = "type_matcher_factory"
+/// Utilities.
+
+// pub(crate) mod arc_or_static;
+internal val arc_or_static = "arc_or_static"
+// pub(crate) mod arc_str;
+internal val arc_str = "arc_str"
+// pub(crate) mod non_static_type_id;
+internal val non_static_type_id = "non_static_type_id"
+// pub(crate) mod refcell;
+internal val refcell = "refcell"
+// pub(crate) mod rtabort;
+internal val rtabort = "rtabort"
+
+// pub use crate::util::arc_str::ArcStr;

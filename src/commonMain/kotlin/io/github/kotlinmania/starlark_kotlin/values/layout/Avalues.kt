@@ -1,6 +1,6 @@
-// port-lint: source src/values/typing/type_compiled.rs
+// port-lint: source src/values/layout/avalues.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,19 +20,17 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-internal val alloc = "alloc"
-// pub(crate) mod compiled;
-internal val compiled = "compiled"
-// pub(crate) mod factory;
-internal val factory = "factory"
-// pub(crate) mod globals;
-internal val globals = "globals"
-// pub(crate) mod matcher;
-internal val matcher = "matcher"
-// pub(crate) mod matchers;
-internal val matchers = "matchers"
-// pub(crate) mod tests;
-internal val tests = "tests"
-// pub(crate) mod type_matcher_factory;
-internal val type_matcher_factory = "type_matcher_factory"
+// pub(crate) mod array;
+internal val array = "array"
+// pub(crate) mod complex;
+internal val complex = "complex"
+// pub(crate) mod list;
+internal val list = "list"
+// pub(crate) mod simple;
+internal val simple = "simple"
+// pub(crate) mod static_;
+internal val static_ = "static_"
+// pub(crate) mod str_;
+internal val str_ = "str_"
+// pub(crate) mod tuple;
+internal val tuple = "tuple"

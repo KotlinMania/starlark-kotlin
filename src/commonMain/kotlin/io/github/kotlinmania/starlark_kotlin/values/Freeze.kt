@@ -321,7 +321,7 @@ fun <K, V, FK, FV> freezeSmallMap(
         val hash = key.hash()
         val frozenKey = freezeKey(key.intoKey(), freezer)
         if (frozenKey.isFailure) return Result.failure(frozenKey.exceptionOrNull()!!)
-        // TODO(nga): verify hash unchanged after freeze.
+        // nga: verify hash unchanged after freeze.
         val hashedKey = Hashed.newUnchecked(hash, frozenKey.getOrThrow())
         val frozenValue = freezeValue(value, freezer)
         if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
@@ -348,7 +348,7 @@ fun <T, F> freezeSmallSet(
     for (value in self.intoIterHashed()) {
         val frozenValue = freezeHashed(value, freezer, freezeElement)
         if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
-        // TODO(nga): verify hash unchanged after freeze.
+        // nga: verify hash unchanged after freeze.
         new.insertHashedUniqueUnchecked(frozenValue.getOrThrow())
     }
     return Result.success(new)

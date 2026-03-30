@@ -1,6 +1,6 @@
-// port-lint: source src/values/typing/type_compiled.rs
+// port-lint: source src/analysis/unused_loads.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark_kotlin.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,19 +20,11 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-// pub(crate) mod alloc;
-internal val alloc = "alloc"
-// pub(crate) mod compiled;
-internal val compiled = "compiled"
-// pub(crate) mod factory;
-internal val factory = "factory"
-// pub(crate) mod globals;
-internal val globals = "globals"
-// pub(crate) mod matcher;
-internal val matcher = "matcher"
-// pub(crate) mod matchers;
-internal val matchers = "matchers"
-// pub(crate) mod tests;
-internal val tests = "tests"
-// pub(crate) mod type_matcher_factory;
-internal val type_matcher_factory = "type_matcher_factory"
+// pub(crate) mod find;
+internal val find = "find"
+// mod find_tests;
+internal val find_tests = "find_tests"
+// pub(crate) mod remove;
+internal val remove = "remove"
+// mod remove_tests;
+internal val remove_tests = "remove_tests"

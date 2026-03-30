@@ -1,4 +1,5 @@
 // port-lint: source src/collections.rs
+@file:Suppress("unused", "ObjectPropertyName")
 package io.github.kotlinmania.starlark_kotlin.collections
 
 /*
@@ -19,24 +20,28 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-/**
- * Defines [`SmallMap`] and [`SmallSet`] - collections with deterministic iteration and small
- * memory footprint.
- *
- * These structures use vector backed storage if there are only a few elements, and an index
- * for larger collections. The API mirrors standard Rust collections.
- */
+/// Defines [`SmallMap`] and [`SmallSet`] - collections with deterministic iteration and small memory footprint.
+///
+/// These structures use vector backed storage if there are only a few elements, and and index
+/// for larger collections. The API mirrors standard Rust collections.
 
-typealias Equivalent<T> = starlark_map.Equivalent<T>
-typealias Hashed<K> = starlark_map.Hashed<K>
-typealias StarlarkHashValue = starlark_map.StarlarkHashValue
-typealias StarlarkHasher = starlark_map.StarlarkHasher
-
-typealias SmallMap<K, V> = starlark_map.small_map.SmallMap<K, V>
-typealias SmallSet<T> = starlark_map.small_set.SmallSet<T>
+// pub use starlark_map::Equivalent;
+// pub use starlark_map::Hashed;
+// pub use starlark_map::StarlarkHashValue;
+// pub use starlark_map::StarlarkHasher;
+// pub use starlark_map::small_map::IntoIter;
+// pub use starlark_map::small_map::Iter;
+// pub use starlark_map::small_map::IterMut;
+// pub use starlark_map::small_map::SmallMap;
+// pub use starlark_map::small_set::SmallSet;
 
 // pub(crate) mod aligned_padded_str;
+internal val aligned_padded_str = "aligned_padded_str"
 // pub(crate) mod alloca;
+internal val alloca = "alloca"
 // pub(crate) mod maybe_uninit_backport;
+internal val maybe_uninit_backport = "maybe_uninit_backport"
 // pub(crate) mod string_pool;
+internal val string_pool = "string_pool"
 // pub(crate) mod symbol;
+internal val symbol = "symbol"
