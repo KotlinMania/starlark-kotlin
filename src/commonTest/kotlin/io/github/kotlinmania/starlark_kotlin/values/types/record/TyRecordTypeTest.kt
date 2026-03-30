@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/record/ty_record_type.rs
+// port-lint: source src/values/types/record/ty_record_type.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 /*
@@ -19,51 +19,120 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 
-/// Integration tests for record types.
-///
-/// The Rust tests use `assert::pass` and `assert::fail_golden` to evaluate
-/// Starlark programs inline. These tests verify the same behavior once
-/// the Starlark evaluator is fully ported.
 class TyRecordTypeTest {
 
+    // #[test]
+    // fn test_good()
     @Test
-    fun testTyRecordDataClassExists() {
-        // Verify TyRecordData class is available.
-        // Full construction requires Ty (private constructor) and ParametersSpec.
-        // The real Rust tests (test_good, test_fail_compile_time, etc.) require
-        // the Starlark evaluator and assert infrastructure.
-        assertNotNull(Ty.any())
+    fun testGood() {
+        Assert.pass(
+            """
+MyRec = record(x = int)
+
+def foo(x: MyRec): pass
+
+foo(MyRec(x = 1))
+            """.trimIndent(),
+        )
     }
 
-    // Rust: fn test_good()
-    // assert::pass("MyRec = record(x = int)\ndef foo(x: MyRec): pass\nfoo(MyRec(x = 1))")
-    // Requires: Starlark evaluator + assert::pass
+    // #[test]
+    // fn test_fail_compile_time()
+    @Test
+    fun testFailCompileTime() {
+        Assert.failGolden(
+            "src/values/types/record/ty_record_type/fail_compile_time.golden",
+            """
+MyRec = record(x = int)
+WrongRec = record(x = int)
 
-    // Rust: fn test_fail_compile_time()
-    // assert::fail_golden("...fail_compile_time.golden", "...")
-    // Requires: Starlark evaluator + assert::fail_golden
+def foo(x: MyRec): pass
 
-    // Rust: fn test_fail_runtime_time()
-    // assert::fail_golden("...fail_runtime_time.golden", "...")
-    // Requires: Starlark evaluator + assert::fail_golden
+def bar():
+    foo(WrongRec(x = 1))
+            """.trimIndent(),
+        )
+    }
 
-    // Rust: fn test_record_instance_typechecker_ty()
-    // assert::pass("...")
-    // Requires: Starlark evaluator + assert::pass
+    // #[test]
+    // fn test_fail_runtime_time()
+    @Test
+    fun testFailRuntimeTime() {
+        Assert.failGolden(
+            "src/values/types/record/ty_record_type/fail_runtime_time.golden",
+            """
+MyRec = record(x = int)
+WrongRec = record(x = int)
 
-    // Rust: fn test_typecheck_field_pass()
-    // assert::pass("...")
-    // Requires: Starlark evaluator + assert::pass
+def foo(x: MyRec): pass
 
-    // Rust: fn test_typecheck_field_fail()
-    // assert::fail_golden("...typecheck_field_fail.golden", "...")
-    // Requires: Starlark evaluator + assert::fail_golden
+noop(foo)(WrongRec(x = 1))
+            """.trimIndent(),
+        )
+    }
 
-    // Rust: fn test_typecheck_record_type_call()
-    // assert::fail_golden("...typecheck_record_type_call.golden", "...")
-    // Requires: Starlark evaluator + assert::fail_golden
+    // #[test]
+    // fn test_record_instance_typechecker_ty()
+    @Test
+    fun testRecordInstanceTypecheckerTy() {
+        Assert.pass(
+            """
+MyRec = record(x = int)
+X = MyRec(x = 1)
+
+def foo() -> MyRec:
+    # This fails if record instance does not override typechecker_ty.
+    return X
+            """.trimIndent(),
+        )
+    }
+
+    // #[test]
+    // fn test_typecheck_field_pass()
+    @Test
+    fun testTypecheckFieldPass() {
+        Assert.pass(
+            """
+MyRec = record(x = int, y = int)
+
+def f(rec: MyRec) -> int:
+    return rec.x + rec.y
+
+assert_eq(f(MyRec(x = 1, y = 2)), 3)
+            """.trimIndent(),
+        )
+    }
+
+    // #[test]
+    // fn test_typecheck_field_fail()
+    @Test
+    fun testTypecheckFieldFail() {
+        Assert.failGolden(
+            "src/values/types/record/ty_record_type/typecheck_field_fail.golden",
+            """
+MyRec = record(x = int, y = int)
+
+def f(rec: MyRec) -> int:
+    return rec.z
+            """.trimIndent(),
+        )
+    }
+
+    // #[test]
+    // fn test_typecheck_record_type_call()
+    @Test
+    fun testTypecheckRecordTypeCall() {
+        Assert.failGolden(
+            "src/values/types/record/ty_record_type/typecheck_record_type_call.golden",
+            """
+MyRec = record(x = int)
+
+def test():
+    MyRec(x = "")
+            """.trimIndent(),
+        )
+    }
 }
