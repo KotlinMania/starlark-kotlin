@@ -19,35 +19,39 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
+// use crate::typing::Ty;
+// use crate::values::UnpackValue;
+// use crate::values::Value;
+// use crate::values::type_repr::StarlarkTypeRepr;
+// use crate::values::types::num::value::Num;
+// use crate::values::types::num::value::NumRef;
+
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 
-/**
- * Unpack `int` or `float` into `Double`.
- *
- * Rust: `pub struct UnpackFloat(pub f64)`
- */
+/// Unpack `int` or `float` into `f64`.
+// pub struct UnpackFloat(pub f64);
 class UnpackFloat(val value: Double) : StarlarkTypeRepr {
 
     // impl StarlarkTypeRepr for UnpackFloat
-    // type Canonical = <Num as StarlarkTypeRepr>::Canonical;
-    // Num is a union of Int and Float, so the type repr is int | float.
+    //     type Canonical = <Num as StarlarkTypeRepr>::Canonical;
+    //     fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty {
         return Ty.union2(Ty.int(), Ty.float())
     }
 
     companion object : UnpackValue<UnpackFloat> {
 
-        // impl StarlarkTypeRepr for UnpackFloat (static delegation)
         override fun starlarkTypeRepr(): Ty {
             return Ty.union2(Ty.int(), Ty.float())
         }
 
-        // impl<'v> UnpackValue<'v> for UnpackFloat
-        // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
+        // impl<'v> UnpackValue<'v> for UnpackFloat {
+        //     type Error = <NumRef<'v> as UnpackValue<'v>>::Error;
+        //     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
         override fun unpackValueImpl(value: Value): Result<UnpackFloat?> {
             val num = NumRef.unpackValueImpl(value) ?: return Result.success(null)
             return Result.success(UnpackFloat(num.asFloat()))
@@ -55,4 +59,7 @@ class UnpackFloat(val value: Double) : StarlarkTypeRepr {
     }
 }
 
-// #[cfg(test)] mod tests -- see UnpackTest.kt in commonTest
+// #[cfg(test)]
+// mod tests {
+//     fn test_unpack_float()
+// }

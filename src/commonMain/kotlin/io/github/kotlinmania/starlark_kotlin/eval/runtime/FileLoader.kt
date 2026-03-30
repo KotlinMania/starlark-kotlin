@@ -19,44 +19,58 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader
  * limitations under the License.
  */
 
-/**
- * Define variants of the evaluation function with different support
- * for the `load(...)` statement.
- */
+//! Define variants of the evaluation function with different support
+//! for the `load(...)` statement.
+
+// use std::collections::HashMap;
+
+// use dupe::Dupe;
+
+// use crate::environment::FrozenModule;
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 
-/** A trait for turning a `path` given by a `load()` statement into a [FrozenModule]. */
+/// A trait for turning a `path` given by a `load()` statement into a [`FrozenModule`].
+// pub trait FileLoader {
 interface FileLoader {
-    /** Open the file given by the load statement `path`. */
+    /// Open the file given by the load statement `path`.
+    // fn load(&self, path: &str) -> crate::Result<FrozenModule>;
     fun load(path: String): FrozenModule
 }
 
-/**
- * [FileLoader] that looks up modules by name from a map.
- *
- * A list of all load statements can be obtained through
- * `AstModule.loads`.
- * This struct will raise an error if any requested files are not available.
- */
+/// [`FileLoader`] that looks up modules by name from a [`HashMap`].
+///
+/// A list of all load statements can be obtained through
+/// [`AstModule::loads`](crate::syntax::AstModule::loads).
+/// This struct will raise an error if any requested files are not available.
+// pub struct ReturnFileLoader<'a> {
+//     pub modules: &'a HashMap<&'a str, &'a FrozenModule>,
+// }
 class ReturnFileLoader(
-    /** Map from module name (first argument to `load` statement) to the actual module. */
+    /// Map from module name (first argument to `load` statement) to the actual module.
     val modules: Map<String, FrozenModule>,
 ) : FileLoader {
 
-    // impl FileLoader for ReturnFileLoader
+    // impl<'a> FileLoader for ReturnFileLoader<'a>
+    //     fn load(&self, path: &str) -> crate::Result<FrozenModule>
     override fun load(path: String): FrozenModule {
         return modules[path]
             ?: error("ReturnFileLoader does not know the module `$path`")
     }
 }
 
-/** Same as [ReturnFileLoader], but owns its modules. */
+/// Same as [`ReturnFileLoader`], but does not require fighting the borrow checker.
+// #[cfg(test)]
+// pub(crate) struct ReturnOwnedFileLoader {
+//     pub(crate) modules: HashMap<String, FrozenModule>,
+// }
 internal class ReturnOwnedFileLoader(
     val modules: Map<String, FrozenModule>,
 ) : FileLoader {
 
+    // #[cfg(test)]
     // impl FileLoader for ReturnOwnedFileLoader
+    //     fn load(&self, path: &str) -> crate::Result<FrozenModule>
     override fun load(path: String): FrozenModule {
         return modules[path]
             ?: error("ReturnOwnedFileLoader does not know the module `$path`")

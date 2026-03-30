@@ -19,11 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
  * limitations under the License.
  */
 
+// use std::mem::MaybeUninit;
+// use std::ptr::NonNull;
+
+// use crate::values::layout::value_alloc_size::ValueAllocSize;
+
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 
-/// Direction of chunk allocation within an arena allocator.
-///
-/// pub(crate) enum ChunkAllocationDirection
+// pub(crate) enum ChunkAllocationDirection {
 enum class ChunkAllocationDirection {
     /// Next allocation in the chunk has higher address than the previous one.
     Up,
@@ -32,11 +35,7 @@ enum class ChunkAllocationDirection {
 }
 
 /// Fast memory allocator for the heap.
-///
-/// In Rust this is a trait with associated types and const generics.
-/// In Kotlin we model it as an interface.
-///
-/// pub(crate) trait ArenaAllocator
+// pub(crate) trait ArenaAllocator {
 internal interface ArenaAllocator {
     /// Number of bytes allocated by this allocator.
     ///
@@ -45,26 +44,33 @@ internal interface ArenaAllocator {
     /// * padding
     /// * reserved but not yet allocated space
     /// * does not include metadata
+    // fn allocated_bytes(&self) -> usize;
     fun allocatedBytes(): Int
 
     /// Number of bytes reserved but not yet allocated by this allocator.
+    // fn remaining_capacity(&self) -> usize;
     fun remainingCapacity(): Int
 
     /// Estimate the size of allocated metadata.
+    // fn allocation_overhead(&self) -> usize;
     fun allocationOverhead(): Int
 
     /// Allocate given number of words.
-    /// In Rust returns `NonNull<u8>`. In Kotlin returns an opaque allocation handle.
+    // fn alloc(&self, size: ValueAllocSize) -> NonNull<u8>;
     fun alloc(size: ValueAllocSize): Any
 
-    /// This allocator's chunk allocation direction.
+    /// This allocator chunk allocation direction.
+    // const CHUNK_ALLOCATION_DIRECTION: ChunkAllocationDirection;
     val chunkAllocationDirection: ChunkAllocationDirection
 
+    // type ChunkRevIterator<'a>: Iterator<Item = &'a [MaybeUninit<u8>]>
+    // where Self: 'a;
+
     /// Iterate allocated chunks in the reverse order.
-    /// In Rust this returns an associated type `ChunkRevIterator<'a>: Iterator<Item = &'a [MaybeUninit<u8>]>`.
-    /// In Kotlin, we use a sequence of ByteArray.
+    // unsafe fn iter_allocated_chunks_rev(&self) -> Self::ChunkRevIterator<'_>;
     fun iterAllocatedChunksRev(): Sequence<ByteArray>
 
     /// No more allocation, reclaim memory if possible.
+    // fn finish(&mut self);
     fun finish()
 }
