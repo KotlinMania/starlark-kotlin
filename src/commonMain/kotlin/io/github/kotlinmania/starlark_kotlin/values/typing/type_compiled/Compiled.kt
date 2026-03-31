@@ -103,7 +103,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     }
 
     override fun provide(demand: Demand) {
-        // demand.provideRefStatic<TypeCompiledDyn>(this)
+        demand.provideRefStatic(this)
     }
 
     override fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
