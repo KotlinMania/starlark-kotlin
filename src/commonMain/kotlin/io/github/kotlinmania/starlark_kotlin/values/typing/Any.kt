@@ -33,6 +33,7 @@ internal class TypingAny : StarlarkValue, AllocFrozenValue {
 
     // #[starlark_value(type = "typing.Any")]
     override val TYPE: String get() = Companion.TYPE
+    override val HAS_eval_type: Boolean get() = true
 
     companion object {
         /** Constant type name, equivalent to Rust's `TypingAny::TYPE`. */

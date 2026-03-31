@@ -294,8 +294,8 @@ class MethodsBuilder private constructor(
  * usually written as:
  *
  * ```
- * fun myMethods(_builder: MethodsBuilder) {
- *     // define foo here
+ * fun myMethods(builder: MethodsBuilder) {
+ *     builder.setMethod("foo", NativeFunc.new(...))
  * }
  *
  * // In your StarlarkValue implementation:

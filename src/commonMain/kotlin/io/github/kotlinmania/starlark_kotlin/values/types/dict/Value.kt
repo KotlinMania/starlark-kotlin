@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
@@ -59,6 +60,8 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
     }
 
     override val TYPE: String get() = Dict.TYPE
+    override val HAS_iterate: Boolean get() = true
+    override val HAS_equals: Boolean get() = true
 
     override fun trace(tracer: Tracer) {
         // DictGen delegates tracing to its inner value if it implements Trace
@@ -241,8 +244,17 @@ class Dict(
         }
     }
 
-    override fun trace(_tracer: Tracer) {
-        // Trace all keys and values in the content map
+    override fun trace(tracer: Tracer) {
+        // Trace all keys and values in the content map.
+        // In Rust, #[derive(Trace)] on DictGen walks the SmallMap entries.
+        // We need to update each Value through a ValueHolder.
+        for (entry in content.entries) {
+            val keyHolder = ValueHolder(entry.key.key())
+            tracer.trace(keyHolder)
+            val valueHolder = ValueHolder(entry.value)
+            tracer.trace(valueHolder)
+            entry.value = valueHolder.value
+        }
     }
 
     fun starlarkTypeRepr(): Ty = Ty.dict(Ty.any(), Ty.any())

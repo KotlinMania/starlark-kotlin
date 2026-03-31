@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
@@ -46,9 +47,10 @@ internal class TestComplexValue(
 
     override fun toString(): String = "TestComplexValue<$inner>"
 
-    // #[derive(Trace)]
-    override fun trace(_tracer: Tracer) {
-        // inner is a Value, traced by the GC
+    // #[derive(Trace)] — traces the inner Value field.
+    override fun trace(tracer: Tracer) {
+        val holder = ValueHolder(inner)
+        tracer.trace(holder)
     }
 
     // impl AllocValue for TestComplexValue<Value>

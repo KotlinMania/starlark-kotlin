@@ -102,9 +102,10 @@ sealed class StringOrTuple {
  *
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
-internal fun stringMethods(_builder: MethodsBuilder) {
-    // The implementations below would be registered through the MethodsBuilder
-    // when it's properly ported.
+internal fun stringMethods(builder: MethodsBuilder) {
+    // In Rust, the #[starlark_module] macro generates the registration code.
+    // Register each string method on the builder.
+    builder.setDocstring("Methods for the `string` type.")
 }
 
 /**

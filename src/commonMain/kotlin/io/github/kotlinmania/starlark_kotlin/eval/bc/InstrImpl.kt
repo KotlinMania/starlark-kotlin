@@ -941,7 +941,7 @@ object InstrDictNewImpl : InstrNoFlowImpl {
 object InstrComprListAppend : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -950,7 +950,7 @@ object InstrComprListAppend : BcInstr {
         val listVal = frame.getBcSlot(list)
         val itemVal = frame.getBcSlot(item)
         val listData = ListData.fromValueUncheckedMut(listVal)
-        listData.push(itemVal)
+        listData.push(itemVal, eval.heap())
         return InstrControl.Next(ip.addInstr(InstrComprListAppend::class))
     }
 }
@@ -1542,8 +1542,8 @@ object InstrEnd {
         _eval: Evaluator,
         _frame: BcFramePtr,
         _ip: BcPtrAddr,
-        _arg: BcInstrEndArg,
+        arg: BcInstrEndArg,
     ): InstrControl {
-        throw IllegalStateException("this instruction is not meant to be executed")
+        throw IllegalStateException("this instruction is not meant to be executed: $arg")
     }
 }

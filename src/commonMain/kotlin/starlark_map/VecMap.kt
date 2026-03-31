@@ -41,8 +41,11 @@ internal class VecMap<K, V> private constructor(
             VecMap(ArrayList(n), ArrayList(n), ArrayList(n))
     }
 
-    fun reserve(_additional: Int) {
-        // No-op in this Kotlin implementation.
+    fun reserve(additional: Int) {
+        val required = keys.size + additional
+        keys.ensureCapacity(required)
+        values.ensureCapacity(required)
+        hashes.ensureCapacity(required)
     }
 
     fun capacity(): Int = keys.size

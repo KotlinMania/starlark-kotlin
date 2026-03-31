@@ -56,7 +56,7 @@ internal class CallArgsUnpack<P : AstPayload>(
     companion object {
         fun <P : AstPayload> unpack(
             callArgs: CallArgsP<P>,
-            _codemap: CodeMap,
+            codemap: CodeMap,
         ): CallArgsUnpack<P> {
             val args = callArgs.args
             var numPos = 0
@@ -70,42 +70,54 @@ internal class CallArgsUnpack<P : AstPayload>(
                 when (arg.node) {
                     is ArgumentP.Positional -> {
                         if (stage != 0) {
-                            throw EvalException("positional argument after non positional")
+                            throw EvalException.parserError("positional argument after non positional", arg.span, codemap)
                         }
                         numPos++
                     }
                     is ArgumentP.Named -> {
                         if (stage > 1) {
-                            throw EvalException("named argument after *args or **kwargs")
+                            throw EvalException.parserError("named argument after *args or **kwargs", arg.span, codemap)
                         }
-                        val name = (arg.node as ArgumentP.Named).name.node
-                        if (!namedNames.add(name)) {
-                            throw EvalException("repeated named argument")
+                        val namedArg = arg.node as ArgumentP.Named
+                        if (!namedNames.add(namedArg.name.node)) {
+                            // Check the names are distinct
+                            throw EvalException.parserError("repeated named argument", namedArg.name.span, codemap)
                         }
                         stage = 1
                         numNamed++
                     }
                     is ArgumentP.Args -> {
                         if (stage > 1) {
-                            throw EvalException("Args array after another args or kwargs")
+                            throw EvalException.parserError("Args array after another args or kwargs", arg.span, codemap)
                         }
                         if (star != null) {
-                            throw EvalException("Multiple *args in arguments")
+                            throw EvalException.internalError("Multiple *args in arguments", arg.span, codemap)
                         }
                         stage = 2
                         star = arg
                     }
                     is ArgumentP.KwArgs -> {
                         if (stage == 3) {
-                            throw EvalException("Multiple kwargs dictionary in arguments")
+                            throw EvalException.parserError("Multiple kwargs dictionary in arguments", arg.span, codemap)
                         }
                         if (starStar != null) {
-                            throw EvalException("Multiple **kwargs in arguments")
+                            throw EvalException.internalError("Multiple **kwargs in arguments", arg.span, codemap)
                         }
                         stage = 3
                         starStar = arg
                     }
                 }
+            }
+
+            val totalAccounted = numPos + numNamed +
+                (if (star != null) 1 else 0) +
+                (if (starStar != null) 1 else 0)
+            if (totalAccounted != args.size) {
+                throw EvalException.internalError(
+                    "Argument count mismatch",
+                    Span.mergeAll(args.map { it.span }.iterator()),
+                    codemap,
+                )
             }
 
             return CallArgsUnpack(

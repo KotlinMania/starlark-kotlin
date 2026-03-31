@@ -663,8 +663,9 @@ private class CharIteratorWithPos(private val source: String, startPos: Int) {
         return c
     }
 
-    fun unnext(_c: Char) {
+    fun unnext(c: Char) {
         pos--
+        check(peek() == c)
     }
 }
 

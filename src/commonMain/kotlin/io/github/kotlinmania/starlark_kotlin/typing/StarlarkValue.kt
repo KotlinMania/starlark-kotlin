@@ -114,6 +114,10 @@ private object TyStarlarkValueVTableGet {
         typeName = "set",
         hasIterate = true, hasIterateCollect = true,
     )
+    val FUNCTION_VTABLE = TyStarlarkValueVTable(
+        typeName = "function",
+        hasInvoke = true,
+    )
 
     private val vtablesByName = mapOf(
         "int" to INT_VTABLE,
@@ -125,6 +129,7 @@ private object TyStarlarkValueVTableGet {
         "dict" to DICT_VTABLE,
         "tuple" to TUPLE_VTABLE,
         "set" to SET_VTABLE,
+        "function" to FUNCTION_VTABLE,
     )
 
     fun forType(typeName: String): TyStarlarkValueVTable {
@@ -306,13 +311,13 @@ class TyStarlarkValue private constructor(
      * Returns [Ty.any] if callable, throws if not.
      */
     internal fun validateCall(
-        _span: Span,
-        _oracle: TypingOracleCtx,
+        span: Span,
+        oracle: TypingOracleCtx,
     ): Ty {
         if (isCallable()) {
             return Ty.any()
         } else {
-            throw TyStarlarkValueError.NotCallable(this)
+            throw oracle.mkError(span, TyStarlarkValueError.NotCallable(this)).intoEvalException()
         }
     }
 

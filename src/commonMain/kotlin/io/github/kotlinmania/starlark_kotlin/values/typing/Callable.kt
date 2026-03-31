@@ -56,6 +56,7 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
 
     // #[starlark_value(type = "typing.Callable")]
     override val TYPE: String get() = "typing.Callable"
+    override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = TYPE
 
@@ -108,6 +109,7 @@ internal class TypingCallableAt2(
 
     // #[starlark_value(type = "typing.Callable")]
     override val TYPE: String get() = "typing.Callable"
+    override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = callable.toString()
 

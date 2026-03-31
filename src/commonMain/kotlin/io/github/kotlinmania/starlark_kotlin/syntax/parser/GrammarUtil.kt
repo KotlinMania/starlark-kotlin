@@ -64,13 +64,13 @@ object GrammarUtil {
     }
 
     // pub fn check_assign(codemap: &CodeMap, x: AstExpr) -> Result<AstAssignTarget, EvalException>
-    fun check_assign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
+    fun checkAssign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
         val node: AssignTargetP<AstNoPayload> = when (val expr = x.node) {
             is ExprP.Tuple -> AssignTargetP.Tuple(
-                expr.elements.map { check_assign(codemap, it) }
+                expr.elements.map { checkAssign(codemap, it) }
             )
             is ExprP.ListExpr -> AssignTargetP.Tuple(
-                expr.elements.map { check_assign(codemap, it) }
+                expr.elements.map { checkAssign(codemap, it) }
             )
             is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
             is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
@@ -94,7 +94,7 @@ object GrammarUtil {
     }
 
     // pub fn check_assignment(...)
-    fun check_assignment(
+    fun checkAssignment(
         codemap: CodeMap,
         lhs: AstExpr,
         ty: AstTypeExpr?,
@@ -112,7 +112,7 @@ object GrammarUtil {
                 else -> {}
             }
         }
-        val assignTarget = check_assign(codemap, lhs)
+        val assignTarget = checkAssign(codemap, lhs)
         if (ty != null) {
             val err = if (op != null) {
                 GrammarUtilError.TypeAnnotationOnAssignOp
@@ -140,12 +140,12 @@ object GrammarUtil {
     }
 
     // pub(crate) fn check_load_0(module: AstString, parser_state: &mut ParserState) -> Stmt
-    fun check_load_0(module: AstString, parser_state: ParserState): Stmt {
-        parser_state.errors.add(
+    fun checkLoad0(module: AstString, parserState: ParserState): Stmt {
+        parserState.errors.add(
             EvalException.newAnyhow(
                 IllegalArgumentException(GrammarUtilError.LoadRequiresAtLeastTwoArguments.message),
                 module.span,
-                parser_state.codemap
+                parserState.codemap
             )
         )
         return StmtP.Load(LoadP(
@@ -156,14 +156,14 @@ object GrammarUtil {
     }
 
     // pub(crate) fn check_load(...)
-    fun check_load(
+    fun checkLoad(
         module: AstString,
         args: List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>,
         last: Pair<AstAssignIdent, AstString>?,
-        parser_state: ParserState
+        parserState: ParserState
     ): Stmt {
         if (args.isEmpty() && last == null) {
-            return check_load_0(module, parser_state)
+            return checkLoad0(module, parserState)
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -196,10 +196,10 @@ object GrammarUtil {
         fstring: TokenFString,
         begin: Int,
         end: Int,
-        parser_state: ParserState
+        parserState: ParserState
     ): AstFString {
-        if (!parser_state.dialect.enableFStrings) {
-            parser_state.error(
+        if (!parserState.dialect.enableFStrings) {
+            parserState.error(
                 Span(Pos(begin), Pos(end)),
                 "Your Starlark dialect must enable f-strings to use them"
             )
@@ -215,7 +215,7 @@ object GrammarUtil {
         while (true) {
             val res = parser.next()
             val token = res.getOrElse { e ->
-                parser_state.error(
+                parserState.error(
                     Span(Pos(begin), Pos(end)),
                     "Invalid format: ${e.message}"
                 )
@@ -234,7 +234,7 @@ object GrammarUtil {
 
                     val ident = lexExactlyOneIdentifier(token.capture)
                     if (ident == null) {
-                        parser_state.error(
+                        parserState.error(
                             Span(Pos(captureBegin), Pos(captureEnd)),
                             "Not a valid identifier: `${token.capture}`"
                         )
@@ -263,7 +263,7 @@ object GrammarUtil {
     }
 
     // pub(crate) fn dialect_check_type(...)
-    fun dialect_check_type(
+    fun dialectCheckType(
         state: ParserState,
         x: AstExpr
     ): AstTypeExpr {
@@ -287,7 +287,7 @@ object GrammarUtil {
     }
 
     // pub(crate) fn check_call(...) from validate.rs
-    fun check_call(
+    fun checkCall(
         e: AstExpr,
         a: List<AstArgument>,
         state: ParserState

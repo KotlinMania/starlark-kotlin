@@ -106,14 +106,28 @@ object Parser {
         }
     }
 
+    private fun oneOf(expected: List<String>): String {
+        val result = StringBuilder()
+        for ((i, e) in expected.withIndex()) {
+            val sep = when {
+                i == 0 -> "one of"
+                i < expected.size - 1 -> ","
+                else -> " or"
+            }
+            result.append("$sep $e")
+        }
+        return result.toString()
+    }
+
     private fun parseError(
         parserState: ParserState,
-        _currentLRState: Int,
+        currentLRState: Int,
         lookahead: Lexeme?
     ): EvalException {
+        val expected = Grammar.__expected_tokens(currentLRState)
         val msg = if (lookahead != null) {
             val (start, token, end) = lookahead
-            "Parse error: unexpected ${token}"
+            "Parse error: unexpected ${token} here, expected ${oneOf(expected)}"
         } else {
             "Parse error: unexpected end of file"
         }

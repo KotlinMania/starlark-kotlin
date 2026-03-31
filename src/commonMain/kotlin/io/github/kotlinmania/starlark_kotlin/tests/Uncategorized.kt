@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.SmallMapUnpackValue
@@ -770,8 +771,11 @@ bar(["a","b","c"])
 
             override fun toString(): String = map.toString()
 
-            override fun trace(_tracer: Tracer) {
-                // Values in the map would be traced in a real implementation
+            override fun trace(tracer: Tracer) {
+                for ((_, value) in map) {
+                    val holder = ValueHolder(value)
+                    tracer.trace(holder)
+                }
             }
 
             override fun getAttr(attribute: String, heap: Heap): Value? {

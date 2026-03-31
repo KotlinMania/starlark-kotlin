@@ -42,6 +42,13 @@ import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
 // pub struct StarlarkStr { ... }
 class StarlarkStr(val value: String) : StarlarkValue {
     override val TYPE: String get() = "string"
+    override val HAS_equals: Boolean get() = true
+
+    // Lazily-initialized cached hash code.
+    // In Rust: hash: atomic::AtomicU32 — set via StarlarkStr::new(len, hash)
+    // and lazily computed on first access when UNINIT_HASH.
+    // In Kotlin: set by starlarkStr() factory, otherwise computed from value.
+    internal var precomputedHash: StarlarkHashValue = UNINIT_HASH
 
     // pub fn as_str(&self) -> &str
     fun asStr(): String = value
@@ -49,7 +56,14 @@ class StarlarkStr(val value: String) : StarlarkValue {
     // pub fn len(&self) -> usize
     fun len(): Int = value.encodeToByteArray().size
 
-    override fun getHash(): Result<StarlarkHashValue> = Result.success(StarlarkHashValue.new(value))
+    override fun getHash(): Result<StarlarkHashValue> {
+        if (precomputedHash != UNINIT_HASH) {
+            return Result.success(precomputedHash)
+        }
+        val h = StarlarkHashValue.new(value)
+        precomputedHash = h
+        return Result.success(h)
+    }
 
     // fn equals(&self, other: Value) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
@@ -98,7 +112,7 @@ class StarlarkStr(val value: String) : StarlarkValue {
     // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Don't defer to str because we cache the Hash in StarlarkStr
-        val hashValue = StarlarkHashValue.new(value)
+        val hashValue = getHash().getOrThrow()
         hasher.writeU32(hashValue.get())
         return Result.success(Unit)
     }

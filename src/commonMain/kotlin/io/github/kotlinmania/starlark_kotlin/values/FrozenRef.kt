@@ -77,6 +77,11 @@ class FrozenRef<T>(
         return value
     }
 
+    /** Borrow for `FrozenRef<Box<T>>` -- borrows the inner value through the Box. */
+    fun borrowBoxed(): T {
+        return value
+    }
+
     override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }

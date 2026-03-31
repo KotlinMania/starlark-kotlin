@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.freezeString
 
 // struct NonFreeze(u32)
 private class NonFreeze(val value: UInt)
@@ -33,8 +34,8 @@ private class TestStruct(
     val s: String,
     val s2: NonFreeze, // #[freeze(identity)]
 ) : Freeze<TestStruct> {
-    override fun freeze(_freezer: Freezer): FreezeResult<TestStruct> {
-        return Result.success(TestStruct(s, s2))
+    override fun freeze(freezer: Freezer): FreezeResult<TestStruct> {
+        return Result.success(TestStruct(freezeString(s, freezer).getOrElse { return Result.failure(it) }, s2))
     }
 }
 
@@ -44,8 +45,8 @@ private class TestUnitStruct(
     val component1: String,
     val component2: NonFreeze, // #[freeze(identity)]
 ) : Freeze<TestUnitStruct> {
-    override fun freeze(_freezer: Freezer): FreezeResult<TestUnitStruct> {
-        return Result.success(TestUnitStruct(component1, component2))
+    override fun freeze(freezer: Freezer): FreezeResult<TestUnitStruct> {
+        return Result.success(TestUnitStruct(freezeString(component1, freezer).getOrElse { return Result.failure(it) }, component2))
     }
 }
 
@@ -53,14 +54,15 @@ private class TestUnitStruct(
 // enum TestEnum { A(String), B(#[freeze(identity)] NonFreeze) }
 private sealed class TestEnum : Freeze<TestEnum> {
     class A(val value: String) : TestEnum() {
-        override fun freeze(_freezer: Freezer): FreezeResult<TestEnum> {
-            return Result.success(A(value))
+        override fun freeze(freezer: Freezer): FreezeResult<TestEnum> {
+            return Result.success(A(freezeString(value, freezer).getOrElse { return Result.failure(it) }))
         }
     }
 
     class B(val value: NonFreeze) : TestEnum() {
         // #[freeze(identity)]
-        override fun freeze(_freezer: Freezer): FreezeResult<TestEnum> {
+        @Suppress("UNUSED_PARAMETER")
+        override fun freeze(freezer: Freezer): FreezeResult<TestEnum> {
             return Result.success(B(value))
         }
     }

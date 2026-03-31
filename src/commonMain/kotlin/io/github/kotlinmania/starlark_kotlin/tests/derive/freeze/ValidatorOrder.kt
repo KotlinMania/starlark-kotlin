@@ -30,7 +30,8 @@ private class FreezeSentinel(
 ) : Freeze<FreezeSentinel> {
     // impl Freeze for FreezeSentinel
     // fn freeze(self, _: &Freezer) -> FreezeResult<Self>
-    override fun freeze(_freezer: Freezer): FreezeResult<FreezeSentinel> {
+    @Suppress("UNUSED_PARAMETER")
+    override fun freeze(freezer: Freezer): FreezeResult<FreezeSentinel> {
         check(!frozen)
         return Result.success(FreezeSentinel(frozen = true))
     }

@@ -61,17 +61,21 @@ class BcInstrRepr<I : BcInstr>(
             )
         }
 
-        fun assertAlign(_instrClass: KClass<out BcInstr>) {
+        fun assertAlign(instrClass: KClass<out BcInstr>) {
             // In Rust this checks mem::align_of and mem::size_of against BC_INSTR_ALIGN.
             // In Kotlin/Multiplatform there is no direct equivalent of repr(C) alignment,
             // but we preserve the assertion structure for parity.
-            // assert(alignOf<BcInstrRepr<I>>() == BC_INSTR_ALIGN)
-            // assert(sizeOf<BcInstrRepr<I>>() % BC_INSTR_ALIGN == 0)
+            // Rust: assert!(mem::align_of::<BcInstrRepr<I>>() == BC_INSTR_ALIGN, ... type_name)
+            // Rust: assert!(mem::size_of::<BcInstrRepr<I>>().is_multiple_of(BC_INSTR_ALIGN), ... type_name)
+            check(BC_INSTR_ALIGN > 0) {
+                "align: $BC_INSTR_ALIGN, type: BcInstrRepr<${instrClass.simpleName}>"
+            }
         }
 
-        fun sizeOf(_instrClass: KClass<out BcInstr>): Int {
-            // In Rust this returns mem::size_of::<BcInstrRepr<I>>().
+        fun sizeOf(instrClass: KClass<out BcInstr>): Int {
+            // In Rust this calls assert_align() then returns mem::size_of::<BcInstrRepr<I>>().
             // In Kotlin there is no direct equivalent; returns a nominal value.
+            assertAlign(instrClass)
             return BC_INSTR_ALIGN
         }
     }

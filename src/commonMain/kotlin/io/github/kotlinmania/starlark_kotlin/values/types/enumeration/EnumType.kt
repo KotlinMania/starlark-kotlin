@@ -79,6 +79,9 @@ class EnumTypeGen internal constructor(
 ) : StarlarkValue, AllocValue, Freeze<EnumTypeGen> {
 
     override val TYPE: String get() = FUNCTION_TYPE
+    override val HAS_invoke: Boolean get() = true
+    override val HAS_eval_type: Boolean get() = true
+    override val HAS_iterate: Boolean get() = true
 
     private var tyEnumDataInitialized: Boolean = tyEnumData != null
 

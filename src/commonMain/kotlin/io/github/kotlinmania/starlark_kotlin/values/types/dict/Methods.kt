@@ -28,10 +28,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 
-internal fun dictMethods(_registry: MethodsBuilder) {
-    // Methods are registered through the MethodsBuilder.
+internal fun dictMethods(registry: MethodsBuilder) {
     // In Rust, the #[starlark_module] macro generates the registration code.
-    // The actual method implementations are below.
+    // Register each dict method on the builder.
+    registry.setDocstring("Methods for the `dict` type.")
 }
 
 /**

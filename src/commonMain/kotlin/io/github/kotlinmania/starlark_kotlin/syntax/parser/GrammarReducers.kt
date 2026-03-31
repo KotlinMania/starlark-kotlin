@@ -17,7 +17,7 @@ private fun MutableList<Triple<Int, GrammarSymbol, Int>>.popUnwrap(): Triple<Int
 
 @Suppress("UNCHECKED_CAST", "UNUSED_VARIABLE")
 object GrammarReducers {
-    fun reduce(ruleId: Int, symbols: MutableList<Triple<Int, GrammarSymbol, Int>>, state: ParserState, lookahead_start: Int?): Pair<Int, Int> {
+    fun reduce(ruleId: Int, symbols: MutableList<Triple<Int, GrammarSymbol, Int>>, state: ParserState, lookaheadStart: Int?): Pair<Int, Int> {
         when (ruleId) {
         0 -> {
             // // ","? = "," => ActionFn(215);
@@ -30,7 +30,7 @@ object GrammarReducers {
         }
         1 -> {
             // // ","? =  => ActionFn(216);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action216(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
@@ -47,7 +47,7 @@ object GrammarReducers {
         }
         3 -> {
             // // ";"? =  => ActionFn(206);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action206(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant5(__nt as Token?), __end))
@@ -55,7 +55,7 @@ object GrammarReducers {
         }
         4 -> {
             // // "\n"* =  => ActionFn(196);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action196(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant6(__nt as List<Token>), __end))
@@ -129,7 +129,7 @@ object GrammarReducers {
         }
         12 -> {
             // // (":" <Test?>)? =  => ActionFn(159);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action159(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
@@ -147,7 +147,7 @@ object GrammarReducers {
         }
         14 -> {
             // // (";" <SmallStmt>)* =  => ActionFn(207);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action207(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
@@ -195,7 +195,7 @@ object GrammarReducers {
         }
         19 -> {
             // // (<Argument> ",")* =  => ActionFn(219);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action219(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant12(__nt as List<AstArgument>), __end))
@@ -243,7 +243,7 @@ object GrammarReducers {
         }
         24 -> {
             // // (<DefParameter> ",")* =  => ActionFn(202);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action202(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
@@ -291,7 +291,7 @@ object GrammarReducers {
         }
         29 -> {
             // // (<DictEntry> ",")* =  => ActionFn(227);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action227(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant16(__nt as List<Pair<AstExpr, AstExpr>>), __end))
@@ -339,7 +339,7 @@ object GrammarReducers {
         }
         34 -> {
             // // (<Expr> ",")* =  => ActionFn(212);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action212(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
@@ -387,7 +387,7 @@ object GrammarReducers {
         }
         39 -> {
             // // (<LambdaParameter> ",")* =  => ActionFn(234);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action234(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant14(__nt as List<AstParameter>), __end))
@@ -435,7 +435,7 @@ object GrammarReducers {
         }
         44 -> {
             // // (<LoadStmtSyms> <Comma>)* =  => ActionFn(171);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action171(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant20(__nt as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>), __end))
@@ -491,7 +491,7 @@ object GrammarReducers {
         }
         50 -> {
             // // (<LoadStmtSyms>)? =  => ActionFn(169);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action169(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant22(__nt as Pair<AstAssignIdent, AstString>?), __end))
@@ -518,7 +518,7 @@ object GrammarReducers {
         }
         53 -> {
             // // (<Stmt> "\n"*)* =  => ActionFn(193);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action193(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant10(__nt as List<AstStmt>), __end))
@@ -585,7 +585,7 @@ object GrammarReducers {
         }
         60 -> {
             // // (<Test> ",")* =  => ActionFn(222);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action222(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant18(__nt as List<AstExpr>), __end))
@@ -623,7 +623,7 @@ object GrammarReducers {
         }
         64 -> {
             // // @L =  => ActionFn(199);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action199(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant23(__nt as Int), __end))
@@ -631,7 +631,7 @@ object GrammarReducers {
         }
         65 -> {
             // // @R =  => ActionFn(198);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action198(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant23(__nt as Int), __end))
@@ -794,7 +794,7 @@ object GrammarReducers {
         }
         83 -> {
             // // Argument? =  => ActionFn(218);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action218(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant24(__nt as AstArgument?), __end))
@@ -1080,7 +1080,7 @@ object GrammarReducers {
         }
         113 -> {
             // // COMMA<Argument> =  => ActionFn(538);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action538(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant29(__nt as List<AstArgument>), __end))
@@ -1116,7 +1116,7 @@ object GrammarReducers {
         }
         117 -> {
             // // COMMA<DefParameter> =  => ActionFn(544);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action544(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
@@ -1152,7 +1152,7 @@ object GrammarReducers {
         }
         121 -> {
             // // COMMA<DictEntry> =  => ActionFn(548);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action548(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant31(__nt as List<Pair<AstExpr, AstExpr>>), __end))
@@ -1188,7 +1188,7 @@ object GrammarReducers {
         }
         125 -> {
             // // COMMA<LambdaParameter> =  => ActionFn(554);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action554(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant30(__nt as List<AstParameter>), __end))
@@ -1234,7 +1234,7 @@ object GrammarReducers {
         }
         130 -> {
             // // COMMA<Test> =  => ActionFn(334);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action334(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant32(__nt as List<AstExpr>), __end))
@@ -1270,7 +1270,7 @@ object GrammarReducers {
         }
         134 -> {
             // // Clause* =  => ActionFn(151);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action151(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant34(__nt as List<Clause>), __end))
@@ -1450,7 +1450,7 @@ object GrammarReducers {
         }
         152 -> {
             // // DefParameter? =  => ActionFn(201);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action201(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
@@ -1586,7 +1586,7 @@ object GrammarReducers {
         }
         165 -> {
             // // DictEntry? =  => ActionFn(226);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action226(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant40(__nt as Pair<AstExpr, AstExpr>?), __end))
@@ -1624,7 +1624,7 @@ object GrammarReducers {
         }
         169 -> {
             // // ElseStmt? =  => ActionFn(182);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action182(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant41(__nt as AstStmt?), __end))
@@ -1921,7 +1921,7 @@ object GrammarReducers {
         }
         199 -> {
             // // LambdaParameter? =  => ActionFn(233);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action233(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant37(__nt as AstParameter?), __end))
@@ -2036,7 +2036,7 @@ object GrammarReducers {
         }
         211 -> {
             // // LoadStmtBindingName? =  => ActionFn(167);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action167(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant45(__nt as AstString?), __end))
@@ -2584,7 +2584,7 @@ object GrammarReducers {
         }
         259 -> {
             // // ReturnType =  => ActionFn(12);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action12(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
@@ -2740,7 +2740,7 @@ object GrammarReducers {
         }
         275 -> {
             // // Starlark =  => ActionFn(512);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action512(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant9(__nt as AstStmt), __end))
@@ -2886,7 +2886,7 @@ object GrammarReducers {
         }
         290 -> {
             // // Test? =  => ActionFn(162);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action162(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
@@ -2912,7 +2912,7 @@ object GrammarReducers {
         }
         293 -> {
             // // TestList? =  => ActionFn(178);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action178(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant7(__nt as AstExpr?), __end))
@@ -2930,7 +2930,7 @@ object GrammarReducers {
         }
         295 -> {
             // // Type =  => ActionFn(29);
-            val __start = lookahead_start ?: symbols.lastOrNull()?.third ?: 0;
+            val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action29(state, __start, __end);
             symbols.add(Triple(__start, GrammarSymbol.Variant46(__nt as AstTypeExpr?), __end))
@@ -3069,9 +3069,9 @@ fun __action9(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserSt
 fun __action10(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>, sym2: Triple<Int, Any?, Int>, sym3: Triple<Int, Any?, Int>, sym4: Triple<Int, Any?, Int>, sym5: Triple<Int, Any?, Int>, sym6: Triple<Int, Any?, Int>, sym7: Triple<Int, Any?, Int>): Any? {
     val name = sym1.second as AstAssignIdent
     val params = sym3.second as List<AstParameter>
-    val return_type = sym5.second as AstTypeExpr?
+    val returnType = sym5.second as AstTypeExpr?
     val stmts = sym7.second as AstStmt
-    val __ret = StmtP.Def<AstNoPayload, AstNoPayload>(DefP(name, params, return_type, stmts, AstNoPayload))
+    val __ret = StmtP.Def<AstNoPayload, AstNoPayload>(DefP(name, params, returnType, stmts, AstNoPayload))
     return __ret
 }
 
@@ -3178,7 +3178,7 @@ fun __action26(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
 
 fun __action27(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>): Any? {
     val __0 = sym0.second as AstExpr
-    val __ret = GrammarUtil.dialect_check_type(state, __0)
+    val __ret = GrammarUtil.dialectCheckType(state, __0)
     return __ret
 }
 
@@ -3281,7 +3281,7 @@ fun __action43(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val varTarget = sym1.second as AstExpr
     val over = sym3.second as AstExpr
     val body = sym5.second as AstStmt
-    val __ret = StmtP.For<AstNoPayload>(ForP(varTarget = GrammarUtil.check_assign(state.codemap, varTarget), over = over, body = body))
+    val __ret = StmtP.For<AstNoPayload>(ForP(varTarget = GrammarUtil.checkAssign(state.codemap, varTarget), over = over, body = body))
     return __ret
 }
 
@@ -3415,7 +3415,7 @@ fun __action64(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val ty = sym1.second as AstTypeExpr?
     val op = sym2.second as AssignOp?
     val rhs = sym3.second as AstExpr
-    val __ret = GrammarUtil.check_assignment(state.codemap, lhs, ty, op, rhs)
+    val __ret = GrammarUtil.checkAssignment(state.codemap, lhs, ty, op, rhs)
     return __ret
 }
 
@@ -3446,7 +3446,7 @@ fun __action68(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
 
 fun __action69(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>, sym2: Triple<Int, Any?, Int>, sym3: Triple<Int, Any?, Int>): Any? {
     val module = sym2.second as AstString
-    val __ret = GrammarUtil.check_load_0(module, state)
+    val __ret = GrammarUtil.checkLoad0(module, state)
     return __ret
 }
 
@@ -3454,7 +3454,7 @@ fun __action70(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val module = sym2.second as AstString
     val args = sym4.second as List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>
     val last = sym5.second as Pair<AstAssignIdent, AstString>?
-    val __ret = GrammarUtil.check_load(module, args, last, state)
+    val __ret = GrammarUtil.checkLoad(module, args, last, state)
     return __ret
 }
 
@@ -3500,7 +3500,7 @@ fun __action76(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
     val e = sym1.second as AstExpr
     val a = sym3.second as List<AstArgument>
     val r = sym5.second as Int
-    val __ret = GrammarUtil.check_call(e, a, state).ast(l, r)
+    val __ret = GrammarUtil.checkCall(e, a, state).ast(l, r)
     return __ret
 }
 
@@ -3718,7 +3718,7 @@ fun __action105(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
 fun __action106(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>, sym2: Triple<Int, Any?, Int>, sym3: Triple<Int, Any?, Int>): Any? {
     val varTarget = sym1.second as AstExpr
     val over = sym3.second as AstExpr
-    val __ret = ForClause(varTarget = GrammarUtil.check_assign(state.codemap, varTarget), over = over)
+    val __ret = ForClause(varTarget = GrammarUtil.checkAssign(state.codemap, varTarget), over = over)
     return __ret
 }
 

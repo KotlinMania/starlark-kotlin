@@ -182,7 +182,7 @@ internal object AValueTests {
             val list = module.heap().allocList(emptyList())
             val tuple = module.heap().allocTuple(listOf(list))
             ListData.fromValueMut(list).getOrNull()
-                ?.push(tuple)
+                ?.push(tuple, module.heap())
             module.set("t", tuple)
             module.freeze()
             Result.success(Unit)

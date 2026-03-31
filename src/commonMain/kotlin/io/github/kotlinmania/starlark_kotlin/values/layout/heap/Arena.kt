@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.BlackHole
 import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
@@ -35,8 +36,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_ST
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallEnter
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallExit
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NeedsDrop
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NoDrop
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
@@ -74,6 +80,10 @@ private fun vtableForValue(value: StarlarkValue): AValueVTable {
             heapCopyImpl(sv, tracer) { _, _ -> }
         },
         starlarkValue = value,
+        hasInvoke = value.HAS_invoke,
+        hasEvalType = value.HAS_eval_type,
+        hasIterate = value.HAS_iterate,
+        hasEquals = value.HAS_equals,
     )
 }
 
@@ -112,6 +122,16 @@ internal interface ArenaVisitor {
     fun callExit(time: ProfilerInstant)
 }
 
+// enum ArenaVisitEvent<'a>
+private sealed class ArenaVisitEvent {
+    /// Called when entering new bump.
+    // EnterBump,
+    data object EnterBump : ArenaVisitEvent()
+    /// Visiting a value in the bump.
+    // Value(&'a AValueOrForward),
+    class Value(val value: AValueOrForward) : ArenaVisitEvent()
+}
+
 // #[derive(Default)]
 // pub(crate) struct Arena<A: ArenaAllocator>
 // Kotlin: GC handles memory. Arena is a simple list of allocated values.
@@ -147,10 +167,20 @@ internal class Arena {
     }
 
     // pub(crate) fn reserve_with_extra<'v2, T: AValue<'v2>>(&self, extra_len: usize) -> (Reservation, extra)
-    fun <T : AValue> reserveWithExtra(_extraLen: Int): Reservation<T> {
+    fun <T : AValue> reserveWithExtra(extraLen: Int): Reservation<T> {
+        // We don't create reservations for strings because we don't need to,
+        // but also because we need to be able to reconstruct a `Pointer`
+        // from `AValueHeader` (with `TAG_STR` when appropriate).
+        // `BlackHole` assumes it is created for non-string, so
+        // it returns `false` from `is_str`.
+        // assert!(!T::IS_STR);
+
         // In Rust, a BlackHole is written as a placeholder until fill() is called.
         // In Kotlin, we insert a placeholder Header entry.
-        val blackHoleHeader = AValueHeader(AValueVTable.newBlackHole())
+        // let arena_uninit = Self::alloc_uninit::<T>(self.bump_for_type::<T>(), extra_len);
+        // unsafe { arena_uninit.write_black_hole(extra_len) }
+        val blackHole = BlackHole(ValueAllocSize(AlignedSize(extraLen.toUInt())))
+        val blackHoleHeader = AValueHeader(AValueVTable.newBlackHole(blackHole))
         val entry = AValueOrForward.Header(blackHoleHeader)
         val index = drop.size
         drop.add(entry)
@@ -174,6 +204,17 @@ internal class Arena {
     // pub(crate) fn alloc_extra<'v, T: AValue<'v>>(&self, x: AValueImpl) -> (repr, extra)
     fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
         return alloc(x)
+    }
+
+    // pub(crate) fn alloc_str_init(&self, len: usize, hash: StarlarkHashValue,
+    //     init: impl FnOnce(*mut u8)) -> *mut AValueHeader
+    // In Rust, this allocates raw bytes and a callback fills them in.
+    // In Kotlin, strings are immutable objects, so the `init` callback
+    // receives the string content to construct.
+    fun allocStrInit(len: Int, init: (Int) -> String): AValueHeader {
+        require(len > 1)
+        val content = init(len)
+        return allocStr(content)
     }
 
     // pub(crate) fn alloc_str(&self, x: &str) -> *mut AValueHeader
@@ -212,29 +253,68 @@ internal class Arena {
         return header
     }
 
+    // Iterate over the values in the heap in the order they
+    // were added.
     // fn for_each_ordered<'a>(&'a mut self, f: impl FnMut(ArenaVisitEvent<'a>))
-    fun forEachOrdered(f: (AValueOrForward) -> Unit) {
-        for (entry in drop) {
-            f(entry)
-        }
-        for (entry in nonDrop) {
-            f(entry)
+    private fun forEachOrdered(f: (ArenaVisitEvent) -> Unit) {
+        // We get the chunks from most newest to oldest as per the bumpalo spec.
+        // And within each chunk, the values are filled newest to oldest.
+        // So need to do two sets of reversing.
+        // In Kotlin with list-based storage, values are already in insertion order.
+        for (bump in listOf(drop, nonDrop)) {
+            f(ArenaVisitEvent.EnterBump)
+            for (entry in bump) {
+                f(ArenaVisitEvent.Value(entry))
+            }
         }
     }
 
     // pub(crate) unsafe fn visit_arena<'v>(&'v mut self, heap_kind, forward_heap_kind, visitor)
     internal fun visitArena(
-        _heapKind: HeapKind,
-        _forwardHeapKind: HeapKind,
+        heapKind: HeapKind,
+        forwardHeapKind: HeapKind,
         visitor: ArenaVisitor,
     ) {
-        visitor.enterBump()
-        for (entry in drop) {
-            visitor.regularValue(entry)
+        // fn fix_function<'v>(function: Value<'v>, forward_heap_kind: HeapKind) -> Value<'v>
+        // In Rust, during GC some values may be forward pointers. This function
+        // resolves them. In Kotlin, there's no raw pointer forwarding, but we
+        // still check for frozen values and handle forwarding via the arena model.
+        fun fixFunction(function: Value, @Suppress("UNUSED_PARAMETER") forwardHeapKind: HeapKind): Value {
+            val frozen = function.unpackFrozen()
+            if (frozen != null) {
+                return frozen.toValue()
+            }
+            return function
         }
-        visitor.enterBump()
-        for (entry in nonDrop) {
-            visitor.regularValue(entry)
+
+        forEachOrdered { event ->
+            when (event) {
+                is ArenaVisitEvent.EnterBump -> visitor.enterBump()
+                is ArenaVisitEvent.Value -> {
+                    val x = event.value
+                    when (val unpacked = x.unpack()) {
+                        is AValueOrForwardUnpack.Header -> {
+                            val header = unpacked.header
+                            val value = header.unpackValue(heapKind)
+                            // In Rust, CallEnter<NeedsDrop> and CallEnter<NoDrop> are
+                            // distinct types. In Kotlin, generics are erased, so we check
+                            // once with CallEnter<*> and CallExit<*>.
+                            val starlarkVal = header.vtable.starlarkValue
+                            if (starlarkVal is CallEnter<*>) {
+                                visitor.callEnter(
+                                    fixFunction(starlarkVal.function, forwardHeapKind),
+                                    starlarkVal.time,
+                                )
+                            } else if (starlarkVal is CallExit<*>) {
+                                visitor.callExit(starlarkVal.time)
+                            } else {
+                                visitor.regularValue(x)
+                            }
+                        }
+                        is AValueOrForwardUnpack.Forward -> visitor.regularValue(x)
+                    }
+                }
+            }
         }
     }
 
@@ -248,14 +328,21 @@ internal class Arena {
         }
     }
 
-    // fn for_each_unordered<'a>(&'a self, f: impl FnMut(&'a AValueHeader))
-    fun forEachUnordered(f: (AValueHeader) -> Unit) {
-        forEachDropUnordered(f)
-        for (entry in nonDrop) {
+    // fn for_each_unordered_in_bump<'a>(bump: &'a A, f: impl FnMut(&'a AValueHeader))
+    private fun forEachUnorderedInBump(bump: List<AValueOrForward>, f: (AValueHeader) -> Unit) {
+        for (entry in bump) {
             when (entry) {
                 is AValueOrForward.Header -> f(entry.header)
                 is AValueOrForward.Forward -> {}
             }
+        }
+    }
+
+    // Iterate over the values in the both bumps in any order
+    // fn for_each_unordered<'a>(&'a self, f: impl FnMut(&'a AValueHeader))
+    private fun forEachUnordered(f: (AValueHeader) -> Unit) {
+        for (bump in listOf(drop, nonDrop)) {
+            forEachUnorderedInBump(bump, f)
         }
     }
 

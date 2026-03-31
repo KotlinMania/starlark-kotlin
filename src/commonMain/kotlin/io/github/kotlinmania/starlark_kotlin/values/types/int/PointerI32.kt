@@ -63,6 +63,7 @@ internal class PointerI32 internal constructor(
 ) : StarlarkValue {
 
     override val TYPE: String get() = INT_TYPE
+    override val HAS_equals: Boolean get() = true
 
     /** Construct from a raw i32 value (used by layout code). */
     internal constructor(rawI32: Int) : this(InlineInt.newUnchecked(rawI32))
@@ -92,6 +93,7 @@ internal class PointerI32 internal constructor(
                 heapFreezeFn = { _, _ -> error("PointerI32 cannot be frozen") },
                 heapCopyFn = { _, _ -> error("PointerI32 cannot be heap-copied") },
                 starlarkValue = PointerI32StarlarkValueAdapter,
+                hasEquals = PointerI32StarlarkValueAdapter.HAS_equals,
             )
         }
 
@@ -305,6 +307,7 @@ internal class PointerI32 internal constructor(
  */
 private object PointerI32StarlarkValueAdapter : StarlarkValue {
     override val TYPE: String get() = INT_TYPE
+    override val HAS_equals: Boolean get() = true
     override fun isSpecial(): Boolean = true
     override fun typecheckerTy(): Ty? = Ty.int()
 }

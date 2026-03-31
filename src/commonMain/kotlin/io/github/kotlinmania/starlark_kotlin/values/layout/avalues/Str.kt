@@ -76,8 +76,20 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
 
 // #[inline]
 // pub(crate) fn starlark_str<'v>(len: usize, hash: StarlarkHashValue) -> AValueImpl<...>
-internal fun starlarkStr(len: Int, _hash: StarlarkHashValue): AValueImpl<StarlarkStrAValue> {
-    return AValueImpl.new(StarlarkStr("".padEnd(len)))
+internal fun starlarkStr(len: Int, hash: StarlarkHashValue): AValueImpl<StarlarkStrAValue> {
+    // AValueImpl::<StarlarkStrAValue>::new(unsafe { StarlarkStr::new(len, hash) })
+    // StarlarkStr::new creates a struct header with byte length and pre-computed hash:
+    //   assert!(len as u32 as usize == len, "len overflow");
+    //   StarlarkStr { str: StarlarkStrN { hash: AtomicU32::new(hash.get()), len, body: [] } }
+    require(len.toLong() == (len.toLong() and 0xFFFFFFFFL)) { "len overflow" }
+    // In Rust, StarlarkStr stores hash in an AtomicU32 field and the body is
+    // filled later via raw pointer writes in alloc_str_init.
+    // In Kotlin, StarlarkStr wraps an immutable String and computes hash from it.
+    // We create a placeholder of `len` zero-bytes; the content and hash are
+    // finalized when the caller fills the allocation via alloc_str_init.
+    val str = StarlarkStr(ByteArray(len).decodeToString())
+    str.precomputedHash = hash
+    return AValueImpl.new(str)
 }
 
 // pub(crate) struct StarlarkStrAValue;

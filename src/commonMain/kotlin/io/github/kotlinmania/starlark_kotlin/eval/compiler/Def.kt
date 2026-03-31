@@ -387,7 +387,7 @@ internal class DefInfo(
                 bodyStmts = StmtsCompiled.empty(),
                 stmtCompileContext = StmtCompileContext(),
                 inlineDefBody = null,
-                globals = FrozenRef(Globals.empty),
+                globals = FrozenRef(Globals.empty()),
             )
         }
 
@@ -880,6 +880,7 @@ internal class DefGen<V>(
 
     // #[starlark_value(type = FUNCTION_TYPE)]
     override val TYPE: String get() = FUNCTION_TYPE
+    override val HAS_invoke: Boolean get() = true
 
     /**
      * Returns the name used in call stack frames.
@@ -1038,11 +1039,11 @@ private class ArrayBackedMutableList<T>(private val array: Array<T>) : AbstractM
         return old
     }
 
-    override fun add(_index: Int, _element: T) {
-        throw UnsupportedOperationException("ArrayBackedMutableList does not support add")
+    override fun add(index: Int, element: T) {
+        throw UnsupportedOperationException("ArrayBackedMutableList does not support add at index $index (element=$element)")
     }
 
-    override fun removeAt(_index: Int): T {
-        throw UnsupportedOperationException("ArrayBackedMutableList does not support removeAt")
+    override fun removeAt(index: Int): T {
+        throw UnsupportedOperationException("ArrayBackedMutableList does not support removeAt at index $index")
     }
 }

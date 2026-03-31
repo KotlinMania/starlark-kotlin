@@ -41,6 +41,8 @@ import kotlin.math.max
 /** Generic list container, parameterized on the data type. */
 class ListGen<T>(val data: T) : StarlarkValue {
     override val TYPE: String get() = ListData.TYPE
+    override val HAS_iterate: Boolean get() = true
+    override val HAS_equals: Boolean get() = true
     override fun isSpecial(): Boolean = true
     override fun getMethods(): Methods? = listMethods()
     override fun toString(): String = data.toString()
@@ -207,7 +209,7 @@ class ListData(
         return Result.success(Unit)
     }
 
-    private fun reserveAdditionalSlow(additional: Int) {
+    private fun reserveAdditionalSlow(additional: Int, heap: Heap) {
         val newCap = max(len() + additional, len() * 2)
         // Size of Array is 2 words and size of List is one word,
         // so allocating at least 4 words would not be too large waste.
@@ -219,34 +221,34 @@ class ListData(
         }
     }
 
-    private fun reserveAdditional(additional: Int) {
+    private fun reserveAdditional(additional: Int, heap: Heap) {
         if (content.size + additional > content.size) {
-            reserveAdditionalSlow(additional)
+            reserveAdditionalSlow(additional, heap)
         }
     }
 
-    fun double() {
-        reserveAdditional(len())
+    fun double(heap: Heap) {
+        reserveAdditional(len(), heap)
         val snapshot = content.toList()
         content.addAll(snapshot)
     }
 
-    fun extend(iter: Iterable<Value>) {
+    fun extend(iter: Iterable<Value>, heap: Heap) {
         for (v in iter) {
-            push(v)
+            push(v, heap)
         }
     }
 
-    fun <E : Throwable> tryExtend(iter: Iterator<Result<Value>>): Result<Unit> {
+    fun <E : Throwable> tryExtend(iter: Iterator<Result<Value>>, heap: Heap): Result<Unit> {
         for (item in iter) {
             val value = item.getOrElse { return Result.failure(it) }
-            push(value)
+            push(value, heap)
         }
         return Result.success(Unit)
     }
 
-    fun push(value: Value) {
-        reserveAdditional(1)
+    fun push(value: Value, heap: Heap) {
+        reserveAdditional(1, heap)
         content.add(value)
     }
 
@@ -254,8 +256,8 @@ class ListData(
         content.clear()
     }
 
-    fun insert(index: Int, value: Value) {
-        reserveAdditional(1)
+    fun insert(index: Int, value: Value, heap: Heap) {
+        reserveAdditional(1, heap)
         content.add(index, value)
     }
 

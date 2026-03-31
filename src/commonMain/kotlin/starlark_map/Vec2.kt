@@ -42,8 +42,10 @@ class Vec2<A, B> private constructor(
 
     fun capacity(): Int = a.size
 
-    fun reserve(_additional: Int) {
-        // No-op in this Kotlin implementation.
+    fun reserve(additional: Int) {
+        val required = a.size + additional
+        a.ensureCapacity(required)
+        b.ensureCapacity(required)
     }
 
     fun clear() {

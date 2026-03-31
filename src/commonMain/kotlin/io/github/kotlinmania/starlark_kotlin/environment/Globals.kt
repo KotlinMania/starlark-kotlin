@@ -97,8 +97,11 @@ class Globals internal constructor(
         }
 
         /** Empty globals. */
-        internal val empty: Globals by lazy {
-            GlobalsBuilder.new().build()
+        private val EMPTY: Globals by lazy { GlobalsBuilder.new().build() }
+
+        /** Empty globals. */
+        internal fun empty(): Globals {
+            return EMPTY
         }
 
         /**
@@ -108,6 +111,14 @@ class Globals internal constructor(
         fun extendedBy(extensions: List<LibraryExtension>): Globals {
             return GlobalsBuilder.extendedBy(extensions).build()
         }
+    }
+
+    /**
+     * This function is only safe if you first call [heap] and keep a reference to it.
+     * Therefore, don't expose it on the public API.
+     */
+    internal fun get(name: String): Value? {
+        return getFrozen(name)?.toValue()
     }
 
     /**

@@ -4,42 +4,42 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (564/470 files)
+- **Current Progress:** 100.0% (562/470 files)
 - **Matched Files:** 470
-- **Average Similarity:** 0.54
-- **Critical Issues:** 229 files with <0.60 similarity
+- **Average Similarity:** 0.53
+- **Critical Issues:** 231 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
-### 1. layout.value
+### 1. layout.heap
+- **Similarity:** 0.18 (needs 67% improvement)
+- **Dependencies:** 109
+- **Priority Score:** 89.3
+- **Action:** Deep review - likely missing major functionality
+
+### 2. layout.value
 - **Similarity:** 0.77 (needs 8% improvement)
 - **Dependencies:** 178
-- **Priority Score:** 41.4
+- **Priority Score:** 41.5
 - **Action:** Minor refinements needed
 
-### 2. values.freeze
+### 3. values.freeze
 - **Similarity:** 0.06 (needs 79% improvement)
 - **Dependencies:** 42
 - **Priority Score:** 39.4
 - **Action:** Deep review - likely missing major functionality
 
-### 3. assert
+### 4. assert
 - **Similarity:** 0.63 (needs 22% improvement)
 - **Dependencies:** 84
 - **Priority Score:** 31.3
 - **Action:** Review and complete missing sections
 
-### 4. values.trace
+### 5. values.trace
 - **Similarity:** 0.43 (needs 42% improvement)
 - **Dependencies:** 52
 - **Priority Score:** 29.8
 - **Action:** Deep review - likely missing major functionality
-
-### 5. layout.heap
-- **Similarity:** 0.76 (needs 9% improvement)
-- **Dependencies:** 109
-- **Priority Score:** 25.8
-- **Action:** Minor refinements needed
 
 ### 6. derive.unpack_value
 - **Similarity:** 0.50 (needs 35% improvement)
@@ -60,9 +60,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Review and complete missing sections
 
 ### 9. typing.starlark_value
-- **Similarity:** 0.69 (needs 16% improvement)
+- **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
-- **Priority Score:** 23.7
+- **Priority Score:** 24.0
 - **Action:** Review and complete missing sections
 
 ### 10. coerce

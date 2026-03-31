@@ -15,6 +15,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 sealed class AbstractType : StarlarkValue {
     // #[starlark_value(type = "type")]
     override val TYPE: kotlin.String get() = "type"
+    override val HAS_eval_type: Boolean get() = true
 
     override fun getTypeStarlarkRepr(): Ty = Companion.starlarkTypeRepr()
 

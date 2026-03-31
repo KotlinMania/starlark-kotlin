@@ -161,6 +161,8 @@ class RecordTypeGen internal constructor(
     // #[starlark_value(type = FUNCTION_TYPE)]
     // impl StarlarkValue for RecordTypeGen
     override val TYPE: String get() = FUNCTION_TYPE
+    override val HAS_invoke: Boolean get() = true
+    override val HAS_eval_type: Boolean get() = true
 
     // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {

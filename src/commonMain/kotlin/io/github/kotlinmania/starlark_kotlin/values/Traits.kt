@@ -84,6 +84,17 @@ interface ComplexValue : StarlarkValue
 interface StarlarkValue {
 
     /**
+     * Capability flags mirroring Rust's `#[starlark_value]` `HAS_*` constants.
+     * These indicate which StarlarkValue trait methods are meaningfully overridden.
+     * The proc-macro in Rust auto-generates these; in Kotlin each implementation
+     * overrides them when it provides the corresponding method.
+     */
+    val HAS_invoke: Boolean get() = false
+    val HAS_eval_type: Boolean get() = false
+    val HAS_iterate: Boolean get() = false
+    val HAS_equals: Boolean get() = false
+
+    /**
      * Return a string describing the type of self, as returned by the type()
      * function.
      */
@@ -179,7 +190,7 @@ interface StarlarkValue {
      * Return an error if there is no hash for this value (e.g. list).
      * Must be stable between frozen and non-frozen values.
      */
-    fun writeHash(_hasher: StarlarkHasher): Result<Unit> {
+    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         return if (TYPE == FUNCTION_TYPE) {
             // The Starlark spec says values of type "function" must be hashable.
             // We could return the address of the function, but that changes
@@ -187,6 +198,7 @@ interface StarlarkValue {
             // We could create an atomic counter and use that, but it takes memory,
             // effort, complexity etc, and we don't expect many Dict's keyed by
             // function. Returning 0 as the hash is valid, as Eq will sort it out.
+            // Rust: let _ = hasher
             Result.success(Unit)
         } else {
             Result.failure(ControlError.NotHashableValue(TYPE))
@@ -473,8 +485,8 @@ interface StarlarkValue {
     }
 
     /** Dynamically provide values based on type. */
-    fun provide(_demand: Demand) {
-        // default: no-op
+    fun provide(demand: Demand) {
+        // Rust: let _ = demand
     }
 
     /**

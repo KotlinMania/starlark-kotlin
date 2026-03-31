@@ -64,6 +64,7 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     /// The result of `type(None)`.
     // pub const TYPE: &'static str = "NoneType";
     override val TYPE: String = "NoneType"
+    override val HAS_eval_type: Boolean get() = true
 
     // #[display("None")]
     override fun toString(): String = "None"
@@ -120,8 +121,9 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     //         serializer.serialize_none()
     //     }
     // }
-    fun serialize(_serializer: Any): Result<Unit> {
-        // NoneType serializes as null/none.
+    fun serialize(serializer: Any): Result<Unit> {
+        // serializer.serialize_none()
+        (serializer as kotlinx.serialization.encoding.Encoder).encodeNull()
         return Result.success(Unit)
     }
 

@@ -190,6 +190,35 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
 }
 
 /**
+ * [UnpackValue] implementation for [ValueOfUnchecked].
+ *
+ * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.
+ * The error type is effectively [Nothing] (Rust `Infallible`).
+ *
+ * In Rust:
+ * ```
+ * impl<'v, T: StarlarkTypeRepr> UnpackValue<'v> for ValueOfUnchecked<'v, T> {
+ *     type Error = Infallible;
+ *     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
+ *         Ok(Some(Self::new(value)))
+ *     }
+ * }
+ * ```
+ */
+// impl<'v, T: StarlarkTypeRepr> UnpackValue<'v> for ValueOfUnchecked<'v, T>
+class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
+    private val typeRepr: StarlarkTypeRepr,
+) : UnpackValue<ValueOfUnchecked<T>> {
+    override fun starlarkTypeRepr(): Ty {
+        return typeRepr.starlarkTypeRepr()
+    }
+
+    override fun unpackValueImpl(value: Value): Result<ValueOfUnchecked<T>?> {
+        return Result.success(ValueOfUncheckedGeneric.new(value))
+    }
+}
+
+/**
  * Unpack a [Value] into a [ValueOfUnchecked].
  *
  * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.

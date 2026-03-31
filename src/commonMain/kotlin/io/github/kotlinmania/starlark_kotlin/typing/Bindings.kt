@@ -73,27 +73,112 @@ private fun resolvedBindingId(ident: CstAssignIdent, codemap: CodeMap): BindingI
         ?: throw InternalError.msg("Binding not resolved for '${ident.node.ident}'", ident.span, codemap)
 
 @Suppress("UNCHECKED_CAST")
-private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, _codemap: CodeMap): List<DefParam> {
+private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codemap: CodeMap): List<DefParam> {
+    // States mirror Rust's DefParams::unpack
+    // 0=Normal, 1=SeenSlash, 2=SeenStar, 3=SeenStarStar
+    val argset = mutableSetOf<String>()
+    var seenOptional = false
+
     val result = mutableListOf<DefParam>()
-    var seenStar = false
-    var seenSlash = false
-    for (p in params) {
-        when (val param = p.node) {
-            is ParameterP.Slash<*> -> seenSlash = true
-            is ParameterP.NoArgs<*> -> seenStar = true
-            is ParameterP.Normal<*> -> {
-                val mode = if (seenStar) DefRegularParamMode.NameOnly else DefRegularParamMode.PosOrName
-                result.add(DefParam(param.name as CstAssignIdent,
-                    DefParamKind.Regular(mode, param.defaultVal as CstExpr?), param.typ as CstTypeExpr?))
-            }
-            is ParameterP.Args<*> -> {
-                seenStar = true
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ as CstTypeExpr?))
-            }
-            is ParameterP.KwArgs<*> ->
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ as CstTypeExpr?))
+    var indexOfStar: Int? = null
+
+    val numPositionalOnly: Int = run {
+        val slashIdx = params.indexOfFirst { it.node is ParameterP.Slash<*> }
+        when {
+            slashIdx < 0 -> 0
+            slashIdx == 0 -> throw EvalException.parserError(
+                "`/` cannot be first parameter", params[0].span, codemap
+            )
+            else -> slashIdx
         }
     }
+
+    var state = if (numPositionalOnly == 0) 1 else 0
+
+    for ((i, p) in params.withIndex()) {
+        val span = p.span
+
+        // Check for duplicate parameter names
+        val ident = p.node.ident()
+        if (ident != null) {
+            val name = (ident as CstAssignIdent).node.ident
+            if (!argset.add(name)) {
+                throw EvalException.parserError("duplicated parameter name", span, codemap)
+            }
+        }
+
+        when (val param = p.node) {
+            is ParameterP.Normal<*> -> {
+                if (state >= 3) {
+                    throw EvalException.parserError("Parameter after kwargs", span, codemap)
+                }
+                if (param.defaultVal == null) {
+                    if (seenOptional && state < 2) {
+                        throw EvalException.parserError("positional parameter after non positional", span, codemap)
+                    }
+                } else {
+                    seenOptional = true
+                }
+                val mode = when {
+                    state < 1 -> DefRegularParamMode.PosOnly
+                    state < 2 -> DefRegularParamMode.PosOrName
+                    else -> DefRegularParamMode.NameOnly
+                }
+                result.add(DefParam(
+                    param.name as CstAssignIdent,
+                    DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
+                    param.typ as CstTypeExpr?,
+                ))
+            }
+            is ParameterP.NoArgs<*> -> {
+                if (state >= 2) {
+                    throw EvalException.parserError(
+                        "Args parameter after another args or kwargs parameter", span, codemap
+                    )
+                }
+                state = 2
+                if (indexOfStar != null) {
+                    throw EvalException.internalError(
+                        "Multiple `*` in parameters, must have been caught earlier", span, codemap
+                    )
+                }
+                indexOfStar = i
+            }
+            is ParameterP.Slash<*> -> {
+                if (state >= 1) {
+                    throw EvalException.parserError("Multiple `/` in parameters", span, codemap)
+                }
+                state = 1
+            }
+            is ParameterP.Args<*> -> {
+                if (state >= 2) {
+                    throw EvalException.parserError(
+                        "Args parameter after another args or kwargs parameter", span, codemap
+                    )
+                }
+                state = 2
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ as CstTypeExpr?))
+            }
+            is ParameterP.KwArgs<*> -> {
+                if (state >= 3) {
+                    throw EvalException.parserError("Multiple kwargs dictionary in parameters", span, codemap)
+                }
+                state = 3
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ as CstTypeExpr?))
+            }
+        }
+    }
+
+    if (indexOfStar != null) {
+        val next = params.getOrNull(indexOfStar + 1)
+        if (next == null) {
+            throw EvalException.parserError("`*` parameter must not be last", params[indexOfStar].span, codemap)
+        }
+        if (next.node !is ParameterP.Normal<*>) {
+            throw EvalException.parserError("`*` must be followed by named parameter", next.span, codemap)
+        }
+    }
+
     return result
 }
 

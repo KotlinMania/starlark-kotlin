@@ -64,8 +64,8 @@ class SmallMap<K, V> internal constructor(
 
     fun iterHashed(): Sequence<Pair<Hashed<K>, V>> = entries.asSequence().map { Pair(it.key, it.value) }
 
-    fun reserve(_additional: Int) {
-        // No-op in this Kotlin implementation.
+    fun reserve(additional: Int) {
+        entries.ensureCapacity(entries.size + additional)
     }
 
     fun capacity(): Int = entries.size

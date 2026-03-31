@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -103,6 +104,7 @@ open class PartialGen<V : Any, S : Any>(
     val namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : StarlarkValue, Trace {
     override val TYPE: String get() = FUNCTION_TYPE
+    override val HAS_invoke: Boolean get() = true
 
     // impl<'v, V: ValueLike<'v>, S> PartialGen<V, S>
     // fn pos_content(&self) -> &'v [Value<'v>]
@@ -223,9 +225,24 @@ open class PartialGen<V : Any, S : Any>(
         return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }
 
-    // Trace implementation
-    override fun trace(_tracer: Tracer) {
-        // In Kotlin, GC handles tracing. No-op.
+    // Trace implementation — Rust #[derive(Trace)] walks all fields.
+    override fun trace(tracer: Tracer) {
+        // func, pos, and named may contain Value objects that need GC tracing.
+        // names contain Symbols and StringValues which are identity-traced.
+        if (func is Value) {
+            val holder = ValueHolder(func as Value)
+            tracer.trace(holder)
+        }
+        if (pos is Value) {
+            val holder = ValueHolder(pos as Value)
+            tracer.trace(holder)
+        }
+        for (v in named) {
+            if (v is Value) {
+                val holder = ValueHolder(v as Value)
+                tracer.trace(holder)
+            }
+        }
     }
 }
 

@@ -144,6 +144,7 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
 data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, AllocValue, AllocFrozenValue {
 
     override val TYPE: String get() = Companion.TYPE
+    override val HAS_equals: Boolean get() = true
 
     companion object {
         /** The result of calling `type()` on floats. */

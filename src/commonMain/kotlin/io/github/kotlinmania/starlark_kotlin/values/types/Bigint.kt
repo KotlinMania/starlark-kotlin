@@ -185,6 +185,7 @@ class StarlarkBigInt private constructor(
     // Rust: impl<'v> StarlarkValue<'v> for StarlarkBigInt
 
     override val TYPE: String get() = INT_TYPE
+    override val HAS_equals: Boolean get() = true
 
     /** StarlarkBigInt is always non-zero, so always truthy. */
     override fun toBool(): Boolean = true

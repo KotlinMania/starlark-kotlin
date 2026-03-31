@@ -29,6 +29,8 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -108,14 +110,16 @@ private val LIST_FUNCTION: TyFunction by lazy {
  *
  * Corresponds to Rust's `register_list` function with `#[starlark_module]`.
  */
-internal fun registerList(_globals: GlobalsBuilder) {
+internal fun registerList(globals: GlobalsBuilder) {
     // The list() function takes an optional positional argument (an iterable).
     // If no argument is provided, it returns an empty list.
     // If an iterable is provided, its elements are collected into a new list.
     // If the argument is already a list, its contents are copied efficiently.
-    //
-    // Registration is handled through GlobalsBuilder when the builder
-    // infrastructure is fully ported.
+    globals.setFunction("list", asType = Ty.anyList()) { args, eval ->
+        val heap = eval.heap()
+        val a = args.optional1(heap).getOrThrow()
+        listBuiltin(a, heap).getOrThrow()
+    }
 }
 
 /**

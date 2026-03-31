@@ -47,6 +47,8 @@ data class Range(
     val step: NonZeroI32
 ) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
+    override val HAS_iterate: Boolean get() = true
+    override val HAS_equals: Boolean get() = true
     companion object {
         /** The result of calling `type()` on a range. */
         const val TYPE: String = "range"

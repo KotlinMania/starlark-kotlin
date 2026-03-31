@@ -150,7 +150,8 @@ private class DapAdapterImpl(
         }
     }
 
-    override fun stackTrace(_args: StackTraceArguments): Result<StackTraceResponseBody> {
+    override fun stackTrace(args: StackTraceArguments): Result<StackTraceResponseBody> {
+        // Rust: fn stack_trace(&self, _: StackTraceArguments) — args intentionally unused
         // Our model of a Frame and the debugger model are a bit different.
         // We record the location of the call, but DAP wants the location we are at.
         // We also have them in the wrong order

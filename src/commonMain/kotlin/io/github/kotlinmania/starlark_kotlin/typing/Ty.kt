@@ -208,29 +208,17 @@ class Ty private constructor(
                 return any()
             }
 
+            // fn next_skip_never<I: Iterator<Item = Ty>>(iter: &mut I) -> Option<Ty>
+            fun nextSkipNever(iter: Iterator<Ty>): Ty? {
+                for (x in iter) {
+                    if (!x.isNever()) return x
+                }
+                return null
+            }
+
             val iter = xs.iterator()
-
-            // Skip never types to find first non-never
-            var x0: Ty? = null
-            while (iter.hasNext()) {
-                val x = iter.next()
-                if (!x.isNever()) {
-                    x0 = x
-                    break
-                }
-            }
-            if (x0 == null) return never()
-
-            // Find second non-never
-            var x1: Ty? = null
-            while (iter.hasNext()) {
-                val x = iter.next()
-                if (!x.isNever()) {
-                    x1 = x
-                    break
-                }
-            }
-            if (x1 == null) return x0
+            val x0 = nextSkipNever(iter) ?: return never()
+            val x1 = nextSkipNever(iter) ?: return x0
 
             // Check for no-more-remaining fast path
             if (!iter.hasNext() && x0 == x1) {

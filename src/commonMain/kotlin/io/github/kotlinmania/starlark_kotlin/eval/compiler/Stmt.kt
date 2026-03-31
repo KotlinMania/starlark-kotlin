@@ -562,10 +562,10 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
         }
         val list = ListData.fromValueMut(lhs).getOrElse { return Result.failure(it) }
         if (lhs.ptrEq(rhs)) {
-            list.double()
+            list.double(heap)
         } else {
             val iter = rhs.iterate(heap).getOrElse { return Result.failure(it) }
-            list.extend(Iterable { iter })
+            list.extend(Iterable { iter }, heap)
         }
         return Result.success(lhs)
     } else {

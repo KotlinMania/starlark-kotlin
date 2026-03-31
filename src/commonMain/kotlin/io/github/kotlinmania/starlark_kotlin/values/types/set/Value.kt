@@ -55,6 +55,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         return mutableSelf.freeze(freezer) as FreezeResult<StarlarkValue>
     }
     override val TYPE: String get() = SET_TYPE
+    override val HAS_iterate: Boolean get() = true
+    override val HAS_equals: Boolean get() = true
 
     override fun trace(tracer: Tracer) {
         val innerVal = inner

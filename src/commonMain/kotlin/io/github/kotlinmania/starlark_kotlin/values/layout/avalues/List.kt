@@ -152,7 +152,7 @@ fun Heap.tryAllocListIter(
     val listGen = ListGen(listData)
     for (elem in elems) {
         val v = elem.getOrElse { return Result.failure(it) }
-        listData.push(v)
+        listData.push(v, this)
     }
     return Result.success(allocRaw(AValueImpl.new<AValueList>(listGen)).toValue())
 }

@@ -99,15 +99,14 @@ class AValueVTable(
     private val debugFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },
 ) {
     companion object {
-        fun newBlackHole(): AValueVTable {
+        internal fun newBlackHole(blackHole: BlackHole = BlackHole(ValueAllocSize(AlignedSize(0u)))): AValueVTable {
             return AValueVTable(
                 staticTypeOfValue = ConstTypeId.of<BlackHole>(),
                 starlarkTypeId = StarlarkTypeId.fromTypeId(ConstTypeId.of<BlackHole>()),
                 typeName = "BlackHole",
                 isStr = false,
-                memorySizeFn = { p ->
-                    val bh = p.valueRef<BlackHole>()
-                    bh.size
+                memorySizeFn = { _ ->
+                    blackHole.size
                 },
                 heapFreezeFn = { _, _ -> error("BlackHole") },
                 heapCopyFn = { _, _ -> error("BlackHole") },

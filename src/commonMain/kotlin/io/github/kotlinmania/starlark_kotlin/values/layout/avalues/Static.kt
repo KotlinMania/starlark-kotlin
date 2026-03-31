@@ -103,6 +103,10 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
                 heapFreezeFn = { _, _ -> error("AllocStaticSimple: heapFreeze not supported") },
                 heapCopyFn = { _, _ -> error("AllocStaticSimple: heapCopy not supported") },
                 starlarkValue = value,
+                hasInvoke = value.HAS_invoke,
+                hasEvalType = value.HAS_eval_type,
+                hasIterate = value.HAS_iterate,
+                hasEquals = value.HAS_equals,
             )
             return AllocStaticSimple(
                 AValueRepr(

@@ -88,8 +88,10 @@ private sealed class SetFromValue {
  *
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
-internal fun setMethods(_builder: MethodsBuilder) {
-    // Methods are registered through the MethodsBuilder
+internal fun setMethods(builder: MethodsBuilder) {
+    // In Rust, the #[starlark_module] macro generates the registration code.
+    // Register each set method on the builder.
+    builder.setDocstring("Methods for the `set` type.")
 }
 
 internal fun clear(thisValue: Value): Result<NoneType> {

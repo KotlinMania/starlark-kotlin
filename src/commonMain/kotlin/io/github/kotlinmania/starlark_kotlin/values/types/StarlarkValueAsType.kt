@@ -78,6 +78,7 @@ internal class StarlarkValueAsTypeStarlarkValue(
     // impl<'v> StarlarkValue<'v> for StarlarkValueAsTypeStarlarkValue {
     //     type Canonical = AbstractType;
     override val TYPE: String get() = "type"
+    override val HAS_eval_type: Boolean get() = true
 
     // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty? {

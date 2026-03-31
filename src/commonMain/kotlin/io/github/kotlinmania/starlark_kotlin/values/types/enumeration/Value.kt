@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 
 class EnumType(val value: Value) {
     fun tyEnumData(): TyEnumData? = null
@@ -96,9 +97,12 @@ class EnumValueGen(
     }
 
     // impl serde::Serialize for EnumValueGen
-    // Delegates serialization to the inner value.
-    fun serialize(_serializer: Any): Result<Any> {
-        return Result.success(value.toValue())
+    // self.value.serialize(serializer)
+    fun serialize(serializer: Any): Result<Any> {
+        // Delegates serialization to the inner value, passing through the serializer.
+        val encoder = serializer as kotlinx.serialization.encoding.Encoder
+        encoder.encodeString(value.toValue().toString())
+        return Result.success(Unit)
     }
 }
 
@@ -106,16 +110,28 @@ class EnumValueGen(
 typealias EnumValue = EnumValueGen
 typealias FrozenEnumValue = EnumValueGen
 
-fun enumValueMethods(_methods: MethodsBuilder) {
+fun enumValueMethods(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn index(this: &EnumValue) -> starlark::Result<i32>
-    fun index(thisVal: EnumValue): Result<Int> {
-        return Result.success(thisVal.index)
+    methods.setAttributeFn(
+        name = "index",
+        speculativeExecSafe = true,
+        docstring = null,
+        typ = Ty.int(),
+    ) { _, thisValue, _ ->
+        val enumValue = thisValue.downcastRef<EnumValueGen>()!!
+        Result.success(Value.newInt(InlineInt.newUnchecked(enumValue.index)))
     }
 
     // #[starlark(attribute)]
     // fn value(this: &EnumValue) -> starlark::Result<Value>
-    fun value(thisVal: EnumValue): Result<Value> {
-        return Result.success(thisVal.value.toValue())
+    methods.setAttributeFn(
+        name = "value",
+        speculativeExecSafe = true,
+        docstring = null,
+        typ = Ty.any(),
+    ) { _, thisValue, _ ->
+        val enumValue = thisValue.downcastRef<EnumValueGen>()!!
+        Result.success(enumValue.value.toValue())
     }
 }

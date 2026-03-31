@@ -91,6 +91,7 @@ class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
     internal val values: List<Value>,
 ) : ComplexValue, Freeze<RecordGen> {
+    override val HAS_equals: Boolean get() = true
 
     companion object {
         /** `type(x)` for records. */

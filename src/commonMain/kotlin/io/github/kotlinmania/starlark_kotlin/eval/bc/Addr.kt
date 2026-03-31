@@ -180,9 +180,14 @@ data class BcPtrAddr(
     }
 
     // pub(crate) fn get_instr<I: BcInstr>(self) -> &'b BcInstrRepr<I>
-    fun <I : BcInstr> getInstr(_instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
+    fun <I : BcInstr> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
+        // Rust: debug_assert!(self.remaining_if_debug() >= mem::size_of::<BcInstrRepr<I>>())
+        check(remainingIfDebug() >= BcInstrRepr.sizeOf(instrClass))
         @Suppress("UNCHECKED_CAST")
-        return instrs as BcInstrRepr<I>
+        val repr = instrs as BcInstrRepr<I>
+        // Rust: debug_assert_eq!(repr.header.opcode, BcOpcode::for_instr::<I>())
+        check(repr.header.opcode == BcOpcode.forInstr(instrClass))
+        return repr
     }
 
     // pub(crate) fn get_instr_checked<I: BcInstr>(self) -> Option<&'b BcInstrRepr<I>>

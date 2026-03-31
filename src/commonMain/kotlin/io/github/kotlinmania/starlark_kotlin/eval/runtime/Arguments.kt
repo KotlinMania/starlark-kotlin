@@ -35,6 +35,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.Parameters
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
+import io.github.kotlinmania.starlark_kotlin.ErrorKind
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
@@ -86,8 +88,15 @@ sealed class FunctionError(
     )
 }
 
-// impl From<FunctionError> for crate::Error
-// Kotlin: FunctionError already extends Exception, convertible via standard mechanisms.
+// impl From<FunctionError> for crate::Error {
+//     fn from(e: FunctionError) -> Self {
+//         crate::Error::new_kind(crate::ErrorKind::Function(anyhow::Error::new(e)))
+//     }
+// }
+/** Convert a [FunctionError] into a [StarlarkError] wrapping it as [ErrorKind.Function]. */
+fun from(e: FunctionError): StarlarkError {
+    return StarlarkError.newKind(ErrorKind.Function(e))
+}
 
 /** An object accompanying argument name for faster argument resolution. */
 // pub(crate) trait ArgSymbol: Debug + Coerce<Self> + 'static
@@ -421,30 +430,7 @@ class Arguments(
         if (full.named.isEmpty() && full.kwargs == null) {
             return Result.success(Unit)
         }
-        // #[cold] fn bad(x: &Arguments) -> crate::Result<()>
-        val extra = mutableListOf<String>()
-        extra.addAll(full.names.names().map { it.second.asStr() })
-        val kwargsResult = unpackKwargs()
-        if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
-        val kwargsVal = kwargsResult.getOrNull()
-        if (kwargsVal != null) {
-            for (k in kwargsVal.keys()) {
-                val keyResult = unpackKwargsKey(k)
-                if (keyResult.isFailure) return Result.failure(keyResult.exceptionOrNull()!!)
-                extra.add(keyResult.getOrThrow())
-            }
-        }
-        return if (extra.isEmpty()) {
-            Result.success(Unit)
-        } else {
-            // Would be nice to give a better name here, but it's in the call stack, so no big deal
-            Result.failure(
-                FunctionError.ExtraNamedArg(
-                    names = extra,
-                    function = "function",
-                )
-            )
-        }
+        return bad(this)
     }
 
     /**
@@ -483,36 +469,7 @@ class Arguments(
             }
             return Result.success(Pair(requiredList, optionalList))
         }
-        // Rare path: need to iterate *args
-        // Very sad that we allocate into a list, but I expect calling into a small positional argument
-        // with a *args is very rare.
-        val argsIter: Iterator<Value> = when (val a = full.args) {
-            null -> StarlarkIterator.empty(heap)
-            else -> {
-                val iterResult = a.iterate(heap)
-                if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
-                iterResult.getOrThrow()
-            }
-        }
-        val xs = full.pos.toMutableList()
-        argsIter.forEach { xs.add(it) }
-        return if (xs.size >= required && xs.size <= required + optional) {
-            val requiredList = xs.subList(0, required)
-            val optionalList = MutableList<Value?>(optional) { null }
-            val remaining = xs.subList(required, xs.size)
-            for ((i, v) in remaining.withIndex()) {
-                optionalList[i] = v
-            }
-            Result.success(Pair(requiredList.toList(), optionalList))
-        } else {
-            Result.failure(
-                FunctionError.WrongNumberOfArgs(
-                    min = required,
-                    max = required + optional,
-                    got = xs.size,
-                )
-            )
-        }
+        return rare(this, required, optional, heap)
     }
 
     /**
@@ -624,6 +581,86 @@ class Arguments(
 // impl<'a> Arguments<'static, 'a>
 // pub(crate) fn frozen_to_v<'v>(&self) -> &Arguments<'v, 'a>
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
+
+// #[cold]
+// #[inline(never)]
+// fn bad(x: &Arguments) -> crate::Result<()>
+/**
+ * Cold path for [Arguments.noNamedArgs]: collects extra named argument names
+ * and produces an error if any are found.
+ */
+private fun bad(x: Arguments): Result<Unit> {
+    // We might have an empty kwargs dictionary, but probably have an error
+    val extra = mutableListOf<String>()
+    extra.addAll(x.full.names.names().map { it.second.asStr() })
+    val kwargsResult = x.unpackKwargs()
+    if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
+    val kwargsVal = kwargsResult.getOrNull()
+    if (kwargsVal != null) {
+        for (k in kwargsVal.keys()) {
+            val keyResult = Arguments.unpackKwargsKey(k)
+            if (keyResult.isFailure) return Result.failure(keyResult.exceptionOrNull()!!)
+            extra.add(keyResult.getOrThrow())
+        }
+    }
+    return if (extra.isEmpty()) {
+        Result.success(Unit)
+    } else {
+        // Would be nice to give a better name here, but it's in the call stack, so no big deal
+        Result.failure(
+            FunctionError.ExtraNamedArg(
+                names = extra,
+                function = "function",
+            )
+        )
+    }
+}
+
+// #[cold]
+// #[inline(never)]
+// fn rare<'v, const REQUIRED: usize, const OPTIONAL: usize>(
+//     x: &Arguments<'v, '_>, heap: Heap<'v>,
+// ) -> crate::Result<([Value<'v>; REQUIRED], [Option<Value<'v>>; OPTIONAL])>
+/**
+ * Cold path for [Arguments.optional]: handles the rare case where `*args` is present
+ * and needs to be iterated and combined with positional arguments.
+ */
+private fun rare(
+    x: Arguments,
+    required: Int,
+    optional: Int,
+    heap: Heap,
+): Result<Pair<List<Value>, List<Value?>>> {
+    // Very sad that we allocate into a list, but I expect calling into a small positional argument
+    // with a *args is very rare.
+    val argsIter: Iterator<Value> = when (val a = x.full.args) {
+        null -> StarlarkIterator.empty(heap)
+        else -> {
+            val iterResult = a.iterate(heap)
+            if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
+            iterResult.getOrThrow()
+        }
+    }
+    val xs = x.full.pos.toMutableList()
+    argsIter.forEach { xs.add(it) }
+    return if (xs.size >= required && xs.size <= required + optional) {
+        val requiredList = xs.subList(0, required)
+        val optionalList = MutableList<Value?>(optional) { null }
+        val remaining = xs.subList(required, xs.size)
+        for ((i, v) in remaining.withIndex()) {
+            optionalList[i] = v
+        }
+        Result.success(Pair(requiredList.toList(), optionalList))
+    } else {
+        Result.failure(
+            FunctionError.WrongNumberOfArgs(
+                min = required,
+                max = required + optional,
+                got = xs.size,
+            )
+        )
+    }
+}
 
 private fun DictRef.dict(): Dict {
     return when (val ref = aref) {

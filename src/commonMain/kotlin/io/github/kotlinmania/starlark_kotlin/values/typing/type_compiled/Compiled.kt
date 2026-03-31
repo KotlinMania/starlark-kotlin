@@ -89,6 +89,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
 ) : StarlarkValue, TypeCompiledDyn {
 
     override val TYPE: String get() = "type"
+    override val HAS_eval_type: Boolean get() = true
 
     override fun asTyDyn(): Ty = ty
 

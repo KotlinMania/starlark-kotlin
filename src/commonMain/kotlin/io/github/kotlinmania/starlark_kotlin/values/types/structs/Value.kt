@@ -46,6 +46,7 @@ data class StructGen<V>(
     val fields: SmallMap<String, V>
 ) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
+    override val HAS_equals: Boolean get() = true
 
     companion object {
         /** The result of calling `type()` on a struct. */

@@ -43,6 +43,16 @@ class EvalException(override val message: String, cause: Throwable? = null) : Ex
             return EvalException("${error.message} at ${span} in ${codemap}", error)
         }
 
+        // fn parser_error(error: impl Display, span: Span, codemap: &CodeMap) -> EvalException
+        fun parserError(message: String, span: Span, codemap: CodeMap): EvalException {
+            return EvalException("$message at $span in $codemap")
+        }
+
+        // fn internal_error(error: impl Display, span: Span, codemap: &CodeMap) -> EvalException
+        fun internalError(message: String, span: Span, codemap: CodeMap): EvalException {
+            return new(StarlarkError("Internal: $message"), span, codemap)
+        }
+
         // EvalException::new_with_callstack(e, span, file, || frames)
         fun newWithCallStack(
             error: Throwable,

@@ -138,10 +138,10 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
 internal fun append(
     thisValue: Value,
     el: Value,
-    _heap: Heap,
+    heap: Heap,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
-    thisList.push(el)
+    thisList.push(el, heap)
     return Result.success(NoneType)
 }
 
@@ -203,10 +203,10 @@ internal fun extend(
     if (thisValue.ptrEq(other)) {
         // If the types alias, we can't borrow the `other` for iteration.
         // But we can do something smarter to double the elements.
-        res.double()
+        res.double(heap)
     } else {
         val it = other.iterate(heap).getOrElse { e -> return Result.failure(e) }
-        res.extend(it.asSequence().asIterable())
+        res.extend(it.asSequence().asIterable(), heap)
     }
     return Result.success(NoneType)
 }
@@ -299,11 +299,11 @@ internal fun insert(
     thisValue: Value,
     insertIndex: Int,
     el: Value,
-    _heap: Heap,
+    heap: Heap,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     val idx = convertIndex(thisList.len(), insertIndex)
-    thisList.insert(idx, el)
+    thisList.insert(idx, el, heap)
     return Result.success(NoneType)
 }
 

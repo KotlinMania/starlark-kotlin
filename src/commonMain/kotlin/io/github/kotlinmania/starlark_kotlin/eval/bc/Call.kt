@@ -135,11 +135,11 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
 
-    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
         // No jump addresses in call args.
     }
 }
@@ -162,11 +162,11 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }
 
-    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
         // No jump addresses in call args.
     }
 }
@@ -194,11 +194,11 @@ class BcCallArgsFullForDef(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
 
-    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
         // No jump addresses in call args.
     }
 }
@@ -215,11 +215,11 @@ class BcCallArgsPosForDef(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }
 
-    override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {
+    override fun visitJumpAddr(@Suppress("UNUSED_PARAMETER") ip: BcAddr, @Suppress("UNUSED_PARAMETER") consumer: (BcAddr) -> Unit) {
         // No jump addresses in call args.
     }
 }
