@@ -81,6 +81,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // ---- DefError ----
@@ -682,7 +683,7 @@ internal class DefGen<V>(
     internal val optimizedOnFreezeStmt: StmtCompiledCell,
     /** Whether this DefGen holds frozen values. */
     private val frozen: Boolean,
-) : ComplexValue, Trace {
+) : ComplexValue, Trace, Freeze<FrozenDef> {
 
     override fun toString(): String = parameters.signature()
 
@@ -703,7 +704,7 @@ internal class DefGen<V>(
 
     // Freeze implementation: freeze into FrozenDef.
     // impl Freeze for Def
-    fun freeze(freezer: Freezer): FreezeResult<FrozenDef> {
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenDef> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
         val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
