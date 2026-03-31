@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/evaluator.rs
+// port-lint: source src/eval/runtime/evaluator.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
 
 /*
@@ -111,16 +111,30 @@ private fun eprintln(msg: String) {
     println(msg)
 }
 
-// Rust uses `_check_variance`/`check_covariant_a` to validate lifetime variance on `Evaluator`.
-// Kotlin has no equivalent lifetime system, so these remain explicit no-op parity markers.
-@Suppress("unused")
-private fun checkVariance() {
-    checkCovariantA()
-}
+// We use this to validate that the Rust `Evaluator` lifetimes have the expected variance.
+// Kotlin has no equivalent lifetime system, but we keep the function as a parity marker.
+@Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
+private fun _check_variance() {
+    fun check_covariant_a(a: Evaluator) {
+        val loader: FileLoader? = a.loader
+        val evalInstrumentation: EvaluationInstrumentation = a.evalInstrumentation
+        val extra: AnyLifetime? = a.extra
+        val extraMut: AnyLifetime? = a.extraMut
+        val printHandler: PrintHandler = a.printHandler
+        val softErrorHandler: SoftErrorHandler = a.softErrorHandler
+        val isCancelled: () -> Boolean = a.isCancelled
+        val self: Evaluator = a
 
-@Suppress("unused")
-private fun checkCovariantA() {
-    // No-op.
+        if (self === self) {
+            // Avoid unused warnings while keeping references typed.
+            if (loader != loader || evalInstrumentation != evalInstrumentation || extra != extra || extraMut != extraMut) {
+                error("unreachable")
+            }
+            if (printHandler != printHandler || softErrorHandler != softErrorHandler || isCancelled != isCancelled) {
+                error("unreachable")
+            }
+        }
+    }
 }
 
 /** Just holds things that require using EvaluationCallbacksEnabled so that we can cache whether that needs to be enabled or not. */
@@ -455,14 +469,13 @@ class Evaluator(
     ): R {
         callStack.push(function, span)
         // Must always call .pop regardless
-        val res = try {
-            within(this)
+        try {
+            return within(this)
         } catch (e: io.github.kotlinmania.starlark_kotlin.Error) {
-            callStack.pop()
             throw addCallStackDiagnostics(e)
+        } finally {
+            callStack.pop()
         }
-        callStack.pop()
-        return res
     }
 
     /** The active heap where [Value]s are allocated. */

@@ -19,7 +19,9 @@
       "source_qualified": "runtime.evaluator",
       "target_path": "eval/runtime/Evaluator.kt",
       "dependent_count": 56,
-      "status": "pending"
+      "status": "assigned",
+      "assigned_to": "12",
+      "assigned_at": "2026-03-31T11:02:14"
     },
     {
       "source_path": "src/debug.rs",
