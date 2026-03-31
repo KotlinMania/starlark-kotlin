@@ -83,7 +83,7 @@ class AValueVTable(
     internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
 
     // StarlarkValue dispatch
-    private val starlarkValue: StarlarkValue,
+    internal val starlarkValue: StarlarkValue,
 
     /**
      * Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.

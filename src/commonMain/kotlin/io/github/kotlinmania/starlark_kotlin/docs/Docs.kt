@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.docs
 
 /** Types supporting documentation for code written in or for Starlark. */
 
+import kotlin.js.JsName
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -237,6 +238,7 @@ class DocType(
     /** Name and details of each attr/function that can be accessed on this type. */
     val members: SmallMap<String, DocMember> = SmallMap.new(),
     val ty: Ty,
+    @JsName("constructor_")
     val constructor: DocFunction? = null,
 ) {
     companion object {

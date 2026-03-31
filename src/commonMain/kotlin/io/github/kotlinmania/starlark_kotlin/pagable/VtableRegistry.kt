@@ -52,7 +52,7 @@ data class DeserTypeId(val typeClass: KClass<*>) {
 
     /** Get the underlying type name string. */
     fun asStr(): String {
-        return typeClass.qualifiedName ?: typeClass.simpleName ?: typeClass.toString()
+        return typeClass.simpleName ?: typeClass.toString()
     }
 
     override fun toString(): String = asStr()

@@ -129,7 +129,10 @@ class AValueHeader(
     // #[inline]
     // pub(crate) fn payload_ptr(&self) -> StarlarkValueRawPtr
     fun payloadPtr(): StarlarkValueRawPtr {
-        return StarlarkValueRawPtr.newHeader(this)
+        // In Rust, this does pointer arithmetic from the header to the payload
+        // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
+        // in the vtable since there's no raw memory layout.
+        return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
     // pub(crate) unsafe fn payload<'v, T: StarlarkValue<'v>>(&self) -> &T
