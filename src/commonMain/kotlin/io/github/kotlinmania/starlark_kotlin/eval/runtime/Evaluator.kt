@@ -111,11 +111,11 @@ private fun eprintln(msg: String) {
     println(msg)
 }
 
-// We use this to validate that the Rust `Evaluator` lifetimes have the expected variance.
-// Kotlin has no equivalent lifetime system, but we keep the function as a parity marker.
+// Rust uses compile-time variance checks for `Evaluator` lifetimes.
+// Kotlin has no equivalent lifetime system, but we keep no-op parity markers (camelCase per Kotlin conventions).
 @Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
-private fun _check_variance() {
-    fun check_covariant_a(a: Evaluator) {
+private fun checkVariance() {
+    fun checkCovariantA(a: Evaluator) {
         val loader: FileLoader? = a.loader
         val evalInstrumentation: EvaluationInstrumentation = a.evalInstrumentation
         val extra: AnyLifetime? = a.extra

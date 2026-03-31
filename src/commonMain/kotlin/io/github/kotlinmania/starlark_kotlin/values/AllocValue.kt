@@ -31,31 +31,42 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
  * Trait for things that can be created on a [Heap] producing a [Value].
  *
  * Note, this trait does not represent Starlark types.
- * For example, this trait can be implemented for `Char`,
- * but there's no Starlark type for `Char`; this trait is implemented
- * for `Char` to construct Starlark `str`.
+ * For example, this trait is implemented for `Char`, but there's no Starlark type for `Char`;
+ * this trait is implemented for `Char` to construct Starlark `str`.
  *
- * For types that implement
- * [StarlarkValue][io.github.kotlinmania.starlark_kotlin.values.StarlarkValue]
- * a typical implementation will probably call either [Heap.allocSimple]
- * or [Heap.allocComplex], for example:
+ * For types that implement [StarlarkValue], a typical implementation will probably call either
+ * [Heap.allocSimple] or [Heap.allocComplex], for example:
  *
  * ```kotlin
+ * // #[derive(Debug, Display, NoSerialize, ProvidesStaticType)]
+ * // struct MySimpleValue;
+ * //
+ * // #[starlark_value(type = "MySimpleValue", UnpackValue, StarlarkTypeRepr)]
+ * // impl<'v> StarlarkValue<'v> for MySimpleValue {}
+ *
  * class MySimpleValue : StarlarkValue, AllocValue {
+ *     override val TYPE: String get() = "MySimpleValue"
+ *
  *     override fun allocValue(heap: Heap): Value {
  *         return heap.allocSimple(this)
  *     }
  * }
  * ```
  *
- * ## Derive
+ * # Derive
  *
  * `AllocValue` can be derived for enums, like this:
  *
  * ```kotlin
+ * // #[derive(StarlarkTypeRepr, AllocValue)]
+ * // enum AllocIntOrStr {
+ * //     Int(i32),
+ * //     Str(String),
+ * // }
+ *
  * sealed class AllocIntOrStr : StarlarkTypeRepr, AllocValue {
- *     data class Int(val value: Int) : AllocIntOrStr()
- *     data class Str(val value: String) : AllocIntOrStr()
+ *     data class Int(val value: kotlin.Int) : AllocIntOrStr()
+ *     data class Str(val value: kotlin.String) : AllocIntOrStr()
  * }
  * ```
  */
@@ -122,3 +133,34 @@ inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozen
         is Either.Left -> value.allocFrozenValue(heap)
         is Either.Right -> value.allocFrozenValue(heap)
     }
+
+// --- Rust name parity aliases (for AST distance + line-by-line ports) ---
+// Rust methods use snake_case like `alloc_value`/`alloc_frozen_value`.
+// Kotlin uses camelCase, so we provide thin wrappers for parity.
+@Suppress("FunctionName")
+fun AllocValue.alloc_value(heap: Heap): Value = allocValue(heap)
+
+@Suppress("FunctionName")
+fun AllocStringValue.alloc_string_value(heap: Heap): StringValue = allocStringValue(heap)
+
+@Suppress("FunctionName")
+fun FrozenValue.alloc_value(heap: Heap): Value = allocValue(heap)
+
+@Suppress("FunctionName")
+fun Value.alloc_value(heap: Heap): Value = allocValue(heap)
+
+@Suppress("FunctionName")
+inline fun <A : AllocValue, B : AllocValue> Either<A, B>.alloc_value(heap: Heap): Value = allocValue(heap)
+
+@Suppress("FunctionName")
+fun AllocFrozenValue.alloc_frozen_value(heap: FrozenHeap): FrozenValue = allocFrozenValue(heap)
+
+@Suppress("FunctionName")
+fun AllocFrozenStringValue.alloc_frozen_string_value(heap: FrozenHeap): FrozenStringValue = allocFrozenStringValue(heap)
+
+@Suppress("FunctionName")
+fun FrozenValue.alloc_frozen_value(heap: FrozenHeap): FrozenValue = allocFrozenValue(heap)
+
+@Suppress("FunctionName")
+inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.alloc_frozen_value(heap: FrozenHeap): FrozenValue =
+    allocFrozenValue(heap)

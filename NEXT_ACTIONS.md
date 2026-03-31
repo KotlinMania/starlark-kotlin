@@ -4,72 +4,73 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (496/470 files)
-- **Matched Files:** 470
-- **Average Similarity:** 0.53
-- **Critical Issues:** 229 files with <0.60 similarity
+- **Current Progress:** 100.0% (468/468 source files matched)
+- **Target Files (total):** 496 (includes Kotlin-only helpers)
+- **Matched Files:** 468
+- **Average Similarity:** 0.46
+- **Critical Issues:** 284 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
-### 1. layout.heap
-- **Similarity:** 0.18 (needs 67% improvement)
-- **Dependencies:** 109
-- **Priority Score:** 89.3
-- **Action:** Deep review - likely missing major functionality
-
-### 2. layout.value
-- **Similarity:** 0.77 (needs 8% improvement)
+### 1. layout.value
+- **Similarity:** 0.51 (needs 34% improvement)
 - **Dependencies:** 178
-- **Priority Score:** 41.5
-- **Action:** Minor refinements needed
-
-### 3. values.freeze
-- **Similarity:** 0.06 (needs 79% improvement)
-- **Dependencies:** 42
-- **Priority Score:** 39.4
+- **Priority Score:** 87.0
 - **Action:** Deep review - likely missing major functionality
 
-### 4. assert
-- **Similarity:** 0.63 (needs 22% improvement)
-- **Dependencies:** 84
-- **Priority Score:** 31.3
+### 2. values.freeze
+- **Similarity:** 0.03 (needs 82% improvement)
+- **Dependencies:** 42
+- **Priority Score:** 40.7
+- **Action:** Deep review - likely missing major functionality
+
+### 3. layout.heap
+- **Similarity:** 0.72 (needs 13% improvement)
+- **Dependencies:** 109
+- **Priority Score:** 30.4
 - **Action:** Review and complete missing sections
 
-### 5. values.trace
-- **Similarity:** 0.43 (needs 42% improvement)
-- **Dependencies:** 52
-- **Priority Score:** 29.8
+### 4. assert
+- **Similarity:** 0.64 (needs 21% improvement)
+- **Dependencies:** 84
+- **Priority Score:** 30.3
+- **Action:** Review and complete missing sections
+
+### 5. coerce
+- **Similarity:** 0.13 (needs 72% improvement)
+- **Dependencies:** 34
+- **Priority Score:** 29.4
 - **Action:** Deep review - likely missing major functionality
 
-### 6. derive.unpack_value
-- **Similarity:** 0.50 (needs 35% improvement)
-- **Dependencies:** 51
-- **Priority Score:** 25.3
-- **Action:** Deep review - likely missing major functionality
-
-### 7. params.display
+### 6. params.display
 - **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
 - **Priority Score:** 24.2
 - **Action:** Review and complete missing sections
 
-### 8. typing.starlark_value
+### 7. typing.starlark_value
 - **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
 - **Priority Score:** 24.0
 - **Action:** Review and complete missing sections
 
+### 8. derive.unpack_value
+- **Similarity:** 0.54 (needs 31% improvement)
+- **Dependencies:** 51
+- **Priority Score:** 23.6
+- **Action:** Deep review - likely missing major functionality
+
 ### 9. typing.ty
-- **Similarity:** 0.79 (needs 6% improvement)
+- **Similarity:** 0.80 (needs 5% improvement)
 - **Dependencies:** 109
-- **Priority Score:** 22.7
+- **Priority Score:** 21.5
 - **Action:** Minor refinements needed
 
-### 10. coerce
-- **Similarity:** 0.60 (needs 25% improvement)
-- **Dependencies:** 34
-- **Priority Score:** 13.5
-- **Action:** Review and complete missing sections
+### 10. values.frozen_ref
+- **Similarity:** 0.28 (needs 57% improvement)
+- **Dependencies:** 27
+- **Priority Score:** 19.4
+- **Action:** Deep review - likely missing major functionality
 
 ## Priority 2: Port Missing High-Value Files
 
@@ -91,7 +92,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>

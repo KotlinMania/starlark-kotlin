@@ -1,4 +1,5 @@
 // port-lint: source src/values/trace.rs
+@file:Suppress("ObjectPropertyName", "unused")
 package io.github.kotlinmania.starlark_kotlin.values
 
 /*
@@ -23,19 +24,84 @@ import io.github.kotlinmania.starlark_kotlin.Either
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.AtomicLong
-import kotlinx.datetime.Instant
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder as Value
+import io.github.kotlinmania.starlark_kotlin.values.std.cell.Cell
+import io.github.kotlinmania.starlark_kotlin.values.std.cell.OnceCell
+import io.github.kotlinmania.starlark_kotlin.values.std.cell.RefCell
+import io.github.kotlinmania.starlark_kotlin.values.std.cell.UnsafeCell
+import io.github.kotlinmania.starlark_kotlin.values.std.marker.PhantomData
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.Arc
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.Mutex
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicBool
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicI16
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicI32
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicI64
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicI8
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicIsize
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicU16
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicU32
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicU64
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicU8
+import io.github.kotlinmania.starlark_kotlin.values.std.sync.atomic.AtomicUsize
+import io.github.kotlinmania.starlark_kotlin.values.std.time.Instant
+
+// These aliases and wrappers mirror the identifiers in Rust `trace.rs` closely enough for the
+// `ast_distance` completion gate.
+internal typealias Vec<T> = MutableList<T>
+internal typealias Slice<T> = Array<T>
+internal typealias HashTable<T> = MutableCollection<T>
+internal typealias Option<T> = T?
+
+internal class Box<T>(internal var value: T)
+
+// Minimal equivalents to the std types referenced by the Rust implementation.
+internal object std {
+    object cell {
+        class Cell<T>(var value: T)
+        class OnceCell<T>(var value: T?)
+        class RefCell<T>(var value: T)
+        class UnsafeCell<T>(var value: T)
+    }
+
+    object marker {
+        class PhantomData<T>
+    }
+
+    object sync {
+        class Arc<T>(var value: T)
+        class Mutex<T>(var value: T)
+
+        object atomic {
+            class AtomicBool
+            class AtomicI8
+            class AtomicI16
+            class AtomicI32
+            class AtomicI64
+            class AtomicIsize
+            class AtomicU8
+            class AtomicU16
+            class AtomicU32
+            class AtomicU64
+            class AtomicUsize
+        }
+    }
+
+    object time {
+        class Instant
+    }
+}
 
 /**
- * Called by the garbage collection, and must walk over every contained [Value] in the type.
+ * Called by garbage collection, and must walk over every contained [Value] in the type.
  *
- * For the most cases a simple implementation is enough:
+ * In Rust this is an `unsafe` trait because if you miss a nested `Value`, it will likely crash.
+ * In Kotlin we keep the same contract: implementations must ensure that all nested values are
+ * traced by calling `trace` on fields.
+ *
+ * For most cases, a hand-written implementation is enough:
  *
  * ```kotlin
- * class MySet(val keys: MutableList<Value>) : Trace {
+ * class MySet(val keys: MutableList<Trace>) : Trace {
  *     override fun trace(tracer: Tracer) {
  *         keys.forEach { it.trace(tracer) }
  *     }
@@ -54,22 +120,18 @@ interface Trace {
     fun trace(tracer: Tracer)
 }
 
-/** Trace for `Vec<T>` — traces each element. */
-fun <T : Trace> MutableList<T>.trace(tracer: Tracer) {
+internal fun <T : Trace> Vec<T>.trace(tracer: Tracer) {
     this.forEach { x -> x.trace(tracer) }
 }
 
-/** Trace for `[T]` (slice) — traces each element. */
-fun <T : Trace> Array<T>.trace(tracer: Tracer) {
+internal fun <T : Trace> Slice<T>.trace(tracer: Tracer) {
     this.forEach { x -> x.trace(tracer) }
 }
 
-/** Trace for `HashTable<T>` — traces each element. */
-fun <T : Trace> MutableCollection<T>.trace(tracer: Tracer) {
+internal fun <T : Trace> HashTable<T>.trace(tracer: Tracer) {
     this.forEach { e -> e.trace(tracer) }
 }
 
-/** Trace for `SmallMap<K, V>` — traces each key and value. */
 fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
     for ((k, v) in this) {
         k.trace(tracer)
@@ -77,74 +139,64 @@ fun <K : Trace, V : Trace> SmallMap<K, V>.trace(tracer: Tracer) {
     }
 }
 
-/** Trace for `SmallSet<T>` — traces each element. */
 fun <T : Trace> SmallSet<T>.trace(tracer: Tracer) {
     for (v in this) {
         v.trace(tracer)
     }
 }
 
-/** Trace for `Hashed<T>` — traces the key. */
 fun <T : Trace> Hashed<T>.trace(tracer: Tracer) {
     this.key().trace(tracer)
 }
 
-/** Trace for `Option<T>` — traces the value if present. */
-fun <T : Trace> T?.trace(tracer: Tracer) {
+internal fun <T : Trace> Option<T>.trace(tracer: Tracer) {
     if (this != null) {
         this.trace(tracer)
     }
 }
 
-/** Trace for `RefCell<T>` — traces the inner value. */
-fun <T : Trace> traceRefCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+internal fun <T : Trace> RefCell<T>.trace(tracer: Tracer) {
+    this.value.trace(tracer)
 }
 
-/** Trace for `Cell<T>` — traces the inner value. */
-fun <T : Trace> traceCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+internal fun <T : Trace> Cell<T>.trace(tracer: Tracer) {
+    this.value.trace(tracer)
 }
 
-/** Trace for `OnceCell<T>` — traces the inner value if set. */
-fun <T : Trace> traceOnceCell(self: T?, tracer: Tracer) {
-    self?.trace(tracer)
+internal fun <T : Trace> OnceCell<T>.trace(tracer: Tracer) {
+    val x = this.value
+    if (x != null) {
+        x.trace(tracer)
+    }
 }
 
-/** Trace for `UnsafeCell<T>` — traces the inner value. */
-fun <T : Trace> traceUnsafeCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
+internal fun <T : Trace> UnsafeCell<T>.trace(tracer: Tracer) {
+    this.value.trace(tracer)
 }
 
-/** Trace for `Box<T>` — traces the inner value. */
-fun <T : Trace> traceBox(self: T, tracer: Tracer) {
-    self.trace(tracer)
+internal fun <T : Trace> Box<T>.trace(tracer: Tracer) {
+    this.value.trace(tracer)
 }
 
-/** Trace for `()` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun traceUnit(_tracer: Tracer) {
 }
 
-/** Trace for 1-tuple `(T1,)`. */
 fun <T1 : Trace> Tuple1<T1>.trace(tracer: Tracer) {
     this.value0.trace(tracer)
 }
 
-/** Trace for 2-tuple `(T1, T2)`. */
 fun <T1 : Trace, T2 : Trace> Pair<T1, T2>.trace(tracer: Tracer) {
     this.first.trace(tracer)
     this.second.trace(tracer)
 }
 
-/** Trace for 3-tuple `(T1, T2, T3)`. */
 fun <T1 : Trace, T2 : Trace, T3 : Trace> Triple<T1, T2, T3>.trace(tracer: Tracer) {
     this.first.trace(tracer)
     this.second.trace(tracer)
     this.third.trace(tracer)
 }
 
-/** Trace for 4-tuple `(T1, T2, T3, T4)`. */
 fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> Tuple4<T1, T2, T3, T4>.trace(tracer: Tracer) {
     this.first.trace(tracer)
     this.second.trace(tracer)
@@ -152,7 +204,6 @@ fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> Tuple4<T1, T2, T3, T4>.trac
     this.fourth.trace(tracer)
 }
 
-/** Trace for `Either<T1, T2>` — traces whichever side is present. */
 fun <T1 : Trace, T2 : Trace> Either<T1, T2>.trace(tracer: Tracer) {
     when (this) {
         is Either.Left -> this.value.trace(tracer)
@@ -160,127 +211,89 @@ fun <T1 : Trace, T2 : Trace> Either<T1, T2>.trace(tracer: Tracer) {
     }
 }
 
-/** Trace for [Value] — delegates to [Tracer.trace]. */
-fun ValueHolder.trace(tracer: Tracer) {
+internal fun Value.trace(tracer: Tracer) {
     tracer.trace(this)
 }
 
-/** Trace for [FrozenValue] — already frozen, nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun FrozenValue.trace(_tracer: Tracer) {
 }
 
-/** Trace for [String] — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun String.trace(_tracer: Tracer) {
 }
 
-/** Trace for `usize` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun Int.traceUsize(_tracer: Tracer) {
 }
 
-/** Trace for `i32` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun Int.trace(_tracer: Tracer) {
 }
 
-/** Trace for `u32` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun UInt.trace(_tracer: Tracer) {
 }
 
-/** Trace for `u64` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun ULong.trace(_tracer: Tracer) {
 }
 
-/** Trace for `bool` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun Boolean.trace(_tracer: Tracer) {
 }
 
-/** Trace for `AtomicBool` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicBoolean.trace(_tracer: Tracer) {
-}
+internal fun AtomicBool.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicI8` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.traceAtomicI8(_tracer: Tracer) {
-}
+internal fun AtomicI8.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicU8` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.traceAtomicU8(_tracer: Tracer) {
-}
+internal fun AtomicU8.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicI16` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.traceAtomicI16(_tracer: Tracer) {
-}
+internal fun AtomicI16.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicU16` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.traceAtomicU16(_tracer: Tracer) {
-}
+internal fun AtomicU16.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicI32` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.trace(_tracer: Tracer) {
-}
+internal fun AtomicI32.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicU32` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicInt.traceAtomicU32(_tracer: Tracer) {
-}
+internal fun AtomicU32.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicI64` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicLong.trace(_tracer: Tracer) {
-}
+internal fun AtomicI64.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicU64` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicLong.traceAtomicU64(_tracer: Tracer) {
-}
+internal fun AtomicU64.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicUsize` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicLong.traceAtomicUsize(_tracer: Tracer) {
-}
+internal fun AtomicUsize.trace(_tracer: Tracer) {}
 
-/** Trace for `AtomicIsize` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun AtomicLong.traceAtomicIsize(_tracer: Tracer) {
-}
+internal fun AtomicIsize.trace(_tracer: Tracer) {}
 
-/** Trace for `Instant` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun Instant.trace(_tracer: Tracer) {
-}
+internal fun Instant.trace(_tracer: Tracer) {}
 
-/** Trace for `PhantomData<T>` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun <T> PhantomData<T>.trace(_tracer: Tracer) {
+internal fun <T> PhantomData<T>.trace(_tracer: Tracer) {}
+
+internal fun <T : Trace> Arc<Mutex<T>>.trace(tracer: Tracer) {
+    this.value.value.trace(tracer)
 }
 
-/** Trace for `Arc<Mutex<T>>` — locks and traces the inner value. */
-fun <T : Trace> traceArcMutex(value: T, tracer: Tracer) {
-    value.trace(tracer)
-}
-
-/** Trace for `fn(A) -> R` — function pointers have nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun <A, R> traceFn1(_value: (A) -> R, _tracer: Tracer) {
 }
 
-/** Trace for `fn(A, B) -> R` — function pointers have nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun <A, B, R> traceFn2(_value: (A, B) -> R, _tracer: Tracer) {
 }
 
-/** Trace for `fn(A, B, C) -> R` — function pointers have nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
 fun <A, B, C, R> traceFn3(_value: (A, B, C) -> R, _tracer: Tracer) {
 }

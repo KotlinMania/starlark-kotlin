@@ -22,73 +22,85 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.toValue
+import kotlin.test.assertEquals
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-sealed class EmptyEnum { companion object }
-fun EmptyEnum.Companion.starlarkTypeRepr(): Ty = StarlarkNever.starlarkTypeRepr()
-fun EmptyEnum.Companion.unpackValue(value: Value): Result<EmptyEnum?> = Result.success(null)
+private sealed class EmptyEnum {
+    companion object : UnpackValue<EmptyEnum> {
+        override fun starlarkTypeRepr(): Ty = StarlarkNever.starlarkTypeRepr()
+        override fun unpackValueImpl(value: Value): Result<EmptyEnum?> = Result.success(null)
+    }
+}
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-sealed class JustInt { companion object }
-data class JustIntInt(val value: Int) : JustInt()
-fun JustInt.Companion.starlarkTypeRepr(): Ty = Ty.int()
-fun JustInt.Companion.unpackValue(value: Value): Result<JustInt?> =
-    Result.success(value.unpackI32()?.let(::JustIntInt))
+private sealed class JustInt {
+    data class Int(val value: kotlin.Int) : JustInt()
+
+    companion object : UnpackValue<JustInt> {
+        override fun starlarkTypeRepr(): Ty = Ty.int()
+        override fun unpackValueImpl(value: Value): Result<JustInt?> =
+            Result.success(value.unpackI32()?.let { JustInt.Int(it) })
+    }
+}
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-sealed class IntOrStr { companion object }
-data class IntOrStrInt(val value: Int) : IntOrStr()
-data class IntOrStrStr(val value: String) : IntOrStr()
-fun IntOrStr.Companion.starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
-fun IntOrStr.Companion.unpackValue(value: Value): Result<IntOrStr?> =
-    Result.success(value.unpackI32()?.let(::IntOrStrInt) ?: value.unpackStr()?.let(::IntOrStrStr))
+private sealed class IntOrStr {
+    data class Int(val value: kotlin.Int) : IntOrStr()
+    data class Str(val value: kotlin.String) : IntOrStr()
+
+    companion object : UnpackValue<IntOrStr> {
+        override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
+        override fun unpackValueImpl(value: Value): Result<IntOrStr?> =
+            Result.success(value.unpackI32()?.let { IntOrStr.Int(it) } ?: value.unpackStr()?.let { IntOrStr.Str(it) })
+    }
+}
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-sealed class WithLifetime { companion object }
-data class WithLifetimeInt(val value: Int) : WithLifetime()
-data class WithLifetimeStr(val value: String) : WithLifetime()
-fun WithLifetime.Companion.starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
-fun WithLifetime.Companion.unpackValue(value: Value): Result<WithLifetime?> =
-    Result.success(value.unpackI32()?.let(::WithLifetimeInt) ?: value.unpackStr()?.let(::WithLifetimeStr))
+private sealed class WithLifetime {
+    data class Int(val value: kotlin.Int) : WithLifetime()
+    data class Str(val value: kotlin.String) : WithLifetime()
+
+    companion object : UnpackValue<WithLifetime> {
+        override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
+        override fun unpackValueImpl(value: Value): Result<WithLifetime?> =
+            Result.success(value.unpackI32()?.let { WithLifetime.Int(it) } ?: value.unpackStr()?.let { WithLifetime.Str(it) })
+    }
+}
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
-data class TransparentIntOrStr(val inner: IntOrStr) { companion object }
-fun TransparentIntOrStr.Companion.starlarkTypeRepr(): Ty = IntOrStr.starlarkTypeRepr()
-fun TransparentIntOrStr.Companion.unpackValue(value: Value): Result<TransparentIntOrStr?> =
-    IntOrStr.unpackValue(value).map { it?.let(::TransparentIntOrStr) }
-
-// #[test]
-fun testStarlarkTypeRepr() {
-    val never = StarlarkNever.starlarkTypeRepr()
-    val empty = EmptyEnum.starlarkTypeRepr()
-    val intTy = Ty.int()
-    val justIntTy = JustInt.starlarkTypeRepr()
-    val union = Ty.union2(Ty.int(), Ty.string())
-    val intOrStrTy = IntOrStr.starlarkTypeRepr()
-    val withLifetimeTy = WithLifetime.starlarkTypeRepr()
-    val transparentTy = TransparentIntOrStr.starlarkTypeRepr()
-    check(never == empty)
-    check(intTy == justIntTy)
-    check(union == intOrStrTy)
-    check(union == withLifetimeTy)
-    check(intOrStrTy == transparentTy)
+private data class TransparentIntOrStr(val value: IntOrStr) {
+    companion object : UnpackValue<TransparentIntOrStr> {
+        override fun starlarkTypeRepr(): Ty = IntOrStr.starlarkTypeRepr()
+        override fun unpackValueImpl(value: Value): Result<TransparentIntOrStr?> =
+            IntOrStr.unpackValue(value).map { it?.let(::TransparentIntOrStr) }
+    }
 }
 
 // #[test]
-fun testUnpackValue() {
+internal fun testStarlarkTypeRepr() {
+    assertEquals(StarlarkNever.starlarkTypeRepr(), EmptyEnum.starlarkTypeRepr())
+    assertEquals(Ty.int(), JustInt.starlarkTypeRepr())
+    assertEquals(Ty.union2(Ty.int(), Ty.string()), IntOrStr.starlarkTypeRepr())
+    assertEquals(Ty.union2(Ty.int(), Ty.string()), WithLifetime.starlarkTypeRepr())
+    assertEquals(IntOrStr.starlarkTypeRepr(), TransparentIntOrStr.starlarkTypeRepr())
+}
+
+// #[test]
+internal fun testUnpackValue() {
     val r1 = JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow()
     val r2 = IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
     val r3 = IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow()
     val r4 = WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow()
     val r5 = WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow()
     val r6 = TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
-    check(r1 == JustIntInt(17))
-    check(r2 == IntOrStrInt(19))
-    check(r3 == IntOrStrStr("abc"))
-    check(r4 == WithLifetimeInt(23))
-    check(r5 == WithLifetimeStr("def"))
-    check(r6 == TransparentIntOrStr(IntOrStrInt(19)))
+    assertEquals(JustInt.Int(17), r1)
+    assertEquals(IntOrStr.Int(19), r2)
+    assertEquals(IntOrStr.Str("abc"), r3)
+    assertEquals(WithLifetime.Int(23), r4)
+    assertEquals(WithLifetime.Str("def"), r5)
+    assertEquals(TransparentIntOrStr(IntOrStr.Int(19)), r6)
 }
