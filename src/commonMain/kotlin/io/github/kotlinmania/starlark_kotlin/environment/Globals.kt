@@ -380,15 +380,19 @@ class GlobalsBuilder private constructor(
         val sig = io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
             .withCapacity<FrozenValue>(name).finish()
         val nativeFn: NativeFuncFn = { eval, _, args ->
-            @Suppress("UNCHECKED_CAST")
-            val result = f(args, eval)
-            when (result) {
-                is io.github.kotlinmania.starlark_kotlin.values.layout.Value ->
-                    kotlin.Result.success(result)
-                is kotlin.Result<*> ->
-                    result as kotlin.Result<io.github.kotlinmania.starlark_kotlin.values.layout.Value>
-                else ->
-                    kotlin.Result.success(io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone())
+            try {
+                @Suppress("UNCHECKED_CAST")
+                val result = f(args, eval)
+                when (result) {
+                    is io.github.kotlinmania.starlark_kotlin.values.layout.Value ->
+                        kotlin.Result.success(result)
+                    is kotlin.Result<*> ->
+                        result as kotlin.Result<io.github.kotlinmania.starlark_kotlin.values.layout.Value>
+                    else ->
+                        kotlin.Result.success(io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone())
+                }
+            } catch (e: Exception) {
+                kotlin.Result.failure(e)
             }
         }
         set(
