@@ -176,7 +176,7 @@ private fun debugValue(typ: String, v: Value): String {
 // pub struct Value<'v>(pub(crate) Pointer<'v>);
 class Value internal constructor(
     internal val ptr: Pointer,
-) {
+) : ValueLike {
     companion object {
         /**
          * Create a new [Value] from an [AValueHeader] pointer.
@@ -291,7 +291,7 @@ class Value internal constructor(
      * For [Value], simply returns itself.
      */
     // impl ValueLike for Value: fn to_value(self) -> Value<'v> { self }
-    fun toValue(): Value = this
+    override fun toValue(): Value = this
 
     /**
      * Obtain the underlying [FrozenValue] from inside the [Value], if it is one.
@@ -782,7 +782,7 @@ class Value internal constructor(
      * Invoke self with given arguments.
      */
     // pub(crate) fn invoke(self, args, eval) -> crate::Result<Value<'v>>
-    internal fun invoke(
+    override fun invoke(
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {
@@ -956,9 +956,13 @@ class Value internal constructor(
      * Convert a value to a [FrozenValue] using a supplied [Freezer].
      */
     // pub fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValue>
-    fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
         return freezer.freeze(this)
     }
+
+    // ValueLike impl
+
+    override fun fromFrozenValue(v: FrozenValue): ValueLike = v.toValue()
 
     /**
      * Implement the `str()` function - converts a string value to itself,
@@ -1061,7 +1065,7 @@ class Value internal constructor(
      * Get the [Hashed] version of this [Value].
      */
     // pub fn get_hashed(self) -> crate::Result<Hashed<Self>>
-    fun getHashed(): Result<Hashed<Value>> {
+    override fun getHashed(): Result<Hashed<Value>> {
         val str = unpackStarlarkStr()
         val hash = try {
             if (str != null) {
@@ -1080,7 +1084,7 @@ class Value internal constructor(
      * return `false`. It will only error if there is excessive recursion.
      */
     // pub fn equals(self, other: Value<'v>) -> crate::Result<bool>
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         return if (ptrEq(other)) {
             Result.success(true)
         } else {
@@ -1102,7 +1106,7 @@ class Value internal constructor(
      * How are two values comparable. For values of different types will return error.
      */
     // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
-    fun compare(other: Value): Result<Int> {
+    override fun compare(other: Value): Result<Int> {
         try {
             stackGuard()
         } catch (e: Exception) {
@@ -1283,11 +1287,33 @@ class Value internal constructor(
         return getRef().downcastRef<T>()
     }
 
+    // ValueLike interface requires non-reified KClass version
+    override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
+        if (clazz == StarlarkStr::class) {
+            if (!isStr()) return null
+        }
+        if (clazz == PointerI32::class) {
+            return if (unpackInlineInt() != null) {
+                @Suppress("UNCHECKED_CAST")
+                PointerI32(ptr.unpackIntValue()) as? T
+            } else {
+                null
+            }
+        }
+        val ref = getRef()
+        return if (clazz.isInstance(ref)) {
+            @Suppress("UNCHECKED_CAST")
+            ref as T
+        } else {
+            null
+        }
+    }
+
     /**
      * Collect repr into a collector, handling cycles.
      */
     // fn collect_repr(self, collector: &mut String)
-    fun collectRepr(collector: StringBuilder) {
+    override fun collectRepr(collector: StringBuilder) {
         val guard = reprStackPush(this)
         if (guard.isSuccess) {
             try {
@@ -1304,7 +1330,7 @@ class Value internal constructor(
      * Write hash value.
      */
     // fn write_hash(self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         return getRef().writeHash(hasher)
     }
 
@@ -1312,7 +1338,7 @@ class Value internal constructor(
      * Collect str into a collector.
      */
     // fn collect_str(self, collector: &mut String)
-    fun collectStr(collector: StringBuilder) {
+    override fun collectStr(collector: StringBuilder) {
         val s = unpackStr()
         if (s != null) {
             collector.append(s)
@@ -1379,7 +1405,7 @@ fun FrozenValue.equivalent(key: Value): Boolean {
 // pub struct FrozenValue(pub(crate) FrozenPointer<'static>);
 class FrozenValue internal constructor(
     internal val ptr: FrozenPointer,
-) {
+) : ValueLike {
     companion object {
         /**
          * Create a new [FrozenValue] from an [AValueHeader] pointer.
@@ -1545,7 +1571,7 @@ class FrozenValue internal constructor(
      * Convert a [FrozenValue] back to a [Value].
      */
     // pub fn to_value<'v>(self) -> Value<'v>
-    fun toValue(): Value {
+    override fun toValue(): Value {
         return Value.newFrozen(this)
     }
 
@@ -1646,7 +1672,7 @@ class FrozenValue internal constructor(
      * Compare this frozen value with a mutable value for equality.
      */
     // (from impl Equivalent)
-    fun equals(other: Value): Result<Boolean> {
+    override fun equals(other: Value): Result<Boolean> {
         return toValue().equals(other)
     }
 
@@ -1654,7 +1680,7 @@ class FrozenValue internal constructor(
      * Collect repr into a collector, handling cycles.
      */
     // impl ValueLike for FrozenValue: fn collect_repr(self, collector: &mut String)
-    fun collectRepr(collector: StringBuilder) {
+    override fun collectRepr(collector: StringBuilder) {
         toValue().collectRepr(collector)
     }
 
@@ -1662,7 +1688,7 @@ class FrozenValue internal constructor(
      * Collect str into a collector.
      */
     // impl ValueLike for FrozenValue: fn collect_str(self, collector: &mut String)
-    fun collectStr(collector: StringBuilder) {
+    override fun collectStr(collector: StringBuilder) {
         toValue().collectStr(collector)
     }
 
@@ -1670,7 +1696,7 @@ class FrozenValue internal constructor(
      * Write hash value.
      */
     // impl ValueLike for FrozenValue: fn write_hash(self, hasher: &mut StarlarkHasher)
-    fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         return toValue().writeHash(hasher)
     }
 
@@ -1678,7 +1704,7 @@ class FrozenValue internal constructor(
      * How are two values comparable. For values of different types will return error.
      */
     // impl ValueLike for FrozenValue: fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
-    fun compare(other: Value): Result<Int> {
+    override fun compare(other: Value): Result<Int> {
         return toValue().compare(other)
     }
 
@@ -1702,6 +1728,19 @@ class FrozenValue internal constructor(
     // impl Eq for FrozenValue
     override fun hashCode(): Int {
         return ptr.raw().hashCode()
+    }
+
+    // ValueLike impl
+
+    override fun fromFrozenValue(v: FrozenValue): ValueLike = v
+
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+        return Result.success(this)
+    }
+
+    // ValueLike interface requires non-reified KClass version
+    override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
+        return toValue().downcastRef(clazz)
     }
 
     /**
