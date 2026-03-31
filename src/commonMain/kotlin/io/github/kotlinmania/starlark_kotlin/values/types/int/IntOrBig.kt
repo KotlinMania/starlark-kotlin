@@ -294,10 +294,21 @@ sealed class StarlarkIntRef {
                 StarlarkInt.from(b)
             )
         }
-        val r = a % b
+        // Compute truncated remainder (sign follows dividend), matching Rust's BigInt::rem.
+        // kotlin-bignum's % operator uses a non-standard sign convention,
+        // so we compute it from absolute values.
+        val absR = a.abs() % b.abs()
+        val r = if (absR == BigInteger.ZERO) {
+            BigInteger.ZERO
+        } else if (signumBig(a) < 0) {
+            -absR
+        } else {
+            absR
+        }
         if (r == BigInteger.ZERO) {
             StarlarkInt.Small(InlineInt.ZERO)
         } else {
+            // Convert from truncated (sign of dividend) to floored (sign of divisor)
             StarlarkInt.from(if (signumBig(b) != signumBig(r)) {
                 r + b
             } else {
@@ -477,7 +488,9 @@ infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt = when (this) {
 
 operator fun StarlarkIntRef.not(): StarlarkInt = when (this) {
     is StarlarkIntRef.Small -> StarlarkInt.Small(!value)
-    is StarlarkIntRef.Big -> StarlarkInt.from(toBig().not())
+    // kotlin-bignum's BigInteger.not() does not implement two's complement NOT correctly.
+    // Two's complement: ~x = -(x + 1)
+    is StarlarkIntRef.Big -> StarlarkInt.from(-(toBig() + BigInteger.ONE))
 }
 
 operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {
