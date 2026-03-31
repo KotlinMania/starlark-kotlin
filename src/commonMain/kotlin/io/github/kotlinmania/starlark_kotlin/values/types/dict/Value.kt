@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -48,7 +49,14 @@ import kotlin.reflect.KClass
 
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 // pub(crate) struct DictGen<T>(pub(crate) T);
-data class DictGen<T>(val inner: T) : ComplexValue, Trace {
+data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
+
+    // impl Freeze for DictGen<RefCell<Dict<'v>>>
+    @Suppress("UNCHECKED_CAST")
+    override fun freeze(freezer: Freezer): FreezeResult<StarlarkValue> {
+        val mutableSelf = this as DictGen<AtomicRef<Dict>>
+        return mutableSelf.freezeDict(freezer) as FreezeResult<StarlarkValue>
+    }
 
     override val TYPE: String get() = Dict.TYPE
 
