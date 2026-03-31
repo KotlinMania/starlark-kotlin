@@ -1,0 +1,3306 @@
+{
+  "source_root": "tmp/starlark",
+  "target_root": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
+  "source_lang": "rust",
+  "target_lang": "kotlin",
+  "agents_md": "",
+  "tasks": [
+    {
+      "source_path": "src/values/layout/value.rs",
+      "source_qualified": "layout.value",
+      "target_path": "values/layout/Value.kt",
+      "dependent_count": 178,
+      "status": "assigned",
+      "assigned_to": "409",
+      "assigned_at": "2026-03-31T07:19:39"
+    },
+    {
+      "source_path": "src/eval/runtime/evaluator.rs",
+      "source_qualified": "runtime.evaluator",
+      "target_path": "eval/runtime/Evaluator.kt",
+      "dependent_count": 56,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug.rs",
+      "source_qualified": "debug",
+      "target_path": "Debug.kt",
+      "dependent_count": 53,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/trace.rs",
+      "source_qualified": "values.trace",
+      "target_path": "values/Trace.kt",
+      "dependent_count": 52,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/unpack_value.rs",
+      "source_qualified": "derive.unpack_value",
+      "target_path": "tests/derive/UnpackValue.kt",
+      "dependent_count": 51,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/alloc_value.rs",
+      "source_qualified": "values.alloc_value",
+      "target_path": "values/AllocValue.kt",
+      "dependent_count": 42,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/freeze.rs",
+      "source_qualified": "values.freeze",
+      "target_path": "values/Freeze.kt",
+      "dependent_count": 42,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/freezer.rs",
+      "source_qualified": "layout.freezer",
+      "target_path": "values/layout/Freezer.kt",
+      "dependent_count": 36,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/coerce.rs",
+      "source_qualified": "coerce",
+      "target_path": "Coerce.kt",
+      "dependent_count": 34,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/span.rs",
+      "source_qualified": "compiler.span",
+      "target_path": "eval/compiler/Span.kt",
+      "dependent_count": 29,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/none/none_type.rs",
+      "source_qualified": "none.none_type",
+      "target_path": "values/types/none/NoneType.kt",
+      "dependent_count": 27,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/frozen_ref.rs",
+      "source_qualified": "values.frozen_ref",
+      "target_path": "values/FrozenRef.kt",
+      "dependent_count": 27,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/frame_span.rs",
+      "source_qualified": "runtime.frame_span",
+      "target_path": "eval/runtime/FrameSpan.kt",
+      "dependent_count": 26,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/arguments.rs",
+      "source_qualified": "runtime.arguments",
+      "target_path": "eval/runtime/Arguments.kt",
+      "dependent_count": 25,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled.rs",
+      "source_qualified": "typing.type_compiled",
+      "target_path": "values/typing/TypeCompiled.kt",
+      "dependent_count": 22,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module.rs",
+      "source_qualified": "derive.module",
+      "target_path": "tests/derive/Module.kt",
+      "dependent_count": 21,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util/arc_str.rs",
+      "source_qualified": "util.arc_str",
+      "target_path": "util/ArcStr.kt",
+      "dependent_count": 21,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/globals.rs",
+      "source_qualified": "environment.globals",
+      "target_path": "environment/Globals.kt",
+      "dependent_count": 21,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util/refcell.rs",
+      "source_qualified": "util.refcell",
+      "target_path": "util/Refcell.kt",
+      "dependent_count": 20,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs/param_spec.rs",
+      "source_qualified": "__derive_refs.param_spec",
+      "target_path": "__derive_refs/ParamSpec.kt",
+      "dependent_count": 20,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/value_of_unchecked.rs",
+      "source_qualified": "values.value_of_unchecked",
+      "target_path": "values/ValueOfUnchecked.kt",
+      "dependent_count": 20,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/methods.rs",
+      "source_qualified": "environment.methods",
+      "target_path": "environment/Methods.kt",
+      "dependent_count": 17,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/iter.rs",
+      "source_qualified": "values.iter",
+      "target_path": "values/Iter.kt",
+      "dependent_count": 17,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/error.rs",
+      "source_qualified": "values.error",
+      "target_path": "values/Error.kt",
+      "dependent_count": 17,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/symbol.rs",
+      "source_qualified": "collections.symbol",
+      "target_path": "collections/Symbol.kt",
+      "dependent_count": 15,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/private.rs",
+      "source_qualified": "private",
+      "target_path": "Private.kt",
+      "dependent_count": 15,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalue.rs",
+      "source_qualified": "layout.avalue",
+      "target_path": "values/layout/Avalue.kt",
+      "dependent_count": 14,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/value_lifetimeless.rs",
+      "source_qualified": "layout.value_lifetimeless",
+      "target_path": "values/layout/ValueLifetimeless.kt",
+      "dependent_count": 12,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tuple.rs",
+      "source_qualified": "typing.tuple",
+      "target_path": "typing/Tuple.kt",
+      "dependent_count": 12,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/const_frozen_string.rs",
+      "source_qualified": "layout.const_frozen_string",
+      "target_path": "values/layout/ConstFrozenString.kt",
+      "dependent_count": 12,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict.rs",
+      "source_qualified": "types.dict",
+      "target_path": "values/types/Dict.kt",
+      "dependent_count": 12,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/inline_int.rs",
+      "source_qualified": "int.inline_int",
+      "target_path": "values/types/int/InlineInt.kt",
+      "dependent_count": 11,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/type_instance_id.rs",
+      "source_qualified": "types.type_instance_id",
+      "target_path": "values/types/TypeInstanceId.kt",
+      "dependent_count": 9,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/pointer_i32.rs",
+      "source_qualified": "int.pointer_i32",
+      "target_path": "values/types/int/PointerI32.kt",
+      "dependent_count": 9,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler.rs",
+      "source_qualified": "eval.compiler",
+      "target_path": "eval/Compiler.kt",
+      "dependent_count": 8,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/cast.rs",
+      "source_qualified": "cast",
+      "target_path": "Cast.kt",
+      "dependent_count": 8,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/aligned_size.rs",
+      "source_qualified": "layout.aligned_size",
+      "target_path": "values/layout/AlignedSize.kt",
+      "dependent_count": 8,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/any.rs",
+      "source_qualified": "any",
+      "target_path": "Any.kt",
+      "dependent_count": 8,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/starlark_type_id.rs",
+      "source_qualified": "values.starlark_type_id",
+      "target_path": "values/StarlarkTypeId.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/type_matcher_factory.rs",
+      "source_qualified": "type_compiled.type_matcher_factory",
+      "target_path": "values/typing/type_compiled/TypeMatcherFactory.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/opt_ctx.rs",
+      "source_qualified": "compiler.opt_ctx",
+      "target_path": "eval/compiler/OptCtx.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/frozen_file_span.rs",
+      "source_qualified": "runtime.frozen_file_span",
+      "target_path": "eval/runtime/FrozenFileSpan.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bigint.rs",
+      "source_qualified": "types.bigint",
+      "target_path": "values/types/Bigint.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/expr.rs",
+      "source_qualified": "bc.expr",
+      "target_path": "tests/bc/Expr.kt",
+      "dependent_count": 7,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/small_duration.rs",
+      "source_qualified": "runtime.small_duration",
+      "target_path": "eval/runtime/SmallDuration.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/profiler_type.rs",
+      "source_qualified": "profile.profiler_type",
+      "target_path": "eval/runtime/profile/ProfilerType.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout.rs",
+      "source_qualified": "values.layout",
+      "target_path": "values/Layout.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/freeze_error.rs",
+      "source_qualified": "values.freeze_error",
+      "target_path": "values/FreezeError.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/value_alloc_size.rs",
+      "source_qualified": "layout.value_alloc_size",
+      "target_path": "values/layout/ValueAllocSize.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/stmt.rs",
+      "source_qualified": "compiler.stmt",
+      "target_path": "eval/compiler/Stmt.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/none/none_or.rs",
+      "source_qualified": "none.none_or",
+      "target_path": "values/types/none/NoneOr.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/typecheck.rs",
+      "source_qualified": "typing.typecheck",
+      "target_path": "typing/Typecheck.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/dict_type.rs",
+      "source_qualified": "dict.dict_type",
+      "target_path": "values/types/dict/DictType.kt",
+      "dependent_count": 6,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc.rs",
+      "source_qualified": "eval.bc",
+      "target_path": "eval/Bc.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/array.rs",
+      "source_qualified": "types.array",
+      "target_path": "values/types/Array.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/range.rs",
+      "source_qualified": "types.range",
+      "target_path": "values/types/Range.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/def.rs",
+      "source_qualified": "tests.def",
+      "target_path": "tests/Def.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/scope_resolver_globals.rs",
+      "source_qualified": "scope.scope_resolver_globals",
+      "target_path": "eval/compiler/scope/ScopeResolverGlobals.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/interface.rs",
+      "source_qualified": "typing.interface",
+      "target_path": "typing/Interface.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/arc_ty.rs",
+      "source_qualified": "typing.arc_ty",
+      "target_path": "typing/ArcTy.kt",
+      "dependent_count": 5,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/value_of.rs",
+      "source_qualified": "values.value_of",
+      "target_path": "values/ValueOf.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/native_function.rs",
+      "source_qualified": "bc.native_function",
+      "target_path": "eval/bc/NativeFunction.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/demand.rs",
+      "source_qualified": "values.demand",
+      "target_path": "values/Demand.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/ellipsis.rs",
+      "source_qualified": "types.ellipsis",
+      "target_path": "values/types/Ellipsis.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration/enum_type.rs",
+      "source_qualified": "enumeration.enum_type",
+      "target_path": "values/types/enumeration/EnumType.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/alloc_counts.rs",
+      "source_qualified": "profile.alloc_counts",
+      "target_path": "values/layout/heap/profile/AllocCounts.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/starlark_value_as_type.rs",
+      "source_qualified": "types.starlark_value_as_type",
+      "target_path": "values/types/StarlarkValueAsType.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/frame.rs",
+      "source_qualified": "bc.frame",
+      "target_path": "eval/bc/Frame.kt",
+      "dependent_count": 4,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record.rs",
+      "source_qualified": "types.record",
+      "target_path": "values/types/Record.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chunk.rs",
+      "source_qualified": "alloc.chunk",
+      "target_path": "values/layout/heap/allocator/alloc/Chunk.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/instant.rs",
+      "source_qualified": "profile.instant",
+      "target_path": "eval/runtime/profile/Instant.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/errors/did_you_mean.rs",
+      "source_qualified": "errors.did_you_mean",
+      "target_path": "errors/DidYouMean.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/namespace.rs",
+      "source_qualified": "types.namespace",
+      "target_path": "values/types/Namespace.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/unpack_and_discard.rs",
+      "source_qualified": "values.unpack_and_discard",
+      "target_path": "values/UnpackAndDiscard.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/sealed.rs",
+      "source_qualified": "sealed",
+      "target_path": "Sealed.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/call_stack.rs",
+      "source_qualified": "stdlib.call_stack",
+      "target_path": "stdlib/CallStack.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/alloc.rs",
+      "source_qualified": "list.alloc",
+      "target_path": "values/types/list/Alloc.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/record_type.rs",
+      "source_qualified": "record.record_type",
+      "target_path": "values/types/record/RecordType.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/list_type.rs",
+      "source_qualified": "list.list_type",
+      "target_path": "values/types/list/ListType.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/constants.rs",
+      "source_qualified": "compiler.constants",
+      "target_path": "eval/compiler/Constants.kt",
+      "dependent_count": 3,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/small_vec_1.rs",
+      "source_qualified": "compiler.small_vec_1",
+      "target_path": "eval/compiler/SmallVec1.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/const_type_id.rs",
+      "source_qualified": "layout.const_type_id",
+      "target_path": "values/layout/ConstTypeId.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chunk_part.rs",
+      "source_qualified": "alloc.chunk_part",
+      "target_path": "values/layout/heap/allocator/alloc/ChunkPart.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/file_loader.rs",
+      "source_qualified": "runtime.file_loader",
+      "target_path": "eval/runtime/FileLoader.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/string_index.rs",
+      "source_qualified": "profile.string_index",
+      "target_path": "values/layout/heap/profile/StringIndex.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/owned_frozen_ref.rs",
+      "source_qualified": "values.owned_frozen_ref",
+      "target_path": "values/OwnedFrozenRef.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list.rs",
+      "source_qualified": "types.list",
+      "target_path": "values/types/List.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/float.rs",
+      "source_qualified": "types.float",
+      "target_path": "values/types/Float.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/string_pool.rs",
+      "source_qualified": "collections.string_pool",
+      "target_path": "collections/StringPool.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_type.rs",
+      "source_qualified": "typing.type_type",
+      "target_path": "values/typing/TypeType.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/def_inline/local_as_value.rs",
+      "source_qualified": "def_inline.local_as_value",
+      "target_path": "eval/compiler/def_inline/LocalAsValue.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/str_.rs",
+      "source_qualified": "avalues.str_",
+      "target_path": "values/layout/avalues/Str.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/hint.rs",
+      "source_qualified": "hint",
+      "target_path": "Hint.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util/arc_or_static.rs",
+      "source_qualified": "util.arc_or_static",
+      "target_path": "util/ArcOrStatic.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/aligned_padded_str.rs",
+      "source_qualified": "collections.aligned_padded_str",
+      "target_path": "collections/AlignedPaddedStr.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value.rs",
+      "source_qualified": "values.thin_box_slice_frozen_value",
+      "target_path": "values/ThinBoxSliceFrozenValue.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/num.rs",
+      "source_qualified": "types.num",
+      "target_path": "values/types/Num.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/rust_loc.rs",
+      "source_qualified": "runtime.rust_loc",
+      "target_path": "eval/runtime/RustLoc.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/stack_guard.rs",
+      "source_qualified": "values.stack_guard",
+      "target_path": "values/StackGuard.kt",
+      "dependent_count": 2,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/any_array.rs",
+      "source_qualified": "types.any_array",
+      "target_path": "values/types/AnyArray.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util/rtabort.rs",
+      "source_qualified": "util.rtabort",
+      "target_path": "util/Rtabort.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int.rs",
+      "source_qualified": "types.int",
+      "target_path": "values/types/Int.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/simple.rs",
+      "source_qualified": "avalues.simple",
+      "target_path": "values/layout/avalues/Simple.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/set.rs",
+      "source_qualified": "types.set",
+      "target_path": "values/types/Set.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs/unordered_hasher.rs",
+      "source_qualified": "structs.unordered_hasher",
+      "target_path": "values/types/structs/UnorderedHasher.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/alloca.rs",
+      "source_qualified": "collections.alloca",
+      "target_path": "collections/Alloca.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/bindings.rs",
+      "source_qualified": "typing.bindings",
+      "target_path": "typing/Bindings.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/breakpoint.rs",
+      "source_qualified": "stdlib.breakpoint",
+      "target_path": "stdlib/Breakpoint.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/structs.rs",
+      "source_qualified": "typing.structs",
+      "target_path": "typing/Structs.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing.rs",
+      "source_qualified": "typing",
+      "target_path": "Typing.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/lint_message.rs",
+      "source_qualified": "analysis.lint_message",
+      "target_path": "analysis/LintMessage.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/fast_cell.rs",
+      "source_qualified": "heap.fast_cell",
+      "target_path": "values/layout/heap/FastCell.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests.rs",
+      "source_qualified": "tests",
+      "target_path": "Tests.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/field.rs",
+      "source_qualified": "record.field",
+      "target_path": "values/types/record/Field.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string.rs",
+      "source_qualified": "types.string",
+      "target_path": "values/types/String.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/value_captured.rs",
+      "source_qualified": "layout.value_captured",
+      "target_path": "values/layout/ValueCaptured.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list_or_tuple.rs",
+      "source_qualified": "types.list_or_tuple",
+      "target_path": "values/types/ListOrTuple.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration.rs",
+      "source_qualified": "types.enumeration",
+      "target_path": "values/types/Enumeration.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool.rs",
+      "source_qualified": "types.bool",
+      "target_path": "values/types/Bool.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/read_line.rs",
+      "source_qualified": "read_line",
+      "target_path": "ReadLine.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/dot_format.rs",
+      "source_qualified": "string.dot_format",
+      "target_path": "values/types/string/DotFormat.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/if_debug.rs",
+      "source_qualified": "bc.if_debug",
+      "target_path": "eval/bc/IfDebug.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/cheap_call_stack.rs",
+      "source_qualified": "runtime.cheap_call_stack",
+      "target_path": "eval/runtime/CheapCallStack.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/pointer.rs",
+      "source_qualified": "layout.pointer",
+      "target_path": "values/layout/Pointer.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/before_stmt.rs",
+      "source_qualified": "tests.before_stmt",
+      "target_path": "tests/BeforeStmt.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/none.rs",
+      "source_qualified": "types.none",
+      "target_path": "values/types/None.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/any_complex.rs",
+      "source_qualified": "types.any_complex",
+      "target_path": "values/types/AnyComplex.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/arena.rs",
+      "source_qualified": "heap.arena",
+      "target_path": "values/layout/heap/Arena.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/interpolation.rs",
+      "source_qualified": "string.interpolation",
+      "target_path": "values/types/string/Interpolation.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util/non_static_type_id.rs",
+      "source_qualified": "util.non_static_type_id",
+      "target_path": "util/NonStaticTypeId.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib.rs",
+      "source_qualified": "stdlib",
+      "target_path": "Stdlib.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/function.rs",
+      "source_qualified": "typing.function",
+      "target_path": "typing/Function.kt",
+      "dependent_count": 1,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/speculative_exec.rs",
+      "source_qualified": "opt.speculative_exec",
+      "target_path": "tests/opt/SpeculativeExec.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/typed.rs",
+      "source_qualified": "layout.typed",
+      "target_path": "values/layout/Typed.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/globals.rs",
+      "source_qualified": "dict.globals",
+      "target_path": "values/types/dict/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug/inspect.rs",
+      "source_qualified": "debug.inspect",
+      "target_path": "debug/Inspect.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/alloc.rs",
+      "source_qualified": "dict.alloc",
+      "target_path": "values/types/dict/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug/adapter/tests.rs",
+      "source_qualified": "adapter.tests",
+      "target_path": "debug/adapter/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/util.rs",
+      "source_qualified": "util",
+      "target_path": "Util.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/user.rs",
+      "source_qualified": "typing.user",
+      "target_path": "typing/User.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/ty.rs",
+      "source_qualified": "values.typing.ty",
+      "target_path": "values/typing/Ty.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/code.rs",
+      "source_qualified": "docs.code",
+      "target_path": "docs/Code.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/comparison.rs",
+      "source_qualified": "values.comparison",
+      "target_path": "values/Comparison.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/methods.rs",
+      "source_qualified": "dict.methods",
+      "target_path": "values/types/dict/Methods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/markdown.rs",
+      "source_qualified": "docs.markdown",
+      "target_path": "docs/Markdown.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/refs.rs",
+      "source_qualified": "dict.refs",
+      "target_path": "values/types/dict/Refs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/multipage.rs",
+      "source_qualified": "docs.multipage",
+      "target_path": "docs/Multipage.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/never.rs",
+      "source_qualified": "typing.never",
+      "target_path": "values/typing/Never.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/parse.rs",
+      "source_qualified": "docs.parse",
+      "target_path": "docs/Parse.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/traits.rs",
+      "source_qualified": "dict.traits",
+      "target_path": "values/types/dict/Traits.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/unpack.rs",
+      "source_qualified": "dict.unpack",
+      "target_path": "values/types/dict/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/macro_refs.rs",
+      "source_qualified": "typing.macro_refs",
+      "target_path": "values/typing/MacroRefs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/iter.rs",
+      "source_qualified": "typing.iter",
+      "target_path": "values/typing/Iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/dict/value.rs",
+      "source_qualified": "dict.value",
+      "target_path": "values/types/dict/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug/adapter/implementation.rs",
+      "source_qualified": "adapter.implementation",
+      "target_path": "debug/adapter/Implementation.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug/adapter.rs",
+      "source_qualified": "debug.adapter",
+      "target_path": "debug/Adapter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/symbol/symbol.rs",
+      "source_qualified": "symbol.symbol",
+      "target_path": "collections/symbol/Symbol.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/tests.rs",
+      "source_qualified": "docs.tests",
+      "target_path": "docs/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool/value.rs",
+      "source_qualified": "bool.value",
+      "target_path": "values/types/bool/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration/globals.rs",
+      "source_qualified": "enumeration.globals",
+      "target_path": "values/types/enumeration/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/symbol/map.rs",
+      "source_qualified": "symbol.map",
+      "target_path": "collections/symbol/Map.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/types.rs",
+      "source_qualified": "tests.types",
+      "target_path": "typing/tests/Types.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/tuple.rs",
+      "source_qualified": "tests.tuple",
+      "target_path": "typing/tests/Tuple.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/special_function.rs",
+      "source_qualified": "tests.special_function",
+      "target_path": "typing/tests/SpecialFunction.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/tests/markdown.rs",
+      "source_qualified": "tests.markdown",
+      "target_path": "docs/tests/Markdown.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration/matcher.rs",
+      "source_qualified": "enumeration.matcher",
+      "target_path": "values/types/enumeration/Matcher.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs/tests/rustdocs.rs",
+      "source_qualified": "tests.rustdocs",
+      "target_path": "docs/tests/Rustdocs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/list.rs",
+      "source_qualified": "tests.list",
+      "target_path": "typing/tests/List.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment.rs",
+      "source_qualified": "environment",
+      "target_path": "Environment.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/index.rs",
+      "source_qualified": "values.index",
+      "target_path": "values/Index.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/globals.rs",
+      "source_qualified": "typing.globals",
+      "target_path": "values/typing/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/callable.rs",
+      "source_qualified": "tests.callable",
+      "target_path": "typing/tests/Callable.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration/ty_enum_type.rs",
+      "source_qualified": "enumeration.ty_enum_type",
+      "target_path": "values/types/enumeration/TyEnumType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests/call.rs",
+      "source_qualified": "typing.tests.call",
+      "target_path": "typing/tests/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/enumeration/value.rs",
+      "source_qualified": "enumeration.value",
+      "target_path": "values/types/enumeration/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/tests.rs",
+      "source_qualified": "typing.tests",
+      "target_path": "typing/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/alloc.rs",
+      "source_qualified": "type_compiled.alloc",
+      "target_path": "values/typing/type_compiled/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/compiled.rs",
+      "source_qualified": "type_compiled.compiled",
+      "target_path": "values/typing/type_compiled/Compiled.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/float/float.rs",
+      "source_qualified": "float.float",
+      "target_path": "values/types/float/Float.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/float/globals.rs",
+      "source_qualified": "float.globals",
+      "target_path": "values/types/float/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections/maybe_uninit_backport.rs",
+      "source_qualified": "collections.maybe_uninit_backport",
+      "target_path": "collections/MaybeUninitBackport.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/small_arc_vec_or_static.rs",
+      "source_qualified": "typing.small_arc_vec_or_static",
+      "target_path": "typing/SmallArcVecOrStatic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/small_arc_vec.rs",
+      "source_qualified": "typing.small_arc_vec",
+      "target_path": "typing/SmallArcVec.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/oracle/traits.rs",
+      "source_qualified": "oracle.traits",
+      "target_path": "typing/oracle/Traits.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/oracle/ctx.rs",
+      "source_qualified": "oracle.ctx",
+      "target_path": "typing/oracle/Ctx.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/oracle.rs",
+      "source_qualified": "typing.oracle",
+      "target_path": "typing/Oracle.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/mode.rs",
+      "source_qualified": "typing.mode",
+      "target_path": "typing/Mode.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues.rs",
+      "source_qualified": "layout.avalues",
+      "target_path": "values/layout/Avalues.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/macro_support.rs",
+      "source_qualified": "typing.macro_support",
+      "target_path": "typing/MacroSupport.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/array.rs",
+      "source_qualified": "avalues.array",
+      "target_path": "values/layout/avalues/Array.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/complex.rs",
+      "source_qualified": "avalues.complex",
+      "target_path": "values/layout/avalues/Complex.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/float/unpack.rs",
+      "source_qualified": "float.unpack",
+      "target_path": "values/types/float/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/fill_types_for_lint.rs",
+      "source_qualified": "typing.fill_types_for_lint",
+      "target_path": "typing/FillTypesForLint.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/function.rs",
+      "source_qualified": "types.function",
+      "target_path": "values/types/Function.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/module_dump.rs",
+      "source_qualified": "environment.module_dump",
+      "target_path": "environment/ModuleDump.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/error.rs",
+      "source_qualified": "typing.error",
+      "target_path": "typing/Error.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/list.rs",
+      "source_qualified": "avalues.list",
+      "target_path": "values/layout/avalues/List.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/modules.rs",
+      "source_qualified": "environment.modules",
+      "target_path": "environment/Modules.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/custom.rs",
+      "source_qualified": "typing.custom",
+      "target_path": "typing/Custom.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/ctx.rs",
+      "source_qualified": "typing.ctx",
+      "target_path": "typing/Ctx.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/callable_param.rs",
+      "source_qualified": "typing.callable_param",
+      "target_path": "typing/CallableParam.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/names.rs",
+      "source_qualified": "environment.names",
+      "target_path": "environment/Names.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/globals.rs",
+      "source_qualified": "int.globals",
+      "target_path": "values/types/int/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/environment/slots.rs",
+      "source_qualified": "environment.slots",
+      "target_path": "environment/Slots.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/callable.rs",
+      "source_qualified": "typing.callable",
+      "target_path": "typing/Callable.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/i32.rs",
+      "source_qualified": "int.i32",
+      "target_path": "values/types/int/I32.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/errors.rs",
+      "source_qualified": "errors",
+      "target_path": "Errors.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/static_.rs",
+      "source_qualified": "avalues.static_",
+      "target_path": "values/layout/avalues/Static.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/int_or_big.rs",
+      "source_qualified": "int.int_or_big",
+      "target_path": "values/types/int/IntOrBig.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/call_args.rs",
+      "source_qualified": "typing.call_args",
+      "target_path": "typing/CallArgs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool/unpack.rs",
+      "source_qualified": "bool.unpack",
+      "target_path": "values/types/bool/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool/type_repr.rs",
+      "source_qualified": "bool.type_repr",
+      "target_path": "values/types/bool/TypeRepr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/assert/conformance.rs",
+      "source_qualified": "assert.conformance",
+      "target_path": "assert/Conformance.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/typing/basic.rs",
+      "source_qualified": "typing.basic",
+      "target_path": "typing/Basic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/assert/assert.rs",
+      "source_qualified": "assert.assert",
+      "target_path": "assert/Assert.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/int/tests.rs",
+      "source_qualified": "int.tests",
+      "target_path": "values/types/int/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/avalues/tuple.rs",
+      "source_qualified": "avalues.tuple",
+      "target_path": "values/layout/avalues/Tuple.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/known_methods.rs",
+      "source_qualified": "types.known_methods",
+      "target_path": "values/types/KnownMethods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/addr.rs",
+      "source_qualified": "bc.addr",
+      "target_path": "eval/bc/Addr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/util.rs",
+      "source_qualified": "tests.util",
+      "target_path": "tests/Util.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/bytecode.rs",
+      "source_qualified": "bc.bytecode",
+      "target_path": "eval/bc/Bytecode.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/uncategorized.rs",
+      "source_qualified": "tests.uncategorized",
+      "target_path": "tests/Uncategorized.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool/globals.rs",
+      "source_qualified": "bool.globals",
+      "target_path": "values/types/bool/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/call.rs",
+      "source_qualified": "bc.call",
+      "target_path": "eval/bc/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/type_annot.rs",
+      "source_qualified": "tests.type_annot",
+      "target_path": "tests/TypeAnnot.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/complex.rs",
+      "source_qualified": "layout.complex",
+      "target_path": "values/layout/Complex.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/replace_binary.rs",
+      "source_qualified": "tests.replace_binary",
+      "target_path": "tests/ReplaceBinary.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/types.rs",
+      "source_qualified": "opt.types",
+      "target_path": "tests/opt/Types.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/factory.rs",
+      "source_qualified": "type_compiled.factory",
+      "target_path": "values/typing/type_compiled/Factory.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/type_is.rs",
+      "source_qualified": "opt.type_is",
+      "target_path": "tests/opt/TypeIs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/typed/string.rs",
+      "source_qualified": "typed.string",
+      "target_path": "values/layout/typed/String.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/per_thread.rs",
+      "source_qualified": "alloc.per_thread",
+      "target_path": "values/layout/heap/allocator/alloc/PerThread.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/if_rand.rs",
+      "source_qualified": "opt.if_rand",
+      "target_path": "tests/opt/IfRand.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/eq.rs",
+      "source_qualified": "opt.eq",
+      "target_path": "tests/opt/Eq.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/def_inline.rs",
+      "source_qualified": "opt.def_inline",
+      "target_path": "tests/opt/DefInline.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/callable/param.rs",
+      "source_qualified": "callable.param",
+      "target_path": "values/typing/callable/Param.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/constant_folding.rs",
+      "source_qualified": "opt.constant_folding",
+      "target_path": "tests/opt/ConstantFolding.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt.rs",
+      "source_qualified": "tests.opt",
+      "target_path": "tests/Opt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler.rs",
+      "source_qualified": "bc.compiler",
+      "target_path": "eval/bc/Compiler.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/globals.rs",
+      "source_qualified": "list.globals",
+      "target_path": "values/types/list/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/go.rs",
+      "source_qualified": "tests.go",
+      "target_path": "tests/Go.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/callable.rs",
+      "source_qualified": "values.typing.callable",
+      "target_path": "values/typing/Callable.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/assign.rs",
+      "source_qualified": "compiler.assign",
+      "target_path": "eval/bc/compiler/Assign.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/fstring.rs",
+      "source_qualified": "tests.fstring",
+      "target_path": "tests/Fstring.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bool/alloc.rs",
+      "source_qualified": "bool.alloc",
+      "target_path": "values/types/bool/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/any.rs",
+      "source_qualified": "typing.any",
+      "target_path": "values/typing/Any.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/methods.rs",
+      "source_qualified": "list.methods",
+      "target_path": "values/types/list/Methods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/assign_modify.rs",
+      "source_qualified": "compiler.assign_modify",
+      "target_path": "eval/bc/compiler/AssignModify.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/freeze_access_value.rs",
+      "source_qualified": "tests.freeze_access_value",
+      "target_path": "tests/FreezeAccessValue.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/for_loop.rs",
+      "source_qualified": "tests.for_loop",
+      "target_path": "tests/ForLoop.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/refs.rs",
+      "source_qualified": "list.refs",
+      "target_path": "values/types/list/Refs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/call.rs",
+      "source_qualified": "eval.bc.compiler.call",
+      "target_path": "eval/bc/compiler/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/unpack.rs",
+      "source_qualified": "list.unpack",
+      "target_path": "values/types/list/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing.rs",
+      "source_qualified": "values.typing",
+      "target_path": "values/Typing.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/unpack_value_attr.rs",
+      "source_qualified": "derive.unpack_value_attr",
+      "target_path": "tests/derive/UnpackValueAttr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/list/value.rs",
+      "source_qualified": "list.value",
+      "target_path": "values/types/list/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator.rs",
+      "source_qualified": "heap.allocator",
+      "target_path": "values/layout/heap/Allocator.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/unbound.rs",
+      "source_qualified": "types.unbound",
+      "target_path": "values/types/Unbound.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/bigint/convert.rs",
+      "source_qualified": "bigint.convert",
+      "target_path": "values/types/bigint/Convert.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/value.rs",
+      "source_qualified": "tuple.value",
+      "target_path": "values/types/tuple/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/remove_tests.rs",
+      "source_qualified": "unused_loads.remove_tests",
+      "target_path": "analysis/unused_loads/RemoveTests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc.rs",
+      "source_qualified": "allocator.alloc",
+      "target_path": "values/layout/heap/allocator/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/trace/statics.rs",
+      "source_qualified": "trace.statics",
+      "target_path": "tests/derive/trace/Statics.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/trace/enums.rs",
+      "source_qualified": "trace.enums",
+      "target_path": "tests/derive/trace/Enums.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/compr.rs",
+      "source_qualified": "eval.bc.compiler.compr",
+      "target_path": "eval/bc/compiler/Compr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/trace/bounds.rs",
+      "source_qualified": "trace.bounds",
+      "target_path": "tests/derive/trace/Bounds.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/trace.rs",
+      "source_qualified": "derive.trace",
+      "target_path": "tests/derive/Trace.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/namespace/globals.rs",
+      "source_qualified": "namespace.globals",
+      "target_path": "values/types/namespace/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/namespace/typing.rs",
+      "source_qualified": "namespace.typing",
+      "target_path": "values/types/namespace/Typing.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/def.rs",
+      "source_qualified": "eval.bc.compiler.def",
+      "target_path": "eval/bc/compiler/Def.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/unpack_value.rs",
+      "source_qualified": "module.unpack_value",
+      "target_path": "tests/derive/module/UnpackValue.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/type_annotation.rs",
+      "source_qualified": "module.type_annotation",
+      "target_path": "tests/derive/module/TypeAnnotation.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/special_params.rs",
+      "source_qualified": "module.special_params",
+      "target_path": "tests/derive/module/SpecialParams.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/return_impl.rs",
+      "source_qualified": "module.return_impl",
+      "target_path": "tests/derive/module/ReturnImpl.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/other_attributes.rs",
+      "source_qualified": "module.other_attributes",
+      "target_path": "tests/derive/module/OtherAttributes.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/named_positional.rs",
+      "source_qualified": "module.named_positional",
+      "target_path": "tests/derive/module/NamedPositional.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/methods.rs",
+      "source_qualified": "module.methods",
+      "target_path": "tests/derive/module/Methods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/expr.rs",
+      "source_qualified": "eval.bc.compiler.expr",
+      "target_path": "eval/bc/compiler/Expr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/kwargs.rs",
+      "source_qualified": "module.kwargs",
+      "target_path": "tests/derive/module/Kwargs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/generic.rs",
+      "source_qualified": "module.generic",
+      "target_path": "tests/derive/module/Generic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/namespace/value.rs",
+      "source_qualified": "namespace.value",
+      "target_path": "values/types/namespace/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/remove.rs",
+      "source_qualified": "unused_loads.remove",
+      "target_path": "analysis/unused_loads/Remove.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/default_value.rs",
+      "source_qualified": "module.default_value",
+      "target_path": "tests/derive/module/DefaultValue.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/module/basic.rs",
+      "source_qualified": "module.basic",
+      "target_path": "tests/derive/module/Basic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/allocator.rs",
+      "source_qualified": "alloc.allocator",
+      "target_path": "values/layout/heap/allocator/alloc/Allocator.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/if_compiler.rs",
+      "source_qualified": "compiler.if_compiler",
+      "target_path": "eval/bc/compiler/IfCompiler.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/compiler/stmt.rs",
+      "source_qualified": "eval.bc.compiler.stmt",
+      "target_path": "eval/bc/compiler/Stmt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/validator_order.rs",
+      "source_qualified": "freeze.validator_order",
+      "target_path": "tests/derive/freeze/ValidatorOrder.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/validator.rs",
+      "source_qualified": "freeze.validator",
+      "target_path": "tests/derive/freeze/Validator.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/identity.rs",
+      "source_qualified": "freeze.identity",
+      "target_path": "tests/derive/freeze/Identity.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/unpack.rs",
+      "source_qualified": "tuple.unpack",
+      "target_path": "values/types/tuple/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/enums.rs",
+      "source_qualified": "freeze.enums",
+      "target_path": "tests/derive/freeze/Enums.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/bounds.rs",
+      "source_qualified": "freeze.bounds",
+      "target_path": "tests/derive/freeze/Bounds.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze/basic.rs",
+      "source_qualified": "freeze.basic",
+      "target_path": "tests/derive/freeze/Basic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/definitely_assigned.rs",
+      "source_qualified": "bc.definitely_assigned",
+      "target_path": "eval/bc/DefinitelyAssigned.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/freeze.rs",
+      "source_qualified": "derive.freeze",
+      "target_path": "tests/derive/Freeze.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/none/globals.rs",
+      "source_qualified": "none.globals",
+      "target_path": "values/types/none/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/docs.rs",
+      "source_qualified": "derive.docs",
+      "target_path": "tests/derive/Docs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/rust_tuple.rs",
+      "source_qualified": "tuple.rust_tuple",
+      "target_path": "values/types/tuple/RustTuple.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/debug/evaluate.rs",
+      "source_qualified": "debug.evaluate",
+      "target_path": "debug/Evaluate.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/for_loop.rs",
+      "source_qualified": "bc.for_loop",
+      "target_path": "eval/bc/ForLoop.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/any.rs",
+      "source_qualified": "types.any",
+      "target_path": "values/types/Any.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types.rs",
+      "source_qualified": "values.types",
+      "target_path": "values/Types.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/refs.rs",
+      "source_qualified": "tuple.refs",
+      "target_path": "values/types/tuple/Refs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/alloc/chain.rs",
+      "source_qualified": "alloc.chain",
+      "target_path": "values/layout/heap/allocator/alloc/Chain.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/globals.rs",
+      "source_qualified": "type_compiled.globals",
+      "target_path": "values/typing/type_compiled/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/find_tests.rs",
+      "source_qualified": "unused_loads.find_tests",
+      "target_path": "analysis/unused_loads/FindTests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/instr.rs",
+      "source_qualified": "bc.instr",
+      "target_path": "eval/bc/Instr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/alloc_value.rs",
+      "source_qualified": "derive.alloc_value",
+      "target_path": "tests/derive/AllocValue.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive.rs",
+      "source_qualified": "tests.derive",
+      "target_path": "tests/Derive.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/num/globals.rs",
+      "source_qualified": "num.globals",
+      "target_path": "values/types/num/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "build.rs",
+      "source_qualified": "build",
+      "target_path": "Build.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/comprehension.rs",
+      "source_qualified": "tests.comprehension",
+      "target_path": "tests/Comprehension.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/num/typecheck.rs",
+      "source_qualified": "num.typecheck",
+      "target_path": "values/types/num/Typecheck.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/instr_arg.rs",
+      "source_qualified": "bc.instr_arg",
+      "target_path": "eval/bc/InstrArg.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/call.rs",
+      "source_qualified": "tests.call",
+      "target_path": "tests/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "fuzz/fuzz_targets/starlark.rs",
+      "source_qualified": "fuzz_targets.starlark",
+      "target_path": "fuzz/fuzz_targets/Starlark.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/instr_impl.rs",
+      "source_qualified": "bc.instr_impl",
+      "target_path": "eval/bc/InstrImpl.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/globals.rs",
+      "source_qualified": "tuple.globals",
+      "target_path": "values/types/tuple/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/matcher.rs",
+      "source_qualified": "type_compiled.matcher",
+      "target_path": "values/typing/type_compiled/Matcher.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/instrs.rs",
+      "source_qualified": "bc.instrs",
+      "target_path": "eval/bc/Instrs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/static_string.rs",
+      "source_qualified": "layout.static_string",
+      "target_path": "values/layout/StaticString.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/api.rs",
+      "source_qualified": "allocator.api",
+      "target_path": "values/layout/heap/allocator/Api.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/isinstance.rs",
+      "source_qualified": "bc.isinstance",
+      "target_path": "tests/bc/Isinstance.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/if_stmt.rs",
+      "source_qualified": "bc.if_stmt",
+      "target_path": "tests/bc/IfStmt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/golden.rs",
+      "source_qualified": "bc.golden",
+      "target_path": "tests/bc/Golden.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/opcode.rs",
+      "source_qualified": "bc.opcode",
+      "target_path": "eval/bc/Opcode.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/repr.rs",
+      "source_qualified": "bc.repr",
+      "target_path": "eval/bc/Repr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/num/value.rs",
+      "source_qualified": "num.value",
+      "target_path": "values/types/num/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/for_stmt.rs",
+      "source_qualified": "bc.for_stmt",
+      "target_path": "tests/bc/ForStmt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/unused_loads/find.rs",
+      "source_qualified": "unused_loads.find",
+      "target_path": "analysis/unused_loads/Find.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/allocator/bumpalo.rs",
+      "source_qualified": "allocator.bumpalo",
+      "target_path": "values/layout/heap/allocator/Bumpalo.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/definitely_assigned.rs",
+      "source_qualified": "tests.bc.definitely_assigned",
+      "target_path": "tests/bc/DefinitelyAssigned.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/slow_arg.rs",
+      "source_qualified": "bc.slow_arg",
+      "target_path": "eval/bc/SlowArg.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/stack_ptr.rs",
+      "source_qualified": "bc.stack_ptr",
+      "target_path": "eval/bc/StackPtr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/bc/writer.rs",
+      "source_qualified": "bc.writer",
+      "target_path": "eval/bc/Writer.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/compr.rs",
+      "source_qualified": "bc.compr",
+      "target_path": "tests/bc/Compr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/range/globals.rs",
+      "source_qualified": "range.globals",
+      "target_path": "values/types/range/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/call.rs",
+      "source_qualified": "tests.bc.call",
+      "target_path": "tests/bc/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/unused_loads.rs",
+      "source_qualified": "analysis.unused_loads",
+      "target_path": "analysis/UnusedLoads.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/range/range_type.rs",
+      "source_qualified": "range.range_type",
+      "target_path": "values/types/range/RangeType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc/and_or.rs",
+      "source_qualified": "bc.and_or",
+      "target_path": "tests/bc/AndOr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/bc.rs",
+      "source_qualified": "tests.bc",
+      "target_path": "tests/Bc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/args.rs",
+      "source_qualified": "compiler.args",
+      "target_path": "eval/compiler/Args.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/basic.rs",
+      "source_qualified": "tests.basic",
+      "target_path": "tests/Basic.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/underscore.rs",
+      "source_qualified": "analysis.underscore",
+      "target_path": "analysis/Underscore.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/branding.rs",
+      "source_qualified": "heap.branding",
+      "target_path": "values/layout/heap/Branding.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/type_repr.rs",
+      "source_qualified": "values.type_repr",
+      "target_path": "values/TypeRepr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/syntax.rs",
+      "source_qualified": "syntax",
+      "target_path": "Syntax.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/partial.rs",
+      "source_qualified": "stdlib.partial",
+      "target_path": "stdlib/Partial.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/call.rs",
+      "source_qualified": "compiler.call",
+      "target_path": "eval/compiler/Call.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/json.rs",
+      "source_qualified": "stdlib.json",
+      "target_path": "stdlib/Json.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/internal.rs",
+      "source_qualified": "stdlib.internal",
+      "target_path": "stdlib/Internal.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/funcs/zip.rs",
+      "source_qualified": "funcs.zip",
+      "target_path": "stdlib/funcs/Zip.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/funcs/other.rs",
+      "source_qualified": "funcs.other",
+      "target_path": "stdlib/funcs/Other.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/funcs/min_max.rs",
+      "source_qualified": "funcs.min_max",
+      "target_path": "stdlib/funcs/MinMax.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/funcs/globals.rs",
+      "source_qualified": "funcs.globals",
+      "target_path": "stdlib/funcs/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/funcs.rs",
+      "source_qualified": "stdlib.funcs",
+      "target_path": "stdlib/Funcs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/stdlib/extra.rs",
+      "source_qualified": "stdlib.extra",
+      "target_path": "stdlib/Extra.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple/alloc.rs",
+      "source_qualified": "tuple.alloc",
+      "target_path": "values/types/tuple/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/traits.rs",
+      "source_qualified": "values.traits",
+      "target_path": "values/Traits.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/matchers.rs",
+      "source_qualified": "type_compiled.matchers",
+      "target_path": "values/typing/type_compiled/Matchers.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/call_enter_exit.rs",
+      "source_qualified": "heap.call_enter_exit",
+      "target_path": "values/layout/heap/CallEnterExit.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/compr.rs",
+      "source_qualified": "compiler.compr",
+      "target_path": "eval/compiler/Compr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/types.rs",
+      "source_qualified": "analysis.types",
+      "target_path": "analysis/Types.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/performance.rs",
+      "source_qualified": "analysis.performance",
+      "target_path": "analysis/Performance.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value/thin_box.rs",
+      "source_qualified": "thin_box_slice_frozen_value.thin_box",
+      "target_path": "values/thin_box_slice_frozen_value/ThinBox.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/names.rs",
+      "source_qualified": "analysis.names",
+      "target_path": "analysis/Names.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/globals.rs",
+      "source_qualified": "record.globals",
+      "target_path": "values/types/record/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/def.rs",
+      "source_qualified": "compiler.def",
+      "target_path": "eval/compiler/Def.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/pagable/vtable_registry.rs",
+      "source_qualified": "pagable.vtable_registry",
+      "target_path": "pagable/VtableRegistry.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/pagable/vtable_register.rs",
+      "source_qualified": "pagable.vtable_register",
+      "target_path": "pagable/VtableRegister.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/pagable/error.rs",
+      "source_qualified": "pagable.error",
+      "target_path": "pagable/Error.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/tuple.rs",
+      "source_qualified": "types.tuple",
+      "target_path": "values/types/Tuple.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/pagable.rs",
+      "source_qualified": "pagable",
+      "target_path": "Pagable.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/instance.rs",
+      "source_qualified": "record.instance",
+      "target_path": "values/types/record/Instance.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/macros.rs",
+      "source_qualified": "macros",
+      "target_path": "Macros.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/matcher.rs",
+      "source_qualified": "record.matcher",
+      "target_path": "values/types/record/Matcher.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/def_inline.rs",
+      "source_qualified": "compiler.def_inline",
+      "target_path": "eval/compiler/DefInline.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs/value.rs",
+      "source_qualified": "structs.value",
+      "target_path": "values/types/structs/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/thin_box_slice_frozen_value/packed_impl.rs",
+      "source_qualified": "thin_box_slice_frozen_value.packed_impl",
+      "target_path": "values/thin_box_slice_frozen_value/PackedImpl.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/incompatible.rs",
+      "source_qualified": "analysis.incompatible",
+      "target_path": "analysis/Incompatible.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/lib.rs",
+      "source_qualified": "lib",
+      "target_path": "Lib.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/flow.rs",
+      "source_qualified": "analysis.flow",
+      "target_path": "analysis/Flow.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/record/ty_record_type.rs",
+      "source_qualified": "record.ty_record_type",
+      "target_path": "values/types/record/TyRecordType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/heap_type.rs",
+      "source_qualified": "heap.heap_type",
+      "target_path": "values/layout/heap/HeapType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/soft_error.rs",
+      "source_qualified": "eval.soft_error",
+      "target_path": "eval/SoftError.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/visit_span.rs",
+      "source_qualified": "runtime.visit_span",
+      "target_path": "eval/runtime/VisitSpan.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/recursive_repr_or_json_guard.rs",
+      "source_qualified": "values.recursive_repr_or_json_guard",
+      "target_path": "values/RecursiveReprOrJsonGuard.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/slots.rs",
+      "source_qualified": "runtime.slots",
+      "target_path": "eval/runtime/Slots.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/typing/type_compiled/tests.rs",
+      "source_qualified": "type_compiled.tests",
+      "target_path": "values/typing/type_compiled/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/typecheck.rs",
+      "source_qualified": "profile.typecheck",
+      "target_path": "eval/runtime/profile/Typecheck.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/time_flame.rs",
+      "source_qualified": "profile.time_flame",
+      "target_path": "eval/runtime/profile/TimeFlame.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/tests.rs",
+      "source_qualified": "profile.tests",
+      "target_path": "eval/runtime/profile/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/set/methods.rs",
+      "source_qualified": "set.methods",
+      "target_path": "values/types/set/Methods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/stmt.rs",
+      "source_qualified": "profile.stmt",
+      "target_path": "eval/runtime/profile/Stmt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/error.rs",
+      "source_qualified": "compiler.error",
+      "target_path": "eval/compiler/Error.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/set/refs.rs",
+      "source_qualified": "set.refs",
+      "target_path": "values/types/set/Refs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/find_call_name.rs",
+      "source_qualified": "analysis.find_call_name",
+      "target_path": "analysis/FindCallName.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/set/set.rs",
+      "source_qualified": "set.set",
+      "target_path": "values/types/set/Set.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/or_instrumentation.rs",
+      "source_qualified": "profile.or_instrumentation",
+      "target_path": "eval/runtime/profile/OrInstrumentation.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/mode.rs",
+      "source_qualified": "profile.mode",
+      "target_path": "eval/runtime/profile/Mode.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/expr.rs",
+      "source_qualified": "compiler.expr",
+      "target_path": "eval/compiler/Expr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis/dubious.rs",
+      "source_qualified": "analysis.dubious",
+      "target_path": "analysis/Dubious.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs/structs.rs",
+      "source_qualified": "structs.structs",
+      "target_path": "values/types/structs/Structs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/analysis.rs",
+      "source_qualified": "analysis",
+      "target_path": "Analysis.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/heap.rs",
+      "source_qualified": "profile.heap",
+      "target_path": "eval/runtime/profile/Heap.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/flamegraph.rs",
+      "source_qualified": "profile.flamegraph",
+      "target_path": "eval/runtime/profile/Flamegraph.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/data.rs",
+      "source_qualified": "profile.data",
+      "target_path": "eval/runtime/profile/Data.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/expr_bool.rs",
+      "source_qualified": "compiler.expr_bool",
+      "target_path": "eval/compiler/ExprBool.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs/refs.rs",
+      "source_qualified": "structs.refs",
+      "target_path": "values/types/structs/Refs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/csv.rs",
+      "source_qualified": "profile.csv",
+      "target_path": "eval/runtime/profile/Csv.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/known.rs",
+      "source_qualified": "compiler.known",
+      "target_path": "eval/compiler/Known.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile/bc.rs",
+      "source_qualified": "profile.bc",
+      "target_path": "eval/runtime/profile/Bc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/profile.rs",
+      "source_qualified": "runtime.profile",
+      "target_path": "eval/runtime/Profile.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/params/spec.rs",
+      "source_qualified": "params.spec",
+      "target_path": "eval/runtime/params/Spec.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/module.rs",
+      "source_qualified": "compiler.module",
+      "target_path": "eval/compiler/Module.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/set/value.rs",
+      "source_qualified": "set.value",
+      "target_path": "values/types/set/Value.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/params/parser.rs",
+      "source_qualified": "params.parser",
+      "target_path": "eval/runtime/params/Parser.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/unpack.rs",
+      "source_qualified": "values.unpack",
+      "target_path": "values/Unpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/maybe_uninit_slice_util.rs",
+      "source_qualified": "heap.maybe_uninit_slice_util",
+      "target_path": "values/layout/heap/MaybeUninitSliceUtil.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/params.rs",
+      "source_qualified": "runtime.params",
+      "target_path": "eval/runtime/Params.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/inlined_frame.rs",
+      "source_qualified": "runtime.inlined_frame",
+      "target_path": "eval/runtime/InlinedFrame.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs/alloc.rs",
+      "source_qualified": "structs.alloc",
+      "target_path": "values/types/structs/Alloc.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/scope.rs",
+      "source_qualified": "compiler.scope",
+      "target_path": "eval/compiler/Scope.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs/sig.rs",
+      "source_qualified": "__derive_refs.sig",
+      "target_path": "__derive_refs/Sig.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/payload.rs",
+      "source_qualified": "scope.payload",
+      "target_path": "eval/compiler/scope/Payload.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/aggregated.rs",
+      "source_qualified": "profile.aggregated",
+      "target_path": "values/layout/heap/profile/Aggregated.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/owned.rs",
+      "source_qualified": "values.owned",
+      "target_path": "values/Owned.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/vtable.rs",
+      "source_qualified": "layout.vtable",
+      "target_path": "values/layout/Vtable.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/value_not_special.rs",
+      "source_qualified": "layout.value_not_special",
+      "target_path": "values/layout/ValueNotSpecial.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/by_type.rs",
+      "source_qualified": "profile.by_type",
+      "target_path": "values/layout/heap/profile/ByType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile/summary_by_function.rs",
+      "source_qualified": "profile.summary_by_function",
+      "target_path": "values/layout/heap/profile/SummaryByFunction.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/structs.rs",
+      "source_qualified": "types.structs",
+      "target_path": "values/types/Structs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/alloc_unpack.rs",
+      "source_qualified": "string.alloc_unpack",
+      "target_path": "values/types/string/AllocUnpack.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/str_type.rs",
+      "source_qualified": "string.str_type",
+      "target_path": "values/types/string/StrType.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/simd.rs",
+      "source_qualified": "string.simd",
+      "target_path": "values/types/string/Simd.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/repr.rs",
+      "source_qualified": "string.repr",
+      "target_path": "values/types/string/Repr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/repr.rs",
+      "source_qualified": "heap.repr",
+      "target_path": "values/layout/heap/Repr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/send.rs",
+      "source_qualified": "heap.send",
+      "target_path": "values/layout/heap/Send.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/methods.rs",
+      "source_qualified": "string.methods",
+      "target_path": "values/types/string/Methods.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime/before_stmt.rs",
+      "source_qualified": "runtime.before_stmt",
+      "target_path": "eval/runtime/BeforeStmt.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/identity.rs",
+      "source_qualified": "layout.identity",
+      "target_path": "values/layout/Identity.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/runtime.rs",
+      "source_qualified": "eval.runtime",
+      "target_path": "eval/Runtime.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/params.rs",
+      "source_qualified": "eval.params",
+      "target_path": "eval/Params.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/globals.rs",
+      "source_qualified": "string.globals",
+      "target_path": "values/types/string/Globals.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/types.rs",
+      "source_qualified": "compiler.types",
+      "target_path": "eval/compiler/Types.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/type_expr.rs",
+      "source_qualified": "compiler.type_expr",
+      "target_path": "eval/compiler/TypeExpr.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/iter.rs",
+      "source_qualified": "string.iter",
+      "target_path": "values/types/string/Iter.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/intern.rs",
+      "source_qualified": "string.intern",
+      "target_path": "values/types/string/Intern.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/types/string/intern/interner.rs",
+      "source_qualified": "intern.interner",
+      "target_path": "values/types/string/intern/Interner.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval/compiler/scope/tests.rs",
+      "source_qualified": "scope.tests",
+      "target_path": "eval/compiler/scope/Tests.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs/parse_args.rs",
+      "source_qualified": "__derive_refs.parse_args",
+      "target_path": "__derive_refs/ParseArgs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs/invoke_macro_error.rs",
+      "source_qualified": "__derive_refs.invoke_macro_error",
+      "target_path": "__derive_refs/InvokeMacroError.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs/components.rs",
+      "source_qualified": "__derive_refs.components",
+      "target_path": "__derive_refs/Components.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/__derive_refs.rs",
+      "source_qualified": "__derive_refs",
+      "target_path": "DeriveRefs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values/layout/heap/profile.rs",
+      "source_qualified": "heap.profile",
+      "target_path": "values/layout/heap/Profile.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/wasm.rs",
+      "source_qualified": "wasm",
+      "target_path": "Wasm.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/runtime.rs",
+      "source_qualified": "tests.runtime",
+      "target_path": "tests/Runtime.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/eval.rs",
+      "source_qualified": "eval",
+      "target_path": "Eval.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/collections.rs",
+      "source_qualified": "collections",
+      "target_path": "Collections.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/docs.rs",
+      "source_qualified": "docs",
+      "target_path": "Docs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/opt/list_add.rs",
+      "source_qualified": "opt.list_add",
+      "target_path": "tests/opt/ListAdd.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/values.rs",
+      "source_qualified": "values",
+      "target_path": "Values.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/tests/derive/attrs.rs",
+      "source_qualified": "derive.attrs",
+      "target_path": "tests/derive/Attrs.kt",
+      "dependent_count": 0,
+      "status": "pending"
+    },
+    {
+      "source_path": "src/assert.rs",
+      "source_qualified": "assert",
+      "target_path": "",
+      "dependent_count": 84,
+      "status": "completed",
+      "completed_at": "2026-03-31T08:08:32"
+    },
+    {
+      "source_path": "src/values/layout/heap.rs",
+      "source_qualified": "layout.heap",
+      "target_path": "",
+      "dependent_count": 109,
+      "status": "completed",
+      "completed_at": "2026-03-31T07:28:25"
+    },
+    {
+      "source_path": "src/eval/runtime/params/display.rs",
+      "source_qualified": "params.display",
+      "target_path": "",
+      "dependent_count": 76,
+      "status": "completed",
+      "completed_at": "2026-03-31T09:15:25"
+    },
+    {
+      "source_path": "src/typing/starlark_value.rs",
+      "source_qualified": "typing.starlark_value",
+      "target_path": "",
+      "dependent_count": 76,
+      "status": "completed",
+      "completed_at": "2026-03-31T09:16:02"
+    },
+    {
+      "source_path": "src/typing/ty.rs",
+      "source_qualified": "typing.ty",
+      "target_path": "",
+      "dependent_count": 109,
+      "status": "completed",
+      "completed_at": "2026-03-31T09:14:37"
+    }
+  ]
+}

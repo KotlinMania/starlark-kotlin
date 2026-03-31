@@ -1,6 +1,6 @@
 // port-lint: source src/assert.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark_kotlin.assert
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -48,6 +48,6 @@ package io.github.kotlinmania.starlark_kotlin
  */
 
 // mod assert;
-internal val assert = "assert"
+private object assert
 // mod conformance;
-internal val conformance = "conformance"
+private object conformance

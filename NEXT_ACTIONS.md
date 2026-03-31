@@ -4,10 +4,10 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (562/470 files)
+- **Current Progress:** 100.0% (496/470 files)
 - **Matched Files:** 470
 - **Average Similarity:** 0.53
-- **Critical Issues:** 231 files with <0.60 similarity
+- **Critical Issues:** 229 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -47,23 +47,23 @@ Based on AST analysis, here are the concrete next steps.
 - **Priority Score:** 25.3
 - **Action:** Deep review - likely missing major functionality
 
-### 7. typing.ty
-- **Similarity:** 0.77 (needs 8% improvement)
-- **Dependencies:** 109
-- **Priority Score:** 24.6
-- **Action:** Minor refinements needed
-
-### 8. params.display
+### 7. params.display
 - **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
 - **Priority Score:** 24.2
 - **Action:** Review and complete missing sections
 
-### 9. typing.starlark_value
+### 8. typing.starlark_value
 - **Similarity:** 0.68 (needs 17% improvement)
 - **Dependencies:** 76
 - **Priority Score:** 24.0
 - **Action:** Review and complete missing sections
+
+### 9. typing.ty
+- **Similarity:** 0.79 (needs 6% improvement)
+- **Dependencies:** 109
+- **Priority Score:** 22.7
+- **Action:** Minor refinements needed
 
 ### 10. coerce
 - **Similarity:** 0.60 (needs 25% improvement)
@@ -91,7 +91,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark rust ../../src kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>

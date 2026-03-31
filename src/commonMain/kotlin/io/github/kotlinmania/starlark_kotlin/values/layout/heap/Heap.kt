@@ -19,19 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-// Starlark heap implementation.
-//
-// Rust module: values::layout::heap
-//
-// Submodules (Rust mod declarations -> Kotlin packages/files):
-//
-// pub(crate) mod allocator   -> heap.allocator
-// pub(crate) mod arena       -> Arena.kt
-// mod branding               -> Branding.kt (internal)
-// pub(crate) mod call_enter_exit -> CallEnterExit.kt
-// mod fast_cell              -> FastCell.kt (internal)
-// pub(crate) mod heap_type   -> HeapType.kt
-// pub(crate) mod maybe_uninit_slice_util -> MaybeUninitSliceUtil.kt
-// pub(crate) mod profile     -> heap.profile
-// pub(crate) mod repr        -> Repr.kt
-// pub(crate) mod send        -> Send.kt
+/** Starlark heap implementation. */
+internal object allocator
+
+internal object arena
+
+internal object branding
+
+internal object `call_enter_exit`
+
+internal object fast_cell
+
+internal object heap_type
+
+internal object `maybe_uninit_slice_util`
+
+internal object profile
+
+internal object repr
+
+internal object send

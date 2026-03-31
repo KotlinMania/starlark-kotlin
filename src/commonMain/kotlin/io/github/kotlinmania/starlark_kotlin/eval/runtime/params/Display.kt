@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/params/display.rs
+// port-lint: source src/eval/runtime/params/display.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.params
 
 /*

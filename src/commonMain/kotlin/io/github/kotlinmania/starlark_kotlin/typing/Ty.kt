@@ -19,10 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.Either
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.SmallVec1
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
 /**
@@ -36,7 +40,7 @@ data class Approximation(
     val category: String,
     /** The precise details of this approximation, e.g. which type was unknown. */
     val message: String,
-) : Comparable<Approximation> {
+) {
     companion object {
         /** Create a new [Approximation]. */
         // pub fn new(category: &'static str, message: impl Debug) -> Self
@@ -52,11 +56,6 @@ data class Approximation(
     override fun toString(): String {
         return "Approximation: $category = \"$message\""
     }
-
-    override fun compareTo(other: Approximation): Int {
-        val cmp = category.compareTo(other.category)
-        return if (cmp != 0) cmp else message.compareTo(other.message)
-    }
 }
 
 /**
@@ -70,15 +69,15 @@ data class Approximation(
  *
  * Corresponds to Rust's `Ty` struct.
  */
-class Ty private constructor(
+data class Ty private constructor(
     /**
      * A series of alternative types.
      *
      * When typechecking, we try all alternatives, and if at least one of them
      * succeeds, then the whole expression is considered to be a success.
      */
-    internal val alternatives: SmallArcVec1<TyBasic>
-) : Comparable<Ty> {
+    private val alternatives: SmallArcVec1<TyBasic>
+) {
 
     companion object {
         /** Create a [Ty.any], but tagged in such a way it can easily be found. */
@@ -177,7 +176,7 @@ class Ty private constructor(
 
         /** Typechecker type of value. */
         // pub fn of_value(value: Value) -> Ty
-        fun ofValue(value: io.github.kotlinmania.starlark_kotlin.values.layout.Value): Ty {
+        fun ofValue(value: Value): Ty {
             return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
         }
 
@@ -188,7 +187,7 @@ class Ty private constructor(
          */
         // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
         internal fun fromNativeCallableComponents(
-            comp: io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents,
+            comp: NativeCallableComponents,
             asType: Ty?,
         ): Result<Ty> {
             val result = comp.returnType
@@ -211,40 +210,58 @@ class Ty private constructor(
             // fn next_skip_never<I: Iterator<Item = Ty>>(iter: &mut I) -> Option<Ty>
             fun nextSkipNever(iter: Iterator<Ty>): Ty? {
                 for (x in iter) {
-                    if (!x.isNever()) return x
+                    if (!x.isNever()) {
+                        return x
+                    }
                 }
                 return null
             }
 
-            val iter = xs.iterator()
-            val x0 = nextSkipNever(iter) ?: return never()
-            val x1 = nextSkipNever(iter) ?: return x0
+            val xsIter = xs.iterator()
+            val x0 = nextSkipNever(xsIter) ?: return never()
+            val x1 = nextSkipNever(xsIter) ?: return x0
 
-            // Check for no-more-remaining fast path
-            if (!iter.hasNext() && x0 == x1) {
+            val rest = mutableListOf<Ty>()
+            while (xsIter.hasNext()) {
+                rest.add(xsIter.next())
+            }
+            if (rest.isEmpty() && x0 == x1) {
                 return x0
             }
 
-            // Now default slow version — collect all remaining plus x0, x1.
-            val remaining = mutableListOf<TyBasic>()
-            for (basic in x0.iterUnion()) remaining.add(basic)
-            for (basic in x1.iterUnion()) remaining.add(basic)
-            while (iter.hasNext()) {
-                val x = iter.next()
-                for (basic in x.iterUnion()) remaining.add(basic)
+            // Now default slow version.
+            val xsBasics = mutableListOf<TyBasic>()
+            for (x in listOf(x0, x1)) {
+                for (basic in x.iterUnion()) {
+                    xsBasics.add(basic)
+                }
             }
-            remaining.sort()
-            // Dedup
-            val deduped = remaining.distinct().toMutableList()
+            for (x in rest) {
+                for (basic in x.iterUnion()) {
+                    xsBasics.add(basic)
+                }
+            }
+            xsBasics.sort()
+
+            // xs.dedup()
+            val deduped = mutableListOf<TyBasic>()
+            var last: TyBasic? = null
+            for (basic in xsBasics) {
+                val l = last
+                if (l == null || l != basic) {
+                    deduped.add(basic)
+                    last = basic
+                }
+            }
 
             // Try merging adjacent elements
             val merged = mergeAdjacent(deduped) { x, y ->
                 when {
                     x is TyBasic.List && y is TyBasic.List -> {
-                        MergeResult.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
+                        Either.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
                     }
                     x is TyBasic.Dict && y is TyBasic.Dict -> {
-                        MergeResult.Left(
+                        Either.Left(
                             TyBasic.Dict(
                                 ArcTy.union2(x.key, y.key),
                                 ArcTy.union2(x.value, y.value)
@@ -254,16 +271,16 @@ class Ty private constructor(
                     x is TyBasic.Custom && y is TyBasic.Custom -> {
                         val result = TyCustom.union2(x.custom, y.custom)
                         if (result.isSuccess) {
-                            MergeResult.Left(TyBasic.Custom(result.getOrThrow()))
+                            Either.Left(TyBasic.Custom(result.getOrThrow()))
                         } else {
-                            MergeResult.Right(x, y)
+                            Either.Right(Pair(x, y))
                         }
                     }
-                    else -> MergeResult.Right(x, y)
+                    else -> Either.Right(Pair(x, y))
                 }
             }
 
-            return Ty(SmallArcVec1.cloneFromSlice(merged))
+            return Ty(SmallArcVec1.fromIterator(merged.iterator()))
         }
 
         /** Create a union of two entries. */
@@ -353,6 +370,11 @@ class Ty private constructor(
                     val result = typecheck(basic)
                     if (result.isSuccess) {
                         good.add(result.getOrThrow())
+                    } else {
+                        val e = result.exceptionOrNull()
+                        if (e !== TypingNoContextError) {
+                            return Result.failure(e!!)
+                        }
                     }
                 }
                 if (good.isEmpty()) {
@@ -438,17 +460,7 @@ class Ty private constructor(
     /** Display with a custom configuration, returning a [TyDisplay] wrapper. */
     fun displayWith(config: TypeRenderConfig): TyDisplay = TyDisplay(this, config)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Ty) return false
-        return alternatives == other.alternatives
-    }
-
-    override fun hashCode(): Int = alternatives.hashCode()
-
     override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
-
-    override fun compareTo(other: Ty): Int = alternatives.compareTo(other.alternatives)
 }
 
 /**
@@ -480,22 +492,15 @@ class TyDisplay(
 }
 
 /**
- * Result of merging two adjacent elements.
- */
-private sealed class MergeResult<T> {
-    /** Elements were merged into a single element. */
-    data class Left<T>(val value: T) : MergeResult<T>()
-    /** Elements could not be merged and remain separate. */
-    data class Right<T>(val left: T, val right: T) : MergeResult<T>()
-}
-
-/**
  * Try to merge adjacent elements in a list.
  *
  * Corresponds to Rust's `merge_adjacent` function.
  */
-private fun <T> mergeAdjacent(xs: List<T>, f: (T, T) -> MergeResult<T>): List<T> {
-    val res = mutableListOf<T>()
+private fun <T> mergeAdjacent(
+    xs: List<T>,
+    f: (T, T) -> Either<T, Pair<T, T>>,
+): SmallVec1<T> {
+    var res: SmallVec1<T> = SmallVec1.new()
     var last: T? = null
     for (x in xs) {
         val l = last
@@ -503,16 +508,17 @@ private fun <T> mergeAdjacent(xs: List<T>, f: (T, T) -> MergeResult<T>): List<T>
             last = x
         } else {
             when (val merged = f(l, x)) {
-                is MergeResult.Left -> last = merged.value
-                is MergeResult.Right -> {
-                    res.add(merged.left)
-                    last = merged.right
+                is Either.Left -> last = merged.value
+                is Either.Right -> {
+                    val (left, right) = merged.value
+                    res = res.push(left)
+                    last = right
                 }
             }
         }
     }
     if (last != null) {
-        res.add(last)
+        res = res.push(last)
     }
     return res
 }

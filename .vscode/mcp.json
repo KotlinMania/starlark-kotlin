@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "Slack MCP (Docker)": {
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run",
+        "--transport",
+        "stdio",
+        "--servers",
+        "slack",
+        "--block-secrets=false"
+      ]
+    },
+    "ProjectHub": {
+      "command": "/Volumes/stuff/projectmgt/docker/mcp-server.sh",
+      "args": []
+    }
+  },
+  "inputs": []
+}
