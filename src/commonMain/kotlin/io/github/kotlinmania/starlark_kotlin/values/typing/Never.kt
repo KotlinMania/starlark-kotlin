@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 internal class TypingNever : StarlarkValue, AllocFrozenValue {
     // #[starlark_value(type = "typing.Never")]
     override val TYPE: String get() = TYPE_NAME
+    override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = TYPE_NAME
 
@@ -47,7 +48,7 @@ internal class TypingNever : StarlarkValue, AllocFrozenValue {
 
     // impl AllocFrozenValue for TypingNever
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
-    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(@Suppress("unused") heap: FrozenHeap): FrozenValue {
         return NEVER.toFrozenValue()
     }
 
@@ -73,7 +74,7 @@ sealed class StarlarkNever : StarlarkTypeRepr, AllocValue {
 
     // impl AllocValue for StarlarkNever
     // fn alloc_value(self, _heap: Heap) -> Value
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(@Suppress("unused") heap: Heap): Value {
         error("StarlarkNever is uninhabited")
     }
 }

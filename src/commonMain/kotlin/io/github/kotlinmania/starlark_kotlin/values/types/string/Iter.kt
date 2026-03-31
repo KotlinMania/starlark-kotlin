@@ -52,6 +52,7 @@ internal class StringIterableGen(
 
     // #[starlark_value(type = "iterator")]
     override val TYPE: String get() = "iterator"
+    override val HAS_iterate: Boolean get() = true
 
     override val staticType: KClass<*> get() = StringIterableGen::class
 
@@ -69,7 +70,7 @@ internal class StringIterableGen(
     }
 
     // unsafe impl Trace for StringIterableGen
-    override fun trace(_tracer: Tracer) {
+    override fun trace(@Suppress("unused") tracer: Tracer) {
         // In Rust, Trace is derived. The StringValue's inner Value
         // would be traced. Since Kotlin's GC handles memory, this is a no-op.
     }

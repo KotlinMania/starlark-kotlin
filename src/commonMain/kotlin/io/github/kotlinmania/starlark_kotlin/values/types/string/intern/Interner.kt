@@ -113,7 +113,7 @@ internal class StringValueInterner : Trace {
     // In Rust, this walks the HashTable and traces each StringValue's inner Value.
     // In Kotlin, the GC handles reference tracking, so this is effectively a no-op.
     // We keep the method for structural parity with the Rust Trace derive.
-    override fun trace(_tracer: Tracer) {
+    override fun trace(@Suppress("unused") tracer: Tracer) {
         // Kotlin's GC manages StringValue references automatically.
         // No manual pointer adjustment needed.
     }

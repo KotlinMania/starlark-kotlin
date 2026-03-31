@@ -1734,7 +1734,7 @@ class FrozenValue internal constructor(
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v
 
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    override fun freeze(@Suppress("unused") freezer: Freezer): FreezeResult<FrozenValue> {
         return Result.success(this)
     }
 

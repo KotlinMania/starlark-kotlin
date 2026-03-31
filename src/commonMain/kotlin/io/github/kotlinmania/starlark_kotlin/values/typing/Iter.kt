@@ -46,6 +46,7 @@ class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
 internal class TypingIterable : StarlarkValue, AllocFrozenValue {
     // #[starlark_value(type = "typing.Iterable")]
     override val TYPE: String get() = TYPE_NAME
+    override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = TYPE_NAME
 
@@ -56,7 +57,7 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
 
     // impl AllocFrozenValue for TypingIterable
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
-    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(@Suppress("unused") heap: FrozenHeap): FrozenValue {
         return ANY.toFrozenValue()
     }
 

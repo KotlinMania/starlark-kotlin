@@ -43,7 +43,7 @@ internal object IsAny : TypeMatcher {
     // impl TypeMatcher for IsAny
 
     // fn matches(&self, _value: Value) -> bool
-    override fun matches(_value: Value): Boolean {
+    override fun matches(@Suppress("unused") value: Value): Boolean {
         return true
     }
 
@@ -59,7 +59,7 @@ internal object IsNever : TypeMatcher {
     // impl TypeMatcher for IsNever
 
     // fn matches(&self, _value: Value) -> bool
-    override fun matches(_value: Value): Boolean {
+    override fun matches(@Suppress("unused") value: Value): Boolean {
         return false
     }
 }
