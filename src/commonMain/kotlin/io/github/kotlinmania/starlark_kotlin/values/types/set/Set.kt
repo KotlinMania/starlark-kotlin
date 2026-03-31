@@ -20,6 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
@@ -53,7 +55,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
     //   -> starlark::Result<SetData<'v>>
     globals.setFunction(
         name = "set",
-        asType = SetGen::class,
+        asType = Ty.starlarkValue(TyStarlarkValue.set()),
         speculativeExecSafe = true,
     ) { callArgs, eval ->
         val heap: Heap = eval.heap()

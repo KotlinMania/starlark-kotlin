@@ -26,6 +26,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
@@ -89,7 +90,7 @@ internal object StructType : TyCustomFunctionImpl {
 internal fun registerStruct(builder: GlobalsBuilder) {
     builder.setFunction(
         name = "struct",
-        asType = FrozenStruct::class
+        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
     ) { args: Arguments, eval ->
         val heap = eval.heap()
         val noPosResult = args.noPositionalArgs(heap)

@@ -367,13 +367,13 @@ class GlobalsBuilder private constructor(
     /**
      * Convenience overload: register a simple function by name with a lambda.
      * The lambda receives (Arguments, Evaluator) and the result is auto-wrapped.
-     * The optional [asType] parameter associates the function with a Kotlin class
+     * The optional [asType] parameter associates the function with a type
      * for type annotation purposes (corresponds to Rust's `#[starlark(as_type = T)]`).
      */
     fun setFunction(
         name: String,
         speculativeExecSafe: Boolean = false,
-        asType: kotlin.reflect.KClass<*>? = null,
+        asType: Ty? = null,
         f: (io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments,
             io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator) -> Any?,
     ) {
@@ -397,8 +397,8 @@ class GlobalsBuilder private constructor(
                 function = NativeFunc(nativeFn, sig),
                 name = name,
                 speculativeExecSafe = speculativeExecSafe,
-                asType = null,
-                ty = Ty.any(),
+                asType = asType,
+                ty = asType ?: Ty.any(),
                 docs = DocItem.Member(DocMember.Function(DocFunction())),
                 specialBuiltinFunction = null,
             ),

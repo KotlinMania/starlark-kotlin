@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
@@ -72,7 +74,7 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
 internal fun registerDict(globals: GlobalsBuilder) {
     // Rust: #[starlark(as_type = FrozenDict, speculative_exec_safe, special_builtin_function = SpecialBuiltinFunction::Dict)]
     // fn dict<'v>(args: &Arguments<'v, '_>, heap: Heap<'v>) -> starlark::Result<Dict<'v>>
-    globals.setFunction("dict", asType = FrozenDict::class) { args: Arguments, eval: Evaluator ->
+    globals.setFunction("dict", asType = Ty.starlarkValue(TyStarlarkValue.dict())) { args: Arguments, eval: Evaluator ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.
         // Therefore we make it take the raw Arguments.

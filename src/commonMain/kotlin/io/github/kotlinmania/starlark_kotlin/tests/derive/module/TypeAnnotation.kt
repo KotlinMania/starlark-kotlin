@@ -21,6 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 
 // #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
@@ -37,7 +39,7 @@ private class Foo : StarlarkValue {
 private fun typeAnnotationFunctions(globals: GlobalsBuilder) {
     // #[starlark(as_type = Foo)]
     // fn foo(x: i32) -> Result<i32>
-    globals.setFunction("foo", asType = Foo::class) { args, _ ->
+    globals.setFunction("foo", asType = Ty.starlarkValue(TyStarlarkValue.new("Foo"))) { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }

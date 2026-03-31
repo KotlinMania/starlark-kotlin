@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark_kotlin.values.types.int
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
@@ -89,7 +90,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
     //     base: Option<i32>,
     //     heap: Heap<'v>,
     // ) -> starlark::Result<ValueOfUnchecked<'v, StarlarkInt>>
-    globals.setFunction("int", speculativeExecSafe = true, asType = PointerI32::class) { callArgs, eval ->
+    globals.setFunction("int", speculativeExecSafe = true, asType = Ty.int()) { callArgs, eval ->
         val heap = eval.heap()
         val a: Value? = callArgs.optionalPositional(0)
         val base: Int? = callArgs.optionalNamed("base")

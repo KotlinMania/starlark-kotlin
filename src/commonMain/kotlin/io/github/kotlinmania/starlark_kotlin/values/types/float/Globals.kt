@@ -1,6 +1,7 @@
 // port-lint: source src/values/types/float/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.float
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -72,7 +73,7 @@ internal fun registerFloat(globals: GlobalsBuilder) {
      */
     globals.setFunction(
         name = "float",
-        asType = StarlarkFloat::class,
+        asType = Ty.float(),
         speculativeExecSafe = true,
     ) { args, eval ->
         // #[starlark(require = pos)] a: Option<Either<Either<NumRef, bool>, &str>>
