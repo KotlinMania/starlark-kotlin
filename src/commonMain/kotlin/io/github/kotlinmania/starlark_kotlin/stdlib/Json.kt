@@ -386,7 +386,7 @@ private fun jsonMembers(globals: GlobalsBuilder) {
     // fn encode(#[starlark(require = pos)] x: Value) -> anyhow::Result<String>
     globals.setFunction("encode") { args, eval ->
         val x = args.positional<Value>(0)
-        jsonEncode(x).getOrThrow()
+        eval.heap().allocStr(jsonEncode(x).getOrThrow())
     }
 
     // fn decode<'v>(#[starlark(require = pos)] x: &str, heap: Heap<'v>) -> anyhow::Result<Value<'v>>

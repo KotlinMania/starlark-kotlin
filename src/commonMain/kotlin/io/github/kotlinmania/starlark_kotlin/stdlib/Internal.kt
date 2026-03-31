@@ -33,9 +33,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 // fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
 private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
     // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
-    globals.setFunction("ty_of_value_debug") { args, _ ->
+    globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: Value = args.full.pos.firstOrNull() ?: Value.newNone()
-        Ty.ofValue(value).toString()
+        eval.heap().allocStr(Ty.ofValue(value).toString())
     }
 }
 

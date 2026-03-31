@@ -56,6 +56,6 @@ internal fun registerBool(globals: GlobalsBuilder) {
      */
     globals.setFunction("bool") { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Value>(0)
-        x?.toBool() ?: false
+        Value.newBool(x?.toBool() ?: false)
     }
 }

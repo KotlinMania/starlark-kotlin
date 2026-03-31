@@ -74,12 +74,12 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         name = "float",
         asType = StarlarkFloat::class,
         speculativeExecSafe = true,
-    ) { args, _ ->
+    ) { args, eval ->
         // #[starlark(require = pos)] a: Option<Either<Either<NumRef, bool>, &str>>
         // Get the first positional argument, or return 0.0 if absent.
         val positional = args.positionalAll()
         if (positional.isEmpty()) {
-            return@setFunction 0.0
+            return@setFunction StarlarkFloat(0.0).allocValue(eval.heap())
         }
 
         val v = positional.first()
@@ -88,13 +88,13 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         // This mirrors Rust's Either<Either<NumRef, bool>, &str>.
         val asBool = v.unpackBool()
         if (asBool != null) {
-            return@setFunction if (asBool) 1.0 else 0.0
+            return@setFunction StarlarkFloat(if (asBool) 1.0 else 0.0).allocValue(eval.heap())
         }
 
         val asStr = v.unpackStr()
         if (asStr != null) {
             val s = asStr
-            return@setFunction try {
+            val f: Double = try {
                 val f = s.toDouble()
                 if (f.isInfinite() && !s.lowercase().contains("inf")) {
                     throw IllegalArgumentException(
@@ -110,12 +110,13 @@ internal fun registerFloat(globals: GlobalsBuilder) {
                     "$repr is not a valid number: $x"
                 )
             }
+            return@setFunction StarlarkFloat(f).allocValue(eval.heap())
         }
 
         // Otherwise try as numeric (int or float)
         val asNum = NumRef.unpackValueImpl(v)
         if (asNum != null) {
-            return@setFunction asNum.asFloat()
+            return@setFunction StarlarkFloat(asNum.asFloat()).allocValue(eval.heap())
         }
 
         throw IllegalArgumentException(

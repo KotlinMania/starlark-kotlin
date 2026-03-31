@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 
 class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {
@@ -106,6 +107,6 @@ fun zip(
 fun registerZip(globals: GlobalsBuilder) {
     globals.setFunction("zip") { args, eval ->
         val positional = args.positionalAll()
-        zip(positional, eval.heap()).getOrThrow()
+        eval.heap().allocList(zip(positional, eval.heap()).getOrThrow())
     }
 }

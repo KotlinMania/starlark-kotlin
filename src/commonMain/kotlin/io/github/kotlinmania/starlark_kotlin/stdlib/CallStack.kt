@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
+import io.github.kotlinmania.starlark_kotlin.values.types.none.allocValue
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import kotlin.test.Test
 
@@ -136,10 +137,10 @@ private fun callStackFrame(n: Int, eval: Evaluator): NoneOr<StackFrame> {
 /** Register call_stack and call_stack_frame globals. */
 internal fun callStackGlobal(builder: GlobalsBuilder) {
     builder.setFunction("call_stack") { args, eval ->
-        callStack(args.namedOptional("strip_frames") ?: 0, eval)
+        eval.heap().allocStr(callStack(args.namedOptional("strip_frames") ?: 0, eval))
     }
     builder.setFunction("call_stack_frame") { args, eval ->
-        callStackFrame(args.positional(0), eval)
+        callStackFrame(args.positional(0), eval).allocValue(eval.heap())
     }
 }
 
