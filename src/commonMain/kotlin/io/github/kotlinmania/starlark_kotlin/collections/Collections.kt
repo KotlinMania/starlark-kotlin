@@ -1,9 +1,8 @@
-// port-lint: source src/stdlib/funcs.rs
-@file:Suppress("unused")
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
+// port-lint: source src/collections.rs
+package io.github.kotlinmania.starlark_kotlin.collections
 
 /*
- * Copyright 2018 The Starlark in Rust Authors.
+ * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
@@ -20,7 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
  * limitations under the License.
  */
 
-// pub(crate) mod globals;
-// pub(crate) mod min_max;
-// pub(crate) mod other;
-// pub(crate) mod zip;
+/**
+ * Defines [SmallMap] and [SmallSet] - collections with deterministic iteration and small memory footprint.
+ *
+ * These structures use vector-backed storage if there are only a few elements, and an index
+ * for larger collections. The API mirrors standard Rust collections.
+ *
+ * Rust uses `pub use ...` re-exports from `starlark_map` in this module. Kotlin has no direct
+ * equivalent of `pub use`, so call sites should import the concrete types directly from
+ * `io.github.kotlinmania.starlark_kotlin.collections.*`.
+ */
+

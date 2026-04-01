@@ -193,8 +193,15 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
 /** Error thrown when no breakpoint handler is configured on the evaluator. */
 internal class BreakpointError(message: String) : RuntimeException(message)
 
-private const val BREAKPOINT_HIT_MESSAGE: String =
+internal const val BREAKPOINT_HIT_MESSAGE: String =
     "BREAKPOINT HIT! :resume to continue, :help for all options"
+
+/** Reset test-visible breakpoint state. */
+internal fun resetBreakpointState() {
+    breakpointLock.withLock {
+        breakpointState = State.Allow
+    }
+}
 
 /**
  * When a debugger is available, breaks into the debugger.
@@ -213,90 +220,5 @@ fun breakpointGlobal(builder: GlobalsBuilder) {
             }
         }
         NoneType
-    }
-}
-
-// --- Tests ---
-
-// Breakpoint tests should not be executed concurrently
-// to avoid interfering with the breakpoint state.
-private val testLock = ReentrantLock()
-
-private fun resetGlobalState() {
-    // `breakpoint()` function modifies the global state.
-    breakpointLock.withLock {
-        breakpointState = State.Allow
-    }
-}
-
-/** Tests for the breakpoint module. */
-internal class BreakpointTests {
-
-    /**
-     * Test with: BREAKPOINT=1 to enable real terminal breakpoint.
-     * Skipped by default since it requires interactive input.
-     */
-    @kotlin.test.Test
-    fun testBreakpointReal() {
-        testLock.withLock {
-            resetGlobalState()
-
-            // Skip unless BREAKPOINT=1 is set in the environment
-            // In Kotlin/Multiplatform there is no universal env access, so this
-            // test is effectively a no-op placeholder matching the Rust original.
-            return
-        }
-    }
-
-    @kotlin.test.Test
-    fun testBreakpointMock() {
-        testLock.withLock {
-            resetGlobalState()
-
-            val printedLines = mutableListOf<String>()
-
-            val a = io.github.kotlinmania.starlark_kotlin.assert.Assert()
-            a.globalsAdd(::breakpointGlobal)
-            a.setupEval { eval ->
-                // `Assert` runs tests several times, take only lines from the last iteration.
-                printedLines.clear()
-
-                eval.breakpointHandler = {
-                    object : BreakpointConsole {
-                        private var called = false
-
-                        override fun readLine(): String? {
-                            val wasCalled = called
-                            called = true
-                            return if (!wasCalled) "x" else null
-                        }
-
-                        override fun println(line: String) {
-                            printedLines.add(line)
-                        }
-                    }
-                }
-            }
-            a.pass("x = [1,2,3]; breakpoint()")
-
-            kotlin.test.assertEquals(
-                listOf(BREAKPOINT_HIT_MESSAGE, "[1, 2, 3]"),
-                printedLines,
-            )
-        }
-    }
-
-    @kotlin.test.Test
-    fun testBreakpointDisabled() {
-        testLock.withLock {
-            resetGlobalState()
-
-            val a = io.github.kotlinmania.starlark_kotlin.assert.Assert()
-            a.globalsAdd(::breakpointGlobal)
-            a.fail(
-                "x = [1,2,3]; breakpoint()",
-                "Breakpoint handler is not enabled",
-            )
-        }
     }
 }

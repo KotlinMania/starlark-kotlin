@@ -28,12 +28,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
@@ -261,8 +260,8 @@ class Partial(
     Freeze<FrozenPartial> {
 
     // impl Freeze for Partial
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenPartial> {
+    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
+    override fun freeze(freezer: Freezer): Result<FrozenPartial> {
         val frozenFunc = freezer.freeze(func)
         if (frozenFunc.isFailure) return Result.failure(frozenFunc.exceptionOrNull()!!)
         val frozenPos = freezer.freeze(pos)
