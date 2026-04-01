@@ -26,15 +26,14 @@ import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freezeList
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.FrozenRecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import starlark_map.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -112,12 +111,12 @@ class RecordGen internal constructor(
     }
 
     // impl Freeze for RecordGen
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): FreezeResult<RecordGen> {
-        val frozenTyp = typ.freeze(freezer).getOrElse { return FreezeResult.failure(it) }
+    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
+    override fun freeze(freezer: Freezer): Result<RecordGen> {
+        val frozenTyp = typ.freeze(freezer).getOrElse { return Result.failure(it) }
         val frozenValues = freezeList(values, freezer) { v, f -> v.freeze(f) }
-            .getOrElse { return FreezeResult.failure(it) }
-        return FreezeResult.success(
+            .getOrElse { return Result.failure(it) }
+        return Result.success(
             RecordGen(
                 typ = frozenTyp.toValue(),
                 values = frozenValues.map { it.toValue() },

@@ -1,5 +1,5 @@
 // port-lint: source src/errors.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -29,4 +29,3 @@ package io.github.kotlinmania.starlark_kotlin
 // pub use crate::analysis::Lint;
 
 // pub(crate) mod did_you_mean;
-internal val did_you_mean = "did_you_mean"

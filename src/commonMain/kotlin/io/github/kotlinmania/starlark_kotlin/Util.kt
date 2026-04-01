@@ -1,5 +1,5 @@
 // port-lint: source src/util.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -23,14 +23,9 @@ package io.github.kotlinmania.starlark_kotlin
 /// Utilities.
 
 // pub(crate) mod arc_or_static;
-internal val arc_or_static = "arc_or_static"
 // pub(crate) mod arc_str;
-internal val arc_str = "arc_str"
 // pub(crate) mod non_static_type_id;
-internal val non_static_type_id = "non_static_type_id"
 // pub(crate) mod refcell;
-internal val refcell = "refcell"
 // pub(crate) mod rtabort;
-internal val rtabort = "rtabort"
 
 // pub use crate::util::arc_str::ArcStr;

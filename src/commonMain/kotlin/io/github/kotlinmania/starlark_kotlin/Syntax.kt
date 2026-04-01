@@ -1,5 +1,5 @@
 // port-lint: source src/syntax.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin
 
 /*

@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.values
 
 /*
@@ -25,21 +25,13 @@ package io.github.kotlinmania.starlark_kotlin.values
 // pub(crate) mod any;
 // internal val any = "any" // conflicts with Types.kt declaration
 // pub(crate) mod callable;
-internal val callable = "callable"
 // pub(crate) mod globals;
-internal val globals = "globals"
 // pub(crate) mod iter;
-internal val iter = "iter"
 // pub mod macro_refs;
-internal val macro_refs = "macro_refs"
 // pub(crate) mod never;
-internal val never = "never"
 // pub(crate) mod ty;
-internal val ty = "ty"
 // pub(crate) mod type_compiled;
-internal val type_compiled = "type_compiled"
 // pub(crate) mod type_type;
-internal val type_type = "type_type"
 
 // pub use crate::values::types::type_instance_id::TypeInstanceId;
 // pub use crate::values::typing::callable::FrozenStarlarkCallable;

@@ -1,5 +1,5 @@
-// port-lint: source src/docs/tests.rs
-@file:Suppress("unused", "ObjectPropertyName")
+// port-lint: tests src/docs/tests.rs
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.docs.tests
 
 /*
@@ -21,6 +21,4 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  */
 
 // mod markdown;
-internal val markdown = "markdown"
 // mod rustdocs;
-internal val rustdocs = "rustdocs"

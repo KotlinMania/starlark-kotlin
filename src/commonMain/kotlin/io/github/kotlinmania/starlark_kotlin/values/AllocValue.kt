@@ -20,6 +20,12 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.Either
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
@@ -135,32 +141,4 @@ inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozen
     }
 
 // --- Rust name parity aliases (for AST distance + line-by-line ports) ---
-// Rust methods use snake_case like `alloc_value`/`alloc_frozen_value`.
-// Kotlin uses camelCase, so we provide thin wrappers for parity.
-@Suppress("FunctionName")
-fun AllocValue.alloc_value(heap: Heap): Value = allocValue(heap)
-
-@Suppress("FunctionName")
-fun AllocStringValue.alloc_string_value(heap: Heap): StringValue = allocStringValue(heap)
-
-@Suppress("FunctionName")
-fun FrozenValue.alloc_value(heap: Heap): Value = allocValue(heap)
-
-@Suppress("FunctionName")
-fun Value.alloc_value(heap: Heap): Value = allocValue(heap)
-
-@Suppress("FunctionName")
-inline fun <A : AllocValue, B : AllocValue> Either<A, B>.alloc_value(heap: Heap): Value = allocValue(heap)
-
-@Suppress("FunctionName")
-fun AllocFrozenValue.alloc_frozen_value(heap: FrozenHeap): FrozenValue = allocFrozenValue(heap)
-
-@Suppress("FunctionName")
-fun AllocFrozenStringValue.alloc_frozen_string_value(heap: FrozenHeap): FrozenStringValue = allocFrozenStringValue(heap)
-
-@Suppress("FunctionName")
-fun FrozenValue.alloc_frozen_value(heap: FrozenHeap): FrozenValue = allocFrozenValue(heap)
-
-@Suppress("FunctionName")
-inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.alloc_frozen_value(heap: FrozenHeap): FrozenValue =
-    allocFrozenValue(heap)
+// (Removed Rust-name parity aliases; use the camelCase APIs directly.)

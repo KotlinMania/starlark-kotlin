@@ -1,5 +1,5 @@
 // port-lint: source src/pagable.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.pagable
 
 /*
@@ -36,10 +36,6 @@ package io.github.kotlinmania.starlark_kotlin.pagable
 
 // #[cfg(feature = "pagable")]
 // pub(crate) mod error;
-internal val error = "error"
 // #[cfg(feature = "pagable")]
 // pub(crate) mod vtable_registry;
-internal val vtable_registry = "vtable_registry"
-
 // pub(crate) mod vtable_register;
-internal val vtable_register = "vtable_register"

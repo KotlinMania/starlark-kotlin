@@ -35,10 +35,9 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
@@ -336,7 +335,7 @@ internal class BoundMethodGen<V>(
     override fun documentation(): DocItem = method.asRef().documentation()
 
     // impl Freeze for BoundMethodGen<V>
-    override fun freeze(freezer: Freezer): FreezeResult<BoundMethodGen<FrozenValue>> {
+    override fun freeze(freezer: Freezer): Result<BoundMethodGen<FrozenValue>> {
         val frozenThis = freezer.freeze(thisAsValue()).getOrElse { return Result.failure<BoundMethodGen<FrozenValue>>(it) }
         return Result.success(BoundMethodGen(method, frozenThis))
     }

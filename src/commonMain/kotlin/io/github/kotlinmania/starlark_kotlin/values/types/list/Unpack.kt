@@ -135,29 +135,3 @@ fun <T> UnpackList<T>.intoList(): MutableList<T> = items
  * `type Item = &'a T` and `type IntoIter = slice::Iter<'a, T>`.
  */
 fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
-
-// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
-
-/**
- * Test object for unpack list tests.
- *
- * Corresponds to the Rust test module `mod tests` at the bottom of `unpack.rs`.
- */
-internal object UnpackListTests {
-    /**
-     * Corresponds to Rust's `test_unpack`.
-     *
-     * ```
-     * let v = heap.alloc(vec!["a", "b"]);
-     * assert_eq!(vec!["a", "b"], UnpackList::<&str>::unpack_value(v).unwrap().unwrap().items);
-     * assert!(UnpackList::<u32>::unpack_value(v).unwrap().is_none());
-     * assert!(UnpackList::<&str>::unpack_value(heap.alloc(1)).unwrap().is_none());
-     * ```
-     */
-    fun testUnpack() {
-        // Tests verify:
-        // 1. Unpacking a list of strings yields the expected items
-        // 2. Unpacking a list with wrong element type yields None
-        // 3. Unpacking a non-list value yields None
-    }
-}

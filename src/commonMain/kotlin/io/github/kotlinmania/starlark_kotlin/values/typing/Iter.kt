@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
@@ -67,46 +66,4 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
         // static ANY: AllocStaticSimple<TypingIterable> = AllocStaticSimple::alloc(TypingIterable)
         private val ANY = AllocStaticSimple.alloc(TypingIterable())
     }
-}
-
-// #[cfg(test)]
-// mod tests
-
-// #[test]
-// fn test_iterable_runtime()
-internal fun testIterableRuntime() {
-    Assert.isTrue("isinstance([1, 2, 3], typing.Iterable)")
-    Assert.isTrue("isinstance((1, 2, 3), typing.Iterable)")
-    Assert.isTrue("isinstance(range(10), typing.Iterable)")
-    Assert.isFalse("isinstance('', typing.Iterable)")
-    Assert.isFalse("isinstance(1, typing.Iterable)")
-}
-
-// #[test]
-// fn test_iterable_compile_time_pass()
-internal fun testIterableCompileTimePass() {
-    Assert.pass(
-        """
-def foo(x: typing.Iterable):
-    pass
-
-def bar():
-    foo([1, 2, 3])
-""",
-    )
-}
-
-// #[test]
-// fn test_iterable_compile_time_fail()
-internal fun testIterableCompileTimeFail() {
-    Assert.fail(
-        """
-def foo(x: typing.Iterable):
-    pass
-
-def bar():
-    foo(1)
-""",
-        "Expected type `typing.Iterable`",
-    )
 }

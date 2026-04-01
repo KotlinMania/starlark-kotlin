@@ -1,4 +1,4 @@
-// port-lint: source src/docs/parse.rs (tests)
+// port-lint: tests src/docs/parse.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.docs
 
 /*

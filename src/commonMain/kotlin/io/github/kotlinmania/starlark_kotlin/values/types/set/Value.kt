@@ -20,19 +20,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.freezeSmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
@@ -50,9 +49,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
 
     // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
-    override fun freeze(freezer: Freezer): FreezeResult<StarlarkValue> {
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as MutableSet
-        return mutableSelf.freeze(freezer) as FreezeResult<StarlarkValue>
+        return mutableSelf.freeze(freezer) as Result<StarlarkValue>
     }
     override val TYPE: String get() = SET_TYPE
     override val HAS_iterate: Boolean get() = true
@@ -316,7 +315,7 @@ fun SetData.starlarkTypeRepr(): Ty {
 /**
  * Freeze implementation for MutableSet.
  */
-fun MutableSet.freeze(freezer: Freezer): FreezeResult<FrozenSet> {
+fun MutableSet.freeze(freezer: Freezer): Result<FrozenSet> {
     val contentResult = freezeSmallSet(
         this.inner.borrow().data.content,
         freezer,

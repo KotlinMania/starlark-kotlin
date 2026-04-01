@@ -39,12 +39,11 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
 import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueUnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
@@ -100,15 +99,15 @@ class RecordTypeGen internal constructor(
     }
 
     // impl Freeze for RecordType
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): FreezeResult<RecordTypeGen> {
+    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
+    override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
         val frozenFields = freezeSmallMap(
             fields,
             freezer,
-            freezeKey = { k, _ -> FreezeResult.success(k) },
-            freezeValue = { field, _ -> FreezeResult.success(field) },
-        ).getOrElse { return FreezeResult.failure(it) }
-        return FreezeResult.success(
+            freezeKey = { k, _ -> Result.success(k) },
+            freezeValue = { field, _ -> Result.success(field) },
+        ).getOrElse { return Result.failure(it) }
+        return Result.success(
             RecordTypeGen(
                 id = id,
                 tyRecordData = tyRecordData,

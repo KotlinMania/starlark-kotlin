@@ -19,14 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -150,34 +149,4 @@ private fun <K, V> fmtKeyedContainer(
     }
     builder.append(end)
     return builder.toString()
-}
-
-internal fun testRepr() {
-    Assert.eq("repr(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'")
-    Assert.eq("str(namespace(a=1, b=[]))", "'namespace(a=1, b=[])'")
-}
-
-internal fun testReprCycle() {
-    Assert.eq(
-        "l = []; s = namespace(f=l); l.append(s); repr(s)",
-        "'namespace(f=[namespace(...)])'",
-    )
-    Assert.eq(
-        "l = []; s = namespace(f=l); l.append(s); str(s)",
-        "'namespace(f=[namespace(...)])'",
-    )
-}
-
-internal fun testToJsonCycle() {
-    Assert.fail(
-        "l = []; s = namespace(f=l); l.append(s); json.encode(s)",
-        "Cycle detected when serializing value of type `namespace` to JSON",
-    )
-}
-
-internal fun testKwargs() {
-    Assert.eq(
-        "d = {'b': 2}; s = namespace(a=1, **d); str(s)",
-        "'namespace(a=1, b=2)'",
-    )
 }

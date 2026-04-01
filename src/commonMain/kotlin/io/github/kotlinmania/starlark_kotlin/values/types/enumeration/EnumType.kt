@@ -36,11 +36,10 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
 import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
@@ -95,17 +94,17 @@ class EnumTypeGen internal constructor(
         return "enum(${elements().keys().joinToString(", ")})"
     }
 
-    override fun freeze(freezer: Freezer): FreezeResult<EnumTypeGen> {
+    override fun freeze(freezer: Freezer): Result<EnumTypeGen> {
         val frozenElements = SmallMap.new<Value, Value>()
         for ((hashedKey, v) in elements.iterHashed()) {
             val frozenKey = freezer.freeze(hashedKey.key())
-            if (frozenKey.isFailure) return FreezeResult.failure(frozenKey.exceptionOrNull()!!)
+            if (frozenKey.isFailure) return Result.failure(frozenKey.exceptionOrNull()!!)
             val frozenVal = freezer.freeze(v)
-            if (frozenVal.isFailure) return FreezeResult.failure(frozenVal.exceptionOrNull()!!)
+            if (frozenVal.isFailure) return Result.failure(frozenVal.exceptionOrNull()!!)
             val newHashedKey = Hashed.newUnchecked(hashedKey.hash(), frozenKey.getOrThrow().toValue())
             frozenElements.insertHashedUniqueUnchecked(newHashedKey, frozenVal.getOrThrow().toValue())
         }
-        return FreezeResult.success(EnumTypeGen(
+        return Result.success(EnumTypeGen(
             id = id,
             tyEnumData = tyEnumData,
             elements = frozenElements,

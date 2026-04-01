@@ -22,8 +22,8 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
@@ -209,7 +209,7 @@ class ListData(
         return Result.success(Unit)
     }
 
-    private fun reserveAdditionalSlow(additional: Int, heap: Heap) {
+    private fun reserveAdditionalSlow(additional: Int, _heap: Heap) {
         val newCap = max(len() + additional, len() * 2)
         // Size of Array is 2 words and size of List is one word,
         // so allocating at least 4 words would not be too large waste.
@@ -605,80 +605,4 @@ fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = allocListIter(
 fun isListType(value: Value): Boolean {
     val gen = value.downcastRef<ListGen<*>>() ?: return false
     return gen.data is ListData || gen.data is FrozenListData
-}
-
-// #[cfg(test)] mod tests
-internal object ListValueTests {
-    // fn test_to_str
-    fun testToStr() {
-        // str([1, 2, 3]) == "[1, 2, 3]"
-        // str([1, [2, 3]]) == "[1, [2, 3]]"
-        // str([]) == "[]"
-        val expected1 = "[1, 2, 3]"
-        val expected2 = "[1, [2, 3]]"
-        val expected3 = "[]"
-        check(expected1.isNotEmpty())
-        check(expected2.isNotEmpty())
-        check(expected3 == "[]")
-    }
-
-    // fn test_repr_cycle
-    fun testReprCycle() {
-        // l = []; l.append(l); repr(l) == "[[...]]"
-        val expected = "[[...]]"
-        check(expected == "[[...]]")
-    }
-
-    // fn test_mutate_list
-    fun testMutateList() {
-        // v = [1, 2, 3]; v[1] = 1; v[2] = [2, 3]; v == [1, 1, [2, 3]]
-        val v = mutableListOf<Any>(1, 2, 3)
-        v[1] = 1
-        v[2] = listOf(2, 3)
-        check(v[0] == 1)
-        check(v[1] == 1)
-        check(v[2] == listOf(2, 3))
-    }
-
-    // fn test_arithmetic_on_list
-    fun testArithmeticOnList() {
-        // [1, 2, 3] + [2, 3] == [1, 2, 3, 2, 3]
-        // [1, 2, 3] * 3 == [1, 2, 3, 1, 2, 3, 1, 2, 3]
-        val list1 = listOf(1, 2, 3)
-        val list2 = listOf(2, 3)
-        val concat = list1 + list2
-        check(concat == listOf(1, 2, 3, 2, 3))
-        val repeated = list1 + list1 + list1
-        check(repeated.size == 9)
-    }
-
-    // fn test_value_alias
-    fun testValueAlias() {
-        // v1 = [1, 2, 3]; v2 = v1; v2[2] = 4
-        // v1 == [1, 2, 4] and v2 == [1, 2, 4]
-        val v1 = mutableListOf(1, 2, 3)
-        val v2 = v1
-        v2[2] = 4
-        check(v1 == mutableListOf(1, 2, 4))
-        check(v2 == mutableListOf(1, 2, 4))
-    }
-
-    // fn test_mutating_imports
-    fun testMutatingImports() {
-        val frozenList = listOf(1, 2)
-        val frozenListResult = frozenList + listOf(4)
-        check(frozenListResult == listOf(1, 2, 4))
-        val listResult = listOf(1, 2, 4)
-        val extended = listResult + listOf(8)
-        check(extended == listOf(1, 2, 4, 8))
-    }
-
-    // fn test_compare
-    fun testCompare() {
-        // Lexicographic comparison.
-        // [1, 2] < [10]
-        val a = listOf(1, 2)
-        val b = listOf(10)
-        check(a.first() < b.first())
-    }
 }

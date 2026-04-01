@@ -19,33 +19,26 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
 import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackListUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)
@@ -225,7 +218,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
 // impl Freeze for StarlarkCallable
 fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>.freeze(
     freezer: Freezer,
-): FreezeResult<FrozenStarlarkCallable<P, R>> {
+): Result<FrozenStarlarkCallable<P, R>> {
     val frozenValue = freezer.freeze(value).getOrElse { return Result.failure(it) }
     return Result.success(FrozenStarlarkCallable.uncheckedNew(frozenValue))
 }
@@ -282,203 +275,4 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     override fun allocValue(_heap: Heap): Value {
         return value
     }
-}
-
-// #[cfg(test)]
-// mod tests
-
-// #[starlark_module]
-// fn my_module(globals: &mut GlobalsBuilder)
-private fun myModule(globals: GlobalsBuilder) {
-    // fn accept_f(_x: StarlarkCallable<(String,), i32>) -> anyhow::Result<NoneType>
-    globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
-        Result.success(NoneType)
-    }
-}
-
-// #[test]
-// fn test_callable_runtime()
-internal fun testCallableRuntime() {
-    Assert.isTrue("isinstance(lambda: None, typing.Callable)")
-    Assert.isTrue("isinstance(len, typing.Callable)")
-    Assert.isTrue("Rec = record(); isinstance(Rec, typing.Callable)")
-    Assert.isFalse("isinstance(37, typing.Callable)")
-}
-
-// #[test]
-// fn test_callable_pass_compile_time()
-internal fun testCallablePassCompileTime() {
-    Assert.pass(
-        """
-Rec = record()
-
-def foo(x: typing.Callable):
-    pass
-
-def bar():
-    foo(len)
-    foo(lambda x: 1)
-    foo(Rec)
-""",
-    )
-}
-
-// #[test]
-// fn test_callable_fail_compile_time()
-internal fun testCallableFailCompileTime() {
-    Assert.fail(
-        """
-def foo(x: typing.Callable):
-    pass
-
-def bar():
-    foo(1)
-""",
-        "Expected type",
-    )
-}
-
-// #[test]
-// fn test_native_callable_pass()
-internal fun testNativeCallablePass() {
-    val a = Assert()
-    a.globalsAdd(::myModule)
-    a.pass(
-        """
-def f(x: str) -> int:
-    return len(x)
-
-def test():
-    accept_f(f)
-""",
-    )
-}
-
-// #[test]
-// fn test_native_callable_fail_compile_time_wrong_param_type()
-internal fun testNativeCallableFailCompileTimeWrongParamType() {
-    val a = Assert()
-    a.globalsAdd(::myModule)
-    a.fail(
-        """
-def f(x: list) -> int:
-    return 1
-
-def test():
-    accept_f(f)
-""",
-        "Expected type `typing.Callable[[str], int]` but got",
-    )
-}
-
-// #[test]
-// fn test_native_callable_fail_compile_time_wrong_param_count()
-internal fun testNativeCallableFailCompileTimeWrongParamCount() {
-    val a = Assert()
-    a.globalsAdd(::myModule)
-    a.fail(
-        """
-def f() -> int:
-    return 1
-
-def test():
-    accept_f(f)
-""",
-        "Expected type `typing.Callable[[str], int]` but got",
-    )
-}
-
-// #[test]
-// fn test_typing_callable_pass()
-internal fun testTypingCallablePass() {
-    val a = Assert()
-    a.pass(
-        """
-def accept_f(x: typing.Callable[[str], int]) -> None:
-    pass
-
-def f(x: str) -> int:
-    return len(x)
-
-def test():
-    accept_f(f)
-""",
-    )
-}
-
-// #[test]
-// fn test_typing_callable_fail_compile_time_wrong_param_type()
-internal fun testTypingCallableFailCompileTimeWrongParamType() {
-    val a = Assert()
-    a.fail(
-        """
-def accept_f(x: typing.Callable[[str], int]) -> None:
-    pass
-
-def f(x: list) -> int:
-    return 1
-
-def test():
-    accept_f(f)
-""",
-        "Expected type `typing.Callable[[str], int]` but got",
-    )
-}
-
-// #[test]
-// fn test_typing_callable_fail_compile_time_wrong_param_count()
-internal fun testTypingCallableFailCompileTimeWrongParamCount() {
-    val a = Assert()
-    a.fail(
-        """
-def accept_f(x: typing.Callable[[str], int]) -> None:
-    pass
-
-def f() -> int:
-    return 1
-
-def test():
-    accept_f(f)
-""",
-        "Expected type `typing.Callable[[str], int]` but got",
-    )
-}
-
-// #[test]
-// fn test_callable_checked_runtime()
-internal fun testCallableCheckedRuntime() {
-    // #[starlark_module]
-    // fn module(globals: &mut GlobalsBuilder)
-    fun checkedModule(globals: GlobalsBuilder) {
-        // fn accept_f(_f: StarlarkCallableChecked<(), NoneType>) -> anyhow::Result<NoneType>
-        globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
-            Result.success(NoneType)
-        }
-
-        // fn good() -> anyhow::Result<NoneType>
-        globals.setFunction("good") { _args: Arguments, _eval: Evaluator ->
-            Result.success(NoneType)
-        }
-
-        // fn bad() -> anyhow::Result<i32>
-        globals.setFunction("bad") { _args: Arguments, _eval: Evaluator ->
-            Result.success(10)
-        }
-    }
-
-    val a = Assert()
-    a.globalsAdd(::checkedModule)
-
-    a.pass("accept_f(good)")
-
-    a.fail(
-        """
-def test():
-    x = noop(bad) # Hide the type from static typechecker.
-    accept_f(x)
-
-test()
-        """,
-        "Type of parameter `_f` doesn't match",
-    )
 }

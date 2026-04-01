@@ -24,10 +24,19 @@ import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.*
+import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.AllocValue
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
 import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
@@ -60,7 +69,7 @@ private fun formatSignedPadded(value: Int, width: Int): String {
     return "$sign$padded"
 }
 
-private fun writeNonFinite(output: Appendable, f: Double) {
+internal fun writeNonFinite(output: Appendable, f: Double) {
     require(f.isNaN() || f.isInfinite())
     if (f.isNaN()) {
         output.append("nan")
@@ -261,93 +270,3 @@ fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
 
 fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
     typecheckNumBinOp(NumTy.Float, op, rhs)
-
-// #[cfg(test)]
-
-private fun nonFinite(f: Double): String {
-    val buf = StringBuilder()
-    writeNonFinite(buf, f)
-    return buf.toString()
-}
-
-internal fun testWriteNonFinite() {
-    check(nonFinite(Double.NaN) == "nan")
-    check(nonFinite(Double.POSITIVE_INFINITY) == "+inf")
-    check(nonFinite(Double.NEGATIVE_INFINITY) == "-inf")
-}
-
-private fun decimal(f: Double): String {
-    val buf = StringBuilder()
-    writeDecimal(buf, f)
-    return buf.toString()
-}
-
-internal fun testWriteDecimal() {
-    check(decimal(Double.NaN) == "nan")
-    check(decimal(Double.POSITIVE_INFINITY) == "+inf")
-    check(decimal(Double.NEGATIVE_INFINITY) == "-inf")
-    check(decimal(0.0) == "0.000000")
-    check(decimal(PI) == "3.141593")
-    check(decimal(-E) == "-2.718282")
-    check(decimal(1e10) == "10000000000.000000")
-}
-
-private fun scientific(f: Double): String {
-    val buf = StringBuilder()
-    writeScientific(buf, f, 'e', false)
-    return buf.toString()
-}
-
-internal fun testWriteScientific() {
-    check(scientific(Double.NaN) == "nan")
-    check(scientific(Double.POSITIVE_INFINITY) == "+inf")
-    check(scientific(Double.NEGATIVE_INFINITY) == "-inf")
-    check(scientific(0.0) == "0.000000e+00")
-    check(scientific(-0.0) == "-0.000000e+00")
-    check(scientific(1.23e45) == "1.230000e+45")
-    check(scientific(-3.14e-145) == "-3.140000e-145")
-    check(scientific(1e300) == "1.000000e+300")
-}
-
-private fun compact(f: Double): String {
-    val buf = StringBuilder()
-    writeCompact(buf, f, 'e')
-    return buf.toString()
-}
-
-internal fun testWriteCompact() {
-    check(compact(Double.NaN) == "nan")
-    check(compact(Double.POSITIVE_INFINITY) == "+inf")
-    check(compact(Double.NEGATIVE_INFINITY) == "-inf")
-    check(compact(0.0) == "0.0")
-    check(compact(PI) == "3.141592653589793")
-    check(compact(-E) == "-2.718281828459045")
-    check(compact(1e10) == "1e+10")
-    check(compact(1.23e45) == "1.23e+45")
-    check(compact(-3.14e-145) == "-3.14e-145")
-    check(compact(1e300) == "1e+300")
-}
-
-internal fun testArithmeticOperators() {
-    // assert::all_true: +1.0 == 1.0, -1.0 == 0. - 1., 1.0 + 2.0 == 3.0,
-    // 1.0 - 2.0 == -1.0, 2.0 * 3.0 == 6.0, 5.0 / 2.0 == 2.5,
-    // 5.0 % 3.0 == 2.0, 5.0 // 2.0 == 2.0
-}
-
-internal fun testDictionaryKey() {
-    // assert::pass: x = {0: 123}, assert_eq(x[0], 123),
-    // assert_eq(x[noop(0.0)], 123), assert_eq(x[noop(-0.0)], 123),
-    // assert_eq(1 in x, False)
-}
-
-internal fun testComparisons() {
-    // a.all_true: +0.0 == -0.0, 0.0 == 0, 0 == 0.0, 0 < 1.0,
-    // 0.0 < 1, 1 > 0.0, 1.0 > 0, 0.0 < float("nan"),
-    // float("+inf") < float("nan")
-}
-
-internal fun testComparisonsBySorting() {
-    // assert::eq(sorted([float('inf'), float('-inf'), float('nan'), 1e300,
-    // -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'),
-    // 1e-300, -1e-300]), [...])
-}

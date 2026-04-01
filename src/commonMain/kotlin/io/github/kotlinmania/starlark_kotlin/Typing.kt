@@ -1,5 +1,5 @@
 // port-lint: source src/typing.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -28,57 +28,25 @@ package io.github.kotlinmania.starlark_kotlin
 
 /// Types required to support the [`typecheck`](crate::syntax::AstModule::typecheck) function.
 
-// pub(crate) mod arc_ty;
-internal val arc_ty = "arc_ty"
 // pub(crate) mod basic;
-internal val basic = "basic"
 // pub(crate) mod bindings;
-internal val bindings = "bindings"
-// pub(crate) mod call_args;
-internal val call_args = "call_args"
 // pub(crate) mod callable;
-internal val callable = "callable"
-// pub(crate) mod callable_param;
-internal val callable_param = "callable_param"
 // pub(crate) mod ctx;
-internal val ctx = "ctx"
 // pub(crate) mod custom;
-internal val custom = "custom"
 // pub(crate) mod error;
-internal val error = "error"
-// pub(crate) mod fill_types_for_lint;
-internal val fill_types_for_lint = "fill_types_for_lint"
 // pub(crate) mod function;
-internal val function = "function"
 // pub(crate) mod interface;
-internal val interface_ = "interface"
 // pub(crate) mod mode;
-internal val mode = "mode"
 // pub(crate) mod oracle;
-internal val oracle = "oracle"
-// pub(crate) mod small_arc_vec;
-internal val small_arc_vec = "small_arc_vec"
-// pub(crate) mod small_arc_vec_or_static;
-internal val small_arc_vec_or_static = "small_arc_vec_or_static"
-// pub(crate) mod starlark_value;
-internal val starlark_value = "starlark_value"
 // pub(crate) mod structs;
-internal val structs = "structs"
 // pub(crate) mod tuple;
-internal val tuple = "tuple"
 // pub(crate) mod ty;
-internal val ty = "ty"
 // pub(crate) mod typecheck;
-internal val typecheck = "typecheck"
 // pub(crate) mod user;
-internal val user = "user"
 
-// pub mod macro_support;
-internal val macro_support = "macro_support"
 
 // #[cfg(test)]
 // mod tests;
-internal val tests = "tests"
 
 // pub use basic::TyBasic;
 // pub use callable::TyCallable;

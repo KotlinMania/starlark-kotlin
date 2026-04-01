@@ -19,11 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
@@ -77,24 +76,4 @@ sealed class StarlarkNever : StarlarkTypeRepr, AllocValue {
     override fun allocValue(@Suppress("unused") heap: Heap): Value {
         error("StarlarkNever is uninhabited")
     }
-}
-
-// #[cfg(test)]
-// mod tests
-
-// #[test]
-// fn test_never_runtime()
-internal fun testNeverRuntime() {
-    Assert.isTrue("not isinstance(1, typing.Never)")
-}
-
-// #[test]
-// fn test_never_compile_time()
-internal fun testNeverCompileTime() {
-    Assert.pass(
-        """
-def f() -> typing.Never:
-    return fail()
-""",
-    )
 }

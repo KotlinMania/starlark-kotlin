@@ -398,31 +398,3 @@ internal fun remove(
     thisList.remove(position)
     return Result.success(NoneType)
 }
-
-// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
-
-/**
- * Test object for list method tests.
- *
- * These correspond to the Rust test module `mod tests` at the bottom
- * of `methods.rs`.
- */
-internal object ListMethodTests {
-    /** Corresponds to Rust's `test_error_codes`. */
-    fun testErrorCodes() {
-        // x = [1, 2, 3, 2]; x.remove(2); x.remove(2); x.remove(2)
-        // => "not found in list"
-    }
-
-    /** Corresponds to Rust's `test_index`. */
-    fun testIndex() {
-        // Should fail, but should not panic.
-        // [True].index(True, 1, 0) => "not found"
-    }
-
-    /** Corresponds to Rust's `recursive_list`. */
-    fun testRecursiveList() {
-        // cyclic = [1, 2, 3]; cyclic[1] = cyclic
-        // len(cyclic) == 3 and len(cyclic[1]) == 3
-    }
-}

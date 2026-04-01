@@ -1,5 +1,5 @@
 // port-lint: source src/values/thin_box_slice_frozen_value.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
 
 /*
@@ -21,6 +21,4 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
  */
 
 // pub(crate) mod packed_impl;
-internal val packed_impl = "packed_impl"
 // mod thin_box;
-internal val thin_box = "thin_box"

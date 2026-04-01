@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/scope/tests.rs
+// port-lint: tests src/eval/compiler/scope/tests.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
 
 /*
@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.codemap.*
 

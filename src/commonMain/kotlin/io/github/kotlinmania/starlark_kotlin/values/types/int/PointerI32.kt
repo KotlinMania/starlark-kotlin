@@ -65,9 +65,6 @@ internal class PointerI32 internal constructor(
     override val TYPE: String get() = INT_TYPE
     override val HAS_equals: Boolean get() = true
 
-    /** Construct from a raw i32 value (used by layout code). */
-    internal constructor(rawI32: Int) : this(InlineInt.newUnchecked(rawI32))
-
     companion object {
         /**
          * Creates a [PointerI32] from a [RawPointer].
@@ -80,6 +77,9 @@ internal class PointerI32 internal constructor(
             require(rawPointer.isInt()) { "RawPointer must be an int" }
             return PointerI32(InlineInt.newUnchecked(rawPointer.unpackInt()!!))
         }
+
+        /** Construct from a raw i32 value (used by layout code). */
+        internal fun fromRawInt(rawI32: Int): PointerI32 = PointerI32(InlineInt.newUnchecked(rawI32))
 
         // Rust: pub(crate) fn vtable() -> &'static AValueVTable
         // Rust: AValueVTable::new::<AValueBasic<PointerI32>>()

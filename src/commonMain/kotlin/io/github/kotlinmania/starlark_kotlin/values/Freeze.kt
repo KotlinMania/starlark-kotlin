@@ -19,10 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import starlark_map.small_set.SmallSet
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 
 /**
  * A zero-sized marker type used for type-level tracking without runtime overhead.
@@ -60,7 +65,7 @@ data class Tuple5<A, B, C, D, E>(val first: A, val second: B, val third: C, val 
  *     val value: V,
  *     val data: AdditionalData,
  * ) : Freeze<MyType<F, F>> {
- *     override fun freeze(freezer: Freezer): FreezeResult<MyType<F, F>> {
+ *     override fun freeze(freezer: Freezer): Result<MyType<F, F>> {
  *         return Result.success(MyType(value.freeze(freezer).getOrThrow(), data))
  *     }
  * }
@@ -75,41 +80,41 @@ interface Freeze<Frozen> {
      * trying to unpack these objects will crash the process.
      * So the function is only allowed to access [Value] objects after it froze them.
      */
-    fun freeze(freezer: Freezer): FreezeResult<Frozen>
+    fun freeze(freezer: Freezer): Result<Frozen>
 }
 
 /** Freeze implementation for [String]. Identity freeze. */
-fun freezeString(self: String, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<String> {
+fun freezeString(self: String, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<String> {
     return Result.success(self)
 }
 
 /** Freeze implementation for [Int] (i32). Identity freeze. */
-fun freezeInt(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Int> {
+fun freezeInt(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Int> {
     return Result.success(self)
 }
 
 /** Freeze implementation for [UInt] (u32). Identity freeze. */
-fun freezeUInt(self: UInt, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<UInt> {
+fun freezeUInt(self: UInt, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<UInt> {
     return Result.success(self)
 }
 
 /** Freeze implementation for [Long] (i64). Identity freeze. */
-fun freezeLong(self: Long, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Long> {
+fun freezeLong(self: Long, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Long> {
     return Result.success(self)
 }
 
 /** Freeze implementation for [ULong] (u64). Identity freeze. */
-fun freezeULong(self: ULong, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<ULong> {
+fun freezeULong(self: ULong, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<ULong> {
     return Result.success(self)
 }
 
 /** Freeze implementation for usize (mapped to [Int]). Identity freeze. */
-fun freezeUSize(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Int> {
+fun freezeUSize(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Int> {
     return Result.success(self)
 }
 
 /** Freeze implementation for [Boolean]. Identity freeze. */
-fun freezeBoolean(self: Boolean, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Boolean> {
+fun freezeBoolean(self: Boolean, @Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Boolean> {
     return Result.success(self)
 }
 
@@ -117,7 +122,7 @@ fun freezeBoolean(self: Boolean, @Suppress("UNUSED_PARAMETER") freezer: Freezer)
 fun <T> freezePhantomData(
     @Suppress("UNUSED_PARAMETER") self: PhantomData<T>,
     @Suppress("UNUSED_PARAMETER") freezer: Freezer,
-): FreezeResult<PhantomData<T>> {
+): Result<PhantomData<T>> {
     return Result.success(PhantomData.new())
 }
 
@@ -125,8 +130,8 @@ fun <T> freezePhantomData(
 fun <T, F> freezeList(
     self: List<T>,
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<List<F>> {
+    freezeElement: (T, Freezer) -> Result<F>,
+): Result<List<F>> {
     val result = mutableListOf<F>()
     for (v in self) {
         val frozen = freezeElement(v, freezer)
@@ -140,8 +145,8 @@ fun <T, F> freezeList(
 fun <T, F> freezeRefCell(
     self: T,
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F> {
+    freezeInner: (T, Freezer) -> Result<F>,
+): Result<F> {
     return freezeInner(self, freezer)
 }
 
@@ -149,9 +154,9 @@ fun <T, F> freezeRefCell(
 fun <T, F> freezeUnsafeCell(
     self: T,
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
+    freezeInner: (T, Freezer) -> Result<F>,
     wrapResult: (F) -> F,
-): FreezeResult<F> {
+): Result<F> {
     val frozen = freezeInner(self, freezer)
     if (frozen.isFailure) return frozen
     return Result.success(wrapResult(frozen.getOrThrow()))
@@ -161,8 +166,8 @@ fun <T, F> freezeUnsafeCell(
 fun <T, F> freezeOnceCell(
     self: T?,
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F?> {
+    freezeInner: (T, Freezer) -> Result<F>,
+): Result<F?> {
     return freezeNullable(self, freezer, freezeInner)
 }
 
@@ -170,8 +175,8 @@ fun <T, F> freezeOnceCell(
 fun <T, F> freezeBox(
     self: T,
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F> {
+    freezeInner: (T, Freezer) -> Result<F>,
+): Result<F> {
     return freezeInner(self, freezer)
 }
 
@@ -179,8 +184,8 @@ fun <T, F> freezeBox(
 fun <T, F> freezeBoxSlice(
     self: List<T>,
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<List<F>> {
+    freezeElement: (T, Freezer) -> Result<F>,
+): Result<List<F>> {
     return freezeList(self, freezer, freezeElement)
 }
 
@@ -188,8 +193,8 @@ fun <T, F> freezeBoxSlice(
 fun <T, F> freezeNullable(
     self: T?,
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F?> {
+    freezeElement: (T, Freezer) -> Result<F>,
+): Result<F?> {
     if (self == null) return Result.success(null)
     return freezeElement(self, freezer).map { it }
 }
@@ -198,8 +203,8 @@ fun <T, F> freezeNullable(
 fun <K, FK> freezeHashed(
     self: Hashed<K>,
     freezer: Freezer,
-    freezeKey: (K, Freezer) -> FreezeResult<FK>,
-): FreezeResult<Hashed<FK>> {
+    freezeKey: (K, Freezer) -> Result<FK>,
+): Result<Hashed<FK>> {
     // `freeze` must not change hash.
     val frozenKey = freezeKey(self.intoKey(), freezer)
     if (frozenKey.isFailure) return Result.failure(frozenKey.exceptionOrNull()!!)
@@ -210,9 +215,9 @@ fun <K, FK> freezeHashed(
 fun <K, V, FK, FV> freezeSmallMap(
     self: SmallMap<K, V>,
     freezer: Freezer,
-    freezeKey: (K, Freezer) -> FreezeResult<FK>,
-    freezeValue: (V, Freezer) -> FreezeResult<FV>,
-): FreezeResult<SmallMap<FK, FV>> {
+    freezeKey: (K, Freezer) -> Result<FK>,
+    freezeValue: (V, Freezer) -> Result<FV>,
+): Result<SmallMap<FK, FV>> {
     val new = SmallMap.withCapacity<FK, FV>(self.len())
     for ((key, value) in self.intoIterHashed()) {
         val hash = key.hash()
@@ -230,8 +235,8 @@ fun <K, V, FK, FV> freezeSmallMap(
 fun <T, F> freezeSmallSet(
     self: SmallSet<T>,
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<SmallSet<F>> {
+    freezeElement: (T, Freezer) -> Result<F>,
+): Result<SmallSet<F>> {
     val new = SmallSet.withCapacity<F>(self.len())
     for (value in self.intoIterHashed()) {
         val frozenValue = freezeHashed(value, freezer, freezeElement)
@@ -242,17 +247,17 @@ fun <T, F> freezeSmallSet(
 }
 
 /** Freeze implementation for [Value]. Delegates to [Freezer.freeze]. */
-fun Value.freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+fun Value.freeze(freezer: Freezer): Result<FrozenValue> {
     return freezer.freeze(this)
 }
 
 /** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-fun FrozenValue.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<FrozenValue> {
+fun FrozenValue.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenValue> {
     return Result.success(this)
 }
 
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */
-fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Unit> {
+fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Unit> {
     return Result.success(Unit)
 }
 
@@ -260,8 +265,8 @@ fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Uni
 fun <A, FA> freezeTuple1(
     self: Tuple1<A>,
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-): FreezeResult<Tuple1<FA>> {
+    freezeA: (A, Freezer) -> Result<FA>,
+): Result<Tuple1<FA>> {
     val fa = freezeA(self.value0, freezer)
     if (fa.isFailure) return Result.failure(fa.exceptionOrNull()!!)
     return Result.success(Tuple1(fa.getOrThrow()))
@@ -271,9 +276,9 @@ fun <A, FA> freezeTuple1(
 fun <A, B, FA, FB> freezePair(
     self: Pair<A, B>,
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-): FreezeResult<Pair<FA, FB>> {
+    freezeA: (A, Freezer) -> Result<FA>,
+    freezeB: (B, Freezer) -> Result<FB>,
+): Result<Pair<FA, FB>> {
     val a = freezeA(self.first, freezer)
     if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
     val b = freezeB(self.second, freezer)
@@ -285,10 +290,10 @@ fun <A, B, FA, FB> freezePair(
 fun <A, B, C, FA, FB, FC> freezeTriple(
     self: Triple<A, B, C>,
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-): FreezeResult<Triple<FA, FB, FC>> {
+    freezeA: (A, Freezer) -> Result<FA>,
+    freezeB: (B, Freezer) -> Result<FB>,
+    freezeC: (C, Freezer) -> Result<FC>,
+): Result<Triple<FA, FB, FC>> {
     val a = freezeA(self.first, freezer)
     if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
     val b = freezeB(self.second, freezer)
@@ -302,11 +307,11 @@ fun <A, B, C, FA, FB, FC> freezeTriple(
 fun <A, B, C, D, FA, FB, FC, FD> freezeTuple4(
     self: Tuple4<A, B, C, D>,
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-    freezeD: (D, Freezer) -> FreezeResult<FD>,
-): FreezeResult<Tuple4<FA, FB, FC, FD>> {
+    freezeA: (A, Freezer) -> Result<FA>,
+    freezeB: (B, Freezer) -> Result<FB>,
+    freezeC: (C, Freezer) -> Result<FC>,
+    freezeD: (D, Freezer) -> Result<FD>,
+): Result<Tuple4<FA, FB, FC, FD>> {
     val a = freezeA(self.first, freezer)
     if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
     val b = freezeB(self.second, freezer)
@@ -322,12 +327,12 @@ fun <A, B, C, D, FA, FB, FC, FD> freezeTuple4(
 fun <A, B, C, D, E, FA, FB, FC, FD, FE> freezeTuple5(
     self: Tuple5<A, B, C, D, E>,
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-    freezeD: (D, Freezer) -> FreezeResult<FD>,
-    freezeE: (E, Freezer) -> FreezeResult<FE>,
-): FreezeResult<Tuple5<FA, FB, FC, FD, FE>> {
+    freezeA: (A, Freezer) -> Result<FA>,
+    freezeB: (B, Freezer) -> Result<FB>,
+    freezeC: (C, Freezer) -> Result<FC>,
+    freezeD: (D, Freezer) -> Result<FD>,
+    freezeE: (E, Freezer) -> Result<FE>,
+): Result<Tuple5<FA, FB, FC, FD, FE>> {
     val a = freezeA(self.first, freezer)
     if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
     val b = freezeB(self.second, freezer)

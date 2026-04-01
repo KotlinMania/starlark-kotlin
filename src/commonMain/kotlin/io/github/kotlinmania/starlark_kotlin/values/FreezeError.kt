@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.freeze_error
 
 import io.github.kotlinmania.starlark_kotlin.ErrorKind
 
-/** Alias for `Result<T>` used in freeze operations. */
-typealias FreezeResult<T> = Result<T>
-
 /**
  * Freeze error type, only carries the original error message and potentially an array of contexts.
  *
@@ -74,20 +71,20 @@ class FreezeError(
 }
 
 /**
- * Provides the `context` method for [FreezeResult].
+ * Provides the `context` method for freeze results.
  *
- * This is designed to only be called on [FreezeResult] types due to the nature of freeze errors.
+ * This is designed to only be called on [Result] types due to the nature of freeze errors.
  * This is to prevent callers from accidentally expecting context to carry metadata.
  */
 interface FreezeErrorContext<T> : Sealed {
-    fun freezeErrorContext(context: String): FreezeResult<T>
+    fun freezeErrorContext(context: String): Result<T>
 }
 
 /** Protects against downstream implementations. */
 sealed interface Sealed
 
-/** Extension to add context to a [FreezeResult]. */
-fun <T> Result<T>.freezeErrorContext(context: String): FreezeResult<T> {
+/** Extension to add context to a [Result]. */
+fun <T> Result<T>.freezeErrorContext(context: String): Result<T> {
     return when {
         isSuccess -> this
         else -> {

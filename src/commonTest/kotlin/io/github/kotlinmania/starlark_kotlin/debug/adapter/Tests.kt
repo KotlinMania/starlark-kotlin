@@ -1,5 +1,5 @@
-// port-lint: source src/debug/adapter/tests.rs
-package io.github.kotlinmania.starlark_kotlin.debug.adapter
+// port-lint: tests src/debug/adapter/tests.rs
+package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -191,10 +191,10 @@ print(x)
             val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
             controller.waitForEvalStopped(1, TIMEOUT)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             controller.waitForEvalStopped(2, TIMEOUT)
 
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
 
             joinTimeout(deferred, TIMEOUT).getOrThrow()
         }
@@ -254,9 +254,9 @@ print(x)
             val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
             controller.waitForEvalStopped(1, TIMEOUT)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             controller.waitForEvalStopped(2, TIMEOUT)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
 
             joinTimeout(deferred, TIMEOUT).getOrThrow()
         }
@@ -294,7 +294,7 @@ print(x)
             val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
             controller.waitForEvalStopped(1, TIMEOUT)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             controller.waitForEvalStopped(2, TIMEOUT)
 
             check("1" == adapter.evaluate("x[0]").getOrThrow().result)
@@ -313,7 +313,7 @@ print(x)
             check("3" == adapter.evaluate("x[0]").getOrThrow().result)
             check("4" == adapter.evaluate("x[1]").getOrThrow().result)
             check("5" == adapter.evaluate("x[2]").getOrThrow().result)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             joinTimeout(deferred, TIMEOUT).getOrThrow()
         }
         Result.success(Unit)
@@ -350,7 +350,7 @@ print(x)
             val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
             controller.waitForEvalStopped(1, TIMEOUT)
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             controller.waitForEvalStopped(2, TIMEOUT)
 
             check("1" == adapter.evaluate("x[0]").getOrThrow().result)
@@ -391,7 +391,7 @@ print(x)
             check("3" == adapter.evaluate("y[1]").getOrThrow().result)
             check("4" == adapter.evaluate("y[2]").getOrThrow().result)
 
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             joinTimeout(deferred, TIMEOUT).getOrThrow()
         }
         Result.success(Unit)
@@ -498,7 +498,7 @@ print(do())
 
             controller.waitForEvalStopped(1, TIMEOUT)
             val variables = adapter.variables()
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             joinTimeout(deferred, TIMEOUT).getOrThrow()
             variables
         }
@@ -563,7 +563,7 @@ print(do())
                     adapter.inspectVariable(VariablePath.newLocal("d")),
                 ),
             )
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             joinTimeout(deferred, TIMEOUT).getOrThrow()
             Result.success(inspectResults.map { it.getOrThrow() })
         }
@@ -626,7 +626,7 @@ print(do())
                     adapter.evaluate("s.inner.arr[1]"),
                 ),
             )
-            adapter.continue_().getOrThrow()
+            adapter.continueExecution().getOrThrow()
             joinTimeout(deferred, TIMEOUT).getOrThrow()
             Result.success(evalResults.map { it.getOrThrow() })
         }

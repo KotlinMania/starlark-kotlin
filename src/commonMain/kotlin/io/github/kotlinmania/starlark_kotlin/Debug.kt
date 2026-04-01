@@ -1,5 +1,5 @@
 // port-lint: source src/debug.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.debug
 
 /*
@@ -23,12 +23,12 @@ package io.github.kotlinmania.starlark_kotlin.debug
 /** Provides debug-related functionality and utilities. */
 
 // mod adapter;
-internal val adapter_ = 0 // `adapter` conflicts with `debug.adapter` package
+private object adapter
 
 // mod evaluate;
-internal val evaluate = 0
+private object evaluate
 
 // mod inspect;
-internal val inspect = 0
+private object inspect
 
 // pub use adapter::*;

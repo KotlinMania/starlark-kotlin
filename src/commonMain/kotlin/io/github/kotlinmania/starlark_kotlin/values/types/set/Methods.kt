@@ -28,8 +28,8 @@ import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import starlark_map.Hashed
-import starlark_map.small_set.SmallSet
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 
 private sealed class SetFromValue {
     data class Set(val set: SmallSet<Value>) : SetFromValue()

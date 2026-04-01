@@ -45,13 +45,17 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
 import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 /**
  * A trait for values which are more complex - because they are either mutable,
@@ -496,5 +500,5 @@ interface StarlarkValue {
      * This function is needed in the rare case when freezing some values, it may be possible
      * to return a statically allocated value instead of allocating a new one.
      */
-    fun tryFreezeDirectly(freezer: Freezer): FreezeResult<FrozenValue>? = null
+    fun tryFreezeDirectly(freezer: Freezer): Result<FrozenValue>? = null
 }

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.concurrent.atomics.AtomicReference
@@ -30,12 +30,12 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * access guarantees as it. However, this keeps the type `T` of the actual
  * [FrozenValue] as a reference, allowing manipulation of the actual typed data.
  */
-class FrozenRef<T>(
+class FrozenRef<T> internal constructor(
     internal val value: T,
 ) : Trace, Freeze<FrozenRef<T>> {
 
     companion object {
-        fun <T> new(value: T): FrozenRef<T> {
+        internal fun <T> new(value: T): FrozenRef<T> {
             return FrozenRef(value)
         }
 
@@ -51,34 +51,44 @@ class FrozenRef<T>(
 
     /** Converts `self` into a new reference that points at something reachable from the previous. */
     fun <U> map(f: (T) -> U): FrozenRef<U> {
-        return FrozenRef(f(value))
+        return FrozenRef(value = f(value))
     }
 
     /** Fallible map the reference to another one. */
     fun <U> tryMapResult(f: (T) -> Result<U>): Result<FrozenRef<U>> {
-        return f(value).map { FrozenRef(it) }
+        return f(value).map { FrozenRef(value = it) }
     }
 
     /** Optionally map the reference to another one. */
     fun <U> tryMapOption(f: (T) -> U?): FrozenRef<U>? {
         val mapped = f(value) ?: return null
-        return FrozenRef(mapped)
+        return FrozenRef(value = mapped)
     }
 
-    override fun toString(): String {
+    // impl Display for FrozenRef
+    override fun toString(): String = value.toString()
+
+    // Rust: impl Display for FrozenRef: fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
+    @Suppress("UNUSED_PARAMETER")
+    fun fmt(f: Any?): String {
+        f?.hashCode()
         return value.toString()
     }
 
+    // impl Deref for FrozenRef
     fun deref(): T {
         return value
     }
 
+    // impl Borrow<T> for FrozenRef<T>
     fun borrow(): T {
         return value
     }
 
-    /** Borrow for `FrozenRef<Box<T>>` -- borrows the inner value through the Box. */
-    fun borrowBoxed(): T {
+    // Rust has a second `Borrow` impl for `FrozenRef<Box<T>>` (same method name).
+    @Suppress("UNUSED_PARAMETER")
+    fun borrow(boxed: Any?): T {
+        boxed?.hashCode()
         return value
     }
 
@@ -86,25 +96,41 @@ class FrozenRef<T>(
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }
 
+    // impl PartialEq/Eq for FrozenRef
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FrozenRef<*>) return false
         return value == other.value
     }
 
+    // Rust: impl PartialEq for FrozenRef: fn eq(&self, other: &Self) -> bool
+    fun eq(other: FrozenRef<T>): Boolean {
+        return value == other.value
+    }
+
+    // impl Hash for FrozenRef
     override fun hashCode(): Int {
         return value.hashCode()
     }
 
-    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<FrozenRef<T>> {
+    // Rust: impl Hash for FrozenRef: fn hash<H: Hasher>(&self, state: &mut H)
+    fun hash(state: StarlarkHasher) {
+        // Best-effort for generic T: hashCode parity across freeze is required by the Rust contract.
+        state.writeU64(value.hashCode().toULong())
+    }
+
+    // impl Freeze for FrozenRef
+    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenRef<T>> {
         return Result.success(this)
     }
 }
 
+// impl PartialOrd for FrozenRef
 fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {
     return value.compareTo(other.value)
 }
 
+// impl Ord for FrozenRef
 fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int {
     return value.compareTo(other.value)
 }
@@ -115,7 +141,7 @@ internal class AtomicFrozenRefOption<T>(
     initial: FrozenRef<T>?,
 ) : Trace {
 
-    private val ref_: AtomicReference<T?> = AtomicReference(initial?.asRef())
+    private val ptr: AtomicReference<T?> = AtomicReference(initial?.asRef())
 
     override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
         // Do nothing, because `AtomicFrozenRefOption` holds `FrozenRef`.
@@ -129,15 +155,14 @@ internal class AtomicFrozenRefOption<T>(
 
     fun loadRelaxed(): FrozenRef<T>? {
         // Note this is relaxed load which is cheap.
-        val ptr = ref_.load()
-        return if (ptr != null) {
-            FrozenRef.new(ptr)
-        } else {
-            null
+        val loaded = ptr.load()
+        if (loaded == null) {
+            return null
         }
+        return FrozenRef.new(loaded)
     }
 
     fun storeRelaxed(module: FrozenRef<T>) {
-        ref_.store(module.asRef())
+        ptr.store(module.asRef())
     }
 }

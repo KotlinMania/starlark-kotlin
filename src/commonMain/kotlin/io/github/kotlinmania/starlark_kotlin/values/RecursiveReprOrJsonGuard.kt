@@ -21,8 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 /** Detect recursion when doing `repr` or `to_json`. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /** Pop the stack on drop. */
 // pub(crate) struct ReprStackGuard;

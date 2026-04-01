@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  */
 
 import kotlin.math.max
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder

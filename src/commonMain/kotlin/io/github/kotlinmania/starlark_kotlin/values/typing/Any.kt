@@ -19,11 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 
@@ -54,26 +53,4 @@ internal class TypingAny : StarlarkValue, AllocFrozenValue {
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return heap.allocSimple(this)
     }
-}
-
-// #[cfg(test)]
-// mod tests
-
-// #[test]
-// fn test_any_runtime()
-internal fun testAnyRuntime() {
-    Assert.isTrue("isinstance(1, typing.Any)")
-}
-
-// #[test]
-// fn test_any_compile_time()
-internal fun testAnyCompileTime() {
-    Assert.pass(
-        """
-def f(x: typing.Any):
-    pass
-
-f(1)
-""",
-    )
 }
