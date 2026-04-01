@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/tests.rs
+// port-lint: tests src/eval/runtime/profile/tests.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /*
@@ -92,7 +92,7 @@ R = test()
             ProfileMode.HeapFlameAllocated,
             ProfileMode.TimeFlame -> {
                 goldenTestTemplate(
-                    "src/eval/runtime/profile/golden/${mode.name().replace('-', '_')}.flame.golden",
+                    "src/eval/runtime/profile/golden/${mode.modeName().replace('-', '_')}.flame.golden",
                     profileData.genFlameData(),
                 )
             }
@@ -105,7 +105,7 @@ R = test()
             ProfileMode.TimeFlame -> {}
             else -> {
                 goldenTestTemplate(
-                    "src/eval/runtime/profile/golden/${mode.name().replace('-', '_')}.csv.golden",
+                    "src/eval/runtime/profile/golden/${mode.modeName().replace('-', '_')}.csv.golden",
                     profileData.genCsv(),
                 )
             }

@@ -1,4 +1,4 @@
-// port-lint: source src/coerce.rs (tests)
+// port-lint: tests src/coerce.rs
 package io.github.kotlinmania.starlark_kotlin
 
 /*
@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.values.PhantomData
 import io.github.kotlinmania.starlark_kotlin.values.Tuple1
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
+import kotlin.test.assertFailsWith
 
 class CoerceTest {
     @Test
@@ -50,9 +50,9 @@ class CoerceTest {
 
     @Test
     fun testCoerceIsUnsound() {
-        val s: Struct<UByte> = Struct(Unit)
+        val s: Struct<Unit> = Struct(Unit)
         val c: Struct<Newtype> = coerce(s)
-        assertSame(Unit, c.assoc)
+        assertFailsWith<ClassCastException> { c.assoc as Newtype }
     }
 }
 

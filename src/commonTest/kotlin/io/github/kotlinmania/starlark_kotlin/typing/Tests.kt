@@ -1,4 +1,4 @@
-// port-lint: source src/typing/tests.rs
+// port-lint: tests src/typing/tests.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*
@@ -57,8 +57,8 @@ internal class TypeCheck(
     }
 
     // fn load(mut self, file: &str, interface: Interface, module: FrozenModule) -> Self
-    fun load(file: String, interface_: Interface, module: FrozenModule): TypeCheck {
-        loads[file] = Pair(interface_, module)
+    fun load(file: String, starlarkInterface: Interface, module: FrozenModule): TypeCheck {
+        loads[file] = Pair(starlarkInterface, module)
         return this
     }
 
@@ -74,7 +74,7 @@ internal class TypeCheck(
             .with(::registerTypecheckGlobals)
             .build()
         val ast = AstModule.parse("filename", code, Dialect.AllOptionsInternal).getOrThrow()
-        val (errors, typemap, interface_, approximations) = ast.typecheck(
+        val (errors, typemap, starlarkInterface, approximations) = ast.typecheck(
             globals,
             loads.map { (name, pair) -> Pair(name, pair.first) }.toMap(),
         )
@@ -148,7 +148,7 @@ internal class TypeCheck(
             trimRustBacktrace(output.toString()),
         )
 
-        return Pair(interface_, module)
+        return Pair(starlarkInterface, module)
     }
 }
 
@@ -215,7 +215,7 @@ def test():
 // #[test]
 // fn test_load()
 internal fun testLoad() {
-    val (interface_, module) = TypeCheck().check(
+    val (starlarkInterface, module) = TypeCheck().check(
         "load_0",
         """
 def foo(x: list[bool]) -> str:
@@ -223,7 +223,7 @@ def foo(x: list[bool]) -> str:
    """,
     )
     TypeCheck()
-        .load("foo.bzl", interface_, module)
+        .load("foo.bzl", starlarkInterface, module)
         .ty("res")
         .check(
             "load_1",
@@ -451,14 +451,14 @@ def foo() -> test:
 // #[test]
 // fn test_bit_or_with_load()
 internal fun testBitOrWithLoad() {
-    val (interface_, module) = TypeCheck().check(
+    val (starlarkInterface, module) = TypeCheck().check(
         "test_bit_or_with_load_foo",
         """
 def foo() -> str:
     return "test"
 """,
     )
-    TypeCheck().load("foo.bzl", interface_, module).check(
+    TypeCheck().load("foo.bzl", starlarkInterface, module).check(
         "test_bit_or_with_load",
         """
 load("foo.bzl", "foo")

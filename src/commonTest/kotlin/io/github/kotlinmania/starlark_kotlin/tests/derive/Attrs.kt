@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/attrs.rs
+// port-lint: tests src/tests/derive/attrs.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -58,18 +58,18 @@ internal fun testDeriveAttrs() {
         val hello: String,
         @Suppress("unused") val answer: Long, // #[starlark(skip)]
         val nested: Nested, // #[starlark(clone)]
-        val type_: Long, // r#type
+        val typeValue: Long, // r#type
         val escaped: String, // r#escaped
     ) : StarlarkValue, AllocFrozenValue {
         // #[starlark_value(type = "example")]
         override val TYPE: String get() = "example"
-        override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, type_=$type_, escaped=$escaped)"
+        override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, typeValue=$typeValue, escaped=$escaped)"
 
         // starlark_attrs!()
         override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
             "hello" -> heap.allocStr(hello)
             "nested" -> heap.allocSimple(nested)
-            "type" -> type_.allocValue(heap)
+            "type" -> typeValue.allocValue(heap)
             "escaped" -> heap.allocStr(escaped)
             else -> null
         }
@@ -88,7 +88,7 @@ internal fun testDeriveAttrs() {
                 hello = "world",
                 answer = 42,
                 nested = Nested(foo = "bar"),
-                type_ = 1,
+                typeValue = 1,
                 escaped = "baz",
             ),
         )

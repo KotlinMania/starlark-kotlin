@@ -1,5 +1,5 @@
-// port-lint: source src/tests/derive/module.rs
-@file:Suppress("unused", "ObjectPropertyName")
+// port-lint: tests src/tests/derive/module.rs
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -21,24 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  */
 
 // mod basic;
-internal val basic = "basic"
 // mod default_value;
-internal val default_value = "default_value"
 // mod generic;
-internal val generic = "generic"
 // mod kwargs;
-internal val kwargs = "kwargs"
 // mod methods;
-internal val methods = "methods"
 // mod named_positional;
-internal val named_positional = "named_positional"
 // mod other_attributes;
-internal val other_attributes = "other_attributes"
 // mod return_impl;
-internal val return_impl = "return_impl"
 // mod special_params;
-internal val special_params = "special_params"
 // mod type_annotation;
-internal val type_annotation = "type_annotation"
 // mod unpack_value;
-internal val unpack_value = "unpack_value"

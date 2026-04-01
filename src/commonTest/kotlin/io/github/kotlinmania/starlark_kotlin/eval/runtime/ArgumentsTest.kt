@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/arguments.rs (tests)
+// port-lint: tests src/eval/runtime/arguments.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
 
 /*
@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

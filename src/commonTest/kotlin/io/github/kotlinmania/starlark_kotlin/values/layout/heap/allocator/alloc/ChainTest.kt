@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/chain.rs (tests)
+// port-lint: tests src/values/layout/heap/allocator/alloc/chain.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
 
 /*

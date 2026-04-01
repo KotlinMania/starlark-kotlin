@@ -1,4 +1,4 @@
-// port-lint: source src/typing/user.rs (tests)
+// port-lint: tests src/typing/user.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*

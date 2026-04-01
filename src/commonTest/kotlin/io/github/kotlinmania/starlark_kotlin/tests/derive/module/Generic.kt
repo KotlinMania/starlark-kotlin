@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/generic.rs
+// port-lint: tests src/tests/derive/module/generic.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 /*
@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.tests.derive.starlarkTypeRepr
 
 // #[starlark_module]
 // fn global_builder<T: Default, U>(globals: &mut GlobalsBuilder)

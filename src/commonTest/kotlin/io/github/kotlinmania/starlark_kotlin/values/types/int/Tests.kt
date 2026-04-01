@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/tests.rs
+// port-lint: tests src/values/types/int/tests.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
 
 /*
@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import kotlin.test.Test
 import kotlin.test.assertEquals

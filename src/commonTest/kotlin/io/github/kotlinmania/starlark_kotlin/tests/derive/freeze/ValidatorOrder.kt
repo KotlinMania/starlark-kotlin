@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/freeze/validator_order.rs
+// port-lint: tests src/tests/derive/freeze/validator_order.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 /*
@@ -20,18 +20,17 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 
 // struct FreezeSentinel { frozen: bool }
 private class FreezeSentinel(
     val frozen: Boolean,
 ) : Freeze<FreezeSentinel> {
     // impl Freeze for FreezeSentinel
-    // fn freeze(self, _: &Freezer) -> FreezeResult<Self>
-    @Suppress("UNUSED_PARAMETER")
-    override fun freeze(freezer: Freezer): FreezeResult<FreezeSentinel> {
+    // fn freeze(self, _: &Freezer) -> Result<Self>
+    override fun freeze(freezer: Freezer): Result<FreezeSentinel> {
+        freezer.frozenHeap()
         check(!frozen)
         return Result.success(FreezeSentinel(frozen = true))
     }
@@ -43,7 +42,7 @@ private class FreezeSentinel(
 private class ValidatorOrderTest(
     val sentinel: FreezeSentinel,
 ) : Freeze<ValidatorOrderTest> {
-    override fun freeze(freezer: Freezer): FreezeResult<ValidatorOrderTest> {
+    override fun freeze(freezer: Freezer): Result<ValidatorOrderTest> {
         val frozenSentinel = sentinel.freeze(freezer).getOrElse { return Result.failure(it) }
         val result = ValidatorOrderTest(frozenSentinel)
         // validator: check_froze_before_validating

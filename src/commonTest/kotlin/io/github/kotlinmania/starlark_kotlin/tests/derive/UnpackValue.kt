@@ -1,5 +1,4 @@
-
-// port-lint: source src/tests/derive/unpack_value.rs
+// port-lint: tests src/tests/derive/unpack_value.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -91,16 +90,32 @@ internal fun testStarlarkTypeRepr() {
 
 // #[test]
 internal fun testUnpackValue() {
-    val r1 = JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow()
-    val r2 = IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
-    val r3 = IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow()
-    val r4 = WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow()
-    val r5 = WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow()
-    val r6 = TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow()
-    assertEquals(JustInt.Int(17), r1)
-    assertEquals(IntOrStr.Int(19), r2)
-    assertEquals(IntOrStr.Str("abc"), r3)
-    assertEquals(WithLifetime.Int(23), r4)
-    assertEquals(WithLifetime.Str("def"), r5)
-    assertEquals(TransparentIntOrStr(IntOrStr.Int(19)), r6)
+    assertEquals(
+        JustInt.Int(17),
+        JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow(),
+    )
+
+    assertEquals(
+        IntOrStr.Int(19),
+        IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+    )
+    assertEquals(
+        IntOrStr.Str("abc"),
+        IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow(),
+    )
+
+    assertEquals(
+        WithLifetime.Int(23),
+        WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow(),
+    )
+
+    assertEquals(
+        WithLifetime.Str("def"),
+        WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow(),
+    )
+
+    assertEquals(
+        TransparentIntOrStr(IntOrStr.Int(19)),
+        TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+    )
 }

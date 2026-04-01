@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/freeze/validator.rs
+// port-lint: tests src/tests/derive/freeze/validator.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 /*
@@ -20,9 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.freezeBoolean
 
 // #[derive(Freeze)]
@@ -31,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.freezeBoolean
 private class ValidatorTest(
     val field: Boolean,
 ) : Freeze<ValidatorTest> {
-    override fun freeze(freezer: Freezer): FreezeResult<ValidatorTest> {
+    override fun freeze(freezer: Freezer): Result<ValidatorTest> {
         val result = ValidatorTest(freezeBoolean(field, freezer).getOrElse { return Result.failure(it) })
         // validator: check_true
         checkTrue(result).getOrElse { return Result.failure(it) }

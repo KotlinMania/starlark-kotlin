@@ -1,5 +1,5 @@
-// port-lint: source src/tests/derive.rs
-@file:Suppress("unused", "ObjectPropertyName")
+// port-lint: tests src/tests/derive.rs
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
@@ -21,18 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.tests
  */
 
 // mod alloc_value;
-internal val alloc_value = "alloc_value"
 // mod attrs;
-internal val attrs = "attrs"
 // mod docs;
-internal val docs = "docs"
 // mod freeze;
-internal val freeze = "freeze"
 // mod module;
-internal val module = "module"
 // mod trace;
-internal val trace = "trace"
 // mod unpack_value;
-internal val unpack_value = "unpack_value"
 // mod unpack_value_attr;
-internal val unpack_value_attr = "unpack_value_attr"

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/return_impl.rs
+// port-lint: tests src/tests/derive/module/return_impl.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 /*
@@ -40,7 +40,7 @@ private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
 private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn attr(this: Value) -> Result<impl AllocValue>
-    methods.setAttribute("attr") { this_, _ ->
-        Result.success(this_)
+    methods.setAttribute("attr") { receiver, _ ->
+        Result.success(receiver)
     }
 }
