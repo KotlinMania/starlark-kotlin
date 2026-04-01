@@ -1,5 +1,5 @@
 // port-lint: source src/typing/oracle.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*
@@ -21,6 +21,4 @@ package io.github.kotlinmania.starlark_kotlin.typing
  */
 
 // pub(crate) mod ctx;
-internal val ctx = "ctx"
 // pub(crate) mod traits;
-internal val traits = "traits"

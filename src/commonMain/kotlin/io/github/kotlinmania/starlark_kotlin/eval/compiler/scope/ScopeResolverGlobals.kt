@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 
 // pub(crate) struct ScopeResolverGlobals {

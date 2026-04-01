@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
@@ -33,12 +33,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Debug, thiserror::Error)]
 // enum AValueError
@@ -71,8 +70,8 @@ internal class AValueComplex(
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(me: *mut AValueRepr<Self::StarlarkValue>, freezer: &Freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(me: *mut AValueRepr<Self::StarlarkValue>, freezer: &Freezer) -> Result<FrozenValue>
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         // if let Some(f) = try_freeze_directly::<Self>(me, freezer)
         val direct = tryFreezeDirectly(value, freezer)
         if (direct != null) {
@@ -86,7 +85,7 @@ internal class AValueComplex(
         @Suppress("UNCHECKED_CAST")
         val freezable = value as Freeze<StarlarkValue>
         val result = freezable.freeze(freezer)
-        val frozen = result.getOrElse { return FreezeResult.failure(it) }
+        val frozen = result.getOrElse { return Result.failure(it) }
 
         val (fv, r) = freezer.reserve<AValue>()
         r.fill(frozen)
@@ -97,7 +96,7 @@ internal class AValueComplex(
             freezer.frozenDefs.add(FrozenRef(frozen as DefGen<FrozenValue>))
         }
 
-        return FreezeResult.success(fv)
+        return Result.success(fv)
     }
 
     // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
@@ -128,9 +127,9 @@ internal class AValueComplexNoFreeze(
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
-        return FreezeResult.failure(
+    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+        return Result.failure(
             FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message!!)
         )
     }

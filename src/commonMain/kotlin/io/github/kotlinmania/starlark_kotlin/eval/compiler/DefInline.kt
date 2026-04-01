@@ -4,7 +4,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
@@ -82,7 +82,7 @@ private class IsSafeToInlineExpr(
                 expr.slot.index < paramCount.toUInt()
             }
             is ExprCompiled.Call -> {
-                isSafeToInlineExpr(expr.call.node.fun_.node)
+                isSafeToInlineExpr(expr.call.node.function.node)
                     && expr.call.node.args.argExprs().all { isSafeToInlineExpr(it.node) }
             }
             is ExprCompiled.Compr -> {
@@ -204,11 +204,11 @@ internal class InlineDefCallSite(
         call: IrSpanned<CallCompiled>,
     ): IrSpanned<ExprCompiled> {
         val span = call.span
-        val funExpr = inline(call.node.fun_)
+        val functionExpr = inline(call.node.function)
         val args = inlineArgs(call.node.args)
         return IrSpanned(
             span,
-            CallCompiled.call(span, funExpr, args, ctx),
+            CallCompiled.call(span, functionExpr, args, ctx),
         )
     }
 

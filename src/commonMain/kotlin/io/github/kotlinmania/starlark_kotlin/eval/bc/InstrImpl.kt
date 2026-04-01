@@ -14,11 +14,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 // Types from values.layout.typed
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import starlark_map.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 // Types from values.layout.heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-// Types from starlark_map
-import starlark_map.small_map.SmallMap
+// Types from io.github.kotlinmania.starlark_kotlin.collections
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 // Types from eval.runtime.profile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 // Types from eval.runtime
@@ -1377,7 +1377,7 @@ object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
 }
 
 internal data class CallFrozenDefArg(
-    val fun_: FrozenValueTyped<FrozenDef>,
+    val function: FrozenValueTyped<FrozenDef>,
     val args: Any,
     val span: FrameSpan,
     val target: BcSlotOut,
@@ -1395,8 +1395,9 @@ object InstrCallFrozenDefImpl : InstrNoFlowImpl {
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
         @Suppress("UNCHECKED_CAST")
         val arguments = a.args as ArgumentsImpl<Symbol>
-        val r = eval.withCallStack(a.fun_.toValue(), FrozenRef(a.span)) { innerEval ->
-            a.fun_.asRef().invokeWithArgs(a.fun_.toValue(), arguments, innerEval)
+        val functionValue = a.function.toValue()
+        val r = eval.withCallStack(functionValue, FrozenRef(a.span)) { innerEval ->
+            a.function.asRef().invokeWithArgs(functionValue, arguments, innerEval)
         }
         return if (r.isSuccess) {
             frame.setBcSlot(a.target, r.getOrThrow())

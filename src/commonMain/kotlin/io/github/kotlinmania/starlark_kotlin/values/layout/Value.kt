@@ -36,6 +36,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import com.ionspin.kotlin.bignum.integer.BigInteger
+import io.github.kotlinmania.starlark_kotlin.Error
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
@@ -64,8 +66,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 import io.github.kotlinmania.starlark_kotlin.values.reprStackPush
@@ -340,33 +341,53 @@ class Value internal constructor(
      * Returns `null` if the value is not an integer at all.
      */
     // pub(crate) fn unpack_integer<I>(self) -> crate::Result<Option<I>>
-    internal fun unpackInteger(): Result<Long?> {
+    internal fun <I> unpackIntegerImpl(
+        integerType: String,
+        tryFromI32: (Int) -> I?,
+        tryFromBigInt: (BigInteger) -> I?,
+    ): Result<I?> {
         val num = StarlarkIntRef.unpackValueOpt(this) ?: return Result.success(null)
-        return when (num) {
+
+        val option = when (num) {
             is StarlarkIntRef.Small -> {
                 val i32 = num.toI32()
                 if (i32 != null) {
-                    Result.success(i32.toLong())
+                    tryFromI32(i32)
                 } else {
-                    // Small value that doesn't fit in i32 shouldn't normally happen,
-                    // but fall through to error.
-                    Result.failure(IntegerTooBigError(
-                        integerType = "Long",
-                        value = num.toString(),
-                    ))
+                    null
                 }
             }
             is StarlarkIntRef.Big -> {
-                return try {
-                    Result.success(num.value.get().longValue(exactRequired = true))
-                } catch (_: Exception) {
-                    Result.failure(IntegerTooBigError(
-                        integerType = "Long",
-                        value = num.toString(),
-                    ))
-                }
+                tryFromBigInt(num.value.get())
             }
         }
+
+        return if (option != null) {
+            Result.success(option)
+        } else {
+            Result.failure(
+                Error.newValue(
+                    IntegerTooBigError(
+                        integerType = integerType,
+                        value = num.toString(),
+                    )
+                )
+            )
+        }
+    }
+
+    internal fun unpackInteger(): Result<Long?> {
+        return unpackIntegerImpl(
+            integerType = "Long",
+            tryFromI32 = { i32 -> i32.toLong() },
+            tryFromBigInt = { bigInt ->
+                try {
+                    bigInt.longValue(exactRequired = true)
+                } catch (_: ArithmeticException) {
+                    null
+                }
+            },
+        )
     }
 
     /**
@@ -460,8 +481,8 @@ class Value internal constructor(
             Result.success(s)
         } else {
             Result.failure(
-                IllegalArgumentException(
-                    "Expected value of type `string` but got `${toStringForTypeError()}`"
+                Error.newValue(
+                    ValueValueError.WrongType("string", toStringForTypeError())
                 )
             )
         }
@@ -476,7 +497,7 @@ class Value internal constructor(
         return if (ptr.unpackIsInt()) {
             val intVal = ptr.unpackIntValue()
             AValueDyn(
-                StarlarkValueRawPtr(PointerI32(intVal)),
+                StarlarkValueRawPtr(PointerI32.fromRawInt(intVal)),
                 PointerI32.vtable(),
             )
         } else {
@@ -524,7 +545,7 @@ class Value internal constructor(
     @Suppress("UNCHECKED_CAST")
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
         if (PointerI32.typeIsPointerI32<T>()) {
-            return PointerI32(ptr.unpackIntValue()) as T
+            return PointerI32.fromRawInt(ptr.unpackIntValue()) as T
         }
         return getRef().downcastRef<T>()!!
     }
@@ -955,8 +976,8 @@ class Value internal constructor(
     /**
      * Convert a value to a [FrozenValue] using a supplied [Freezer].
      */
-    // pub fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValue>
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    // pub fn freeze(self, freezer: &Freezer) -> Result<FrozenValue>
+    override fun freeze(freezer: Freezer): Result<FrozenValue> {
         return freezer.freeze(this)
     }
 
@@ -1279,7 +1300,7 @@ class Value internal constructor(
         if (PointerI32.typeIsPointerI32<T>()) {
             return if (unpackInlineInt() != null) {
                 @Suppress("UNCHECKED_CAST")
-                PointerI32(ptr.unpackIntValue()) as? T
+                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
             } else {
                 null
             }
@@ -1295,7 +1316,7 @@ class Value internal constructor(
         if (clazz == PointerI32::class) {
             return if (unpackInlineInt() != null) {
                 @Suppress("UNCHECKED_CAST")
-                PointerI32(ptr.unpackIntValue()) as? T
+                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
             } else {
                 null
             }
@@ -1734,7 +1755,7 @@ class FrozenValue internal constructor(
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v
 
-    override fun freeze(@Suppress("unused") freezer: Freezer): FreezeResult<FrozenValue> {
+    override fun freeze(@Suppress("unused") freezer: Freezer): Result<FrozenValue> {
         return Result.success(this)
     }
 
@@ -1900,16 +1921,6 @@ interface ValueLike : ValueLifetimeless {
 // impl Sealed for FrozenValue {}
 // impl ValueLifetimeless for FrozenValue {}
 // Kotlin: Sealed/marker traits not needed; implemented via interface inheritance.
-
-// fn _test_send_sync() where FrozenValue: Send + Sync {}
-// In Kotlin, thread safety is managed by the runtime.
-// This function exists only for parity with the Rust source.
-@Suppress("unused", "FunctionName", "UNUSED_VARIABLE")
-private fun _testSendSync() {
-    // Compile-time assertion in Rust that FrozenValue is Send + Sync.
-    // In Kotlin, all objects can be shared across threads.
-    val v: FrozenValue? = null
-}
 
 // Static value references are imported from their defining modules.
 // See: VALUE_NONE (NoneType.kt), VALUE_FALSE_TRUE (bool/Value.kt),

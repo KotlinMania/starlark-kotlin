@@ -19,19 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import starlark_map.Hashed
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
@@ -76,58 +71,4 @@ private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
         }
     }
     return res
-}
-
-// Tests
-
-private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
-        Result.success(eval.callStack().intoFrames().map { it.toString() })
-    }
-
-    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
-        val sm = SmallMap.new<Value, Value>()
-        for ((k, v) in eval.localVariables()) {
-            val sv = StringValue.newUnchecked(eval.heap().allocStr(k))
-            val hashedValue = Hashed.newUnchecked(sv.getHash(), sv.toValue())
-            sm.insertHashed(hashedValue, v)
-        }
-        Result.success(Dict.new(sm))
-    }
-}
-
-internal fun testDebugStack() {
-    val a = Assert()
-    a.globalsAdd(::debuggerFunctions)
-    a.pass(
-        """
-def assert_stack(want):
-    stack = debug_inspect_stack()
-    assert_eq([x.split(' ')[0] for x in stack[:-2]], want)
-
-assert_stack([])
-
-def f(): assert_stack(["g", "f"])
-def g(): f()
-g()
-""",
-    )
-}
-
-internal fun testDebugVariables() {
-    val a = Assert()
-    a.globalsAdd(::debuggerFunctions)
-    a.pass(
-        """
-root = 12
-_ignore = [x for x in [True]]
-def f(x = 1, y = "test"):
-    z = x + 5
-    for _magic in [False, True]:
-        continue
-    assert_eq(debug_inspect_variables(), {"x": 1, "y": "hello", "z": 6, "_magic": True})
-f(y = "hello")
-assert_eq(debug_inspect_variables(), {"root": 12, "f": f, "_ignore": [True]})
-""",
-    )
 }

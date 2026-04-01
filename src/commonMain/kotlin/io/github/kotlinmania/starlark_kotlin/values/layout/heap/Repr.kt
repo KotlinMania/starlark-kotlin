@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn

@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
@@ -32,8 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 
 /**
@@ -184,8 +183,8 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi inter
     }
 
     // impl Freeze for ValueTypedComplex
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValueTyped<'static, T::Frozen>>
-    fun freeze(freezer: Freezer): FreezeResult<FrozenValueTyped<F>> {
+    // fn freeze(self, freezer: &Freezer) -> Result<FrozenValueTyped<'static, T::Frozen>>
+    fun freeze(freezer: Freezer): Result<FrozenValueTyped<F>> {
         val frozenResult = value.freeze(freezer)
         if (frozenResult.isFailure) {
             return Result.failure(frozenResult.exceptionOrNull()!!)

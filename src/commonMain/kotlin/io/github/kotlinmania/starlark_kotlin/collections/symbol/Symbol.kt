@@ -28,15 +28,15 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
 
 // use allocative::Allocative;
 // use starlark_derive::Trace;
-// use starlark_map::Hashed;
-// use starlark_map::StarlarkHashValue;
+// use io.github.kotlinmania.starlark_kotlin.collections::Hashed;
+// use io.github.kotlinmania.starlark_kotlin.collections::StarlarkHashValue;
 
 import io.github.kotlinmania.starlark_kotlin.Coerce
 import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 
 // use crate as starlark;
 // use crate::coerce::Coerce;

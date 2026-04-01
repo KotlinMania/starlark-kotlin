@@ -23,8 +23,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import starlark_map.Hashed
-import starlark_map.StarlarkHasher
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
@@ -65,9 +65,9 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.values.AtomicFrozenRefOption
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -82,7 +82,6 @@ import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // ---- DefError ----
 
@@ -704,7 +703,7 @@ internal class DefGen<V>(
 
     // Freeze implementation: freeze into FrozenDef.
     // impl Freeze for Def
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenDef> {
+    override fun freeze(freezer: Freezer): Result<FrozenDef> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
         val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
@@ -713,9 +712,9 @@ internal class DefGen<V>(
         val frozenReturnType = returnType?.toFrozen(freezer.heap)
         @Suppress("UNCHECKED_CAST")
         val frozenCaptured = (captured as List<Value>).map { v ->
-            freezer.freeze(v).getOrElse { return FreezeResult.failure(it) }
+            freezer.freeze(v).getOrElse { return Result.failure(it) }
         }
-        return FreezeResult.success(DefGen(
+        return Result.success(DefGen(
             parameters = frozenParameters,
             parameterCaptures = parameterCaptures,
             parameterTypes = frozenParameterTypes,

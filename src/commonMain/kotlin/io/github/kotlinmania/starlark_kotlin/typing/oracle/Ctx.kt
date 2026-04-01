@@ -275,49 +275,49 @@ class TypingOracleCtx(
 
     internal fun validateFnCall(
         span: Span,
-        fun_: TyCallable,
+        function: TyCallable,
         args: TyCallArgs,
     ): kotlin.Result<Ty> {
-        val vr = validateArgs(fun_.params(), args, span)
+        val vr = validateArgs(function.params(), args, span)
         if (vr.isFailure) return kotlin.Result.failure(vr.exceptionOrNull()!!)
-        return kotlin.Result.success(fun_.result())
+        return kotlin.Result.success(function.result())
     }
 
     private fun validateCallBasic(
         span: Span,
-        fun_: TyBasic,
+        function: TyBasic,
         args: TyCallArgs,
     ): kotlin.Result<Ty> {
-        return when (fun_) {
+        return when (function) {
             is TyBasic.Any -> kotlin.Result.success(Ty.any())
-            is TyBasic.StarlarkValue -> kotlin.Result.success(fun_.value.validateCall(span, this))
+            is TyBasic.StarlarkValue -> kotlin.Result.success(function.value.validateCall(span, this))
             is TyBasic.List, is TyBasic.Dict, is TyBasic.Tuple, is TyBasic.Set -> {
                 kotlin.Result.failure(Exception(mkErrorAsMaybeInternal(
                     span,
-                    TypingOracleCtxError.CallToNonCallable(ty = fun_.toString()),
+                    TypingOracleCtxError.CallToNonCallable(ty = function.toString()),
                 ).toString()))
             }
             is TyBasic.Iter, is TyBasic.Type -> {
                 // Unknown type, may be callable.
                 kotlin.Result.success(Ty.any())
             }
-            is TyBasic.Callable -> fun_.callable.validateCall(span, args, this)
-            is TyBasic.Custom -> fun_.custom.validateCallDyn(span, args, this)
+            is TyBasic.Callable -> function.callable.validateCall(span, args, this)
+            is TyBasic.Custom -> function.custom.validateCallDyn(span, args, this)
         }
     }
 
     internal fun validateCall(
         span: Span,
-        fun_: Ty,
+        function: Ty,
         args: TyCallArgs,
     ): kotlin.Result<Ty> {
-        if (fun_.isAny() || fun_.isNever()) {
-            return kotlin.Result.success(fun_)
+        if (function.isAny() || function.isNever()) {
+            return kotlin.Result.success(function)
         }
 
         val successful = mutableListOf<Ty>()
         val errors = mutableListOf<TypingError>()
-        for (variant in fun_.iterUnion()) {
+        for (variant in function.iterUnion()) {
             val result = validateCallBasic(span, variant, args)
             if (result.isSuccess) {
                 successful.add(result.getOrThrow())
@@ -334,7 +334,7 @@ class TypingOracleCtx(
             } else {
                 kotlin.Result.failure(Exception(mkErrorAsMaybeInternal(
                     span,
-                    TypingOracleCtxError.CallArgumentsIncompatible(fn = fun_),
+                    TypingOracleCtxError.CallArgumentsIncompatible(fn = function),
                 ).toString()))
             }
         }

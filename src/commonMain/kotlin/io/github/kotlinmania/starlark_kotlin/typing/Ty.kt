@@ -77,7 +77,7 @@ data class Ty private constructor(
      * succeeds, then the whole expression is considered to be a success.
      */
     private val alternatives: SmallArcVec1<TyBasic>
-) {
+) : Comparable<Ty> {
 
     companion object {
         /** Create a [Ty.any], but tagged in such a way it can easily be found. */
@@ -461,6 +461,18 @@ data class Ty private constructor(
     fun displayWith(config: TypeRenderConfig): TyDisplay = TyDisplay(this, config)
 
     override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
+
+    override fun compareTo(other: Ty): Int {
+        val left = alternatives.asSlice()
+        val right = other.alternatives.asSlice()
+        val sizeCmp = left.size.compareTo(right.size)
+        if (sizeCmp != 0) return sizeCmp
+        for (i in left.indices) {
+            val cmp = left[i].compareTo(right[i])
+            if (cmp != 0) return cmp
+        }
+        return 0
+    }
 }
 
 /**

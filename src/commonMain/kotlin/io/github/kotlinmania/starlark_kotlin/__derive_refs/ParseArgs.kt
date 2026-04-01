@@ -19,18 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.coerce
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 /**
  * Collect `N` arguments.
@@ -65,7 +64,7 @@ fun parsePositionalKwargsAlloc(
     val (required, optional) = args.optional(requiredCount, optionalCount, heap)
         .getOrElse { return Result.failure(it) }
     val namesMap = args.namesMap().getOrElse { return Result.failure(it) }
-    val kwargs = Dict.new(coerce(namesMap)).allocValue(heap)
+    val kwargs = Dict.new(namesMap as SmallMap<Value, Value>).allocValue(heap)
     return Result.success(Triple(required, optional, kwargs))
 }
 

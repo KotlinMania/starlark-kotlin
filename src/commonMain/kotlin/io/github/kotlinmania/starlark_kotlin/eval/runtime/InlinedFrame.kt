@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.Frame
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
@@ -134,92 +134,4 @@ class InlinedFrameAlloc(
         lastAlloc = allocated
         return allocated
     }
-}
-
-// --- Tests ---
-
-// #[test] fn test_inline_into()
-internal fun testInlineInto() {
-    // Test frame inlining with this code:
-    //
-    // def a(): return {}
-    // def b(): return a()
-    // def c(): return b()
-    //
-    // def d(): return c()
-    // def e(): return d()
-    // def f(): return e()
-    //
-    // If `a` is inlined into `b` and then inlined into `c`,
-    // then if `d` is inlined into `e` and then inlined into `f`,
-    // and then `c` is inlined into `d` (which is already inlined into `f`),
-    // the resulting stack trace should be `f`, `e`, `d`, `c`, `b`, `a`.
-
-    val frozenHeap = FrozenHeap()
-
-    fun makeSpan(heap: FrozenHeap, text: String): FrameSpan {
-        val codemap = CodeMap("$text.bzl", text)
-        val codemapRef = heap.allocAny(codemap)
-        return FrameSpan(
-            span = FrozenFileSpan.new(codemapRef, codemapRef.value.fullSpan()),
-            inlinedFrames = InlinedFrames(),
-        )
-    }
-
-    val spanAlloc = InlinedFrameAlloc.new(frozenHeap)
-
-    fun assertStack(expected: List<String>, span: FrameSpan) {
-        val frames = mutableListOf<Frame>()
-        span.inlinedFrames.extendFrames(frames)
-        val frameStrs = frames.map { f ->
-            val spanStr = f.location?.sourceSpan() ?: ""
-            val name = f.name.trim('"')
-            "$spanStr in $name"
-        }
-        check(expected == frameStrs)
-    }
-
-    val a = makeSpan(frozenHeap, "{}")
-    val b = makeSpan(frozenHeap, "a()")
-    val c = makeSpan(frozenHeap, "b()")
-    a.inlinedFrames.inlineInto(
-        b,
-        frozenHeap.allocStr("b").toFrozenValue(),
-        spanAlloc,
-    )
-    a.inlinedFrames.inlineInto(
-        c,
-        frozenHeap.allocStr("c").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(listOf("b() in c", "a() in b"), a)
-
-    val d = makeSpan(frozenHeap, "c()")
-    val e = makeSpan(frozenHeap, "d()")
-    val f = makeSpan(frozenHeap, "e()")
-
-    d.inlinedFrames.inlineInto(
-        e,
-        frozenHeap.allocStr("e").toFrozenValue(),
-        spanAlloc,
-    )
-    d.inlinedFrames.inlineInto(
-        f,
-        frozenHeap.allocStr("f").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(listOf("e() in f", "d() in e"), d)
-
-    a.inlinedFrames.inlineInto(
-        d,
-        frozenHeap.allocStr("d").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(
-        listOf("e() in f", "d() in e", "c() in d", "b() in c", "a() in b"),
-        a,
-    )
 }

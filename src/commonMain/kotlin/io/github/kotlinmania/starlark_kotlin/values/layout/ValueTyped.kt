@@ -28,16 +28,15 @@ import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
 import io.github.kotlinmania.starlark_kotlin.values.ValueOfUncheckedGeneric
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
@@ -49,8 +48,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 
 /** [Value] wrapper which asserts contained value is of type `<T>`. */
 // pub struct ValueTyped<'v, T: StarlarkValue<'v>>(Value<'v>, marker::PhantomData<T>)
@@ -265,14 +264,14 @@ fun <T : StarlarkValue> FrozenValueTyped<T>.trace(@Suppress("UNUSED_PARAMETER") 
 // impl<T: StarlarkValue<'static>> Freeze for FrozenValueTyped<'static, T>
 fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
     @Suppress("UNUSED_PARAMETER") freezer: Freezer,
-): FreezeResult<FrozenValueTyped<T>> = Result.success(this)
+): Result<FrozenValueTyped<T>> = Result.success(this)
 
 /**
  * [Freeze] impl for [ValueTyped].
  * Freezes the contained value and wraps as [FrozenValueTyped].
  */
 // impl<'v, T> Freeze for ValueTyped<'v, T> where T: StarlarkValue<'v>, T: Freeze
-fun <T : StarlarkValue> ValueTyped<T>.freeze(freezer: Freezer): FreezeResult<FrozenValueTyped<T>> {
+fun <T : StarlarkValue> ValueTyped<T>.freeze(freezer: Freezer): Result<FrozenValueTyped<T>> {
     val frozenValue = toValue().freeze(freezer)
     if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
     val fvt = FrozenValueTyped.newUnchecked<T>(frozenValue.getOrThrow())

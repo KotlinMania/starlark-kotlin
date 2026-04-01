@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.values.types.KnownMethod

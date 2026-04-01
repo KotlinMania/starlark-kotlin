@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 // use std::iter;
 
-// use starlark_map::small_map::SmallMap;
+// use io.github.kotlinmania.starlark_kotlin.collections::small_map::SmallMap;
 
 // use crate::typing::Ty;
 // use crate::values::AllocFrozenValue;
@@ -37,12 +37,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 // use crate::values::types::dict::dict_type::DictType;
 
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import starlark_map.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr

@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
 import io.github.kotlinmania.starlark_kotlin.LibraryExtension
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
@@ -36,9 +36,9 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.Parameters
 import io.github.kotlinmania.starlark_kotlin.standardEnvironment
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn

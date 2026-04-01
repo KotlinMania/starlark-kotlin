@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.WithDiagnostic
 // pub enum TypeExprUnpackError
 sealed class TypeExprUnpackError(message: String) : Exception(message) {
     // #[error("{0} expression is not allowed in type expression")]
-    class InvalidType(val type_: String) : TypeExprUnpackError("$type_ expression is not allowed in type expression")
+    class InvalidType(val invalidType: String) : TypeExprUnpackError("$invalidType expression is not allowed in type expression")
     // #[error("Empty list is not allowed in type expression")]
     class EmptyListInType : TypeExprUnpackError("Empty list is not allowed in type expression")
     // #[error("Only dot expression of form `ident.ident` is allowed in type expression")]

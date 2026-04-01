@@ -1,4 +1,5 @@
 // port-lint: source src/values/layout/heap.rs
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 /*
@@ -20,22 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 /** Starlark heap implementation. */
-internal object allocator
-
-internal object arena
-
-internal object branding
-
-internal object `call_enter_exit`
-
-internal object fast_cell
-
-internal object heap_type
-
-internal object `maybe_uninit_slice_util`
-
-internal object profile
-
-internal object repr
-
-internal object send
+// pub(crate) mod allocator;
+// pub(crate) mod arena;
+// mod branding;
+// pub(crate) mod call_enter_exit;
+// mod fast_cell;
+// pub(crate) mod heap_type;
+// pub(crate) mod maybe_uninit_slice_util;
+// pub(crate) mod profile;
+// pub(crate) mod repr;
+// pub(crate) mod send;

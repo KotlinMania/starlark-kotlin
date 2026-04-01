@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrAt
 import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrCollectRepr
@@ -272,7 +271,7 @@ class StringValue(
     fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
 
     /** Convert a value to a FrozenStringValue using a supplied Freezer. */
-    fun freeze(freezer: Freezer): FreezeResult<FrozenStringValue> {
+    fun freeze(freezer: Freezer): Result<FrozenStringValue> {
         val frozen = freezer.freeze(toValue()).getOrElse { return Result.failure(it) }
         return Result.success(FrozenStringValue.newUnchecked(frozen))
     }

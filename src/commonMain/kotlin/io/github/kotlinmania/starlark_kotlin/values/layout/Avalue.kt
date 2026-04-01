@@ -19,11 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
@@ -33,12 +31,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackTuple2
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {
@@ -91,7 +85,7 @@ interface AValue {
     }
 
     /** Freeze this value on the heap. */
-    fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue>
+    fun heapFreeze(freezer: Freezer): Result<FrozenValue>
 
     /** Copy this value on the heap. */
     fun heapCopy(tracer: Tracer): Value
@@ -118,7 +112,7 @@ class AValueImpl<T : AValue>(
 internal fun tryFreezeDirectly(
     payload: StarlarkValue,
     freezer: Freezer,
-): FreezeResult<FrozenValue>? {
+): Result<FrozenValue>? {
     val f = payload.tryFreezeDirectly(freezer) ?: return null
     return when {
         f.isSuccess -> {
@@ -136,7 +130,7 @@ internal fun tryFreezeDirectly(
 internal fun heapFreezeSimpleImpl(
     value: StarlarkValue,
     freezer: Freezer,
-): FreezeResult<FrozenValue> {
+): Result<FrozenValue> {
     val (fv, r) = freezer.reserve<AValue>()
     val x = value
     r.fill(x)
@@ -174,40 +168,3 @@ internal fun AValueHeader.heapCopy(tracer: Tracer): Value =
 
 /** Len of a collection. */
 internal fun <T> size(list: List<T>): Int = list.size
-
-internal object AValueTests {
-
-    fun tupleCycleFreeze() {
-        Module.withTempHeap { module ->
-            val list = module.heap().allocList(emptyList())
-            val tuple = module.heap().allocTuple(listOf(list))
-            ListData.fromValueMut(list).getOrNull()
-                ?.push(tuple, module.heap())
-            module.set("t", tuple)
-            module.freeze()
-            Result.success(Unit)
-        }
-    }
-
-    fun testTryFreezeDirectly() {
-        // `try_freeze_directly` is only implemented for `dict` at the moment of writing,
-        // so use it for the test.
-
-        Module.withTempHeap { module ->
-            val d0 = Dict.new(SmallMap.new()).allocValue(module.heap())
-            val d1 = Dict.new(SmallMap.new()).allocValue(module.heap())
-            // Pointers are not equal.
-            check(d0 !== d1)
-
-            module.setExtraValue(module.heap().allocTuple(listOf(d0, d1)))
-
-            val frozen = module.freeze().getOrThrow()
-            val extra = frozen.extraValue()!!.toValue()
-            val (fd0, fd1) = unpackTuple2<Value, Value>(extra, { it }, { it })
-                ?: error("expected a 2-element tuple")
-            // Pointers are equal.
-            check(fd0 === fd1)
-            Result.success(Unit)
-        }
-    }
-}

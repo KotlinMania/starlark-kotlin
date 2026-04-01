@@ -98,27 +98,3 @@ private fun formatCsvValue(value: Any): String = when (value) {
     is QuotedCsvValue -> quoteStrForCsv(value.quoted)
     else -> value.toString()
 }
-
-// --- Tests ---
-
-// #[test] fn test_csv_writer()
-internal fun testCsvWriter() {
-    val csv = CsvWriter(listOf("File", "Count", "Duration"))
-    csv.writeValue("a.bzl")
-    csv.writeValue(10)
-    csv.writeValue(SmallDuration(nanos = 17_000_000u))
-    csv.finishRow()
-    csv.writeValue("b.bzl")
-    csv.writeValue(20)
-    csv.writeValue(SmallDuration(nanos = 19_000_000u))
-    csv.finishRow()
-    check(
-        "File,Count,Duration\n\"a.bzl\",10,0.017\n\"b.bzl\",20,0.019\n" == csv.finish()
-    )
-}
-
-// #[test] fn test_quote_str_for_csv()
-internal fun testQuoteStrForCsv() {
-    check("\"a\"" == quoteStrForCsv("a"))
-    check("\"a\"\"\"" == quoteStrForCsv("a\""))
-}

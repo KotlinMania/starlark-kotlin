@@ -52,8 +52,8 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

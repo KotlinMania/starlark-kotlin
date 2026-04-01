@@ -114,7 +114,7 @@ internal class BcWriterForLoop(
     /** Iterator variable. */
     val iter: BcSlotIn,
     /** Variable to store the next value in. */
-    val var_: BcSlotOut,
+    val loopVariable: BcSlotOut,
     /** Address of the first instruction in the loop body. */
     val innerAddr: BcAddr,
     /** Addresses to patch with the address of the instruction after the loop. */
@@ -378,11 +378,11 @@ internal class BcWriter(
         val loopDepth = LoopDepth(forLoops.size - 1)
         val forLoop = forLoops.last()
         val jumpBack = ip().offsetFrom(forLoop.innerAddr).neg()
-        val var_ = forLoop.var_
+        val loopVariable = forLoop.loopVariable
         val (addr, argIndex) = writeInstrRetArg(
             "InstrContinue",
             span,
-            listOf(forLoop.iter, loopDepth, var_, jumpBack, BcAddrOffset.FORWARD),
+            listOf(forLoop.iter, loopDepth, loopVariable, jumpBack, BcAddrOffset.FORWARD),
         )
         val endPatch = instrs.addrToPatch(addr, argIndex)
         forLoops.last().endAddrsToPatch.add(endPatch)
@@ -402,7 +402,7 @@ internal class BcWriter(
     /** Write for loop. */
     fun writeFor(
         over: BcSlotIn,
-        var_: BcSlotOut,
+        loopVariable: BcSlotOut,
         span: FrameSpan,
         body: (BcWriter) -> Unit,
     ) {
@@ -416,13 +416,13 @@ internal class BcWriter(
             val (addr, argIndex) = bc.writeInstrRetArg(
                 "InstrIter",
                 span,
-                listOf(over, loopDepth, iter.toOut(), var_, BcAddrOffset.FORWARD),
+                listOf(over, loopDepth, iter.toOut(), loopVariable, BcAddrOffset.FORWARD),
             )
             val endPatch = bc.instrs.addrToPatch(addr, argIndex)
             bc.forLoops.add(BcWriterForLoop(
                 innerAddr = bc.ip(),
                 endAddrsToPatch = mutableListOf(endPatch),
-                var_ = var_,
+                loopVariable = loopVariable,
                 iter = iter.toIn(),
             ))
             bc.maxLoopDepth = maxOf(bc.maxLoopDepth, LoopDepth(bc.forLoops.size))

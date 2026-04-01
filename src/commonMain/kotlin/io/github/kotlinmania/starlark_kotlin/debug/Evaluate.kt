@@ -19,14 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.isWasm
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
@@ -113,78 +109,4 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     }
 
     return res
-}
-
-// Tests
-
-private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_evaluate") { args, eval ->
-        val code = args.positional<String>(0)
-        val ast = AstModule.parse("interactive", code, Dialect.AllOptionsInternal).getOrThrow()
-        eval.evalStatements(ast).getOrThrow()
-    }
-}
-
-internal fun testDebugEvaluate() {
-    if (isWasm()) {
-        return
-    }
-
-    val a = Assert()
-    a.disableStaticTypechecking()
-    a.globalsAdd(::debuggerFunctions)
-    val check = """
-assert_eq(debug_evaluate("1+2"), 3)
-x = 10
-assert_eq(debug_evaluate("x"), 10)
-assert_eq(debug_evaluate("x = 5"), None)
-assert_eq(x, 5)
-y = [20]
-debug_evaluate("y.append(30)")
-assert_eq(y, [20, 30])
-"""
-    // Check evaluation works at the root
-    a.pass(check)
-    // And inside functions
-    a.pass(
-        "def local():\n" +
-            check.lines().joinToString("\n") { "    $it" } +
-            "\nlocal()",
-    )
-
-    // Check we get the right stack frames
-    a.pass(
-        """
-def foo(x, y, z):
-    return bar(y)
-def bar(x):
-    return debug_evaluate("x")
-assert_eq(foo(1, 2, 3), 2)
-""",
-    )
-
-    // Check we can access module-level and globals
-    a.pass(
-        """
-x = 7
-def bar(y):
-    return debug_evaluate("x + y")
-assert_eq(bar(4), 4 + 7)
-""",
-    )
-
-    // Check module-level access works in imported modules
-    a.module(
-        "test",
-        """
-x = 7
-z = 2
-def bar(y):
-    assert_eq(x, 7)
-    debug_evaluate("x = 20")
-    assert_eq(x, 7) # doesn't work for frozen variables
-    return debug_evaluate("x + y + z")
-""",
-    )
-    a.pass("load('test', 'bar'); assert_eq(bar(4), 4 + 7 + 2)")
 }

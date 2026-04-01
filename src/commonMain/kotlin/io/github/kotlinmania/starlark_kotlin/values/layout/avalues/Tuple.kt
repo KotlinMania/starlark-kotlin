@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn tuple_avalue<'v>(len: usize) -> AValueImpl<'v, AValueTuple>
 internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> {
@@ -60,8 +59,8 @@ internal object AValueTuple : AValue {
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // unsafe fn heap_freeze(me, freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
@@ -89,8 +88,8 @@ internal object AValueFrozenTuple : AValue {
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // unsafe fn heap_freeze(_me, _freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(_me, _freezer) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 

@@ -28,7 +28,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 // use dupe::Dupe;
 // use either::Either;
 
-// use crate::coerce::coerce;
 // use crate::typing::Ty;
 // use crate::values::FrozenValue;
 // use crate::values::UnpackValue;
@@ -41,13 +40,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 // use crate::values::types::dict::dict_type::DictType;
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()
@@ -75,7 +74,7 @@ fun DictRef.clone(): DictRef = when (val ref = this.aref) {
 fun dictRefFromValue(x: Value): DictRef? =
     if (x.unpackFrozen() != null) {
         x.downcastRef<DictGen<FrozenDictData>>()
-            ?.let { DictRef(Either.Right(coerce(it.inner))) }
+            ?.let { DictRef(Either.Right(Dict(it.inner.content as SmallMap<Value, Value>))) }
     } else {
         val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
         DictRef(Either.Left(ptr.inner.borrow()))
@@ -169,7 +168,3 @@ class Ref<T>(val value: T) {
 }
 
 class RefMut<T>(val value: T)
-
-@Suppress("UNCHECKED_CAST")
-private fun coerce(data: FrozenDictData): Dict =
-    Dict(data.content as SmallMap<Value, Value>)

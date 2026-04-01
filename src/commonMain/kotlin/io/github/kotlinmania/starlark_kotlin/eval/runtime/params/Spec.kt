@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark_kotlin.collections.symbol.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocParam
 import io.github.kotlinmania.starlark_kotlin.docs.DocParams
 import io.github.kotlinmania.starlark_kotlin.docs.DocString
@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import starlark_map.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
@@ -46,7 +46,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.getValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 
 /** Describe parameter for [`ParametersSpec`]. */
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]

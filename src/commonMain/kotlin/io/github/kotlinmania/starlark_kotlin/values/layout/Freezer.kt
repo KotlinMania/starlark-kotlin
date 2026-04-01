@@ -22,9 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
@@ -49,8 +47,8 @@ class Freezer internal constructor(
 
     /** Allocate a new value while freezing. Usually not a great idea. */
     // pub fn alloc<'v, T: AllocFrozenValue>(&'v self, val: T) -> FrozenValue
-    fun <T : AllocFrozenValue> alloc(value: T): FrozenValue {
-        return value.allocFrozenValue(heap)
+    fun <T : AllocFrozenValue> alloc(`val`: T): FrozenValue {
+        return `val`.allocFrozenValue(heap)
     }
 
     // pub(crate) fn reserve<'v, 'v2, T>(&'v self) -> (FrozenValue, Reservation<'v2, T>)
@@ -65,8 +63,8 @@ class Freezer internal constructor(
     }
 
     /** Freeze a nested value while freezing yourself. */
-    // pub fn freeze(&self, value: Value) -> FreezeResult<FrozenValue>
-    fun freeze(value: Value): FreezeResult<FrozenValue> {
+    // pub fn freeze(&self, value: Value) -> Result<FrozenValue>
+    fun freeze(value: Value): Result<FrozenValue> {
         // Case 1: We have our value encoded in our pointer
         val x = value.unpackFrozen()
         if (x != null) {
@@ -74,16 +72,18 @@ class Freezer internal constructor(
         }
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
-        val ptrIndex = value.ptr.unpackPtrOpt()!!
-        val header = AValueHeader.fromIndex(ptrIndex)
-        val aValueOrForward = AValueOrForward.Header(header)
-        return when (val unpacked = aValueOrForward.unpack()) {
-            is AValueOrForwardUnpack.Forward -> {
-                Result.success(unpacked.forward.forwardPtr().unpackFrozenValue())
+        val value = value.ptr.unpackPtrOpt()!!
+        val header = AValueHeader.fromIndex(value)
+        val repr = header.asRepr<Any?>()
+        val unpacked: AValueOrForwardUnpack =
+            if (repr.overwritten != null) {
+                AValueOrForwardUnpack.Forward(repr.overwritten!!)
+            } else {
+                AValueOrForwardUnpack.Header(header)
             }
-            is AValueOrForwardUnpack.Header -> {
-                unpacked.header.unpack().heapFreeze(this)
-            }
+        return when (unpacked) {
+            is AValueOrForwardUnpack.Forward -> Result.success(unpacked.forward.forwardPtr().unpackFrozenValue())
+            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapFreeze(this)
         }
     }
 

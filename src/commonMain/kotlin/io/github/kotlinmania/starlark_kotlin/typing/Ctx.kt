@@ -176,8 +176,8 @@ internal class TypingContext(
         )
     }
 
-    private fun validateCall(fun_: Ty, args: TyCallArgs, span: Span): kotlin.Result<Ty> {
-        return resultToTyWithInternalError(oracle.validateCall(span, fun_, args))
+    private fun validateCall(function: Ty, args: TyCallArgs, span: Span): kotlin.Result<Ty> {
+        return resultToTyWithInternalError(oracle.validateCall(span, function, args))
     }
 
     private fun fromIterated(ty: Ty, span: Span): Ty {
@@ -353,10 +353,10 @@ internal class TypingContext(
      * but it is important we see through to the nested expressions to raise errors
      */
     private fun checkComprehension(
-        for_: ForClauseP<CstPayload>,
+        forClause: ForClauseP<CstPayload>,
         clauses: List<ClauseP<CstPayload>>,
     ): kotlin.Result<Unit> {
-        expressionType(for_.over).getOrElse { return kotlin.Result.failure(it) }
+        expressionType(forClause.over).getOrElse { return kotlin.Result.failure(it) }
         for (clause in clauses) {
             when (clause) {
                 is ClauseP.For -> expressionType(clause.forClause.over).getOrElse { return kotlin.Result.failure(it) }

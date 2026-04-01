@@ -1,5 +1,5 @@
 // port-lint: source src/collections/symbol.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.collections
 
 /*
@@ -21,6 +21,5 @@ package io.github.kotlinmania.starlark_kotlin.collections
  */
 
 // pub(crate) mod map;
-internal val map = "map"
 // pub(crate) mod symbol;
 // internal val symbol = "symbol" // conflicts with collections.symbol package

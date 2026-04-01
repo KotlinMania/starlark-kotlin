@@ -31,10 +31,10 @@ private fun listToTupleCompr(expr: CstExpr): CstExpr = expr
 
 internal fun Compiler.listComprehension(
     x: CstExpr,
-    for_: ForClauseP<CstPayload>,
+    forClause: ForClauseP<CstPayload>,
     clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
-    val compiledClauses = compileClauses(for_, clauses)
+    val compiledClauses = compileClauses(forClause, clauses)
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
     val compiledX = this.expr(x).getOrElse { return Result.failure(it) }
     return Result.success(ExprCompiled.Compr(ComprCompiled.List(
@@ -46,10 +46,10 @@ internal fun Compiler.listComprehension(
 internal fun Compiler.dictComprehension(
     k: CstExpr,
     v: CstExpr,
-    for_: ForClauseP<CstPayload>,
+    forClause: ForClauseP<CstPayload>,
     clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
-    val compiledClauses = compileClauses(for_, clauses)
+    val compiledClauses = compileClauses(forClause, clauses)
     if (compiledClauses.isFailure) return Result.failure(compiledClauses.exceptionOrNull()!!)
     val compiledK = this.expr(k).getOrElse { return Result.failure(it) }
     val compiledV = this.expr(v).getOrElse { return Result.failure(it) }
@@ -86,11 +86,11 @@ private fun Compiler.compileIfs(
 }
 
 private fun Compiler.compileClauses(
-    for_: ForClauseP<CstPayload>,
+    forClause: ForClauseP<CstPayload>,
     clauses: List<ClauseP<CstPayload>>,
 ): Result<ClausesCompiled> {
     // The first for.over is scoped before we enter the list comp
-    val over = this.expr(listToTupleCompr(for_.over)).getOrElse { return Result.failure(it) }
+    val over = this.expr(listToTupleCompr(forClause.over)).getOrElse { return Result.failure(it) }
 
     val clausesMut = clauses.toMutableList()
 
@@ -103,7 +103,7 @@ private fun Compiler.compileClauses(
         val (nextFor, ifs) = result.getOrThrow()
         if (nextFor == null) {
             val last = ClauseCompiled(
-                variable = this.assignTarget(for_.varTarget).getOrElse { return Result.failure(it) },
+                variable = this.assignTarget(forClause.varTarget).getOrElse { return Result.failure(it) },
                 over = over,
                 ifs = ifs,
             )

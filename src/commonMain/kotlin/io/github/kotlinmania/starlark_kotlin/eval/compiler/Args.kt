@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

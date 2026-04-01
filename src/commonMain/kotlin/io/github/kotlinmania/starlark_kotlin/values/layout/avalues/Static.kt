@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
@@ -27,8 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
@@ -53,8 +52,8 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
         error("Basic types don't appear in the heap")
     }
 
-    // unsafe fn heap_freeze(me, freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("Basic types don't appear in the heap")
     }
 
@@ -128,20 +127,4 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
     fun toFrozenValue(): FrozenValue {
         return unpack().toFrozenValue()
     }
-}
-
-// #[cfg(test)] mod tests
-// Tests are in commonTest.
-
-// #[test]
-// fn test_alloc_static_simple()
-internal fun testAllocStaticSimple() {
-    // In Rust this uses #[derive] and #[starlark_value] macros.
-    // In Kotlin we define a simple StarlarkValue manually.
-    class MySimpleValue(val value: UInt) : StarlarkValue {
-        override fun toString(): String = "MySimpleValue"
-    }
-
-    val allocated = AllocStaticSimple.alloc(MySimpleValue(17u))
-    check(17u == allocated.unpack().asRef().value)
 }

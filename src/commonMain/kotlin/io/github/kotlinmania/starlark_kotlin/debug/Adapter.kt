@@ -32,7 +32,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation
+import io.github.kotlinmania.starlark_kotlin.debug.adapter_impl.prepareDapAdapterImpl
+import io.github.kotlinmania.starlark_kotlin.debug.adapter_impl.resolveBreakpointsImpl
+import io.github.kotlinmania.starlark_kotlin.debug.adapter_impl.resolvedBreakpointsToDap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
@@ -462,7 +464,7 @@ class ResolvedBreakpoints internal constructor(
      * The breakpoints should've been resolved from the corresponding SetBreakpointsRequest.
      */
     fun toResponse(): SetBreakpointsResponseBody {
-        return implementation.resolvedBreakpointsToDap(this)
+        return resolvedBreakpointsToDap(this)
     }
 }
 
@@ -471,7 +473,7 @@ fun resolveBreakpoints(
     args: SetBreakpointsArguments,
     ast: AstModule,
 ): Result<ResolvedBreakpoints> {
-    return implementation.resolveBreakpoints(args, ast)
+    return resolveBreakpointsImpl(args, ast)
 }
 
 /**
@@ -524,7 +526,7 @@ interface DapAdapter {
      *
      * See [Continue](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Continue)
      */
-    fun continue_(): Result<Unit>
+    fun continueExecution(): Result<Unit>
 
     /**
      * Continues execution until some condition.
@@ -568,5 +570,5 @@ fun dapCapabilities(): Capabilities {
 fun prepareDapAdapter(
     client: DapAdapterClient,
 ): Pair<DapAdapter, DapAdapterEvalHook> {
-    return implementation.prepareDapAdapter(client)
+    return prepareDapAdapterImpl(client)
 }

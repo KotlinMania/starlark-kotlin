@@ -85,6 +85,10 @@ internal class RefCell<T>(
         return RefMut(this, value)
     }
 
+    fun getMut(): T {
+        return value
+    }
+
     internal fun releaseBorrow() {
         check(borrowCount > 0) { "RefCell is not borrowed" }
         borrowCount -= 1

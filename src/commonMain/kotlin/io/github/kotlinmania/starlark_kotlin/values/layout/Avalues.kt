@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
@@ -21,16 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 // pub(crate) mod array;
-internal val array = "array"
 // pub(crate) mod complex;
-internal val complex = "complex"
 // pub(crate) mod list;
-internal val list = "list"
 // pub(crate) mod simple;
-internal val simple = "simple"
 // pub(crate) mod static_;
-internal val static_ = "static_"
 // pub(crate) mod str_;
-internal val str_ = "str_"
 // pub(crate) mod tuple;
-internal val tuple = "tuple"

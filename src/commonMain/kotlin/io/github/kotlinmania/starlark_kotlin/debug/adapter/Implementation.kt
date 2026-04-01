@@ -1,5 +1,5 @@
 // port-lint: source src/debug/adapter/implementation.rs
-package io.github.kotlinmania.starlark_kotlin.debug.adapter
+package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -48,57 +48,54 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark_kotlin.runBlocking
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.withLock
+import kotlin.concurrent.atomics.AtomicInt
 
-internal object implementation {
+internal fun prepareDapAdapterImpl(
+    client: DapAdapterClient,
+): Pair<DapAdapter, DapAdapterEvalHook> {
+    val state = SharedAdapterState(
+        client = client,
+        breakpoints = BreakpointConfig(),
+        disableBreakpoints = AtomicInt(0),
+    )
 
-    fun prepareDapAdapter(
-        client: DapAdapterClient,
-    ): Pair<DapAdapter, DapAdapterEvalHook> {
-        val state = SharedAdapterState(
-            client = client,
-            breakpoints = BreakpointConfig(),
-            disableBreakpoints = AtomicInt(0),
-        )
+    val channel = MessageChannel<ToEvalMessage>()
+    return Pair(
+        DapAdapterImpl(state = state, sender = channel),
+        DapAdapterEvalHookImpl.create(state, channel),
+    )
+}
 
-        val channel = MessageChannel<ToEvalMessage>()
-        return Pair(
-            DapAdapterImpl(state = state, sender = channel),
-            DapAdapterEvalHookImpl.create(state, channel),
-        )
-    }
+internal fun resolveBreakpointsImpl(
+    args: SetBreakpointsArguments,
+    ast: AstModule,
+): Result<ResolvedBreakpoints> {
+    val poss: Map<Int, FileSpan> = ast.stmtLocations()
+        .associateBy { span -> span.resolveSpan().begin.line }
 
-    fun resolveBreakpoints(
-        args: SetBreakpointsArguments,
-        ast: AstModule,
-    ): Result<ResolvedBreakpoints> {
-        val poss: Map<Int, FileSpan> = ast.stmtLocations()
-            .associateBy { span -> span.resolveSpan().begin.line }
+    val resolved = args.breakpoints?.map { x ->
+        poss[(x.line - 1).toInt()]?.let { span ->
+            Breakpoint(
+                span = span,
+                condition = x.condition,
+            )
+        }
+    } ?: emptyList()
 
-        val resolved = args.breakpoints?.map { x ->
-            poss[(x.line - 1).toInt()]?.let { span ->
-                Breakpoint(
-                    span = span,
-                    condition = x.condition,
-                )
-            }
-        } ?: emptyList()
+    return Result.success(ResolvedBreakpoints(resolved))
+}
 
-        return Result.success(ResolvedBreakpoints(resolved))
-    }
-
-    fun resolvedBreakpointsToDap(
-        breakpoints: ResolvedBreakpoints,
-    ): SetBreakpointsResponseBody {
-        return SetBreakpointsResponseBody(
-            breakpoints = breakpoints.breakpoints.map { x ->
-                makeBreakpoint(x != null)
-            }
-        )
-    }
+internal fun resolvedBreakpointsToDap(
+    breakpoints: ResolvedBreakpoints,
+): SetBreakpointsResponseBody {
+    return SetBreakpointsResponseBody(
+        breakpoints = breakpoints.breakpoints.map { x ->
+            makeBreakpoint(x != null)
+        }
+    )
 }
 
 /** Type alias for the message sent to the evaluation thread. */
@@ -214,7 +211,7 @@ private class DapAdapterImpl(
         }
     }
 
-    override fun continue_(): Result<Unit> {
+    override fun continueExecution(): Result<Unit> {
         injectNext(Next.Continue)
         return Result.success(Unit)
     }

@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.eval
 
 /*
@@ -21,30 +21,16 @@ package io.github.kotlinmania.starlark_kotlin.eval
  */
 
 // pub(crate) mod arguments;
-internal val arguments = "arguments"
 // pub(crate) mod before_stmt;
-internal val before_stmt = "before_stmt"
 // pub(crate) mod cheap_call_stack;
-internal val cheap_call_stack = "cheap_call_stack"
 // pub(crate) mod evaluator;
-internal val evaluator = "evaluator"
 // pub(crate) mod file_loader;
-internal val file_loader = "file_loader"
 // pub(crate) mod frame_span;
-internal val frame_span = "frame_span"
 // pub(crate) mod frozen_file_span;
-internal val frozen_file_span = "frozen_file_span"
 // pub(crate) mod inlined_frame;
-internal val inlined_frame = "inlined_frame"
 // pub(crate) mod params;
-internal val params = "params"
 // pub(crate) mod profile;
-internal val profile = "profile"
 // pub(crate) mod rust_loc;
-internal val rust_loc = "rust_loc"
 // pub(crate) mod slots;
-internal val slots = "slots"
 // pub(crate) mod small_duration;
-internal val small_duration = "small_duration"
 // pub(crate) mod visit_span;
-internal val visit_span = "visit_span"

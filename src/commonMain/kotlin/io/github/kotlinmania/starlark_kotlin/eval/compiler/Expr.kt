@@ -50,9 +50,9 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LambdaP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -1005,7 +1005,7 @@ internal sealed class ExprCompiled {
             return Call(IrSpanned(
                 span = span,
                 node = CallCompiled(
-                    fun_ = IrSpanned(
+                    function = IrSpanned(
                         span = span,
                         node = ValueExpr(Constants.get().fnType!!.value),
                     ),
@@ -1049,7 +1049,7 @@ internal sealed class ExprCompiled {
             return Call(IrSpanned(
                 span = span,
                 node = CallCompiled(
-                    fun_ = IrSpanned(
+                    function = IrSpanned(
                         span = span,
                         node = ValueExpr(Constants.get().fnLen!!.value),
                     ),

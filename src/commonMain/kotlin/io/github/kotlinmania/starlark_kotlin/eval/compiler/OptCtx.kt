@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx
 
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.OptimizeOnFreezeContext
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 

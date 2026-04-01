@@ -61,7 +61,7 @@ enum class ProfileMode {
         // impl FromStr for ProfileMode
         fun fromString(s: String): ProfileMode {
             for (mode in ALL) {
-                if (s == mode.name()) return mode
+                if (s == mode.modeName()) return mode
             }
             throw IllegalArgumentException("Invalid ProfileMode: `$s`")
         }
@@ -69,7 +69,7 @@ enum class ProfileMode {
 
     /** Name of this profile mode. */
     // pub(crate) fn name(&self) -> &str
-    fun name(): String = when (this) {
+    fun modeName(): String = when (this) {
         HeapSummaryAllocated -> "heap-summary-allocated"
         HeapSummaryRetained -> "heap-summary-retained"
         HeapFlameAllocated -> "heap-flame-allocated"
@@ -92,5 +92,5 @@ enum class ProfileMode {
         else -> false
     }
 
-    override fun toString(): String = name()
+    override fun toString(): String = modeName()
 }

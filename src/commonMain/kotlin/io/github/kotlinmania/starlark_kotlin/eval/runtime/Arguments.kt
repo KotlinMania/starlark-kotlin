@@ -20,11 +20,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.coerce
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
@@ -138,13 +137,13 @@ data class ResolvedArgName(
 // pub(crate) struct ArgNames<'a, 'v, S: ArgSymbol>
 class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
-    private val names_: List<Pair<S, StringValue>>,
+    private val namedArguments: List<Pair<S, StringValue>>,
 ) {
     // impl<'a, 'v, S: ArgSymbol> Default for ArgNames<'a, 'v, S>
     constructor() : this(emptyList())
 
     fun names(): List<Pair<S, StringValue>> {
-        return names_
+        return namedArguments
     }
 
     companion object {
@@ -353,7 +352,7 @@ class Arguments(
     internal fun names(): Result<Dict> {
         val mapResult = namesMap()
         if (mapResult.isFailure) return Result.failure(mapResult.exceptionOrNull()!!)
-        return Result.success(Dict.new(coerce(mapResult.getOrThrow())))
+        return Result.success(Dict.new(mapResult.getOrThrow() as SmallMap<Value, Value>))
     }
 
     /**

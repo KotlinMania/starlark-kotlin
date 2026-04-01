@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFullForDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CallCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
@@ -95,7 +95,7 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
  */
 // pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun CallCompiled.markDefinitelyAssignedAfterCall(bc: BcWriter) {
-    fun_.markDefinitelyAssignedAfter(bc)
+    function.markDefinitelyAssignedAfter(bc)
     args.markDefinitelyAssignedAfterCall(bc)
 }
 
@@ -136,13 +136,13 @@ private fun writeArgs(
 // fn write_call_frozen(span, fun, args, target, bc)
 private fun writeCallFrozen(
     span: FrameSpan,
-    fun_: FrozenValue,
+    function: FrozenValue,
     args: ArgsCompiledValue,
     target: BcSlotOut,
     bc: BcWriter,
 ) {
     val fileSpan = bc.allocFileSpan(span)
-    val frozenDef = FrozenValueTyped.new<FrozenDef>(fun_)
+    val frozenDef = FrozenValueTyped.new<FrozenDef>(function)
     if (frozenDef != null) {
         writeArgs(args, bc) { callArgs, bc2 ->
             when (callArgs) {
@@ -156,7 +156,7 @@ private fun writeCallFrozen(
         }
         return
     }
-    val nativeFunc = FrozenValueTyped.new<NativeFunction>(fun_)
+    val nativeFunc = FrozenValueTyped.new<NativeFunction>(function)
     if (nativeFunc != null) {
         val bcNative = BcNativeFunction.new(nativeFunc)
         writeArgs(args, bc) { callArgs, bc2 ->
@@ -175,10 +175,10 @@ private fun writeCallFrozen(
     writeArgs(args, bc) { callArgs, bc2 ->
         when (callArgs) {
             is Either.Left -> {
-                bc2.writeInstr("CallFrozenPos", span, CallFrozenArg(FrozenValueCallable(fun_), callArgs.toBcCallArgs(), fileSpan, target))
+                bc2.writeInstr("CallFrozenPos", span, CallFrozenArg(FrozenValueCallable(function), callArgs.toBcCallArgs(), fileSpan, target))
             }
             is Either.Right -> {
-                bc2.writeInstr("CallFrozen", span, CallFrozenArg(FrozenValueCallable(fun_), callArgs.toBcCallArgs(), fileSpan, target))
+                bc2.writeInstr("CallFrozen", span, CallFrozenArg(FrozenValueCallable(function), callArgs.toBcCallArgs(), fileSpan, target))
             }
         }
     }
@@ -188,12 +188,12 @@ private fun writeCallFrozen(
 private fun writeCallMethod(
     target: BcSlotOut,
     span: FrameSpan,
-    this_: IrSpanned<ExprCompiled>,
+    receiver: IrSpanned<ExprCompiled>,
     symbol: Symbol,
     args: ArgsCompiledValue,
     bc: BcWriter,
 ) {
-    this_.writeBcCb(bc) { thisSlot, bc2 ->
+    receiver.writeBcCb(bc) { thisSlot, bc2 ->
         val fileSpan = bc2.allocFileSpan(span)
         val knownMethod = getKnownMethod(symbol.asStr())
         val pos = args.posOnly()
@@ -279,11 +279,11 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     val fileSpan = bc.allocFileSpan(span)
     val method = call.method()
     if (method == null) {
-        val frozenFun = call.fun_.node.asValue()
+        val frozenFun = call.function.node.asValue()
         if (frozenFun != null) {
             writeCallFrozen(span, frozenFun, call.args, target, bc)
         } else {
-            call.fun_.writeBcCb(bc) { funSlot, bc2 ->
+            call.function.writeBcCb(bc) { funSlot, bc2 ->
                 writeArgs(call.args, bc2) { callArgs, bc3 ->
                     when (callArgs) {
                         is Either.Left -> {
@@ -297,8 +297,8 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
             }
         }
     } else {
-        val (this_, symbol, methodArgs) = method
-        writeCallMethod(target, span, this_, symbol, methodArgs, bc)
+        val (receiver, symbol, methodArgs) = method
+        writeCallMethod(target, span, receiver, symbol, methodArgs, bc)
     }
 }
 

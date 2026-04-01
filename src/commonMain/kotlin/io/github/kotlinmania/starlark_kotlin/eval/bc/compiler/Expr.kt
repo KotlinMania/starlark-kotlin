@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Compile expressions. */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned

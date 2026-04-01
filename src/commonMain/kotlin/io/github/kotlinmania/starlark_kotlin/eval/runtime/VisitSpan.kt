@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark_kotlin.values.Tuple4
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId

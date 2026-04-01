@@ -31,8 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import kotlin.concurrent.Volatile
 
@@ -86,13 +85,13 @@ internal class ValueCaptured private constructor(
 
     // impl Freeze for ValueCaptured
     // type Frozen = FrozenValueCaptured;
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValueCaptured>
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenValueCaptured> {
+    // fn freeze(self, freezer: &Freezer) -> Result<FrozenValueCaptured>
+    override fun freeze(freezer: Freezer): Result<FrozenValueCaptured> {
         val frozenPayload: FrozenValue? = if (payload != null) {
             val result = payload!!.freeze(freezer)
             if (result.isFailure) {
                 @Suppress("UNCHECKED_CAST")
-                return result as FreezeResult<FrozenValueCaptured>
+                return result as Result<FrozenValueCaptured>
             }
             result.getOrThrow()
         } else {

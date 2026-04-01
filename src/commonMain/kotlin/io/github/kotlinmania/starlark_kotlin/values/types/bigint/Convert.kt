@@ -31,11 +31,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.int.allocFrozenValue
@@ -124,13 +124,34 @@ fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.fro
  * Unpack a UInt from a Starlark Value.
  * impl UnpackValue for u32
  */
-fun Value.unpackUInt(): Result<UInt?> = unpackInteger().map { it?.toUInt() }
+fun Value.unpackUInt(): Result<UInt?> = unpackIntegerImpl(
+    integerType = "UInt",
+    tryFromI32 = { i32 -> if (i32 >= 0) i32.toUInt() else null },
+    tryFromBigInt = { bigInt ->
+        try {
+            val ul = bigInt.ulongValue(exactRequired = true)
+            if (ul <= UInt.MAX_VALUE.toULong()) ul.toUInt() else null
+        } catch (_: ArithmeticException) {
+            null
+        }
+    },
+)
 
 /**
  * Unpack a ULong from a Starlark Value.
  * impl UnpackValue for u64
  */
-fun Value.unpackULong(): Result<ULong?> = unpackInteger().map { it?.toULong() }
+fun Value.unpackULong(): Result<ULong?> = unpackIntegerImpl(
+    integerType = "ULong",
+    tryFromI32 = { i32 -> if (i32 >= 0) i32.toULong() else null },
+    tryFromBigInt = { bigInt ->
+        try {
+            bigInt.ulongValue(exactRequired = true)
+        } catch (_: ArithmeticException) {
+            null
+        }
+    },
+)
 
 /**
  * Unpack a Long from a Starlark Value.
@@ -142,7 +163,17 @@ fun Value.unpackLong(): Result<Long?> = unpackInteger()
  * Unpack an Int from a Starlark Value.
  * impl UnpackValue for isize / usize
  */
-fun Value.unpackInt(): Result<Int?> = unpackInteger().map { it?.toInt() }
+fun Value.unpackInt(): Result<Int?> = unpackIntegerImpl(
+    integerType = "Int",
+    tryFromI32 = { i32 -> i32 },
+    tryFromBigInt = { bigInt ->
+        try {
+            bigInt.intValue(exactRequired = true)
+        } catch (_: ArithmeticException) {
+            null
+        }
+    },
+)
 
 /**
  * Unpack a BigInteger from a Starlark Value.

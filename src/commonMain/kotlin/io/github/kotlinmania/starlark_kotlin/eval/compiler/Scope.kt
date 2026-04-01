@@ -68,9 +68,9 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.Interface
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 
 // ---------------------------------------------------------------------------
@@ -239,7 +239,7 @@ private fun mapPayloadsExpr(
         }
         else -> {
             // For all other expression types, visit children generically
-            expr.visitExprMut { child -> mapPayloadsExpr(child, scopeData, loads) }
+            expr.visitExprChildrenMut { child -> mapPayloadsExpr(child, scopeData, loads) }
         }
     }
 }
@@ -254,7 +254,7 @@ private fun mapPayloadsParam(
     if (ident != null) {
         mapPayloadsAssignIdent(ident as Spanned<AssignIdentP<CstPayload, Any?>>)
     }
-    param.visitExprMut { e -> mapPayloadsExpr(e, scopeData, loads) }
+    param.visitParameterExprChildrenMut { e -> mapPayloadsExpr(e, scopeData, loads) }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -352,7 +352,7 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
             val defP = node.def
             @Suppress("UNCHECKED_CAST")
             for (p in defP.params as List<Spanned<ParameterP<CstPayload>>>) {
-                p.node.visitExprMut { f(VisitMut.Expr(it)) }
+                p.node.visitParameterExprChildrenMut { f(VisitMut.Expr(it)) }
             }
             defP.returnType?.let {
                 @Suppress("UNCHECKED_CAST")
@@ -367,7 +367,7 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
         is StmtP.For<*> -> {
             val forP = node.forStmt
             @Suppress("UNCHECKED_CAST")
-            (forP.varTarget as Spanned<AssignTargetP<CstPayload>>).visitExprMut { f(VisitMut.Expr(it)) }
+            (forP.varTarget as Spanned<AssignTargetP<CstPayload>>).visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
             @Suppress("UNCHECKED_CAST")
             f(VisitMut.Expr(forP.over as CstExpr))
             @Suppress("UNCHECKED_CAST")
@@ -384,7 +384,7 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
         is StmtP.Assign<*> -> {
             val assignP = node.assign
             @Suppress("UNCHECKED_CAST")
-            (assignP.lhs as CstAssignTarget).visitExprMut { f(VisitMut.Expr(it)) }
+            (assignP.lhs as CstAssignTarget).visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
             @Suppress("UNCHECKED_CAST")
             assignP.ty?.let {
                 (it as Spanned<TypeExprP<CstPayload, *>>).node.expr.let { expr ->
@@ -397,7 +397,7 @@ internal fun CstStmt.visitChildrenMut(f: (VisitMut) -> Unit) {
         }
         is StmtP.AssignModify<*> -> {
             @Suppress("UNCHECKED_CAST")
-            (node.lhs as CstAssignTarget).visitExprMut { f(VisitMut.Expr(it)) }
+            (node.lhs as CstAssignTarget).visitAssignTargetExprChildrenMut { f(VisitMut.Expr(it)) }
             @Suppress("UNCHECKED_CAST")
             f(VisitMut.Expr(node.rhs as CstExpr))
         }
@@ -448,7 +448,7 @@ internal fun StmtP<CstPayload>.visitStmtMut(f: (CstStmt) -> Unit) {
  * Extension: visit expr children (mutable) of an ExprP.
  * Port of `ExprP::visit_expr_mut` (on the inner expression node, not the Spanned wrapper).
  */
-internal fun CstExpr.visitExprMut(f: (CstExpr) -> Unit) {
+internal fun CstExpr.visitExprChildrenMut(f: (CstExpr) -> Unit) {
     when (val node = this.node) {
         is ExprP.Tuple<*> -> {
             @Suppress("UNCHECKED_CAST")
@@ -524,17 +524,17 @@ internal fun CstExpr.visitExprMut(f: (CstExpr) -> Unit) {
         }
         is ExprP.ListComprehension<*> -> {
             @Suppress("UNCHECKED_CAST")
-            (node.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+            (node.forClause as ForClauseP<CstPayload>).visitExprChildrenMut(f)
             @Suppress("UNCHECKED_CAST")
-            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprMut(f) }
+            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprChildrenMut(f) }
             @Suppress("UNCHECKED_CAST")
             f(node.expr as CstExpr)
         }
         is ExprP.DictComprehension<*> -> {
             @Suppress("UNCHECKED_CAST")
-            (node.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+            (node.forClause as ForClauseP<CstPayload>).visitExprChildrenMut(f)
             @Suppress("UNCHECKED_CAST")
-            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprMut(f) }
+            (node.clauses as List<ClauseP<CstPayload>>).forEach { it.visitExprChildrenMut(f) }
             @Suppress("UNCHECKED_CAST")
             f(node.key as CstExpr)
             @Suppress("UNCHECKED_CAST")
@@ -544,7 +544,7 @@ internal fun CstExpr.visitExprMut(f: (CstExpr) -> Unit) {
             val lambdaP = node.lambda
             @Suppress("UNCHECKED_CAST")
             for (p in lambdaP.params as List<Spanned<ParameterP<CstPayload>>>) {
-                p.node.visitExprMut(f)
+            p.node.visitParameterExprChildrenMut(f)
             }
             @Suppress("UNCHECKED_CAST")
             f(lambdaP.body as CstExpr)
@@ -568,12 +568,14 @@ internal fun CstExpr.visitExprMut(f: (CstExpr) -> Unit) {
  * Extension: visit expr children of an AssignTargetP.
  * Port of `AssignTargetP::visit_expr_mut`.
  */
-internal fun Spanned<AssignTargetP<CstPayload>>.visitExprMut(f: (CstExpr) -> Unit) {
+internal fun Spanned<AssignTargetP<CstPayload>>.visitAssignTargetExprChildrenMut(
+    f: (CstExpr) -> Unit,
+) {
     when (val node = this.node) {
         is AssignTargetP.Tuple<*> -> {
             @Suppress("UNCHECKED_CAST")
             for (elem in node.elements as List<Spanned<AssignTargetP<CstPayload>>>) {
-                elem.visitExprMut(f)
+                elem.visitAssignTargetExprChildrenMut(f)
             }
         }
         is AssignTargetP.Index<*> -> {
@@ -614,7 +616,7 @@ internal fun AssignTargetP<CstPayload>.visitLvalueMut(f: (CstAssignIdent) -> Uni
  * Extension: visit expr children of a ParameterP.
  * Port of `ParameterP::visit_expr_mut`.
  */
-internal fun ParameterP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+internal fun ParameterP<CstPayload>.visitParameterExprChildrenMut(f: (CstExpr) -> Unit) {
     val (_, ty, def) = this.splitMut()
     @Suppress("UNCHECKED_CAST")
     ty?.let { (it as Spanned<TypeExprP<CstPayload, *>>).node.expr.let { expr -> f(expr as CstExpr) } }
@@ -657,18 +659,18 @@ internal fun ParameterP<CstPayload>.splitMut(): Triple<AstAssignIdentP<CstPayloa
 }
 
 /** Extension: visit expr children of a ForClauseP. */
-internal fun ForClauseP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+internal fun ForClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
-    (this.varTarget as Spanned<AssignTargetP<CstPayload>>).visitExprMut(f)
+    (this.varTarget as Spanned<AssignTargetP<CstPayload>>).visitAssignTargetExprChildrenMut(f)
     f(this.over)
 }
 
 /** Extension: visit expr children of a ClauseP. */
-internal fun ClauseP<CstPayload>.visitExprMut(f: (CstExpr) -> Unit) {
+internal fun ClauseP<CstPayload>.visitExprChildrenMut(f: (CstExpr) -> Unit) {
     when (this) {
         is ClauseP.For<*> -> {
             @Suppress("UNCHECKED_CAST")
-            (this.forClause as ForClauseP<CstPayload>).visitExprMut(f)
+            (this.forClause as ForClauseP<CstPayload>).visitExprChildrenMut(f)
         }
         is ClauseP.If<*> -> {
             @Suppress("UNCHECKED_CAST")
@@ -924,7 +926,7 @@ internal class ModuleScopeBuilder(
                 )
             }
 
-            code.visitExprMut { e ->
+            code.visitExprChildrenMut { e ->
                 collectDefinesRecursivelyInExpr(scopeData, e, frozenHeap, dialect, codemap)
             }
         }
@@ -1129,7 +1131,7 @@ internal class ModuleScopeBuilder(
 
     // fn resolve_idents_in_assign(&mut self, assign: &mut CstAssignTarget)
     fun resolveIdentsInAssign(assign: CstAssignTarget) {
-        assign.visitExprMut { expr -> resolveIdentsInExpr(expr) }
+        assign.visitAssignTargetExprChildrenMut { expr -> resolveIdentsInExpr(expr) }
     }
 
     // fn resolve_idents_in_def(...)
@@ -1187,7 +1189,7 @@ internal class ModuleScopeBuilder(
                     (node.clauses as List<ClauseP<CstPayload>>).toMutableList(),
                 )
             }
-            else -> expr.visitExprMut { e -> resolveIdentsInExprImpl(scope, e) }
+            else -> expr.visitExprChildrenMut { e -> resolveIdentsInExprImpl(scope, e) }
         }
     }
 

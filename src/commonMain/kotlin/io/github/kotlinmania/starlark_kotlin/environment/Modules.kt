@@ -34,10 +34,10 @@ import io.github.kotlinmania.starlark_kotlin.docs.DocString
 import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
 import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
@@ -55,7 +55,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.EnvironmentError
 
 /**
@@ -94,10 +93,10 @@ class FrozenModule internal constructor(
      * This function can be used to implement starlark module
      * using the `#[starlark_module]` attribute.
      *
-     * pub fn from_globals(globals: &Globals) -> FreezeResult<FrozenModule>
+     * pub fn from_globals(globals: &Globals) -> Result<FrozenModule>
      */
     companion object {
-        fun fromGlobals(globals: Globals): FreezeResult<FrozenModule> {
+        fun fromGlobals(globals: Globals): Result<FrozenModule> {
             return Module.withTempHeap { module ->
                 module.frozenHeap().addReference(globals.heap())
 
@@ -481,23 +480,23 @@ class Module internal constructor(
     /**
      * Freeze the environment, all its value will become immutable afterwards.
      *
-     * pub fn freeze(self) -> FreezeResult<FrozenModule>
+     * pub fn freeze(self) -> Result<FrozenModule>
      */
-    fun freeze(): FreezeResult<FrozenModule> {
+    fun freeze(): Result<FrozenModule> {
         return freezeImpl(null)
     }
 
     /**
      * Freeze the environment and assign a name to the contained frozen heap.
      *
-     * pub fn freeze_and_name(self, name: FrozenHeapName) -> FreezeResult<FrozenModule>
+     * pub fn freeze_and_name(self, name: FrozenHeapName) -> Result<FrozenModule>
      */
-    fun freezeAndName(name: FrozenHeapName): FreezeResult<FrozenModule> {
+    fun freezeAndName(name: FrozenHeapName): Result<FrozenModule> {
         return freezeImpl(name)
     }
 
-    /** fn freeze_impl(self, name: Option<FrozenHeapName>) -> FreezeResult<FrozenModule> */
-    private fun freezeImpl(name: FrozenHeapName?): FreezeResult<FrozenModule> {
+    /** fn freeze_impl(self, name: Option<FrozenHeapName>) -> Result<FrozenModule> */
+    private fun freezeImpl(name: FrozenHeapName?): Result<FrozenModule> {
         val start = TimeSource.Monotonic.markNow()
         val freezer = Freezer(frozenHeap)
         for (r in heap.referencedHeaps()) {
@@ -657,10 +656,4 @@ class Module internal constructor(
     fun extraValue(): Value? {
         return _extraValue
     }
-}
-
-// #[test] fn test_send_sync() where FrozenModule: Send + Sync {}
-@Suppress("unused", "FunctionName", "UNUSED_VARIABLE")
-private fun _testSendSync() {
-    val v: FrozenModule? = null
 }

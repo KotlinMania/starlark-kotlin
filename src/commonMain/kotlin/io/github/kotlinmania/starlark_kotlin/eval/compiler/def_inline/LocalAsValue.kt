@@ -26,7 +26,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_
  */
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTyped
