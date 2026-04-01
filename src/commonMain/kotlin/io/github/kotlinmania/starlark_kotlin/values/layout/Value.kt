@@ -88,7 +88,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 import io.github.kotlinmania.starlark_kotlin.values.types.record.FrozenRecord
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
@@ -1615,7 +1615,7 @@ class FrozenValue internal constructor(
             || FrozenValueTyped.new<FrozenDef>(this) != null
             || FrozenValueTyped.new<NativeFunction>(this) != null
             || FrozenValueTyped.new<FrozenStruct>(this) != null
-            || FrozenValueTyped.new<RecordType>(this) != null
+            || FrozenValueTyped.new<RecordTypeGen>(this) != null
             || FrozenValueTyped.new<FrozenRecord>(this) != null
             || FrozenValueTyped.new<EnumType>(this) != null
             || FrozenValueTyped.new<FrozenEnumValue>(this) != null

@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.freezeList
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.FrozenRecordType
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId

@@ -298,12 +298,8 @@ class RecordTypeGen internal constructor(
     }
 }
 
-/** Type alias for unfrozen record type. */
-// pub type RecordType<'v> = RecordTypeGen<Value<'v>>;
-typealias RecordType = RecordTypeGen
-/** Type alias for frozen record type. */
-// pub type FrozenRecordType = RecordTypeGen<FrozenValue>;
-typealias FrozenRecordType = RecordTypeGen
+// Rust defines `RecordType<'v>` and `FrozenRecordType` type aliases.
+// Kotlin call sites should use [RecordTypeGen] directly.
 
 // pub(crate) fn record_fields<'v>(...) -> &'v SmallMap<String, FieldGen<Value<'v>>>
 internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields
