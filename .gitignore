@@ -25,5 +25,10 @@ high_priority_ports.md
 # AST distance agent state and lock files
 .cache/
 *.lock
+/tools/ast_distance/.cache/
+
+tools/ast_distance/.cache/clangd/index/ast_parser.hpp.DD5C3ECD834566A8.idx
+tools/ast_distance/.cache/clangd/index/codebase.hpp.0742434D40FFFBAA.idx
+tools/ast_distance/.cache/clangd/index/main.cpp.C8D925A5B54393A9.idx
 tools/ast_distance/.cache/clangd/index/porting_utils.hpp.49E25ACE8EBAAF7F.idx
-tools/ast_distance/.cache/clangd/index/porting_utils.hpp.49E25ACE8EBAAF7F.idx
+tools/ast_distance/.cache/clangd/index/similarity.hpp.ECBAAA89CD6460F4.idx

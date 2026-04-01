@@ -1,0 +1,602 @@
+=== Deep Analysis: tmp/starlark (rust) -> src (kotlin) ===
+
+Scanning source codebase (rust)...
+Codebase: tmp/starlark (rust)
+  Files: 470
+  Total imports: 6247
+  Most depended: layout.value (178 dependents)
+
+Scanning target codebase (kotlin)...
+Codebase: src (kotlin)
+  Files: 592
+  Total imports: 3896
+  Most depended: layout.Value (184 dependents)
+
+Comparing codebases...
+Computing AST similarities...
+
+=== Codebase Comparison Report ===
+
+Source: tmp/starlark (470 files)
+Target: src (592 files)
+
+Matched:   470 files
+Unmatched: 0 source, 122 target
+
+=== Matched Files (by porting priority) ===
+
+Source                        Target                        SimilarityDependents FunctionParityTypeParity  Priority
+ --------------------------------------------------------------------------------------------------------------------------
+layout.heap                   heap.Heap                     0.17      109        -             -           90.5      
+layout.value                  layout.Value                  0.51      178        141/145       6/9         87.6      
+values.freeze                 values.Freeze                 0.03      42         3/26          1/2         40.8      
+values.trace                  values.Trace                  0.38      52         22/43         1/1         32.3      
+assert                        starlark_kotlin.Assert        0.65      84         -             -           29.8      
+coerce                        starlark_kotlin.Coerce        0.13      34         1/1           2/9         29.4      
+params.display                params.Display                0.68      76         4/4           3/3         24.2      
+typing.starlark_value         typing.StarlarkValue          0.68      76         32/35         4/4         24.0      
+derive.unpack_value           derive.UnpackValue            0.55      51         -             5/5         23.1      
+typing.ty                     typing.Ty                     0.80      109        52/52         4/4         22.0      
+values.frozen_ref             values.FrozenRef              0.30      27         20/20         2/4         19.0      
+typing.type_compiled          type_compiled.TypeCompiled    0.14      22         -             -           18.9      
+derive.module                 derive.Module                 0.12      21         -             -           18.5      
+compiler.span                 compiler.Span                 0.40      29         2/2           1/2         17.5      
+none.none_type                none.NoneType                 0.38      27         11/11         1/2         16.8      
+debug                         starlark_kotlin.Debug         0.72      53         -             -           14.8      
+values.value_of_unchecked     values.ValueOfUnchecked       0.27      20         13/14         3/7         14.6      
+util.arc_str                  util.ArcStr                   0.31      21         5/5           1/2         14.4      
+collections.symbol            collections.Symbol            0.15      15         -             -           12.8      
+runtime.evaluator             runtime.Evaluator             0.77      56         60/64         7/7         12.6      
+types.dict                    types.Dict                    0.08      12         -             -           11.1      
+layout.freezer                layout.Freezer                0.71      36         5/5           1/1         10.6      
+values.iter                   values.Iter                   0.40      17         5/5           1/2         10.2      
+util.refcell                  util.Refcell                  0.51      20         1/1           -           9.7       
+types.type_instance_id        types.TypeInstanceId          0.00      9          0/1           1/1         9.0       
+int.inline_int                int.InlineInt                 0.21      11         33/40         2/5         8.6       
+runtime.arguments             runtime.Arguments             0.66      25         36/36         8/8         8.5       
+values.error                  values.Error                  0.53      17         4/5           2/2         8.0       
+values.alloc_value            values.AllocValue             0.81      42         5/5           4/4         7.9       
+environment.methods           environment.Methods           0.55      17         18/19         3/4         7.6       
+layout.const_frozen_string    layout.ConstFrozenString      0.37      12         -             -           7.5       
+any                           starlark_kotlin.Any           0.09      8          4/5           3/15        7.3       
+layout.value_lifetimeless     layout.ValueLifetimeless      0.44      12         -             1/1         6.7       
+layout.aligned_size           layout.AlignedSize            0.17      8          6/11          1/2         6.6       
+typing.typecheck              typing.Typecheck              0.00      6          -             -           6.0       
+layout.avalue                 layout.Avalue                 0.59      14         6/6           3/3         5.8       
+int.pointer_i32               int.PointerI32                0.37      9          30/32         1/2         5.7       
+environment.globals           environment.Globals           0.74      21         33/34         5/5         5.5       
+values.layout                 values.Layout                 0.10      6          -             -           5.4       
+dict.dict_type                dict.DictType                 0.11      6          1/2           1/3         5.3       
+cast                          starlark_kotlin.Cast          0.34      8          3/3           -           5.3       
+runtime.small_duration        runtime.SmallDuration         0.17      6          4/9           1/2         5.0       
+runtime.frame_span            runtime.FrameSpan             0.81      26         4/4           1/1         5.0       
+eval.bc                       bc.Bc                         0.10      5          -             -           4.5       
+none.none_or                  none.NoneOr                   0.26      6          7/7           1/3         4.5       
+values.freeze_error           values.FreezeError            0.28      6          3/5           3/4         4.3       
+__derive_refs.param_spec      __derive_refs.ParamSpec       0.80      20         5/5           3/3         3.9       
+types.range                   types.Range                   0.26      5          -             -           3.7       
+typing.tuple                  typing.Tuple                  0.70      12         6/6           1/1         3.6       
+values.value_of               values.ValueOf                0.13      4          5/6           1/4         3.5       
+profile.alloc_counts          profile.AllocCounts           0.13      4          1/3           1/2         3.5       
+values.demand                 values.Demand                 0.14      4          4/4           1/4         3.4       
+types.bigint                  types.Bigint                  0.55      7          30/31         1/1         3.1       
+types.starlark_value_as_type  types.StarlarkValueAsType     0.27      4          9/10          2/4         2.9       
+enumeration.enum_type         enumeration.EnumType          0.30      4          22/26         4/8         2.8       
+list.list_type                list.ListType                 0.10      3          1/2           1/3         2.7       
+record.record_type            record.RecordType             0.15      3          16/19         2/8         2.6       
+profile.instant               profile.Instant               0.17      3          3/4           1/2         2.5       
+layout.value_alloc_size       layout.ValueAllocSize         0.59      6          4/5           1/1         2.5       
+private                       starlark_kotlin.Private       0.84      15         -             1/1         2.5       
+types.record                  types.Record                  0.18      3          -             -           2.5       
+types.array                   types.Array                   0.51      5          24/31         2/2         2.5       
+values.unpack_and_discard     values.UnpackAndDiscard       0.19      3          2/2           1/3         2.4       
+types.namespace               types.Namespace               0.22      3          -             -           2.3       
+values.starlark_type_id       values.StarlarkTypeId         0.68      7          6/6           2/2         2.2       
+bc.native_function            bc.NativeFunction             0.45      4          3/4           1/1         2.2       
+alloc.chunk                   alloc.Chunk                   0.27      3          12/18         2/3         2.2       
+type_compiled.type_matcher_f  type_compiled.TypeMatcherFac  0.70      7          3/3           3/3         2.1       
+typing.arc_ty                 typing.ArcTy                  0.59      5          8/8           3/4         2.0       
+errors.did_you_mean           errors.DidYouMean             0.33      3          1/1           -           2.0       
+eval.compiler                 eval.Compiler                 0.76      8          6/6           1/1         1.9       
+bc.frame                      bc.Frame                      0.53      4          26/33         2/2         1.9       
+list.alloc                    list.Alloc                    0.37      3          3/3           1/2         1.9       
+types.list                    types.List                    0.09      2          -             -           1.8       
+bc.expr                       bc.Expr                       0.75      7          -             -           1.8       
+types.float                   types.Float                   0.14      2          -             -           1.7       
+compiler.small_vec_1          compiler.SmallVec1            0.14      2          9/11          1/4         1.7       
+values.thin_box_slice_frozen  values.ThinBoxSliceFrozenVal  0.16      2          -             -           1.7       
+avalues.str_                  avalues.Str                   0.18      2          13/13         1/3         1.6       
+compiler.opt_ctx              compiler.OptCtx               0.77      7          13/13         2/2         1.6       
+typing.interface              typing.Interface              0.67      5          3/3           1/1         1.6       
+types.ellipsis                types.Ellipsis                0.59      4          2/2           1/1         1.6       
+profile.profiler_type         profile.ProfilerType          0.74      6          1/1           2/2         1.6       
+typing.type_type              typing.TypeType               0.21      2          2/2           1/3         1.6       
+types.num                     types.Num                     0.25      2          -             -           1.5       
+compiler.constants            compiler.Constants            0.50      3          2/3           2/2         1.5       
+layout.const_type_id          layout.ConstTypeId            0.26      2          3/5           1/1         1.5       
+hint                          starlark_kotlin.Hint          0.28      2          2/2           -           1.4       
+collections.string_pool       collections.StringPool        0.37      2          2/2           1/1         1.3       
+util.arc_or_static            util.ArcOrStatic              0.37      2          9/10          2/3         1.3       
+runtime.frozen_file_span      runtime.FrozenFileSpan        0.82      7          10/10         1/1         1.2       
+stdlib.call_stack             stdlib.CallStack              0.61      3          8/9           1/1         1.2       
+compiler.stmt                 compiler.Stmt                 0.81      6          28/28         7/7         1.1       
+values.owned_frozen_ref       values.OwnedFrozenRef         0.46      2          17/19         2/3         1.1       
+tests.def                     tests.Def                     0.80      5          -             -           1.0       
+util.rtabort                  util.Rtabort                  0.00      1          2/3           0/1         1.0       
+typing.bindings               typing.Bindings               0.00      1          -             -           1.0       
+util.non_static_type_id       util.NonStaticTypeId          0.00      1          1/2           0/1         1.0       
+typing.function               typing.Function               0.00      1          -             -           1.0       
+record.field                  record.Field                  0.00      1          5/5           0/1         1.0       
+scope.scope_resolver_globals  scope.ScopeResolverGlobals    0.80      5          3/3           1/1         1.0       
+collections.alloca            collections.Alloca            0.02      1          5/17          1/4         1.0       
+types.list_or_tuple           types.ListOrTuple             0.04      1          2/6           1/5         1.0       
+typing                        starlark_kotlin.Typing        0.08      1          -             -           0.9       
+types.any_complex             types.AnyComplex              0.08      1          5/6           1/5         0.9       
+types.any_array               types.AnyArray                0.09      1          4/5           1/3         0.9       
+types.string                  types.String                  0.09      1          -             -           0.9       
+read_line                     starlark_kotlin.ReadLine      0.10      1          2/4           1/2         0.9       
+tests                         starlark_kotlin.Tests         0.11      1          -             -           0.9       
+types.enumeration             types.Enumeration             0.13      1          -             -           0.9       
+types.set                     types.Set                     0.13      1          -             -           0.9       
+heap.arena                    heap.Arena                    0.19      1          18/30         4/7         0.8       
+avalues.simple                avalues.Simple                0.20      1          9/9           1/3         0.8       
+runtime.rust_loc              runtime.RustLoc               0.61      2          -             -           0.8       
+stdlib                        starlark_kotlin.Stdlib        0.22      1          3/3           1/3         0.8       
+types.none                    types.None                    0.22      1          -             -           0.8       
+profile.string_index          profile.StringIndex           0.62      2          2/2           2/2         0.8       
+types.bool                    types.Bool                    0.24      1          -             -           0.8       
+collections.aligned_padded_s  aligned_padded_str.AlignedPa  0.63      2          3/3           1/1         0.7       
+types.int                     types.Int                     0.31      1          -             -           0.7       
+values.stack_guard            values.StackGuard             0.67      2          4/4           1/1         0.7       
+layout.value_captured         layout.ValueCaptured          0.33      1          4/4           2/4         0.7       
+runtime.file_loader           runtime.FileLoader            0.68      2          2/2           3/3         0.6       
+def_inline.local_as_value     def_inline.LocalAsValue       0.70      2          1/1           1/1         0.6       
+sealed                        starlark_kotlin.Sealed        0.82      3          -             1/1         0.5       
+structs.unordered_hasher      structs.UnorderedHasher       0.49      1          3/4           1/1         0.5       
+stdlib.breakpoint             stdlib.Breakpoint             0.49      1          11/13         5/6         0.5       
+alloc.chunk_part              alloc.ChunkPart               0.76      2          11/11         1/1         0.5       
+heap.fast_cell                heap.FastCell                 0.52      1          6/7           1/1         0.5       
+layout.pointer                layout.Pointer                0.57      1          40/46         5/5         0.4       
+bc.if_debug                   bc.IfDebug                    0.58      1          7/8           1/1         0.4       
+string.dot_format             string.DotFormat              0.59      1          6/7           1/1         0.4       
+string.interpolation          string.Interpolation          0.62      1          4/4           4/4         0.4       
+typing.structs                typing.Structs                0.64      1          8/8           2/2         0.4       
+runtime.cheap_call_stack      runtime.CheapCallStack        0.73      1          16/17         3/3         0.3       
+analysis.lint_message         analysis.LintMessage          0.74      1          1/1           1/1         0.3       
+tests.before_stmt             tests.BeforeStmt              0.82      1          -             -           0.2       
+lib                           starlark_kotlin.Lib           0.17      0          -             -           0.0       
+tests.callable                tests.Callable                0.75      0          -             -           0.0       
+compiler.def                  compiler.Def                  0.70      0          39/40         12/13       0.0       
+environment.slots             environment.Slots             0.73      0          10/10         3/3         0.0       
+tests.list                    tests.List                    0.80      0          -             -           0.0       
+derive.docs                   derive.Docs                   0.39      0          3/5           2/2         0.0       
+__derive_refs.sig             __derive_refs.Sig             0.78      0          3/3           1/1         0.0       
+typing.any                    typing.Any                    0.52      0          2/2           1/1         0.0       
+bc.bytecode                   bc.Bytecode                   0.18      0          6/7           1/2         0.0       
+bc.instr_impl                 bc.InstrImpl                  0.42      0          87/87         87/163      0.0       
+typing.tests.call             commonTest.kotlin.io.github.  0.77      0          -             -           0.0       
+types.any                     types.Any                     0.26      0          5/5           1/2         0.0       
+values.comparison             values.Comparison             0.73      0          5/5           -           0.0       
+oracle.ctx                    oracle.Ctx                    0.74      0          32/32         2/2         0.0       
+opt.list_add                  opt.ListAdd                   0.75      0          -             -           0.0       
+bc.stack_ptr                  bc.StackPtr                   0.55      0          15/17         7/8         0.0       
+assert.conformance            assert.Conformance            0.69      0          5/5           1/1         0.0       
+opt.type_is                   opt.TypeIs                    0.00      0          0/2           -           0.0       
+funcs.other                   funcs.Other                   0.42      0          12/13         -           0.0       
+typing.iter                   typing.Iter                   0.30      0          3/3           2/4         0.0       
+opt.if_rand                   opt.IfRand                    0.75      0          18/20         3/3         0.0       
+typing.small_arc_vec          typing.SmallArcVec            0.32      0          8/11          2/3         0.0       
+bc.compiler                   bc.Compiler                   0.18      0          -             -           0.0       
+compiler.expr                 compiler.Expr                 0.65      0          60/60         9/11        0.0       
+derive.trace                  derive.Trace                  0.24      0          -             -           0.0       
+runtime.slots                 runtime.Slots                 0.41      0          3/3           3/3         0.0       
+funcs.zip                     funcs.Zip                     0.76      0          4/4           1/1         0.0       
+tests.tuple                   tests.Tuple                   0.74      0          -             -           0.0       
+tests.types                   tests.Types                   0.77      0          -             -           0.0       
+analysis.dubious              analysis.Dubious              0.28      0          7/8           1/2         0.0       
+bc.instr_arg                  bc.InstrArg                   0.55      0          84/84         3/4         0.0       
+derive.attrs                  derive.Attrs                  0.54      0          -             2/2         0.0       
+compiler.call                 compiler.Call                 0.71      0          13/13         1/1         0.0       
+values.typing.ty              commonMain.kotlin.io.github.  0.42      0          2/2           1/1         0.0       
+compiler.args                 compiler.Args                 0.33      0          10/11         1/2         0.0       
+types.tuple                   types.Tuple                   0.08      0          -             -           0.0       
+runtime.params                runtime.Params                0.24      0          -             -           0.0       
+bc.for_stmt                   bc.ForStmt                    0.76      0          -             -           0.0       
+funcs.min_max                 funcs.MinMax                  0.43      0          3/5           -           0.0       
+opt.def_inline                opt.DefInline                 0.69      0          -             -           0.0       
+tests.comprehension           tests.Comprehension           0.00      0          -             -           0.0       
+bc.golden                     bc.Golden                     0.70      0          2/2           -           0.0       
+typing.macro_support          typing.MacroSupport           0.83      0          2/2           -           0.0       
+typing.never                  typing.Never                  0.42      0          4/4           2/3         0.0       
+values.type_repr              values.TypeRepr               0.42      0          7/8           2/3         0.0       
+compiler.compr                compiler.Compr                0.73      0          11/11         3/3         0.0       
+bc.for_loop                   bc.ForLoop                    0.25      0          -             1/1         0.0       
+environment.modules           environment.Modules           0.79      0          47/47         4/4         0.0       
+analysis.underscore           analysis.Underscore           0.48      0          8/9           1/1         0.0       
+derive.freeze                 derive.Freeze                 0.27      0          -             -           0.0       
+bc.isinstance                 bc.Isinstance                 0.77      0          -             -           0.0       
+bc.if_stmt                    bc.IfStmt                     0.77      0          -             -           0.0       
+compiler.error                compiler.Error                0.64      0          2/2           1/1         0.0       
+tests.uncategorized           tests.Uncategorized           0.00      0          -             -           0.0       
+tests.type_annot              tests.TypeAnnot               0.87      0          -             -           0.0       
+adapter.tests                 adapter.Tests                 0.71      0          -             3/3         0.0       
+tests.markdown                tests.Markdown                0.05      0          4/22          1/2         0.0       
+tests.replace_binary          tests.ReplaceBinary           0.64      0          -             -           0.0       
+stdlib.internal               stdlib.Internal               0.42      0          2/3           -           0.0       
+compiler.types                compiler.Types                0.77      0          8/8           1/1         0.0       
+compiler.known                compiler.Known                0.69      0          1/1           -           0.0       
+tests.rustdocs                tests.Rustdocs                0.09      0          2/12          3/3         0.0       
+compiler.scope                compiler.Scope                0.50      0          49/53         17/20       0.0       
+bc.slow_arg                   bc.SlowArg                    0.73      0          -             2/2         0.0       
+opt.types                     opt.Types                     0.76      0          -             -           0.0       
+types.unbound                 types.Unbound                 0.76      0          4/4           1/1         0.0       
+set.set                       set.Set                       0.31      0          1/2           -           0.0       
+typing.callable_param         typing.CallableParam          0.51      0          19/22         5/6         0.0       
+types.structs                 types.Structs                 0.15      0          -             -           0.0       
+eval.bc.compiler.def          commonMain.kotlin.io.github.  0.74      0          2/2           -           0.0       
+runtime.profile               runtime.Profile               0.12      0          -             -           0.0       
+compiler.module               compiler.Module               0.74      0          6/6           1/1         0.0       
+layout.vtable                 layout.Vtable                 0.45      0          62/69         4/6         0.0       
+typing.callable               typing.Callable               0.32      0          7/7           1/2         0.0       
+oracle.traits                 oracle.Traits                 0.40      0          1/1           2/2         0.0       
+typing.call_args              typing.CallArgs               0.84      0          -             1/1         0.0       
+analysis.unused_loads         analysis.UnusedLoads          0.16      0          -             -           0.0       
+analysis.types                analysis.Types                0.17      0          6/10          2/5         0.0       
+int.i32                       int.I32                       0.00      0          0/4           0/2         0.0       
+analysis.performance          analysis.Performance          0.00      0          -             -           0.0       
+eval.soft_error               eval.SoftError                0.74      0          1/1           2/2         0.0       
+funcs.globals                 funcs.Globals                 0.90      0          1/1           -           0.0       
+bc.writer                     bc.Writer                     0.79      0          43/43         4/4         0.0       
+eval.bc.compiler.call         commonMain.kotlin.io.github.  0.39      0          4/7           -           0.0       
+analysis.find_call_name       analysis.FindCallName         0.35      0          2/2           1/1         0.0       
+analysis.incompatible         analysis.Incompatible         0.64      0          10/11         1/1         0.0       
+types.function                types.Function                0.66      0          20/21         11/12       0.0       
+bc.and_or                     bc.AndOr                      0.77      0          -             -           0.0       
+bc.opcode                     bc.Opcode                     0.41      0          7/7           3/5         0.0       
+layout.avalues                layout.Avalues                0.14      0          -             -           0.0       
+layout.complex                layout.Complex                0.12      0          10/12         1/4         0.0       
+docs.multipage                docs.Multipage                0.83      0          6/6           5/5         0.0       
+set.refs                      set.Refs                      0.39      0          5/5           3/5         0.0       
+typing.globals                typing.Globals                0.74      0          1/1           -           0.0       
+eval.bc.compiler.expr         commonMain.kotlin.io.github.  0.77      0          15/15         -           0.0       
+bc.compr                      bc.Compr                      0.78      0          -             -           0.0       
+eval.bc.compiler.stmt         commonMain.kotlin.io.github.  0.60      0          8/11          -           0.0       
+bc.instrs                     bc.Instrs                     0.44      0          20/23         3/4         0.0       
+stdlib.partial                stdlib.Partial                0.26      0          5/7           3/5         0.0       
+wasm                          starlark_kotlin.Wasm          0.42      0          1/1           -           0.0       
+runtime.visit_span            runtime.VisitSpan             0.04      0          1/19          1/1         0.0       
+list.refs                     list.Refs                     0.27      0          15/15         2/5         0.0       
+analysis.names                analysis.Names                0.47      0          21/25         7/8         0.0       
+symbol.map                    symbol.Map                    0.54      0          10/12         1/1         0.0       
+layout.identity               layout.Identity               0.59      0          1/1           1/1         0.0       
+environment.module_dump       environment.ModuleDump        0.57      0          2/2           -           0.0       
+debug.evaluate                debug.Evaluate                0.76      0          1/1           -           0.0       
+compiler.expr_bool            compiler.ExprBool             0.78      0          5/5           1/1         0.0       
+compiler.type_expr            compiler.TypeExpr             0.81      0          2/2           1/1         0.0       
+eval.bc.compiler.compr        commonMain.kotlin.io.github.  0.86      0          3/3           -           0.0       
+num.value                     num.Value                     0.37      0          13/17         3/4         0.0       
+int.tests                     int.Tests                     0.78      0          1/1           -           0.0       
+values.typing.callable        commonMain.kotlin.io.github.  0.32      0          23/31         5/8         0.0       
+values.typing                 values.Typing                 0.08      0          -             -           0.0       
+debug.adapter                 debug.Adapter                 0.72      0          23/23         14/14       0.0       
+assert.assert                 assert.Assert                 0.00      0          -             -           0.0       
+set.value                     set.Value                     0.49      0          36/36         6/9         0.0       
+dict.refs                     dict.Refs                     0.28      0          7/10          4/7         0.0       
+pagable.vtable_register       pagable.VtableRegister        0.37      0          -             -           0.0       
+pagable.vtable_registry       pagable.VtableRegistry        0.26      0          4/4           2/4         0.0       
+values.unpack                 values.Unpack                 0.23      0          13/16         3/7         0.0       
+tests.bc.call                 commonTest.kotlin.io.github.  0.77      0          -             -           0.0       
+tests.freeze_access_value     tests.FreezeAccessValue       0.00      0          1/1           0/2         0.0       
+derive.alloc_value            derive.AllocValue             0.33      0          -             4/4         0.0       
+typing.oracle                 typing.Oracle                 0.15      0          -             -           0.0       
+tests.runtime                 tests.Runtime                 0.07      0          1/8           1/1         0.0       
+profile.bc                    profile.Bc                    0.52      0          19/25         9/10        0.0       
+tuple.refs                    tuple.Refs                    0.31      0          11/13         2/4         0.0       
+compiler.def_inline           compiler.DefInline            0.71      0          9/10          4/4         0.0       
+heap.send                     heap.Send                     0.14      0          4/6           3/6         0.0       
+heap.repr                     heap.Repr                     0.73      0          30/32         5/5         0.0       
+list.value                    list.Value                    0.53      0          65/68         6/8         0.0       
+dict.value                    dict.Value                    0.48      0          56/61         7/10        0.0       
+typing.custom                 typing.Custom                 0.61      0          36/38         3/3         0.0       
+__derive_refs.parse_args      __derive_refs.ParseArgs       0.73      0          8/8           -           0.0       
+tests.fstring                 tests.Fstring                 0.40      0          2/3           -           0.0       
+typing.macro_refs             typing.MacroRefs              0.71      0          1/1           1/1         0.0       
+values.traits                 values.Traits                 0.49      0          55/56         2/3         0.0       
+typing.fill_types_for_lint    typing.FillTypesForLint       0.70      0          39/39         3/3         0.0       
+dict.alloc                    dict.Alloc                    0.26      0          2/3           1/2         0.0       
+tests.for_loop                tests.ForLoop                 0.78      0          -             -           0.0       
+values                        values.Values                 0.09      0          -             -           0.0       
+bool.value                    bool.Value                    0.71      0          9/9           1/1         0.0       
+runtime.before_stmt           runtime.BeforeStmt            0.70      0          4/4           3/3         0.0       
+analysis.flow                 analysis.Flow                 0.70      0          17/18         1/1         0.0       
+compiler.assign               compiler.Assign               0.80      0          2/2           -           0.0       
+bool.alloc                    bool.Alloc                    0.82      0          2/2           -           0.0       
+collections                   collections.Collections       0.14      0          -             -           0.0       
+dict.traits                   dict.Traits                   0.00      0          8/14          0/2         0.0       
+set.methods                   set.Methods                   0.00      0          -             -           0.0       
+bc.instr                      bc.Instr                      0.68      0          -             2/2         0.0       
+bool.unpack                   bool.Unpack                   0.00      0          0/1           0/1         0.0       
+params.spec                   params.Spec                   0.68      0          33/38         6/6         0.0       
+trace.enums                   trace.Enums                   0.56      0          -             1/1         0.0       
+profile.csv                   profile.Csv                   0.07      0          6/16          1/3         0.0       
+num.globals                   num.Globals                   0.29      0          1/2           -           0.0       
+layout.typed                  layout.ValueTyped             0.18      0          38/46         2/7         0.0       
+__derive_refs.components      __derive_refs.Components      0.80      0          3/3           1/1         0.0       
+tuple.alloc                   tuple.Alloc                   0.29      0          3/3           1/2         0.0       
+list.unpack                   list.Unpack                   0.09      0          4/6           1/5         0.0       
+__derive_refs                 __derive_refs.DeriveRefs      0.15      0          -             -           0.0       
+int.globals                   int.Globals                   0.23      0          1/2           -           0.0       
+tuple.value                   tuple.Value                   0.65      0          25/29         3/3         0.0       
+float.float                   float.Float                   0.24      0          29/29         1/3         0.0       
+pagable.error                 pagable.Error                 0.00      0          0/1           1/1         0.0       
+debug.inspect                 debug.Inspect                 0.74      0          4/4           -           0.0       
+string.iter                   string.Iter                   0.75      0          3/3           1/1         0.0       
+environment.names             environment.Names             0.70      0          14/14         2/2         0.0       
+bc.call                       bc.Call                       0.53      0          7/7           4/5         0.0       
+string.repr                   string.Repr                   0.44      0          9/11          1/1         0.0       
+string.simd                   string.Simd                   0.42      0          8/8           2/2         0.0       
+dict.unpack                   dict.Unpack                   0.15      0          2/3           1/3         0.0       
+bool.globals                  bool.Globals                  0.18      0          1/2           -           0.0       
+module.basic                  module.Basic                  0.30      0          3/6           -           0.0       
+profile.mode                  profile.Mode                  0.15      0          2/4           1/2         0.0       
+opt.speculative_exec          opt.SpeculativeExec           0.75      0          -             -           0.0       
+types.known_methods           types.KnownMethods            0.82      0          5/5           2/2         0.0       
+profile.stmt                  profile.Stmt                  0.61      0          19/20         8/9         0.0       
+none.globals                  none.Globals                  0.68      0          1/1           -           0.0       
+dict.methods                  dict.Methods                  0.56      0          10/10         -           0.0       
+runtime.inlined_frame         runtime.InlinedFrame          0.59      0          6/7           3/3         0.0       
+float.unpack                  float.Unpack                  0.19      0          2/2           1/3         0.0       
+dict.globals                  dict.Globals                  0.46      0          2/3           -           0.0       
+values.types                  values.Types                  0.08      0          -             -           0.0       
+structs.refs                  structs.Refs                  0.36      0          7/7           2/4         0.0       
+profile.heap                  profile.Heap                  0.63      0          26/27         10/11       0.0       
+typing.tests                  typing.Tests                  0.00      0          -             -           0.0       
+opt.constant_folding          opt.ConstantFolding           0.70      0          -             -           0.0       
+freeze.enums                  freeze.Enums                  0.36      0          -             1/1         0.0       
+stdlib.extra                  stdlib.Extra                  0.18      0          6/17          3/4         0.0       
+profile.data                  profile.Data                  0.57      0          5/7           3/3         0.0       
+list.methods                  list.Methods                  0.48      0          7/8           -           0.0       
+scope.tests                   scope.Tests                   0.52      0          8/8           1/1         0.0       
+stdlib.funcs                  stdlib.Funcs                  0.14      0          -             -           0.0       
+trace.bounds                  trace.Bounds                  0.70      0          2/2           2/2         0.0       
+freeze.basic                  freeze.Basic                  0.00      0          -             0/1         0.0       
+tuple.unpack                  tuple.Unpack                  0.04      0          2/6           1/5         0.0       
+int.int_or_big                int.IntOrBig                  0.00      0          -             -           0.0       
+list.globals                  list.Globals                  0.00      0          4/5           0/1         0.0       
+symbol.symbol                 symbol.Symbol                 0.69      0          9/9           1/1         0.0       
+typed.string                  typed.String                  0.38      0          19/25         3/3         0.0       
+avalues.list                  avalues.List                  0.31      0          14/16         2/4         0.0       
+freeze.bounds                 freeze.Bounds                 0.39      0          2/2           2/3         0.0       
+layout.static_string          layout.StaticString           0.50      0          5/5           1/1         0.0       
+opt.eq                        opt.Eq                        0.77      0          -             -           0.0       
+unused_loads.find             unused_loads.Find             0.47      0          4/4           3/3         0.0       
+tuple.globals                 tuple.Globals                 0.26      0          1/2           -           0.0       
+params.parser                 params.Parser                 0.37      0          5/5           1/1         0.0       
+structs.value                 structs.Value                 0.69      0          16/16         1/1         0.0       
+bool.type_repr                bool.TypeRepr                 0.00      0          0/1           0/1         0.0       
+tests.derive                  tests.Derive                  0.13      0          -             -           0.0       
+bc.addr                       bc.Addr                       0.45      0          22/27         5/6         0.0       
+profile.tests                 profile.Tests                 0.84      0          1/1           -           0.0       
+structs.alloc                 structs.Alloc                 0.23      0          2/3           1/2         0.0       
+fuzz_targets.starlark         fuzz_targets.Starlark         0.73      0          2/2           -           0.0       
+bc.definitely_assigned        bc.DefinitelyAssigned         0.34      0          2/4           1/1         0.0       
+trace.statics                 trace.Statics                 0.57      0          -             2/2         0.0       
+range.globals                 range.Globals                 0.24      0          1/2           -           0.0       
+typing.error                  typing.Error                  0.71      0          16/16         5/5         0.0       
+module.kwargs                 module.Kwargs                 0.10      0          1/3           -           0.0       
+num.typecheck                 num.Typecheck                 0.85      0          2/2           3/3         0.0       
+string.intern                 string.Intern                 0.17      0          -             -           0.0       
+float.globals                 float.Globals                 0.17      0          1/2           -           0.0       
+typing.small_arc_vec_or_stat  typing.SmallArcVecOrStatic    0.21      0          8/10          2/5         0.0       
+values.index                  values.Index                  0.53      0          4/4           -           0.0       
+scope.payload                 scope.Payload                 0.00      0          0/7           9/17        0.0       
+string.globals                string.Globals                0.52      0          5/5           -           0.0       
+avalues.tuple                 avalues.Tuple                 0.30      0          14/14         2/4         0.0       
+avalues.array                 avalues.Array                 0.35      0          13/13         2/4         0.0       
+values.owned                  values.Owned                  0.44      0          32/35         3/5         0.0       
+compiler.if_compiler          compiler.IfCompiler           0.73      0          5/6           -           0.0       
+heap.branding                 heap.Branding                 0.40      0          -             -           0.0       
+tests.bc.definitely_assigned  commonTest.kotlin.io.github.  0.75      0          -             -           0.0       
+eval.runtime                  eval.Runtime                  0.10      0          -             -           0.0       
+typing.basic                  typing.Basic                  0.76      0          19/19         1/1         0.0       
+string.methods                string.Methods                0.60      0          37/37         1/1         0.0       
+bc.repr                       bc.Repr                       0.28      0          4/6           2/3         0.0       
+record.globals                record.Globals                0.17      0          1/3           -           0.0       
+bigint.convert                bigint.Convert                0.00      0          17/24         0/2         0.0       
+record.matcher                record.Matcher                0.75      0          1/1           1/1         0.0       
+stdlib.json                   stdlib.Json                   0.00      0          4/22          0/1         0.0       
+string.str_type               string.StrType                0.00      0          2/39          0/4         0.0       
+heap.heap_type                heap.HeapType                 0.73      0          57/58         8/8         0.0       
+module.methods                module.Methods                0.48      0          3/4           1/1         0.0       
+tests.basic                   tests.Basic                   0.00      0          -             -           0.0       
+typing.mode                   typing.Mode                   0.56      0          -             1/1         0.0       
+module.generic                module.Generic                0.19      0          5/7           1/2         0.0       
+eval.params                   eval.Params                   0.80      0          1/1           -           0.0       
+tests.special_function        tests.SpecialFunction         0.78      0          -             -           0.0       
+avalues.static_               avalues.Static                0.25      0          8/8           2/5         0.0       
+environment                   starlark_kotlin.Environment   0.49      0          -             1/1         0.0       
+freeze.identity               freeze.Identity               0.64      0          -             4/4         0.0       
+derive.unpack_value_attr      derive.UnpackValueAttr        0.37      0          -             2/2         0.0       
+tuple.rust_tuple              tuple.RustTuple               0.00      0          0/11          0/2         0.0       
+record.instance               record.Instance               0.62      0          13/13         1/1         0.0       
+unused_loads.remove           unused_loads.Remove           0.88      0          4/4           1/1         0.0       
+range.range_type              range.RangeType               0.70      0          16/16         1/1         0.0       
+callable.param                callable.Param                0.58      0          6/6           2/2         0.0       
+structs.structs               structs.Structs               0.53      0          3/4           1/1         0.0       
+typing.user                   typing.User                   0.43      0          17/17         5/8         0.0       
+adapter.implementation        adapter.Implementation        0.58      0          19/25         6/6         0.0       
+heap.allocator                heap.Allocator                0.15      0          -             -           0.0       
+namespace.value               namespace.Value               0.68      0          11/11         2/2         0.0       
+namespace.typing              namespace.Typing              0.67      0          7/7           3/3         0.0       
+avalues.complex               avalues.Complex               0.36      0          10/10         3/5         0.0       
+layout.value_not_special      layout.ValueNotSpecial        0.77      0          6/6           1/1         0.0       
+typing.ctx                    typing.Ctx                    0.69      0          19/19         1/1         0.0       
+compiler.assign_modify        compiler.AssignModify         0.00      0          3/3           0/1         0.0       
+freeze.validator              freeze.Validator              0.00      0          1/1           0/1         0.0       
+module.return_impl            module.ReturnImpl             0.27      0          2/4           -           0.0       
+namespace.globals             namespace.Globals             0.29      0          1/2           -           0.0       
+docs.parse                    docs.Parse                    0.59      0          9/9           1/1         0.0       
+__derive_refs.invoke_macro_e  __derive_refs.InvokeMacroErr  0.59      0          2/2           1/1         0.0       
+profile.typecheck             profile.Typecheck             0.47      0          5/6           4/5         0.0       
+profile.time_flame            profile.TimeFlame             0.63      0          16/17         10/11       0.0       
+tests.util                    tests.Util                    0.61      0          3/3           1/1         0.0       
+enumeration.value             enumeration.Value             0.49      0          7/9           1/1         0.0       
+values.recursive_repr_or_jso  values.RecursiveReprOrJsonGu  0.63      0          4/4           4/4         0.0       
+unused_loads.find_tests       unused_loads.FindTests        0.00      0          0/1           -           0.0       
+tests.call                    tests.Call                    0.00      0          -             -           0.0       
+profile.flamegraph            profile.Flamegraph            0.59      0          9/10          3/3         0.0       
+collections.maybe_uninit_bac  collections.MaybeUninitBackp  0.00      0          2/3           0/1         0.0       
+string.alloc_unpack           string.AllocUnpack            0.00      0          7/16          0/2         0.0       
+docs.tests                    docs.Tests                    0.15      0          -             -           0.0       
+module.unpack_value           module.UnpackValue            0.08      0          1/9           -           0.0       
+heap.call_enter_exit          heap.CallEnterExit            0.48      0          1/1           5/6         0.0       
+docs                          docs.Docs                     0.61      0          16/17         10/10       0.0       
+enumeration.globals           enumeration.Globals           0.19      0          1/2           -           0.0       
+enumeration.matcher           enumeration.Matcher           0.69      0          1/1           1/1         0.0       
+module.default_value          module.DefaultValue           0.32      0          1/2           -           0.0       
+allocator.api                 allocator.Api                 0.65      0          -             2/2         0.0       
+record.ty_record_type         record.TyRecordType           0.37      0          -             1/1         0.0       
+type_compiled.tests           type_compiled.Tests           0.86      0          1/1           -           0.0       
+docs.code                     docs.Code                     0.73      0          14/14         -           0.0       
+type_compiled.alloc           type_compiled.Alloc           0.80      0          28/28         1/1         0.0       
+unused_loads.remove_tests     unused_loads.RemoveTests      0.00      0          0/1           -           0.0       
+eval                          eval.Eval                     0.75      0          2/2           -           0.0       
+profile.by_type               profile.ByType                0.75      0          5/5           1/1         0.0       
+module.special_params         module.SpecialParams          0.31      0          1/2           -           0.0       
+tests.opt                     tests.Opt                     0.70      0          -             -           0.0       
+allocator.alloc               allocator.Alloc               0.17      0          -             -           0.0       
+heap.profile                  profile.Profile               0.22      0          -             -           0.0       
+freeze.validator_order        freeze.ValidatorOrder         0.21      0          2/2           1/3         0.0       
+module.type_annotation        module.TypeAnnotation         0.28      0          1/2           1/1         0.0       
+module.named_positional       module.NamedPositional        0.11      0          1/6           -           0.0       
+module.other_attributes       module.OtherAttributes        0.00      0          -             -           0.0       
+type_compiled.matcher         type_compiled.Matcher         0.35      0          11/11         4/7         0.0       
+type_compiled.globals         type_compiled.Globals         0.19      0          1/3           -           0.0       
+type_compiled.factory         type_compiled.Factory         0.42      0          9/9           1/2         0.0       
+enumeration.ty_enum_type      enumeration.TyEnumType        0.64      0          2/2           1/1         0.0       
+intern.interner               intern.Interner               0.58      0          2/2           2/2         0.0       
+tests.bc                      tests.Bc                      0.20      0          -             -           0.0       
+allocator.bumpalo             allocator.Bumpalo             0.00      0          6/8           0/3         0.0       
+type_compiled.matchers        type_compiled.Matchers        0.72      0          25/25         23/23       0.0       
+type_compiled.compiled        type_compiled.Compiled        0.52      0          40/44         5/7         0.0       
+profile.aggregated            profile.Aggregated            0.71      0          20/21         8/8         0.0       
+tests.go                      tests.Go                      0.00      0          -             -           0.0       
+profile.or_instrumentation    profile.OrInstrumentation     0.47      0          -             1/1         0.0       
+analysis                      starlark_kotlin.Analysis      0.27      0          1/1           1/1         0.0       
+pagable                       starlark_kotlin.Pagable       0.26      0          -             -           0.0       
+heap.maybe_uninit_slice_util  heap.MaybeUninitSliceUtil     0.00      0          1/2           0/1         0.0       
+alloc.chain                   alloc.Chain                   0.36      0          14/15         3/5         0.0       
+syntax                        starlark_kotlin.Syntax        0.14      0          -             -           0.0       
+macros                        starlark_kotlin.Macros        0.34      0          -             -           0.0       
+errors                        starlark_kotlin.Errors        0.16      0          -             -           0.0       
+thin_box_slice_frozen_value.  thin_box_slice_frozen_value.  0.05      0          10/25         1/3         0.0       
+alloc.per_thread              alloc.PerThread               0.71      0          5/5           1/1         0.0       
+build                         starlark_kotlin.Build         0.00      0          0/2           -           0.0       
+alloc.allocator               alloc.Allocator               0.37      0          13/14         2/3         0.0       
+profile.summary_by_function   profile.SummaryByFunction     0.48      0          9/9           2/3         0.0       
+thin_box_slice_frozen_value.  thin_box_slice_frozen_value.  0.16      0          7/13          2/3         0.0       
+util                          starlark_kotlin.Util          0.19      0          -             -           0.0       
+docs.markdown                 docs.Markdown                 0.79      0          19/19         2/2         0.0       
+
+=== Porting Quality Summary ===
+
+Matched by header:    470 / 470
+Matched by name:      0 / 470
+Total TODOs in target: 16
+Total lint errors:    0
+Stub files:           83
+
+=== Big Picture ===
+
+- Missing files: 0
+- Incomplete ports (similarity < 60%): 312
+- Stub files: 83
+- Files missing functions: 176
+- Documentation coverage: 18203 / 14054 lines (130%)
+
+Primary focus: replace stub files with real implementations
+
+=== Files with Issues ===
+
+File                          Similarity LineRatio  FunctionParityTODOs Lint  Status
+------------------------------------------------------------------------------------------
+heap.Heap                     0.17       0.00       -             0     0     STUB
+layout.Value                  0.51       0.00       141/145       0     0     MISSING_FUNCS
+values.Freeze                 0.03       0.00       3/26          0     0     LOW_SIM
+values.Trace                  0.38       0.00       22/43         0     0     LOW_SIM
+starlark_kotlin.Assert        0.65       0.00       -             0     0     STUB
+starlark_kotlin.Coerce        0.13       0.00       1/1           0     0     LOW_SIM
+typing.StarlarkValue          0.68       0.00       32/35         0     0     MISSING_FUNCS
+derive.UnpackValue            0.55       0.00       -             0     0     
+values.FrozenRef              0.30       0.00       20/20         0     0     LOW_SIM
+type_compiled.TypeCompiled    0.14       0.00       -             0     0     STUB
+derive.Module                 0.12       0.00       -             0     0     STUB
+compiler.Span                 0.40       0.00       2/2           0     0     LOW_SIM
+none.NoneType                 0.38       0.00       11/11         0     0     LOW_SIM
+starlark_kotlin.Debug         0.72       0.00       -             0     0     STUB
+values.ValueOfUnchecked       0.27       0.00       13/14         0     0     LOW_SIM
+util.ArcStr                   0.31       0.00       5/5           0     0     LOW_SIM
+collections.Symbol            0.15       0.00       -             0     0     STUB
+runtime.Evaluator             0.77       0.00       60/64         0     0     MISSING_FUNCS
+types.Dict                    0.08       0.00       -             0     0     STUB
+values.Iter                   0.40       0.00       5/5           0     0     
+... and 450 more files
+
+=== Porting Recommendations ===
+
+Incomplete ports (similarity < 60%): 312
+Missing files: 0
+
+Top priority to complete:
+  layout.heap                    similarity=0.17 function_parity=- dependents=109 [STUB]
+  layout.value                   similarity=0.51 function_parity=141/145 dependents=178
+  values.freeze                  similarity=0.03 function_parity=3/26 dependents=42
+  values.trace                   similarity=0.38 function_parity=22/43 dependents=52
+  coerce                         similarity=0.13 function_parity=1/1 dependents=34
+  derive.unpack_value            similarity=0.55 function_parity=- dependents=51
+  values.frozen_ref              similarity=0.30 function_parity=20/20 dependents=27
+  typing.type_compiled           similarity=0.14 function_parity=- dependents=22 [STUB]
+  derive.module                  similarity=0.12 function_parity=- dependents=21 [STUB]
+  compiler.span                  similarity=0.40 function_parity=2/2 dependents=29
+
+=== Documentation Gaps ===
+
+Documentation coverage: 18203 / 14054 lines (130%)
+Files with >20% doc gap: 43
+
+File                          Src Docs    Tgt Docs    Gap %     DocSim    
+--------------------------------------------------------------------------
+values.traits                 1072        239         77%       0.83      
+lib                           774         84          89%       0.48      
+string.methods                1112        659         40%       1.00      
+dict.methods                  396         179         54%       0.96      
+heap.branding                 168         17          89%       0.04      
+values.unpack                 176         52          70%       0.75      
+funcs.other                   364         245         32%       0.84      
+values.owned                  180         65          63%       0.74      
+docs.parse                    174         81          53%       0.82      
+set.methods                   258         175         32%       0.97      
+types.any                     124         44          64%       0.66      
+heap.send                     184         111         39%       0.95      
+macros                        116         47          59%       0.55      
+params.spec                   172         104         39%       0.93      
+list.methods                  306         241         21%       0.86      
+types.starlark_value_as_type  74          17          77%       0.08      
+runtime.evaluator             186         135         27%       0.93      
+values.alloc_value            138         88          36%       0.74      
+assert.assert                 204         155         24%       0.91      
+string.globals                130         93          28%       0.89      
+tests.markdown                66          32          51%       0.56      
+heap.repr                     68          37          45%       0.29      
+any                           120         94          21%       0.90      
+dict.alloc                    42          17          59%       0.04      
+docs                          98          76          22%       0.90      
+... and 18 more files with doc gaps
+
+=== Generating Reports ===
+
+✅ Generated: port_status_report.md
+✅ Generated: high_priority_ports.md
+✅ Generated: NEXT_ACTIONS.md
+
+📁 All reports generated successfully!
