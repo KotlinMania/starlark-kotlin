@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
@@ -79,7 +80,9 @@ internal class RangeTypeTest {
 
         Heap.temp { heap ->
             for (x in ranges) {
-                val full = x.iterate(heap).getOrThrow().asSequence().map { it.unpackInt().getOrThrow()!! }.toList()
+                val iter = heap.allocSimple(x).iterate(heap).getOrThrow()
+                val full = iter.asSequence().map { it.unpackInt().getOrThrow()!! }.toList()
+                iter.close()
                 assertEquals(x.length().getOrThrow(), full.size)
                 for ((index, value) in full.withIndex()) {
                     assertEquals(x.start + x.step.get() * index, value)
@@ -88,8 +91,13 @@ internal class RangeTypeTest {
 
             for (x in ranges) {
                 for (y in ranges) {
-                    val left = x.iterate(heap).getOrThrow().asSequence().toList()
-                    val right = y.iterate(heap).getOrThrow().asSequence().toList()
+                    val leftIter = heap.allocSimple(x).iterate(heap).getOrThrow()
+                    val left = leftIter.asSequence().toList()
+                    leftIter.close()
+
+                    val rightIter = heap.allocSimple(y).iterate(heap).getOrThrow()
+                    val right = rightIter.asSequence().toList()
+                    rightIter.close()
                     assertEquals(x == y, left == right)
                 }
             }

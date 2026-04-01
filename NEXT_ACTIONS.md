@@ -4,11 +4,10 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (470/470 source files matched)
-- **Target Files (total):** 592 (includes Kotlin-only helpers)
-- **Matched Files:** 470
-- **Average Similarity:** 0.43
-- **Critical Issues:** 312 files with <0.60 similarity
+- **Current Progress:** 84.6% (441/468 files)
+- **Matched Files:** 396
+- **Average Similarity:** 0.42
+- **Critical Issues:** 274 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -60,23 +59,25 @@ Based on AST analysis, here are the concrete next steps.
 - **Priority Score:** 24.0
 - **Action:** Review and complete missing sections
 
-### 9. derive.unpack_value
-- **Similarity:** 0.55 (needs 30% improvement)
-- **Dependencies:** 51
-- **Priority Score:** 23.1
-- **Action:** Deep review - likely missing major functionality
-
-### 10. typing.ty
+### 9. typing.ty
 - **Similarity:** 0.80 (needs 5% improvement)
 - **Dependencies:** 109
 - **Priority Score:** 22.0
 - **Action:** Minor refinements needed
 
+### 10. values.frozen_ref
+- **Similarity:** 0.30 (needs 55% improvement)
+- **Dependencies:** 27
+- **Priority Score:** 19.0
+- **Action:** Deep review - likely missing major functionality
+
 ## Priority 2: Port Missing High-Value Files
 
 Critical missing files (>10 dependencies):
 
-No missing high-value files detected.
+1. **derive.unpack_value** (51 deps)
+   - Path: `tests/derive/unpack_value.rs`
+   - Essential for 51 other files
 
 ## Success Criteria
 
@@ -92,7 +93,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark rust ../../src kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>

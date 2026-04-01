@@ -140,15 +140,27 @@ public:
         int depth2 = tree2->depth();
 
         // Size similarity (normalized)
-        float size_sim = 1.0f - std::abs(size1 - size2) /
-                         static_cast<float>(std::max(size1, size2));
+        const int max_size = std::max(size1, size2);
+        float size_sim = 1.0f;
+        if (max_size > 0) {
+            size_sim = 1.0f - (std::abs(size1 - size2) / static_cast<float>(max_size));
+        }
 
         // Depth similarity
-        float depth_sim = 1.0f - std::abs(depth1 - depth2) /
-                          static_cast<float>(std::max(depth1, depth2));
+        const int max_depth = std::max(depth1, depth2);
+        float depth_sim = 1.0f;
+        if (max_depth > 0) {
+            depth_sim = 1.0f - (std::abs(depth1 - depth2) / static_cast<float>(max_depth));
+        }
 
         // Combine
-        return 0.5f * size_sim + 0.5f * depth_sim;
+        float combined = 0.5f * size_sim + 0.5f * depth_sim;
+        if (!std::isfinite(combined)) {
+            return 0.0f;
+        }
+        if (combined < 0.0f) return 0.0f;
+        if (combined > 1.0f) return 1.0f;
+        return combined;
     }
 
     /**
@@ -368,10 +380,20 @@ public:
         report.jaccard_sim = node_type_jaccard(tree1, tree2);
         report.edit_distance_sim = normalized_edit_distance(tree1, tree2);
 
+        auto finite_or = [](float v, float fallback) -> float {
+            return std::isfinite(v) ? v : fallback;
+        };
+
+        report.cosine_sim = finite_or(report.cosine_sim, 0.0f);
+        report.structure_sim = finite_or(report.structure_sim, 0.0f);
+        report.jaccard_sim = finite_or(report.jaccard_sim, 0.0f);
+        report.edit_distance_sim = finite_or(report.edit_distance_sim, 0.0f);
+
         report.combined_score = 0.3f * report.cosine_sim +
                                 0.2f * report.structure_sim +
                                 0.2f * report.jaccard_sim +
                                 0.3f * report.edit_distance_sim;
+        report.combined_score = finite_or(report.combined_score, 0.0f);
 
         return report;
     }

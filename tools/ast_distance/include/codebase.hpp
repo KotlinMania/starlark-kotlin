@@ -1231,8 +1231,8 @@ public:
 	                            std::to_string(m.source_type_count);
 	                }
 	                float priority = m.source_dependents * (1.0f - m.similarity);
-		                std::cout << std::setw(30) << std::left << m.source_qualified.substr(0, 28)
-		                          << std::setw(30) << m.target_qualified.substr(0, 28)
+		                std::cout << std::setw(30) << std::left << m.source_qualified
+		                          << std::setw(30) << m.target_qualified
 		                          << std::setw(10) << std::fixed << std::setprecision(2) << m.similarity
 		                          << std::setw(11) << m.source_dependents
 		                          << std::setw(14) << funcs
@@ -1258,13 +1258,8 @@ public:
 	                      << std::setw(8) << "Deps"
 	                      << "Path\n";
 	            std::cout << std::string(78, '-') << "\n";
-	            int shown = 0;
 	            for (const auto* sf : missing) {
-	                if (shown++ >= 20) {
-	                    std::cout << "... and " << (missing.size() - 20) << " more missing files\n";
-	                    break;
-	                }
-	                std::cout << std::setw(30) << std::left << sf->qualified_name.substr(0, 28)
+	                std::cout << std::setw(30) << std::left << sf->qualified_name
 	                          << std::setw(8) << sf->dependent_count
 	                          << sf->relative_path << "\n";
 	            }
