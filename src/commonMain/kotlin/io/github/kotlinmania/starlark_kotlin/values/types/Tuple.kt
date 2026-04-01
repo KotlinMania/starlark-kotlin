@@ -28,11 +28,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 // pub(crate) mod unpack;
 // pub(crate) mod value;
 
-// pub use crate::values::types::tuple::alloc::AllocTuple;
-// pub use crate::values::types::tuple::refs::FrozenTupleRef;
-// pub use crate::values::types::tuple::refs::TupleRef;
-// pub use crate::values::types::tuple::unpack::UnpackTuple;
-internal typealias AllocTupleExport<T> = io.github.kotlinmania.starlark_kotlin.values.types.tuple.AllocTuple<T>
-internal typealias FrozenTupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
-internal typealias TupleRefExport = io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
-internal typealias UnpackTupleExport<T> = io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple<T>
+// Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete types directly.

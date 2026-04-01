@@ -56,43 +56,5 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * In Kotlin, [Record] is a typealias for [RecordGen] defined in `Instance.kt`.
  */
 
-// Submodule declarations: In Rust these are `pub(crate) mod` items.
-// In Kotlin, each submodule is a separate file in the record/ package.
-
-// pub(crate) mod field
-typealias FieldSubmodule = Field
-
-// pub(crate) mod globals
-typealias GlobalsSubmodule = Unit
-
-// pub(crate) mod instance
-typealias InstanceSubmodule = RecordGen
-
-// pub(crate) mod matcher
-typealias MatcherSubmodule = RecordTypeMatcher
-
-// pub(crate) mod record_type
-typealias RecordTypeSubmodule = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-
-// pub(crate) mod ty_record_type
-typealias TyRecordTypeSubmodule = TyRecordData
-
-// Re-exports from submodules.
-// pub use crate::values::record::instance::Record
-typealias RecordReExport = RecordGen
-// RecordTypeGen (Rust has RecordType = RecordTypeGen<FrozenValue>, but we just alias directly)
-typealias RecordTypeReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-// RecordTypeGen
-typealias RecordTypeGenReExport = io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-// TyRecordData
-typealias TyRecordDataReExport = TyRecordData
-// RecordTypeMatcher
-typealias MatcherReExport = RecordTypeMatcher
-// recordFields
-typealias RecordFieldsReExport = Field
-// FrozenRecord
-typealias FrozenRecordReExport = RecordGen
-// FieldDefault
-typealias FieldDefaultReExport = Field
-// RecordInstance
-typealias RecordInstanceReExport = RecordGen
+// Rust uses `mod` declarations and `pub use` re-exports in this module; Kotlin call sites should
+// import concrete types directly from their defining packages/files.

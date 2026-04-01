@@ -45,7 +45,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * - [value][io.github.kotlinmania.starlark_kotlin.values.types.structs.Value] - StarlarkStruct value
  */
 
-// Re-exports (mirrors Rust's pub use declarations)
-internal typealias AllocStructExport<S> = io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct<S>
-internal typealias FrozenStructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStructRef
-internal typealias StructRefExport = io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef
+// Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete types directly.

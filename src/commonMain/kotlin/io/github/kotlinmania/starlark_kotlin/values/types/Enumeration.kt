@@ -48,7 +48,4 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Froz
  * - [value][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Value] - enum value
  */
 
-// Re-exports (mirrors Rust's pub use declarations)
-internal typealias EnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
-internal typealias FrozenEnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.FrozenEnumType
-internal typealias EnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
+// Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete types directly.

@@ -32,7 +32,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 // pub(crate) mod simd;
 // pub(crate) mod str_type;
 
-// pub use crate::values::types::string::str_type::STRING_TYPE;
-// pub use crate::values::types::string::str_type::StarlarkStr;
-internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark_kotlin.values.types.string.STRING_TYPE
-internal typealias StarlarkStrExport = io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
+// Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete values/types directly.
