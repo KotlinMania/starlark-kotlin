@@ -39,7 +39,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 

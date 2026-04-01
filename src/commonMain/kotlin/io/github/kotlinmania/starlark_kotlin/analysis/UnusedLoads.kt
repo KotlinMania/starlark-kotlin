@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/unused_loads.rs
-@file:Suppress("unused", "ObjectPropertyName")
+@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.analysis
 
 /*
@@ -21,10 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  */
 
 // pub(crate) mod find;
-internal val find = "find"
 // mod find_tests;
-internal val find_tests = "find_tests"
 // pub(crate) mod remove;
-internal val remove = "remove"
 // mod remove_tests;
-internal val remove_tests = "remove_tests"

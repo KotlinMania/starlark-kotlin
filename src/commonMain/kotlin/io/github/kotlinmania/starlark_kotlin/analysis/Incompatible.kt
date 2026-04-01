@@ -128,12 +128,12 @@ private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
 }
 
 // visit_expr helper: visit immediate child expressions in a statement
-private fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun AstStmt.visitStmtChildrenExpr(visitor: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val s = this.node) {
         is StmtP.Expression<*> -> visitor(s.expr as AstExpr)
-        is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach { it.visitExpr(visitor) }
-        is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitExpr(visitor)
+        is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach { it.visitStmtChildrenExpr(visitor) }
+        is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitStmtChildrenExpr(visitor)
         is StmtP.Assign<*> -> {
             visitor(s.assign.rhs as AstExpr)
         }
@@ -145,7 +145,7 @@ private fun AstStmt.visitExpr(visitor: (AstExpr) -> Unit) {
 }
 
 // visit_expr helper for expressions: visit immediate child expressions
-private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
         is ExprP.Call<*> -> {
@@ -238,9 +238,9 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
         res: MutableList<LintT<Incompatibility>>,
     ) {
         matchBadTypeEquality(codemap, x, types, res)
-        x.visitExpr { check(codemap, it, types, res) }
+        x.visitExprChildren { check(codemap, it, types, res) }
     }
-    module.statement.visitExpr { check(module.codemap, it, types, res) }
+    module.statement.visitStmtChildrenExpr { check(module.codemap, it, types, res) }
 }
 
 // Go implementation of Starlark disallows duplicate top-level assignments,

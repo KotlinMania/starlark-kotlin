@@ -139,10 +139,10 @@ private fun isFail(x: AstExpr): Boolean {
 }
 
 /** Visit all expression children of an assign target (e.g. index/dot exprs, not the lvalue itself). */
-private fun AstAssignTarget.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun AstAssignTarget.visitAssignTargetExprChildren(visitor: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitExpr(visitor) }
+        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitAssignTargetExprChildren(visitor) }
         is AssignTargetP.Index<*> -> {
             visitor(t.expr as AstExpr)
             visitor(t.index as AstExpr)
@@ -163,7 +163,7 @@ private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
 }
 
 /** Visit all expression children of a parameter (default value, type annotation). */
-private fun ParameterP<AstNoPayload>.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun ParameterP<AstNoPayload>.visitParameterExprChildren(visitor: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (this) {
         is ParameterP.Normal -> {
@@ -177,7 +177,7 @@ private fun ParameterP<AstNoPayload>.visitExpr(visitor: (AstExpr) -> Unit) {
 }
 
 /** Visit all expression children of an AstExpr (recursing one level via the visitor). */
-private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
         is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
@@ -468,7 +468,7 @@ private class State(
     // Traverse the syntax tree
 
     fun assign(assign: AstAssignTarget) {
-        assign.visitExpr { x -> expr(x) }
+        assign.visitAssignTargetExprChildren { x -> expr(x) }
         assign.visitLvalue { x -> setIdent(x, Kind.Assign) }
     }
 
@@ -504,7 +504,7 @@ private class State(
             is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as AstIdent))
             is ExprP.Lambda<*, *> -> {
                 for (p in e.lambda.params) {
-                    (p.node as ParameterP<AstNoPayload>).visitExpr { x -> expr(x) }
+                    (p.node as ParameterP<AstNoPayload>).visitParameterExprChildren { x -> expr(x) }
                 }
                 enterScope()
                 for (p in e.lambda.params) {
@@ -518,7 +518,7 @@ private class State(
             }
             is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
             is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
-            else -> expr.visitExpr { x -> expr(x) }
+            else -> expr.visitExprChildren { x -> expr(x) }
         }
     }
 
@@ -535,7 +535,7 @@ private class State(
     }
 
     fun assignAsExpr(assign: AstAssignTarget) {
-        assign.visitExpr { x -> expr(x) }
+        assign.visitAssignTargetExprChildren { x -> expr(x) }
         assign.visitLvalue { x -> useIdent(astStrFromAssignIdent(x)) }
     }
 
@@ -585,7 +585,7 @@ private class State(
             }
             is StmtP.Def<*, *> -> {
                 for (p in s.def.params) {
-                    (p.node as ParameterP<AstNoPayload>).visitExpr { e -> expr(e) }
+                    (p.node as ParameterP<AstNoPayload>).visitParameterExprChildren { e -> expr(e) }
                 }
                 typOpt(s.def.returnType as AstTypeExpr?)
                 setIdent(s.def.name as AstAssignIdent, Kind.Assign)
