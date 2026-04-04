@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive/unpack_value.rs
+// port-lint: tests tests/derive/unpack_value.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*
@@ -21,11 +21,39 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.EitherTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.StringTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import kotlin.test.assertEquals
+
+private fun <T> Some(value: T): T? = value
+
+private fun <T> Result<T>.unwrap(): T = getOrThrow()
+
+private fun <T> assert_eq(expected: T, actual: T) {
+    assertEquals(expected, actual)
+}
+
+private fun String.to_owned(): String = this
+
+private fun const_frozen_string(value: String) = constFrozenString(value)
+
+private fun Value.Companion.testing_new_int(value: Int): Value = Value.testingNewInt(value)
+
+private fun StarlarkTypeRepr.starlark_type_repr(): Ty = starlarkTypeRepr()
+
+private fun <T> UnpackValue<T>.unpack_value(value: Value): Result<T?> = unpackValue(value)
+
+private object i32 : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty = Ty.int()
+}
+
+private fun Either_starlark_type_repr(): Ty =
+    EitherTypeRepr(i32, StringTypeRepr).starlark_type_repr()
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 private sealed class EmptyEnum {
@@ -81,41 +109,60 @@ private data class TransparentIntOrStr(val value: IntOrStr) {
 
 // #[test]
 internal fun testStarlarkTypeRepr() {
-    assertEquals(StarlarkNever.starlarkTypeRepr(), EmptyEnum.starlarkTypeRepr())
-    assertEquals(Ty.int(), JustInt.starlarkTypeRepr())
-    assertEquals(Ty.union2(Ty.int(), Ty.string()), IntOrStr.starlarkTypeRepr())
-    assertEquals(Ty.union2(Ty.int(), Ty.string()), WithLifetime.starlarkTypeRepr())
-    assertEquals(IntOrStr.starlarkTypeRepr(), TransparentIntOrStr.starlarkTypeRepr())
+    assert_eq(
+        StarlarkNever.starlark_type_repr(),
+        EmptyEnum.starlark_type_repr(),
+    )
+
+    assert_eq(
+        i32.starlark_type_repr(),
+        JustInt.starlark_type_repr(),
+    )
+
+    assert_eq(
+        Either_starlark_type_repr(),
+        IntOrStr.starlark_type_repr(),
+    )
+
+    assert_eq(
+        Either_starlark_type_repr(),
+        WithLifetime.starlark_type_repr(),
+    )
+
+    assert_eq(
+        IntOrStr.starlark_type_repr(),
+        TransparentIntOrStr.starlark_type_repr(),
+    )
 }
 
 // #[test]
 internal fun testUnpackValue() {
-    assertEquals(
-        JustInt.Int(17),
-        JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow(),
+    assert_eq(
+        Some(JustInt.Int(17)),
+        JustInt.unpack_value(Value.testing_new_int(17)).unwrap(),
     )
 
-    assertEquals(
-        IntOrStr.Int(19),
-        IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+    assert_eq(
+        Some(IntOrStr.Int(19)),
+        IntOrStr.unpack_value(Value.testing_new_int(19)).unwrap(),
     )
-    assertEquals(
-        IntOrStr.Str("abc"),
-        IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow(),
-    )
-
-    assertEquals(
-        WithLifetime.Int(23),
-        WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow(),
+    assert_eq(
+        Some(IntOrStr.Str("abc".to_owned())),
+        IntOrStr.unpack_value(const_frozen_string("abc").toValue()).unwrap(),
     )
 
-    assertEquals(
-        WithLifetime.Str("def"),
-        WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow(),
+    assert_eq(
+        Some(WithLifetime.Int(23)),
+        WithLifetime.unpack_value(Value.testing_new_int(23)).unwrap(),
     )
 
-    assertEquals(
-        TransparentIntOrStr(IntOrStr.Int(19)),
-        TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+    assert_eq(
+        Some(WithLifetime.Str("def")),
+        WithLifetime.unpack_value(const_frozen_string("def").toValue()).unwrap(),
+    )
+
+    assert_eq(
+        Some(TransparentIntOrStr(IntOrStr.Int(19))),
+        TransparentIntOrStr.unpack_value(Value.testing_new_int(19)).unwrap(),
     )
 }

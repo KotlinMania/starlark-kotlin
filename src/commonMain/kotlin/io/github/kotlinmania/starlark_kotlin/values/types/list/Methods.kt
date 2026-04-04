@@ -22,12 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
 /** Methods for the `list` type. */
 
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 // -- Index conversion helpers (from starlark_syntax::convert_indices) ----------
 //
@@ -105,13 +114,163 @@ internal fun convertIndex(len: Int, index: Int): Int {
  * standalone functions below and wired in through the builder.
  */
 internal fun listMethodsImpl(builder: MethodsBuilder) {
-    // Method registration is handled by the builder infrastructure.
-    // The implementations are provided as standalone functions below.
-    //
-    // Each method corresponds to a Starlark list method as defined in:
-    //   https://github.com/bazelbuild/starlark/blob/master/spec.md
-    //
-    // Methods: append, clear, extend, index, insert, pop, remove
+    val components = NativeCallableComponents(
+        speculativeExecSafe = false,
+        rustDocstring = null,
+        paramSpec = NativeCallableParamSpec.forArguments(),
+        returnType = Ty.any(),
+    )
+
+    fun setMethod(
+        name: String,
+        sig: ParametersSpec<FrozenValue>,
+        f: (Evaluator, Value, Arguments) -> Result<Value>,
+    ) {
+        builder.setMethod(
+            name = name,
+            components = components,
+            sig = sig,
+            f = { eval, thisValue, _, args -> f(eval, thisValue, args) },
+        )
+    }
+
+    builder.setDocstring("Methods for the `list` type.")
+
+    // fn append(this: Value, el: Value, heap: Heap) -> Result<NoneType>
+    setMethod(
+        "append",
+        ParametersSpec.newParts(
+            functionName = "append",
+            posOnly = listOf(Pair("el", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val el = args.positional<Value>(0)
+        append(thisValue, el, eval.heap()).map { Value.newNone() }
+    }
+
+    // fn clear(this: Value) -> Result<NoneType>
+    setMethod(
+        "clear",
+        ParametersSpec.newParts(
+            functionName = "clear",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, _ ->
+        clear(thisValue).map { Value.newNone() }
+    }
+
+    // fn extend(this: Value, other: Value, heap: Heap) -> Result<NoneType>
+    setMethod(
+        "extend",
+        ParametersSpec.newParts(
+            functionName = "extend",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val other = args.positional<Value>(0)
+        extend(thisValue, other, eval.heap()).map { Value.newNone() }
+    }
+
+    // fn index(this: &ListRef, needle: Value, start: NoneOr<i32>, end: NoneOr<i32>) -> Result<i32>
+    setMethod(
+        "index",
+        ParametersSpec.newParts(
+            functionName = "index",
+            posOnly = listOf(
+                Pair("needle", ParametersSpecParam.Required),
+                Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val thisRef = ListRef.fromValue(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a list")
+        )
+        val needle = args.positional<Value>(0)
+
+        fun noneOrI32(v: Value?): NoneOr<Int> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
+            return NoneOr.Other(i)
+        }
+
+        val start = noneOrI32(args.optionalPositional<Value>(1))
+        val end = noneOrI32(args.optionalPositional<Value>(2))
+        index(thisRef, needle, start, end).map { it.toValue() }
+    }
+
+    // fn insert(this: Value, index: i32, el: Value, heap: Heap) -> Result<NoneType>
+    setMethod(
+        "insert",
+        ParametersSpec.newParts(
+            functionName = "insert",
+            posOnly = listOf(
+                Pair("index", ParametersSpecParam.Required),
+                Pair("el", ParametersSpecParam.Required),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val indexValue = args.positional<Value>(0)
+        val index = indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
+        val el = args.positional<Value>(1)
+        insert(thisValue, index, el, eval.heap()).map { Value.newNone() }
+    }
+
+    // fn pop(this: Value, index: Option<i32>) -> Result<Value>
+    setMethod(
+        "pop",
+        ParametersSpec.newParts(
+            functionName = "pop",
+            posOnly = listOf(Pair("index", ParametersSpecParam.Optional)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val indexValue = args.optionalPositional<Value>(0)
+        val index = when {
+            indexValue == null || indexValue.isNone() -> null
+            else -> indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
+        }
+        pop(thisValue, index)
+    }
+
+    // fn remove(this: Value, needle: Value) -> Result<NoneType>
+    setMethod(
+        "remove",
+        ParametersSpec.newParts(
+            functionName = "remove",
+            posOnly = listOf(Pair("needle", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val needle = args.positional<Value>(0)
+        remove(thisValue, needle).map { Value.newNone() }
+    }
 }
 
 /**

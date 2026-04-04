@@ -36,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexN
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.allocValue
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
 
 /** A frame of the call-stack. */
 internal data class StackFrame(
@@ -44,7 +43,12 @@ internal data class StackFrame(
     val name: String,
     /** The location of the definition, or `null` for native functions. */
     val location: FileSpan?,
-) : StarlarkValue, AllocValue {
+) : StarlarkValue, AllocValue, io.github.kotlinmania.starlark_kotlin.values.Trace {
+
+    override fun trace(_tracer: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer) {
+        // No Value fields to trace.
+        _tracer.hashCode()
+    }
 
     override val TYPE: String get() = Companion.TYPE
 

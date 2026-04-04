@@ -171,7 +171,7 @@ private fun dispatchInstruction(
         BcOpcode.Slice -> noFlow(InstrSliceImpl)
         BcOpcode.ObjectField -> noFlow(InstrObjectFieldImpl)
         BcOpcode.SetObjectField -> noFlow(InstrSetObjectFieldImpl)
-        BcOpcode.Eq -> noFlow(InstrEqConstImpl)
+        BcOpcode.Eq -> noFlow(InstrEqImpl)
         BcOpcode.EqConst -> noFlow(InstrEqConstImpl)
         BcOpcode.EqPtr -> noFlow(InstrEqPtrImpl)
         BcOpcode.EqStr -> noFlow(InstrEqStrImpl)
@@ -235,8 +235,8 @@ private fun dispatchInstruction(
         BcOpcode.Br -> InstrBr.run(eval, frame, ip, arg as BcAddrOffset)
         BcOpcode.IfBr -> InstrIfBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
         BcOpcode.IfNotBr -> InstrIfNotBr.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
-        BcOpcode.Iter -> InstrIter.run(eval, frame, ip, arg as InstrIterArg)
-        BcOpcode.Continue -> InstrContinue.run(eval, frame, ip, arg as InstrContinueArg)
+        BcOpcode.Iter -> InstrIter.run(eval, frame, ip, arg.toInstrIterArg())
+        BcOpcode.Continue -> InstrContinue.run(eval, frame, ip, arg.toInstrContinueArg())
         BcOpcode.Break -> InstrBreak.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
         BcOpcode.IterStop -> InstrIterStop.run(eval, frame, ip, arg as BcSlotIn)
         BcOpcode.Return -> InstrReturn.run(eval, frame, ip, arg as BcSlotIn)
@@ -246,6 +246,22 @@ private fun dispatchInstruction(
         // --- End pseudo-instruction ---
         BcOpcode.End -> InstrEnd.run(eval, frame, ip, arg as BcInstrEndArg)
     }
+}
+
+// In the bytecode writer, Iter/Continue args are stored as List<Any?> (matching Rust's tuple
+// layout in the instruction buffer). Convert to the typed data classes at the dispatch site.
+@Suppress("UNCHECKED_CAST")
+private fun Any?.toInstrIterArg(): InstrIterArg {
+    if (this is InstrIterArg) return this
+    val l = this as List<Any?>
+    return InstrIterArg(l[0] as BcSlotIn, l[1] as LoopDepth, l[2] as BcSlotOut, l[3] as BcSlotOut, l[4] as BcAddrOffset)
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun Any?.toInstrContinueArg(): InstrContinueArg {
+    if (this is InstrContinueArg) return this
+    val l = this as List<Any?>
+    return InstrContinueArg(l[0] as BcSlotIn, l[1] as LoopDepth, l[2] as BcSlotOut, l[3] as BcAddrOffsetNeg, l[4] as BcAddrOffset)
 }
 
 /** Execute the code block, either a module or a function body. */

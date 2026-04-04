@@ -22,16 +22,214 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 /** Methods for the `dict` type. */
 
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 
 internal fun dictMethods(registry: MethodsBuilder) {
-    // In Rust, the #[starlark_module] macro generates the registration code.
-    // Register each dict method on the builder.
+    val components = NativeCallableComponents(
+        speculativeExecSafe = false,
+        rustDocstring = null,
+        paramSpec = NativeCallableParamSpec.forArguments(),
+        returnType = Ty.any(),
+    )
+
+    fun setMethod(
+        name: String,
+        sig: ParametersSpec<FrozenValue>,
+        f: (Evaluator, Value, Arguments) -> Result<Value>,
+    ) {
+        registry.setMethod(
+            name = name,
+            components = components,
+            sig = sig,
+            f = { eval, thisValue, _, args -> f(eval, thisValue, args) },
+        )
+    }
+
     registry.setDocstring("Methods for the `dict` type.")
+
+    // fn clear(this: Value) -> Result<NoneType>
+    setMethod(
+        "clear",
+        ParametersSpec.newParts(
+            functionName = "clear",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, _ ->
+        clear(thisValue).map { Value.newNone() }
+    }
+
+    // fn get(this: DictRef, key: Value, default: Option<Value>) -> Result<Value>
+    setMethod(
+        "get",
+        ParametersSpec.newParts(
+            functionName = "get",
+            posOnly = listOf(
+                Pair("key", ParametersSpecParam.Required),
+                Pair("default", ParametersSpecParam.Optional),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a dict")
+        )
+        val key = args.positional<Value>(0)
+        val defaultValue = args.optionalPositional<Value>(1)
+        val default = if (defaultValue == null || defaultValue.isNone()) null else defaultValue
+        get(thisRef, key, default)
+    }
+
+    // fn items(this: DictRef, heap: Heap) -> Result<Value>
+    setMethod(
+        "items",
+        ParametersSpec.newParts(
+            functionName = "items",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, _ ->
+        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a dict")
+        )
+        items(thisRef, eval.heap())
+    }
+
+    // fn keys(this: DictRef, heap: Heap) -> Result<Value>
+    setMethod(
+        "keys",
+        ParametersSpec.newParts(
+            functionName = "keys",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, _ ->
+        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a dict")
+        )
+        keys(thisRef, eval.heap())
+    }
+
+    // fn pop(this: Value, key: Value, default: Option<Value>) -> Result<Value>
+    setMethod(
+        "pop",
+        ParametersSpec.newParts(
+            functionName = "pop",
+            posOnly = listOf(
+                Pair("key", ParametersSpecParam.Required),
+                Pair("default", ParametersSpecParam.Optional),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val key = args.positional<Value>(0)
+        val defaultValue = args.optionalPositional<Value>(1)
+        val default = if (defaultValue == null || defaultValue.isNone()) null else defaultValue
+        pop(thisValue, key, default)
+    }
+
+    // fn popitem(this: Value) -> Result<(Value, Value)>
+    setMethod(
+        "popitem",
+        ParametersSpec.newParts(
+            functionName = "popitem",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, _ ->
+        popitem(thisValue).map { (k, v) ->
+            eval.heap().allocTuple(listOf(k, v))
+        }
+    }
+
+    // fn setdefault(this: Value, key: Value, default: Option<Value>) -> Result<Value>
+    setMethod(
+        "setdefault",
+        ParametersSpec.newParts(
+            functionName = "setdefault",
+            posOnly = listOf(
+                Pair("key", ParametersSpecParam.Required),
+                Pair("default", ParametersSpecParam.Optional),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val key = args.positional<Value>(0)
+        val defaultValue = args.optionalPositional<Value>(1)
+        val default = if (defaultValue == null || defaultValue.isNone()) null else defaultValue
+        setdefault(thisValue, key, default)
+    }
+
+    // fn update(this: Value, pairs: Option<Value>, **kwargs) -> Result<NoneType>
+    setMethod(
+        "update",
+        ParametersSpec.newParts(
+            functionName = "update",
+            posOnly = listOf(Pair("pairs", ParametersSpecParam.Optional)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = true,
+        ),
+    ) { eval, thisValue, args ->
+        val pairsValue = args.optionalPositional<Value>(0)?.takeIf { !it.isNone() }
+        val kwargsRef = args.unpackKwargs()
+            .getOrElse { return@setMethod Result.failure(it) }
+            ?: dictRefFromValue(FrozenValue.newEmptyDict().toValue())
+            ?: return@setMethod Result.failure(IllegalStateException("Failed to construct empty kwargs dict"))
+        update(thisValue, pairsValue, kwargsRef, eval.heap()).map { Value.newNone() }
+    }
+
+    // fn values(this: DictRef, heap: Heap) -> Result<Value>
+    setMethod(
+        "values",
+        ParametersSpec.newParts(
+            functionName = "values",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, _ ->
+        val thisRef = dictRefFromValue(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a dict")
+        )
+        values(thisRef, eval.heap())
+    }
 }
 
 /**

@@ -59,10 +59,10 @@ internal class BreakpointTest {
             val a = Assert()
             a.globalsAdd(::breakpointGlobal)
             a.setupEval { eval ->
-                // `Assert` runs tests several times, take only lines from the last iteration.
-                printedLines.clear()
-
                 eval.breakpointHandler = {
+                    // `Assert` runs tests several times, take only lines from the last iteration.
+                    printedLines.clear()
+
                     object : BreakpointConsole {
                         private var called = false
 

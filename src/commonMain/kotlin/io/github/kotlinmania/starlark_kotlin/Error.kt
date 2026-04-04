@@ -121,6 +121,17 @@ class Error private constructor(
     }
 }
 
+/** Truncate a source code snippet to a maximum character length. */
+private fun truncateSnippet(snippet: String, maxLen: Int): Pair<String, String> {
+    val ddd = "..."
+    require(maxLen >= ddd.length)
+    if (snippet.length <= maxLen) return Pair(snippet, "")
+    // Count by characters (matching Rust's CharIndex behavior).
+    val cutPoint = maxLen - ddd.length
+    if (snippet.length <= cutPoint + 3) return Pair(snippet, "")
+    return Pair(snippet.substring(0, cutPoint), ddd)
+}
+
 /** A frame in a call stack. */
 data class Frame(
     val name: String,
@@ -132,6 +143,25 @@ data class Frame(
             sb.append(" (called from $location)")
         }
         return sb.toString()
+    }
+
+    /**
+     * Write two lines for this frame in a traceback, matching Python output format.
+     *
+     * Line 1: `{indent}* {location}, in {caller}`
+     * Line 2: `{indent}    {source_line}`
+     *
+     * For builtin functions (no location): `{indent}File <builtin>, in {caller}`
+     */
+    fun writeTwoLines(indent: String, caller: String, sb: StringBuilder) {
+        if (location != null) {
+            val line = location.file.sourceLineAtPos(location.span.begin).trim()
+            val (truncated, ddd) = truncateSnippet(line, 80)
+            sb.appendLine("${indent}* ${location.resolve().beginFileLine()}, in $caller")
+            sb.appendLine("${indent}    $truncated$ddd")
+        } else {
+            sb.appendLine("${indent}File <builtin>, in $caller")
+        }
     }
 }
 

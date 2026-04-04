@@ -58,7 +58,7 @@ internal class ParserTest {
                 DocParam(
                     name = "a",
                     docs = null,
-                    typ = Ty.any(),
+                    typ = Ty.int(),
                     defaultValue = PARAM_FMT_OPTIONAL,
                 ),
                 DocParam(

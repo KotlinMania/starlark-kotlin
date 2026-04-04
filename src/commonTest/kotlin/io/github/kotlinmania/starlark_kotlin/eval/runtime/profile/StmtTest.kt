@@ -38,10 +38,23 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDa
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class StmtTest {
+    @BeforeTest
+    fun setUp() {
+        ProfilerInstant.testMode = true
+        ProfilerInstant.resetTestCounter()
+    }
+
+    @AfterTest
+    fun tearDown() {
+        ProfilerInstant.testMode = false
+    }
+
     @Test
     fun testCoverage() {
         Module.withTempHeap { module ->

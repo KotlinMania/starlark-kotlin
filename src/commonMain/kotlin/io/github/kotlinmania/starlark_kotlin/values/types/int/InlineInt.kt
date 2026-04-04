@@ -30,13 +30,10 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import kotlin.jvm.JvmInline
-
 /** Integer which is stored inline in `RawPointer`. */
 // Rust: #[derive(Clone, Copy, Dupe, derive_more::Display, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
 // Rust: #[serde(transparent)]
 // Rust: pub struct InlineInt(i32)
-@JvmInline
 value class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
 
     // Rust: impl Debug for InlineInt

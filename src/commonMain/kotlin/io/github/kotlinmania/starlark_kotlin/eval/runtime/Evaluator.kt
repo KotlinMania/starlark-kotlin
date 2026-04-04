@@ -113,7 +113,6 @@ private fun eprintln(msg: String) {
 
 // Rust uses compile-time variance checks for `Evaluator` lifetimes.
 // Kotlin has no equivalent lifetime system, but we keep no-op parity markers (camelCase per Kotlin conventions).
-@Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
 private fun checkVariance() {
     fun checkCovariantA(a: Evaluator) {
         val loader: FileLoader? = a.loader
@@ -452,27 +451,27 @@ class Evaluator(
         isCancelled = isCanceled
     }
 
-    private fun addCallStackDiagnostics(e: io.github.kotlinmania.starlark_kotlin.Error): io.github.kotlinmania.starlark_kotlin.Error {
-        // Make sure we capture the call_stack before popping things off it
-        e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
-        return e
-    }
-
     /**
      * Called to add an entry to the call stack, by the function being invoked.
      * Called for all types of function, including those written in Kotlin.
      */
-    internal inline fun <R> withCallStack(
+    internal fun <R> withCallStack(
         function: Value,
         span: FrozenRef<FrameSpan>?,
         within: (Evaluator) -> R,
     ): R {
+        fun addDiagnostics(e: io.github.kotlinmania.starlark_kotlin.Error): io.github.kotlinmania.starlark_kotlin.Error {
+            // Make sure we capture the call_stack before popping things off it
+            e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
+            return e
+        }
+
         callStack.push(function, span)
         // Must always call .pop regardless
         try {
             return within(this)
         } catch (e: io.github.kotlinmania.starlark_kotlin.Error) {
-            throw addCallStackDiagnostics(e)
+            throw addDiagnostics(e)
         } finally {
             callStack.pop()
         }
@@ -769,7 +768,6 @@ class Evaluator(
      * Note that the finalizer for the `T` will not be called. That's safe if there is no finalizer,
      * or you call it yourself.
      */
-    @Suppress("UNCHECKED_CAST")
     internal fun <T, R> allocaUninit(len: Int, k: (Array<Any?>, Evaluator) -> R): R {
         return alloca.allocaUninit<T, R>(len) { xs -> k(xs, this) }
     }

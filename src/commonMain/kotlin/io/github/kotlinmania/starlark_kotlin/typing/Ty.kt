@@ -29,6 +29,29 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
+// Rust: format!("{val:?}") / write!(f, "{val:?}") style debug formatting.
+// We only implement what this file needs: stable-ish escaping for strings.
+private fun formatDebug(value: Any?): String {
+    return when (value) {
+        null -> "null"
+        is String -> buildString {
+            append('"')
+            for (ch in value) {
+                when (ch) {
+                    '\\' -> append("\\\\")
+                    '"' -> append("\\\"")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    else -> append(ch)
+                }
+            }
+            append('"')
+        }
+        else -> value.toString()
+    }
+}
+
 /**
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
@@ -47,14 +70,14 @@ data class Approximation(
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
-                message = message.toString(),
+                message = formatDebug(message),
             )
         }
     }
 
     // impl Display for Approximation
     override fun toString(): String {
-        return "Approximation: $category = \"$message\""
+        return "Approximation: $category = ${formatDebug(message)}"
     }
 }
 
@@ -404,7 +427,7 @@ data class Ty private constructor(
         expectedReturnType: Ty,
     ): Boolean {
         val oracle = TypingOracleCtx(
-            codemap = CodeMap("", ""),
+            codemap = CodeMap.emptyStatic(),
         )
         val ret = oracle.validateCall(
             Span.DEFAULT,
@@ -429,7 +452,7 @@ data class Ty private constructor(
      */
     internal fun checkIntersects(other: Ty): Result<Boolean> {
         val oracle = TypingOracleCtx(
-            codemap = CodeMap("", ""),
+            codemap = CodeMap.emptyStatic(),
         )
         val result = oracle.intersects(this, other)
         return if (result.isSuccess) {
@@ -465,13 +488,12 @@ data class Ty private constructor(
     override fun compareTo(other: Ty): Int {
         val left = alternatives.asSlice()
         val right = other.alternatives.asSlice()
-        val sizeCmp = left.size.compareTo(right.size)
-        if (sizeCmp != 0) return sizeCmp
-        for (i in left.indices) {
+        val minLen = minOf(left.size, right.size)
+        for (i in 0 until minLen) {
             val cmp = left[i].compareTo(right[i])
             if (cmp != 0) return cmp
         }
-        return 0
+        return left.size.compareTo(right.size)
     }
 }
 

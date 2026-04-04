@@ -270,7 +270,11 @@ object InstrUnpackImpl : InstrNoFlowImpl {
         ip: BcPtrAddr,
         arg: Any,
     ): kotlin.Result<Unit> {
-        val (source, targets) = arg as UnpackArg
+        val (source, targets) = if (arg is UnpackArg) arg else {
+            @Suppress("UNCHECKED_CAST")
+            val p = arg as Pair<BcSlotIn, List<BcSlotOut>>
+            UnpackArg(p.first, p.second)
+        }
         val v = frame.getBcSlot(source)
         val nvl = v.length()
         if (nvl.isFailure) return kotlin.Result.failure(nvl.exceptionOrNull()!!)
@@ -441,9 +445,27 @@ object InstrArrayIndex2Impl : InstrNoFlowImpl {
 
 // --- Equality ---
 
-object InstrEqImpl {
+object InstrEqImpl : InstrNoFlowImpl {
     fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> {
         return v0.equals(v1).map { Value.newBool(it) }
+    }
+
+    override fun runWithArgs(
+        eval: Evaluator,
+        frame: BcFramePtr,
+        ip: BcPtrAddr,
+        arg: Any,
+    ): kotlin.Result<Unit> {
+        val (a, b, target) = @Suppress("UNCHECKED_CAST") (arg as Triple<BcSlotIn, BcSlotIn, BcSlotOut>)
+        val aVal = frame.getBcSlot(a)
+        val bVal = frame.getBcSlot(b)
+        val r = eval(aVal, bVal, eval.heap())
+        return if (r.isSuccess) {
+            frame.setBcSlot(target, r.getOrThrow())
+            kotlin.Result.success(Unit)
+        } else {
+            kotlin.Result.failure(r.exceptionOrNull()!!)
+        }
     }
 }
 

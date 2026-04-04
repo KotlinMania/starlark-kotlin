@@ -24,12 +24,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
+import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark_kotlin.values.toValue
 
 private sealed class SetFromValue {
     data class Set(val set: SmallSet<Value>) : SetFromValue()
@@ -89,9 +98,235 @@ private sealed class SetFromValue {
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
 internal fun setMethods(builder: MethodsBuilder) {
-    // In Rust, the #[starlark_module] macro generates the registration code.
-    // Register each set method on the builder.
+    val components = NativeCallableComponents(
+        speculativeExecSafe = false,
+        rustDocstring = null,
+        paramSpec = NativeCallableParamSpec.forArguments(),
+        returnType = Ty.any(),
+    )
+
+    fun setMethod(
+        name: String,
+        sig: ParametersSpec<FrozenValue>,
+        f: (Evaluator, Value, Arguments) -> Result<Value>,
+    ) {
+        builder.setMethod(
+            name = name,
+            components = components,
+            sig = sig,
+            f = { eval, thisValue, _, args -> f(eval, thisValue, args) },
+        )
+    }
+
     builder.setDocstring("Methods for the `set` type.")
+
+    // fn clear(this: Value) -> Result<NoneType>
+    setMethod(
+        "clear",
+        ParametersSpec.newParts(
+            functionName = "clear",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, _ ->
+        clear(thisValue).map { Value.newNone() }
+    }
+
+    // fn union(this: SetRef, other: Value, heap: Heap) -> Result<Set>
+    setMethod(
+        "union",
+        ParametersSpec.newParts(
+            functionName = "union",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        union(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
+    }
+
+    // fn intersection(this: SetRef, other: Value, heap: Heap) -> Result<Set>
+    setMethod(
+        "intersection",
+        ParametersSpec.newParts(
+            functionName = "intersection",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        intersection(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
+    }
+
+    // fn symmetric_difference(this: SetRef, other: Value, heap: Heap) -> Result<Set>
+    setMethod(
+        "symmetric_difference",
+        ParametersSpec.newParts(
+            functionName = "symmetric_difference",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        symmetricDifference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
+    }
+
+    // fn add(this: Value, value: Value) -> Result<NoneType>
+    setMethod(
+        "add",
+        ParametersSpec.newParts(
+            functionName = "add",
+            posOnly = listOf(Pair("value", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val value = args.positional<Value>(0)
+        add(thisValue, value).map { Value.newNone() }
+    }
+
+    // fn update(this: Value, other: Value, heap: Heap) -> Result<NoneType>
+    setMethod(
+        "update",
+        ParametersSpec.newParts(
+            functionName = "update",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val other = args.positional<Value>(0)
+        update(thisValue, other, eval.heap()).map { Value.newNone() }
+    }
+
+    // fn remove(this: Value, value: Value) -> Result<NoneType>
+    setMethod(
+        "remove",
+        ParametersSpec.newParts(
+            functionName = "remove",
+            posOnly = listOf(Pair("value", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val value = args.positional<Value>(0)
+        remove(thisValue, value).map { Value.newNone() }
+    }
+
+    // fn discard(this: Value, value: Value) -> Result<NoneType>
+    setMethod(
+        "discard",
+        ParametersSpec.newParts(
+            functionName = "discard",
+            posOnly = listOf(Pair("value", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val value = args.positional<Value>(0)
+        discard(thisValue, value).map { Value.newNone() }
+    }
+
+    // fn pop(this: Value) -> Result<Value>
+    setMethod(
+        "pop",
+        ParametersSpec.newParts(
+            functionName = "pop",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, _ ->
+        pop(thisValue)
+    }
+
+    // fn difference(this: SetRef, other: Value, heap: Heap) -> Result<Set>
+    setMethod(
+        "difference",
+        ParametersSpec.newParts(
+            functionName = "difference",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        difference(thisSet, other, eval.heap()).map { it.allocValue(eval.heap()) }
+    }
+
+    // fn issuperset(this: SetRef, other: Value, heap: Heap) -> Result<bool>
+    setMethod(
+        "issuperset",
+        ParametersSpec.newParts(
+            functionName = "issuperset",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        issuperset(thisSet, other, eval.heap()).map { it.toValue() }
+    }
+
+    // fn issubset(this: SetRef, other: Value, heap: Heap) -> Result<bool>
+    setMethod(
+        "issubset",
+        ParametersSpec.newParts(
+            functionName = "issubset",
+            posOnly = listOf(Pair("other", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisSet = SetRef.unpackValueOpt(thisValue) ?: return@setMethod Result.failure(
+            IllegalArgumentException("Value is not a set")
+        )
+        val other = args.positional<Value>(0)
+        issubset(thisSet, other, eval.heap()).map { it.toValue() }
+    }
 }
 
 internal fun clear(thisValue: Value): Result<NoneType> {

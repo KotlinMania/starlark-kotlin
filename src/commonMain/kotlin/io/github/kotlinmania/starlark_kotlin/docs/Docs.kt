@@ -100,7 +100,7 @@ class DocFunction(
 /** Function parameters. */
 // #[derive(Debug, Clone, PartialEq, Default, Allocative)]
 // pub struct DocParams
-class DocParams(
+data class DocParams(
     val posOnly: List<DocParam> = emptyList(),
     val posOrNamed: List<DocParam> = emptyList(),
     val args: DocParam? = null,
@@ -162,7 +162,7 @@ class DocParams(
 /** A single parameter of a function. */
 // #[derive(Debug, Clone, PartialEq, Allocative)]
 // pub struct DocParam
-class DocParam(
+data class DocParam(
     /** Does not include `*` or `**`. */
     val name: String,
     var docs: DocString? = null,

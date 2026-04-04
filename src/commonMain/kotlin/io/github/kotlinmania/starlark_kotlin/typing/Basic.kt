@@ -27,26 +27,26 @@ sealed class TyBasic : Comparable<TyBasic> {
     /** Type that contain anything */
     data object Any : TyBasic()
     /** Type is handled by `StarlarkValue` trait implementation. */
-    class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
+    data class StarlarkValue(val value: TyStarlarkValue) : TyBasic()
     /**
      * Iter is a type that supports iteration, only used as arguments to primitive functions.
      * The inner type is applicable for each iteration element.
      */
-    class Iter(val item: ArcTy) : TyBasic()
+    data class Iter(val item: ArcTy) : TyBasic()
     /** `typing.Callable`. */
-    class Callable(val callable: TyCallable) : TyBasic()
+    data class Callable(val callable: TyCallable) : TyBasic()
     /** `type`. */
     data object Type : TyBasic()
     /** A list. */
-    class List(val item: ArcTy) : TyBasic()
+    data class List(val item: ArcTy) : TyBasic()
     /** A tuple. May be empty, to indicate the empty tuple. */
-    class Tuple(val tuple: TyTuple) : TyBasic()
+    data class Tuple(val tuple: TyTuple) : TyBasic()
     /** A dictionary, with key and value types */
-    class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
+    data class Dict(val key: ArcTy, val value: ArcTy) : TyBasic()
     /** Custom type. */
-    class Custom(val custom: TyCustom) : TyBasic()
+    data class Custom(val custom: TyCustom) : TyBasic()
     /** A set. */
-    class Set(val item: ArcTy) : TyBasic()
+    data class Set(val item: ArcTy) : TyBasic()
 
     companion object {
         fun none(): TyBasic = starlarkValue("NoneType")

@@ -19,11 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-// use std::ops::Sub;
-// use std::time::Duration;
-
-// use allocative::Allocative;
-
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
@@ -36,7 +31,7 @@ import kotlin.time.toDuration
 //     #[cfg(test)] u64, // Millis.
 // );
 internal class ProfilerInstant private constructor(
-    private val nanos: Long,
+    private val value: Long, // millis in test mode, nanos in production
 ) : Comparable<ProfilerInstant> {
 
     // impl ProfilerInstant
@@ -46,26 +41,53 @@ internal class ProfilerInstant private constructor(
         // pub(crate) const TEST_TICK_MILLIS: u64 = 7;
         const val TEST_TICK_MILLIS: Long = 7L
 
+        // Rust uses #[cfg(test)] for compile-time switching; Kotlin uses runtime flag.
+        var testMode: Boolean = false
+        private var nowMillis: Long = 100003L
+
+        fun resetTestCounter() {
+            nowMillis = 100003L
+        }
+
         private val epoch: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
         // #[inline]
         // pub(crate) fn now() -> Self
         fun now(): ProfilerInstant {
-            val elapsed = epoch.elapsedNow()
-            return ProfilerInstant(elapsed.inWholeNanoseconds)
+            // #[cfg(test)]
+            // thread_local! {
+            //     static NOW_MILLIS: std::cell::Cell<u64> = const { std::cell::Cell::new(100003) };
+            // }
+            // ProfilerInstant(NOW_MILLIS.with(|v| { let r = v.get(); v.set(r + TEST_TICK_MILLIS); r }))
+            return if (testMode) {
+                val r = nowMillis
+                nowMillis += TEST_TICK_MILLIS
+                ProfilerInstant(r)
+            } else {
+                // #[cfg(not(test))]
+                // ProfilerInstant(std::time::Instant::now())
+                val elapsed = epoch.elapsedNow()
+                ProfilerInstant(elapsed.inWholeNanoseconds)
+            }
         }
     }
 
     // #[inline]
     // pub(crate) fn duration_since(&self, earlier: ProfilerInstant) -> Duration
     fun durationSince(earlier: ProfilerInstant): Duration {
-        // #[cfg(not(test))]
-        // self.0.duration_since(earlier.0)
-        // #[cfg(test)]
-        // Duration::from_millis(self.0.checked_sub(earlier.0).unwrap())
-        val diffNanos = nanos - earlier.nanos
-        require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
-        return diffNanos.toDuration(DurationUnit.NANOSECONDS)
+        return if (testMode) {
+            // #[cfg(test)]
+            // Duration::from_millis(self.0.checked_sub(earlier.0).unwrap())
+            val diffMillis = value - earlier.value
+            require(diffMillis >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
+            diffMillis.toDuration(DurationUnit.MILLISECONDS)
+        } else {
+            // #[cfg(not(test))]
+            // self.0.duration_since(earlier.0)
+            val diffNanos = value - earlier.value
+            require(diffNanos >= 0) { "ProfilerInstant::duration_since: earlier is later than self" }
+            diffNanos.toDuration(DurationUnit.NANOSECONDS)
+        }
     }
 
     // #[inline]
@@ -87,16 +109,16 @@ internal class ProfilerInstant private constructor(
     }
 
     override fun compareTo(other: ProfilerInstant): Int {
-        return nanos.compareTo(other.nanos)
+        return value.compareTo(other.value)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ProfilerInstant) return false
-        return nanos == other.nanos
+        return value == other.value
     }
 
-    override fun hashCode(): Int = nanos.hashCode()
+    override fun hashCode(): Int = value.hashCode()
 
-    override fun toString(): String = "ProfilerInstant(nanos=$nanos)"
+    override fun toString(): String = "ProfilerInstant(value=$value)"
 }

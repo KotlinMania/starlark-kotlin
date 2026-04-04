@@ -44,12 +44,7 @@ data class CallStack(
         sb.appendLine(CALL_STACK_TRACEBACK_PREFIX)
         var prev = "<module>"
         for (x in frames) {
-            // Simplified rendering; full write_two_lines port pending codemap methods.
-            if (x.location != null) {
-                sb.appendLine("  * ${x.location}, in $prev")
-            } else {
-                sb.appendLine("  File <builtin>, in $prev")
-            }
+            x.writeTwoLines("  ", prev, sb)
             prev = x.name
         }
         return sb.toString()

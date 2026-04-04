@@ -114,7 +114,7 @@ internal fun ComprCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWri
                         bc.writeInstr(
                             "InstrComprListAppend",
                             x.span,
-                            listOf(temp.toIn(), exprSlot),
+                            temp.toIn() to exprSlot,
                         )
                     }
                 }
@@ -128,7 +128,7 @@ internal fun ComprCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWri
                         bc.writeInstr(
                             "InstrComprDictInsert",
                             k.span,
-                            listOf(temp.toIn(), slots[0], slots[1]),
+                            Triple(temp.toIn(), slots[0], slots[1]),
                         )
                     }
                 }

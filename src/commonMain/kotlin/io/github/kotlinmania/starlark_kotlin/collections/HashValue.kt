@@ -19,12 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-import kotlin.jvm.JvmInline
-
 /**
  * A hash value.
  */
-@JvmInline
 value class StarlarkHashValue private constructor(
     private val value: UInt,
 ) {
@@ -92,4 +89,3 @@ value class StarlarkHashValue private constructor(
 fun interface StarlarkHashable {
     fun writeHash(hasher: StarlarkHasher)
 }
-

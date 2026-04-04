@@ -66,6 +66,14 @@ class CodeMap(
     val filename: String,
     val source: String
 ) {
+    companion object {
+        // Rust: CodeMap::empty_static()
+        // Kotlin: a single shared empty CodeMap instance.
+        private val EMPTY_STATIC: CodeMap = CodeMap("", "")
+
+        fun emptyStatic(): CodeMap = EMPTY_STATIC
+    }
+
     val lines: List<Pos>
     private val _id: CodeMapId = CodeMapId.next()
 
@@ -106,6 +114,10 @@ class CodeMap(
 
     fun sourceLine(line: Int): String {
         return sourceSpan(lineSpan(line)).trimEnd('\r', '\n')
+    }
+
+    fun sourceLineAtPos(pos: Pos): String {
+        return sourceLine(findLine(pos))
     }
 
     private fun findLineCol(pos: Pos): ResolvedPos {

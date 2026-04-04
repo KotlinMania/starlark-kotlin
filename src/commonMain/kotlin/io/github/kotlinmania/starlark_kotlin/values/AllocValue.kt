@@ -1,4 +1,4 @@
-// port-lint: source src/values/alloc_value.rs
+// port-lint: source values/alloc_value.rs
 package io.github.kotlinmania.starlark_kotlin.values
 
 /*
@@ -20,41 +20,43 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 
 /**
- * This module defines utilities to easily create Rust values as Starlark values.
+ * This mod defines utilities to easily create Rust values as Starlark values.
  */
 
 /**
  * Trait for things that can be created on a [Heap] producing a [Value].
  *
  * Note, this trait does not represent Starlark types.
- * For example, this trait is implemented for `Char`, but there's no Starlark type for `Char`;
- * this trait is implemented for `Char` to construct Starlark `str`.
+ * For example, this trait is implemented for `char`,
+ * but there's no Starlark type for `char`, this trait
+ * is implemented for `char` to construct Starlark `str`.
  *
- * For types that implement [StarlarkValue], a typical implementation will probably call either
- * [Heap.allocSimple] or [Heap.allocComplex], for example:
+ * For types that implement [`crate::values::StarlarkValue`] a typical implementation
+ * will probably call either [`Heap::alloc_simple`] or [`Heap::alloc_complex`],
+ * e.g.
  *
  * ```kotlin
- * // #[derive(Debug, Display, NoSerialize, ProvidesStaticType)]
- * // struct MySimpleValue;
- * //
- * // #[starlark_value(type = "MySimpleValue", UnpackValue, StarlarkTypeRepr)]
- * // impl<'v> StarlarkValue<'v> for MySimpleValue {}
+ * # use allocative::Allocative;
+ * # use starlark::any::ProvidesStaticType;
+ * # use starlark::values::{AllocValue, Heap, NoSerialize, starlark_value, StarlarkValue, Value};
  *
- * class MySimpleValue : StarlarkValue, AllocValue {
- *     override val TYPE: String get() = "MySimpleValue"
+ * #[derive(Debug, derive_more::Display, Allocative, NoSerialize, ProvidesStaticType)]
+ * struct MySimpleValue;
  *
- *     override fun allocValue(heap: Heap): Value {
- *         return heap.allocSimple(this)
+ * #[starlark_value(type = "MySimpleValue", UnpackValue, StarlarkTypeRepr)]
+ * impl<'v> StarlarkValue<'v> for MySimpleValue {}
+ *
+ * impl<'v> AllocValue<'v> for MySimpleValue {
+ *     fn alloc_value(self, heap: Heap<'v>) -> Value<'v> {
+ *         heap.alloc_simple(self)
  *     }
  * }
  * ```
@@ -64,15 +66,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
  * `AllocValue` can be derived for enums, like this:
  *
  * ```kotlin
- * // #[derive(StarlarkTypeRepr, AllocValue)]
- * // enum AllocIntOrStr {
- * //     Int(i32),
- * //     Str(String),
- * // }
+ * use starlark::values::AllocValue;
+ * use starlark::values::type_repr::StarlarkTypeRepr;
  *
- * sealed class AllocIntOrStr : StarlarkTypeRepr, AllocValue {
- *     data class Int(val value: kotlin.Int) : AllocIntOrStr()
- *     data class Str(val value: kotlin.String) : AllocIntOrStr()
+ * #[derive(StarlarkTypeRepr, AllocValue)]
+ * enum AllocIntOrStr {
+ *     Int(i32),
+ *     Str(String),
  * }
  * ```
  */
@@ -93,29 +93,60 @@ interface AllocStringValue : AllocValue {
 }
 
 // impl AllocValue for FrozenValue
-fun FrozenValue.allocValue(_heap: Heap): Value = toValue()
+fun FrozenValue.allocValue(_heap: Heap): Value {
+    return this.toValue()
+}
 
 // impl AllocValue for Value
-fun Value.allocValue(_heap: Heap): Value = this
+fun Value.allocValue(_heap: Heap): Value {
+    return this
+}
 
 // impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
-inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
-    when (this) {
-        is Either.Left -> value.allocValue(heap)
-        is Either.Right -> value.allocValue(heap)
+inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value {
+    return when (this) {
+        is Either.Left -> {
+            val a = value
+            a.allocValue(heap)
+        }
+
+        is Either.Right -> {
+            val b = value
+            b.allocValue(heap)
+        }
     }
+}
+
+// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
+inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue {
+    return when (this) {
+        is Either.Left -> {
+            val a = value
+            a.allocFrozenValue(heap)
+        }
+
+        is Either.Right -> {
+            val b = value
+            b.allocFrozenValue(heap)
+        }
+    }
+}
 
 /**
  * Trait for things that can be allocated on a [FrozenHeap] producing a [FrozenValue].
  *
- * ## Derive
+ * # Derive
  *
  * `AllocFrozenValue` can be derived for enums, like this:
  *
  * ```kotlin
- * sealed class AllocIntOrStr : StarlarkTypeRepr, AllocFrozenValue {
- *     data class Int(val value: Int) : AllocIntOrStr()
- *     data class Str(val value: String) : AllocIntOrStr()
+ * use starlark::values::AllocFrozenValue;
+ * use starlark::values::type_repr::StarlarkTypeRepr;
+ *
+ * #[derive(StarlarkTypeRepr, AllocFrozenValue)]
+ * enum AllocIntOrStr {
+ *     Int(i32),
+ *     Str(String),
  * }
  * ```
  */
@@ -131,14 +162,6 @@ interface AllocFrozenStringValue : AllocFrozenValue {
 }
 
 // impl AllocFrozenValue for FrozenValue
-fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue = this
-
-// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
-inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
-    when (this) {
-        is Either.Left -> value.allocFrozenValue(heap)
-        is Either.Right -> value.allocFrozenValue(heap)
-    }
-
-// --- Rust name parity aliases (for AST distance + line-by-line ports) ---
-// (Removed Rust-name parity aliases; use the camelCase APIs directly.)
+fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    return this
+}

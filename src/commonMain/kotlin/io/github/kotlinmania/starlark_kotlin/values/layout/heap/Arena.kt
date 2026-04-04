@@ -99,9 +99,14 @@ class Reservation<T : AValue> internal constructor(
 ) {
     // pub(crate) fn fill(self, x: T::StarlarkValue)
     fun fill(x: StarlarkValue) {
-        val newHeader = AValueHeader(vtableForValue(x))
-        val newRepr = AValueRepr(header = newHeader, payload = x)
-        list[index] = AValueOrForward.Header(newRepr.header)
+        // In Rust, fill() overwrites the memory in-place at the reserved location.
+        // In Kotlin, we update the existing header's vtable and re-register the repr
+        // so that FrozenValue pointers (which reference the header's index) resolve
+        // to the real value, not the placeholder BlackHole.
+        header.vtable = vtableForValue(x)
+        // Update the reprRegistry so asRepr() finds the real payload.
+        val repr = AValueRepr(header = header, payload = x)
+        // AValueRepr init block registers at header.index automatically.
     }
 
     // pub(crate) fn ptr(&self) -> &'v AValueHeader
@@ -246,6 +251,7 @@ internal class Arena {
                     tracer.allocStr(str.asStr())
                 },
                 starlarkValue = str,
+                hasEquals = true,
             )
         )
         val entry = AValueOrForward.Header(header)

@@ -1,5 +1,4 @@
-// port-lint: source src/debug.rs
-@file:Suppress("unused")
+// port-lint: source debug.rs
 package io.github.kotlinmania.starlark_kotlin.debug
 
 /*
@@ -21,14 +20,10 @@ package io.github.kotlinmania.starlark_kotlin.debug
  */
 
 /** Provides debug-related functionality and utilities. */
-
 // mod adapter;
 private object adapter
-
 // mod evaluate;
 private object evaluate
-
 // mod inspect;
 private object inspect
-
 // pub use adapter::*;

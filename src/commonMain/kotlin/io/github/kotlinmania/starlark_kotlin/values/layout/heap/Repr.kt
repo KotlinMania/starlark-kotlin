@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.withLock
 // #[repr(C)]
 // pub(crate) struct AValueHeader(pub(crate) &'static AValueVTable);
 class AValueHeader(
-    val vtable: AValueVTable,
+    var vtable: AValueVTable,
 ) {
     /**
      * Simulated pointer index for this header, used by the pointer-tagging system.
