@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/basic.rs
+// port-lint: tests tests/basic.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 /** Basic expression tests. */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value

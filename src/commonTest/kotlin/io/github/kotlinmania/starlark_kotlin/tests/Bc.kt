@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/bc.rs
+// port-lint: tests tests/bc.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.tests
 

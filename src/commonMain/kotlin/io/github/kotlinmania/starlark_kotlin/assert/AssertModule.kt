@@ -1,5 +1,4 @@
 // port-lint: source src/assert.rs
-@file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.assert
 
 /*
@@ -47,7 +46,10 @@ package io.github.kotlinmania.starlark_kotlin.assert
  * with both Unix and Windows newlines.
  */
 
-// mod assert;
-private object assert
-// mod conformance;
-private object conformance
+// Rust `mod assert; mod conformance; pub use assert::*;`
+//
+// Kotlin does not need module declarations: `Assert.kt` and `Conformance.kt` live in the same
+// package and their public declarations are available as `io.github.kotlinmania.starlark_kotlin.assert.*`.
+
+private val assert: () -> Assert = { Assert() }
+private val conformance = Assert::conformance

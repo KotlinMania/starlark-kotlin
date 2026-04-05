@@ -189,61 +189,86 @@ public:
             return;
         }
 
-        for (const auto& entry : fs::recursive_directory_iterator(root_path)) {
-            if (!entry.is_regular_file()) continue;
-
-            std::string path = entry.path().string();
-            if (!has_valid_ext(path)) continue;
-
-            // Skip build artifacts (but NOT test files - they need parity too)
-            if (path.find("/target/") != std::string::npos ||
-                path.find("/build/") != std::string::npos ||
-                path.find("/build_") != std::string::npos ||
-                path.find("/_deps/") != std::string::npos) {
-                continue;
-            }
-
-            std::string rel_path = fs::relative(path, root_path).string();
-            std::string stem = entry.path().stem().string();
-            std::string filename = entry.path().filename().string();
-            std::string extension = entry.path().extension().string();
-
-            // Logical grouping: keep paired translation units together
-            // (e.g., .hpp + .cpp, or platform suffix variants).
-            std::string directory = fs::path(rel_path).parent_path().string();
-            std::string normalized_stem = stem;
-            static const std::vector<std::string> suffixes = {
-                ".common", ".concurrent", ".native", ".common_native", ".darwin", ".apple"
-            };
-            for (const auto& suffix : suffixes) {
-                if (normalized_stem.size() > suffix.size() &&
-                    normalized_stem.compare(normalized_stem.size() - suffix.size(), suffix.size(), suffix) == 0) {
-                    normalized_stem = normalized_stem.substr(0, normalized_stem.size() - suffix.size());
-                    break;
+        // Kotlin Multiplatform convention:
+        // If root is under `src/commonMain/kotlin/...`, also scan
+        // the sibling `src/commonTest/kotlin/...` tree so test ports
+        // (annotated with `// port-lint: tests ...`) are discovered.
+        std::vector<fs::path> roots_to_scan;
+        fs::path rel_base = root_path;
+        roots_to_scan.push_back(root_path);
+        if (language == "kotlin") {
+            const std::string marker = "/src/commonMain/kotlin/";
+            const auto pos = root_path.find(marker);
+            if (pos != std::string::npos) {
+                const std::string repo_root = root_path.substr(0, pos);
+                const std::string suffix = root_path.substr(pos + marker.size());
+                const fs::path test_root = fs::path(repo_root) / "src" / "commonTest" / "kotlin" / suffix;
+                if (fs::exists(test_root) && fs::is_directory(test_root)) {
+                    roots_to_scan.push_back(test_root);
+                    // Use repo root for relative paths so commonMain/commonTest remain distinct.
+                    rel_base = repo_root;
                 }
             }
-            std::string logical_key = directory.empty() ? normalized_stem : directory + "/" + normalized_stem;
+        }
 
-            if (files.count(logical_key)) {
-                files[logical_key].paths.push_back(path);
-                // Prefer header as representative entry when paired.
-                if (extension == ".hpp" || extension == ".h") {
-                    files[logical_key].filename = filename;
-                    files[logical_key].extension = extension;
-                    files[logical_key].relative_path = rel_path;
+        for (const auto& scan_root : roots_to_scan) {
+            if (!fs::exists(scan_root) || !fs::is_directory(scan_root)) continue;
+            for (const auto& entry : fs::recursive_directory_iterator(scan_root)) {
+                if (!entry.is_regular_file()) continue;
+
+                std::string path = entry.path().string();
+                if (!has_valid_ext(path)) continue;
+
+                // Skip build artifacts (but NOT test files - they need parity too)
+                if (path.find("/target/") != std::string::npos ||
+                    path.find("/build/") != std::string::npos ||
+                    path.find("/build_") != std::string::npos ||
+                    path.find("/_deps/") != std::string::npos) {
+                    continue;
                 }
-            } else {
-                SourceFile sf;
-                sf.paths.push_back(path);
-                sf.relative_path = rel_path;
-                sf.filename = filename;
-                sf.stem = stem;
-                sf.extension = extension;
-                sf.qualified_name = SourceFile::make_qualified_name(rel_path);
 
-                files[logical_key] = sf;
-                by_stem[sf.stem].push_back(logical_key);
-                by_qualified[sf.qualified_name] = logical_key;
+                std::string rel_path = fs::relative(path, rel_base).string();
+                std::string stem = entry.path().stem().string();
+                std::string filename = entry.path().filename().string();
+                std::string extension = entry.path().extension().string();
+
+                // Logical grouping: keep paired translation units together
+                // (e.g., .hpp + .cpp, or platform suffix variants).
+                std::string directory = fs::path(rel_path).parent_path().string();
+                std::string normalized_stem = stem;
+                static const std::vector<std::string> suffixes = {
+                    ".common", ".concurrent", ".native", ".common_native", ".darwin", ".apple"
+                };
+                for (const auto& suffix : suffixes) {
+                    if (normalized_stem.size() > suffix.size() &&
+                        normalized_stem.compare(normalized_stem.size() - suffix.size(), suffix.size(), suffix) == 0) {
+                        normalized_stem = normalized_stem.substr(0, normalized_stem.size() - suffix.size());
+                        break;
+                    }
+                }
+                std::string logical_key = directory.empty() ? normalized_stem : directory + "/" + normalized_stem;
+
+                if (files.count(logical_key)) {
+                    files[logical_key].paths.push_back(path);
+                    // Prefer header as representative entry when paired.
+                    if (extension == ".hpp" || extension == ".h") {
+                        files[logical_key].filename = filename;
+                        files[logical_key].extension = extension;
+                        files[logical_key].relative_path = rel_path;
+                    }
+                } else {
+                    SourceFile sf;
+                    sf.paths.push_back(path);
+                    sf.relative_path = rel_path;
+                    sf.filename = filename;
+                    sf.stem = stem;
+                    sf.extension = extension;
+                    sf.qualified_name = SourceFile::make_qualified_name(rel_path);
+
+                    files[logical_key] = sf;
+                    by_stem[sf.stem].push_back(logical_key);
+                    by_qualified[sf.qualified_name] = logical_key;
+                }
             }
         }
 
@@ -525,6 +550,8 @@ public:
         int unmatched_target = 0;
         bool has_source_stub = false;
         bool has_target_stub = false;
+        bool has_stub_mismatch = false;
+        int stub_mismatch_count = 0;
     };
 
     struct Match {
@@ -900,15 +927,37 @@ public:
         result.source_total = static_cast<int>(src_prod.size());
         result.target_total = static_cast<int>(tgt_all.size());
 
+        // Track stub/TODO markers per function name.
+        //
+        // Guardrail intent: prevent Kotlin ports from "faking" bodies with TODO/FIXME/STUB markers.
+        //
+        // Rust source may legitimately contain TODO/FIXME comments; that should *not* penalize a Kotlin
+        // port that is more complete than the Rust source. Therefore, we only treat it as a mismatch
+        // when the Kotlin target introduces stub markers that are not present in the corresponding Rust
+        // function.
+        std::multiset<std::string> src_stub_names;
+        std::multiset<std::string> tgt_stub_names;
         for (const auto* func : src_prod) {
             if (func->has_stub_markers) {
                 result.has_source_stub = true;
+                src_stub_names.insert(IdentifierStats::canonicalize(func->name));
             }
         }
         for (const auto* func : tgt_all) {
             if (func->has_stub_markers) {
                 result.has_target_stub = true;
+                tgt_stub_names.insert(IdentifierStats::canonicalize(func->name));
             }
+        }
+        // Count Kotlin-only stub markers (target stubs without matching source stubs).
+        std::vector<std::string> kotlin_only;
+        std::set_difference(
+            tgt_stub_names.begin(), tgt_stub_names.end(),
+            src_stub_names.begin(), src_stub_names.end(),
+            std::back_inserter(kotlin_only));
+        if (!kotlin_only.empty()) {
+            result.has_stub_mismatch = true;
+            result.stub_mismatch_count = static_cast<int>(kotlin_only.size());
         }
 
         if (src_prod.empty() || tgt_all.empty()) {
@@ -930,9 +979,11 @@ public:
                 const auto* target_func = tgt_all[j];
 
                 float sim = 0.0f;
-                // Guardrail: treat stub markers as a failure only when they appear in the
-                // target function but not in the source function. Rust source may contain
-                // legitimate TODO/FIXME comments without implying an incomplete port.
+                // Guardrail: a Kotlin function body containing stub markers (TODO/FIXME/STUB/etc.)
+                // should not score similarity against a real Rust implementation.
+                //
+                // However, Rust source may contain TODO markers legitimately; do not penalize when
+                // the Kotlin target is *more complete* (source has markers, target does not).
                 if (!(target_func->has_stub_markers && !source_func->has_stub_markers)) {
                     sim = ASTSimilarity::combined_similarity_with_content(
                         source_func->body_tree.get(),
@@ -1277,8 +1328,8 @@ public:
 	                            std::to_string(m.source_type_count);
 	                }
 	                float priority = m.source_dependents * (1.0f - m.similarity);
-		                std::cout << std::setw(30) << std::left << m.source_qualified
-		                          << std::setw(30) << m.target_qualified
+		                std::cout << std::setw(30) << std::left << m.source_qualified.substr(0, 28)
+		                          << std::setw(30) << m.target_qualified.substr(0, 28)
 		                          << std::setw(10) << std::fixed << std::setprecision(2) << m.similarity
 		                          << std::setw(11) << m.source_dependents
 		                          << std::setw(14) << funcs
@@ -1304,8 +1355,13 @@ public:
 	                      << std::setw(8) << "Deps"
 	                      << "Path\n";
 	            std::cout << std::string(78, '-') << "\n";
+	            int shown = 0;
 	            for (const auto* sf : missing) {
-	                std::cout << std::setw(30) << std::left << sf->qualified_name
+	                if (shown++ >= 20) {
+	                    std::cout << "... and " << (missing.size() - 20) << " more missing files\n";
+	                    break;
+	                }
+	                std::cout << std::setw(30) << std::left << sf->qualified_name.substr(0, 28)
 	                          << std::setw(8) << sf->dependent_count
 	                          << sf->relative_path << "\n";
 	            }

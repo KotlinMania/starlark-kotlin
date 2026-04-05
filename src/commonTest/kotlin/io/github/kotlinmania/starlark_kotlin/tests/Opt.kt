@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/opt.rs
+// port-lint: tests tests/opt.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest

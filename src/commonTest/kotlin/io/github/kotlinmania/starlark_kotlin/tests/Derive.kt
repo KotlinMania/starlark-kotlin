@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive.rs
+// port-lint: tests tests/derive.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.tests
 

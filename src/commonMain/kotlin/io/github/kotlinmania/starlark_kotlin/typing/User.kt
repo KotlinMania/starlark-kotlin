@@ -291,11 +291,7 @@ class TyUser private constructor(
         if (c != null) {
             return c.validateCall(span, args, oracle)
         }
-        return try {
-            Result.success(base.validateCall(span, oracle))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return base.validateCall(span, oracle)
     }
 
     // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result

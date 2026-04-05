@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.assert.failGolden
 import kotlin.test.Test
 
 class TyRecordTypeTest {

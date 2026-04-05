@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/opt/if_rand.rs
+// port-lint: tests tests/opt/if_rand.rs
 package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /*

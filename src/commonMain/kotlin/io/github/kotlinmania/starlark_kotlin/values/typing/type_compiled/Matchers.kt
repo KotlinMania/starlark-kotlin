@@ -324,21 +324,22 @@ internal object IsNone : TypeMatcher {
 //     starlark_type_id: StarlarkTypeIdAligned,
 // }
 /**
- * Matches a value by its Starlark type name.
+ * Matches a value by its Starlark type id (when available), falling back to name.
  *
- * In Rust, this compares [StarlarkTypeId] values directly. In Kotlin, the typing system
- * uses string-based type names while the runtime uses [KClass]-based IDs. We bridge
- * this by comparing the type name from [AValueVTable.typeName] against the type name
- * from [TyStarlarkValue.starlarkTypeId].
+ * In Rust, this compares [StarlarkTypeId] values directly. In Kotlin, the typing system can
+ * construct [TyStarlarkValue] from just a type name, so the type id may be missing and we
+ * fall back to matching by [AValueVTable.typeName].
  */
 internal class StarlarkTypeIdMatcher(
+    private val expectedTypeId: StarlarkTypeId?,
     private val expectedTypeName: String,
 ) : TypeMatcher {
     companion object {
         // pub(crate) fn new(ty: TyStarlarkValue) -> StarlarkTypeIdMatcher
         fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher {
             return StarlarkTypeIdMatcher(
-                expectedTypeName = ty.starlarkTypeId(),
+                expectedTypeId = ty.starlarkTypeId(),
+                expectedTypeName = ty.asName(),
             )
         }
     }
@@ -347,6 +348,11 @@ internal class StarlarkTypeIdMatcher(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.vtable().typeName == expectedTypeName
+        val expectedId = expectedTypeId
+        return if (expectedId != null) {
+            value.starlarkTypeId() == expectedId
+        } else {
+            value.vtable().typeName == expectedTypeName
+        }
     }
 }

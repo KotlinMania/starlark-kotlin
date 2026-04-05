@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import kotlin.test.Test

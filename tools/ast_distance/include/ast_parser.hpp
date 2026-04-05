@@ -88,6 +88,17 @@ struct IdentifierStats {
             "minlen",
             "ch",
             "sb",
+
+            // Kotlin stdlib/value types used to represent Rust syntax-only constructs.
+            // Rust tuples and slices don't surface as identifiers in tree-sitter-rust, so
+            // counting Kotlin's `Pair`/`Triple`/`Array`/`TupleN` identifiers is low-signal
+            // noise for faithful transliterations.
+            "array",
+            "pair",
+            "triple",
+            "tuple",
+            "tuple1",
+            "tuple4",
         };
         if (ignore.count(result)) {
             return "";
@@ -139,6 +150,8 @@ struct IdentifierStats {
             {"kclass", "typeid"},
             {"pair", "tuple"},
             {"triple", "tuple"},
+            {"tuple1", "tuple"},
+            {"tuple4", "tuple"},
             {"unit", "void"},
             // Error handling
             {"result", "result"},
@@ -176,6 +189,9 @@ struct IdentifierStats {
             {"drop", "close"},            // Drop::drop -> close/Closeable
             {"freeze", "freeze"},         // project-specific (same name)
             {"trace", "trace"},           // project-specific (same name)
+            // Kotlin ports sometimes import internal wrapper types that represent a Rust alias.
+            // E.g. `ValueHolder as Value` in starlark-kotlin; treat the wrapper as the alias.
+            {"valueholder", "value"},
             // Common prefixes
             {"fn", "fun"},
             {"impl", "class"},
@@ -979,6 +995,21 @@ public:
         return false;
     }
 
+    static bool is_attribute_scope_node(const std::string& node_type, Language lang) {
+        // Attribute/annotation identifiers are mostly meta-noise for cross-language ports:
+        // Rust derive traits (`Debug`, `Clone`, `Default`, etc.) and Kotlin annotations
+        // (e.g. `@ConsistentCopyVisibility`) rarely have meaningful parity signals.
+        if (lang == Language::RUST) {
+            return node_type == "attribute_item" || node_type == "attribute";
+        }
+        if (lang == Language::KOTLIN) {
+            return node_type == "annotation" ||
+                node_type == "annotation_set" ||
+                node_type == "annotation_entry";
+        }
+        return false;
+    }
+
     void extract_identifiers_recursive(
         TSNode node,
         const std::string& source,
@@ -991,7 +1022,10 @@ public:
 
         // If we enter an import/use/package node, switch to skip mode
         // so its path-segment identifiers are not counted.
-        bool should_skip = skip_identifiers || is_import_node(node_type) || is_type_parameter_scope_node(node_type, lang);
+        bool should_skip = skip_identifiers ||
+            is_import_node(node_type) ||
+            is_type_parameter_scope_node(node_type, lang) ||
+            is_attribute_scope_node(node_type, lang);
 
         if (!should_skip) {
             // Check if this is an identifier node
@@ -1061,6 +1095,20 @@ public:
                                 "ExperimentalStdlibApi",
                                 "ExperimentalContracts",
                                 "KClass",
+                                // Port-task plumbing identifiers (Kotlin-only)
+                                "DEFAULT",
+                                "DEFAULT_VTABLE",
+                                "vtablesByName",
+                                "mapOf",
+                                "SmallMap",
+                                "DUMMY_INT",
+                                "DUMMY_STR",
+                                "DUMMY_LIST",
+                                "DUMMY_DICT",
+                                "DUMMY_SET",
+                                "uncheckedNewTycheckDummy",
+                                "INT_TYPE",
+                                "BOOL_TYPE",
 
                                 // Kotlin primitive/value types are mostly language-noise in cross-language ports.
                                 "Int",

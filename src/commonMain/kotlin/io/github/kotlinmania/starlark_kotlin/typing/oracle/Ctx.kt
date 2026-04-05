@@ -290,7 +290,7 @@ class TypingOracleCtx(
     ): kotlin.Result<Ty> {
         return when (function) {
             is TyBasic.Any -> kotlin.Result.success(Ty.any())
-            is TyBasic.StarlarkValue -> kotlin.Result.success(function.value.validateCall(span, this))
+            is TyBasic.StarlarkValue -> function.value.validateCall(span, this)
             is TyBasic.List, is TyBasic.Dict, is TyBasic.Tuple, is TyBasic.Set -> {
                 kotlin.Result.failure(Exception(mkErrorAsMaybeInternal(
                     span,

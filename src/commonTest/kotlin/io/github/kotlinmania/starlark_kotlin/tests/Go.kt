@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/go.rs
+// port-lint: tests tests/go.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*

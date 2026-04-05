@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/comprehension.rs
+// port-lint: tests tests/comprehension.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.tests
 /** Test dict and list comprehension. */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck
+import io.github.kotlinmania.starlark_kotlin.assert.isTrueSkipTypecheck
 
 // comprehensions should work whether they are at the root, or under a def
 // but these are actually quite different locations semantically, so test both

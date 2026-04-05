@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive/alloc_value.rs (tests)
+// port-lint: tests tests/derive/alloc_value.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 /*

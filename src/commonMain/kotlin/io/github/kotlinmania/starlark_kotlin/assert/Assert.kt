@@ -618,31 +618,15 @@ class Assert(
         fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error =
             io.github.kotlinmania.starlark_kotlin.assert.fail(program, msg)
 
-        // #[cfg(test)]
-        internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error =
-            io.github.kotlinmania.starlark_kotlin.assert.failGolden(path, program)
-
-        // #[cfg(test)]
-        internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error =
-            io.github.kotlinmania.starlark_kotlin.assert.failSkipTypecheck(program, msg)
-
         /** See [Assert.fails]. */
         fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error =
             io.github.kotlinmania.starlark_kotlin.assert.fails(program, msgs)
-
-        // #[cfg(test)]
-        internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error =
-            io.github.kotlinmania.starlark_kotlin.assert.failsSkipTypecheck(program, msgs)
 
         /** See [Assert.isTrue]. */
         fun isTrue(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isTrue(program)
 
         /** See [Assert.isFalse]. */
         fun isFalse(program: String) = io.github.kotlinmania.starlark_kotlin.assert.isFalse(program)
-
-        // #[cfg(test)]
-        internal fun isTrueSkipTypecheck(program: String) =
-            io.github.kotlinmania.starlark_kotlin.assert.isTrueSkipTypecheck(program)
 
         /** See [Assert.allTrue]. */
         fun allTrue(expressions: String) = io.github.kotlinmania.starlark_kotlin.assert.allTrue(expressions)
@@ -667,32 +651,9 @@ fun fail(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Er
     return Assert().fail(program, msg)
 }
 
-// #[cfg(test)]
-internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark_kotlin.Error {
-    val trimmed = program.trim()
-    val e = fails(trimmed, emptyList())
-    val output = "Program:\n\n$trimmed\n\nError:\n\n$e\n"
-    io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate(path, output)
-    return e
-}
-
-// #[cfg(test)]
-internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark_kotlin.Error {
-    val a = Assert()
-    a.disableStaticTypechecking()
-    return a.fail(program, msg)
-}
-
 /** See [Assert.fails]. */
 fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
     return Assert().fails(program, msgs)
-}
-
-// #[cfg(test)]
-internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark_kotlin.Error {
-    val a = Assert()
-    a.disableStaticTypechecking()
-    return a.fails(program, msgs)
 }
 
 /** See [Assert.isTrue]. */
@@ -703,13 +664,6 @@ fun isTrue(program: String) {
 /** See [Assert.isFalse]. */
 fun isFalse(program: String) {
     Assert().isFalse(program)
-}
-
-// #[cfg(test)]
-internal fun isTrueSkipTypecheck(program: String) {
-    val a = Assert()
-    a.disableStaticTypechecking()
-    a.isTrue(program)
 }
 
 /** See [Assert.allTrue]. */

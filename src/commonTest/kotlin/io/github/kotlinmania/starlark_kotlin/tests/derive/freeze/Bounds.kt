@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive/freeze/bounds.rs
+// port-lint: tests tests/derive/freeze/bounds.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/freeze_access_value.rs
+// port-lint: tests tests/freeze_access_value.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive/freeze/validator_order.rs
+// port-lint: tests tests/derive/freeze/validator_order.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 /*

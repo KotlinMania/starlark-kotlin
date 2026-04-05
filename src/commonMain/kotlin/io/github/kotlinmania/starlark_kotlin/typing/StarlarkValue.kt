@@ -23,6 +23,16 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingUnOp
+import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
+import io.github.kotlinmania.starlark_kotlin.values.types.bool.StarlarkBool
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDict
+import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenList
+import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.StarlarkTypeIdMatcher
 
@@ -45,12 +55,12 @@ private sealed class TyStarlarkValueError : Exception() {
  */
 private class TyStarlarkValueVTable(
     val typeName: String,
-    val starlarkTypeId: String = typeName,
+    val starlarkTypeId: StarlarkTypeId? = null,
     /**
      * `starlark_type_id` is the canonical type id.
      * `starlark_type_id_check` is the canonical-of-canonical check.
      */
-    val starlarkTypeIdCheck: String = typeName,
+    val starlarkTypeIdCheck: StarlarkTypeId? = starlarkTypeId,
     // Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
     val hasPlus: Boolean = false,
     val hasMinus: Boolean = false,
@@ -78,40 +88,49 @@ private class TyStarlarkValueVTable(
 private object TyStarlarkValueVTableGet {
     val INT_VTABLE = TyStarlarkValueVTable(
         typeName = "int",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(StarlarkBigInt::class),
         hasPlus = true, hasMinus = true, hasBitNot = true,
     )
     val FLOAT_VTABLE = TyStarlarkValueVTable(
         typeName = "float",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(StarlarkFloat::class),
         hasPlus = true, hasMinus = true,
     )
     val BOOL_VTABLE = TyStarlarkValueVTable(
         typeName = "bool",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(StarlarkBool::class),
     )
     val STRING_VTABLE = TyStarlarkValueVTable(
         typeName = "string",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(StarlarkStr::class),
         hasAt = true, hasSlice = true,
         hasIterate = true,
     )
     val NONE_VTABLE = TyStarlarkValueVTable(
         typeName = "NoneType",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(NoneType::class),
     )
     val LIST_VTABLE = TyStarlarkValueVTable(
         typeName = "list",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(FrozenList::class),
         hasAt = true, hasSlice = true,
         hasIterate = true, hasIterateCollect = true,
     )
     val DICT_VTABLE = TyStarlarkValueVTable(
         typeName = "dict",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(FrozenDict::class),
         hasAt = true,
         hasIterate = true, hasIterateCollect = true,
     )
     val TUPLE_VTABLE = TyStarlarkValueVTable(
         typeName = "tuple",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(Tuple::class),
         hasAt = true, hasSlice = true,
         hasIterate = true, hasIterateCollect = true,
     )
     val SET_VTABLE = TyStarlarkValueVTable(
         typeName = "set",
+        starlarkTypeId = StarlarkTypeId.ofCanonical(FrozenSet::class),
         hasIterate = true, hasIterateCollect = true,
     )
     val FUNCTION_VTABLE = TyStarlarkValueVTable(
@@ -165,7 +184,13 @@ class TyStarlarkValue private constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyStarlarkValue) return false
-        return vtable.starlarkTypeId == other.vtable.starlarkTypeId
+        val thisId = vtable.starlarkTypeId
+        val otherId = other.vtable.starlarkTypeId
+        return if (thisId != null && otherId != null) {
+            thisId == otherId
+        } else {
+            vtable.typeName == other.vtable.typeName
+        }
     }
 
     // -- Hash --
@@ -182,12 +207,17 @@ class TyStarlarkValue private constructor(
 
     // Cannot have this check in constructor where it belongs because new() needs to be lightweight.
     private fun selfCheck() {
-        check(vtable.starlarkTypeId == vtable.starlarkTypeIdCheck) {
+        val typeId = vtable.starlarkTypeId
+        val typeIdCheck = vtable.starlarkTypeIdCheck
+        if (typeId == null || typeIdCheck == null) {
+            return
+        }
+        check(typeId == typeIdCheck) {
             "`Canonical` for `${vtable.typeName}` is not canonical"
         }
     }
 
-    internal fun starlarkTypeId(): String {
+    internal fun starlarkTypeId(): StarlarkTypeId? {
         return vtable.starlarkTypeId
     }
 
@@ -308,16 +338,16 @@ class TyStarlarkValue private constructor(
      * Validate that this type is callable.
      *
      * In Rust: `fn validate_call(self, span: Span, oracle: TypingOracleCtx) -> Result<Ty, TypingError>`
-     * Returns [Ty.any] if callable, throws if not.
+     * Returns [Ty.any] if callable, error if not.
      */
     internal fun validateCall(
         span: Span,
         oracle: TypingOracleCtx,
-    ): Ty {
-        if (isCallable()) {
-            return Ty.any()
+    ): Result<Ty> {
+        return if (isCallable()) {
+            Result.success(Ty.any())
         } else {
-            throw oracle.mkError(span, TyStarlarkValueError.NotCallable(this)).intoEvalException()
+            Result.failure(oracle.mkError(span, TyStarlarkValueError.NotCallable(this)).intoEvalException())
         }
     }
 
@@ -328,7 +358,7 @@ class TyStarlarkValue private constructor(
     }
 
     internal fun iterItem(): Result<Ty> {
-        return if (isIterableFromVtable(vtable)) {
+        return if (isIterable(vtable)) {
             Result.success(Ty.any())
         } else {
             Result.failure(TypingNoContextError)
@@ -339,18 +369,20 @@ class TyStarlarkValue private constructor(
     internal fun <R> matcher(alloc: TypeMatcherAlloc<R>): R {
         selfCheck()
 
+        val starlarkTypeId = vtable.starlarkTypeId
+
         // First handle special cases that can match faster than default matcher.
         // These are optimizations.
-        return if (vtable.starlarkTypeId == "int") {
+        return if (starlarkTypeId == StarlarkTypeId.ofCanonical(StarlarkBigInt::class)) {
             alloc.int()
-        } else if (vtable.starlarkTypeId == "bool") {
+        } else if (starlarkTypeId == StarlarkTypeId.ofCanonical(StarlarkBool::class)) {
             alloc.bool()
-        } else if (vtable.starlarkTypeId == "NoneType") {
+        } else if (starlarkTypeId == StarlarkTypeId.ofCanonical(NoneType::class)) {
             alloc.none()
-        } else if (vtable.starlarkTypeId == "string") {
+        } else if (starlarkTypeId == StarlarkTypeId.ofCanonical(StarlarkStr::class)) {
             alloc.str()
         } else {
-            alloc.alloc(StarlarkTypeIdMatcher(vtable.starlarkTypeId))
+            alloc.alloc(StarlarkTypeIdMatcher.new(this))
         }
     }
 
@@ -397,7 +429,7 @@ class TyStarlarkValue private constructor(
         fun set(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.SET_VTABLE)
 
         /** Check if a vtable indicates the type is iterable. */
-        private fun isIterableFromVtable(vtable: TyStarlarkValueVTable): Boolean {
+        private fun isIterable(vtable: TyStarlarkValueVTable): Boolean {
             return vtable.hasIterate || vtable.hasIterateCollect
         }
 

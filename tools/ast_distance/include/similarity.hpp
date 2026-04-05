@@ -139,13 +139,21 @@ public:
         int depth1 = tree1->depth();
         int depth2 = tree2->depth();
 
+        int max_size = std::max(size1, size2);
+        int max_depth = std::max(depth1, depth2);
+        // Guard tiny/empty trees: avoid 0/0 -> NaN which later poisons scoring.
+        // Empty bodies can happen for tiny stubs, empty blocks, or normalization artifacts.
+        if (max_size == 0 && max_depth == 0) return 1.0f;
+
         // Size similarity (normalized)
-        float size_sim = 1.0f - std::abs(size1 - size2) /
-                         static_cast<float>(std::max(size1, size2));
+        float size_sim = (max_size == 0)
+            ? 1.0f
+            : 1.0f - std::abs(size1 - size2) / static_cast<float>(max_size);
 
         // Depth similarity
-        float depth_sim = 1.0f - std::abs(depth1 - depth2) /
-                          static_cast<float>(std::max(depth1, depth2));
+        float depth_sim = (max_depth == 0)
+            ? 1.0f
+            : 1.0f - std::abs(depth1 - depth2) / static_cast<float>(max_depth);
 
         // Combine
         return 0.5f * size_sim + 0.5f * depth_sim;

@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/derive/module/return_impl.rs
+// port-lint: tests tests/derive/module/return_impl.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 /*

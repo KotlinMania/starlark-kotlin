@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/bc/if_stmt.rs
+// port-lint: tests tests/bc/if_stmt.rs
 package io.github.kotlinmania.starlark_kotlin.tests.bc
 
 /*

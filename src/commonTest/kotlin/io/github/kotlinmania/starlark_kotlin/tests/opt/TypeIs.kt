@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/opt/type_is.rs
+// port-lint: tests tests/opt/type_is.rs
 package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /*

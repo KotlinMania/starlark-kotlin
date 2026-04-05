@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/bc/compr.rs
+// port-lint: tests tests/bc/compr.rs
 package io.github.kotlinmania.starlark_kotlin.tests.bc
 
 /*

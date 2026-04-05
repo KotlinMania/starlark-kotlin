@@ -377,7 +377,18 @@ public:
 	                  << agent_number << "\n\n";
 
 	        auto is_test_task = [&]() -> bool {
-	            return task.source_path.rfind("tests/", 0) == 0;
+	            const std::string& p = task.source_path;
+	            // Rust tests may live in:
+	            // - `tests/...`
+	            // - `src/tests/...`
+	            // - `src/**/tests.rs` (module-level tests)
+	            // - `src/tests.rs`
+	            // Treat any path with a `tests` segment or a `tests.rs` leaf as a test task.
+	            if (p == "tests.rs") return true;
+	            if (p.size() >= 9 && p.compare(p.size() - 9, 9, "/tests.rs") == 0) return true;
+	            if (p.find("/tests/") != std::string::npos) return true;
+	            if (p.rfind("tests/", 0) == 0) return true;
+	            return false;
 	        };
 
 	        auto effective_target_root = [&]() -> std::string {

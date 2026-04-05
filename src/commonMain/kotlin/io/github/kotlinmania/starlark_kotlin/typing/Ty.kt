@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
 // Rust: format!("{val:?}") / write!(f, "{val:?}") style debug formatting.
 // We only implement what this file needs: stable-ish escaping for strings.
-private fun formatDebug(value: Any?): String {
+private fun format(value: Any?): String {
     return when (value) {
         null -> "null"
         is String -> buildString {
@@ -70,14 +70,14 @@ data class Approximation(
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
-                message = formatDebug(message),
+                message = format(message),
             )
         }
     }
 
     // impl Display for Approximation
     override fun toString(): String {
-        return "Approximation: $category = ${formatDebug(message)}"
+        return "Approximation: $category = ${format(message)}"
     }
 }
 

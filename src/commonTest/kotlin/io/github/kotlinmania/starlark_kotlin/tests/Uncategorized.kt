@@ -1,4 +1,4 @@
-// port-lint: tests src/tests/uncategorized.rs
+// port-lint: tests tests/uncategorized.rs
 package io.github.kotlinmania.starlark_kotlin.tests
 
 /*
@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.assert.failsSkipTypecheck
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.Module
