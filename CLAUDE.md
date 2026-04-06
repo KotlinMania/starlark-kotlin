@@ -6,22 +6,20 @@ This is **starlark-kotlin**, a line-by-line port of Facebook's starlark-rust to 
 
 ## Critical Workflows
 
-### 1. Task Assignment System (MANDATORY)
+### 1. Task Assignment (DISABLED)
 
-**DO NOT port files randomly!** Use the task management system:
+The `ast_distance` swarm task-assignment flags are **disabled** in this workspace:
+`--init-tasks`, `--tasks`, `--assign`, `--complete`, `--release`, `--agent`, `--task-file`, `--override`.
+
+Use file comparisons and directory-level checks instead:
 
 ```bash
-# Get your next assignment
-./tools/ast_distance/ast_distance --assign tasks.json claude-agent-001
+# Deep comparison over directories
+./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 
-# Complete when done
-./tools/ast_distance/ast_distance --complete tasks.json <source_qualified_name>
-
-# Release if blocked
-./tools/ast_distance/ast_distance --release tasks.json <source_qualified_name>
+# Rank missing/priority (if available in your ast_distance build)
+./tools/ast_distance/ast_distance --rank tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 ```
-
-**⚠️ NEVER run `--init-tasks` - the task file is already initialized!**
 
 ### 2. Port-Lint Headers (REQUIRED)
 

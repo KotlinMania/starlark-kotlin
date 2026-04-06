@@ -123,19 +123,8 @@ void print_usage(const char* program) {
     std::cerr << "      Output as JSON\n\n";
     std::cerr << "  " << program << " --compiler-fixup <kotlin_root> <error_file> --verbose\n";
     std::cerr << "      Show alternative imports for ambiguous references\n\n";
-    std::cerr << "Swarm Task Management:\n";
-    std::cerr << "  " << program << " --init-tasks <src_dir> <src_lang> <tgt_dir> <tgt_lang> <task_file>\n";
-    std::cerr << "      Generate task file from missing/incomplete ports\n\n";
-    std::cerr << "  " << program << " --tasks <task_file>\n";
-    std::cerr << "      Show task status summary\n\n";
-    std::cerr << "  " << program << " --assign <task_file> [agent_number]\n";
-    std::cerr << "      Assign highest-priority pending task to an agent session\n";
-    std::cerr << "      If agent_number is omitted, a new one is allocated and printed\n";
-    std::cerr << "      Outputs complete porting instructions and AGENTS.md guidelines\n\n";
-    std::cerr << "  " << program << " --complete <task_file> <source_qualified>\n";
-    std::cerr << "      Mark a task as completed\n\n";
-    std::cerr << "  " << program << " --release <task_file> <source_qualified>\n";
-    std::cerr << "      Release an assigned task back to pending\n\n";
+    std::cerr << "Swarm Task Management (DISABLED):\n";
+    std::cerr << "  Disabled flags: --init-tasks, --tasks, --assign, --complete, --release, --agent, --task-file, --override\n\n";
     std::cerr << "  Languages: rust, kotlin, cpp, python\n\n";
     std::cerr << "Port-Lint Headers:\n";
     std::cerr << "  Add a header comment to each ported file to enable accurate source tracking.\n";
@@ -2874,6 +2863,14 @@ int main(int argc, char* argv[]) {
     }
 
     std::string mode = argv[1];
+
+    if (agent != 0 || override_mode || !task_file_flag.empty() ||
+        mode == "--init-tasks" || mode == "--tasks" || mode == "--assign" || mode == "--complete" ||
+        mode == "--release" || mode == "--agent" || mode == "--task-file" || mode == "--override") {
+        std::cerr << "Error: " << mode << " is disabled in this ast_distance build.\n";
+        std::cerr << "Disabled flags: --init-tasks, --tasks, --assign, --complete, --release, --agent, --task-file, --override\n";
+        return 2;
+    }
 
     // Guardrails: if a task system exists, require --agent and lock the session number.
     GuardrailsContext guard;
