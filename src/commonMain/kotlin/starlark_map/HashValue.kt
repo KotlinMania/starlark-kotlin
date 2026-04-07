@@ -19,13 +19,10 @@ package starlark_map
  * limitations under the License.
  */
 
-import kotlin.jvm.JvmInline
-
 /**
  * A hash value.
  */
-@JvmInline
-value class StarlarkHashValue private constructor(
+data class StarlarkHashValue private constructor(
     private val value: UInt,
 ) {
     companion object {
@@ -92,4 +89,3 @@ value class StarlarkHashValue private constructor(
 fun interface StarlarkHashable {
     fun writeHash(hasher: StarlarkHasher)
 }
-
