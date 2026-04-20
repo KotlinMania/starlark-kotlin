@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  */
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 
 /**
@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
  * will go on the FrozenHeap, while a list of constants will be continually
  * reallocated.
  */
-internal fun listToTuple(x: CstExpr): CstExpr {
+internal fun listToTuple(x: Spanned<ExprP<CstPayload>>): Spanned<ExprP<CstPayload>> {
     return when (val node = x.node) {
         is ExprP.ListExpr -> Spanned(
             node = ExprP.Tuple(node.elements),

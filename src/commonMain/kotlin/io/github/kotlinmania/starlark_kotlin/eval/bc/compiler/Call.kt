@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFullForDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CallCompiled
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
@@ -51,7 +51,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.values.types.getKnownMethod
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 
 // impl ArgsCompiledValue
 
@@ -142,7 +142,7 @@ private fun writeCallFrozen(
     bc: BcWriter,
 ) {
     val fileSpan = bc.allocFileSpan(span)
-    val frozenDef = FrozenValueTyped.new<FrozenDef>(fun_)
+    val frozenDef = FrozenValueTyped.new<DefGen<FrozenValue>>(fun_)
     if (frozenDef != null) {
         writeArgs(args, bc) { callArgs, bc2 ->
             when (callArgs) {

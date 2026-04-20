@@ -33,13 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentAssignPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
@@ -48,12 +42,14 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -277,7 +273,7 @@ internal class StmtsCompiled(
             val condBool = ExprCompiledBool.new(cond)
             return when (condBool.node) {
                 is ExprCompiledBool.Const -> {
-                    if ((condBool.node as ExprCompiledBool.Const).value) t else f
+                    if ((condBool.node as ExprCompiledBool.Const).b) t else f
                 }
                 is ExprCompiledBool.Expr -> {
                     val condExpr = (condBool.node as ExprCompiledBool.Expr).expr
@@ -582,7 +578,7 @@ internal fun Compiler.compileContext(hasReturnType: Boolean): StmtCompileContext
 
 // pub fn assign_target(&mut self, expr: &CstAssignTarget) -> Result<IrSpanned<AssignCompiledValue>, CompilerInternalError>
 internal fun Compiler.assignTarget(
-    expr: CstAssignTarget,
+    expr: Spanned<AssignTargetP<CstPayload>>,
 ): Result<IrSpanned<AssignCompiledValue>> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, expr.span))
     val assign = when (val node = expr.node) {
@@ -625,7 +621,7 @@ internal fun Compiler.assignTarget(
 // fn assign_modify(&mut self, span_stmt: Span, lhs: &CstAssignTarget, rhs: IrSpanned<ExprCompiled>, op: AssignOp) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.assignModify(
     spanStmt: Span,
-    lhs: CstAssignTarget,
+    lhs: Spanned<AssignTargetP<CstPayload>>,
     rhs: IrSpanned<ExprCompiled>,
     op: AssignOp,
 ): Result<StmtsCompiled> {
@@ -653,7 +649,7 @@ private fun Compiler.assignModify(
         }
         is AssignTargetP.Identifier<*, *> -> {
             @Suppress("UNCHECKED_CAST")
-            val ident = node.ident as CstAssignIdent
+            val ident = node.ident as Spanned<AssignIdentP<CstPayload, *>>
             val (slot, captured) = this.scopeData.getAssignIdentSlot(ident, this.codemap.value)
             when {
                 slot is Slot.Local && captured == Captured.No -> {
@@ -688,7 +684,7 @@ private fun Compiler.assignModify(
 
 // pub(crate) fn stmt(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.stmt(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,
 ): Result<StmtsCompiled> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, stmt.span))
@@ -711,7 +707,7 @@ internal fun Compiler.stmt(
 
 // pub(crate) fn module_top_level_stmt(&mut self, stmt: &CstStmt) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.moduleTopLevelStmt(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
 ): Result<StmtsCompiled> {
     return when (val node = stmt.node) {
         is StmtP.Statements -> {
@@ -734,8 +730,8 @@ internal fun Compiler.moduleTopLevelStmt(
 // fn stmt_if(&mut self, span, cond, then_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIf(
     span: FrameSpan,
-    cond: CstExpr,
-    thenBlock: CstStmt,
+    cond: Spanned<ExprP<CstPayload>>,
+    thenBlock: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,
 ): Result<StmtsCompiled> {
     val condCompiled = this.expr(cond).getOrElse { return Result.failure(it) }
@@ -751,9 +747,9 @@ private fun Compiler.stmtIf(
 // fn stmt_if_else(&mut self, span, cond, then_block, else_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIfElse(
     span: FrameSpan,
-    cond: CstExpr,
-    thenBlock: CstStmt,
-    elseBlock: CstStmt,
+    cond: Spanned<ExprP<CstPayload>>,
+    thenBlock: Spanned<StmtP<CstPayload>>,
+    elseBlock: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,
 ): Result<StmtsCompiled> {
     val condCompiled = this.expr(cond).getOrElse { return Result.failure(it) }
@@ -763,14 +759,14 @@ private fun Compiler.stmtIfElse(
 }
 
 // fn stmt_expr(&mut self, expr: &CstExpr) -> Result<StmtsCompiled, CompilerInternalError>
-private fun Compiler.stmtExpr(expr: CstExpr): Result<StmtsCompiled> {
+private fun Compiler.stmtExpr(expr: Spanned<ExprP<CstPayload>>): Result<StmtsCompiled> {
     val compiled = this.expr(expr).getOrElse { return Result.failure(it) }
     return Result.success(StmtsCompiled.expr(compiled))
 }
 
 // fn stmt_direct(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtDirect(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,
 ): Result<StmtsCompiled> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, stmt.span))
@@ -794,9 +790,9 @@ private fun Compiler.stmtDirect(
                 }.getOrElse { return Result.failure(it) },
             )
             @Suppress("UNCHECKED_CAST")
-            val defName = defP.name as CstAssignIdent
+            val defName = defP.name as Spanned<AssignIdentP<CstPayload, BindingId?>>
             val lhs = assignTarget(Spanned(
-                AssignTargetP.Identifier<CstPayload, CstIdentAssignPayload>(defName),
+                AssignTargetP.Identifier<CstPayload, BindingId?>(defName),
                 defName.span,
             )).getOrElse { return Result.failure(it) }
             Result.success(StmtsCompiled.one(IrSpanned(

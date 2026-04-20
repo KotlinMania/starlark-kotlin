@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record.record_type
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.small_map.SmallMap
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
@@ -39,12 +39,11 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
 import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
@@ -100,15 +99,14 @@ class RecordTypeGen internal constructor(
     }
 
     // impl Freeze for RecordType
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): FreezeResult<RecordTypeGen> {
-        val frozenFields = freezeSmallMap(
-            fields,
+    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
+    override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
+        val frozenFields = fields.freeze(
             freezer,
-            freezeKey = { k, _ -> FreezeResult.success(k) },
-            freezeValue = { field, _ -> FreezeResult.success(field) },
-        ).getOrElse { return FreezeResult.failure(it) }
-        return FreezeResult.success(
+            freezeKey = { k -> Result.success(k) },
+            freezeValue = { field -> Result.success(field) },
+        ).getOrElse { return Result.failure(it) }
+        return Result.success(
             RecordTypeGen(
                 id = id,
                 tyRecordData = tyRecordData,
@@ -296,13 +294,6 @@ class RecordTypeGen internal constructor(
         }
     }
 }
-
-/** Type alias for unfrozen record type. */
-// pub type RecordType<'v> = RecordTypeGen<Value<'v>>;
-typealias RecordType = RecordTypeGen
-/** Type alias for frozen record type. */
-// pub type FrozenRecordType = RecordTypeGen<FrozenValue>;
-typealias FrozenRecordType = RecordTypeGen
 
 // pub(crate) fn record_fields<'v>(...) -> &'v SmallMap<String, FieldGen<Value<'v>>>
 internal fun recordFields(x: RecordTypeGen): SmallMap<String, Field> = x.fields

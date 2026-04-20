@@ -7,21 +7,19 @@ import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingUnOp
 import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
@@ -48,10 +46,10 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
 
 /** Validated call arguments, unpacked from a CallArgsP. */
 internal class CallArgsUnpack<P : AstPayload>(
-    val pos: List<AstArgumentP<P>>,
-    val named: List<AstArgumentP<P>>,
-    val star: AstArgumentP<P>?,
-    val starStar: AstArgumentP<P>?,
+    val pos: List<Spanned<ArgumentP<P>>>,
+    val named: List<Spanned<ArgumentP<P>>>,
+    val star: Spanned<ArgumentP<P>>?,
+    val starStar: Spanned<ArgumentP<P>>?,
 ) {
     companion object {
         fun <P : AstPayload> unpack(
@@ -61,8 +59,8 @@ internal class CallArgsUnpack<P : AstPayload>(
             val args = callArgs.args
             var numPos = 0
             var numNamed = 0
-            var star: AstArgumentP<P>? = null
-            var starStar: AstArgumentP<P>? = null
+            var star: Spanned<ArgumentP<P>>? = null
+            var starStar: Spanned<ArgumentP<P>>? = null
             val namedNames = mutableSetOf<String>()
             var stage = 0 // 0=positional, 1=named, 2=args, 3=kwargs
 
@@ -195,8 +193,8 @@ internal class TypingContext(
 
     private fun exprIndex(
         span: Span,
-        array: CstExpr,
-        index: CstExpr,
+        array: Spanned<ExprP<CstPayload>>,
+        index: Spanned<ExprP<CstPayload>>,
     ): kotlin.Result<Ty> {
         val arrayTy = expressionType(array).getOrElse { return kotlin.Result.failure(it) }
 
@@ -218,7 +216,7 @@ internal class TypingContext(
 
     private fun expressionUnOp(
         span: Span,
-        arg: CstExpr,
+        arg: Spanned<ExprP<CstPayload>>,
         unOp: TypingUnOp,
     ): kotlin.Result<Ty> {
         val ty = expressionType(arg).getOrElse { return kotlin.Result.failure(it) }
@@ -309,11 +307,11 @@ internal class TypingContext(
     }
 
     /** Used to get the type of an expression when used as part of a ModifyAssign operation */
-    private fun expressionAssign(x: CstAssignTarget): kotlin.Result<Ty> {
+    private fun expressionAssign(x: Spanned<AssignTargetP<CstPayload>>): kotlin.Result<Ty> {
         return when (val node = x.node) {
-            is AssignTargetP.Tuple -> kotlin.Result.success(approximation("expression_assignment", x))
-            is AssignTargetP.Index -> exprIndex(x.span, node.expr, node.index)
-            is AssignTargetP.Dot -> kotlin.Result.success(approximation("expression_assignment", x))
+            is AssignTargetP.Tuple<*> -> kotlin.Result.success(approximation("expression_assignment", x))
+            is AssignTargetP.Index<*> -> exprIndex(x.span, node.expr as Spanned<ExprP<CstPayload>>, node.index as Spanned<ExprP<CstPayload>>)
+            is AssignTargetP.Dot<*> -> kotlin.Result.success(approximation("expression_assignment", x))
             is AssignTargetP.Identifier<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val payload = node.ident.node.payload as? BindingId
@@ -332,7 +330,7 @@ internal class TypingContext(
         }
     }
 
-    private fun expressionAssignSpanned(x: CstAssignTarget): kotlin.Result<Spanned<Ty>> {
+    private fun expressionAssignSpanned(x: Spanned<AssignTargetP<CstPayload>>): kotlin.Result<Spanned<Ty>> {
         return expressionAssign(x).map { Spanned(it, x.span) }
     }
 
@@ -347,24 +345,24 @@ internal class TypingContext(
         expressionType(for_.over).getOrElse { return kotlin.Result.failure(it) }
         for (clause in clauses) {
             when (clause) {
-                is ClauseP.For -> expressionType(clause.forClause.over).getOrElse { return kotlin.Result.failure(it) }
-                is ClauseP.If -> expressionType(clause.cond).getOrElse { return kotlin.Result.failure(it) }
+                is ClauseP.For<*> -> expressionType(clause.forClause.over as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
+                is ClauseP.If<*> -> expressionType(clause.cond as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
             }
         }
         return kotlin.Result.success(Unit)
     }
 
     fun expressionTypeSpanned(
-        x: CstExpr,
+        x: Spanned<ExprP<CstPayload>>,
     ): kotlin.Result<Spanned<Ty>> {
         return expressionType(x).map { Spanned(it, x.span) }
     }
 
     private fun exprBinOp(
         span: Span,
-        lhs: CstExpr,
+        lhs: Spanned<ExprP<CstPayload>>,
         op: BinOp,
-        rhs: CstExpr,
+        rhs: Spanned<ExprP<CstPayload>>,
     ): kotlin.Result<Ty> {
         val lhsSpanned = expressionTypeSpanned(lhs).getOrElse { return kotlin.Result.failure(it) }
         val rhsSpanned = expressionTypeSpanned(rhs).getOrElse { return kotlin.Result.failure(it) }
@@ -373,7 +371,7 @@ internal class TypingContext(
 
     private fun exprCall(
         span: Span,
-        f: CstExpr,
+        f: Spanned<ExprP<CstPayload>>,
         args: CallArgsP<CstPayload>,
     ): kotlin.Result<Ty> {
         val unpackedArgs = try {
@@ -433,10 +431,10 @@ internal class TypingContext(
 
     private fun exprSlice(
         span: Span,
-        x: CstExpr,
-        start: CstExpr?,
-        stop: CstExpr?,
-        step: CstExpr?,
+        x: Spanned<ExprP<CstPayload>>,
+        start: Spanned<ExprP<CstPayload>>?,
+        stop: Spanned<ExprP<CstPayload>>?,
+        step: Spanned<ExprP<CstPayload>>?,
     ): kotlin.Result<Ty> {
         for (e in listOfNotNull(start, stop, step)) {
             val spanned = expressionTypeSpanned(e).getOrElse { return kotlin.Result.failure(it) }
@@ -446,7 +444,7 @@ internal class TypingContext(
         return kotlin.Result.success(resultToTy(oracle.exprSlice(span, xTy)))
     }
 
-    private fun exprIdent(x: CstIdent): Ty {
+    private fun exprIdent(x: Spanned<IdentP<CstPayload, ResolvedIdent?>>): Ty {
         return when (val resolved = x.node.payload) {
             is ResolvedIdent.Slot -> when (val slot = resolved.slot) {
                 is Slot.Module -> moduleVarTypes
@@ -473,78 +471,88 @@ internal class TypingContext(
                 // so this code is reachable.
                 Ty.any()
             }
+            else -> Ty.any()
         }
     }
 
-    fun expressionType(x: CstExpr): kotlin.Result<Ty> {
+    fun expressionType(x: Spanned<ExprP<CstPayload>>): kotlin.Result<Ty> {
         val span = x.span
         return when (val node = x.node) {
-            is ExprP.Tuple -> {
+            is ExprP.Tuple<*> -> {
                 val elems = mutableListOf<Ty>()
-                for (elem in node.elements) {
+                @Suppress("UNCHECKED_CAST")
+                for (elem in node.elements as List<Spanned<ExprP<CstPayload>>>) {
                     val ty = expressionType(elem).getOrElse { return kotlin.Result.failure(it) }
                     elems.add(ty)
                 }
                 kotlin.Result.success(Ty.tuple(elems))
             }
-            is ExprP.Dot -> {
-                val aTy = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.Dot<*> -> {
+                val aTy = expressionType(node.expr as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(exprDot(aTy, node.field.node, node.field.span))
             }
-            is ExprP.Call -> exprCall(span, node.expr, node.args)
-            is ExprP.Index -> exprIndex(span, node.expr, node.index)
-            is ExprP.Index2 -> {
-                expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
-                expressionType(node.index0).getOrElse { return kotlin.Result.failure(it) }
-                expressionType(node.index1).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.Call<*> -> exprCall(span, node.expr as Spanned<ExprP<CstPayload>>, node.args as CallArgsP<CstPayload>)
+            is ExprP.Index<*> -> exprIndex(span, node.expr as Spanned<ExprP<CstPayload>>, node.index as Spanned<ExprP<CstPayload>>)
+            is ExprP.Index2<*> -> {
+                expressionType(node.expr as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
+                expressionType(node.index0 as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
+                expressionType(node.index1 as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.any())
             }
-            is ExprP.Slice -> exprSlice(span, node.expr, node.start, node.stop, node.step)
-            is ExprP.Identifier<*, *> -> kotlin.Result.success(exprIdent(node.ident as CstIdent))
+            is ExprP.Slice<*> -> exprSlice(
+                span,
+                node.expr as Spanned<ExprP<CstPayload>>,
+                node.start as Spanned<ExprP<CstPayload>>?,
+                node.stop as Spanned<ExprP<CstPayload>>?,
+                node.step as Spanned<ExprP<CstPayload>>?,
+            )
+            is ExprP.Identifier<*, *> -> kotlin.Result.success(exprIdent(node.ident as Spanned<IdentP<CstPayload, ResolvedIdent?>>))
             is ExprP.Lambda<*, *> -> {
                 approximation("We don't type check lambdas", Unit)
                 kotlin.Result.success(Ty.anyCallable())
             }
-            is ExprP.Literal -> when (node.literal) {
+            is ExprP.Literal<*> -> when (node.literal) {
                 is AstLiteral.Int -> kotlin.Result.success(Ty.int())
                 is AstLiteral.Float -> kotlin.Result.success(Ty.float())
                 is AstLiteral.String -> kotlin.Result.success(Ty.string())
                 is AstLiteral.Ellipsis -> kotlin.Result.success(Ty.any())
             }
-            is ExprP.Not -> {
-                val ty = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.Not<*> -> {
+                val ty = expressionType(node.expr as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
                 if (ty.isNever()) {
                     kotlin.Result.success(Ty.never())
                 } else {
                     kotlin.Result.success(Ty.bool())
                 }
             }
-            is ExprP.Minus -> expressionUnOp(span, node.expr, TypingUnOp.MINUS)
-            is ExprP.Plus -> expressionUnOp(span, node.expr, TypingUnOp.PLUS)
-            is ExprP.BitNot -> expressionUnOp(span, node.expr, TypingUnOp.BIT_NOT)
-            is ExprP.Op -> exprBinOp(span, node.lhs, node.op, node.rhs)
-            is ExprP.If -> {
-                val c = expressionType(node.cond).getOrElse { return kotlin.Result.failure(it) }
-                val t = expressionType(node.v1).getOrElse { return kotlin.Result.failure(it) }
-                val f = expressionType(node.v2).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.Minus<*> -> expressionUnOp(span, node.expr as Spanned<ExprP<CstPayload>>, TypingUnOp.MINUS)
+            is ExprP.Plus<*> -> expressionUnOp(span, node.expr as Spanned<ExprP<CstPayload>>, TypingUnOp.PLUS)
+            is ExprP.BitNot<*> -> expressionUnOp(span, node.expr as Spanned<ExprP<CstPayload>>, TypingUnOp.BIT_NOT)
+            is ExprP.Op<*> -> exprBinOp(span, node.lhs as Spanned<ExprP<CstPayload>>, node.op, node.rhs as Spanned<ExprP<CstPayload>>)
+            is ExprP.If<*> -> {
+                val c = expressionType(node.cond as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
+                val t = expressionType(node.v1 as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
+                val f = expressionType(node.v2 as Spanned<ExprP<CstPayload>>).getOrElse { return kotlin.Result.failure(it) }
                 if (c.isNever()) {
                     kotlin.Result.success(Ty.never())
                 } else {
                     kotlin.Result.success(Ty.union2(t, f))
                 }
             }
-            is ExprP.ListExpr -> {
+            is ExprP.ListExpr<*> -> {
                 val ts = mutableListOf<Ty>()
-                for (elem in node.elements) {
+                @Suppress("UNCHECKED_CAST")
+                for (elem in node.elements as List<Spanned<ExprP<CstPayload>>>) {
                     val ty = expressionType(elem).getOrElse { return kotlin.Result.failure(it) }
                     ts.add(ty)
                 }
                 kotlin.Result.success(Ty.list(Ty.unions(ts)))
             }
-            is ExprP.Dict -> {
+            is ExprP.Dict<*> -> {
                 val ks = mutableListOf<Ty>()
                 val vs = mutableListOf<Ty>()
-                for ((k, v) in node.elements) {
+                @Suppress("UNCHECKED_CAST")
+                for ((k, v) in node.elements as List<Pair<Spanned<ExprP<CstPayload>>, Spanned<ExprP<CstPayload>>>>) {
                     val kTy = expressionType(k).getOrElse { return kotlin.Result.failure(it) }
                     val vTy = expressionType(v).getOrElse { return kotlin.Result.failure(it) }
                     ks.add(kTy)
@@ -552,18 +560,20 @@ internal class TypingContext(
                 }
                 kotlin.Result.success(Ty.dict(Ty.unions(ks), Ty.unions(vs)))
             }
-            is ExprP.ListComprehension -> {
-                checkComprehension(node.forClause, node.clauses).getOrElse { return kotlin.Result.failure(it) }
-                val bodyTy = expressionType(node.expr).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.ListComprehension<*> -> {
+                val lc = node as ExprP.ListComprehension<CstPayload>
+                checkComprehension(lc.forClause, lc.clauses).getOrElse { return kotlin.Result.failure(it) }
+                val bodyTy = expressionType(lc.expr).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.list(bodyTy))
             }
-            is ExprP.DictComprehension -> {
-                checkComprehension(node.forClause, node.clauses).getOrElse { return kotlin.Result.failure(it) }
-                val kTy = expressionType(node.key).getOrElse { return kotlin.Result.failure(it) }
-                val vTy = expressionType(node.value).getOrElse { return kotlin.Result.failure(it) }
+            is ExprP.DictComprehension<*> -> {
+                val dc = node as ExprP.DictComprehension<CstPayload>
+                checkComprehension(dc.forClause, dc.clauses).getOrElse { return kotlin.Result.failure(it) }
+                val kTy = expressionType(dc.key).getOrElse { return kotlin.Result.failure(it) }
+                val vTy = expressionType(dc.value).getOrElse { return kotlin.Result.failure(it) }
                 kotlin.Result.success(Ty.dict(kTy, vTy))
             }
-            is ExprP.FString -> kotlin.Result.success(Ty.string())
+            is ExprP.FString<*> -> kotlin.Result.success(Ty.string())
         }
     }
 }

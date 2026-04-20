@@ -19,41 +19,61 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
  * limitations under the License.
  */
 
+import starlark_map.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark_kotlin.values.layout.BlackHole
 import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.VALUE_STR_A_VALUE_PTR
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallEnter
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallExit
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NeedsDrop
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NoDrop
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ArenaAllocator
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.ChunkAllocator
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.layout.totalMemoryForProfile
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
+import kotlin.math.max
 
 /**
  * Min size of allocated object including header.
  * Should be able to fit `BlackHole` or forward.
  */
 // pub(crate) const MIN_ALLOC: AlignedSize
-internal val MIN_ALLOC: AlignedSize = AlignedSize.newBytes(16)
+internal val MIN_ALLOC: AlignedSize = run {
+    fun maxAligned(a: AlignedSize, b: AlignedSize): AlignedSize {
+        return if (a.bytes() > b.bytes()) a else b
+    }
+
+    // Kotlin: we don't have `mem::size_of`, but we know the forward node is 2 words.
+    val forward = AlignedSize.of(2 * AValueHeader.ALIGN)
+    // Kotlin: BlackHole is at least 2 words as well (header + size word).
+    val blackHole = AlignedSize.of(2 * AValueHeader.ALIGN)
+    maxAligned(forward, blackHole)
+}
 
 /**
  * Build an [AValueVTable] from a [StarlarkValue] instance.
- * This mirrors the Rust `AValueHeader::new::<T>()` which creates
- * a static vtable from the type parameter at compile time.
+ *
+ * Rust uses a single static vtable per type and stores the payload in arena memory.
+ * Kotlin does not expose raw arena layout, so we store the payload inside the vtable
+ * (so `AValueHeader.payloadPtr()` can find it).
  */
 private fun vtableForValue(value: StarlarkValue): AValueVTable {
     val typeId = ConstTypeId.of(value::class)
@@ -62,7 +82,7 @@ private fun vtableForValue(value: StarlarkValue): AValueVTable {
         starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
         typeName = value.TYPE,
         isStr = value is StarlarkStr,
-        memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
+        memorySizeFn = { _ -> ValueAllocSize.new(MIN_ALLOC) },
         heapFreezeFn = { p, freezer ->
             val sv = p.valueRef<StarlarkValue>()
             val direct = tryFreezeDirectly(sv, freezer)
@@ -74,6 +94,23 @@ private fun vtableForValue(value: StarlarkValue): AValueVTable {
             heapCopyImpl(sv, tracer) { _, _ -> }
         },
         starlarkValue = value,
+    )
+}
+
+/** Construct a BlackHole vtable holding the given [blackHole] instance. */
+private fun vtableForBlackHole(blackHole: BlackHole): AValueVTable {
+    return AValueVTable(
+        staticTypeOfValue = ConstTypeId.of(BlackHole::class),
+        starlarkTypeId = StarlarkTypeId.fromTypeId(ConstTypeId.of(BlackHole::class)),
+        typeName = "BlackHole",
+        isStr = false,
+        memorySizeFn = { p ->
+            val bh = p.valueRef<BlackHole>()
+            bh.size
+        },
+        heapFreezeFn = { _, _ -> error("BlackHole") },
+        heapCopyFn = { _, _ -> error("BlackHole") },
+        starlarkValue = blackHole,
     )
 }
 
@@ -89,9 +126,9 @@ class Reservation<T : AValue> internal constructor(
 ) {
     // pub(crate) fn fill(self, x: T::StarlarkValue)
     fun fill(x: StarlarkValue) {
-        val newHeader = AValueHeader(vtableForValue(x))
-        val newRepr = AValueRepr(header = newHeader, payload = x)
-        list[index] = AValueOrForward.Header(newRepr.header)
+        header.vtable = vtableForValue(x)
+        AValueRepr(header = header, payload = x)
+        list[index] = AValueOrForward.Header(header)
     }
 
     // pub(crate) fn ptr(&self) -> &'v AValueHeader
@@ -112,16 +149,113 @@ internal interface ArenaVisitor {
     fun callExit(time: ProfilerInstant)
 }
 
+// enum ArenaVisitEvent<'a>
+internal sealed class ArenaVisitEvent {
+    data object EnterBump : ArenaVisitEvent()
+    data class Value(val value: AValueOrForward) : ArenaVisitEvent()
+}
+
+/** Iterate over chunk contents. */
+internal class ChunkIter(
+    private val chunk: List<AValueOrForward>,
+) : Iterator<AValueOrForward> {
+    private var index: Int = 0
+
+    override fun hasNext(): Boolean = index < chunk.size
+
+    // fn next(&mut self) -> Option<&'c AValueOrForward>
+    override fun next(): AValueOrForward {
+        if (!hasNext()) throw NoSuchElementException()
+        val v = chunk[index]
+        index += 1
+        return v
+    }
+}
+
+/** Result of allocation. Both fields are uninitialized. */
+internal class ArenaUninit<T : AValue>(
+    private val bumpItems: MutableList<AValueOrForward>,
+    private val header: AValueHeader,
+    private val extra: Array<Any?>,
+) {
+    // pub(crate) unsafe fn write_black_hole(self, extra_len: usize) -> (Reservation<'v, T>, *mut [MaybeUninit<T::ExtraElem>])
+    fun writeBlackHole(
+        extraLen: Int,
+    ): Pair<Reservation<T>, Array<Any?>> {
+        val index = bumpItems.size
+        AValueRepr(header = header, payload = header.payload<StarlarkValue>())
+        bumpItems.add(AValueOrForward.Header(header))
+        return Pair(Reservation(bumpItems, index, header), extra)
+    }
+
+    // pub(crate) fn debug_assert_extra_is_empty(&self)
+    fun debugAssertExtraIsEmpty() {
+        check(extra.isEmpty())
+    }
+
+    // pub(crate) fn write(self, x: T::StarlarkValue) -> (*mut AValueRepr<AValueImpl<'v, T>>, *mut [MaybeUninit<T::ExtraElem>])
+    fun write(x: StarlarkValue): Pair<AValueRepr<StarlarkValue>, Array<Any?>> {
+        header.vtable = vtableForValue(x)
+        val repr = AValueRepr(header = header, payload = x)
+        bumpItems.add(AValueOrForward.Header(header))
+        return Pair(repr, extra)
+    }
+
+    fun writeWithExistingVtable(x: StarlarkValue): Pair<AValueRepr<StarlarkValue>, Array<Any?>> {
+        val repr = AValueRepr(header = header, payload = x)
+        bumpItems.add(AValueOrForward.Header(header))
+        return Pair(repr, extra)
+    }
+
+    // pub(crate) fn write_no_extra(self, x: T::StarlarkValue) -> *mut AValueRepr<AValueImpl<'v, T>>
+    fun writeNoExtra(x: StarlarkValue): AValueRepr<StarlarkValue> {
+        debugAssertExtraIsEmpty()
+        return write(x).first
+    }
+
+    fun writeNoExtraWithExistingVtable(x: StarlarkValue): AValueRepr<StarlarkValue> {
+        debugAssertExtraIsEmpty()
+        return writeWithExistingVtable(x).first
+    }
+}
+
 // #[derive(Default)]
 // pub(crate) struct Arena<A: ArenaAllocator>
-// Kotlin: GC handles memory. Arena is a simple list of allocated values.
 internal class Arena {
     /** Arena for things which don't need dropping (e.g. strings). */
     // non_drop: A,
-    private val nonDrop: MutableList<AValueOrForward> = mutableListOf()
+    private val nonDrop: ArenaAllocator = ChunkAllocator()
+    private val nonDropItems: MutableList<AValueOrForward> = mutableListOf()
     /** Arena for things which might need dropping (e.g. Vec, with memory on heap). */
     // drop: A,
-    private val drop: MutableList<AValueOrForward> = mutableListOf()
+    private val drop: ArenaAllocator = ChunkAllocator()
+    private val dropItems: MutableList<AValueOrForward> = mutableListOf()
+
+    // fn alloc_uninit<'v, 'v2, T: AValue<'v2>>(bump: &'v A, extra_len: usize) -> ArenaUninit<'v2, T>
+    private fun <T : AValue> allocUninit(
+        bump: ArenaAllocator,
+        bumpItems: MutableList<AValueOrForward>,
+        header: AValueHeader,
+        extraLen: Int,
+    ): ArenaUninit<T> {
+        // Kotlin: we allocate objects directly, but still charge allocation size to the bump.
+        val size = header.allocSize()
+        bump.alloc(size)
+        return ArenaUninit(
+            bumpItems = bumpItems,
+            header = header,
+            extra = Array(extraLen) { null },
+        )
+    }
+
+    // fn bump_for_type<'v, T: AValue<'v>>(&self) -> &A
+    private fun bumpForType(value: StarlarkValue): Pair<ArenaAllocator, MutableList<AValueOrForward>> {
+        return if (value is StarlarkStr) {
+            Pair(nonDrop, nonDropItems)
+        } else {
+            Pair(drop, dropItems)
+        }
+    }
 
     // pub(crate) fn is_empty(&self) -> bool
     fun isEmpty(): Boolean {
@@ -131,61 +265,74 @@ internal class Arena {
     /** Number of allocated bytes plus padding size. */
     // pub(crate) fn allocated_bytes(&self) -> usize
     fun allocatedBytes(): Int {
-        return drop.size + nonDrop.size
+        // Like Rust bumpalo, we may overestimate by including padding.
+        return drop.allocatedBytes() + nonDrop.allocatedBytes()
     }
 
     // pub(crate) fn available_bytes(&self) -> usize
     fun availableBytes(): Int {
-        return Int.MAX_VALUE
+        return drop.remainingCapacity() + nonDrop.remainingCapacity()
     }
 
     /** Don't forget to call this function to release memory. */
     // pub(crate) fn finish(&mut self)
     fun finish() {
-        drop.clear()
-        nonDrop.clear()
+        drop.finish()
+        nonDrop.finish()
+        dropItems.clear()
+        nonDropItems.clear()
     }
 
     // pub(crate) fn reserve_with_extra<'v2, T: AValue<'v2>>(&self, extra_len: usize) -> (Reservation, extra)
-    fun <T : AValue> reserveWithExtra(_extraLen: Int): Reservation<T> {
-        // In Rust, a BlackHole is written as a placeholder until fill() is called.
-        // In Kotlin, we insert a placeholder Header entry.
-        val blackHoleHeader = AValueHeader(AValueVTable.newBlackHole())
-        val entry = AValueOrForward.Header(blackHoleHeader)
-        val index = drop.size
-        drop.add(entry)
-        return Reservation(drop, index, blackHoleHeader)
+    fun <T : AValue> reserveWithExtra(extraLen: Int): Reservation<T> {
+        // Rust writes a one-word BlackHole so it can safely iterate even if the reservation is unfilled.
+        // Kotlin simulates it by allocating a header whose payload is a BlackHole carrying the alloc size.
+        val blackHoleSize = ValueAllocSize.new(MIN_ALLOC)
+        val blackHole = BlackHole(blackHoleSize)
+        val header = AValueHeader.new(vtableForBlackHole(blackHole))
+        val arenaUninit = allocUninit<T>(drop, dropItems, header, extraLen)
+        // If we don't have a vtable we can't skip over missing elements to drop,
+        // so very important to put in a current vtable.
+        val (reservation, _) = arenaUninit.writeBlackHole(extraLen)
+        return reservation
     }
 
     /** Allocate a type `T`. */
     // pub(crate) fn alloc<'v, 'v2, T: AValue<'v2>>(&'v self, x: AValueImpl<'v2, T>) -> &'v AValueRepr
     fun <T : AValue> alloc(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
-        val header = AValueHeader(vtableForValue(x.value))
-        val repr = AValueRepr(
-            header = header,
-            payload = x.value,
-        )
-        val entry = AValueOrForward.Header(repr.header)
-        drop.add(entry)
-        return repr
+        val header = AValueHeader.new(vtableForValue(x.value))
+        val (bump, bumpItems) = bumpForType(x.value)
+        val arenaUninit = allocUninit<T>(bump, bumpItems, header, 0)
+        return arenaUninit.writeNoExtra(x.value)
     }
 
     /** Allocate a type `T` plus `extra` bytes. */
     // pub(crate) fn alloc_extra<'v, T: AValue<'v>>(&self, x: AValueImpl) -> (repr, extra)
     fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
-        return alloc(x)
+        val header = AValueHeader.new(vtableForValue(x.value))
+        val (bump, bumpItems) = bumpForType(x.value)
+        val arenaUninit = allocUninit<T>(bump, bumpItems, header, 0)
+        return arenaUninit.writeNoExtra(x.value)
+    }
+
+    // pub(crate) fn alloc_str_init(&self, len: usize, hash: StarlarkHashValue, init: impl FnOnce(*mut u8)) -> *mut AValueHeader
+    fun allocStrInit(
+        len: Int,
+        @Suppress("UNUSED_PARAMETER") hash: StarlarkHashValue,
+        init: (ByteArray) -> Unit,
+    ): AValueHeader {
+        require(len > 1)
+        val bytes = ByteArray(len)
+        init(bytes)
+        return allocStr(bytes.decodeToString())
     }
 
     // pub(crate) fn alloc_str(&self, x: &str) -> *mut AValueHeader
     fun allocStr(x: String): AValueHeader {
-        // In Rust, the StarlarkStr header + string bytes are laid out contiguously in
-        // the arena's byte buffer.  In Kotlin there is no raw memory, so we create an
-        // AValueHeader whose vtable carries the actual StarlarkStr instance (via
-        // `starlarkValue`) so that `Value.unpackStarlarkStr()` can find it through
-        // `getRef().downcastRef<StarlarkStr>()`.
+        // Kotlin: we don't store bytes inline in the arena, but still charge the size.
         val str = StarlarkStr(x)
         val typeId = ConstTypeId.of<StarlarkStr>()
-        val header = AValueHeader(
+        val header = AValueHeader.new(
             AValueVTable(
                 staticTypeOfValue = typeId,
                 starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
@@ -207,71 +354,140 @@ internal class Arena {
                 starlarkValue = str,
             )
         )
-        val entry = AValueOrForward.Header(header)
-        nonDrop.add(entry)
+
+        val arenaUninit = allocUninit<AValue>(nonDrop, nonDropItems, header, 0)
+        arenaUninit.debugAssertExtraIsEmpty()
+        arenaUninit.writeNoExtraWithExistingVtable(str)
         return header
     }
 
+    // fn iter_chunk<'a>(chunk: &'a [MaybeUninit<u8>]) -> ChunkIter<'a>
+    private fun iterChunk(chunk: List<AValueOrForward>): ChunkIter {
+        return ChunkIter(chunk)
+    }
+
     // fn for_each_ordered<'a>(&'a mut self, f: impl FnMut(ArenaVisitEvent<'a>))
-    fun forEachOrdered(f: (AValueOrForward) -> Unit) {
-        for (entry in drop) {
-            f(entry)
-        }
-        for (entry in nonDrop) {
-            f(entry)
+    internal fun forEachOrdered(f: (ArenaVisitEvent) -> Unit) {
+        for (bump in listOf(dropItems, nonDropItems)) {
+            f(ArenaVisitEvent.EnterBump)
+            for (x in bump) {
+                f(ArenaVisitEvent.Value(x))
+            }
         }
     }
 
     // pub(crate) unsafe fn visit_arena<'v>(&'v mut self, heap_kind, forward_heap_kind, visitor)
     internal fun visitArena(
-        _heapKind: HeapKind,
-        _forwardHeapKind: HeapKind,
+        heapKind: HeapKind,
+        forwardHeapKind: HeapKind,
         visitor: ArenaVisitor,
     ) {
-        visitor.enterBump()
-        for (entry in drop) {
-            visitor.regularValue(entry)
+        fun fixFunction(function: Value, forwardHeapKind0: HeapKind): Value {
+            val frozen = function.unpackFrozen()
+            if (frozen != null) {
+                return frozen.toValue()
+            }
+
+            val ptrIndex = function.ptr.unpackPtrOpt() ?: return function
+            val header = AValueHeader.fromIndex(ptrIndex)
+            val orForward = AValueOrForward.Header(header)
+            return when (val u = orForward.unpack()) {
+                is AValueOrForwardUnpack.Header -> function
+                is AValueOrForwardUnpack.Forward -> u.forward.forwardPtr().unpackValue(forwardHeapKind0)
+            }
         }
-        visitor.enterBump()
-        for (entry in nonDrop) {
-            visitor.regularValue(entry)
+
+        forEachOrdered { x ->
+            when (x) {
+                is ArenaVisitEvent.EnterBump -> visitor.enterBump()
+                is ArenaVisitEvent.Value -> {
+                    when (val u = x.value.unpack()) {
+                        is AValueOrForwardUnpack.Forward -> visitor.regularValue(x.value)
+                        is AValueOrForwardUnpack.Header -> {
+                            val value = u.header.unpackValue(heapKind)
+                            val callEnterNeedsDrop: CallEnter<NeedsDrop>? = value.downcastRef()
+                            val callEnterNoDrop: CallEnter<NoDrop>? = value.downcastRef()
+                            val callExitNeedsDrop: CallExit<NeedsDrop>? = value.downcastRef()
+                            val callExitNoDrop: CallExit<NoDrop>? = value.downcastRef()
+
+                            when {
+                                callEnterNeedsDrop != null ->
+                                    visitor.callEnter(
+                                        fixFunction(callEnterNeedsDrop.function, forwardHeapKind),
+                                        callEnterNeedsDrop.time,
+                                    )
+                                callEnterNoDrop != null ->
+                                    visitor.callEnter(
+                                        fixFunction(callEnterNoDrop.function, forwardHeapKind),
+                                        callEnterNoDrop.time,
+                                    )
+                                callExitNeedsDrop != null -> visitor.callExit(callExitNeedsDrop.time)
+                                callExitNoDrop != null -> visitor.callExit(callExitNoDrop.time)
+                                else -> visitor.regularValue(x.value)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
     // pub(crate) fn for_each_drop_unordered<'a>(&'a mut self, f: impl FnMut(&'a AValueHeader))
     fun forEachDropUnordered(f: (AValueHeader) -> Unit) {
-        for (entry in drop) {
-            when (entry) {
-                is AValueOrForward.Header -> f(entry.header)
-                is AValueOrForward.Forward -> {}
-            }
+        for (x in iterChunk(dropItems)) {
+            val header = x.unpackHeader()
+            if (header != null) f(header)
+        }
+    }
+
+    // fn for_each_unordered_in_bump<'a>(bump: &'a A, f: impl FnMut(&'a AValueHeader))
+    private fun forEachUnorderedInBump(
+        bump: List<AValueOrForward>,
+        f: (AValueHeader) -> Unit,
+    ) {
+        for (x in iterChunk(bump)) {
+            val header = x.unpackHeader()
+            if (header != null) f(header)
         }
     }
 
     // fn for_each_unordered<'a>(&'a self, f: impl FnMut(&'a AValueHeader))
     fun forEachUnordered(f: (AValueHeader) -> Unit) {
-        forEachDropUnordered(f)
-        for (entry in nonDrop) {
-            when (entry) {
-                is AValueOrForward.Header -> f(entry.header)
-                is AValueOrForward.Forward -> {}
-            }
-        }
+        forEachUnorderedInBump(dropItems, f)
+        forEachUnorderedInBump(nonDropItems, f)
     }
 
     // pub(crate) fn allocated_summary(&self) -> HeapSummary
     fun allocatedSummary(): HeapSummary {
-        val summary = SmallMap<String, AllocCounts>()
+        // First, count by header (faster, mirrors Rust).
+        val entries: MutableMap<AValueHeader, Pair<String, AllocCounts>> = mutableMapOf()
         forEachUnordered { header ->
-            val typeName = header.vtable.typeName
-            val counts = summary.entry(typeName).orInsertWith { AllocCounts() }
-            counts.count += 1
-            counts.bytes += header.totalMemoryForProfile()
+            val v = header.unpack()
+            val existing = entries[header]
+            if (existing == null) {
+                val counts = AllocCounts()
+                counts.count += 1
+                counts.bytes += header.allocSize().bytes().toInt()
+                entries[header] = Pair(v.vtable().typeName, counts)
+            } else {
+                existing.second.count += 1
+                existing.second.bytes += header.allocSize().bytes().toInt()
+            }
         }
+
+        // Then, collapse by type name.
+        val summary = SmallMap<String, AllocCounts>()
+        for ((_, pair) in entries) {
+            val (name, counts) = pair
+            val out = summary.entry(name).orInsertWith { AllocCounts() }
+            out.count += counts.count
+            out.bytes += counts.bytes
+        }
+
         return HeapSummary(summary = summary)
     }
 
     override fun toString(): String {
-        return "Arena(drop=${drop.size}, non_drop=${nonDrop.size})"
+        return "Arena(drop=${dropItems.size}, non_drop=${nonDropItems.size})"
     }
 }

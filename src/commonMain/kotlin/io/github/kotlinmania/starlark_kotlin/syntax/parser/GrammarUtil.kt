@@ -54,8 +54,8 @@ private enum class DialectError(val message: String) {
 
 object GrammarUtil {
     /** Ensure we produce normalised Statements, rather than singleton Statements. */
-    // pub fn statements(mut xs: Vec<AstStmt>, begin: usize, end: usize) -> AstStmt
-    fun statements(xs: List<AstStmt>, begin: Int, end: Int): AstStmt {
+    // pub fn statements(mut xs: Vec<Spanned<StmtP<AstNoPayload>>>, begin: usize, end: usize) -> Spanned<StmtP<AstNoPayload>>
+    fun statements(xs: List<Spanned<StmtP<AstNoPayload>>>, begin: Int, end: Int): Spanned<StmtP<AstNoPayload>> {
         return if (xs.size == 1) {
             xs[0]
         } else {
@@ -63,8 +63,8 @@ object GrammarUtil {
         }
     }
 
-    // pub fn check_assign(codemap: &CodeMap, x: AstExpr) -> Result<AstAssignTarget, EvalException>
-    fun check_assign(codemap: CodeMap, x: AstExpr): AstAssignTarget {
+    // pub fn check_assign(codemap: &CodeMap, x: Spanned<ExprP<AstNoPayload>>) -> Result<Spanned<AssignTargetP<AstNoPayload>>, EvalException>
+    fun check_assign(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>): Spanned<AssignTargetP<AstNoPayload>> {
         val node: AssignTargetP<AstNoPayload> = when (val expr = x.node) {
             is ExprP.Tuple -> AssignTargetP.Tuple(
                 expr.elements.map { check_assign(codemap, it) }
@@ -76,7 +76,7 @@ object GrammarUtil {
             is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
             is ExprP.Identifier<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
-                val ident = expr.ident as AstIdent
+                val ident = expr.ident as Spanned<IdentP<AstNoPayload, Unit>>
                 AssignTargetP.Identifier(ident.map { s ->
                     AssignIdentP<AstNoPayload, Unit>(
                         ident = s.ident,
@@ -96,11 +96,11 @@ object GrammarUtil {
     // pub fn check_assignment(...)
     fun check_assignment(
         codemap: CodeMap,
-        lhs: AstExpr,
-        ty: AstTypeExpr?,
+        lhs: Spanned<ExprP<AstNoPayload>>,
+        ty: Spanned<TypeExprP<AstNoPayload, Unit>>?,
         op: AssignOp?,
-        rhs: AstExpr
-    ): Stmt {
+        rhs: Spanned<ExprP<AstNoPayload>>
+    ): StmtP<AstNoPayload> {
         if (op != null) {
             // for augmented assignment, Starlark doesn't allow tuple/list
             when (lhs.node) {
@@ -139,8 +139,8 @@ object GrammarUtil {
         }
     }
 
-    // pub(crate) fn check_load_0(module: AstString, parser_state: &mut ParserState) -> Stmt
-    fun check_load_0(module: AstString, parser_state: ParserState): Stmt {
+    // pub(crate) fn check_load_0(module: Spanned<String>, parser_state: &mut ParserState) -> StmtP<AstNoPayload>
+    fun check_load_0(module: Spanned<String>, parser_state: ParserState): StmtP<AstNoPayload> {
         parser_state.errors.add(
             EvalException.newAnyhow(
                 IllegalArgumentException(GrammarUtilError.LoadRequiresAtLeastTwoArguments.message),
@@ -157,11 +157,11 @@ object GrammarUtil {
 
     // pub(crate) fn check_load(...)
     fun check_load(
-        module: AstString,
-        args: List<Pair<Pair<AstAssignIdent, AstString>, Spanned<Comma>>>,
-        last: Pair<AstAssignIdent, AstString>?,
+        module: Spanned<String>,
+        args: List<Pair<Pair<Spanned<AssignIdentP<AstNoPayload, Unit>>, Spanned<String>>, Spanned<Comma>>>,
+        last: Pair<Spanned<AssignIdentP<AstNoPayload, Unit>>, Spanned<String>>?,
         parser_state: ParserState
-    ): Stmt {
+    ): StmtP<AstNoPayload> {
         if (args.isEmpty() && last == null) {
             return check_load_0(module, parser_state)
         }
@@ -197,7 +197,7 @@ object GrammarUtil {
         begin: Int,
         end: Int,
         parser_state: ParserState
-    ): AstFString {
+    ): Spanned<FStringP<AstNoPayload>> {
         if (!parser_state.dialect.enableFStrings) {
             parser_state.error(
                 Span(Pos(begin), Pos(end)),
@@ -209,7 +209,7 @@ object GrammarUtil {
         val contentStartOffset = fstring.contentStartOffset
 
         val format = StringBuilder(content.length)
-        val expressions = mutableListOf<AstExpr>()
+        val expressions = mutableListOf<Spanned<ExprP<AstNoPayload>>>()
 
         val parser = FormatParser(content)
         while (true) {
@@ -265,8 +265,8 @@ object GrammarUtil {
     // pub(crate) fn dialect_check_type(...)
     fun dialect_check_type(
         state: ParserState,
-        x: AstExpr
-    ): AstTypeExpr {
+        x: Spanned<ExprP<AstNoPayload>>
+    ): Spanned<TypeExprP<AstNoPayload, Unit>> {
         if (state.dialect.enableTypes == DialectTypes.Disable) {
             throw EvalException.newAnyhow(
                 IllegalArgumentException(DialectError.Types.message),
@@ -288,10 +288,10 @@ object GrammarUtil {
 
     // pub(crate) fn check_call(...) from validate.rs
     fun check_call(
-        e: AstExpr,
-        a: List<AstArgument>,
+        e: Spanned<ExprP<AstNoPayload>>,
+        a: List<Spanned<ArgumentP<AstNoPayload>>>,
         state: ParserState
-    ): Expr {
+    ): ExprP<AstNoPayload> {
         val args = CallArgsP<AstNoPayload>(args = a)
 
         try {

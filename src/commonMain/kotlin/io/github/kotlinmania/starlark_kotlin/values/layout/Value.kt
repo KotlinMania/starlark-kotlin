@@ -33,9 +33,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // our val_ref requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.Hashed
+import starlark_map.StarlarkHashValue
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
@@ -58,40 +58,35 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
 import io.github.kotlinmania.starlark_kotlin.values.stackGuard
 import io.github.kotlinmania.starlark_kotlin.values.reprStackPush
 import io.github.kotlinmania.starlark_kotlin.values.jsonStackPush
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.demand.requestValueImpl
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
+import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
 import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
-import io.github.kotlinmania.starlark_kotlin.values.types.record.FrozenRecord
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
-import io.github.kotlinmania.starlark_kotlin.values.types.structs.FrozenStruct
+import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordGen
+import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructGen
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValueLike
 import io.github.kotlinmania.starlark_kotlin.values.Trace
@@ -765,11 +760,11 @@ class Value internal constructor(
     // pub fn parameters_spec(self) -> Option<&'v ParametersSpec<Value<'v>>>
     @Suppress("UNCHECKED_CAST")
     fun parametersSpec(): ParametersSpec<Value>? {
-        val def = downcastRef<Def>()
+        val def = downcastRef<DefGen<Value>>()
         if (def != null) {
             return def.parameters
         }
-        val frozenDef = downcastRef<FrozenDef>()
+        val frozenDef = downcastRef<DefGen<FrozenValue>>()
         if (frozenDef != null) {
             // In Rust this is a transmute from ParametersSpec<FrozenValue> to ParametersSpec<Value>.
             // In Kotlin with type erasure, an unchecked cast is equivalent.
@@ -955,8 +950,8 @@ class Value internal constructor(
     /**
      * Convert a value to a [FrozenValue] using a supplied [Freezer].
      */
-    // pub fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenValue>
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    // pub fn freeze(self, freezer: &Freezer) -> Result<FrozenValue>
+    override fun freeze(freezer: Freezer): Result<FrozenValue> {
         return freezer.freeze(this)
     }
 
@@ -1589,15 +1584,15 @@ class FrozenValue internal constructor(
             || NumRef.unpackValue(toValue()).getOrNull()?.let { true } ?: false
             || FrozenListData.fromFrozenValue(this) != null
             || FrozenDictRef.fromFrozenValue(this) != null
-            || FrozenValueTyped.new<FrozenTuple>(this) != null
+            || FrozenValueTyped.new<TupleGen<FrozenValue>>(this) != null
             || FrozenValueTyped.new<Range>(this) != null
-            || FrozenValueTyped.new<FrozenDef>(this) != null
+            || FrozenValueTyped.new<DefGen<FrozenValue>>(this) != null
             || FrozenValueTyped.new<NativeFunction>(this) != null
-            || FrozenValueTyped.new<FrozenStruct>(this) != null
-            || FrozenValueTyped.new<RecordType>(this) != null
-            || FrozenValueTyped.new<FrozenRecord>(this) != null
-            || FrozenValueTyped.new<EnumType>(this) != null
-            || FrozenValueTyped.new<FrozenEnumValue>(this) != null
+            || FrozenValueTyped.new<StructGen<FrozenValue>>(this) != null
+            || FrozenValueTyped.new<RecordTypeGen>(this) != null
+            || FrozenValueTyped.new<RecordGen>(this) != null
+            || FrozenValueTyped.new<EnumTypeGen>(this) != null
+            || FrozenValueTyped.new<EnumValueGen>(this) != null
     }
 
     /**
@@ -1610,7 +1605,7 @@ class FrozenValue internal constructor(
         if (nf != null) {
             return nf.asRef().speculativeExecSafe
         }
-        val bm = FrozenValueTyped.new<FrozenBoundMethod>(this)
+        val bm = FrozenValueTyped.new<BoundMethodGen<FrozenValue>>(this)
         if (bm != null) {
             return bm.asRef().method.asRef().speculativeExecSafe
         }
@@ -1634,7 +1629,7 @@ class FrozenValue internal constructor(
             return true
         }
         // Empty tuple is statically allocated.
-        val tuple = Tuple.fromValue(toValue())
+        val tuple = TupleGen.fromValue(toValue())
         if (tuple != null && tuple.len() == 0) {
             return true
         }
@@ -1734,7 +1729,7 @@ class FrozenValue internal constructor(
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v
 
-    override fun freeze(@Suppress("unused") freezer: Freezer): FreezeResult<FrozenValue> {
+    override fun freeze(@Suppress("unused") freezer: Freezer): Result<FrozenValue> {
         return Result.success(this)
     }
 

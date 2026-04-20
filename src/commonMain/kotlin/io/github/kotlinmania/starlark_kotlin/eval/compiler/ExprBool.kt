@@ -21,30 +21,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 /** Boolean expression. */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 
 /** Boolean expression. */
 // pub(crate) enum ExprCompiledBool
 internal sealed class ExprCompiledBool {
     // Const(bool)
-    data class Const(val value: Boolean) : ExprCompiledBool()
+    data class Const(val b: Boolean) : ExprCompiledBool()
     /** Non-const expression. */
-    // Expr(ExprCompiled)
+    // ExprP<AstNoPayload>(ExprCompiled)
     data class Expr(val expr: ExprCompiled) : ExprCompiledBool()
-
-    // fn into_expr(self) -> ExprCompiled
-    fun intoExpr(): ExprCompiled = when (this) {
-        is Const -> ExprCompiled.ValueExpr(FrozenValue.newBool(value))
-        is Expr -> expr
-    }
-
-    // fn const_value(&self) -> Option<bool>
-    fun constValue(): Boolean? = when (this) {
-        is Const -> value
-        is Expr -> null
-    }
 
     companion object {
         /** `bool(x)` and do trivial optimizations. */
@@ -55,10 +42,8 @@ internal sealed class ExprCompiledBool {
 
             val span = expr.span
 
-            val pureResult = expr.isPureInfallibleToBool()
-            if (pureResult != null) {
-                return newBool(span, pureResult)
-            }
+            val pureInfallible = expr.isPureInfallibleToBool()
+            if (pureInfallible != null) return newBool(span, pureInfallible)
 
             return when (val node = expr.node) {
                 is ExprCompiled.Builtin1Expr -> {
@@ -137,6 +122,18 @@ internal sealed class ExprCompiledBool {
             }
         }
     }
+}
+
+// fn into_expr(self) -> ExprCompiled
+internal fun ExprCompiledBool.intoExpr(): ExprCompiled = when (this) {
+    is ExprCompiledBool.Const -> ExprCompiled.ValueExpr(FrozenValue.newBool(b))
+    is ExprCompiledBool.Expr -> expr
+}
+
+// fn const_value(&self) -> Option<bool>
+internal fun ExprCompiledBool.constValue(): Boolean? = when (this) {
+    is ExprCompiledBool.Const -> b
+    is ExprCompiledBool.Expr -> null
 }
 
 /** Extension to convert IrSpanned<ExprCompiledBool> to IrSpanned<ExprCompiled>. */

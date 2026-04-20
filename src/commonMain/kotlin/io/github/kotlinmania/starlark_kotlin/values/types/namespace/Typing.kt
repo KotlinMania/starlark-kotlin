@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMat
 internal object NamespaceMatcher : TypeMatcher {
     // #[type_matcher]
     override fun matches(value: Value): Boolean =
-        value.starlarkTypeId() == StarlarkTypeId.of(FrozenNamespace::class)
+        value.starlarkTypeId() == StarlarkTypeId.of(NamespaceGen::class)
 }
 
 // #[derive(Allocative, Clone, Copy, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]

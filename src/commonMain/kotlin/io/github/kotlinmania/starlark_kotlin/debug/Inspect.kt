@@ -20,10 +20,10 @@ package io.github.kotlinmania.starlark_kotlin.debug
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
@@ -35,9 +35,9 @@ import starlark_map.Hashed
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
-        return x.downcastRef<FrozenDef>()?.defInfo?.used
+        return x.downcastRef<DefGen<FrozenValue>>()?.defInfo?.used
     } else {
-        return x.downcastRef<Def>()?.defInfo?.used
+        return x.downcastRef<DefGen<Value>>()?.defInfo?.used
     }
 }
 

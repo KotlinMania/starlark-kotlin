@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  */
 
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.withLock
 // #[repr(C)]
 // pub(crate) struct AValueHeader(pub(crate) &'static AValueVTable);
 class AValueHeader(
-    val vtable: AValueVTable,
+    var vtable: AValueVTable,
 ) {
     /**
      * Simulated pointer index for this header, used by the pointer-tagging system.
@@ -346,7 +346,14 @@ internal sealed class AValueOrForward {
     // pub(crate) fn unpack(&self) -> AValueOrForwardUnpack<'_>
     fun unpack(): AValueOrForwardUnpack {
         return when (this) {
-            is Header -> AValueOrForwardUnpack.Header(header)
+            is Header -> {
+                val overwritten = reprRegistry[header.index]?.overwritten
+                if (overwritten != null) {
+                    AValueOrForwardUnpack.Forward(overwritten)
+                } else {
+                    AValueOrForwardUnpack.Header(header)
+                }
+            }
             is Forward -> AValueOrForwardUnpack.Forward(forward)
         }
     }

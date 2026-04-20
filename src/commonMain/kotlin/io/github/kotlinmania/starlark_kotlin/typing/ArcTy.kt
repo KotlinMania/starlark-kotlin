@@ -43,23 +43,31 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object None : ArcTyInner()
     /// Default implementation.
     // Arc(Arc<Ty>),
-    data class Wrapped(val ty: Ty) : ArcTyInner()
-
-    private fun ordinal(): kotlin.Int = when (this) {
-        is Any -> 0
-        is Never -> 1
-        is Str -> 2
-        is Int -> 3
-        is Bool -> 4
-        is None -> 5
-        is Wrapped -> 6
-    }
+    data class Arc(val ty: Ty) : ArcTyInner()
 
     override fun compareTo(other: ArcTyInner): kotlin.Int {
-        val cmp = ordinal().compareTo(other.ordinal())
+        val cmp = when (this) {
+            is Any -> 0
+            is Never -> 1
+            is Str -> 2
+            is Int -> 3
+            is Bool -> 4
+            is None -> 5
+            is Arc -> 6
+        }.compareTo(
+            when (other) {
+                is Any -> 0
+                is Never -> 1
+                is Str -> 2
+                is Int -> 3
+                is Bool -> 4
+                is None -> 5
+                is Arc -> 6
+            }
+        )
         if (cmp != 0) return cmp
-        return if (this is Wrapped && other is Wrapped) {
-            this.ty.compareTo(other.ty)
+        return if (this is Arc && other is Arc) {
+            ty.compareTo(other.ty)
         } else {
             0
         }
@@ -73,7 +81,7 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
             is Int -> Ty.int().toString()
             is Bool -> Ty.bool().toString()
             is None -> Ty.none().toString()
-            is Wrapped -> ty.toString()
+            is Arc -> ty.toString()
         }
     }
 }
@@ -101,6 +109,13 @@ class ArcTy private constructor(
 
     // impl ArcTy
     companion object {
+        private val ANY: Ty = Ty.any()
+        private val NEVER: Ty = Ty.never()
+        private val STR: Ty = Ty.string()
+        private val INT: Ty = Ty.int()
+        private val BOOL: Ty = Ty.bool()
+        private val NONE: Ty = Ty.none()
+
         // pub(crate) fn any() -> ArcTy
         internal fun any(): ArcTy {
             return ArcTy(ArcTyInner.Any)
@@ -121,7 +136,7 @@ class ArcTy private constructor(
             } else if (ty == Ty.none()) {
                 ArcTy(ArcTyInner.None)
             } else {
-                ArcTy(ArcTyInner.Wrapped(ty))
+                ArcTy(ArcTyInner.Arc(ty))
             }
         }
 
@@ -140,9 +155,6 @@ class ArcTy private constructor(
         return deref()
     }
 
-    fun isAny(): Boolean = inner is ArcTyInner.Any
-    fun isNever(): Boolean = inner is ArcTyInner.Never
-
     // pub(crate) fn display_with<'a>(&'a self, config: &'a TypeRenderConfig) -> ArcTyDisplay<'a>
     internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay {
         return ArcTyDisplay(this, config)
@@ -151,13 +163,13 @@ class ArcTy private constructor(
     // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
     fun deref(): Ty {
         return when (val i = inner) {
-            is ArcTyInner.Any -> Ty.any()
-            is ArcTyInner.Never -> Ty.never()
-            is ArcTyInner.Str -> Ty.string()
-            is ArcTyInner.Int -> Ty.int()
-            is ArcTyInner.Bool -> Ty.bool()
-            is ArcTyInner.None -> Ty.none()
-            is ArcTyInner.Wrapped -> i.ty
+            is ArcTyInner.Any -> ANY
+            is ArcTyInner.Never -> NEVER
+            is ArcTyInner.Str -> STR
+            is ArcTyInner.Int -> INT
+            is ArcTyInner.Bool -> BOOL
+            is ArcTyInner.None -> NONE
+            is ArcTyInner.Arc -> i.ty
         }
     }
 }

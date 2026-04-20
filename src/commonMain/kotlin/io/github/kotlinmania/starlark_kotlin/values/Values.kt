@@ -19,12 +19,4 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-typealias Heap = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-typealias FrozenHeap = io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-typealias FrozenHeapRef = io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-typealias Tracer = io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 
-typealias Freezer = io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-
-typealias Value = io.github.kotlinmania.starlark_kotlin.values.layout.Value
-typealias FrozenValue = io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue

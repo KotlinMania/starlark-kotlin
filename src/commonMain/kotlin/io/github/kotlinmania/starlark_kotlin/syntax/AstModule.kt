@@ -22,9 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.syntax
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
@@ -49,22 +47,22 @@ class AstLoad(
 )
 
 // pub trait AstModuleFields: Sized {
-//     fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool);
+//     fn into_parts(self) -> (CodeMap, Spanned<StmtP<AstNoPayload>>, Dialect, bool);
 // }
 data class AstModuleParts(
     val codemap: CodeMap,
-    val statement: AstStmt,
+    val statement: Spanned<StmtP<AstNoPayload>>,
     val dialect: Dialect,
     val typecheck: Boolean,
 )
 
 class AstModule(
     val codemap: CodeMap,
-    var statement: AstStmt,
+    var statement: Spanned<StmtP<AstNoPayload>>,
     val dialect: Dialect,
     val typecheck: Boolean
 ) {
-    // fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool)
+    // fn into_parts(self) -> (CodeMap, Spanned<StmtP<AstNoPayload>>, Dialect, bool)
     fun intoParts(): AstModuleParts =
         AstModuleParts(codemap, statement, dialect, typecheck)
     companion object {
@@ -87,7 +85,7 @@ class AstModule(
 
     fun loads(): List<AstLoad> {
         val loads = mutableListOf<AstLoad>()
-        fun walk(ast: AstStmt) {
+        fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
             when (val node = ast.node) {
                 is StmtP.Load<*, *> -> {
                     loads.add(
@@ -102,7 +100,7 @@ class AstModule(
                 }
                 is StmtP.Statements<*> -> {
                     for (stmt in node.stmts) {
-                        walk(stmt as AstStmt)
+                        walk(stmt as Spanned<StmtP<AstNoPayload>>)
                     }
                 }
                 else -> {}
@@ -121,11 +119,11 @@ class AstModule(
 
     fun stmtLocations(): List<FileSpan> {
         val res = mutableListOf<FileSpan>()
-        fun walk(ast: AstStmt) {
+        fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
             if (ast.node !is StmtP.Statements<*>) {
                 res.add(FileSpan(codemap, ast.span))
             }
-            // we should descend if possible (like visitStmt), but since we omit AstStmt's walk here,
+            // we should descend if possible (like visitStmt), but since we omit Spanned<StmtP<AstNoPayload>>'s walk here,
             // we can just implement the full traversal later.
         }
         walk(statement)
@@ -168,7 +166,7 @@ private fun BinOp.toSymbol(): String = when (this) {
  * If a binary operator's symbol is found in [replace], the Op node is replaced with
  * a Call to the named function, passing the lhs and rhs as positional arguments.
  */
-private fun rewriteExpr(expr: AstExpr, replace: Map<String, String>): AstExpr {
+private fun rewriteExpr(expr: Spanned<ExprP<AstNoPayload>>, replace: Map<String, String>): Spanned<ExprP<AstNoPayload>> {
     val node = expr.node
     val rewritten = when (node) {
         is ExprP.Op<AstNoPayload> -> {
@@ -255,32 +253,32 @@ private fun rewriteArg(arg: ArgumentP<AstNoPayload>, replace: Map<String, String
 
 /** Rewrite a statement, recursively rewriting all contained expressions. */
 @Suppress("UNCHECKED_CAST")
-private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
+private fun rewriteStmt(stmt: Spanned<StmtP<AstNoPayload>>, replace: Map<String, String>): Spanned<StmtP<AstNoPayload>> {
     val node = stmt.node
     val rewritten = when (node) {
         is StmtP.Statements<*> -> StmtP.Statements<AstNoPayload>(
-            (node.stmts as List<AstStmt>).map { rewriteStmt(it, replace) },
+            (node.stmts as List<Spanned<StmtP<AstNoPayload>>>).map { rewriteStmt(it, replace) },
         )
         is StmtP.Expression<*> -> StmtP.Expression<AstNoPayload>(
-            rewriteExpr(node.expr as AstExpr, replace),
+            rewriteExpr(node.expr as Spanned<ExprP<AstNoPayload>>, replace),
         )
         is StmtP.Return<*> -> StmtP.Return<AstNoPayload>(
-            (node.expr as AstExpr?)?.let { rewriteExpr(it, replace) },
+            (node.expr as Spanned<ExprP<AstNoPayload>>?)?.let { rewriteExpr(it, replace) },
         )
         is StmtP.If<*> -> StmtP.If<AstNoPayload>(
-            rewriteExpr(node.cond as AstExpr, replace),
-            rewriteStmt(node.suite as AstStmt, replace),
+            rewriteExpr(node.cond as Spanned<ExprP<AstNoPayload>>, replace),
+            rewriteStmt(node.suite as Spanned<StmtP<AstNoPayload>>, replace),
         )
         is StmtP.IfElse<*> -> StmtP.IfElse<AstNoPayload>(
-            rewriteExpr(node.cond as AstExpr, replace),
-            rewriteStmt(node.suite1 as AstStmt, replace),
-            rewriteStmt(node.suite2 as AstStmt, replace),
+            rewriteExpr(node.cond as Spanned<ExprP<AstNoPayload>>, replace),
+            rewriteStmt(node.suite1 as Spanned<StmtP<AstNoPayload>>, replace),
+            rewriteStmt(node.suite2 as Spanned<StmtP<AstNoPayload>>, replace),
         )
         is StmtP.For<*> -> {
             val forStmt = node.forStmt as ForP<AstNoPayload>
             StmtP.For<AstNoPayload>(forStmt.copy(
                 over = rewriteExpr(forStmt.over, replace),
-                body = rewriteStmt(forStmt.body as AstStmt, replace),
+                body = rewriteStmt(forStmt.body as Spanned<StmtP<AstNoPayload>>, replace),
             ))
         }
         is StmtP.Def<*, *> -> {
@@ -289,7 +287,7 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
                 name = def.name,
                 params = def.params,
                 returnType = def.returnType,
-                body = rewriteStmt(def.body as AstStmt, replace),
+                body = rewriteStmt(def.body as Spanned<StmtP<AstNoPayload>>, replace),
                 payload = def.payload,
             ))
         }
@@ -302,7 +300,7 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
         is StmtP.AssignModify<*> -> StmtP.AssignModify<AstNoPayload>(
             node.lhs as Spanned<AssignTargetP<AstNoPayload>>,
             node.op,
-            rewriteExpr(node.rhs as AstExpr, replace),
+            rewriteExpr(node.rhs as Spanned<ExprP<AstNoPayload>>, replace),
         )
         is StmtP.Load<*, *> -> node
         is StmtP.Break<*> -> node

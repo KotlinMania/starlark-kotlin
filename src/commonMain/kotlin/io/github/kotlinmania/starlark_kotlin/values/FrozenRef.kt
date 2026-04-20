@@ -19,11 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+
+/**
+ * Rust `Box<T>`.
+ *
+ * In the Rust implementation, `Box<T>` is an owned pointer indirection.
+ * In this Kotlin port, this wrapper is used only where the Rust code distinguishes
+ * `T` vs `Box<T>` in trait implementations.
+ */
+class Box<T>(
+    val value: T,
+)
 
 /**
  * A [FrozenRef] is essentially a [FrozenValue], and has the same memory and
@@ -73,10 +83,6 @@ class FrozenRef<T>(
         return value
     }
 
-    fun borrow(): T {
-        return value
-    }
-
     override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }
@@ -91,9 +97,19 @@ class FrozenRef<T>(
         return value.hashCode()
     }
 
-    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<FrozenRef<T>> {
+    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenRef<T>> {
         return Result.success(this)
     }
+}
+
+// impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, T>
+fun <T> FrozenRef<T>.borrow(): T {
+    return value
+}
+
+// impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, Box<T>>
+fun <T> FrozenRef<Box<T>>.borrow(): T {
+    return value.value
 }
 
 fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {

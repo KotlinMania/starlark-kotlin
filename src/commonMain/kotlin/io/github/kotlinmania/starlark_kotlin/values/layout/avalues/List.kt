@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
 import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
 import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn list_avalue<'v>(content: ValueTyped<'v, Array<'v>>) -> AValueImpl<'v, impl AValue<'v, ...>>
 internal fun listAvalue(
@@ -60,8 +59,8 @@ internal object AValueList : AValue {
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         // In the full implementation, this is called via vtable dispatch
         // with the actual StarlarkValue. The object form uses unpack() as placeholder.
         error("heapFreeze should be dispatched via vtable with actual value")
@@ -90,8 +89,8 @@ internal object AValueFrozenList : AValue {
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 

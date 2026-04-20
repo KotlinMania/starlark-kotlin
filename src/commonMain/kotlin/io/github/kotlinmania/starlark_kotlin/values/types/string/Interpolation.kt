@@ -12,8 +12,7 @@ import io.github.kotlinmania.starlark_kotlin.values.types.float.writeCompact
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import kotlin.math.truncate
 
@@ -160,7 +159,7 @@ fun percent(format: String, value: Value): Result<String> {
     // random guess as a baseline capacity
     val res = StringBuilder(format.length + 20)
 
-    val tuple = Tuple.fromValue(value)
+    val tuple = TupleGen.fromValue(value)
     val one = listOf(value)
     val values: List<Value> = when (tuple) {
         null -> one
@@ -390,7 +389,7 @@ fun percentSOne(
     return if (strValue != null) {
         Result.success(heap.allocStrConcat3(before, strValue.toString(), after))
     } else {
-        val tuple = Tuple.fromValue(arg)
+        val tuple = TupleGen.fromValue(arg)
         val one = when (tuple) {
             null -> arg
             else -> {

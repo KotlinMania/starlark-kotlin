@@ -80,7 +80,7 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
 
     // fn index(&self, item, ctx) -> Result<Ty, TypingNoContextOrInternalError>
     override fun index(_item: TyBasic, _ctx: TypingOracleCtx): Result<Ty> {
-        // TODO(nga): this is hack for `enum` (type) which pretends to be a function.
+        // NOTE(nga): this is hack for `enum` (type) which pretends to be a function.
         //   Should be a custom type.
         return Result.success(Ty.any())
     }

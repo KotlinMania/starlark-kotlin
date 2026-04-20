@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 /** Implementation of `record` function. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled

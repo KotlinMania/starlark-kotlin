@@ -71,9 +71,6 @@ private class ComplexTestExampleGen<V>(val value: V) : StarlarkValue {
     }
 }
 
-// type alias for frozen variant
-private typealias FrozenComplexTestExample = ComplexTestExampleGen<Any>
-
 // #[test]
 // fn test_derive_docs()
 internal fun testDeriveDocs() {

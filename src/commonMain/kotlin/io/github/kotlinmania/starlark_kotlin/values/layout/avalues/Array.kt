@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
@@ -35,10 +35,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
 private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> {
@@ -70,8 +69,8 @@ internal object AValueArray : AValue {
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("arrays should not be frozen")
     }
 
@@ -122,8 +121,8 @@ internal class AValueAnyArray<T> : AValue {
     // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 

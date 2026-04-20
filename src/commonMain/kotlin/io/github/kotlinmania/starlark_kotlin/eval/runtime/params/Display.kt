@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.params
  * limitations under the License.
  */
 
-/** Parameter or `*` or `/` separator, but only if needed for formatting. */
+/** ParameterP<AstNoPayload> or `*` or `/` separator, but only if needed for formatting. */
 sealed class FmtParam<out T> {
     /** Positional-only, positional-or-named, or named-only parameter. */
     data class Regular<T>(val value: T) : FmtParam<T>()
@@ -82,9 +82,9 @@ internal fun <T> iterFmtParamSpec(
 internal const val PARAM_FMT_OPTIONAL: String = "..."
 
 internal data class ParamFmt<T, D>(
-    /** Parameter name. */
+    /** ParameterP<AstNoPayload> name. */
     val name: String,
-    /** Parameter type. If `null`, it will be omitted. */
+    /** ParameterP<AstNoPayload> type. If `null`, it will be omitted. */
     val ty: T?,
     val default: D?,
 )

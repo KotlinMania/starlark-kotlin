@@ -20,7 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.bc
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
 
@@ -34,7 +35,7 @@ private fun testFunctionBytecode(program: String): String {
         .module("instrs.star", trimmed)
         .get("test")
         .getOrThrow()
-        .downcast<FrozenDef>()
+        .downcast<DefGen<FrozenValue>>()
         .getOrThrow()
 
     val golden = StringBuilder()

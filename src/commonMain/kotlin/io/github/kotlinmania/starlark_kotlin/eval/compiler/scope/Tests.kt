@@ -22,23 +22,27 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCount
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Captured
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.codemap.*
 
@@ -87,10 +91,10 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
     // struct Visitor
     @Suppress("UNCHECKED_CAST")
     class Visitor(val r: StringBuilder) {
-        fun visitExpr(expr: CstExpr) {
+        fun visitExpr(expr: Spanned<ExprP<CstPayload>>) {
             val node = expr.node
             if (node is ExprP.Identifier<*, *>) {
-                val ident = node.ident as CstIdent
+                val ident = node.ident as Spanned<IdentP<CstPayload, ResolvedIdent?>>
                 val resolved = when (val payload = ident.node.payload!!) {
                     is ResolvedIdent.Slot -> payload.bindingId.id.toString()
                     is ResolvedIdent.Global -> "G"
@@ -101,17 +105,18 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
             visitExprChildren(expr) { e -> visitExpr(e) }
         }
 
-        fun visitExprs(exprs: Iterable<CstExpr>) {
+        fun visitExprs(exprs: Iterable<Spanned<ExprP<CstPayload>>>) {
             for (expr in exprs) {
                 visitExpr(expr)
             }
         }
 
-        fun visitLvalue(ident: CstAssignIdent) {
-            r.append(" ${ident.node.ident}:${ident.node.payload!!.id}")
+        fun visitLvalue(ident: Spanned<AssignIdentP<CstPayload, *>>) {
+            val bindingId = ident.node.payload as? BindingId ?: error("binding not assigned for ident")
+            r.append(" ${ident.node.ident}:${bindingId.id}")
         }
 
-        fun visitStmtChildren(stmt: CstStmt) {
+        fun visitStmtChildren(stmt: Spanned<StmtP<CstPayload>>) {
             visitStmtChildrenImpl(stmt) { visit ->
                 when (visit) {
                     is Visit.Stmt -> visitStmt(visit.stmt)
@@ -120,20 +125,20 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
             }
         }
 
-        fun visitAssign(assign: CstAssignTarget) {
+        fun visitAssign(assign: Spanned<AssignTargetP<CstPayload>>) {
             visitAssignLvalue(assign) { ident -> visitLvalue(ident) }
         }
 
-        fun visitStmt(stmt: CstStmt) {
+        fun visitStmt(stmt: Spanned<StmtP<CstPayload>>) {
             when (val node = stmt.node) {
                 is StmtP.Assign<*> -> visitAssign((node.assign as AssignP<CstPayload>).lhs)
                 is StmtP.Def<*, *> -> {
                     val def = node.def as DefP<CstPayload, *>
-                    visitLvalue(def.name as CstAssignIdent)
+                    visitLvalue(def.name as Spanned<AssignIdentP<CstPayload, *>>)
                     for (param in def.params) {
                         val (name, typ, defVal) = splitParam(param.node as ParameterP<CstPayload>)
                         if (name != null) {
-                            visitLvalue(name as CstAssignIdent)
+                            visitLvalue(name)
                         }
                         if (defVal != null) {
                             visitExprs(listOf(defVal))
@@ -163,8 +168,8 @@ private fun testWithModule(program: String, expected: String, module: MutableNam
  * We need our own local Visit for this test file.
  */
 private sealed class Visit {
-    data class Stmt(val stmt: CstStmt) : Visit()
-    data class Expr(val expr: CstExpr) : Visit()
+    data class Stmt(val stmt: Spanned<StmtP<CstPayload>>) : Visit()
+    data class Expr(val expr: Spanned<ExprP<CstPayload>>) : Visit()
 }
 
 /**
@@ -172,21 +177,23 @@ private sealed class Visit {
  * Port of Rust's ParameterP::split.
  */
 @Suppress("UNCHECKED_CAST")
-private fun splitParam(param: ParameterP<CstPayload>): Triple<CstAssignIdent?, CstTypeExpr?, CstExpr?> {
+private fun splitParam(
+    param: ParameterP<CstPayload>,
+): Triple<Spanned<AssignIdentP<CstPayload, *>>?, Spanned<TypeExprP<CstPayload, *>>?, Spanned<ExprP<CstPayload>>?> {
     return when (param) {
         is ParameterP.Normal<*> -> Triple(
-            param.name as CstAssignIdent,
-            param.typ as CstTypeExpr?,
-            param.defaultVal as CstExpr?,
+            param.name as Spanned<AssignIdentP<CstPayload, *>>,
+            param.typ as Spanned<TypeExprP<CstPayload, *>>?,
+            param.defaultVal as Spanned<ExprP<CstPayload>>?,
         )
         is ParameterP.Args<*> -> Triple(
-            param.name as CstAssignIdent,
-            param.typ as CstTypeExpr?,
+            param.name as Spanned<AssignIdentP<CstPayload, *>>,
+            param.typ as Spanned<TypeExprP<CstPayload, *>>?,
             null,
         )
         is ParameterP.KwArgs<*> -> Triple(
-            param.name as CstAssignIdent,
-            param.typ as CstTypeExpr?,
+            param.name as Spanned<AssignIdentP<CstPayload, *>>,
+            param.typ as Spanned<TypeExprP<CstPayload, *>>?,
             null,
         )
         is ParameterP.NoArgs<*>, is ParameterP.Slash<*> -> Triple(null, null, null)
@@ -196,31 +203,42 @@ private fun splitParam(param: ParameterP<CstPayload>): Triple<CstAssignIdent?, C
 
 /** Visit lvalues in an assign target (port of AssignTargetP::visit_lvalue). */
 @Suppress("UNCHECKED_CAST")
-private fun visitAssignLvalue(assign: CstAssignTarget, f: (CstAssignIdent) -> Unit) {
+private fun visitAssignLvalue(
+    assign: Spanned<AssignTargetP<CstPayload>>,
+    f: (Spanned<AssignIdentP<CstPayload, *>>) -> Unit,
+) {
     when (val node = assign.node) {
-        is AssignTargetP.Identifier<*, *> -> f(node.ident as CstAssignIdent)
-        is AssignTargetP.Tuple<*> -> (node.elements as List<CstAssignTarget>).forEach { visitAssignLvalue(it, f) }
+        is AssignTargetP.Identifier<*, *> -> f(node.ident as Spanned<AssignIdentP<CstPayload, *>>)
+        is AssignTargetP.Tuple<*> ->
+            (node.elements as List<Spanned<AssignTargetP<CstPayload>>>).forEach { visitAssignLvalue(it, f) }
         else -> {}
     }
 }
 
 /** Visit child expressions of an ExprP (port of ExprP::visit_expr). */
 @Suppress("UNCHECKED_CAST")
-private fun visitExprChildren(expr: CstExpr, f: (CstExpr) -> Unit) {
+private fun visitExprChildren(
+    expr: Spanned<ExprP<CstPayload>>,
+    f: (Spanned<ExprP<CstPayload>>) -> Unit,
+) {
     when (val node = expr.node) {
-        is ExprP.Tuple<*> -> (node.elements as List<CstExpr>).forEach { f(it) }
-        is ExprP.Dot<*> -> f(node.expr as CstExpr)
+        is ExprP.Tuple<*> -> (node.elements as List<Spanned<ExprP<CstPayload>>>).forEach { f(it) }
+        is ExprP.Dot<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
         is ExprP.Call<*> -> {
-            f(node.expr as CstExpr)
+            f(node.expr as Spanned<ExprP<CstPayload>>)
             (node as ExprP.Call<CstPayload>).args.args.forEach { f(it.node.expr()) }
         }
-        is ExprP.Index<*> -> { f(node.expr as CstExpr); f(node.index as CstExpr) }
-        is ExprP.Index2<*> -> { f(node.expr as CstExpr); f(node.index0 as CstExpr); f(node.index1 as CstExpr) }
+        is ExprP.Index<*> -> { f(node.expr as Spanned<ExprP<CstPayload>>); f(node.index as Spanned<ExprP<CstPayload>>) }
+        is ExprP.Index2<*> -> {
+            f(node.expr as Spanned<ExprP<CstPayload>>)
+            f(node.index0 as Spanned<ExprP<CstPayload>>)
+            f(node.index1 as Spanned<ExprP<CstPayload>>)
+        }
         is ExprP.Slice<*> -> {
-            f(node.expr as CstExpr)
-            (node.start as CstExpr?)?.let { f(it) }
-            (node.stop as CstExpr?)?.let { f(it) }
-            (node.step as CstExpr?)?.let { f(it) }
+            f(node.expr as Spanned<ExprP<CstPayload>>)
+            (node.start as Spanned<ExprP<CstPayload>>?)?.let { f(it) }
+            (node.stop as Spanned<ExprP<CstPayload>>?)?.let { f(it) }
+            (node.step as Spanned<ExprP<CstPayload>>?)?.let { f(it) }
         }
         is ExprP.Identifier<*, *> -> {}
         is ExprP.Lambda<*, *> -> {
@@ -233,14 +251,19 @@ private fun visitExprChildren(expr: CstExpr, f: (CstExpr) -> Unit) {
             f(l.lambda.body)
         }
         is ExprP.Literal<*> -> {}
-        is ExprP.Not<*> -> f(node.expr as CstExpr)
-        is ExprP.Minus<*> -> f(node.expr as CstExpr)
-        is ExprP.Plus<*> -> f(node.expr as CstExpr)
-        is ExprP.BitNot<*> -> f(node.expr as CstExpr)
-        is ExprP.Op<*> -> { f(node.lhs as CstExpr); f(node.rhs as CstExpr) }
-        is ExprP.If<*> -> { f(node.cond as CstExpr); f(node.v1 as CstExpr); f(node.v2 as CstExpr) }
-        is ExprP.ListExpr<*> -> (node.elements as List<CstExpr>).forEach { f(it) }
-        is ExprP.Dict<*> -> (node.elements as List<Pair<CstExpr, CstExpr>>).forEach { (k, v) -> f(k); f(v) }
+        is ExprP.Not<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
+        is ExprP.Minus<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
+        is ExprP.Plus<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
+        is ExprP.BitNot<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
+        is ExprP.Op<*> -> { f(node.lhs as Spanned<ExprP<CstPayload>>); f(node.rhs as Spanned<ExprP<CstPayload>>) }
+        is ExprP.If<*> -> {
+            f(node.cond as Spanned<ExprP<CstPayload>>)
+            f(node.v1 as Spanned<ExprP<CstPayload>>)
+            f(node.v2 as Spanned<ExprP<CstPayload>>)
+        }
+        is ExprP.ListExpr<*> -> (node.elements as List<Spanned<ExprP<CstPayload>>>).forEach { f(it) }
+        is ExprP.Dict<*> ->
+            (node.elements as List<Pair<Spanned<ExprP<CstPayload>>, Spanned<ExprP<CstPayload>>>>).forEach { (k, v) -> f(k); f(v) }
         is ExprP.ListComprehension<*> -> {
             val lc = node as ExprP.ListComprehension<CstPayload>
             visitForClauseExprs(lc.forClause, f)
@@ -253,19 +276,20 @@ private fun visitExprChildren(expr: CstExpr, f: (CstExpr) -> Unit) {
             dc.clauses.forEach { visitClauseExprs(it, f) }
             f(dc.key); f(dc.value)
         }
-        is ExprP.FString<*> -> (node.fstring as FStringP<CstPayload>).expressions.forEach { f(it as CstExpr) }
+        is ExprP.FString<*> ->
+            (node.fstring as FStringP<CstPayload>).expressions.forEach { f(it as Spanned<ExprP<CstPayload>>) }
     }
 }
 
 /** Visit child statements/expressions of a StmtP (port of StmtP::visit_children). */
 @Suppress("UNCHECKED_CAST")
-private fun visitStmtChildrenImpl(stmt: CstStmt, f: (Visit) -> Unit) {
+private fun visitStmtChildrenImpl(stmt: Spanned<StmtP<CstPayload>>, f: (Visit) -> Unit) {
     when (val node = stmt.node) {
-        is StmtP.Statements<*> -> (node.stmts as List<CstStmt>).forEach { f(Visit.Stmt(it)) }
-        is StmtP.If<*> -> { f(Visit.Expr(node.cond as CstExpr)); f(Visit.Stmt(node.suite as CstStmt)) }
+        is StmtP.Statements<*> -> (node.stmts as List<Spanned<StmtP<CstPayload>>>).forEach { f(Visit.Stmt(it)) }
+        is StmtP.If<*> -> { f(Visit.Expr(node.cond as Spanned<ExprP<CstPayload>>)); f(Visit.Stmt(node.suite as Spanned<StmtP<CstPayload>>)) }
         is StmtP.IfElse<*> -> {
-            f(Visit.Expr(node.cond as CstExpr))
-            f(Visit.Stmt(node.suite1 as CstStmt)); f(Visit.Stmt(node.suite2 as CstStmt))
+            f(Visit.Expr(node.cond as Spanned<ExprP<CstPayload>>))
+            f(Visit.Stmt(node.suite1 as Spanned<StmtP<CstPayload>>)); f(Visit.Stmt(node.suite2 as Spanned<StmtP<CstPayload>>))
         }
         is StmtP.Def<*, *> -> {
             val def = node.def as DefP<CstPayload, *>
@@ -282,8 +306,8 @@ private fun visitStmtChildrenImpl(stmt: CstStmt, f: (Visit) -> Unit) {
             visitAssignTargetExprs(fp.varTarget) { f(Visit.Expr(it)) }
             f(Visit.Expr(fp.over)); f(Visit.Stmt(fp.body))
         }
-        is StmtP.Return<*> -> { val r = node.expr as CstExpr?; if (r != null) f(Visit.Expr(r)) }
-        is StmtP.Expression<*> -> f(Visit.Expr(node.expr as CstExpr))
+        is StmtP.Return<*> -> { val r = node.expr as Spanned<ExprP<CstPayload>>?; if (r != null) f(Visit.Expr(r)) }
+        is StmtP.Expression<*> -> f(Visit.Expr(node.expr as Spanned<ExprP<CstPayload>>))
         is StmtP.Assign<*> -> {
             val a = node.assign as AssignP<CstPayload>
             visitAssignTargetExprs(a.lhs) { f(Visit.Expr(it)) }
@@ -291,8 +315,8 @@ private fun visitStmtChildrenImpl(stmt: CstStmt, f: (Visit) -> Unit) {
             f(Visit.Expr(a.rhs))
         }
         is StmtP.AssignModify<*> -> {
-            visitAssignTargetExprs(node.lhs as CstAssignTarget) { f(Visit.Expr(it)) }
-            f(Visit.Expr(node.rhs as CstExpr))
+            visitAssignTargetExprs(node.lhs as Spanned<AssignTargetP<CstPayload>>) { f(Visit.Expr(it)) }
+            f(Visit.Expr(node.rhs as Spanned<ExprP<CstPayload>>))
         }
         is StmtP.Break<*>, is StmtP.Continue<*>, is StmtP.Pass<*>, is StmtP.Load<*, *> -> {}
     }
@@ -300,28 +324,32 @@ private fun visitStmtChildrenImpl(stmt: CstStmt, f: (Visit) -> Unit) {
 
 /** Visit expressions within an assign target (port of AssignTargetP::visit_expr). */
 @Suppress("UNCHECKED_CAST")
-private fun visitAssignTargetExprs(target: CstAssignTarget, f: (CstExpr) -> Unit) {
+private fun visitAssignTargetExprs(target: Spanned<AssignTargetP<CstPayload>>, f: (Spanned<ExprP<CstPayload>>) -> Unit) {
     when (val node = target.node) {
-        is AssignTargetP.Tuple<*> -> (node.elements as List<CstAssignTarget>).forEach { visitAssignTargetExprs(it, f) }
-        is AssignTargetP.Dot<*> -> f(node.expr as CstExpr)
-        is AssignTargetP.Index<*> -> { f(node.expr as CstExpr); f(node.index as CstExpr) }
+        is AssignTargetP.Tuple<*> ->
+            (node.elements as List<Spanned<AssignTargetP<CstPayload>>>).forEach { visitAssignTargetExprs(it, f) }
+        is AssignTargetP.Dot<*> -> f(node.expr as Spanned<ExprP<CstPayload>>)
+        is AssignTargetP.Index<*> -> { f(node.expr as Spanned<ExprP<CstPayload>>); f(node.index as Spanned<ExprP<CstPayload>>) }
         is AssignTargetP.Identifier<*, *> -> {}
     }
 }
 
 /** Visit expressions within a for clause. */
 @Suppress("UNCHECKED_CAST")
-private fun visitForClauseExprs(forClause: ForClauseP<CstPayload>, f: (CstExpr) -> Unit) {
+private fun visitForClauseExprs(
+    forClause: ForClauseP<CstPayload>,
+    f: (Spanned<ExprP<CstPayload>>) -> Unit,
+) {
     visitAssignTargetExprs(forClause.varTarget, f)
     f(forClause.over)
 }
 
 /** Visit expressions within a clause. */
 @Suppress("UNCHECKED_CAST")
-private fun visitClauseExprs(clause: ClauseP<CstPayload>, f: (CstExpr) -> Unit) {
+private fun visitClauseExprs(clause: ClauseP<CstPayload>, f: (Spanned<ExprP<CstPayload>>) -> Unit) {
     when (clause) {
         is ClauseP.For<*> -> visitForClauseExprs(clause.forClause as ForClauseP<CstPayload>, f)
-        is ClauseP.If<*> -> f(clause.cond as CstExpr)
+        is ClauseP.If<*> -> f(clause.cond as Spanned<ExprP<CstPayload>>)
     }
 }
 

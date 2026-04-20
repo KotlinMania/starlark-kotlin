@@ -34,12 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstParameter
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
@@ -65,9 +60,9 @@ import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
 import io.github.kotlinmania.starlark_kotlin.values.AtomicFrozenRefOption
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -82,7 +77,11 @@ import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
 
 // ---- DefError ----
 
@@ -98,7 +97,7 @@ private sealed class DefError(message: String) : Exception(message) {
 
 /**
  * Store frozen [Bc].
- * This is initialized in [FrozenDef.postFreeze].
+ * This is initialized in [DefGen<FrozenValue>.postFreeze].
  */
 internal class StmtCompiledCell {
     private var bc: Bc = Bc()
@@ -439,8 +438,8 @@ internal data class DefCompiled(
 /**
  * Compile a parameter name from a CST assignment identifier.
  */
-internal fun Compiler.parameterName(ident: CstAssignIdent): ParameterName {
-    val bindingId = ident.node.payload ?: error("no binding for parameter")
+internal fun Compiler.parameterName(ident: Spanned<AssignIdentP<CstPayload, *>>): ParameterName {
+    val bindingId = ident.node.payload as? BindingId ?: error("no binding for parameter")
     val binding = this.scopeData.getBinding(bindingId)
     return ParameterName(
         name = ident.node.ident,
@@ -488,9 +487,9 @@ internal fun Compiler.function(
     name: String,
     signatureSpan: FrozenFileSpan,
     scopeId: ScopeId,
-    params: List<CstParameter>,
-    returnType: CstTypeExpr?,
-    suite: CstStmt,
+    params: List<Spanned<ParameterP<CstPayload>>>,
+    returnType: Spanned<TypeExprP<CstPayload, *>>?,
+    suite: Spanned<StmtP<CstPayload>>,
 ): ExprCompiled {
     val file = this.codemap.asRef().fileSpan(suite.span)
     val functionName = "${file.file.filename}.$name"
@@ -564,7 +563,7 @@ internal fun Compiler.function(
  */
 @Suppress("UNCHECKED_CAST")
 private fun unpackDefParamsForCompiler(
-    params: List<CstParameter>,
+    params: List<Spanned<ParameterP<CstPayload>>>,
     codemap: CodeMap,
 ): Pair<List<Spanned<DefParam>>, DefParamIndices> {
     val defParams = mutableListOf<Spanned<DefParam>>()
@@ -585,9 +584,9 @@ private fun unpackDefParamsForCompiler(
                 seenStar = true
             }
             is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
-                val ident = param.name as CstAssignIdent
-                val ty = param.typ as CstTypeExpr?
-                val defaultVal = param.defaultVal as io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr?
+                val ident = param.name as Spanned<AssignIdentP<CstPayload, *>>
+                val ty = param.typ as Spanned<TypeExprP<CstPayload, *>>?
+                val defaultVal = param.defaultVal as Spanned<ExprP<CstPayload>>?
                 val mode = if (seenStar) {
                     io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode.NameOnly
                 } else {
@@ -601,14 +600,14 @@ private fun unpackDefParamsForCompiler(
                 seenStar = true
                 args = defParams.size.toUInt()
                 numPositional = defParams.size.toUInt()
-                val ident = param.name as CstAssignIdent
-                val ty = param.typ as CstTypeExpr?
+                val ident = param.name as Spanned<AssignIdentP<CstPayload, *>>
+                val ty = param.typ as Spanned<TypeExprP<CstPayload, *>>?
                 defParams.add(Spanned(DefParam(ident, DefParamKind.Args, ty), p.span))
             }
             is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> -> {
                 kwargs = defParams.size.toUInt()
-                val ident = param.name as CstAssignIdent
-                val ty = param.typ as CstTypeExpr?
+                val ident = param.name as Spanned<AssignIdentP<CstPayload, *>>
+                val ty = param.typ as Spanned<TypeExprP<CstPayload, *>>?
                 defParams.add(Spanned(DefParam(ident, DefParamKind.Kwargs, ty), p.span))
             }
         }
@@ -678,12 +677,12 @@ internal class DefGen<V>(
      */
     val module: AtomicFrozenRefOption<FrozenModuleData>,
     /**
-     * This field is only used in `FrozenDef`. It is populated in [postFreeze].
+     * This field is only used in `DefGen<FrozenValue>`. It is populated in [postFreeze].
      */
     internal val optimizedOnFreezeStmt: StmtCompiledCell,
     /** Whether this DefGen holds frozen values. */
     private val frozen: Boolean,
-) : ComplexValue, Trace, Freeze<FrozenDef> {
+) : ComplexValue, Trace, Freeze<DefGen<FrozenValue>> {
 
     override fun toString(): String = parameters.signature()
 
@@ -702,9 +701,9 @@ internal class DefGen<V>(
         }
     }
 
-    // Freeze implementation: freeze into FrozenDef.
+    // Freeze implementation: freeze into DefGen<FrozenValue>.
     // impl Freeze for Def
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenDef> {
+    override fun freeze(freezer: Freezer): Result<DefGen<FrozenValue>> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
         val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
@@ -713,9 +712,9 @@ internal class DefGen<V>(
         val frozenReturnType = returnType?.toFrozen(freezer.heap)
         @Suppress("UNCHECKED_CAST")
         val frozenCaptured = (captured as List<Value>).map { v ->
-            freezer.freeze(v).getOrElse { return FreezeResult.failure(it) }
+            freezer.freeze(v).getOrElse { return Result.failure(it) }
         }
-        return FreezeResult.success(DefGen(
+        return Result.success(DefGen(
             parameters = frozenParameters,
             parameterCaptures = parameterCaptures,
             parameterTypes = frozenParameterTypes,
@@ -933,12 +932,6 @@ internal class DefGen<V>(
     }
 }
 
-/** Type alias for non-frozen def. */
-internal typealias Def = DefGen<Value>
-
-/** Type alias for frozen def. */
-internal typealias FrozenDef = DefGen<FrozenValue>
-
 // ---- DefLike ----
 
 /**
@@ -951,7 +944,7 @@ internal interface DefLike {
 // ---- Def.new ----
 
 /**
- * Create a new unfrozen [Def], allocating it on the evaluator's heap.
+ * Create a new unfrozen [DefGen], allocating it on the evaluator's heap.
  */
 internal fun newDef(
     parameters: ParametersSpec<Value>,
@@ -977,7 +970,7 @@ internal fun newDef(
     return Result.success(eval.heap().allocComplex(def))
 }
 
-// ---- FrozenDef.postFreeze ----
+// ---- DefGen<FrozenValue>.postFreeze ----
 
 /**
  * Post-freeze optimization for a frozen def.
@@ -986,7 +979,7 @@ internal fun newDef(
  * is declared: a function can be created in a frozen module and frozen later
  * in another module. The [module] parameter is the module being frozen now.
  */
-internal fun FrozenDef.postFreeze(
+internal fun DefGen<FrozenValue>.postFreeze(
     module: FrozenRef<FrozenModuleData>,
     heap: Heap,
     frozenHeap: FrozenHeap,

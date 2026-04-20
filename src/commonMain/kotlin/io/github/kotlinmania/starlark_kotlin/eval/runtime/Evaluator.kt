@@ -38,9 +38,8 @@ import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.trace
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Def
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.FileLoader
@@ -61,10 +60,11 @@ import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
 import io.github.kotlinmania.starlark_kotlin.stdlib.RealBreakpointConsole
 import io.github.kotlinmania.starlark_kotlin.stdlib.StderrPrintHandler
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueCaptured
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueCaptured
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
@@ -630,11 +630,11 @@ class Evaluator(
 
     internal fun checkReturnType(ret: Value): Result<Unit> {
         val func = callStack.topNthFunction(0)
-        val defRef = func.downcastRef<Def>()
+        val defRef = func.downcastRef<DefGen<Value>>()
         if (defRef != null) {
             return defRef.checkReturnType(ret, this)
         }
-        val frozenDefRef = func.downcastRef<FrozenDef>()
+        val frozenDefRef = func.downcastRef<DefGen<FrozenValue>>()
         if (frozenDefRef != null) {
             return frozenDefRef.checkReturnType(ret, this)
         }
@@ -644,8 +644,8 @@ class Evaluator(
     }
 
     private fun funcToDefInfo(func: Value): DefInfo {
-        func.downcastRef<Def>()?.let { return it.defInfo }
-        func.downcastRef<FrozenDef>()?.let { return it.defInfo }
+        func.downcastRef<DefGen<Value>>()?.let { return it.defInfo }
+        func.downcastRef<DefGen<FrozenValue>>()?.let { return it.defInfo }
         if (func.isNone()) {
             // For module, it is `None`.
             return moduleDefInfo
@@ -662,8 +662,8 @@ class Evaluator(
         forDebugger: Boolean,
     ): FrozenRef<FrozenModuleData>? {
         val func = topFrameMaybeForDebugger(forDebugger)
-        func.downcastRef<FrozenDef>()?.let { return it.module.loadRelaxed() }
-        func.downcastRef<Def>()?.let { return it.module.loadRelaxed() }
+        func.downcastRef<DefGen<FrozenValue>>()?.let { return it.module.loadRelaxed() }
+        func.downcastRef<DefGen<Value>>()?.let { return it.module.loadRelaxed() }
         return null
     }
 

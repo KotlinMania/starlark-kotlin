@@ -186,54 +186,23 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 ./gradlew jvmTest
 ```
 
-### Task Management Workflow (REQUIRED)
+### Workflow (No Swarm Tasks)
 
-**⚠️ IMPORTANT: Use the task system - DO NOT port files randomly!**
+This repo is **not** using the `ast_distance` swarm/task-assignment system. Do not create or depend on `tasks.json`.
 
-The project uses a task assignment system to coordinate parallel porting work and prevent conflicts.
-
-#### Getting Your Next Task
+Use `ast_distance` directly for analysis and verification:
 
 ```bash
-./tools/ast_distance/ast_distance --assign tasks.json <your-agent-id>
+# Analyze overall porting progress
+./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
+
+# Check similarity of a specific file
+./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust \
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+
+# Find missing files ranked by importance (if supported by your ast_distance build)
+./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
 ```
-
-This will:
-1. Assign you the highest-priority unassigned task
-2. Show you the source file path and target path
-3. Output complete porting instructions
-4. Lock the task to prevent other agents from taking it
-
-#### Completing a Task
-
-After porting a file:
-```bash
-./tools/ast_distance/ast_distance --complete tasks.json <source_qualified_name>
-```
-
-Example:
-```bash
-./tools/ast_distance/ast_distance --complete tasks.json layout.value
-```
-
-#### Releasing a Task (if blocked)
-
-If you cannot complete a task:
-```bash
-./tools/ast_distance/ast_distance --release tasks.json <source_qualified_name>
-```
-
-#### Viewing Task Status
-
-```bash
-./tools/ast_distance/ast_distance --tasks tasks.json
-```
-
-Shows pending, assigned, and completed tasks with priority rankings.
-
-#### ⚠️ WARNING: Do NOT Re-Initialize Tasks
-
-**NEVER run `--init-tasks` if `tasks.json` already exists!** This will overwrite all task assignments and progress. The task file is already initialized and managed.
 
 ### Tracking Progress
 

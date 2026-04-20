@@ -21,12 +21,12 @@ package io.github.kotlinmania.starlark_kotlin.values.owned
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedRefFrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
@@ -215,4 +215,3 @@ private object NoneAllocFrozenValue : AllocFrozenValue {
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
     override fun starlarkTypeRepr(): Ty = Ty.none()
 }
-

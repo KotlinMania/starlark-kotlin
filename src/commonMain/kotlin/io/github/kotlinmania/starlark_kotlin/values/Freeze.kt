@@ -19,20 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import starlark_map.Hashed
 import starlark_map.small_map.SmallMap
 import starlark_map.small_set.SmallSet
 
 /**
- * A zero-sized marker type used for type-level tracking without runtime overhead.
- *
  * Kotlin equivalent of Rust's `PhantomData<T>`.
- * In Rust, `PhantomData<T>` is used to indicate ownership or variance without
- * storing a value of type `T`.
+ *
+ * A zero-sized marker type used for type-level tracking without runtime overhead.
  */
-@ConsistentCopyVisibility
-data class PhantomData<T> private constructor(val unit: Unit = Unit) {
+class PhantomData<T> private constructor() {
     companion object {
         fun <T> new(): PhantomData<T> = PhantomData()
     }
@@ -60,7 +59,7 @@ data class Tuple5<A, B, C, D, E>(val first: A, val second: B, val third: C, val 
  *     val value: V,
  *     val data: AdditionalData,
  * ) : Freeze<MyType<F, F>> {
- *     override fun freeze(freezer: Freezer): FreezeResult<MyType<F, F>> {
+ *     override fun freeze(freezer: Freezer): Result<MyType<F, F>> {
  *         return Result.success(MyType(value.freeze(freezer).getOrThrow(), data))
  *     }
  * }
@@ -75,268 +74,246 @@ interface Freeze<Frozen> {
      * trying to unpack these objects will crash the process.
      * So the function is only allowed to access [Value] objects after it froze them.
      */
-    fun freeze(freezer: Freezer): FreezeResult<Frozen>
+    fun freeze(freezer: Freezer): Result<Frozen>
 }
 
-/** Freeze implementation for [String]. Identity freeze. */
-fun freezeString(self: String, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<String> {
-    return Result.success(self)
+// ---- impl Freeze for primitive/simple types ----
+
+/** Rust `impl Freeze for String`. */
+fun String.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<String> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for [Int] (i32). Identity freeze. */
-fun freezeInt(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Int> {
-    return Result.success(self)
+/** Rust `impl Freeze for i32` (Kotlin [Int]). */
+fun Int.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Int> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for [UInt] (u32). Identity freeze. */
-fun freezeUInt(self: UInt, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<UInt> {
-    return Result.success(self)
+/** Rust `impl Freeze for u32` (Kotlin [UInt]). */
+fun UInt.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<UInt> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for [Long] (i64). Identity freeze. */
-fun freezeLong(self: Long, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Long> {
-    return Result.success(self)
+/** Rust `impl Freeze for i64` (Kotlin [Long]). */
+fun Long.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Long> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for [ULong] (u64). Identity freeze. */
-fun freezeULong(self: ULong, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<ULong> {
-    return Result.success(self)
+/** Rust `impl Freeze for u64` (Kotlin [ULong]). */
+fun ULong.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<ULong> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for usize (mapped to [Int]). Identity freeze. */
-fun freezeUSize(self: Int, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Int> {
-    return Result.success(self)
+/** Rust `impl Freeze for bool` (Kotlin [Boolean]). */
+fun Boolean.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Boolean> {
+    return Result.success(this)
 }
 
-/** Freeze implementation for [Boolean]. Identity freeze. */
-fun freezeBoolean(self: Boolean, @Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Boolean> {
-    return Result.success(self)
-}
-
-/** Freeze implementation for [PhantomData]. Returns a new phantom. */
-fun <T> freezePhantomData(
-    @Suppress("UNUSED_PARAMETER") self: PhantomData<T>,
-    @Suppress("UNUSED_PARAMETER") freezer: Freezer,
-): FreezeResult<PhantomData<T>> {
+/** Rust `impl Freeze for PhantomData<&'v T>`. */
+fun <T> PhantomData<T>.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<PhantomData<T>> {
     return Result.success(PhantomData.new())
 }
 
-/** Freeze implementation for [List] (Vec). Freezes each element. */
-fun <T, F> freezeList(
-    self: List<T>,
+// ---- impl Freeze for container types ----
+
+/** Rust `impl<T: Freeze> Freeze for Vec<T>`. */
+fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<List<F>> {
-    val result = mutableListOf<F>()
-    for (v in self) {
-        val frozen = freezeElement(v, freezer)
-        if (frozen.isFailure) return Result.failure(frozen.exceptionOrNull()!!)
-        result.add(frozen.getOrThrow())
+    freezeElement: (T) -> Result<TFrozen>,
+): Result<List<TFrozen>> {
+    val result = ArrayList<TFrozen>(this.size)
+    for (v in this) {
+        val frozen = freezeElement(v).getOrElse { return Result.failure(it) }
+        result.add(frozen)
     }
     return Result.success(result)
 }
 
-/** Freeze implementation for RefCell — unwraps and freezes inner value. */
-fun <T, F> freezeRefCell(
-    self: T,
-    freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F> {
-    return freezeInner(self, freezer)
+/** Rust `impl<T: Freeze> Freeze for Vec<T>` (when `T` implements [Freeze]). */
+fun <T : Freeze<TFrozen>, TFrozen> List<T>.freeze(freezer: Freezer): Result<List<TFrozen>> {
+    val result = ArrayList<TFrozen>(this.size)
+    for (v in this) {
+        val frozen = v.freeze(freezer).getOrElse { return Result.failure(it) }
+        result.add(frozen)
+    }
+    return Result.success(result)
 }
 
-/** Freeze implementation for UnsafeCell — freezes inner value and wraps. */
-fun <T, F> freezeUnsafeCell(
-    self: T,
+/** Rust `impl<T: Freeze> Freeze for Option<T>` (Kotlin nullable). */
+fun <T, TFrozen> T?.freeze(
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-    wrapResult: (F) -> F,
-): FreezeResult<F> {
-    val frozen = freezeInner(self, freezer)
-    if (frozen.isFailure) return frozen
-    return Result.success(wrapResult(frozen.getOrThrow()))
+    freezeElement: (T) -> Result<TFrozen>,
+): Result<TFrozen?> {
+    if (this == null) return Result.success(null)
+    return freezeElement(this).map { it }
 }
 
-/** Freeze implementation for OnceCell — maps to nullable in Kotlin. */
-fun <T, F> freezeOnceCell(
-    self: T?,
-    freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F?> {
-    return freezeNullable(self, freezer, freezeInner)
+/** Rust `impl<T: Freeze> Freeze for Option<T>` (when `T` implements [Freeze]). */
+fun <T : Freeze<TFrozen>, TFrozen> T?.freeze(freezer: Freezer): Result<TFrozen?> {
+    return freeze(freezer) { v -> v.freeze(freezer) }
 }
 
-/** Freeze implementation for Box — freezes inner value. */
-fun <T, F> freezeBox(
-    self: T,
+/** Rust `impl<T: Freeze> Freeze for Box<T>`. */
+fun <T, TFrozen> Box<T>.freeze(
     freezer: Freezer,
-    freezeInner: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F> {
-    return freezeInner(self, freezer)
+    freezeInner: (T) -> Result<TFrozen>,
+): Result<Box<TFrozen>> {
+    val frozen = freezeInner(this.value).getOrElse { return Result.failure(it) }
+    return Result.success(Box(frozen))
 }
 
-/** Freeze implementation for boxed slice — maps to [List] in Kotlin. */
-fun <T, F> freezeBoxSlice(
-    self: List<T>,
-    freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<List<F>> {
-    return freezeList(self, freezer, freezeElement)
+/** Rust `impl<T: Freeze> Freeze for Box<T>` (when `T` implements [Freeze]). */
+fun <T : Freeze<TFrozen>, TFrozen> Box<T>.freeze(freezer: Freezer): Result<Box<TFrozen>> {
+    val frozen = this.value.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Box(frozen))
 }
 
-/** Freeze implementation for nullable (Option). */
-fun <T, F> freezeNullable(
-    self: T?,
+/** Rust `impl<K: Freeze> Freeze for Hashed<K>`. */
+fun <K, KFrozen> Hashed<K>.freeze(
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<F?> {
-    if (self == null) return Result.success(null)
-    return freezeElement(self, freezer).map { it }
-}
-
-/** Freeze implementation for [Hashed]. */
-fun <K, FK> freezeHashed(
-    self: Hashed<K>,
-    freezer: Freezer,
-    freezeKey: (K, Freezer) -> FreezeResult<FK>,
-): FreezeResult<Hashed<FK>> {
+    freezeKey: (K) -> Result<KFrozen>,
+): Result<Hashed<KFrozen>> {
     // `freeze` must not change hash.
-    val frozenKey = freezeKey(self.intoKey(), freezer)
-    if (frozenKey.isFailure) return Result.failure(frozenKey.exceptionOrNull()!!)
-    return Result.success(Hashed.newUnchecked(self.hash(), frozenKey.getOrThrow()))
+    val frozenKey = freezeKey(this.intoKey()).getOrElse { return Result.failure(it) }
+    return Result.success(Hashed.newUnchecked(this.hash(), frozenKey))
 }
 
-/** Freeze implementation for [SmallMap]. */
-fun <K, V, FK, FV> freezeSmallMap(
-    self: SmallMap<K, V>,
+/** Rust `impl<K: Freeze> Freeze for Hashed<K>` (when `K` implements [Freeze]). */
+fun <K : Freeze<KFrozen>, KFrozen> Hashed<K>.freeze(freezer: Freezer): Result<Hashed<KFrozen>> {
+    val frozenKey = this.intoKey().freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Hashed.newUnchecked(this.hash(), frozenKey))
+}
+
+/** Rust `impl<K: Freeze, V: Freeze> Freeze for SmallMap<K, V>`. */
+fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     freezer: Freezer,
-    freezeKey: (K, Freezer) -> FreezeResult<FK>,
-    freezeValue: (V, Freezer) -> FreezeResult<FV>,
-): FreezeResult<SmallMap<FK, FV>> {
-    val new = SmallMap.withCapacity<FK, FV>(self.len())
-    for ((key, value) in self.intoIterHashed()) {
+    freezeKey: (K) -> Result<KFrozen>,
+    freezeValue: (V) -> Result<VFrozen>,
+): Result<SmallMap<KFrozen, VFrozen>> {
+    val result = SmallMap.withCapacity<KFrozen, VFrozen>(this.len())
+    for ((key, value) in this.intoIterHashed()) {
         val hash = key.hash()
-        val frozenKey = freezeKey(key.intoKey(), freezer)
-        if (frozenKey.isFailure) return Result.failure(frozenKey.exceptionOrNull()!!)
-        val hashedKey = Hashed.newUnchecked(hash, frozenKey.getOrThrow())
-        val frozenValue = freezeValue(value, freezer)
-        if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
-        new.insertHashedUniqueUnchecked(hashedKey, frozenValue.getOrThrow())
+        val frozenKey = freezeKey(key.intoKey()).getOrElse { return Result.failure(it) }
+        val hashedKey = Hashed.newUnchecked(hash, frozenKey)
+        val frozenValue = freezeValue(value).getOrElse { return Result.failure(it) }
+        result.insertHashedUniqueUnchecked(hashedKey, frozenValue)
     }
-    return Result.success(new)
+    return Result.success(result)
 }
 
-/** Freeze implementation for [SmallSet]. */
-fun <T, F> freezeSmallSet(
-    self: SmallSet<T>,
+/** Rust `impl<K: Freeze, V: Freeze> Freeze for SmallMap<K, V>` (when both implement [Freeze]). */
+fun <K : Freeze<KFrozen>, V : Freeze<VFrozen>, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     freezer: Freezer,
-    freezeElement: (T, Freezer) -> FreezeResult<F>,
-): FreezeResult<SmallSet<F>> {
-    val new = SmallSet.withCapacity<F>(self.len())
-    for (value in self.intoIterHashed()) {
-        val frozenValue = freezeHashed(value, freezer, freezeElement)
-        if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
-        new.insertHashedUniqueUnchecked(frozenValue.getOrThrow())
+): Result<SmallMap<KFrozen, VFrozen>> {
+    return freeze(freezer, freezeKey = { k -> k.freeze(freezer) }, freezeValue = { v -> v.freeze(freezer) })
+}
+
+/** Rust `impl<T: Freeze> Freeze for SmallSet<T>`. */
+fun <T, TFrozen> SmallSet<T>.freeze(
+    freezer: Freezer,
+    freezeElement: (T) -> Result<TFrozen>,
+): Result<SmallSet<TFrozen>> {
+    val result = SmallSet.withCapacity<TFrozen>(this.len())
+    for (value in this.intoIterHashed()) {
+        val hash = value.hash()
+        val frozen = freezeElement(value.intoKey()).getOrElse { return Result.failure(it) }
+        val hashed = Hashed.newUnchecked(hash, frozen)
+        result.insertHashedUniqueUnchecked(hashed)
     }
-    return Result.success(new)
+    return Result.success(result)
+}
+
+/** Rust `impl<T: Freeze> Freeze for SmallSet<T>` (when `T` implements [Freeze]). */
+fun <T : Freeze<TFrozen>, TFrozen> SmallSet<T>.freeze(freezer: Freezer): Result<SmallSet<TFrozen>> {
+    val result = SmallSet.withCapacity<TFrozen>(this.len())
+    for (value in this.intoIterHashed()) {
+        val hash = value.hash()
+        val frozen = value.intoKey().freeze(freezer).getOrElse { return Result.failure(it) }
+        val hashed = Hashed.newUnchecked(hash, frozen)
+        result.insertHashedUniqueUnchecked(hashed)
+    }
+    return Result.success(result)
 }
 
 /** Freeze implementation for [Value]. Delegates to [Freezer.freeze]. */
-fun Value.freeze(freezer: Freezer): FreezeResult<FrozenValue> {
+fun Value.freeze(freezer: Freezer): Result<FrozenValue> {
     return freezer.freeze(this)
 }
 
 /** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-fun FrozenValue.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<FrozenValue> {
+fun FrozenValue.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenValue> {
     return Result.success(this)
 }
 
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */
-fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): FreezeResult<Unit> {
+fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Unit> {
     return Result.success(Unit)
 }
 
-/** Freeze implementation for [Tuple1] (Rust 1-tuple `(A,)`). */
-fun <A, FA> freezeTuple1(
-    self: Tuple1<A>,
-    freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-): FreezeResult<Tuple1<FA>> {
-    val fa = freezeA(self.value0, freezer)
-    if (fa.isFailure) return Result.failure(fa.exceptionOrNull()!!)
-    return Result.success(Tuple1(fa.getOrThrow()))
+// ---- impl Freeze for tuples ----
+
+/** Rust `impl<A: Freeze> Freeze for (A,)`. */
+fun <A : Freeze<AFrozen>, AFrozen> Tuple1<A>.freeze(freezer: Freezer): Result<Tuple1<AFrozen>> {
+    val frozen0 = this.value0.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Tuple1(frozen0))
 }
 
-/** Freeze implementation for [Pair] (Rust 2-tuple `(A, B)`). */
-fun <A, B, FA, FB> freezePair(
-    self: Pair<A, B>,
+/** Rust `impl<A: Freeze, B: Freeze> Freeze for (A, B)`. */
+fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, AFrozen, BFrozen> Pair<A, B>.freeze(
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-): FreezeResult<Pair<FA, FB>> {
-    val a = freezeA(self.first, freezer)
-    if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
-    val b = freezeB(self.second, freezer)
-    if (b.isFailure) return Result.failure(b.exceptionOrNull()!!)
-    return Result.success(Pair(a.getOrThrow(), b.getOrThrow()))
+): Result<Pair<AFrozen, BFrozen>> {
+    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
+    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Pair(a, b))
 }
 
-/** Freeze implementation for [Triple] (Rust 3-tuple `(A, B, C)`). */
-fun <A, B, C, FA, FB, FC> freezeTriple(
-    self: Triple<A, B, C>,
+/** Rust `impl<A: Freeze, B: Freeze, C: Freeze> Freeze for (A, B, C)`. */
+fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, C : Freeze<CFrozen>, AFrozen, BFrozen, CFrozen> Triple<A, B, C>.freeze(
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-): FreezeResult<Triple<FA, FB, FC>> {
-    val a = freezeA(self.first, freezer)
-    if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
-    val b = freezeB(self.second, freezer)
-    if (b.isFailure) return Result.failure(b.exceptionOrNull()!!)
-    val c = freezeC(self.third, freezer)
-    if (c.isFailure) return Result.failure(c.exceptionOrNull()!!)
-    return Result.success(Triple(a.getOrThrow(), b.getOrThrow(), c.getOrThrow()))
+): Result<Triple<AFrozen, BFrozen, CFrozen>> {
+    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
+    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
+    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Triple(a, b, c))
 }
 
-/** Freeze implementation for [Tuple4] (Rust 4-tuple `(A, B, C, D)`). */
-fun <A, B, C, D, FA, FB, FC, FD> freezeTuple4(
-    self: Tuple4<A, B, C, D>,
-    freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-    freezeD: (D, Freezer) -> FreezeResult<FD>,
-): FreezeResult<Tuple4<FA, FB, FC, FD>> {
-    val a = freezeA(self.first, freezer)
-    if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
-    val b = freezeB(self.second, freezer)
-    if (b.isFailure) return Result.failure(b.exceptionOrNull()!!)
-    val c = freezeC(self.third, freezer)
-    if (c.isFailure) return Result.failure(c.exceptionOrNull()!!)
-    val d = freezeD(self.fourth, freezer)
-    if (d.isFailure) return Result.failure(d.exceptionOrNull()!!)
-    return Result.success(Tuple4(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow()))
+/** Rust `impl<A: Freeze, B: Freeze, C: Freeze, D: Freeze> Freeze for (A, B, C, D)`. */
+fun <
+    A : Freeze<AFrozen>,
+    B : Freeze<BFrozen>,
+    C : Freeze<CFrozen>,
+    D : Freeze<DFrozen>,
+    AFrozen,
+    BFrozen,
+    CFrozen,
+    DFrozen,
+    > Tuple4<A, B, C, D>.freeze(freezer: Freezer): Result<Tuple4<AFrozen, BFrozen, CFrozen, DFrozen>> {
+    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
+    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
+    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
+    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Tuple4(a, b, c, d))
 }
 
-/** Freeze implementation for [Tuple5] (Rust 5-tuple `(A, B, C, D, E)`). */
-fun <A, B, C, D, E, FA, FB, FC, FD, FE> freezeTuple5(
-    self: Tuple5<A, B, C, D, E>,
+/** Rust `impl<A: Freeze, B: Freeze, C: Freeze, D: Freeze, E: Freeze> Freeze for (A, B, C, D, E)`. */
+fun <
+    A : Freeze<AFrozen>,
+    B : Freeze<BFrozen>,
+    C : Freeze<CFrozen>,
+    D : Freeze<DFrozen>,
+    E : Freeze<EFrozen>,
+    AFrozen,
+    BFrozen,
+    CFrozen,
+    DFrozen,
+    EFrozen,
+    > Tuple5<A, B, C, D, E>.freeze(
     freezer: Freezer,
-    freezeA: (A, Freezer) -> FreezeResult<FA>,
-    freezeB: (B, Freezer) -> FreezeResult<FB>,
-    freezeC: (C, Freezer) -> FreezeResult<FC>,
-    freezeD: (D, Freezer) -> FreezeResult<FD>,
-    freezeE: (E, Freezer) -> FreezeResult<FE>,
-): FreezeResult<Tuple5<FA, FB, FC, FD, FE>> {
-    val a = freezeA(self.first, freezer)
-    if (a.isFailure) return Result.failure(a.exceptionOrNull()!!)
-    val b = freezeB(self.second, freezer)
-    if (b.isFailure) return Result.failure(b.exceptionOrNull()!!)
-    val c = freezeC(self.third, freezer)
-    if (c.isFailure) return Result.failure(c.exceptionOrNull()!!)
-    val d = freezeD(self.fourth, freezer)
-    if (d.isFailure) return Result.failure(d.exceptionOrNull()!!)
-    val e = freezeE(self.fifth, freezer)
-    if (e.isFailure) return Result.failure(e.exceptionOrNull()!!)
-    return Result.success(Tuple5(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow(), e.getOrThrow()))
+): Result<Tuple5<AFrozen, BFrozen, CFrozen, DFrozen, EFrozen>> {
+    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
+    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
+    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
+    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
+    val e = this.fifth.freeze(freezer).getOrElse { return Result.failure(it) }
+    return Result.success(Tuple5(a, b, c, d, e))
 }

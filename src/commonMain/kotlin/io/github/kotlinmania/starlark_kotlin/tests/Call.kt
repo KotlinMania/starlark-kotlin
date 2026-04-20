@@ -72,8 +72,8 @@ $x"""
     Assert.isTrue("NAME=True\ndef f(*args, pkg=NAME, **kwargs): return pkg\nf()")
     Assert.isTrue("def f(*args, pkg=False, **kwargs): return pkg\nf(pkg=True)")
     Assert.isTrue("def f(a, b=1, *args, c=False): return c\nf(a=1,c=True)")
-    Assert.fail("def f(a, **kwargs, b=1): pass", "Parameter after kwargs")
-    Assert.fail("def f(a, b=1, **kwargs, c=1): pass", "Parameter after kwargs")
+    Assert.fail("def f(a, **kwargs, b=1): pass", "ParameterP<AstNoPayload> after kwargs")
+    Assert.fail("def f(a, b=1, **kwargs, c=1): pass", "ParameterP<AstNoPayload> after kwargs")
     Assert.fail("def f(a, **kwargs, *args): pass", "parameter after another")
 }
 
@@ -256,7 +256,7 @@ def f(x, /, y):
 g = noop(f) # Hide from static type checker.
 g(x=1, y=2)
 """,
-        // TODO(nga): bad message.
+        // NOTE(nga): bad message.
         "Missing positional-only parameter `x` for call",
     )
 }

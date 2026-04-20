@@ -22,12 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.syntax.type_expr
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.typing.WithDiagnostic
 
 // #[derive(Debug, thiserror::Error)]
@@ -58,7 +57,7 @@ fun typeStrLiteralIsWildcard(s: String): Boolean {
 // #[derive(Debug)]
 // pub struct TypePathP<'a, P: AstPayload>
 data class TypePathP<P : AstPayload, IP>(
-    val first: AstIdentP<P, IP>,
+    val first: Spanned<IdentP<P, IP>>,
     val rem: List<Spanned<String>>,
 )
 
@@ -71,8 +70,8 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Path(TypePathP<'a, P>)
     data class Path<P : AstPayload, IP>(val path: TypePathP<P, IP>) : TypeExprUnpackP<P, IP>()
     /** `list[str]`. */
-    // Index(&'a AstIdentP<P>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
-    data class Index<P : AstPayload, IP>(val ident: AstIdentP<P, IP>, val index: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
+    // Index(&'a Spanned<IdentP<P>>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
+    data class Index<P : AstPayload, IP>(val ident: Spanned<IdentP<P, IP>>, val index: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
     /** `dict[str, int]` or `typing.Callable[[int], str]`. */
     // Index2(Spanned<TypePathP<'a, P>>, Box<Spanned<TypeExprUnpackP<'a, P>>>, Box<Spanned<TypeExprUnpackP<'a, P>>>)
     data class Index2<P : AstPayload, IP>(val path: Spanned<TypePathP<P, IP>>, val i0: Spanned<TypeExprUnpackP<P, IP>>, val i1: Spanned<TypeExprUnpackP<P, IP>>) : TypeExprUnpackP<P, IP>()
@@ -85,28 +84,28 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
     data class Tuple<P : AstPayload, IP>(val xs: kotlin.collections.List<Spanned<TypeExprUnpackP<P, IP>>>) : TypeExprUnpackP<P, IP>()
 
     companion object {
-        // fn unpack_path(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypePathP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
+        // fn unpack_path(expr: &'a Spanned<ExprP<P>>, codemap: &CodeMap) -> Result<Spanned<TypePathP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         private fun <P : AstPayload, IP> unpackPath(
-            expr: AstExprP<P>,
+            expr: Spanned<ExprP<P>>,
             codemap: CodeMap,
         ): Spanned<TypePathP<P, IP>> {
             val span = expr.span
             return when (val node = expr.node) {
                 is ExprP.Identifier<*, *> -> Spanned(
                     node = TypePathP(
-                        first = node.ident as AstIdentP<P, IP>,
+                        first = node.ident as Spanned<IdentP<P, IP>>,
                         rem = emptyList(),
                     ),
                     span = span,
                 )
                 is ExprP.Dot<*> -> {
-                    var current: AstExprP<P> = node.expr as AstExprP<P>
+                    var current: Spanned<ExprP<P>> = node.expr as Spanned<ExprP<P>>
                     val rem = mutableListOf(Spanned(node = node.field.node, span = node.field.span))
                     while (true) {
                         when (val cur = current.node) {
                             is ExprP.Dot<*> -> {
-                                current = cur.expr as AstExprP<P>
+                                current = cur.expr as Spanned<ExprP<P>>
                                 rem.add(Spanned(node = cur.field.node, span = cur.field.span))
                             }
                             is ExprP.Identifier<*, *> -> {
@@ -127,7 +126,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                                     )
                                 }
                                 return Spanned(
-                                    node = TypePathP(first = cur.ident as AstIdentP<P, IP>, rem = rem),
+                                    node = TypePathP(first = cur.ident as Spanned<IdentP<P, IP>>, rem = rem),
                                     span = span,
                                 )
                             }
@@ -153,16 +152,16 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             }
         }
 
-        // fn unpack_argument(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
+        // fn unpack_argument(expr: &'a Spanned<ExprP<P>>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         private fun <P : AstPayload, IP> unpackArgument(
-            expr: AstExprP<P>,
+            expr: Spanned<ExprP<P>>,
             codemap: CodeMap,
         ): Spanned<TypeExprUnpackP<P, IP>> {
             val span = expr.span
             return when (val node = expr.node) {
                 is ExprP.ListExpr<*> -> {
-                    val items = (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
+                    val items = (node.elements as kotlin.collections.List<Spanned<ExprP<P>>>).map { x ->
                         unpackArgument<P, IP>(x, codemap)
                     }
                     Spanned(
@@ -174,10 +173,10 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
             }
         }
 
-        // pub fn unpack(expr: &'a AstExprP<P>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
+        // pub fn unpack(expr: &'a Spanned<ExprP<P>>, codemap: &CodeMap) -> Result<Spanned<TypeExprUnpackP<'a, P>>, WithDiagnostic<TypeExprUnpackError>>
         @Suppress("UNCHECKED_CAST")
         fun <P : AstPayload, IP> unpack(
-            expr: AstExprP<P>,
+            expr: Spanned<ExprP<P>>,
             codemap: CodeMap,
         ): Spanned<TypeExprUnpackP<P, IP>> {
             val span = expr.span
@@ -193,7 +192,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
 
             return when (val node = expr.node) {
                 is ExprP.Tuple<*> -> {
-                    val xs = (node.elements as kotlin.collections.List<AstExprP<P>>).map { x ->
+                    val xs = (node.elements as kotlin.collections.List<Spanned<ExprP<P>>>).map { x ->
                         unpack<P, IP>(x, codemap)
                     }
                     Spanned(node = Tuple(xs), span = span)
@@ -204,13 +203,13 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                 }
                 is ExprP.Call<*> -> err("call")
                 is ExprP.Index<*> -> {
-                    val a = node.expr as AstExprP<P>
-                    val i = node.index as AstExprP<P>
+                    val a = node.expr as Spanned<ExprP<P>>
+                    val i = node.index as Spanned<ExprP<P>>
                     when (val aNode = a.node) {
                         is ExprP.Identifier<*, *> -> {
                             val unpacked = unpack<P, IP>(i, codemap)
                             Spanned(
-                                node = Index(aNode.ident as AstIdentP<P, IP>, unpacked),
+                                node = Index(aNode.ident as Spanned<IdentP<P, IP>>, unpacked),
                                 span = span,
                             )
                         }
@@ -218,9 +217,9 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                     }
                 }
                 is ExprP.Index2<*> -> {
-                    val a = node.expr as AstExprP<P>
-                    val i0 = node.index0 as AstExprP<P>
-                    val i1 = node.index1 as AstExprP<P>
+                    val a = node.expr as Spanned<ExprP<P>>
+                    val i0 = node.index0 as Spanned<ExprP<P>>
+                    val i1 = node.index1 as Spanned<ExprP<P>>
                     val path = unpackPath<P, IP>(a, codemap)
                     val unpackedI0 = unpackArgument<P, IP>(i0, codemap)
                     val unpackedI1 = unpackArgument<P, IP>(i1, codemap)
@@ -247,8 +246,8 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                 is ExprP.BitNot<*> -> err("bit not")
                 is ExprP.Op<*> -> {
                     if (node.op == BinOp.BitOr) {
-                        val a = unpack<P, IP>(node.lhs as AstExprP<P>, codemap)
-                        val b = unpack<P, IP>(node.rhs as AstExprP<P>, codemap)
+                        val a = unpack<P, IP>(node.lhs as Spanned<ExprP<P>>, codemap)
+                        val b = unpack<P, IP>(node.rhs as Spanned<ExprP<P>>, codemap)
                         Spanned(node = Union(listOf(a, b)), span = span)
                     } else {
                         err("bin op except `|`")
@@ -256,7 +255,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                 }
                 is ExprP.If<*> -> err("if")
                 is ExprP.ListExpr<*> -> {
-                    val xs = node.elements as kotlin.collections.List<AstExprP<P>>
+                    val xs = node.elements as kotlin.collections.List<Spanned<ExprP<P>>>
                     if (xs.isEmpty()) {
                         throw WithDiagnosticException(
                             WithDiagnostic(

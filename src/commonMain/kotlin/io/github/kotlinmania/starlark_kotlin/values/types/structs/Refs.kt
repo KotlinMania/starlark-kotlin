@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
  */
 @ConsistentCopyVisibility
 data class StructRef internal constructor(
-    private val struct: Struct
+    private val struct: StructGen<Value>
 ) {
     companion object {
         /**
@@ -63,7 +63,7 @@ data class StructRef internal constructor(
  */
 @ConsistentCopyVisibility
 data class FrozenStructRef internal constructor(
-    internal val struct: FrozenStruct
+    internal val struct: StructGen<FrozenValue>
 ) {
     /**
      * Iterate over struct fields.
@@ -76,8 +76,8 @@ data class FrozenStructRef internal constructor(
         /**
          * Downcast a value to a struct reference.
          */
-        fun fromValue(value: FrozenValue): FrozenStructRef? {
-            return value.downcastRef<FrozenStruct>()
+    fun fromValue(value: FrozenValue): FrozenStructRef? {
+            return value.downcastRef<StructGen<FrozenValue>>()
                 ?.let { FrozenStructRef(it) }
         }
     }
@@ -100,4 +100,3 @@ object StructRefUnpackValue : UnpackValue<StructRef> {
         return Result.success(StructRef.fromValue(value))
     }
 }
-

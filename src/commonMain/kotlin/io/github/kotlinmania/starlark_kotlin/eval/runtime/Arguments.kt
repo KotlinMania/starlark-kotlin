@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
+import starlark_map.small_set.SmallSet
+import starlark_map.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.coerce
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
@@ -107,7 +107,7 @@ interface ArgSymbol {
 data class ResolvedArgName(
     /** Hash of the argument name. */
     val hash: StarlarkHashValue,
-    /** Parameter index or `null` if the argument should go to kwargs. */
+    /** ParameterP<AstNoPayload> index or `null` if the argument should go to kwargs. */
     val paramIndex: Int?,
 ) : ArgSymbol {
     // impl ArgSymbol for ResolvedArgName
@@ -280,7 +280,11 @@ class Arguments(
                 if (full.names().names().isEmpty()) {
                     val downcast = kwargsVal.downcastRefKeyString()
                     if (downcast != null) {
-                        Result.success(downcast)
+                        val cloned = SmallMap.withCapacity<StringValue, Value>(downcast.len())
+                        for ((k, v) in downcast.iterHashed()) {
+                            cloned.insertHashedUniqueUnchecked(k, v)
+                        }
+                        Result.success(cloned)
                     } else {
                         Result.failure(FunctionError.ArgsValueIsNotString)
                     }
@@ -297,7 +301,7 @@ class Arguments(
                         )
                     }
                     for ((k, v) in kwargsVal.iterHashed()) {
-                        val s = unpackKwargsKeyAsValue(k.key())
+                        val s = Arguments.unpackKwargsKeyAsValue(k.key())
                         if (s.isFailure) return Result.failure(s.exceptionOrNull()!!)
                         val sVal = s.getOrThrow()
                         val hk = Hashed.newUnchecked(k.hash(), sVal)
@@ -384,32 +388,12 @@ class Arguments(
         }
     }
 
-    /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
-    // pub(crate) fn unpack_kwargs_key_as_value(k: Value<'v>) -> crate::Result<StringValue<'v>>
-    internal fun unpackKwargsKeyAsValue(k: Value): Result<StringValue> {
-        val sv = StringValue.new(k) ?: return Result.failure(FunctionError.ArgsValueIsNotString)
-        return Result.success(sv)
-    }
-
-    /** Confirm that a key in the `kwargs` field is indeed a string, or error. */
-    // pub(crate) fn unpack_kwargs_key(k: Value<'v>) -> crate::Result<&'v str>
-    internal fun unpackKwargsKey(k: Value): Result<String> {
-        return unpackKwargsKeyAsValue(k).map { it.asStr() }
-    }
-
     /**
      * Produce error if there are any positional arguments.
      */
     // pub fn no_positional_args(&self, heap: Heap<'v>) -> crate::Result<()>
     fun noPositionalArgs(heap: Heap): Result<Unit> {
-        val result = positional(0, heap)
-        if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
-        val list = result.getOrThrow()
-        if (list.isNotEmpty()) {
-            return Result.failure(
-                FunctionError.WrongNumberOfArgs(min = 0, max = 0, got = list.size)
-            )
-        }
+        positionalN(0, heap).getOrElse { return Result.failure(it) }
         return Result.success(Unit)
     }
 
@@ -418,32 +402,39 @@ class Arguments(
      */
     // pub fn no_named_args(&self) -> crate::Result<()>
     fun noNamedArgs(): Result<Unit> {
-        if (full.named.isEmpty() && full.kwargs == null) {
-            return Result.success(Unit)
-        }
-        // #[cold] fn bad(x: &Arguments) -> crate::Result<()>
-        val extra = mutableListOf<String>()
-        extra.addAll(full.names.names().map { it.second.asStr() })
-        val kwargsResult = unpackKwargs()
-        if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
-        val kwargsVal = kwargsResult.getOrNull()
-        if (kwargsVal != null) {
-            for (k in kwargsVal.keys()) {
-                val keyResult = unpackKwargsKey(k)
-                if (keyResult.isFailure) return Result.failure(keyResult.exceptionOrNull()!!)
-                extra.add(keyResult.getOrThrow())
+        // #[cold]
+        // #[inline(never)]
+        fun bad(x: Arguments): Result<Unit> {
+            // We might have a empty kwargs dictionary, but probably have an error
+            val extra = mutableListOf<String>()
+            extra.addAll(x.full.names.names().map { it.second.asStr() })
+            val kwargsResult = x.unpackKwargs()
+            if (kwargsResult.isFailure) return Result.failure(kwargsResult.exceptionOrNull()!!)
+            val kwargsVal = kwargsResult.getOrNull()
+            if (kwargsVal != null) {
+                for (k in kwargsVal.keys()) {
+                    val keyResult = Arguments.unpackKwargsKey(k)
+                    if (keyResult.isFailure) return Result.failure(keyResult.exceptionOrNull()!!)
+                    extra.add(keyResult.getOrThrow())
+                }
+            }
+            return if (extra.isEmpty()) {
+                Result.success(Unit)
+            } else {
+                // Would be nice to give a better name here, but it's in the call stack, so no big deal
+                Result.failure(
+                    FunctionError.ExtraNamedArg(
+                        names = extra,
+                        function = "function",
+                    )
+                )
             }
         }
-        return if (extra.isEmpty()) {
+
+        return if (full.named.isEmpty() && full.kwargs == null) {
             Result.success(Unit)
         } else {
-            // Would be nice to give a better name here, but it's in the call stack, so no big deal
-            Result.failure(
-                FunctionError.ExtraNamedArg(
-                    names = extra,
-                    function = "function",
-                )
-            )
+            bad(this)
         }
     }
 
@@ -452,7 +443,7 @@ class Arguments(
      * failing if there are too many/few arguments. Ignores named arguments.
      */
     // pub(crate) fn positional<const N: usize>(&self, heap: Heap<'v>) -> crate::Result<[Value<'v>; N]>
-    internal fun positional(n: Int, heap: Heap): Result<List<Value>> {
+    internal fun positionalN(n: Int, heap: Heap): Result<List<Value>> {
         val (required, optional) = optional(n, 0, heap).let {
             if (it.isFailure) return Result.failure(it.exceptionOrNull()!!)
             it.getOrThrow()
@@ -471,6 +462,44 @@ class Arguments(
         optional: Int,
         heap: Heap,
     ): Result<Pair<List<Value>, List<Value?>>> {
+        // #[cold]
+        // #[inline(never)]
+        fun rare(
+            x: Arguments,
+            heap: Heap,
+        ): Result<Pair<List<Value>, List<Value?>>> {
+            // Very sad that we allocate into a list, but I expect calling into a small positional argument
+            // with a *args is very rare.
+            val argsIter: Iterator<Value> = when (val a = x.full.args) {
+                null -> StarlarkIterator.empty(heap)
+                else -> {
+                    val iterResult = a.iterate(heap)
+                    if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
+                    iterResult.getOrThrow()
+                }
+            }
+
+            val xs = x.full.pos.toMutableList()
+            argsIter.forEach { xs.add(it) }
+            return if (xs.size >= required && xs.size <= required + optional) {
+                val requiredList = xs.subList(0, required)
+                val optionalList = MutableList<Value?>(optional) { null }
+                val remaining = xs.subList(required, xs.size)
+                for ((i, v) in remaining.withIndex()) {
+                    optionalList[i] = v
+                }
+                Result.success(Pair(requiredList.toList(), optionalList))
+            } else {
+                Result.failure(
+                    FunctionError.WrongNumberOfArgs(
+                        min = required,
+                        max = required + optional,
+                        got = xs.size,
+                    )
+                )
+            }
+        }
+
         if (full.args == null
             && full.pos.size >= required
             && full.pos.size <= required + optional
@@ -483,36 +512,7 @@ class Arguments(
             }
             return Result.success(Pair(requiredList, optionalList))
         }
-        // Rare path: need to iterate *args
-        // Very sad that we allocate into a list, but I expect calling into a small positional argument
-        // with a *args is very rare.
-        val argsIter: Iterator<Value> = when (val a = full.args) {
-            null -> StarlarkIterator.empty(heap)
-            else -> {
-                val iterResult = a.iterate(heap)
-                if (iterResult.isFailure) return Result.failure(iterResult.exceptionOrNull()!!)
-                iterResult.getOrThrow()
-            }
-        }
-        val xs = full.pos.toMutableList()
-        argsIter.forEach { xs.add(it) }
-        return if (xs.size >= required && xs.size <= required + optional) {
-            val requiredList = xs.subList(0, required)
-            val optionalList = MutableList<Value?>(optional) { null }
-            val remaining = xs.subList(required, xs.size)
-            for ((i, v) in remaining.withIndex()) {
-                optionalList[i] = v
-            }
-            Result.success(Pair(requiredList.toList(), optionalList))
-        } else {
-            Result.failure(
-                FunctionError.WrongNumberOfArgs(
-                    min = required,
-                    max = required + optional,
-                    got = xs.size,
-                )
-            )
-        }
+        return rare(this, heap)
     }
 
     /**
@@ -522,7 +522,7 @@ class Arguments(
     // pub fn positional1(&self, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun positional1(heap: Heap): Result<Value> {
         // Could be implemented more directly, let's see if profiling shows it up
-        val result = positional(1, heap)
+        val result = positionalN(1, heap)
         if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
         return Result.success(result.getOrThrow()[0])
     }
@@ -541,64 +541,9 @@ class Arguments(
         return Result.success(opt[0])
     }
 
-    internal fun optional(
-        heap: Heap,
-        required: Int,
-        optional: Int,
-    ): Result<Pair<List<Value>, List<Value?>>> {
-        return optional(required, optional, heap)
-    }
-
     fun frozenToV(): Arguments {
         return this
     }
-
-    // ---- Convenience accessors for starlark_module-style argument extraction ----
-
-    /**
-     * Get all positional arguments as a list.
-     */
-    fun positionalAll(): List<Value> = full.pos
-
-    /**
-     * Get a single positional argument by 0-based index, unpacking it to type [T].
-     * Supports [Value], [String], [Int], and [Boolean] directly.
-     * For other types performs an unchecked cast of the underlying [Value].
-     * When T is inferred as [Value] (default), returns the raw [Value].
-     */
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T> positional(index: Int): T {
-        val v = full.pos[index]
-        return unpackValueAs<T>(v)
-    }
-
-    /**
-     * Get an optional positional argument by 0-based index, unpacking it to type [T],
-     * or null if the index is out of range.
-     */
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T> optionalPositional(index: Int): T? {
-        val v = full.pos.getOrNull(index) ?: return null
-        return unpackValueAs<T>(v)
-    }
-
-    /**
-     * Get an optional named argument by name, unpacking it to type [T],
-     * or null if the argument is not present.
-     */
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T> optionalNamed(name: String): T? {
-        val idx = full.names.names().indexOfFirst { it.second.asStr() == name }
-        if (idx < 0) return null
-        return unpackValueAs<T>(full.named[idx])
-    }
-
-    /**
-     * Get an optional named argument by name, unpacking it to type [T],
-     * or null if the argument is not present. Alias for [optionalNamed].
-     */
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
 
     companion object {
         fun default(): Arguments {
@@ -654,20 +599,3 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.
-
-/**
- * Unpack a [Value] to type [T]. Used by [Arguments] convenience accessors.
- * Handles [Value], [String], [Int], and [Boolean] directly.
- * For other types performs an unchecked cast of the underlying [Value].
- */
-@Suppress("UNCHECKED_CAST")
-@PublishedApi internal inline fun <reified T> unpackValueAs(v: Value): T {
-    return when (T::class) {
-        Value::class -> v as T
-        String::class -> v.unpackStrErr().getOrThrow() as T
-        Int::class -> (v.unpackI32()
-            ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")) as T
-        Boolean::class -> v.toBool() as T
-        else -> v as T
-    }
-}

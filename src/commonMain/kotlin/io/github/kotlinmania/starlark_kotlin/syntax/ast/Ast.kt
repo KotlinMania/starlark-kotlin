@@ -39,49 +39,14 @@ object AstNoPayload : AstPayload
 
 class Comma
 
-typealias Expr = ExprP<AstNoPayload>
-typealias TypeExpr = TypeExprP<AstNoPayload, Unit>
-typealias AssignTarget = AssignTargetP<AstNoPayload>
-typealias AssignIdent = AssignIdentP<AstNoPayload, Unit>
-typealias Ident = IdentP<AstNoPayload, Unit>
-typealias Clause = ClauseP<AstNoPayload>
-typealias ForClause = ForClauseP<AstNoPayload>
-typealias Argument = ArgumentP<AstNoPayload>
-typealias Parameter = ParameterP<AstNoPayload>
-typealias Load = LoadP<AstNoPayload, Unit>
-typealias Stmt = StmtP<AstNoPayload>
-
-typealias AstExprP<P> = Spanned<ExprP<P>>
-typealias AstTypeExprP<P> = Spanned<TypeExprP<P, Unit>>
-typealias AstAssignTargetP<P> = Spanned<AssignTargetP<P>>
-typealias AstAssignIdentP<P, IAP> = Spanned<AssignIdentP<P, IAP>>
-typealias AstIdentP<P, IP> = Spanned<IdentP<P, IP>>
-typealias AstArgumentP<P> = Spanned<ArgumentP<P>>
-typealias AstParameterP<P> = Spanned<ParameterP<P>>
-typealias AstStmtP<P> = Spanned<StmtP<P>>
-typealias AstFStringP<P> = Spanned<FStringP<P>>
-
-typealias AstExpr = AstExprP<AstNoPayload>
-typealias AstTypeExpr = AstTypeExprP<AstNoPayload>
-typealias AstAssignTarget = AstAssignTargetP<AstNoPayload>
-typealias AstAssignIdent = AstAssignIdentP<AstNoPayload, Unit>
-typealias AstIdent = AstIdentP<AstNoPayload, Unit>
-typealias AstArgument = AstArgumentP<AstNoPayload>
-typealias AstString = Spanned<String>
-typealias AstParameter = AstParameterP<AstNoPayload>
-typealias AstInt = Spanned<TokenInt>
-typealias AstFloat = Spanned<Double>
-typealias AstFString = AstFStringP<AstNoPayload>
-typealias AstStmt = AstStmtP<AstNoPayload>
-
 
 sealed class ArgumentP<P : AstPayload> {
-    data class Positional<P : AstPayload>(val expr: AstExprP<P>) : ArgumentP<P>()
-    data class Named<P : AstPayload>(val name: AstString, val expr: AstExprP<P>) : ArgumentP<P>()
-    data class Args<P : AstPayload>(val expr: AstExprP<P>) : ArgumentP<P>()
-    data class KwArgs<P : AstPayload>(val expr: AstExprP<P>) : ArgumentP<P>()
+    data class Positional<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ArgumentP<P>()
+    data class Named<P : AstPayload>(val name: Spanned<String>, val expr: Spanned<ExprP<P>>) : ArgumentP<P>()
+    data class Args<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ArgumentP<P>()
+    data class KwArgs<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ArgumentP<P>()
 
-    fun expr(): AstExprP<P> = when (this) {
+    fun expr(): Spanned<ExprP<P>> = when (this) {
         is Positional -> expr
         is Named -> expr
         is Args -> expr
@@ -99,18 +64,18 @@ sealed class ParameterP<P : AstPayload> {
     class Slash<P : AstPayload> : ParameterP<P>()
     data class Normal<P : AstPayload>(
         /** Name. */
-        val name: AstAssignIdentP<P, *>,
+        val name: Spanned<AssignIdentP<P, *>>,
         /** Type. */
-        val typ: AstTypeExprP<P>?,
+        val typ: Spanned<TypeExprP<P, Unit>>?,
         /** Default value. */
-        val defaultVal: AstExprP<P>?
+        val defaultVal: Spanned<ExprP<P>>?
     ) : ParameterP<P>()
     /** `*` marker. */
     class NoArgs<P : AstPayload> : ParameterP<P>()
-    data class Args<P : AstPayload>(val name: AstAssignIdentP<P, *>, val typ: AstTypeExprP<P>?) : ParameterP<P>()
-    data class KwArgs<P : AstPayload>(val name: AstAssignIdentP<P, *>, val typ: AstTypeExprP<P>?) : ParameterP<P>()
+    data class Args<P : AstPayload>(val name: Spanned<AssignIdentP<P, *>>, val typ: Spanned<TypeExprP<P, Unit>>?) : ParameterP<P>()
+    data class KwArgs<P : AstPayload>(val name: Spanned<AssignIdentP<P, *>>, val typ: Spanned<TypeExprP<P, Unit>>?) : ParameterP<P>()
 
-    fun ident(): AstAssignIdentP<P, *>? = when (this) {
+    fun ident(): Spanned<AssignIdentP<P, *>>? = when (this) {
         is Normal -> name
         is Args -> name
         is KwArgs -> name
@@ -119,15 +84,15 @@ sealed class ParameterP<P : AstPayload> {
 }
 
 sealed class AstLiteral {
-    data class Int(val value: AstInt) : AstLiteral()
-    data class Float(val value: AstFloat) : AstLiteral()
-    data class String(val value: AstString) : AstLiteral()
+    data class Int(val value: Spanned<TokenInt>) : AstLiteral()
+    data class Float(val value: Spanned<Double>) : AstLiteral()
+    data class String(val value: Spanned<kotlin.String>) : AstLiteral()
     object Ellipsis : AstLiteral()
 }
 
 data class LambdaP<P : AstPayload, DP>(
-    val params: List<AstParameterP<P>>,
-    val body: AstExprP<P>,
+    val params: List<Spanned<ParameterP<P>>>,
+    val body: Spanned<ExprP<P>>,
     var payload: DP
 ) {
     fun signatureSpan(): Span {
@@ -140,53 +105,53 @@ data class LambdaP<P : AstPayload, DP>(
     }
 }
 
-data class CallArgsP<P : AstPayload>(val args: List<AstArgumentP<P>>)
+data class CallArgsP<P : AstPayload>(val args: List<Spanned<ArgumentP<P>>>)
 
 sealed class ExprP<P : AstPayload> {
-    data class Tuple<P : AstPayload>(val elements: List<AstExprP<P>>) : ExprP<P>()
-    data class Dot<P : AstPayload>(val expr: AstExprP<P>, val field: AstString) : ExprP<P>()
-    data class Call<P : AstPayload>(val expr: AstExprP<P>, val args: CallArgsP<P>) : ExprP<P>()
-    data class Index<P : AstPayload>(val expr: AstExprP<P>, val index: AstExprP<P>) : ExprP<P>()
-    data class Index2<P : AstPayload>(val expr: AstExprP<P>, val index0: AstExprP<P>, val index1: AstExprP<P>) : ExprP<P>()
+    data class Tuple<P : AstPayload>(val elements: List<Spanned<ExprP<P>>>) : ExprP<P>()
+    data class Dot<P : AstPayload>(val expr: Spanned<ExprP<P>>, val field: Spanned<String>) : ExprP<P>()
+    data class Call<P : AstPayload>(val expr: Spanned<ExprP<P>>, val args: CallArgsP<P>) : ExprP<P>()
+    data class Index<P : AstPayload>(val expr: Spanned<ExprP<P>>, val index: Spanned<ExprP<P>>) : ExprP<P>()
+    data class Index2<P : AstPayload>(val expr: Spanned<ExprP<P>>, val index0: Spanned<ExprP<P>>, val index1: Spanned<ExprP<P>>) : ExprP<P>()
     data class Slice<P : AstPayload>(
-        val expr: AstExprP<P>,
-        val start: AstExprP<P>?,
-        val stop: AstExprP<P>?,
-        val step: AstExprP<P>?
+        val expr: Spanned<ExprP<P>>,
+        val start: Spanned<ExprP<P>>?,
+        val stop: Spanned<ExprP<P>>?,
+        val step: Spanned<ExprP<P>>?
     ) : ExprP<P>()
-    data class Identifier<P : AstPayload, IP>(val ident: AstIdentP<P, IP>) : ExprP<P>()
+    data class Identifier<P : AstPayload, IP>(val ident: Spanned<IdentP<P, IP>>) : ExprP<P>()
     data class Lambda<P : AstPayload, DP>(val lambda: LambdaP<P, DP>) : ExprP<P>()
     data class Literal<P : AstPayload>(val literal: AstLiteral) : ExprP<P>()
-    data class Not<P : AstPayload>(val expr: AstExprP<P>) : ExprP<P>()
-    data class Minus<P : AstPayload>(val expr: AstExprP<P>) : ExprP<P>()
-    data class Plus<P : AstPayload>(val expr: AstExprP<P>) : ExprP<P>()
-    data class BitNot<P : AstPayload>(val expr: AstExprP<P>) : ExprP<P>()
-    data class Op<P : AstPayload>(val lhs: AstExprP<P>, val op: BinOp, val rhs: AstExprP<P>) : ExprP<P>()
+    data class Not<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ExprP<P>()
+    data class Minus<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ExprP<P>()
+    data class Plus<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ExprP<P>()
+    data class BitNot<P : AstPayload>(val expr: Spanned<ExprP<P>>) : ExprP<P>()
+    data class Op<P : AstPayload>(val lhs: Spanned<ExprP<P>>, val op: BinOp, val rhs: Spanned<ExprP<P>>) : ExprP<P>()
     // Order: condition, v1, v2 <=> v1 if condition else v2
-    data class If<P : AstPayload>(val cond: AstExprP<P>, val v1: AstExprP<P>, val v2: AstExprP<P>) : ExprP<P>()
-    data class ListExpr<P : AstPayload>(val elements: List<AstExprP<P>>) : ExprP<P>()
-    data class Dict<P : AstPayload>(val elements: List<Pair<AstExprP<P>, AstExprP<P>>>) : ExprP<P>()
-    data class ListComprehension<P : AstPayload>(val expr: AstExprP<P>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
-    data class DictComprehension<P : AstPayload>(val key: AstExprP<P>, val value: AstExprP<P>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
-    data class FString<P : AstPayload>(val fstring: AstFStringP<P>) : ExprP<P>()
+    data class If<P : AstPayload>(val cond: Spanned<ExprP<P>>, val v1: Spanned<ExprP<P>>, val v2: Spanned<ExprP<P>>) : ExprP<P>()
+    data class ListExpr<P : AstPayload>(val elements: List<Spanned<ExprP<P>>>) : ExprP<P>()
+    data class Dict<P : AstPayload>(val elements: List<Pair<Spanned<ExprP<P>>, Spanned<ExprP<P>>>>) : ExprP<P>()
+    data class ListComprehension<P : AstPayload>(val expr: Spanned<ExprP<P>>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
+    data class DictComprehension<P : AstPayload>(val key: Spanned<ExprP<P>>, val value: Spanned<ExprP<P>>, val forClause: ForClauseP<P>, val clauses: List<ClauseP<P>>) : ExprP<P>()
+    data class FString<P : AstPayload>(val fstring: Spanned<FStringP<P>>) : ExprP<P>()
 }
 
 data class TypeExprP<P : AstPayload, TEP>(
-    val expr: AstExprP<P>,
+    val expr: Spanned<ExprP<P>>,
     var payload: TEP
 )
 
 sealed class AssignTargetP<P : AstPayload> {
-    data class Tuple<P : AstPayload>(val elements: List<AstAssignTargetP<P>>) : AssignTargetP<P>()
-    data class Index<P : AstPayload>(val expr: AstExprP<P>, val index: AstExprP<P>) : AssignTargetP<P>()
-    data class Dot<P : AstPayload>(val expr: AstExprP<P>, val field: AstString) : AssignTargetP<P>()
-    data class Identifier<P : AstPayload, IAP>(val ident: AstAssignIdentP<P, IAP>) : AssignTargetP<P>()
+    data class Tuple<P : AstPayload>(val elements: List<Spanned<AssignTargetP<P>>>) : AssignTargetP<P>()
+    data class Index<P : AstPayload>(val expr: Spanned<ExprP<P>>, val index: Spanned<ExprP<P>>) : AssignTargetP<P>()
+    data class Dot<P : AstPayload>(val expr: Spanned<ExprP<P>>, val field: Spanned<String>) : AssignTargetP<P>()
+    data class Identifier<P : AstPayload, IAP>(val ident: Spanned<AssignIdentP<P, IAP>>) : AssignTargetP<P>()
 }
 
 data class AssignP<P : AstPayload>(
-    val lhs: AstAssignTargetP<P>,
-    val ty: AstTypeExprP<P>?,
-    val rhs: AstExprP<P>
+    val lhs: Spanned<AssignTargetP<P>>,
+    val ty: Spanned<TypeExprP<P, Unit>>?,
+    val rhs: Spanned<ExprP<P>>
 )
 
 data class AssignIdentP<P : AstPayload, IAP>(
@@ -200,8 +165,8 @@ data class IdentP<P : AstPayload, IP>(
 )
 
 data class LoadArgP<P : AstPayload, IAP>(
-    val local: AstAssignIdentP<P, IAP>,
-    val their: AstString,
+    val local: Spanned<AssignIdentP<P, IAP>>,
+    val their: Spanned<String>,
     val comma: Spanned<Comma>?
 ) {
     fun span(): Span = local.span.merge(their.span)
@@ -209,16 +174,16 @@ data class LoadArgP<P : AstPayload, IAP>(
 }
 
 data class LoadP<P : AstPayload, LP>(
-    val module: AstString,
+    val module: Spanned<String>,
     val args: List<LoadArgP<P, *>>,
     var payload: LP
 )
 
-data class ForClauseP<P : AstPayload>(val varTarget: AstAssignTargetP<P>, val over: AstExprP<P>)
+data class ForClauseP<P : AstPayload>(val varTarget: Spanned<AssignTargetP<P>>, val over: Spanned<ExprP<P>>)
 
 sealed class ClauseP<P : AstPayload> {
     data class For<P : AstPayload>(val forClause: ForClauseP<P>) : ClauseP<P>()
-    data class If<P : AstPayload>(val cond: AstExprP<P>) : ClauseP<P>()
+    data class If<P : AstPayload>(val cond: Spanned<ExprP<P>>) : ClauseP<P>()
 }
 
 enum class BinOp {
@@ -235,10 +200,10 @@ enum class AssignOp {
 enum class Visibility { Private, Public }
 
 data class DefP<P : AstPayload, DP>(
-    val name: AstAssignIdentP<P, *>,
-    val params: List<AstParameterP<P>>,
-    val returnType: AstTypeExprP<P>?,
-    val body: AstStmtP<P>,
+    val name: Spanned<AssignIdentP<P, *>>,
+    val params: List<Spanned<ParameterP<P>>>,
+    val returnType: Spanned<TypeExprP<P, Unit>>?,
+    val body: Spanned<StmtP<P>>,
     var payload: DP
 ) {
     fun signatureSpan(): Span {
@@ -250,29 +215,28 @@ data class DefP<P : AstPayload, DP>(
 }
 
 data class ForP<P : AstPayload>(
-    val varTarget: AstAssignTargetP<P>,
-    val over: AstExprP<P>,
-    val body: AstStmtP<P>
+    val varTarget: Spanned<AssignTargetP<P>>,
+    val over: Spanned<ExprP<P>>,
+    val body: Spanned<StmtP<P>>
 )
 
 data class FStringP<P : AstPayload>(
-    val format: AstString,
-    val expressions: List<AstExprP<P>>
+    val format: Spanned<String>,
+    val expressions: List<Spanned<ExprP<P>>>
 )
 
 sealed class StmtP<P : AstPayload> {
     class Break<P : AstPayload> : StmtP<P>()
     class Continue<P : AstPayload> : StmtP<P>()
     class Pass<P : AstPayload> : StmtP<P>()
-    data class Return<P : AstPayload>(val expr: AstExprP<P>?) : StmtP<P>()
-    data class Expression<P : AstPayload>(val expr: AstExprP<P>) : StmtP<P>()
+    data class Return<P : AstPayload>(val expr: Spanned<ExprP<P>>?) : StmtP<P>()
+    data class Expression<P : AstPayload>(val expr: Spanned<ExprP<P>>) : StmtP<P>()
     data class Assign<P : AstPayload>(val assign: AssignP<P>) : StmtP<P>()
-    data class AssignModify<P : AstPayload>(val lhs: AstAssignTargetP<P>, val op: AssignOp, val rhs: AstExprP<P>) : StmtP<P>()
-    data class Statements<P : AstPayload>(val stmts: List<AstStmtP<P>>) : StmtP<P>()
-    data class If<P : AstPayload>(val cond: AstExprP<P>, val suite: AstStmtP<P>) : StmtP<P>()
-    data class IfElse<P : AstPayload>(val cond: AstExprP<P>, val suite1: AstStmtP<P>, val suite2: AstStmtP<P>) : StmtP<P>()
+    data class AssignModify<P : AstPayload>(val lhs: Spanned<AssignTargetP<P>>, val op: AssignOp, val rhs: Spanned<ExprP<P>>) : StmtP<P>()
+    data class Statements<P : AstPayload>(val stmts: List<Spanned<StmtP<P>>>) : StmtP<P>()
+    data class If<P : AstPayload>(val cond: Spanned<ExprP<P>>, val suite: Spanned<StmtP<P>>) : StmtP<P>()
+    data class IfElse<P : AstPayload>(val cond: Spanned<ExprP<P>>, val suite1: Spanned<StmtP<P>>, val suite2: Spanned<StmtP<P>>) : StmtP<P>()
     data class For<P : AstPayload>(val forStmt: ForP<P>) : StmtP<P>()
     data class Def<P : AstPayload, DP>(val def: DefP<P, DP>) : StmtP<P>()
     data class Load<P : AstPayload, LP>(val loadStmt: LoadP<P, LP>) : StmtP<P>()
 }
-typealias Node<T> = Spanned<T>

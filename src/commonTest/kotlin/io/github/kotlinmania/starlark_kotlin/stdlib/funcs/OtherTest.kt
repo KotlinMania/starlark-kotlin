@@ -118,7 +118,7 @@ noop(hash)(foo)
     @Test
     fun testTuple() {
         val a = Assert()
-        // TODO(nga): fix and enable.
+        // NOTE(nga): fix and enable.
         a.disableStaticTypechecking()
         a.eq("(1, 2)", "tuple((1, 2))")
         a.eq("(1, 2)", "tuple([1, 2])")

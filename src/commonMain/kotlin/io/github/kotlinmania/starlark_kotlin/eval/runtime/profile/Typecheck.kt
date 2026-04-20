@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /** Runtime typecheck profile. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl

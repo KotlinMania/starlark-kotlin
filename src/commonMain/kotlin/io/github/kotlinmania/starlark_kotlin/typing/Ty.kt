@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.Either
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
@@ -208,29 +209,17 @@ class Ty private constructor(
                 return any()
             }
 
+            fun nextSkipNever(iter: Iterator<Ty>): Ty? {
+                while (iter.hasNext()) {
+                    val x = iter.next()
+                    if (!x.isNever()) return x
+                }
+                return null
+            }
+
             val iter = xs.iterator()
-
-            // Skip never types to find first non-never
-            var x0: Ty? = null
-            while (iter.hasNext()) {
-                val x = iter.next()
-                if (!x.isNever()) {
-                    x0 = x
-                    break
-                }
-            }
-            if (x0 == null) return never()
-
-            // Find second non-never
-            var x1: Ty? = null
-            while (iter.hasNext()) {
-                val x = iter.next()
-                if (!x.isNever()) {
-                    x1 = x
-                    break
-                }
-            }
-            if (x1 == null) return x0
+            val x0 = nextSkipNever(iter) ?: return never()
+            val x1 = nextSkipNever(iter) ?: return x0
 
             // Check for no-more-remaining fast path
             if (!iter.hasNext() && x0 == x1) {
@@ -238,25 +227,30 @@ class Ty private constructor(
             }
 
             // Now default slow version — collect all remaining plus x0, x1.
-            val remaining = mutableListOf<TyBasic>()
-            for (basic in x0.iterUnion()) remaining.add(basic)
-            for (basic in x1.iterUnion()) remaining.add(basic)
+            val xs = mutableListOf<TyBasic>()
+            for (basic in x0.iterUnion()) xs.add(basic)
+            for (basic in x1.iterUnion()) xs.add(basic)
             while (iter.hasNext()) {
                 val x = iter.next()
-                for (basic in x.iterUnion()) remaining.add(basic)
+                for (basic in x.iterUnion()) xs.add(basic)
             }
-            remaining.sort()
-            // Dedup
-            val deduped = remaining.distinct().toMutableList()
+            xs.sort()
+            // Dedup (list is sorted, so adjacent duplicates are equal).
+            val deduped = mutableListOf<TyBasic>()
+            for (x in xs) {
+                if (deduped.isEmpty() || deduped[deduped.size - 1] != x) {
+                    deduped.add(x)
+                }
+            }
 
             // Try merging adjacent elements
             val merged = mergeAdjacent(deduped) { x, y ->
                 when {
                     x is TyBasic.List && y is TyBasic.List -> {
-                        MergeResult.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
+                        Either.Left(TyBasic.List(ArcTy.union2(x.item, y.item)))
                     }
                     x is TyBasic.Dict && y is TyBasic.Dict -> {
-                        MergeResult.Left(
+                        Either.Left(
                             TyBasic.Dict(
                                 ArcTy.union2(x.key, y.key),
                                 ArcTy.union2(x.value, y.value)
@@ -266,12 +260,12 @@ class Ty private constructor(
                     x is TyBasic.Custom && y is TyBasic.Custom -> {
                         val result = TyCustom.union2(x.custom, y.custom)
                         if (result.isSuccess) {
-                            MergeResult.Left(TyBasic.Custom(result.getOrThrow()))
+                            Either.Left(TyBasic.Custom(result.getOrThrow()))
                         } else {
-                            MergeResult.Right(x, y)
+                            Either.Right(Pair(x, y))
                         }
                     }
-                    else -> MergeResult.Right(x, y)
+                    else -> Either.Right(Pair(x, y))
                 }
             }
 
@@ -492,21 +486,14 @@ class TyDisplay(
 }
 
 /**
- * Result of merging two adjacent elements.
- */
-private sealed class MergeResult<T> {
-    /** Elements were merged into a single element. */
-    data class Left<T>(val value: T) : MergeResult<T>()
-    /** Elements could not be merged and remain separate. */
-    data class Right<T>(val left: T, val right: T) : MergeResult<T>()
-}
-
-/**
  * Try to merge adjacent elements in a list.
  *
  * Corresponds to Rust's `merge_adjacent` function.
  */
-private fun <T> mergeAdjacent(xs: List<T>, f: (T, T) -> MergeResult<T>): List<T> {
+private fun <T> mergeAdjacent(
+    xs: List<T>,
+    f: (T, T) -> Either<T, Pair<T, T>>,
+): List<T> {
     val res = mutableListOf<T>()
     var last: T? = null
     for (x in xs) {
@@ -515,10 +502,10 @@ private fun <T> mergeAdjacent(xs: List<T>, f: (T, T) -> MergeResult<T>): List<T>
             last = x
         } else {
             when (val merged = f(l, x)) {
-                is MergeResult.Left -> last = merged.value
-                is MergeResult.Right -> {
-                    res.add(merged.left)
-                    last = merged.right
+                is Either.Left -> last = merged.value
+                is Either.Right -> {
+                    res.add(merged.value.first)
+                    last = merged.value.second
                 }
             }
         }

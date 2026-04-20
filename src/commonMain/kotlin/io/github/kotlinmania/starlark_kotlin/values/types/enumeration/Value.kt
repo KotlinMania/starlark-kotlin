@@ -20,31 +20,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-
-class EnumType(val value: Value) {
-    fun tyEnumData(): TyEnumData? = null
-
-    companion object {
-        fun fromValue(value: Value): EnumTypeRef? = null
-    }
-}
-
-class FrozenEnumType {
-    fun tyEnumData(): TyEnumData? = null
-}
-
-sealed class EnumTypeRef {
-    class Unfrozen(val value: EnumType) : EnumTypeRef()
-    class Frozen(val value: FrozenEnumType) : EnumTypeRef()
-}
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
 
 /** A value from an enumeration. */
 class EnumValueGen(
@@ -60,17 +43,13 @@ class EnumValueGen(
         const val TYPE: String = "enum"
     }
 
-    private fun getEnumType(): EnumTypeRef? {
-        // Safe to unwrap because we always ensure typ is EnumType
-        return EnumType.fromValue(typ.toValue())
+    private fun getEnumType(): EnumTypeGen? {
+        // Safe to unwrap because we always ensure typ is EnumTypeGen
+        return typ.downcastRef<EnumTypeGen>()
     }
 
     override fun toString(): String {
-        val tyEnumData = when (val enumTypeRef = getEnumType()) {
-            is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData()
-            is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData()
-            null -> null
-        }
+        val tyEnumData = getEnumType()?.tyEnumData()
         return when {
             tyEnumData != null -> "${tyEnumData.name}($value)"
             else -> "enum()($value)"
@@ -87,35 +66,32 @@ class EnumValueGen(
     }
 
     override fun typecheckerTy(): Ty? {
-        val tyEnumType = when (val enumTypeRef = getEnumType()) {
-            is EnumTypeRef.Unfrozen -> enumTypeRef.value.tyEnumData() ?: return null
-            is EnumTypeRef.Frozen -> enumTypeRef.value.tyEnumData() ?: return null
-            null -> return null
-        }
+        val tyEnumType = getEnumType()?.tyEnumData() ?: return null
         return tyEnumType.tyEnumValue
     }
 
     // impl serde::Serialize for EnumValueGen
     // Delegates serialization to the inner value.
     fun serialize(_serializer: Any): Result<Any> {
-        return Result.success(value.toValue())
+        return Result.success(value)
     }
 }
 
-// Enum value type aliases
-typealias EnumValue = EnumValueGen
-typealias FrozenEnumValue = EnumValueGen
+// Rust type aliases:
+// pub type EnumValue<'v> = EnumValueGen<Value<'v>>;
+// pub type FrozenEnumValue = EnumValueGen<FrozenValue>;
+// Kotlin: Use EnumValueGen directly; frozen flag distinguishes.
 
 fun enumValueMethods(_methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn index(this: &EnumValue) -> starlark::Result<i32>
-    fun index(thisVal: EnumValue): Result<Int> {
+    fun index(thisVal: EnumValueGen): Result<Int> {
         return Result.success(thisVal.index)
     }
 
     // #[starlark(attribute)]
     // fn value(this: &EnumValue) -> starlark::Result<Value>
-    fun value(thisVal: EnumValue): Result<Value> {
-        return Result.success(thisVal.value.toValue())
+    fun value(thisVal: EnumValueGen): Result<Value> {
+        return Result.success(thisVal.value)
     }
 }

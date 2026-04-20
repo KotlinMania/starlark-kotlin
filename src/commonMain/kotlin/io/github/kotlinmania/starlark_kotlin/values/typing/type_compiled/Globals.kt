@@ -54,7 +54,7 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      */
     // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
     globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
-        val positional = args.positional(2, eval.heap()).getOrThrow()
+        val positional = args.positionalN(2, eval.heap()).getOrThrow()
         val value = positional[0]
         val ty = positional[1]
         val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }

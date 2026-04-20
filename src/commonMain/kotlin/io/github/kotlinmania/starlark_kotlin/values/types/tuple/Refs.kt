@@ -37,7 +37,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 // use crate::values::types::tuple::value::Tuple;
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
 /// Reference to tuple data in Starlark heap.
@@ -76,7 +76,7 @@ class TupleRef(
         /// Downcast a value to a tuple.
         // pub fn from_value(value: Value<'v>) -> Option<&'v TupleRef<'v>>
         fun fromValue(value: Value): TupleRef? {
-            val tuple = Tuple.fromValue(value) ?: return null
+            val tuple = TupleGen.fromValue(value) ?: return null
             return new(tuple.content())
         }
 
@@ -127,7 +127,7 @@ class FrozenTupleRef(
         /// Downcast a value to a tuple.
         // pub fn from_frozen_value(value: FrozenValue) -> Option<&'static FrozenTupleRef>
         fun fromFrozenValue(value: FrozenValue): FrozenTupleRef? {
-            val tuple = value.downcastRef<FrozenTuple>() ?: return null
+            val tuple = value.downcastRef<TupleGen<FrozenValue>>() ?: return null
             return new(tuple.content())
         }
 

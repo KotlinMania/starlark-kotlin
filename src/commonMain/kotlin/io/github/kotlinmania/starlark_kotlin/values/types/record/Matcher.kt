@@ -28,7 +28,7 @@ data class RecordTypeMatcher(
 ) : TypeMatcher {
     // impl TypeMatcher for RecordTypeMatcher
     override fun matches(value: Value): Boolean {
-        val record = Record.fromValue(value) ?: return false
+        val record = RecordGen.fromValue(value) ?: return false
         return record.recordTypeId() == id
     }
 }

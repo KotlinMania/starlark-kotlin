@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 /**
  * Unpack `dict`.
  *
- * There's an [UnpackValue] implementation for [SmallMap][io.github.kotlinmania.starlark_kotlin.collections.SmallMap]
+ * There's an [UnpackValue] implementation for [SmallMap][starlark_map.small_map.SmallMap]
  * but this can be used when hashing of unpacked keys is not needed.
  */
 class UnpackDictEntries<K, V>(

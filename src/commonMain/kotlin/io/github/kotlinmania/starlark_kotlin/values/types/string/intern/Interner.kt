@@ -28,7 +28,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
 // use crate::values::StringValue;
 // use crate::values::Trace;
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue

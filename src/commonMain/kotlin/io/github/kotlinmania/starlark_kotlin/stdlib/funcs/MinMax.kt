@@ -55,7 +55,7 @@ private fun minMaxIter(
     var best = if (it.hasNext()) {
         it.next()
     } else {
-        error("Argument is an empty iterable, max() expect a non empty iterable")
+        error("ArgumentP<AstNoPayload> is an empty iterable, max() expect a non empty iterable")
     }
     // let update_max_ordering = if min { Ordering::Greater } else { Ordering::Less };
     // Ordering::Greater maps to positive (> 0), Ordering::Less maps to negative (< 0).

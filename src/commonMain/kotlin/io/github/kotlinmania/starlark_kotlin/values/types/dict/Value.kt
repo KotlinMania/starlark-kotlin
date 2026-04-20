@@ -19,22 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.freezeSmallMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
@@ -53,9 +51,9 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
 
     // impl Freeze for DictGen<RefCell<Dict<'v>>>
     @Suppress("UNCHECKED_CAST")
-    override fun freeze(freezer: Freezer): FreezeResult<StarlarkValue> {
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as DictGen<AtomicRef<Dict>>
-        return mutableSelf.freezeDict(freezer) as FreezeResult<StarlarkValue>
+        return mutableSelf.freezeDict(freezer) as Result<StarlarkValue>
     }
 
     override val TYPE: String get() = Dict.TYPE
@@ -205,10 +203,10 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
 
     override fun getTypeStarlarkRepr(): Ty = Ty.anyDict()
 
-    override fun tryFreezeDirectly(freezer: Freezer): FreezeResult<FrozenValue>? {
+    override fun tryFreezeDirectly(freezer: Freezer): Result<FrozenValue>? {
         val innerVal = inner
         if (innerVal is DictLike && innerVal.content().isEmpty()) {
-            return FreezeResult.success(VALUE_EMPTY_FROZEN_DICT.toFrozenValue())
+            return Result.success(VALUE_EMPTY_FROZEN_DICT.toFrozenValue())
         }
         return null
     }
@@ -343,10 +341,7 @@ class FrozenDictData(
         else heap.allocSimple(DictGen(this))
 }
 
-/** Alias is used in `StarlarkDocs` derive. */
-typealias FrozenDict = DictGen<FrozenDictData>
-
-typealias MutableDict = DictGen<AtomicRef<Dict>>
+/** Rust has distinct `FrozenDict`/`MutableDict` types; Kotlin uses [DictGen] directly. */
 
 val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<DictGen<FrozenDictData>> =
     AllocStaticSimple.alloc(DictGen(FrozenDictData(SmallMap.new())))
@@ -365,15 +360,14 @@ data class ValueStr(val str: String) : Equivalent<Value> {
 }
 
 /** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
-fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): FreezeResult<DictGen<FrozenDictData>> {
-    val frozenContent = freezeSmallMap(
-        this.inner.value.content,
+fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
+    val frozenContent = this.inner.value.content.freeze(
         freezer,
-        { v, f -> v.freeze(f) },
-        { v, f -> v.freeze(f) },
+        freezeKey = { v -> v.freeze(freezer) },
+        freezeValue = { v -> v.freeze(freezer) },
     )
-    val content = frozenContent.getOrElse { return FreezeResult.failure(it) }
-    return FreezeResult.success(DictGen(FrozenDictData(content)))
+    val content = frozenContent.getOrElse { return Result.failure(it) }
+    return Result.success(DictGen(FrozenDictData(content)))
 }
 
 interface DictLike {

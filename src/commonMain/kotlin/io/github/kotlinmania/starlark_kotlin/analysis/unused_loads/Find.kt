@@ -28,18 +28,18 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtsMut
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 
@@ -87,10 +87,10 @@ private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
  * Port of `StmtP::visit_ident` from Rust's `uniplate.rs`.
  */
 @Suppress("UNCHECKED_CAST")
-private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
+private fun Spanned<StmtP<CstPayload>>.visitIdent(f: (Spanned<IdentP<CstPayload, *>>) -> Unit) {
     fun visitExprIdent(expr: Spanned<out ExprP<*>>) {
         when (val e = expr.node) {
-            is ExprP.Identifier<*, *> -> f(e.ident as CstIdent)
+            is ExprP.Identifier<*, *> -> f(e.ident as Spanned<IdentP<CstPayload, *>>)
             is ExprP.Tuple<*> -> e.elements.forEach { visitExprIdent(it as Spanned<ExprP<*>>) }
             is ExprP.ListExpr<*> -> e.elements.forEach { visitExprIdent(it as Spanned<ExprP<*>>) }
             is ExprP.Dict<*> -> e.elements.forEach { (k, v) ->
@@ -147,9 +147,9 @@ private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
         }
     }
 
-    fun visitStmt(stmt: CstStmt) {
+    fun visitStmt(stmt: Spanned<StmtP<CstPayload>>) {
         when (val s = stmt.node) {
-            is StmtP.Statements<*> -> s.stmts.forEach { visitStmt(it as CstStmt) }
+            is StmtP.Statements<*> -> s.stmts.forEach { visitStmt(it as Spanned<StmtP<CstPayload>>) }
             is StmtP.Expression<*> -> visitExprIdent(s.expr as Spanned<ExprP<*>>)
             is StmtP.Return<*> -> (s.expr as Spanned<ExprP<*>>?)?.let { visitExprIdent(it) }
             is StmtP.Assign<*> -> {
@@ -160,19 +160,19 @@ private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
             }
             is StmtP.If<*> -> {
                 visitExprIdent(s.cond as Spanned<ExprP<*>>)
-                visitStmt(s.suite as CstStmt)
+                visitStmt(s.suite as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.IfElse<*> -> {
                 visitExprIdent(s.cond as Spanned<ExprP<*>>)
-                visitStmt(s.suite1 as CstStmt)
-                visitStmt(s.suite2 as CstStmt)
+                visitStmt(s.suite1 as Spanned<StmtP<CstPayload>>)
+                visitStmt(s.suite2 as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.For<*> -> {
                 visitExprIdent(s.forStmt.over as Spanned<ExprP<*>>)
-                visitStmt(s.forStmt.body as CstStmt)
+                visitStmt(s.forStmt.body as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.Def<*, *> -> {
-                visitStmt(s.def.body as CstStmt)
+                visitStmt(s.def.body as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.Load<*, *> -> { /* no identifiers in read position */ }
             is StmtP.Break<*>,

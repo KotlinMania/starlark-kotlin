@@ -23,7 +23,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
@@ -101,7 +102,7 @@ class BcCallArgsPos(
 // impl BcCallArgsFull<Symbol>
 /** Resolve symbol-based call args to resolved arg names for a specific def. */
 // pub(crate) fn resolve(self, def: &FrozenDef) -> BcCallArgsFull<ResolvedArgName>
-internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<ResolvedArgName> {
+internal fun BcCallArgsFull<Symbol>.resolve(def: DefGen<FrozenValue>): BcCallArgsFull<ResolvedArgName> {
     return BcCallArgsFull(
         posNamed = posNamed,
         names = names.map { (name, value) ->

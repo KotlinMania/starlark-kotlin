@@ -153,7 +153,7 @@ False < True
 internal fun testFrozenHash() {
     val exprs = listOf("\"test\"", "\"x\"")
     val a = Assert()
-    // TODO(nga): fix and enable.
+    // NOTE(nga): fix and enable.
     a.disableStaticTypechecking()
     a.module(
         "m",
@@ -185,7 +185,7 @@ ys[0] = xs
 xs == xs
 """)
     val a = Assert()
-    // TODO(nga): fix and enable.
+    // NOTE(nga): fix and enable.
     a.disableStaticTypechecking()
     a.fail("""
 ys = [1]

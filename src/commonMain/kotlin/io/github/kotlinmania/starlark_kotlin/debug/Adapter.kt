@@ -32,7 +32,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark_kotlin.debug.adapter.implementation
+import io.github.kotlinmania.starlark_kotlin.debug.adapter.prepareDapAdapter as prepareDapAdapterImpl
+import io.github.kotlinmania.starlark_kotlin.debug.adapter.resolveBreakpoints as resolveBreakpointsImpl
+import io.github.kotlinmania.starlark_kotlin.debug.adapter.resolvedBreakpointsToDap as resolvedBreakpointsToDapImpl
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 
@@ -462,7 +464,7 @@ class ResolvedBreakpoints internal constructor(
      * The breakpoints should've been resolved from the corresponding SetBreakpointsRequest.
      */
     fun toResponse(): SetBreakpointsResponseBody {
-        return implementation.resolvedBreakpointsToDap(this)
+        return resolvedBreakpointsToDapImpl(this)
     }
 }
 
@@ -471,7 +473,7 @@ fun resolveBreakpoints(
     args: SetBreakpointsArguments,
     ast: AstModule,
 ): Result<ResolvedBreakpoints> {
-    return implementation.resolveBreakpoints(args, ast)
+    return resolveBreakpointsImpl(args, ast)
 }
 
 /**
@@ -568,5 +570,5 @@ fun dapCapabilities(): Capabilities {
 fun prepareDapAdapter(
     client: DapAdapterClient,
 ): Pair<DapAdapter, DapAdapterEvalHook> {
-    return implementation.prepareDapAdapter(client)
+    return prepareDapAdapterImpl(client)
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/unpack.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack
+package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+
 /** Unpack a value of type `tuple[T, ...]` into a list. */
 // #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 // pub struct UnpackTuple<T> { pub items: Vec<T> }
-class UnpackTuple<T>(
+data class UnpackTuple<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
 ) : Iterable<T> {
@@ -30,45 +35,58 @@ class UnpackTuple<T>(
     // impl Default for UnpackTuple<T>
     constructor() : this(mutableListOf())
 
-    companion object {
-        // impl StarlarkTypeRepr for UnpackTuple<T>
-        // fn starlark_type_repr() -> Ty
-        // Kotlin: type representation deferred to when Ty is fully ported.
-
-        // impl UnpackValue for UnpackTuple<T>
-        // fn unpack_value_impl(value: Value) -> Result<Option<Self>, Self::Error>
-        fun <T> unpackValueImpl(
-            value: Any,
-            tupleFromValue: (Any) -> List<Any>?,
-            unpackItem: (Any) -> T?,
-        ): UnpackTuple<T>? {
-            val tuple = tupleFromValue(value) ?: return null
-            val items = ArrayList<T>(tuple.size)
-            for (v in tuple) {
-                val item = unpackItem(v) ?: return null
-                items.add(item)
-            }
-            return UnpackTuple(items)
-        }
-    }
-
     // impl IntoIterator for UnpackTuple<T>
     // fn into_iter(self) -> Self::IntoIter
     override fun iterator(): Iterator<T> = items.iterator()
 
-    // impl PartialEq for UnpackTuple<T>
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is UnpackTuple<*>) return false
-        return items == other.items
+    // impl IntoIterator for &'a mut UnpackTuple<T>
+    fun iterMut(): MutableIterator<T> = items.iterator()
+
+    companion object {
+        fun <T> default(): UnpackTuple<T> = UnpackTuple()
     }
-
-    // impl Hash for UnpackTuple<T>
-    override fun hashCode(): Int = items.hashCode()
-
-    // impl Debug for UnpackTuple<T>
-    override fun toString(): String = "UnpackTuple(items=$items)"
 }
 
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.
+/**
+ * [UnpackValue] implementation for [UnpackTuple].
+ *
+ * Corresponds to Rust's `impl<'v, T: UnpackValue<'v>> UnpackValue<'v> for UnpackTuple<T>`.
+ */
+class UnpackTupleUnpackValue<T>(
+    private val elementUnpacker: UnpackValue<T>,
+) : UnpackValue<UnpackTuple<T>> {
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.tupleOf(elementUnpacker.starlarkTypeRepr())
+    }
+
+    override fun unpackValueImpl(value: Value): Result<UnpackTuple<T>?> {
+        val tuple = TupleRef.fromValue(value) ?: return Result.success(null)
+        val items = ArrayList<T>(tuple.len())
+        for (v in tuple.iter()) {
+            val unpacked = elementUnpacker.unpackValueImpl(v).getOrElse {
+                return Result.failure(it)
+            }
+            if (unpacked == null) {
+                return Result.success(null)
+            }
+            items.add(unpacked)
+        }
+        return Result.success(UnpackTuple(items))
+    }
+}
+
+/**
+ * [StarlarkTypeRepr] implementation for [UnpackTuple].
+ *
+ * Corresponds to Rust's `impl<T: StarlarkTypeRepr> StarlarkTypeRepr for UnpackTuple<T>`.
+ */
+class UnpackTupleStarlarkTypeRepr<T : StarlarkTypeRepr>(
+    private val elementRepr: T,
+) : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.tupleOf(elementRepr.starlarkTypeRepr())
+    }
+}
+
+// Rust: impl<'a, T> IntoIterator for &'a UnpackTuple<T>
+fun <T> UnpackTuple<T>.iterRef(): Iterator<T> = items.iterator()

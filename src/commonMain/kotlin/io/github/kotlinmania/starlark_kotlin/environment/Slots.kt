@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Allocative, Hash)]
 // pub(crate) struct ModuleSlotId(pub(crate) u32);
@@ -87,19 +86,19 @@ class MutableSlots {
         }
     }
 
-    // pub(crate) fn freeze(self, freezer: &Freezer) -> FreezeResult<FrozenSlots>
-    fun freeze(freezer: Freezer): FreezeResult<FrozenSlots> {
+    // pub(crate) fn freeze(self, freezer: &Freezer) -> Result<FrozenSlots>
+    fun freeze(freezer: Freezer): Result<FrozenSlots> {
         val frozenSlots = mutableListOf<FrozenValue?>()
         for (slot in slots) {
             if (slot == null) {
                 frozenSlots.add(null)
             } else {
                 val frozen = freezer.freeze(slot)
-                if (frozen.isFailure) return FreezeResult.failure(frozen.exceptionOrNull()!!)
+                if (frozen.isFailure) return Result.failure(frozen.exceptionOrNull()!!)
                 frozenSlots.add(frozen.getOrThrow())
             }
         }
-        return FreezeResult.success(FrozenSlots(frozenSlots))
+        return Result.success(FrozenSlots(frozenSlots))
     }
 }
 

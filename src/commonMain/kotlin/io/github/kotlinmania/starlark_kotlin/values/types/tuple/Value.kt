@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
@@ -44,6 +44,11 @@ class TupleGen<V>(
     companion object {
         /** `type(())`. */
         const val TYPE: String = "tuple"
+
+        /** Downcast a value to a tuple. */
+        fun fromValue(value: Value): TupleGen<Value>? {
+            return value.downcastRef<TupleGen<Value>>()
+        }
     }
 
     /** Get the length of the tuple. */
@@ -164,20 +169,14 @@ class TupleGen<V>(
     override fun getTypeStarlarkRepr(): Ty = Ty.anyTuple()
 }
 
-/** Runtime type of unfrozen tuple. */
-typealias Tuple = TupleGen<Value>
-
-/** Runtime type of frozen tuple. */
-typealias FrozenTuple = TupleGen<FrozenValue>
+// Rust type aliases:
+// pub type Tuple<'v> = TupleGen<Value<'v>>;
+// pub type FrozenTuple = TupleGen<FrozenValue>;
+// Kotlin: Use TupleGen directly; frozen flag distinguishes.
 
 /** The empty tuple, statically allocated. */
-val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
+val VALUE_EMPTY_TUPLE: AllocStaticSimple<TupleGen<FrozenValue>> =
     AllocStaticSimple.alloc(TupleGen(emptyList()))
-
-/** Downcast a value to a tuple. */
-fun TupleGen.Companion.fromValue(value: Value): Tuple? {
-    return value.downcastRef<Tuple>()
-}
 
 // Serialize support for TupleGen
 fun <V> TupleGen<V>.serialize(): List<V> = content()

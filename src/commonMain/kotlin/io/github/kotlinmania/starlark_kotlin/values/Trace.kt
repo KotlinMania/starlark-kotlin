@@ -20,10 +20,13 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
+import starlark_map.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.AtomicLong

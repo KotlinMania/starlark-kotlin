@@ -31,7 +31,7 @@ class PartialTest {
         val sum = """
 def sum(a, b, *args, **kwargs):
     # print("a=%s b=%s args=%s kwargs=%s" % (a, b, args, kwargs))
-    # TODO(nga): fix typecheck.
+    # NOTE(nga): fix typecheck.
     args = noop((a, b)) + args
     return [args, kwargs]
 """

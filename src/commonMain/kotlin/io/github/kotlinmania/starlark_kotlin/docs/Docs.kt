@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.docs
 /** Types supporting documentation for code written in or for Starlark. */
 
 import kotlin.js.JsName
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.FmtParam

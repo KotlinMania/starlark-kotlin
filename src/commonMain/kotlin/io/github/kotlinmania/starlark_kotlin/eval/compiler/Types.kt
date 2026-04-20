@@ -22,18 +22,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExprP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypeExprUnpackP
 import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypePathP
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
@@ -75,7 +73,7 @@ private sealed class TypesError(message: String) : Exception(message) {
 //     expr: Option<&CstTypeExpr>,
 // ) -> Option<IrSpanned<TypeCompiled>>
 internal fun Compiler.exprForType(
-    expr: CstTypeExpr?,
+    expr: Spanned<TypeExprP<CstPayload, *>>?,
 ): IrSpanned<TypeCompiled>? {
     if (!checkTypes) {
         return null
@@ -125,7 +123,7 @@ private fun Compiler.allocValueForType(
 }
 
 // fn eval_ident_in_type_expr(&mut self, ident: &CstIdent) -> Result<Value<'v>, EvalException>
-private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
+private fun Compiler.evalIdentInTypeExpr(ident: Spanned<IdentP<CstPayload, ResolvedIdent?>>): Value {
     val identPayload = ident.node.payload
         ?: throw EvalException.newAnyhow(
             TypesError.UnresolvedIdentifier(),
@@ -161,7 +159,7 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
  * which is used in normal compilation.
  */
 // fn eval_path(&mut self, path: TypePathP<CstPayload>) -> Result<Value<'v>, EvalException>
-private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Value {
+private fun Compiler.evalPath(path: TypePathP<CstPayload, ResolvedIdent?>): Value {
     var value = evalIdentInTypeExpr(path.first)
     for (step in path.rem) {
         value = value.getAttrError(step.node, eval.heap()).getOrElse { e ->
@@ -176,7 +174,7 @@ private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Val
 //     expr: Spanned<TypeExprUnpackP<CstPayload>>,
 // ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.evalExprAsType(
-    expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
+    expr: Spanned<TypeExprUnpackP<CstPayload, ResolvedIdent?>>,
 ): TypeCompiled {
     val span = expr.span
     val value = evalExpr(expr)
@@ -192,7 +190,7 @@ private fun Compiler.evalExprAsType(
 //     expr: Spanned<TypeExprUnpackP<CstPayload>>,
 // ) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalExpr(
-    expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
+    expr: Spanned<TypeExprUnpackP<CstPayload, ResolvedIdent?>>,
 ): Value {
     return when (val node = expr.node) {
         is TypeExprUnpackP.Ellipsis -> Ellipsis.newValue().toValue()
@@ -253,7 +251,7 @@ private fun Compiler.evalExpr(
 // ) -> Result<(), EvalException>
 @Suppress("UNCHECKED_CAST")
 private fun Compiler.populateTypesInTypeExpr(
-    typeExpr: CstTypeExpr,
+    typeExpr: Spanned<TypeExprP<CstPayload, *>>,
 ) {
     val payload = typeExpr.node.payload as? CstTypeExprPayload
     if (payload?.compilerTy != null) {
@@ -264,7 +262,11 @@ private fun Compiler.populateTypesInTypeExpr(
         )
     }
     // This should not fail because we validated it at parse time.
-    val unpack = TypeExprUnpackP.unpack<CstPayload, CstIdentPayload>(typeExpr.node.expr, codemap.value)
+    @Suppress("UNCHECKED_CAST")
+    val unpack = TypeExprUnpackP.unpack<CstPayload, ResolvedIdent?>(
+        typeExpr.node.expr as Spanned<ExprP<CstPayload>>,
+        codemap.value,
+    )
     val typeValue = evalExprAsType(unpack)
     if (payload != null) {
         payload.compilerTy = typeValue.asTy()
@@ -276,7 +278,7 @@ private fun Compiler.populateTypesInTypeExpr(
 //     stmt: &mut CstStmt,
 // ) -> Result<(), EvalException>
 internal fun Compiler.populateTypesInStmt(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
 ) {
     stmt.node.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr) }
 }
@@ -287,22 +289,22 @@ internal fun Compiler.populateTypesInStmt(
  */
 @Suppress("UNCHECKED_CAST")
 private fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
-    f: (AstTypeExprP<P>) -> Unit,
+    f: (Spanned<TypeExprP<P, *>>) -> Unit,
 ) {
     when (this) {
         is StmtP.Def<*, *> -> {
             for (param in def.params) {
                 when (val p = param.node) {
-                    is ParameterP.Normal<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
-                    is ParameterP.Args<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
-                    is ParameterP.KwArgs<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
+                    is ParameterP.Normal<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
+                    is ParameterP.Args<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
+                    is ParameterP.KwArgs<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
                     is ParameterP.Slash<*>, is ParameterP.NoArgs<*> -> { /* no type */ }
                 }
             }
-            (def.returnType as? AstTypeExprP<P>)?.let { f(it) }
+            (def.returnType as? Spanned<TypeExprP<P, *>>)?.let { f(it) }
         }
         is StmtP.Assign<*> -> {
-            (assign.ty as? AstTypeExprP<P>)?.let { f(it) }
+            (assign.ty as? Spanned<TypeExprP<P, *>>)?.let { f(it) }
         }
         else -> { /* no type expressions in other statements */ }
     }

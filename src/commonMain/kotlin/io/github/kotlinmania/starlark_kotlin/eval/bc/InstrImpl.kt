@@ -44,7 +44,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParameterCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.newDef
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.isStarOrStarStar
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.nameTy
@@ -145,7 +145,7 @@ object InstrConstImpl : InstrNoFlowImpl {
     }
 }
 
-// --- Local/Module Load/Store ---
+// --- Local/Module LoadP<AstNoPayload, Unit>/Store ---
 
 object InstrLoadLocalImpl : InstrNoFlowImpl {
     override fun runWithArgs(
@@ -1291,7 +1291,7 @@ class FrozenValueCallable(private val value: FrozenValue) : BcFrozenCallable {
     }
 }
 
-internal class FrozenDefCallable(private val def: FrozenValueTyped<FrozenDef>) : BcFrozenCallable {
+internal class FrozenDefCallable(private val def: FrozenValueTyped<DefGen<FrozenValue>>) : BcFrozenCallable {
     override fun bcInvoke(
         location: FrozenRef<FrameSpan>,
         args: Arguments,
@@ -1377,7 +1377,7 @@ object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
 }
 
 internal data class CallFrozenDefArg(
-    val fun_: FrozenValueTyped<FrozenDef>,
+    val fun_: FrozenValueTyped<DefGen<FrozenValue>>,
     val args: Any,
     val span: FrameSpan,
     val target: BcSlotOut,

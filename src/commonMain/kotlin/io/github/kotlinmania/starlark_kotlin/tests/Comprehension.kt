@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 // but these are actually quite different locations semantically, so test both
 // fn check_comp(lines: &[&str])
 private fun checkComp(lines: List<String>) {
-    // TODO(nga): typechecker is wrong here.
+    // NOTE(nga): typechecker is wrong here.
     Assert.isTrueSkipTypecheck(lines.joinToString("\n"))
     val last = lines.last()
     val init = lines.dropLast(1)

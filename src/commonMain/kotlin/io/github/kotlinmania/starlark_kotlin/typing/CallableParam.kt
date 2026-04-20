@@ -23,9 +23,9 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * Indication whether a parameter is required.
  */
 enum class ParamIsRequired {
-    /** Parameter is required. */
+    /** ParameterP<AstNoPayload> is required. */
     Yes,
-    /** Parameter is optional. */
+    /** ParameterP<AstNoPayload> is optional. */
     No,
 }
 
@@ -33,19 +33,19 @@ enum class ParamIsRequired {
  * The type of a parameter — can be positional, by name, `*args` or `**kwargs`.
  */
 sealed class ParamMode : Comparable<ParamMode> {
-    /** Parameter can only be passed by position. */
+    /** ParameterP<AstNoPayload> can only be passed by position. */
     data class PosOnly(val required: ParamIsRequired) : ParamMode()
 
-    /** Parameter can be passed by position or name. */
+    /** ParameterP<AstNoPayload> can be passed by position or name. */
     data class PosOrName(val name: String, val required: ParamIsRequired) : ParamMode()
 
-    /** Parameter can only be passed by name. */
+    /** ParameterP<AstNoPayload> can only be passed by name. */
     data class NameOnly(val name: String, val required: ParamIsRequired) : ParamMode()
 
-    /** Parameter is `*args`. */
+    /** ParameterP<AstNoPayload> is `*args`. */
     data object Args : ParamMode()
 
-    /** Parameter is `**kwargs`. */
+    /** ParameterP<AstNoPayload> is `**kwargs`. */
     data object Kwargs : ParamMode()
 
     override fun compareTo(other: ParamMode): Int {

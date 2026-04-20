@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
 
 import io.github.kotlinmania.starlark_kotlin.LibraryExtension
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
@@ -36,16 +36,16 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.Parameters
 import io.github.kotlinmania.starlark_kotlin.standardEnvironment
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
 import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark_kotlin.values.types.namespace.MaybeDocHiddenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.NamespaceGen
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -56,8 +56,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
 import kotlin.concurrent.Volatile
 
-/** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
-internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
+/** Matches Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
 
 /**
  * The global values available during execution.
@@ -171,7 +170,7 @@ class Globals internal constructor(
 
 class GlobalsData(
     val heap: FrozenHeapRef,
-    val variables: SymbolMap<GlobalValue>,
+    val variables: SymbolMap<MaybeDocHiddenValue<FrozenValue>>,
     val variableNames: List<FrozenStringValue>,
     val docstring: String?,
 )
@@ -187,9 +186,9 @@ class GlobalsBuilder private constructor(
     /** The heap everything is allocated in. */
     private val heap: FrozenHeap,
     /** Normal top-level variables, e.g. True/hash. */
-    private val variables: SymbolMap<GlobalValue>,
+    private val variables: SymbolMap<MaybeDocHiddenValue<FrozenValue>>,
     /** The list of struct fields, pushed to the end. */
-    private val namespaceFields: MutableList<SmallMap<FrozenStringValue, GlobalValue>>,
+    private val namespaceFields: MutableList<SmallMap<FrozenStringValue, MaybeDocHiddenValue<FrozenValue>>>,
     /** The raw docstring for this module. */
     internal var docstring: String?,
 ) {
@@ -250,15 +249,16 @@ class GlobalsBuilder private constructor(
         namespaceFields.add(SmallMap.new())
         f(this)
         val fields = namespaceFields.removeLast()
-        // Convert SmallMap<FrozenStringValue, GlobalValue> to SmallMap<String, GlobalValue>
+        // Convert SmallMap<FrozenStringValue, MaybeDocHiddenValue<FrozenValue>> to
+        // SmallMap<String, MaybeDocHiddenValue<FrozenValue>>
         // because NamespaceGen<V> uses String keys in the Kotlin port.
-        val stringKeyFields = SmallMap.new<String, GlobalValue>()
+        val stringKeyFields = SmallMap.new<String, MaybeDocHiddenValue<FrozenValue>>()
         for ((k, v) in fields) {
             stringKeyFields.insert(k.asStr(), v)
         }
         setInner(
             name,
-            heap.allocSimple(FrozenNamespace.new(stringKeyFields)),
+            heap.allocSimple(NamespaceGen.new(stringKeyFields)),
             docHidden,
         )
     }

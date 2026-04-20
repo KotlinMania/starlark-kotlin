@@ -122,9 +122,7 @@ private fun cmdFail(_eval: Evaluator, _rl: BreakpointConsole): Next {
     return Next.Fail
 }
 
-private typealias CommandFn = (Evaluator, BreakpointConsole) -> Next
-
-private val COMMANDS: List<Triple<List<String>, String, CommandFn>> = listOf(
+private val COMMANDS: List<Triple<List<String>, String, (Evaluator, BreakpointConsole) -> Next>> = listOf(
     Triple(listOf("help", "?"), "Show this help message", ::cmdHelp),
     Triple(listOf("vars"), "Show all local variables", ::cmdVariables),
     Triple(listOf("stack"), "Show the stack trace", ::cmdStack),
@@ -132,10 +130,10 @@ private val COMMANDS: List<Triple<List<String>, String, CommandFn>> = listOf(
     Triple(listOf("fail"), "Abort with a failure message", ::cmdFail),
 )
 
-private fun pickCommand(x: String, rl: BreakpointConsole): CommandFn? {
+private fun pickCommand(x: String, rl: BreakpointConsole): ((Evaluator, BreakpointConsole) -> Next)? {
     // If we can find a command that matches perfectly, do that
     // Otherwise return the longest match, but if they are multiple, show a warning
-    val poss = mutableListOf<Pair<String, CommandFn>>()
+    val poss = mutableListOf<Pair<String, (Evaluator, BreakpointConsole) -> Next>>()
     for ((names, _, cmd) in COMMANDS) {
         for (n in names) {
             if (n == x) {

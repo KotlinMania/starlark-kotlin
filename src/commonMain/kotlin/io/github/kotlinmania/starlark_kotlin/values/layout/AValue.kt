@@ -20,10 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
@@ -33,7 +32,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
@@ -91,7 +90,7 @@ interface AValue {
     }
 
     /** Freeze this value on the heap. */
-    fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue>
+    fun heapFreeze(freezer: Freezer): Result<FrozenValue>
 
     /** Copy this value on the heap. */
     fun heapCopy(tracer: Tracer): Value
@@ -118,7 +117,7 @@ class AValueImpl<T : AValue>(
 internal fun tryFreezeDirectly(
     payload: StarlarkValue,
     freezer: Freezer,
-): FreezeResult<FrozenValue>? {
+): Result<FrozenValue>? {
     val f = payload.tryFreezeDirectly(freezer) ?: return null
     return when {
         f.isSuccess -> {
@@ -136,7 +135,7 @@ internal fun tryFreezeDirectly(
 internal fun heapFreezeSimpleImpl(
     value: StarlarkValue,
     freezer: Freezer,
-): FreezeResult<FrozenValue> {
+): Result<FrozenValue> {
     val (fv, r) = freezer.reserve<AValue>()
     val x = value
     r.fill(x)
@@ -160,7 +159,9 @@ internal fun heapCopyImpl(
 /** Placeholder used during GC to fill space vacated by a moved object. */
 internal class BlackHole(
     internal val size: ValueAllocSize,
-) {
+) : StarlarkValue {
+    override val TYPE: String get() = "BlackHole"
+
     override fun toString(): String = "BlackHole"
 }
 

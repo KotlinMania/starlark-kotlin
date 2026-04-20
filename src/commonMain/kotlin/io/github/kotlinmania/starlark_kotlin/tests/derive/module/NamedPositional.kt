@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpack.UnpackTuple
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTuple
 
 // #[starlark_module]
 // fn named_positional_functions(globals: &mut GlobalsBuilder)

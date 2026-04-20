@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.environment
  */
 
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
@@ -31,11 +31,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeAttribute
@@ -249,7 +249,9 @@ class MethodsBuilder private constructor(
         f: (Evaluator, Value, ParametersSpec<FrozenValue>, Arguments) -> Result<Value>,
     ) {
         val sig = ParametersSpec.withCapacity<FrozenValue>(name).finish()
-        val nativeMethFn: NativeMethFn = f
+        val nativeMethFn: NativeMethFn = NativeMethFn { eval, thisValue, sig2, args ->
+            f(eval, thisValue, sig2, args)
+        }
         val ty = Ty.any()
         members.insert(
             name,

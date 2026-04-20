@@ -186,7 +186,7 @@ internal fun symmetricDifference(
         return Result.success(clone)
     }
 
-    // TODO(romanp) add symmetric_difference to small set and use it here and in xor
+    // NOTE(romanp) add symmetric_difference to small set and use it here and in xor
     if (thisSet.content.isEmpty()) {
         val result = SetData()
         result.content.addAll(otherSet.intoSet().iterHashed().asIterable())

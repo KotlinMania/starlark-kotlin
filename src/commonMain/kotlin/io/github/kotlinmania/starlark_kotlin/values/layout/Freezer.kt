@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
@@ -38,7 +37,7 @@ class Freezer internal constructor(
 ) {
     /** Defs frozen by this freezer. */
     // pub(crate) frozen_defs: RefCell<Vec<FrozenRef<'static, FrozenDef>>>,
-    internal val frozenDefs: MutableList<FrozenRef<FrozenDef>> = mutableListOf()
+    internal val frozenDefs: MutableList<FrozenRef<DefGen<FrozenValue>>> = mutableListOf()
 
     companion object {
         // pub(crate) fn new(heap: &'fv FrozenHeap) -> Self
@@ -65,8 +64,8 @@ class Freezer internal constructor(
     }
 
     /** Freeze a nested value while freezing yourself. */
-    // pub fn freeze(&self, value: Value) -> FreezeResult<FrozenValue>
-    fun freeze(value: Value): FreezeResult<FrozenValue> {
+    // pub fn freeze(&self, value: Value) -> Result<FrozenValue>
+    fun freeze(value: Value): Result<FrozenValue> {
         // Case 1: We have our value encoded in our pointer
         val x = value.unpackFrozen()
         if (x != null) {

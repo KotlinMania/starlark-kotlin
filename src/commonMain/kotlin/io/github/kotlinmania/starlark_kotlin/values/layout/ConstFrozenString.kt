@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 
 /// Create a [`FrozenStringValue`](crate::values::FrozenStringValue).
 // #[macro_export]

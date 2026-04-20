@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
 // Only check it compiles.
 
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 
 // #[derive(Trace)]
 // #[trace(bound = "A: Trace<'v>, B: 'static")]

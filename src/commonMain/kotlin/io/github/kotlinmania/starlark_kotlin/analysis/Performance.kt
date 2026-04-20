@@ -4,7 +4,7 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.codemap.*
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
 
@@ -56,8 +56,8 @@ internal sealed class Performance : LintWarning {
     }
 }
 
-// fn match_dict_copy(codemap: &CodeMap, x: &AstExpr, res: &mut Vec<LintT<Performance>>)
-private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
+// fn match_dict_copy(codemap: &CodeMap, x: &Spanned<ExprP<AstNoPayload>>, res: &mut Vec<LintT<Performance>>)
+private fun matchDictCopy(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
     // If we see `dict(**x)` suggest `dict(x)`
     val expr = x.node
     if (expr is ExprP.Call<*> && expr.args.args.size == 1) {
@@ -82,10 +82,10 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
     }
 }
 
-// fn match_inefficient_bool_check(codemap: &CodeMap, x: &AstExpr, res: &mut Vec<LintT<Performance>>)
+// fn match_inefficient_bool_check(codemap: &CodeMap, x: &Spanned<ExprP<AstNoPayload>>, res: &mut Vec<LintT<Performance>>)
 private fun matchInefficientBoolCheck(
     codemap: CodeMap,
-    x: AstExpr,
+    x: Spanned<ExprP<AstNoPayload>>,
     res: MutableList<LintT<Performance>>,
 ) {
     val expr = x.node
@@ -134,7 +134,7 @@ private fun matchInefficientBoolCheck(
 
 // fn check_call_expr(module: &AstModule, res: &mut Vec<LintT<Performance>>)
 private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>>) {
-    fun check(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
+    fun check(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
         matchDictCopy(codemap, x, res)
         matchInefficientBoolCheck(codemap, x, res)
         x.node.visitChildExprs { child -> check(codemap, child, res) }

@@ -6,18 +6,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdentAssignPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -29,12 +24,12 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstString
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -114,13 +109,13 @@ private class GlobalTypesBuilder(
     }
 
     // fn call(&mut self, _f: &CstExpr, _args: &CallArgsP<CstPayload>) -> Result<GlobalValue, InternalError>
-    fun call(_f: CstExpr, _args: CallArgsP<CstPayload>): GlobalValue {
+    fun call(_f: Spanned<ExprP<CstPayload>>, _args: CallArgsP<CstPayload>): GlobalValue {
         return GlobalValue.any()
     }
 
     // fn expr_ident(&self, ident: &CstIdent) -> Result<GlobalValue, InternalError>
-    fun exprIdent(ident: CstIdent): GlobalValue {
-        val resolved = ident.node.payload ?: throw internalError(ident.span, "unresolved ident")
+    fun exprIdent(ident: Spanned<IdentP<CstPayload, *>>): GlobalValue {
+        val resolved = ident.node.payload as? ResolvedIdent ?: throw internalError(ident.span, "unresolved ident")
         return when (resolved) {
             is ResolvedIdent.Slot -> {
                 when (val slot = resolved.slot) {
@@ -147,7 +142,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn tuple(&mut self, xs: &[CstExpr]) -> Result<GlobalValue, InternalError>
-    fun tuple(xs: List<CstExpr>): GlobalValue {
+    fun tuple(xs: List<Spanned<ExprP<CstPayload>>>): GlobalValue {
         val results = xs.map { exprSpanned(it) }
         val allValues = results.mapNotNull { it.node.value }
         return if (allValues.size == results.size) {
@@ -157,8 +152,8 @@ private class GlobalTypesBuilder(
         }
     }
 
-    // fn dot(&mut self, span: Span, object: &CstExpr, field: &AstString) -> Result<GlobalValue, InternalError>
-    fun dot(span: Span, obj: CstExpr, field: AstString): GlobalValue {
+    // fn dot(&mut self, span: Span, object: &CstExpr, field: &Spanned<String>) -> Result<GlobalValue, InternalError>
+    fun dot(span: Span, obj: Spanned<ExprP<CstPayload>>, field: Spanned<String>): GlobalValue {
         val objValue = expr(obj)
         val v = objValue.value ?: return GlobalValue.any()
         return v.getAttrError(field.node, heap).fold(
@@ -168,7 +163,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn index(&mut self, span: Span, array: &CstExpr, index: &CstExpr) -> Result<GlobalValue, InternalError>
-    fun index(span: Span, array: CstExpr, indexExpr: CstExpr): GlobalValue {
+    fun index(span: Span, array: Spanned<ExprP<CstPayload>>, indexExpr: Spanned<ExprP<CstPayload>>): GlobalValue {
         val arrayVal = expr(array)
         val indexVal = exprSpanned(indexExpr)
         val a = arrayVal.value ?: return GlobalValue.any()
@@ -180,7 +175,12 @@ private class GlobalTypesBuilder(
     }
 
     // fn index2(&mut self, span: Span, array: &CstExpr, index0: &CstExpr, index1: &CstExpr) -> Result<GlobalValue, InternalError>
-    fun index2(span: Span, array: CstExpr, index0: CstExpr, index1: CstExpr): GlobalValue {
+    fun index2(
+        span: Span,
+        array: Spanned<ExprP<CstPayload>>,
+        index0: Spanned<ExprP<CstPayload>>,
+        index1: Spanned<ExprP<CstPayload>>,
+    ): GlobalValue {
         val arrayVal = expr(array)
         val idx0Val = expr(index0)
         val idx1Val = expr(index1)
@@ -194,7 +194,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn bin_op(&mut self, span: Span, lhs: &CstExpr, op: BinOp, rhs: &CstExpr) -> Result<GlobalValue, InternalError>
-    fun binOp(span: Span, lhs: CstExpr, op: BinOp, rhs: CstExpr): GlobalValue {
+    fun binOp(span: Span, lhs: Spanned<ExprP<CstPayload>>, op: BinOp, rhs: Spanned<ExprP<CstPayload>>): GlobalValue {
         val lhsVal = expr(lhs)
         val rhsVal = expr(rhs)
         val l = lhsVal.value
@@ -211,17 +211,22 @@ private class GlobalTypesBuilder(
 
     // fn expr(&mut self, expr: &CstExpr) -> Result<GlobalValue, InternalError>
     @Suppress("UNCHECKED_CAST")
-    fun expr(e: CstExpr): GlobalValue {
+    fun expr(e: Spanned<ExprP<CstPayload>>): GlobalValue {
         val span = e.span
         return when (val node = e.node) {
-            is ExprP.Tuple<*> -> tuple(node.elements as List<CstExpr>)
-            is ExprP.Dot<*> -> dot(span, node.expr as CstExpr, node.field)
-            is ExprP.Call<*> -> call(node.expr as CstExpr, node.args as CallArgsP<CstPayload>)
-            is ExprP.Index<*> -> index(span, node.expr as CstExpr, node.index as CstExpr)
-            is ExprP.Index2<*> -> index2(span, node.expr as CstExpr, node.index0 as CstExpr, node.index1 as CstExpr)
-            is ExprP.Identifier<*, *> -> exprIdent(node.ident as CstIdent)
+            is ExprP.Tuple<*> -> tuple(node.elements as List<Spanned<ExprP<CstPayload>>>)
+            is ExprP.Dot<*> -> dot(span, node.expr as Spanned<ExprP<CstPayload>>, node.field)
+            is ExprP.Call<*> -> call(node.expr as Spanned<ExprP<CstPayload>>, node.args as CallArgsP<CstPayload>)
+            is ExprP.Index<*> -> index(span, node.expr as Spanned<ExprP<CstPayload>>, node.index as Spanned<ExprP<CstPayload>>)
+            is ExprP.Index2<*> -> index2(
+                span,
+                node.expr as Spanned<ExprP<CstPayload>>,
+                node.index0 as Spanned<ExprP<CstPayload>>,
+                node.index1 as Spanned<ExprP<CstPayload>>,
+            )
+            is ExprP.Identifier<*, *> -> exprIdent(node.ident as Spanned<IdentP<CstPayload, *>>)
             is ExprP.Literal<*> -> exprLiteral(node.literal)
-            is ExprP.Op<*> -> binOp(span, node.lhs as CstExpr, node.op, node.rhs as CstExpr)
+            is ExprP.Op<*> -> binOp(span, node.lhs as Spanned<ExprP<CstPayload>>, node.op, node.rhs as Spanned<ExprP<CstPayload>>)
             // These are not used in type expressions.
             is ExprP.Slice<*>,
             is ExprP.Lambda<*, *>,
@@ -239,7 +244,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn expr_spanned(&mut self, expr: &CstExpr) -> Result<Spanned<GlobalValue>, InternalError>
-    fun exprSpanned(e: CstExpr): Spanned<GlobalValue> {
+    fun exprSpanned(e: Spanned<ExprP<CstPayload>>): Spanned<GlobalValue> {
         val value = expr(e)
         return Spanned(node = value, span = e.span)
     }
@@ -249,13 +254,13 @@ private class GlobalTypesBuilder(
     fun load(loadStmt: LoadP<CstPayload, *>) {
         for (arg in loadStmt.args) {
             val ty = (loadStmt.payload as? Interface)?.get(arg.their.node) ?: Ty.any()
-            assignIdentValue(arg.local as CstAssignIdent, GlobalValue.ty(ty))
+            assignIdentValue(arg.local as Spanned<AssignIdentP<CstPayload, *>>, GlobalValue.ty(ty))
         }
     }
 
     // fn resolve_assign_ident_to_module_slot_id(&self, ident: &CstAssignIdent) -> Result<ModuleSlotId, InternalError>
     @Suppress("UNCHECKED_CAST")
-    fun resolveAssignIdentToModuleSlotId(ident: CstAssignIdent): ModuleSlotId {
+    fun resolveAssignIdentToModuleSlotId(ident: Spanned<AssignIdentP<CstPayload, *>>): ModuleSlotId {
         val bindingId = ident.node.payload as? BindingId
             ?: throw internalError(ident.span, "binding not resolved")
         val binding = moduleScopeData.getBinding(bindingId)
@@ -267,7 +272,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn assign_ident_value(&mut self, ident: &CstAssignIdent, value: GlobalValue) -> Result<(), InternalError>
-    fun assignIdentValue(ident: CstAssignIdent, value: GlobalValue) {
+    fun assignIdentValue(ident: Spanned<AssignIdentP<CstPayload, *>>, value: GlobalValue) {
         val moduleSlotId = resolveAssignIdentToModuleSlotId(ident)
         val existing = values[moduleSlotId]
         if (existing != null) {
@@ -278,7 +283,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn assign_unset_ident(&mut self, target: &CstAssignIdent) -> Result<(), InternalError>
-    fun assignUnsetIdent(target: CstAssignIdent) {
+    fun assignUnsetIdent(target: Spanned<AssignIdentP<CstPayload, *>>) {
         val moduleSlotId = resolveAssignIdentToModuleSlotId(target)
         values[moduleSlotId] = GlobalValue.any()
     }
@@ -294,12 +299,12 @@ private class GlobalTypesBuilder(
             }
             is AssignTargetP.Index<*> -> { /* noop */ }
             is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignIdentValue(node.ident as CstAssignIdent, rhs)
+            is AssignTargetP.Identifier<*, *> -> assignIdentValue(node.ident as Spanned<AssignIdentP<CstPayload, *>>, rhs)
         }
     }
 
     // fn assign(&mut self, lhs: &AssignTargetP<CstPayload>, rhs: &CstExpr) -> Result<(), InternalError>
-    fun assign(lhs: Spanned<AssignTargetP<CstPayload>>, rhs: CstExpr) {
+    fun assign(lhs: Spanned<AssignTargetP<CstPayload>>, rhs: Spanned<ExprP<CstPayload>>) {
         val rhsValue = expr(rhs)
         assignValue(lhs, rhsValue)
     }
@@ -329,7 +334,7 @@ private class GlobalTypesBuilder(
             }
             is AssignTargetP.Index<*> -> { /* noop */ }
             is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignUnsetIdent(node.ident as CstAssignIdent)
+            is AssignTargetP.Identifier<*, *> -> assignUnsetIdent(node.ident as Spanned<AssignIdentP<CstPayload, *>>)
         }
     }
 
@@ -351,7 +356,7 @@ private class GlobalTypesBuilder(
      */
     // fn eval_stmt_unset(&mut self, stmt: &CstStmt) -> Result<(), InternalError>
     @Suppress("UNCHECKED_CAST")
-    fun evalStmtUnset(stmt: CstStmt) {
+    fun evalStmtUnset(stmt: Spanned<StmtP<CstPayload>>) {
         when (val node = stmt.node) {
             is StmtP.Break<*> -> { /* noop */ }
             is StmtP.Continue<*> -> { /* noop */ }
@@ -362,16 +367,16 @@ private class GlobalTypesBuilder(
             is StmtP.AssignModify<*> -> assignUnset(node.lhs as Spanned<AssignTargetP<CstPayload>>)
             is StmtP.Statements<*> -> {
                 for (x in node.stmts) {
-                    evalStmtUnset(x as CstStmt)
+                    evalStmtUnset(x as Spanned<StmtP<CstPayload>>)
                 }
             }
-            is StmtP.If<*> -> evalStmtUnset(node.suite as CstStmt)
+            is StmtP.If<*> -> evalStmtUnset(node.suite as Spanned<StmtP<CstPayload>>)
             is StmtP.IfElse<*> -> {
-                evalStmtUnset(node.suite1 as CstStmt)
-                evalStmtUnset(node.suite2 as CstStmt)
+                evalStmtUnset(node.suite1 as Spanned<StmtP<CstPayload>>)
+                evalStmtUnset(node.suite2 as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
-            is StmtP.Def<*, *> -> assignUnsetIdent(node.def.name as CstAssignIdent)
+            is StmtP.Def<*, *> -> assignUnsetIdent(node.def.name as Spanned<AssignIdentP<CstPayload, *>>)
             is StmtP.Load<*, *> -> throw internalError(stmt.span, "load")
         }
     }
@@ -406,12 +411,12 @@ private class GlobalTypesBuilder(
 
         val result = getTyExprOpt(def.returnType)
         val paramSpec = ParamSpec.newParts(posOnly, posOrName, args, nameOnly, kwargs)
-        assignIdentValue(def.name as CstAssignIdent, GlobalValue.ty(Ty.function(paramSpec, result)))
+        assignIdentValue(def.name as Spanned<AssignIdentP<CstPayload, *>>, GlobalValue.ty(Ty.function(paramSpec, result)))
     }
 
     // fn eval_stmt(&mut self, stmt: &CstStmt) -> Result<(), InternalError>
     @Suppress("UNCHECKED_CAST")
-    fun evalStmt(stmt: CstStmt) {
+    fun evalStmt(stmt: Spanned<StmtP<CstPayload>>) {
         val span = stmt.span
         when (val node = stmt.node) {
             is StmtP.Break<*> -> throw internalError(span, "top-level break")
@@ -422,10 +427,10 @@ private class GlobalTypesBuilder(
             is StmtP.Assign<*> -> assignStmt(node.assign as AssignP<CstPayload>)
             is StmtP.AssignModify<*> -> { /* noop */ }
             is StmtP.Statements<*> -> throw internalError(span, "statements in top-level statement")
-            is StmtP.If<*> -> evalStmtUnset(node.suite as CstStmt)
+            is StmtP.If<*> -> evalStmtUnset(node.suite as Spanned<StmtP<CstPayload>>)
             is StmtP.IfElse<*> -> {
-                evalStmtUnset(node.suite1 as CstStmt)
-                evalStmtUnset(node.suite2 as CstStmt)
+                evalStmtUnset(node.suite1 as Spanned<StmtP<CstPayload>>)
+                evalStmtUnset(node.suite2 as Spanned<StmtP<CstPayload>>)
             }
             is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
             is StmtP.Def<*, *> -> topLevelDef(node.def as DefP<CstPayload, *>)
@@ -442,7 +447,7 @@ private class GlobalTypesBuilder(
     // fn eval_path(&mut self, path: TypePathP<CstPayload>) -> Result<Option<Value>, InternalError>
     // TypePathP: { first: CstIdent, rem: Vec<Spanned<&str>> }
     // Not yet ported as a separate type, inlined as Pair
-    fun evalPath(first: CstIdent, rem: List<AstString>): Value? {
+    fun evalPath(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Value? {
         var value = exprIdent(first).value ?: return null
         for (x in rem) {
             val result = value.getAttrError(x.node, heap)
@@ -459,7 +464,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn try_proper_ty(&mut self, path: TypePathP<CstPayload>) -> Result<Option<Ty>, InternalError>
-    fun tryProperTy(first: CstIdent, rem: List<AstString>): Ty? {
+    fun tryProperTy(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Ty? {
         val value = evalPath(first, rem) ?: return null
         return try {
             val ty = TypeCompiled.new(value, heap)
@@ -474,7 +479,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn path_ty(&mut self, path: TypePathP<CstPayload>) -> Result<Ty, InternalError>
-    fun pathTy(first: CstIdent, rem: List<AstString>): Ty {
+    fun pathTy(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Ty {
         tryProperTy(first, rem)?.let { return it }
         val span = Span.mergeAll(
             (listOf(first.span) + rem.map { it.span }).iterator()
@@ -492,7 +497,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn ty_expr(&mut self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
-    fun tyExpr(expr: CstTypeExpr): Ty {
+    fun tyExpr(expr: Spanned<TypeExprP<CstPayload, *>>): Ty {
         // TypeExprUnpackP.unpack not yet available
         // When TypeExprUnpackP is ported, this should be:
         //   val x = TypeExprUnpackP.unpack(expr.node.expr, ctx.codemap)
@@ -501,7 +506,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn get_ty_expr(&self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
-    fun getTyExpr(expr: CstTypeExpr): Ty {
+    fun getTyExpr(expr: Spanned<TypeExprP<CstPayload, *>>): Ty {
         val payload = expr.node.payload as? CstTypeExprPayload
             ?: throw internalError(expr.span, "type not set")
         return payload.typecheckerTy
@@ -509,12 +514,12 @@ private class GlobalTypesBuilder(
     }
 
     // fn get_ty_expr_opt(&mut self, expr: Option<&CstTypeExpr>) -> Result<Ty, InternalError>
-    fun getTyExprOpt(expr: CstTypeExpr?): Ty {
+    fun getTyExprOpt(expr: Spanned<TypeExprP<CstPayload, *>>?): Ty {
         return if (expr == null) Ty.any() else getTyExpr(expr)
     }
 
     // fn fill_types(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>
-    fun fillTypes(stmt: CstStmt) {
+    fun fillTypes(stmt: Spanned<StmtP<CstPayload>>) {
         // stmt.visit_type_expr_err_mut is not available yet.
         // When it is ported, this should iterate over all type expressions
         // in the statement and set their typecheckerTy payload.
@@ -522,7 +527,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn top_level_stmt(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>
-    fun topLevelStmt(stmt: CstStmt) {
+    fun topLevelStmt(stmt: Spanned<StmtP<CstPayload>>) {
         // Fill all type payloads.
         fillTypes(stmt)
         // Partially evaluate expressions which can be used in the following type expressions.
@@ -542,17 +547,17 @@ private fun unpackDefParams(params: List<Spanned<*>>, _codemap: CodeMap): List<D
             is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
                 val mode = if (seenStar) DefRegularParamMode.NameOnly else DefRegularParamMode.PosOrName
                 result.add(DefParam(
-                    param.name as CstAssignIdent,
-                    DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
-                    param.typ as CstTypeExpr?,
+                    param.name as Spanned<AssignIdentP<CstPayload, *>>,
+                    DefParamKind.Regular(mode, param.defaultVal as Spanned<ExprP<CstPayload>>?),
+                    param.typ as Spanned<TypeExprP<CstPayload, *>>?,
                 ))
             }
             is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
                 seenStar = true
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as Spanned<AssignIdentP<CstPayload, *>>, DefParamKind.Args, param.typ as Spanned<TypeExprP<CstPayload, *>>?))
             }
             is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> ->
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as Spanned<AssignIdentP<CstPayload, *>>, DefParamKind.Kwargs, param.typ as Spanned<TypeExprP<CstPayload, *>>?))
         }
     }
     return result
@@ -571,7 +576,7 @@ internal class ModuleVarTypes(
  */
 // pub(crate) fn fill_types_for_lint_typechecker(...)
 internal fun fillTypesForLintTypechecker(
-    module: List<CstStmt>,
+    module: List<Spanned<StmtP<CstPayload>>>,
     ctx: TypingOracleCtx,
     moduleScopeData: ModuleScopeData,
     approximations: MutableList<Approximation>,

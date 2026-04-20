@@ -19,8 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeapRef
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark_kotlin.values.types.string.format
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
@@ -37,7 +38,7 @@ fun FrozenModule.dumpDebug(): String {
         for ((name, value) in allItems()) {
             appendLine()
             appendLine("$name = $value")
-            val def = FrozenValueTyped.new<FrozenDef>(value)
+            val def = FrozenValueTyped.new<DefGen<FrozenValue>>(value)
             if (def != null) {
                 def.asRef().dumpDebug()
                     .lines()

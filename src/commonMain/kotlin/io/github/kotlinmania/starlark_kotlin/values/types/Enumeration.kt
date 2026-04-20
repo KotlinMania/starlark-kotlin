@@ -1,7 +1,5 @@
 // port-lint: source src/values/types/enumeration.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValue
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.FrozenEnumValue
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -48,7 +46,4 @@ import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.Froz
  * - [value][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Value] - enum value
  */
 
-// Re-exports (mirrors Rust's pub use declarations)
-internal typealias EnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumType
-internal typealias FrozenEnumTypeExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.FrozenEnumType
-internal typealias EnumValueExport = io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
+// Re-exports (mirrors Rust's pub use declarations) are done via direct imports at call sites.

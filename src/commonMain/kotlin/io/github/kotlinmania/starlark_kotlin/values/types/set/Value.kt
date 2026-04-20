@@ -19,21 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallSet
+import starlark_map.Hashed
+import starlark_map.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.freezeSmallSet
+import io.github.kotlinmania.starlark_kotlin.values.freeze
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -50,9 +49,18 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
 
     // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
-    override fun freeze(freezer: Freezer): FreezeResult<StarlarkValue> {
-        val mutableSelf = this as MutableSet
-        return mutableSelf.freeze(freezer) as FreezeResult<StarlarkValue>
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
+        val innerVal = inner
+        if (innerVal is RefCell<*>) {
+            val borrowed = innerVal.borrow()
+            val frozenContent = borrowed.data.content
+                .freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
+                .getOrElse { return Result.failure(it) }
+            return Result.success(SetGen(FrozenSetData(frozenContent)))
+        }
+        // Already frozen.
+        if (innerVal is FrozenSetData) return Result.success(this as StarlarkValue)
+        return Result.failure(IllegalStateException("Unexpected SetGen inner: ${innerVal!!::class}"))
     }
     override val TYPE: String get() = SET_TYPE
 
@@ -291,12 +299,6 @@ class FrozenSetData(
     val content: SmallSet<FrozenValue> = SmallSet()
 )
 
-/** Mutable set type alias. */
-typealias MutableSet = SetGen<RefCell<SetData>>
-
-/** Frozen set type alias. */
-typealias FrozenSet = SetGen<FrozenSetData>
-
 /**
  * AllocValue implementation for SetData.
  */
@@ -311,17 +313,6 @@ fun SetData.starlarkTypeRepr(): Ty {
     return Ty.anySet()
 }
 
-/**
- * Freeze implementation for MutableSet.
- */
-fun MutableSet.freeze(freezer: Freezer): FreezeResult<FrozenSet> {
-    val contentResult = freezeSmallSet(
-        this.inner.borrow().data.content,
-        freezer,
-    ) { v, f -> v.freeze(f) }
-    if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
-    return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
-}
 
 /**
  * Get set methods.
@@ -401,8 +392,8 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
 // impl Serialize for SetGen<T>
 fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
-// Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).
-// Note: registerAvalueSimpleFrozen!(FrozenSet) - to be implemented in registration system
+// Register vtable for frozen set (special type not handled by #[starlark_value] macro, because V is not ValueLike).
+// Note: registerAvalueSimpleFrozen!(SetGen<FrozenSetData>) - to be implemented in registration system
 
 /**
  * Format a container with start/end delimiters and comma-separated items.

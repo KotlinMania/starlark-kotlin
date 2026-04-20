@@ -25,7 +25,7 @@ import starlark_map.Hashed
 import starlark_map.StarlarkHasher
 import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
@@ -101,7 +101,7 @@ data class StructGen<V>(
     }
 
     override fun equals(other: Value): Result<Boolean> {
-        val otherStruct = Struct.fromValue(other) ?: return Result.success(false)
+        val otherStruct = StructGen.fromValue(other) ?: return Result.success(false)
         @Suppress("UNCHECKED_CAST")
         val thisFields = fields as SmallMap<String, Value>
         return equalsSmallMap<Exception, String, Value, Value>(
@@ -111,7 +111,7 @@ data class StructGen<V>(
     }
 
     override fun compare(other: Value): Result<Int> {
-        val otherStruct = Struct.fromValue(other)
+        val otherStruct = StructGen.fromValue(other)
             ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
         @Suppress("UNCHECKED_CAST")
         val thisFields = fields as SmallMap<String, Value>
@@ -201,20 +201,10 @@ fun coerceStruct(frozen: StructGen<FrozenValue>): StructGen<Value> {
 }
 
 /**
- * Type alias for mutable Struct - corresponds to starlark_complex_value!(pub(crate) Struct)
- */
-typealias Struct = StructGen<Value>
-
-/**
- * Type alias for frozen struct.
- */
-typealias FrozenStruct = StructGen<FrozenValue>
-
-/**
  * Helper function to extract struct from a value.
  */
-fun StructGen.Companion.fromValue(value: Value): Struct? {
+fun StructGen.Companion.fromValue(value: Value): StructGen<Value>? {
     // Try to get as unfrozen struct first, then try frozen and coerce
-    return value.downcastRef<Struct>()
-        ?: value.downcastRef<FrozenStruct>()?.let { coerceStruct(it) }
+    return value.downcastRef<StructGen<Value>>()
+        ?: value.downcastRef<StructGen<FrozenValue>>()?.let { coerceStruct(it) }
 }

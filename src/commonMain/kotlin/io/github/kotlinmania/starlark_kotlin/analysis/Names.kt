@@ -26,19 +26,16 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 //
 // But it does as things stand.
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -102,15 +99,13 @@ private enum class Assigned {
     Maybe,
 }
 
-private typealias AstStr = Spanned<String>
-
-private fun astStrFromIdent(x: AstIdent): AstStr {
-    // AstIdent = Spanned<IdentP<AstNoPayload, Unit>>, .node.ident is the string
+private fun astStrFromIdent(x: Spanned<IdentP<AstNoPayload, Unit>>): Spanned<String> {
+    // Spanned<IdentP<AstNoPayload, Unit>> = Spanned<IdentP<AstNoPayload, Unit>>, .node.ident is the string
     return Spanned(x.node.ident, x.span)
 }
 
-private fun astStrFromAssignIdent(x: AstAssignIdent): AstStr {
-    // AstAssignIdent = Spanned<AssignIdentP<AstNoPayload, Unit>>, .node.ident is the string
+private fun astStrFromAssignIdent(x: Spanned<AssignIdentP<AstNoPayload, Unit>>): Spanned<String> {
+    // Spanned<AssignIdentP<AstNoPayload, Unit>> = Spanned<AssignIdentP<AstNoPayload, Unit>>, .node.ident is the string
     return Spanned(x.node.ident, x.span)
 }
 
@@ -127,7 +122,7 @@ private enum class Abort {
  * Can technically be shadowed, but if you shadow it with something that doesn't fail
  * you're going to confuse users, so not too problematic.
  */
-private fun isFail(x: AstExpr): Boolean {
+private fun isFail(x: Spanned<ExprP<AstNoPayload>>): Boolean {
     val expr = x.node
     if (expr is ExprP.Call) {
         val func = expr.expr.node
@@ -139,108 +134,108 @@ private fun isFail(x: AstExpr): Boolean {
 }
 
 /** Visit all expression children of an assign target (e.g. index/dot exprs, not the lvalue itself). */
-private fun AstAssignTarget.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun Spanned<AssignTargetP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitExpr(visitor) }
+        is AssignTargetP.Tuple -> t.elements.forEach { (it as Spanned<AssignTargetP<AstNoPayload>>).visitExpr(visitor) }
         is AssignTargetP.Index<*> -> {
-            visitor(t.expr as AstExpr)
-            visitor(t.index as AstExpr)
+            visitor(t.expr as Spanned<ExprP<AstNoPayload>>)
+            visitor(t.index as Spanned<ExprP<AstNoPayload>>)
         }
-        is AssignTargetP.Dot<*> -> visitor(t.expr as AstExpr)
+        is AssignTargetP.Dot<*> -> visitor(t.expr as Spanned<ExprP<AstNoPayload>>)
         is AssignTargetP.Identifier<*, *> -> {} // no sub-expressions
     }
 }
 
 /** Visit all lvalue identifier leaves of an assign target. */
-private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
+private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, Unit>>) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitLvalue(visitor) }
-        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
+        is AssignTargetP.Tuple -> t.elements.forEach { (it as Spanned<AssignTargetP<AstNoPayload>>).visitLvalue(visitor) }
+        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>)
         is AssignTargetP.Index<*>, is AssignTargetP.Dot<*> -> {} // not a simple lvalue
     }
 }
 
 /** Visit all expression children of a parameter (default value, type annotation). */
-private fun ParameterP<AstNoPayload>.visitExpr(visitor: (AstExpr) -> Unit) {
+private fun ParameterP<AstNoPayload>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (this) {
         is ParameterP.Normal -> {
-            typ?.let { visitor(it.node.expr as AstExpr) }
-            defaultVal?.let { visitor(it as AstExpr) }
+            typ?.let { visitor(it.node.expr as Spanned<ExprP<AstNoPayload>>) }
+            defaultVal?.let { visitor(it as Spanned<ExprP<AstNoPayload>>) }
         }
-        is ParameterP.Args -> typ?.let { visitor(it.node.expr as AstExpr) }
-        is ParameterP.KwArgs -> typ?.let { visitor(it.node.expr as AstExpr) }
+        is ParameterP.Args -> typ?.let { visitor(it.node.expr as Spanned<ExprP<AstNoPayload>>) }
+        is ParameterP.KwArgs -> typ?.let { visitor(it.node.expr as Spanned<ExprP<AstNoPayload>>) }
         is ParameterP.NoArgs, is ParameterP.Slash -> {}
     }
 }
 
-/** Visit all expression children of an AstExpr (recursing one level via the visitor). */
-private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
+/** Visit all expression children of an Spanned<ExprP<AstNoPayload>> (recursing one level via the visitor). */
+private fun Spanned<ExprP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
-        is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.Dot<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Tuple -> e.elements.forEach { visitor(it as Spanned<ExprP<AstNoPayload>>) }
+        is ExprP.Dot<*> -> visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
         is ExprP.Call<*> -> {
-            visitor(e.expr as AstExpr)
-            e.args.args.forEach { visitor(it.node.expr() as AstExpr) }
+            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            e.args.args.forEach { visitor(it.node.expr() as Spanned<ExprP<AstNoPayload>>) }
         }
         is ExprP.Index<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.index as AstExpr)
+            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.index as Spanned<ExprP<AstNoPayload>>)
         }
         is ExprP.Index2<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.index0 as AstExpr)
-            visitor(e.index1 as AstExpr)
+            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.index0 as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.index1 as Spanned<ExprP<AstNoPayload>>)
         }
         is ExprP.Slice<*> -> {
-            visitor(e.expr as AstExpr)
-            e.start?.let { visitor(it as AstExpr) }
-            e.stop?.let { visitor(it as AstExpr) }
-            e.step?.let { visitor(it as AstExpr) }
+            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            e.start?.let { visitor(it as Spanned<ExprP<AstNoPayload>>) }
+            e.stop?.let { visitor(it as Spanned<ExprP<AstNoPayload>>) }
+            e.step?.let { visitor(it as Spanned<ExprP<AstNoPayload>>) }
         }
-        is ExprP.Not<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Minus<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Plus<*> -> visitor(e.expr as AstExpr)
-        is ExprP.BitNot<*> -> visitor(e.expr as AstExpr)
+        is ExprP.Not<*> -> visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.Minus<*> -> visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.Plus<*> -> visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.BitNot<*> -> visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
         is ExprP.Op<*> -> {
-            visitor(e.lhs as AstExpr)
-            visitor(e.rhs as AstExpr)
+            visitor(e.lhs as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.rhs as Spanned<ExprP<AstNoPayload>>)
         }
         is ExprP.If<*> -> {
-            visitor(e.cond as AstExpr)
-            visitor(e.v1 as AstExpr)
-            visitor(e.v2 as AstExpr)
+            visitor(e.cond as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.v1 as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.v2 as Spanned<ExprP<AstNoPayload>>)
         }
-        is ExprP.ListExpr<*> -> e.elements.forEach { visitor(it as AstExpr) }
+        is ExprP.ListExpr<*> -> e.elements.forEach { visitor(it as Spanned<ExprP<AstNoPayload>>) }
         is ExprP.Dict<*> -> e.elements.forEach { (k, v) ->
-            visitor(k as AstExpr)
-            visitor(v as AstExpr)
+            visitor(k as Spanned<ExprP<AstNoPayload>>)
+            visitor(v as Spanned<ExprP<AstNoPayload>>)
         }
         is ExprP.ListComprehension<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.forClause.over as AstExpr)
+            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.forClause.over as Spanned<ExprP<AstNoPayload>>)
             e.clauses.forEach { clause ->
                 when (clause) {
-                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
-                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
+                    is ClauseP.For<*> -> visitor(clause.forClause.over as Spanned<ExprP<AstNoPayload>>)
+                    is ClauseP.If<*> -> visitor(clause.cond as Spanned<ExprP<AstNoPayload>>)
                 }
             }
         }
         is ExprP.DictComprehension<*> -> {
-            visitor(e.key as AstExpr)
-            visitor(e.value as AstExpr)
-            visitor(e.forClause.over as AstExpr)
+            visitor(e.key as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.value as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.forClause.over as Spanned<ExprP<AstNoPayload>>)
             e.clauses.forEach { clause ->
                 when (clause) {
-                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
-                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
+                    is ClauseP.For<*> -> visitor(clause.forClause.over as Spanned<ExprP<AstNoPayload>>)
+                    is ClauseP.If<*> -> visitor(clause.cond as Spanned<ExprP<AstNoPayload>>)
                 }
             }
         }
-        is ExprP.FString<*> -> e.fstring.node.expressions.forEach { visitor(it as AstExpr) }
+        is ExprP.FString<*> -> e.fstring.node.expressions.forEach { visitor(it as Spanned<ExprP<AstNoPayload>>) }
         is ExprP.Identifier<*, *>, is ExprP.Lambda<*, *>, is ExprP.Literal -> {}
     }
 }
@@ -254,16 +249,16 @@ private class ScopeState {
      * Those identifiers that weren't set at that point, so we went to the parent.
      * If these are set later on, then it is a unassigned usage error.
      */
-    val cantSet: MutableList<AstStr> = mutableListOf()
+    val cantSet: MutableList<Spanned<String>> = mutableListOf()
     /**
      * Those identifiers that I couldn't find at the point I saw them.
      * Since the child runs in a different order with respect to the parent, they might resolve later.
      */
-    val unbound: MutableList<AstStr> = mutableListOf()
+    val unbound: MutableList<Spanned<String>> = mutableListOf()
     /** Those definition sites that we have ended up using. */
-    val used: MutableSet<AstStr> = mutableSetOf()
+    val used: MutableSet<Spanned<String>> = mutableSetOf()
     /** Those definitions that we have set. */
-    val set: MutableList<Pair<AstStr, Kind>> = mutableListOf()
+    val set: MutableList<Pair<Spanned<String>, Kind>> = mutableListOf()
     /**
      * The last location/locations where I was set.
      * The assigned is whether I am always set or not.
@@ -286,11 +281,11 @@ private class State(
     /** The current list of warnings. */
     val warnings: MutableList<LintT<NameWarning>> = mutableListOf(),
     /** The things we have already warned about (no duplicates due to running loops twice). */
-    val warned: MutableSet<AstStr> = mutableSetOf(),
+    val warned: MutableSet<Spanned<String>> = mutableSetOf(),
     /** How many nested loops we are in. */
     var loopDepth: Int = 0,
 ) {
-    fun addWarning(ident: AstStr, ctor: (String) -> NameWarning) {
+    fun addWarning(ident: Spanned<String>, ctor: (String) -> NameWarning) {
         if (warned.add(ident)) {
             warnings.add(LintT.new(codemap, ident.span, ctor(ident.node)))
         }
@@ -437,7 +432,7 @@ private class State(
 
     // Actual operations
 
-    fun useIdent(ident: AstStr) {
+    fun useIdent(ident: Spanned<String>) {
         for ((depth, scope) in scopes.asReversed().withIndex()) {
             val entry = scope.lastSet[ident.node]
             if (entry == null) {
@@ -458,7 +453,7 @@ private class State(
         scopes.last().unbound.add(ident)
     }
 
-    fun setIdent(ident: AstAssignIdent, kind: Kind) {
+    fun setIdent(ident: Spanned<AssignIdentP<AstNoPayload, Unit>>, kind: Kind) {
         val astStr = astStrFromAssignIdent(ident)
         val scope = scopes.last()
         scope.set.add(Pair(astStr, kind))
@@ -467,14 +462,14 @@ private class State(
 
     // Traverse the syntax tree
 
-    fun assign(assign: AstAssignTarget) {
+    fun assign(assign: Spanned<AssignTargetP<AstNoPayload>>) {
         assign.visitExpr { x -> expr(x) }
         assign.visitLvalue { x -> setIdent(x, Kind.Assign) }
     }
 
     fun comprehension(
-        res1: AstExpr,
-        res2: AstExpr?,
+        res1: Spanned<ExprP<AstNoPayload>>,
+        res2: Spanned<ExprP<AstNoPayload>>?,
         forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>,
         clauses: List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>,
     ) {
@@ -499,9 +494,9 @@ private class State(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun expr(expr: AstExpr) {
+    fun expr(expr: Spanned<ExprP<AstNoPayload>>) {
         when (val e = expr.node) {
-            is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as AstIdent))
+            is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as Spanned<IdentP<AstNoPayload, Unit>>))
             is ExprP.Lambda<*, *> -> {
                 for (p in e.lambda.params) {
                     (p.node as ParameterP<AstNoPayload>).visitExpr { x -> expr(x) }
@@ -510,37 +505,37 @@ private class State(
                 for (p in e.lambda.params) {
                     val pname = (p.node as ParameterP<AstNoPayload>).ident()
                     if (pname != null) {
-                        setIdent(pname as AstAssignIdent, Kind.Argument)
+                        setIdent(pname as Spanned<AssignIdentP<AstNoPayload, Unit>>, Kind.Argument)
                     }
                 }
-                expr(e.lambda.body as AstExpr)
+                expr(e.lambda.body as Spanned<ExprP<AstNoPayload>>)
                 exitScope()
             }
-            is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
-            is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.ListComprehension<*> -> comprehension(e.expr as Spanned<ExprP<AstNoPayload>>, null, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.DictComprehension<*> -> comprehension(e.key as Spanned<ExprP<AstNoPayload>>, e.value as Spanned<ExprP<AstNoPayload>>, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
             else -> expr.visitExpr { x -> expr(x) }
         }
     }
 
-    fun exprOpt(expr: AstExpr?) {
+    fun exprOpt(expr: Spanned<ExprP<AstNoPayload>>?) {
         if (expr != null) expr(expr)
     }
 
-    fun typOpt(ty: AstTypeExpr?) {
+    fun typOpt(ty: Spanned<TypeExprP<AstNoPayload, Unit>>?) {
         if (ty != null) typ(ty)
     }
 
-    fun typ(ty: AstTypeExpr) {
+    fun typ(ty: Spanned<TypeExprP<AstNoPayload, Unit>>) {
         expr(ty.node.expr)
     }
 
-    fun assignAsExpr(assign: AstAssignTarget) {
+    fun assignAsExpr(assign: Spanned<AssignTargetP<AstNoPayload>>) {
         assign.visitExpr { x -> expr(x) }
         assign.visitLvalue { x -> useIdent(astStrFromAssignIdent(x)) }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun stmt(stmt: AstStmt) {
+    fun stmt(stmt: Spanned<StmtP<AstNoPayload>>) {
         when (val s = stmt.node) {
             is StmtP.Expression -> {
                 expr(s.expr)
@@ -549,60 +544,60 @@ private class State(
                 }
             }
             is StmtP.Return -> {
-                exprOpt(s.expr as AstExpr?)
+                exprOpt(s.expr as Spanned<ExprP<AstNoPayload>>?)
                 setAbort(Abort.Function)
             }
             is StmtP.Assign -> {
-                typOpt(s.assign.ty as AstTypeExpr?)
-                expr(s.assign.rhs as AstExpr)
-                assign(s.assign.lhs as AstAssignTarget)
+                typOpt(s.assign.ty as Spanned<TypeExprP<AstNoPayload, Unit>>?)
+                expr(s.assign.rhs as Spanned<ExprP<AstNoPayload>>)
+                assign(s.assign.lhs as Spanned<AssignTargetP<AstNoPayload>>)
             }
             is StmtP.AssignModify -> {
-                expr(s.rhs as AstExpr)
-                assignAsExpr(s.lhs as AstAssignTarget)
-                assign(s.lhs as AstAssignTarget)
+                expr(s.rhs as Spanned<ExprP<AstNoPayload>>)
+                assignAsExpr(s.lhs as Spanned<AssignTargetP<AstNoPayload>>)
+                assign(s.lhs as Spanned<AssignTargetP<AstNoPayload>>)
             }
             is StmtP.Statements -> {
                 for (x in s.stmts) {
-                    stmt(x as AstStmt)
+                    stmt(x as Spanned<StmtP<AstNoPayload>>)
                 }
             }
             is StmtP.If -> {
-                expr(s.cond as AstExpr)
-                branch({ me -> me.stmt(s.suite as AstStmt) }, { })
+                expr(s.cond as Spanned<ExprP<AstNoPayload>>)
+                branch({ me -> me.stmt(s.suite as Spanned<StmtP<AstNoPayload>>) }, { })
             }
             is StmtP.IfElse -> {
-                expr(s.cond as AstExpr)
-                branch({ me -> me.stmt(s.suite1 as AstStmt) }, { me -> me.stmt(s.suite2 as AstStmt) })
+                expr(s.cond as Spanned<ExprP<AstNoPayload>>)
+                branch({ me -> me.stmt(s.suite1 as Spanned<StmtP<AstNoPayload>>) }, { me -> me.stmt(s.suite2 as Spanned<StmtP<AstNoPayload>>) })
             }
             is StmtP.For -> {
-                expr(s.forStmt.over as AstExpr)
+                expr(s.forStmt.over as Spanned<ExprP<AstNoPayload>>)
                 // Note this isn't 100% correct, as a for loop may set something the next iteration consumes
                 loops { me ->
-                    me.assign(s.forStmt.varTarget as AstAssignTarget)
-                    me.stmt(s.forStmt.body as AstStmt)
+                    me.assign(s.forStmt.varTarget as Spanned<AssignTargetP<AstNoPayload>>)
+                    me.stmt(s.forStmt.body as Spanned<StmtP<AstNoPayload>>)
                 }
             }
             is StmtP.Def<*, *> -> {
                 for (p in s.def.params) {
                     (p.node as ParameterP<AstNoPayload>).visitExpr { e -> expr(e) }
                 }
-                typOpt(s.def.returnType as AstTypeExpr?)
-                setIdent(s.def.name as AstAssignIdent, Kind.Assign)
+                typOpt(s.def.returnType as Spanned<TypeExprP<AstNoPayload, Unit>>?)
+                setIdent(s.def.name as Spanned<AssignIdentP<AstNoPayload, Unit>>, Kind.Assign)
                 enterScope()
                 for (p in s.def.params) {
                     val pname = (p.node as ParameterP<AstNoPayload>).ident()
                     if (pname != null) {
-                        setIdent(pname as AstAssignIdent, Kind.Argument)
+                        setIdent(pname as Spanned<AssignIdentP<AstNoPayload, Unit>>, Kind.Argument)
                     }
                 }
-                stmt(s.def.body as AstStmt)
+                stmt(s.def.body as Spanned<StmtP<AstNoPayload>>)
                 exitScope()
             }
             // These were handled by collecting the scopes
             is StmtP.Load<*, *> -> {
                 for (arg in s.loadStmt.args) {
-                    setIdent(arg.local as AstAssignIdent, Kind.Load)
+                    setIdent(arg.local as Spanned<AssignIdentP<AstNoPayload, Unit>>, Kind.Load)
                 }
             }
             // These control flow operators can be ignored - either the code after is fine (no problem)

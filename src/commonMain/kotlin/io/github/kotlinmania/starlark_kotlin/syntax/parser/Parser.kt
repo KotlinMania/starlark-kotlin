@@ -21,8 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Lexeme
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Token
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
@@ -41,11 +42,11 @@ object Parser {
     // Rule ID for the LALRPOP augmented start production (__Starlark = Starlark)
     private const val ACCEPT_RULE = 297
 
-    fun parse(state: ParserState, tokens: Iterator<Lexeme>): AstStmt {
+    fun parse(state: ParserState, tokens: Iterator<Triple<Int, Token, Int>>): Spanned<StmtP<AstNoPayload>> {
         val states = mutableListOf(0)
         val symbols = mutableListOf<Triple<Int, GrammarSymbol, Int>>()
 
-        var lookahead: Lexeme? = if (tokens.hasNext()) tokens.next() else null
+        var lookahead: Triple<Int, Token, Int>? = if (tokens.hasNext()) tokens.next() else null
 
         while (true) {
             val currentState = states.last()
@@ -109,7 +110,7 @@ object Parser {
     private fun parseError(
         parserState: ParserState,
         _currentLRState: Int,
-        lookahead: Lexeme?
+        lookahead: Triple<Int, Token, Int>?
     ): EvalException {
         val msg = if (lookahead != null) {
             val (start, token, end) = lookahead

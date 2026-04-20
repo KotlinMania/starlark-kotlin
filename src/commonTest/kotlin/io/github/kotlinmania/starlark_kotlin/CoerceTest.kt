@@ -44,7 +44,7 @@ class CoerceTest {
             marker = PhantomData.new(),
         )
 
-        val new: StructWithLifetimeAndTypeParams<Bbb> = coerce(old)
+        val new: StructWithLifetimeAndTypeParams<Aaa> = coerce(old)
         assertEquals(10, new.x.value.value)
     }
 
@@ -57,7 +57,6 @@ class CoerceTest {
 }
 
 private data class Aaa(val value: IntRef)
-private typealias Bbb = Aaa
 private data class StructWithLifetimeAndTypeParams<X>(
     val x: X,
     val marker: PhantomData<IntRef>,

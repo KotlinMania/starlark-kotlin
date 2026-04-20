@@ -24,8 +24,8 @@ import io.github.kotlinmania.starlark_kotlin.likely
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -70,7 +70,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         }
 
         // Rust: fn new_unchecked(i: i32) -> InlineInt
-        @Suppress("NOTHING_TO_INLINE")
         internal inline fun newUnchecked(i: Int): InlineInt {
             return InlineInt(i)
         }
@@ -137,7 +136,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
             }
 
             // Only absurd for certain bit widths
-            @Suppress("KotlinConstantConditions")
             if (likely(i >= MIN.value && i <= MAX.value)) {
                 return Result.success(InlineInt(i))
             } else {
@@ -149,31 +147,26 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // --- Conversion methods ---
 
     /** Rust: fn to_i32(self) -> i32 */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun toI32(): Int {
         return value
     }
 
     /** Rust: fn to_u64(self) -> Option<u64> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun toU64(): ULong? {
         return if (value >= 0) value.toULong() else null
     }
 
     /** Rust: fn to_u32(self) -> Option<u32> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun toU32(): UInt? {
         return if (value >= 0) value.toUInt() else null
     }
 
     /** Rust: fn to_f64(self) -> f64 */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun toF64(): Double {
         return value.toDouble()
     }
 
     /** Rust: fn signum(self) -> i32 */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun signum(): Int {
         return value.compareTo(0)
     }
@@ -181,7 +174,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // --- Checked arithmetic ---
 
     /** Rust: fn checked_add(self, rhs: InlineInt) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedAdd(rhs: InlineInt): InlineInt? {
         val result = value.toLong() + rhs.value.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
@@ -191,13 +183,11 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_sub(self, rhs: InlineInt) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedSub(rhs: InlineInt): InlineInt? {
         return checkedSubI32(rhs.value)
     }
 
     /** Rust: fn checked_sub_i32(self, rhs: i32) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedSubI32(rhs: Int): InlineInt? {
         val result = value.toLong() - rhs.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
@@ -207,7 +197,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_neg(self) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedNeg(): InlineInt? {
         if (value == Int.MIN_VALUE) {
             return null
@@ -216,7 +205,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_div(self, rhs: InlineInt) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedDiv(rhs: InlineInt): InlineInt? {
         if (rhs.value == 0) {
             return null
@@ -229,7 +217,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_mul_i32(self, rhs: i32) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedMulI32(rhs: Int): InlineInt? {
         val result = value.toLong() * rhs.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
@@ -239,7 +226,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_shr(self, rhs: u32) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedShr(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
             return null
@@ -249,7 +235,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_shl(self, rhs: u32) -> Option<InlineInt> */
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun checkedShl(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
             return null
@@ -318,7 +303,6 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // Rust: impl PartialEq<i32> for InlineInt
     // Value class equals/hashCode are derived from the underlying Int.
     // For explicit comparison with Int, use equalsInt.
-    @Suppress("NOTHING_TO_INLINE")
     internal inline fun equalsInt(other: Int): Boolean {
         return value == other
     }
@@ -379,7 +363,7 @@ object InlineIntAllocValue : AllocValue {
 /** Extension to allocate an [InlineInt] as a [Value]. */
 // Rust: impl<'v> AllocValue<'v> for InlineInt
 //     fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
-internal fun InlineInt.allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
+internal fun InlineInt.allocValue(heap: Heap): Value {
     return Value.newInt(this)
 }
 
@@ -399,6 +383,6 @@ object InlineIntAllocFrozenValue : AllocFrozenValue {
 /** Extension to allocate an [InlineInt] as a [FrozenValue]. */
 // Rust: impl AllocFrozenValue for InlineInt
 //     fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
-internal fun InlineInt.allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
+internal fun InlineInt.allocFrozenValue(heap: FrozenHeap): FrozenValue {
     return FrozenValue.newInt(this)
 }

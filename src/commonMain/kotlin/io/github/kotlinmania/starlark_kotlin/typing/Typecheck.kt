@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingSource
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtsMut
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
@@ -36,7 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
 
@@ -53,7 +53,7 @@ internal fun solveBindings(
     for ((k, ty) in bindings.types) {
         types[k] = ty
     }
-    // FIXME: Should be a fixed point, just do 10 iterations since that probably converges
+    // NOTE: Should be a fixed point, just do 10 iterations since that probably converges
     var changed = false
     val errors = mutableListOf<TypingError>()
     val approximations = mutableListOf<Approximation>()
@@ -185,7 +185,7 @@ fun AstModule.typecheck(
     val scopeErrorsMapped = scopeErrors.map { TypingError.fromEvalException(it) }
     // We don't really need to properly unpack top-level statements,
     // but make it safe against future changes.
-    val cstStmts: MutableList<CstStmt> = topLevelStmtsMut(cst)
+    val cstStmts: MutableList<Spanned<StmtP<CstPayload>>> = topLevelStmtsMut(cst)
     val oracleCtx = TypingOracleCtx(codemap = codemap)
 
     val approximations = mutableListOf<Approximation>()

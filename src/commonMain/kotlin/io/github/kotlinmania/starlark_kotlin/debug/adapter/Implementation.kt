@@ -48,74 +48,71 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark_kotlin.runBlocking
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.withLock
+import kotlin.concurrent.atomics.AtomicInt
 
-internal object implementation {
+internal fun prepareDapAdapter(
+    client: DapAdapterClient,
+): Pair<DapAdapter, DapAdapterEvalHook> {
+    val state = SharedAdapterState(
+        client = client,
+        breakpoints = BreakpointConfig(),
+        disableBreakpoints = AtomicInt(0),
+    )
 
-    fun prepareDapAdapter(
-        client: DapAdapterClient,
-    ): Pair<DapAdapter, DapAdapterEvalHook> {
-        val state = SharedAdapterState(
-            client = client,
-            breakpoints = BreakpointConfig(),
-            disableBreakpoints = AtomicInt(0),
-        )
-
-        val channel = MessageChannel<ToEvalMessage>()
-        return Pair(
-            DapAdapterImpl(state = state, sender = channel),
-            DapAdapterEvalHookImpl.create(state, channel),
-        )
-    }
-
-    fun resolveBreakpoints(
-        args: SetBreakpointsArguments,
-        ast: AstModule,
-    ): Result<ResolvedBreakpoints> {
-        val poss: Map<Int, FileSpan> = ast.stmtLocations()
-            .associateBy { span -> span.resolveSpan().begin.line }
-
-        val resolved = args.breakpoints?.map { x ->
-            poss[(x.line - 1).toInt()]?.let { span ->
-                Breakpoint(
-                    span = span,
-                    condition = x.condition,
-                )
-            }
-        } ?: emptyList()
-
-        return Result.success(ResolvedBreakpoints(resolved))
-    }
-
-    fun resolvedBreakpointsToDap(
-        breakpoints: ResolvedBreakpoints,
-    ): SetBreakpointsResponseBody {
-        return SetBreakpointsResponseBody(
-            breakpoints = breakpoints.breakpoints.map { x ->
-                makeBreakpoint(x != null)
-            }
-        )
-    }
+    val (sender, receiver) = channel<ToEvalMessage>()
+    return Pair(
+        DapAdapterImpl(state = state, sender = sender),
+        DapAdapterEvalHookImpl.new(state, receiver),
+    )
 }
 
-/** Type alias for the message sent to the evaluation thread. */
-private typealias ToEvalMessage = (FileSpanRef, Evaluator) -> Next
+internal fun resolveBreakpoints(
+    args: SetBreakpointsArguments,
+    ast: AstModule,
+): Result<ResolvedBreakpoints> {
+    val poss: Map<Int, FileSpan> = ast.stmtLocations()
+        .associateBy { span -> span.resolveSpan().begin.line }
 
-/**
- * Simple channel implementation for message passing between adapter and eval threads.
- * This replaces Rust's `mpsc::channel`.
- * Uses kotlinx.coroutines Channel for multiplatform compatibility.
- */
-private class MessageChannel<T> {
-    private val channel = kotlinx.coroutines.channels.Channel<T>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+    val resolved = args.breakpoints?.map { x ->
+        poss[(x.line - 1).toInt()]?.let { span ->
+            Breakpoint(
+                span = span,
+                condition = x.condition,
+            )
+        }
+    } ?: emptyList()
 
+    return Result.success(ResolvedBreakpoints(resolved))
+}
+
+internal fun resolvedBreakpointsToDap(
+    breakpoints: ResolvedBreakpoints,
+): SetBreakpointsResponseBody {
+    return SetBreakpointsResponseBody(
+        breakpoints = breakpoints.breakpoints.map { x ->
+            breakpoint(x != null)
+        }
+    )
+}
+
+private fun interface ToEvalMessage {
+    fun invoke(span: FileSpanRef, eval: Evaluator): Next
+}
+
+private class Sender<T>(
+    private val channel: kotlinx.coroutines.channels.Channel<T>,
+) {
     fun send(value: T) {
         channel.trySend(value)
     }
+}
 
+private class Receiver<T>(
+    private val channel: kotlinx.coroutines.channels.Channel<T>,
+) {
     fun recv(): Result<T> {
         return runBlocking {
             try {
@@ -127,10 +124,15 @@ private class MessageChannel<T> {
     }
 }
 
+private fun <T> channel(): Pair<Sender<T>, Receiver<T>> {
+    val channel = kotlinx.coroutines.channels.Channel<T>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+    return Pair(Sender(channel), Receiver(channel))
+}
+
 /** The DapAdapter allows controlling a running evaluator from a different thread. */
 private class DapAdapterImpl(
     private val state: SharedAdapterState,
-    private val sender: MessageChannel<ToEvalMessage>,
+    private val sender: Sender<ToEvalMessage>,
 ) : DapAdapter {
 
     override fun setBreakpoints(
@@ -233,13 +235,13 @@ private class DapAdapterImpl(
     private fun <T : Any> inject(
         f: (FileSpanRef, Evaluator) -> Pair<Next, T>,
     ): T {
-        val resultChannel = MessageChannel<T>()
-        sender.send { span, eval ->
+        val (resultSender, resultReceiver) = channel<T>()
+        sender.send(ToEvalMessage { span, eval ->
             val (next, res) = f(span, eval)
-            resultChannel.send(res)
+            resultSender.send(res)
             next
-        }
-        return resultChannel.recv().getOrThrow()
+        })
+        return resultReceiver.recv().getOrThrow()
     }
 
     private fun injectNext(next: Next) {
@@ -258,14 +260,13 @@ private class DapAdapterImpl(
 /** The evaluation-side hook implementation. */
 private class DapAdapterEvalHookImpl private constructor(
     private val state: SharedAdapterState,
-    private val receiver: MessageChannel<ToEvalMessage>,
+    private val receiver: Receiver<ToEvalMessage>,
     private var step: Pair<StepKind, Int>?,
 ) : DapAdapterEvalHook, io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFuncDyn {
 
     companion object {
-        fun create(state: SharedAdapterState, receiver: MessageChannel<ToEvalMessage>): DapAdapterEvalHookImpl {
-            return DapAdapterEvalHookImpl(state, receiver, step = null)
-        }
+        fun new(state: SharedAdapterState, receiver: Receiver<ToEvalMessage>): DapAdapterEvalHookImpl =
+            DapAdapterEvalHookImpl(state, receiver, step = null)
     }
 
     override fun addDapHooks(eval: Evaluator) {
@@ -436,7 +437,7 @@ private fun convertFrame(id: Int, name: String, location: FileSpan?): StackFrame
     return s
 }
 
-internal fun makeBreakpoint(verified: Boolean): DapBreakpoint {
+internal fun breakpoint(verified: Boolean): DapBreakpoint {
     return DapBreakpoint(
         column = null,
         endColumn = null,

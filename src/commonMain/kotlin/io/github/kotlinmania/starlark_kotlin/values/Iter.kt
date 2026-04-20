@@ -25,6 +25,7 @@ package io.github.kotlinmania.starlark_kotlin.values
 // use crate::values::Value;
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 
 /// Iterator of starlark values.
 // #[derive(Debug)]

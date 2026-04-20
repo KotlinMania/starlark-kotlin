@@ -6,8 +6,8 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -82,9 +82,9 @@ private sealed class DubiousKey {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? {
+private fun toKey(x: Spanned<ExprP<AstNoPayload>>): Pair<DubiousKey, Span>? {
     return when (val node = x.node) {
-        is ExprP.Literal -> when (val lit = node.literal) {
+        is ExprP.Literal<*> -> when (val lit = node.literal) {
             is AstLiteral.Int -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
             is AstLiteral.Float -> {
                 val n = NumRef.from(lit.value.node)
@@ -112,11 +112,11 @@ private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? {
 // The one place we allow it is to export something you grabbed with load.
 @Suppress("UNCHECKED_CAST")
 internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Dubious>>) {
-    fun expr(x: AstExpr, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
+    fun expr(x: Spanned<ExprP<AstNoPayload>>, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
             is ExprP.Dict<*> -> {
                 val seen = HashMap<DubiousKey, Span>()
-                for ((key, _) in node.elements as List<Pair<AstExpr, AstExpr>>) {
+                for ((key, _) in node.elements as List<Pair<Spanned<ExprP<AstNoPayload>>, Spanned<ExprP<AstNoPayload>>>>) {
                     val keyPair = toKey(key)
                     if (keyPair != null) {
                         val (keyId, pos) = keyPair
@@ -145,9 +145,9 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
 
 @Suppress("UNCHECKED_CAST")
 internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dubious>>) {
-    fun stmt(x: AstStmt, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
+    fun stmt(x: Spanned<StmtP<AstNoPayload>>, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
-            is StmtP.Expression<*> -> when (val exprNode = (node.expr as AstExpr).node) {
+            is StmtP.Expression<*> -> when (val exprNode = (node.expr as Spanned<ExprP<AstNoPayload>>).node) {
                 is ExprP.Identifier<*, *> -> results.add(
                     LintT.new(
                         codemap,

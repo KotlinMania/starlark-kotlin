@@ -21,22 +21,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 /** An actual record instance. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.small_map.SmallMap
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.freezeList
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.FrozenRecordType
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordType
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
 import starlark_map.Hashed
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.recordFields
 
@@ -111,15 +108,15 @@ class RecordGen internal constructor(
     }
 
     // impl Freeze for RecordGen
-    // fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen>
-    override fun freeze(freezer: Freezer): FreezeResult<RecordGen> {
-        val frozenTyp = typ.freeze(freezer).getOrElse { return FreezeResult.failure(it) }
-        val frozenValues = freezeList(values, freezer) { v, f -> v.freeze(f) }
-            .getOrElse { return FreezeResult.failure(it) }
-        return FreezeResult.success(
+    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
+    override fun freeze(freezer: Freezer): Result<RecordGen> {
+        val frozenTyp = typ.freeze(freezer).getOrElse { return Result.failure(it) }
+        val frozenValues: List<FrozenValue> = values.freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
+            .getOrElse { return Result.failure(it) }
+        return Result.success(
             RecordGen(
                 typ = frozenTyp.toValue(),
-                values = frozenValues.map { it.toValue() },
+                values = frozenValues.map { v -> v.toValue() },
             )
         )
     }
@@ -204,9 +201,7 @@ class RecordGen internal constructor(
     }
 }
 
-/** Type alias for unfrozen record. */
+// Rust type aliases:
 // pub type Record<'v> = RecordGen<Value<'v>>;
-typealias Record = RecordGen
-/** Type alias for frozen record. */
 // pub type FrozenRecord = RecordGen<FrozenValue>;
-typealias FrozenRecord = RecordGen
+// Kotlin: Use RecordGen directly; frozen flag distinguishes.

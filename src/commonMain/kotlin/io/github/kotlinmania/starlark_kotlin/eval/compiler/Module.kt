@@ -24,12 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.allocaFrame
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
 import io.github.kotlinmania.starlark_kotlin.typing.BindingsCollect
@@ -93,7 +92,7 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
 
     for (loadArg in load.node.args) {
         @Suppress("UNCHECKED_CAST")
-        val local = loadArg.local as CstAssignIdent
+        val local = loadArg.local as Spanned<AssignIdentP<CstPayload, *>>
         val (slot, _captured) = scopeData.getAssignIdentSlot(local, codemap.deref())
         val moduleSlot = when (slot) {
             is Slot.Local -> error("symbol need to be resolved to module")
@@ -120,7 +119,7 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
  */
 // fn eval_regular_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalRegularTopLevelStmt(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,
 ): Result<Value> {
     if (stmt.node is StmtP.Statements<*> || stmt.node is StmtP.Load<*, *>) {
@@ -155,7 +154,7 @@ internal fun Compiler.evalRegularTopLevelStmt(
 
 // fn eval_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalTopLevelStmt(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,
 ): Result<Value> {
     val stmts = topLevelStmtsMut(stmt)
@@ -197,7 +196,7 @@ internal fun Compiler.evalTopLevelStmt(
 }
 
 // fn typecheck(&mut self, stmts: &mut [&mut CstStmt]) -> Result<(), EvalException>
-internal fun Compiler.typecheck(stmts: List<CstStmt>): Result<Unit> {
+internal fun Compiler.typecheck(stmts: List<Spanned<StmtP<CstPayload>>>): Result<Unit> {
     val doTypecheck = eval.staticTypechecking || this.typecheck
     if (!doTypecheck) {
         return Result.success(Unit)
@@ -252,7 +251,7 @@ internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
 
 // pub(crate) fn eval_module(&mut self, mut stmt: CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalModule(
-    stmt: CstStmt,
+    stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,
 ): Result<Value> {
     enterScope(ScopeId.module())

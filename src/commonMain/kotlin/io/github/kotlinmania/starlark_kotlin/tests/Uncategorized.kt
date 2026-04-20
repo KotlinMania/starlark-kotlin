@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.SmallMapUnpackValue
@@ -230,7 +230,7 @@ assert_eq(orig, [1, 2, 3])
             """
 orig = (1, 2)
 x = orig
-# TODO(nga): typechecker should accept it.
+# NOTE(nga): typechecker should accept it.
 x = noop(x)
 x += (3,)
 assert_eq(x, (1, 2, 3))
@@ -827,7 +827,7 @@ assert_eq(len(count), 1)
     fun testSelfMutateList() {
         // Check functions that mutate and access self on lists
         val a = Assert()
-        // TODO(nga): fix and enable.
+        // NOTE(nga): fix and enable.
         a.disableStaticTypechecking()
         a.isTrue(
             """
@@ -890,7 +890,7 @@ xs[xs] = xs
 
     @Test
     fun testListSliceDoesNotAcceptBool() {
-        // TODO(nga): this should fail.
+        // NOTE(nga): this should fail.
         Assert.fail("[1][False]", "Expected `int`, but got `bool")
     }
 

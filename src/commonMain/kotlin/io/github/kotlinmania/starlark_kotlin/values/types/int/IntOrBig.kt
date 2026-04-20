@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 
@@ -74,7 +74,7 @@ sealed class StarlarkInt {
     }
 
     operator fun unaryMinus(): StarlarkInt {
-        // TODO(nga): can negate without allocating in most cases.
+        // NOTE(nga): can negate without allocating in most cases.
         return -asRef()
     }
 
@@ -422,7 +422,7 @@ sealed class StarlarkIntRef {
     }
 
     operator fun compareTo(other: Int): Int {
-        // TODO(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
+        // NOTE(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
         return this.compareTo(StarlarkInt.from(other).asRef())
     }
 
@@ -534,7 +534,7 @@ operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt = when (th
 
 // Extension for Int comparison with StarlarkIntRef
 operator fun Int.compareTo(other: StarlarkIntRef): Int {
-    // TODO(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
+    // NOTE(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
     return StarlarkInt.from(this).asRef().compareTo(other)
 }
 

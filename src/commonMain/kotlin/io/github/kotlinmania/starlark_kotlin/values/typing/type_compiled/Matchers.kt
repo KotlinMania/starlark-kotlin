@@ -23,17 +23,16 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 
 import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
+import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictGen
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
-import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenList
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDict
-import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
+import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
+import io.github.kotlinmania.starlark_kotlin.values.types.set.SetGen
 import io.github.kotlinmania.starlark_kotlin.values.types.set.SetRef
 import io.github.kotlinmania.starlark_kotlin.values.types.set.content
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 
@@ -82,7 +81,7 @@ internal object IsList : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenList::class)
+        return value.starlarkTypeId() == StarlarkTypeId.of(ListGen::class)
     }
 }
 
@@ -109,7 +108,7 @@ internal class IsTupleOf(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val tuple = Tuple.fromValue(value) ?: return false
+        val tuple = TupleGen.fromValue(value) ?: return false
         return tuple.content().all { v -> elem.matches(v) }
     }
 }
@@ -123,7 +122,7 @@ internal class IsTupleElems(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val tuple = Tuple.fromValue(value) ?: return false
+        val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
         if (content.size != elems.size) return false
         return content.zip(elems).all { (v, t) -> t.matches(v) }
@@ -137,7 +136,7 @@ internal object IsTupleElems0 : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val tuple = Tuple.fromValue(value) ?: return false
+        val tuple = TupleGen.fromValue(value) ?: return false
         return tuple.content().isEmpty()
     }
 }
@@ -151,7 +150,7 @@ internal class IsTupleElems1(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val tuple = Tuple.fromValue(value) ?: return false
+        val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
         if (content.size != 1) return false
         return a.matches(content[0])
@@ -168,7 +167,7 @@ internal class IsTupleElems2(
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        val tuple = Tuple.fromValue(value) ?: return false
+        val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
         if (content.size != 2) return false
         return a.matches(content[0]) && b.matches(content[1])
@@ -182,7 +181,7 @@ internal object IsDict : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenDict::class)
+        return value.starlarkTypeId() == StarlarkTypeId.of(DictGen::class)
     }
 }
 
@@ -208,7 +207,7 @@ internal object IsSet : TypeMatcher {
 
     // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
-        return value.starlarkTypeId() == StarlarkTypeId.of(FrozenSet::class)
+        return value.starlarkTypeId() == StarlarkTypeId.of(SetGen::class)
     }
 }
 

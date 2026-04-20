@@ -31,7 +31,7 @@ private sealed class Either<out L, out R> {
     class Right<R>(val value: R) : Either<Nothing, R>()
 }
 
-// TODO(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
+// NOTE(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
 // #[starlark_module]
 // fn validate_module(builder: &mut GlobalsBuilder)
 private fun validateModule(builder: GlobalsBuilder) {
@@ -158,6 +158,18 @@ internal fun testDictOf() {
     val expected2 = """({1: {2: 3, 4: 5}, 6: {7: 8}}, "1: 2:3, 4:5 + 6: 7:8")"""
     val test2 = """with_dict_dict({1: {2: 3, 4: 5}, 6: {7: 8}})"""
     a.eq(expected2, test2)
+}
+
+// #[test]
+// fn test_either_of()
+internal fun testEitherOf() {
+    val a = Assert()
+    a.globalsAdd(::validateModule)
+    a.eq("'2'", "with_either(2)")
+    a.eq("'[2, 3]'", "with_either([2,3])")
+    a.eq("'s'", "with_either('s')")
+    a.fail("with_either(noop(None))", BAD)
+    a.fail("with_either(noop({}))", BAD)
 }
 
 // #[test]

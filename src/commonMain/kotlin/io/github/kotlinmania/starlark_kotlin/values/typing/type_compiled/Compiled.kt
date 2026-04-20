@@ -9,14 +9,13 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
+import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
@@ -329,7 +328,7 @@ class TypeCompiled(
             if (ty.isNone()) {
                 return TypeCompiledFactory.allocTy(Ty.none(), heap)
             }
-            val tuple = Tuple.fromValue(ty)
+            val tuple = TupleGen.fromValue(ty)
             if (tuple != null) {
                 val elems = tuple.content().map { new(it, heap).asTy() }
                 return fromTy(Ty.tuple(elems), heap)

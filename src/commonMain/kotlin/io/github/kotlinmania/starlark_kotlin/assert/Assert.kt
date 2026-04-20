@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.AllocValue
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
@@ -715,7 +716,7 @@ internal fun isTrueSkipTypecheck(program: String) {
 /** See [Assert.allTrue]. */
 fun allTrue(expressions: String) {
     val a = Assert()
-    // TODO(nga): fix and enable.
+    // NOTE(nga): fix and enable.
     a.disableStaticTypechecking()
     a.allTrue(expressions)
 }

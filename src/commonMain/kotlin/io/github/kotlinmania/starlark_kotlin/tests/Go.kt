@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.assert.conformanceExcept
 import io.github.kotlinmania.starlark_kotlin.assert.conformance
 
-/** Load a test case file from the testcases directory. */
+/** LoadP<AstNoPayload, Unit> a test case file from the testcases directory. */
 // macro_rules! test_case { ($name:expr) => { include_str!(...) } }
 private fun testCase(name: String): String {
     return io.github.kotlinmania.starlark_kotlin.tests.loadTestResource("eval/go/$name")
@@ -53,7 +53,7 @@ internal fun testGo() {
     // https://github.com/google/starlark-go/blob/e81fc95f7bd5bb1495fe69f27c1a99fcc77caa48/starlark/testdata/
 
     val assert = Assert()
-    // TODO(nga): fix and enable.
+    // NOTE(nga): fix and enable.
     assert.disableStaticTypechecking()
     assert.conformanceExcept(
         testCase("assign.star"),

@@ -52,11 +52,11 @@ import starlark_map.small_map.SmallMap
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]
 // pub enum ParametersSpecParam<V>
 sealed class ParametersSpecParam<out V> {
-    /** Parameter is required. */
+    /** ParameterP<AstNoPayload> is required. */
     data object Required : ParametersSpecParam<Nothing>()
-    /** Parameter is optional (returned as `None`). */
+    /** ParameterP<AstNoPayload> is optional (returned as `None`). */
     data object Optional : ParametersSpecParam<Nothing>()
-    /** Parameter has default value. */
+    /** ParameterP<AstNoPayload> has default value. */
     data class Defaulted<V>(val value: V) : ParametersSpecParam<V>()
 
     // pub(crate) fn is_required(&self) -> ParamIsRequired
@@ -86,11 +86,11 @@ sealed class ParameterKind<out V> {
 // #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq, PartialOrd, Ord)]
 // enum CurrentParameterStyle
 internal enum class CurrentParameterStyle {
-    /** Parameter can be only filled positionally. */
+    /** ParameterP<AstNoPayload> can be only filled positionally. */
     PosOnly,
-    /** Parameter can be filled positionally or by name. */
+    /** ParameterP<AstNoPayload> can be filled positionally or by name. */
     PosOrNamed,
-    /** Parameter can be filled by name only. */
+    /** ParameterP<AstNoPayload> can be filled by name only. */
     NamedOnly,
     /** No more args accepted. */
     NoMore,
@@ -267,7 +267,7 @@ class ParametersSpec<V>(
     internal val functionName: String,
     /** Parameters in the order they occur. */
     internal val paramKinds: List<ParameterKind<V>>,
-    /** Parameter names in the order they occur. */
+    /** ParameterP<AstNoPayload> names in the order they occur. */
     internal val paramNames: List<String>,
     /** Mapping from name to index where the argument lives. */
     internal val names: SymbolMap<UInt>,
@@ -319,7 +319,7 @@ class ParametersSpec<V>(
             return builder.finish()
         }
 
-        /** Parameter parse with only named parameters. */
+        /** ParameterP<AstNoPayload> parse with only named parameters. */
         // pub fn new_named_only(...)
         fun <V> newNamedOnly(
             functionName: String,

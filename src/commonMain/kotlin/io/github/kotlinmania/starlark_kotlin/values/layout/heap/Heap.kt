@@ -19,19 +19,38 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-// Starlark heap implementation.
-//
-// Rust module: values::layout::heap
-//
-// Submodules (Rust mod declarations -> Kotlin packages/files):
-//
-// pub(crate) mod allocator   -> heap.allocator
-// pub(crate) mod arena       -> Arena.kt
-// mod branding               -> Branding.kt (internal)
-// pub(crate) mod call_enter_exit -> CallEnterExit.kt
-// mod fast_cell              -> FastCell.kt (internal)
-// pub(crate) mod heap_type   -> HeapType.kt
-// pub(crate) mod maybe_uninit_slice_util -> MaybeUninitSliceUtil.kt
-// pub(crate) mod profile     -> heap.profile
-// pub(crate) mod repr        -> Repr.kt
-// pub(crate) mod send        -> Send.kt
+/** Starlark heap implementation. */
+
+// Rust `mod` declarations have no direct Kotlin equivalent; Kotlin uses packages/files.
+// To preserve the line-by-line transliteration structure (and keep the module list explicit),
+// we represent Rust `mod` items as empty marker objects with matching names and visibility.
+
+// pub(crate) mod allocator;
+internal object allocator
+
+// pub(crate) mod arena;
+internal object arena
+
+// mod branding;
+private object branding
+
+// pub(crate) mod call_enter_exit;
+internal object call_enter_exit
+
+// mod fast_cell;
+private object fast_cell
+
+// pub(crate) mod heap_type;
+internal object heap_type
+
+// pub(crate) mod maybe_uninit_slice_util;
+internal object maybe_uninit_slice_util
+
+// pub(crate) mod profile;
+internal object profile
+
+// pub(crate) mod repr;
+internal object repr
+
+// pub(crate) mod send;
+internal object send

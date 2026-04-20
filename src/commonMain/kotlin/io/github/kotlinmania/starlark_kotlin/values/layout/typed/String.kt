@@ -19,148 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.typed
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.Hashed
+import starlark_map.StarlarkHashValue
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrAt
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrCollectRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrMul
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrPercent
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrSlice
-import io.github.kotlinmania.starlark_kotlin.values.types.string.starlarkStrAdd
-import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
+import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
 
-// pub struct StarlarkStr { ... }
-class StarlarkStr(val value: String) : StarlarkValue {
-    override val TYPE: String get() = "string"
-
-    // pub fn as_str(&self) -> &str
-    fun asStr(): String = value
-
-    // pub fn len(&self) -> usize
-    fun len(): Int = value.encodeToByteArray().size
-
-    override fun getHash(): Result<StarlarkHashValue> = Result.success(StarlarkHashValue.new(value))
-
-    // fn equals(&self, other: Value) -> crate::Result<bool>
-    override fun equals(other: Value): Result<Boolean> {
-        val otherStr = other.unpackStarlarkStr()
-        return if (otherStr != null) {
-            Result.success(value == otherStr.value)
-        } else {
-            Result.success(false)
-        }
-    }
-
-    // fn compare(&self, other: Value) -> crate::Result<Ordering>
-    override fun compare(other: Value): Result<Int> {
-        val otherStr = other.unpackStarlarkStr()
-        return if (otherStr != null) {
-            Result.success(value.compareTo(otherStr.value))
-        } else {
-            ValueError.unsupportedWith(TYPE, "cmp()", other)
-        }
-    }
-
-    // fn is_in(&self, other: Value) -> crate::Result<bool>
-    override fun isIn(other: Value): Result<Boolean> {
-        val s = other.unpackStarlarkStr()
-            ?: return Result.failure(
-                IllegalArgumentException("'in' requires string as left operand, not '${other.getType()}'")
-            )
-        // self is the container, other (s) is the needle
-        return Result.success(value.contains(s.value))
-    }
-
-    // fn is_special(_: Private) -> bool
-    override fun isSpecial(): Boolean = true
-
-    // fn get_methods() -> Option<&'static Methods>
-    override fun getMethods(): Methods? = strMethods()
-
-    // fn collect_repr(&self, buffer: &mut String)
-    override fun collectRepr(collector: StringBuilder) {
-        starlarkStrCollectRepr(this, collector)
-    }
-
-    // fn to_bool(&self) -> bool
-    override fun toBool(): Boolean = value.isNotEmpty()
-
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        // Don't defer to str because we cache the Hash in StarlarkStr
-        val hashValue = StarlarkHashValue.new(value)
-        hasher.writeU32(hashValue.get())
-        return Result.success(Unit)
-    }
-
-    // fn at(&self, index: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun at(index: Value, heap: Heap): Result<Value> {
-        return starlarkStrAt(this, index, heap)
-    }
-
-    // fn length(&self) -> crate::Result<i32>
-    override fun length(): Result<Int> {
-        // In Starlark, len() returns the number of Unicode codepoints, not bytes
-        return Result.success(value.length)
-    }
-
-    // fn slice(...)
-    override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> {
-        return starlarkStrSlice(this, start, stop, stride, heap)
-    }
-
-    // fn add(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        return starlarkStrAdd(this, rhs, heap)
-    }
-
-    // fn mul(&self, other: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        return starlarkStrMul(this, rhs, heap)
-    }
-
-    // fn rmul(&self, lhs: Value<'v>, heap: Heap<'v>) -> Option<crate::Result<Value<'v>>>
-    override fun rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
-
-    // fn percent(&self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun percent(other: Value, heap: Heap): Result<Value> {
-        return starlarkStrPercent(this, other, heap)
-    }
-
-    // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = Ty.string()
-
-    override fun toString(): String = value
-    override fun hashCode(): Int = value.hashCode()
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is StarlarkStr) return false
-        return value == other.value
-    }
-
-    companion object {
-        // pub(crate) const UNINIT_HASH: StarlarkHashValue = StarlarkHashValue::new_unchecked(0)
-        val UNINIT_HASH: StarlarkHashValue get() = StarlarkHashValue.newUnchecked(0u)
-
-        // pub const fn payload_len_for_len(len: usize) -> usize { len.div_ceil(mem::size_of::<usize>()) }
-        fun payloadLenForLen(len: Int): Int = (len + 7) / 8
-
-        // pub(crate) fn offset_of_content() -> usize { memoffset::offset_of!(StarlarkStrN<0>, body) }
-        fun offsetOfContent(): Int = 8
-    }
-}
-
-// Hashed is defined in io.github.kotlinmania.starlark_kotlin.collections.Hashed
+// Hashed is defined in starlark_map.Hashed
 // Freezer is defined in io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 
 /**
@@ -180,7 +49,7 @@ class FrozenStringValue(
 
     fun toValue(): Value = frozenValue.toValue()
 
-    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
+    fun getHash(): StarlarkHashValue = str.getHashValue()
 
     /** Get self along with the hash. */
     fun getHashed(): Hashed<FrozenStringValue> {
@@ -255,10 +124,10 @@ class StringValue(
 
     fun toValue(): Value = value
 
-    fun getHash(): StarlarkHashValue = StarlarkHashValue.new(str.value)
+    fun getHash(): StarlarkHashValue = str.getHashValue()
 
     /** Convert a value to a FrozenStringValue using a supplied Freezer. */
-    fun freeze(freezer: Freezer): FreezeResult<FrozenStringValue> {
+    fun freeze(freezer: Freezer): Result<FrozenStringValue> {
         val frozen = freezer.freeze(toValue()).getOrElse { return Result.failure(it) }
         return Result.success(FrozenStringValue.newUnchecked(frozen))
     }

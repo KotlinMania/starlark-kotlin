@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.mapExpr
 
 // pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
-    // Argument default values and types can be used
+    // ArgumentP<AstNoPayload> default values and types can be used
     // to mark variables definitely assigned.
     @Suppress("UNUSED_VARIABLE")
     val unused = bc

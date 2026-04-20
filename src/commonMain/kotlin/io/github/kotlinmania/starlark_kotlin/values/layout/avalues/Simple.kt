@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
@@ -30,8 +30,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 
 // pub(crate) fn simple<'v, T: StarlarkValue<'v>>(x: T) -> AValueImpl<'v, AValueSimple<T>>
@@ -52,8 +51,8 @@ class AValueSimple<T : StarlarkValue>(
     // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int = 0
 
-    // unsafe fn heap_freeze(me, freezer) -> FreezeResult<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         val direct = tryFreezeDirectly(inner, freezer)
         if (direct != null) return direct
         return heapFreezeSimpleImpl(inner, freezer)

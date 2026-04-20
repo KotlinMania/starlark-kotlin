@@ -25,21 +25,160 @@ import starlark_map.StarlarkHashValue
 import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
  * The result of calling `type()` on strings.
  */
 const val STRING_TYPE: String = "string"
+
+/**
+ * A pointer to this type represents a Starlark string.
+ *
+ * Rust: `values/types/string/str_type.rs` defines an unsized, heap-allocated string type with a
+ * cached hash and a byte length field. Kotlin cannot model the unsized layout directly in common
+ * code, so this is a value wrapper with equivalent semantics exposed through [StarlarkValue].
+ */
+class StarlarkStr(
+    private val s: String,
+) : Comparable<StarlarkStr>, StarlarkValue {
+
+    @OptIn(ExperimentalAtomicApi::class)
+    private val cachedHash: AtomicInt = AtomicInt(0)
+
+    /** Rust: `pub fn as_str(&self) -> &str`. */
+    fun asStr(): String = s
+
+    /** Rust: `pub fn len(&self) -> usize` (bytes). */
+    fun len(): Int = s.encodeToByteArray().size
+
+    /** Rust: `pub fn is_empty(&self) -> bool`. */
+    fun isEmpty(): Boolean = s.isEmpty()
+
+    /** Rust: `pub(crate) fn as_aligned_padded_str(&self) -> AlignedPaddedStr<'_>`. */
+    fun asAlignedPaddedStr(): AlignedPaddedStr {
+        val bytes = s.encodeToByteArray()
+        val lenBytes = bytes.size
+        val words = payloadLenForLen(lenBytes)
+        val data = LongArray(words)
+        var i = 0
+        var wordIndex = 0
+        while (i < lenBytes) {
+            var w = 0L
+            var shift = 0
+            var j = 0
+            while (j < 8 && i < lenBytes) {
+                w = w or ((bytes[i].toLong() and 0xffL) shl shift)
+                shift += 8
+                j += 1
+                i += 1
+            }
+            data[wordIndex] = w
+            wordIndex += 1
+        }
+        return AlignedPaddedStr.new(lenBytes, data)
+    }
+
+    /**
+     * Rust: `pub fn get_hash(&self) -> StarlarkHashValue`.
+     *
+     * Kotlin: this is an internal, non-`Result` accessor used to implement [StarlarkValue] hashing.
+     */
+    @OptIn(ExperimentalAtomicApi::class)
+    fun getHashValue(): StarlarkHashValue {
+        val h = cachedHash.load()
+        if (h != 0) {
+            return StarlarkHashValue.newUnchecked(h.toUInt())
+        }
+
+        val hasher = StarlarkHasher()
+        hashStringValue(s, hasher)
+        val hash = hasher.finishSmall()
+        cachedHash.store(hash.get().toInt())
+        return hash
+    }
+
+    /** Rust: `pub fn as_str_hashed(&self) -> Hashed<&str>`. */
+    fun asStrHashed(): Hashed<String> {
+        return Hashed.newUnchecked(getHashValue(), s)
+    }
+
+    override fun compareTo(other: StarlarkStr): Int {
+        return s.compareTo(other.s)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StarlarkStr) return false
+        return asAlignedPaddedStr() == other.asAlignedPaddedStr()
+    }
+
+    override fun hashCode(): Int = s.hashCode()
+
+    override val TYPE: String get() = STRING_TYPE
+
+    override fun isSpecial(): Boolean = starlarkStrIsSpecial()
+
+    override fun getMethods(): Methods? = starlarkStrGetMethods()
+
+    override fun collectRepr(collector: StringBuilder) {
+        starlarkStrCollectRepr(this, collector)
+    }
+
+    override fun toBool(): Boolean = starlarkStrToBool(this)
+
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> = starlarkStrWriteHash(this, hasher)
+
+    override fun getHash(): Result<StarlarkHashValue> = starlarkStrGetHash(this)
+
+    override fun equals(other: Value): Result<Boolean> = starlarkStrEquals(this, other)
+
+    override fun compare(other: Value): Result<Int> = starlarkStrCompare(this, other)
+
+    override fun at(index: Value, heap: Heap): Result<Value> = starlarkStrAt(this, index, heap)
+
+    override fun length(): Result<Int> = starlarkStrLength(this)
+
+    override fun isIn(other: Value): Result<Boolean> = starlarkStrIsIn(this, other)
+
+    override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> =
+        starlarkStrSlice(this, start, stop, stride, heap)
+
+    override fun add(rhs: Value, heap: Heap): Result<Value>? = starlarkStrAdd(this, rhs, heap)
+
+    override fun mul(rhs: Value, heap: Heap): Result<Value>? = starlarkStrMul(this, rhs, heap)
+
+    override fun rmul(lhs: Value, heap: Heap): Result<Value>? = starlarkStrRmul(this, lhs, heap)
+
+    override fun percent(other: Value, heap: Heap): Result<Value> = starlarkStrPercent(this, other, heap)
+
+    override fun typecheckerTy(): Ty? = starlarkStrTypecheckerTy(this)
+
+    override fun toString(): String = starlarkStrRepr(s)
+
+    companion object {
+        /** Rust: `UNINIT_HASH`. */
+        val UNINIT_HASH: StarlarkHashValue get() = StarlarkHashValue.newUnchecked(0u)
+
+        /** Rust: `payload_len_for_len`. */
+        fun payloadLenForLen(len: Int): Int = (len + 7) / 8
+
+        /** Rust: `offset_of_content`. */
+        fun offsetOfContent(): Int = 8
+
+        /** Rust: `repr`. */
+        fun repr(s: String): String = starlarkStrRepr(s)
+    }
+}
 
 /**
  * How to hash a string in a way that is compatible with Value.
@@ -72,13 +211,12 @@ internal fun starlarkStrToBool(self: StarlarkStr): Boolean {
 
 internal fun starlarkStrWriteHash(self: StarlarkStr, hasher: StarlarkHasher): Result<Unit> {
     // Don't defer to str because we cache the Hash in StarlarkStr
-    val hashValue = StarlarkHashValue.new(self.asStr())
-    hasher.writeU32(hashValue.get())
+    hasher.writeU32(self.getHashValue().get())
     return Result.success(Unit)
 }
 
 internal fun starlarkStrGetHash(self: StarlarkStr): Result<StarlarkHashValue> {
-    return Result.success(StarlarkHashValue.new(self.asStr()))
+    return Result.success(self.getHashValue())
 }
 
 internal fun starlarkStrEquals(self: StarlarkStr, other: Value): Result<Boolean> {
@@ -107,31 +245,34 @@ internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<
     )
 
     val s = self.asStr()
-    val chars = s.toList()
-    val lenChars = chars.size
+    val lenChars = codePointCount(s)
 
     if (i >= 0) {
-        if (i >= lenChars) {
+        val cpIndex = i
+        if (cpIndex >= lenChars) {
             return Result.failure(ValueError.IndexOutOfBound(i))
         }
-        return Result.success(heap.allocStr(chars[i].toString()))
-    } else {
-        val ind = -i // Index from the end, minimum of 1
-        if (ind > lenChars) {
-            return Result.failure(ValueError.IndexOutOfBound(i))
-        }
-        return Result.success(heap.allocStr(chars[lenChars - ind].toString()))
+        val cp = codePointSubstringAt(s, cpIndex)!!
+        return Result.success(heap.allocStr(cp))
     }
+
+    val ind = -i // Index from the end, minimum of 1
+    if (ind > lenChars) {
+        return Result.failure(ValueError.IndexOutOfBound(i))
+    }
+    val cpIndex = lenChars - ind
+    val cp = codePointSubstringAt(s, cpIndex)!!
+    return Result.success(heap.allocStr(cp))
 }
 
 internal fun starlarkStrLength(self: StarlarkStr): Result<Int> {
     // In Starlark, len() returns the number of Unicode codepoints, not bytes
-    return Result.success(self.asStr().length)
+    return Result.success(codePointCount(self.asStr()))
 }
 
 internal fun starlarkStrIsIn(self: StarlarkStr, other: Value): Result<Boolean> {
-    val s = other.unpackStr() ?: return ValueError.unsupportedWith("string", "in", other)
-    return Result.success(s.contains(self.asStr()))
+    val needle = other.unpackStr() ?: return ValueError.unsupportedWith(STRING_TYPE, "in", other)
+    return Result.success(self.asStr().contains(needle))
 }
 
 internal fun starlarkStrSlice(
@@ -142,8 +283,7 @@ internal fun starlarkStrSlice(
     heap: Heap,
 ): Result<Value> {
     val s = self.asStr()
-    val chars = s.toList()
-    val len = chars.size
+    val len = codePointCount(s)
 
     // Handle stride case
     if (stride != null && stride.unpackI32() != 1) {
@@ -155,28 +295,34 @@ internal fun starlarkStrSlice(
         val indices = sliceIndices(len, startVal, stopVal, strideVal)
         val result = StringBuilder()
         for (i in indices) {
-            result.append(chars[i])
+            result.append(codePointSubstringAt(s, i)!!)
         }
         return Result.success(heap.allocStr(result.toString()))
     }
 
     // No stride (or stride == 1)
-    val startNone: Int? = start?.let {
-        it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
-    }
-    val stopNone: Int? = stop?.let {
-        it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
+    fun startStopToNoneOr(v: Value?): Result<NoneOr<Int>> {
+        return when (v) {
+            null -> Result.success(NoneOr.None)
+            else -> {
+                val i = v.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
+                Result.success(NoneOr.Other(i))
+            }
+        }
     }
 
-    val startIdx = clampIndex(startNone ?: 0, len)
-    val stopIdx = clampIndex(stopNone ?: len, len)
+    val startNoneOr = startStopToNoneOr(start).getOrElse { return Result.failure(it) }
+    val stopNoneOr = startStopToNoneOr(stop).getOrElse { return Result.failure(it) }
 
-    return if (startIdx < stopIdx) {
-        val slice = chars.subList(startIdx, stopIdx).joinToString("")
-        Result.success(heap.allocStr(slice))
-    } else {
-        Result.success(heap.allocStr(""))
-    }
+    val (startCp, stopCp) = convertStrIndices(
+        s = s,
+        start = startNoneOr.intoOption(),
+        stop = stopNoneOr.intoOption(),
+    ) ?: return Result.success(heap.allocStr(""))
+
+    val startUtf16 = utf16IndexForCodePointIndex(s, startCp)
+    val stopUtf16 = utf16IndexForCodePointIndex(s, stopCp)
+    return Result.success(heap.allocStr(s.substring(startUtf16, stopUtf16)))
 }
 
 internal fun starlarkStrAdd(self: StarlarkStr, other: Value, heap: Heap): Result<Value>? {
@@ -236,6 +382,60 @@ fun starlarkStrRepr(s: String): String {
 }
 
 // ---- Helpers ----
+
+private fun codePointCount(s: String): Int {
+    var count = 0
+    var i = 0
+    while (i < s.length) {
+        val c = s[i]
+        if (c.isHighSurrogate() && i + 1 < s.length && s[i + 1].isLowSurrogate()) {
+            i += 2
+        } else {
+            i += 1
+        }
+        count += 1
+    }
+    return count
+}
+
+/** Return a substring which contains exactly one Unicode code point at [codePointIndex]. */
+private fun codePointSubstringAt(s: String, codePointIndex: Int): String? {
+    if (codePointIndex < 0) return null
+    var cp = 0
+    var i = 0
+    while (i < s.length) {
+        if (cp == codePointIndex) {
+            val c = s[i]
+            return if (c.isHighSurrogate() && i + 1 < s.length && s[i + 1].isLowSurrogate()) {
+                s.substring(i, i + 2)
+            } else {
+                s.substring(i, i + 1)
+            }
+        }
+        val c = s[i]
+        i += if (c.isHighSurrogate() && i + 1 < s.length && s[i + 1].isLowSurrogate()) 2 else 1
+        cp += 1
+    }
+    return null
+}
+
+private fun utf16IndexForCodePointIndex(s: String, codePointIndex: Int): Int {
+    var cp = 0
+    var i = 0
+    while (i < s.length && cp < codePointIndex) {
+        val c = s[i]
+        i += if (c.isHighSurrogate() && i + 1 < s.length && s[i + 1].isLowSurrogate()) 2 else 1
+        cp += 1
+    }
+    return i
+}
+
+private fun convertStrIndices(s: String, start: Int?, stop: Int?): Pair<Int, Int>? {
+    val len = codePointCount(s)
+    val startCp = clampIndex(start ?: 0, len)
+    val stopCp = clampIndex(stop ?: len, len)
+    return if (startCp < stopCp) Pair(startCp, stopCp) else null
+}
 
 /** Clamp an index into range [0, len]. Negative values count from end. */
 private fun clampIndex(index: Int, len: Int): Int {

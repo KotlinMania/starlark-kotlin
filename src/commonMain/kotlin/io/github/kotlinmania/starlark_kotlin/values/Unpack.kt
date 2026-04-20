@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-/** Parameter conversion utilities for `starlark_module` macros. */
+/** ParameterP<AstNoPayload> conversion utilities for `starlark_module` macros. */
 
 import io.github.kotlinmania.starlark_kotlin.Either
 import io.github.kotlinmania.starlark_kotlin.Error

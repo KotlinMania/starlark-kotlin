@@ -22,8 +22,8 @@ import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
@@ -376,14 +376,13 @@ class FrozenListData(
 // impl Debug for FrozenListData
 fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
 
-/** Alias is used in `StarlarkDocs` derive. */
-typealias FrozenList = ListGen<FrozenListData>
-
+// Rust type aliases:
+// pub type FrozenList = ListGen<FrozenListData>;
 // pub(crate) type List<'v> = ListGen<ListData<'v>>;
-typealias MutableStarlarkList = ListGen<ListData>
+// Kotlin: Use ListGen directly; frozen flag distinguishes.
 
 // pub(crate) static VALUE_EMPTY_FROZEN_LIST
-val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
+val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<ListGen<FrozenListData>> =
     AllocStaticSimple.alloc(ListGen(FrozenListData.empty()))
 
 // impl ListGen<FrozenListData> { fn offset_of_content() -> usize }

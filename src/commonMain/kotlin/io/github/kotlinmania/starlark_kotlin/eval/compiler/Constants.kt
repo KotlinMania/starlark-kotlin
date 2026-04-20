@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.constants
  */
 
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.FrozenNamespace
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.types.namespace.NamespaceGen
 
 /**
  * A wrapper around [FrozenValue] representing a built-in function.
@@ -87,7 +87,7 @@ internal class Constants(
                 fnSet = g.getFrozen("set")?.let { BuiltinFn(it) },
                 typingCallable = run {
                     val typing = g.getFrozen("typing")
-                        ?.downcastFrozenRef<FrozenNamespace>()
+                        ?.downcastFrozenRef<NamespaceGen<FrozenValue>>()
                     typing?.value?.get("Callable")?.let { BuiltinFn(it) }
                 },
             )

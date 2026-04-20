@@ -1,9 +1,10 @@
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 
@@ -27,10 +28,10 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 
 /** List/dict/set comprehension evaluation. */
 
-private fun listToTupleCompr(expr: CstExpr): CstExpr = expr
+private fun listToTupleCompr(expr: Spanned<ExprP<CstPayload>>): Spanned<ExprP<CstPayload>> = expr
 
 internal fun Compiler.listComprehension(
-    x: CstExpr,
+    x: Spanned<ExprP<CstPayload>>,
     for_: ForClauseP<CstPayload>,
     clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
@@ -44,8 +45,8 @@ internal fun Compiler.listComprehension(
 }
 
 internal fun Compiler.dictComprehension(
-    k: CstExpr,
-    v: CstExpr,
+    k: Spanned<ExprP<CstPayload>>,
+    v: Spanned<ExprP<CstPayload>>,
     for_: ForClauseP<CstPayload>,
     clauses: List<ClauseP<CstPayload>>,
 ): Result<ExprCompiled> {
@@ -72,8 +73,8 @@ private fun Compiler.compileIfs(
                 return Result.success(Pair(x.forClause as ForClauseP<CstPayload>, ifs))
             }
             is ClauseP.If<*> -> {
-                val compiled = this.exprTruth(x.cond as CstExpr).getOrElse { return Result.failure(it) }
-                if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
+                val compiled = this.exprTruth(x.cond as Spanned<ExprP<CstPayload>>).getOrElse { return Result.failure(it) }
+                if (compiled.node is ExprCompiledBool.Const && (compiled.node as ExprCompiledBool.Const).b) {
                     // If the condition is always true, skip the clause.
                     continue
                 }
@@ -167,7 +168,7 @@ internal class ClauseCompiled(
                 val optimized = e.optimize(ctx)
                 val asBool = ExprCompiledBool.new(optimized)
                 when (val node = asBool.node) {
-                    is ExprCompiledBool.Const -> if (node.value) null else IrSpanned(span = asBool.span, node = node.intoExpr())
+                    is ExprCompiledBool.Const -> if (node.b) null else IrSpanned(span = asBool.span, node = node.intoExpr())
                     else -> IrSpanned(span = asBool.span, node = node.intoExpr())
                 }
             },

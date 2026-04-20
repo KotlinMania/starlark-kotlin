@@ -31,28 +31,28 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.compileArgs
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
+import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.LambdaP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.FrozenHeap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -62,9 +62,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.fromValue
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
 import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
@@ -79,7 +77,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
 import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark_kotlin.values.types.float.allocFrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtxEvalForEvaluator
 
@@ -329,13 +326,13 @@ internal sealed class ExprCompiled {
     }
 
     /** Expression is known to be a constant which is a `def`. */
-    internal fun asFrozenDef(): FrozenValueTyped<FrozenDef>? {
-        return FrozenValueTyped.new(asValue() ?: return null)
+    internal fun asFrozenDef(): FrozenValueTyped<DefGen<FrozenValue>>? {
+        return FrozenValueTyped.new<DefGen<FrozenValue>>(asValue() ?: return null)
     }
 
     /** Expression is known to be a frozen bound method. */
-    internal fun asFrozenBoundMethod(): FrozenValueTyped<FrozenBoundMethod>? {
-        return FrozenValueTyped.new<FrozenBoundMethod>(asValue() ?: return null)
+    internal fun asFrozenBoundMethod(): FrozenValueTyped<BoundMethodGen<FrozenValue>>? {
+        return FrozenValueTyped.new<BoundMethodGen<FrozenValue>>(asValue() ?: return null)
     }
 
     /** Expression is builtin `len` function. */
@@ -694,7 +691,7 @@ internal sealed class ExprCompiled {
             val condSpan = cond.span
             val condBool = ExprCompiledBool.new(cond)
             return when (val node = condBool.node) {
-                is ExprCompiledBool.Const -> if (node.value) t else f
+                is ExprCompiledBool.Const -> if (node.b) t else f
                 is ExprCompiledBool.Expr -> {
                     when (val condExpr = node.expr) {
                         is Builtin1Expr -> {
@@ -803,7 +800,7 @@ internal sealed class ExprCompiled {
                 val items = tryValues(span, listVal.content(), heap) ?: return null
                 return ListExpr(items)
             }
-            val tupleVal = Tuple.fromValue(v)
+            val tupleVal = TupleGen.fromValue(v)
             if (tupleVal != null) {
                 val items = tryValues(span, tupleVal.content(), heap) ?: return null
                 return tuple(items, heap)
@@ -1281,8 +1278,8 @@ private fun <P : AstPayload> ExprP<P>.unpackStringLiteral(): String? = when (thi
  */
 private fun <P : AstPayload> reducesToString(
     op: BinOp,
-    left: AstExprP<P>,
-    right: AstExprP<P>,
+    left: Spanned<ExprP<P>>,
+    right: Spanned<ExprP<P>>,
 ): String? {
     var currentOp = op
     var currentLeft = left
@@ -1298,9 +1295,9 @@ private fun <P : AstPayload> reducesToString(
             is ExprP.Op<*> -> {
                 currentOp = leftNode.op
                 @Suppress("UNCHECKED_CAST")
-                currentLeft = leftNode.lhs as AstExprP<P>
+                currentLeft = leftNode.lhs as Spanned<ExprP<P>>
                 @Suppress("UNCHECKED_CAST")
-                currentRight = leftNode.rhs as AstExprP<P>
+                currentRight = leftNode.rhs as Spanned<ExprP<P>>
             }
             else -> {
                 val y = currentLeft.node.unpackStringLiteral() ?: return null
@@ -1405,8 +1402,8 @@ internal fun getAttrHashedBind(
 // Compiler.exprIdent
 // ---------------------------------------------------------------------------
 
-private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
-    val resolvedIdent = ident.node.payload
+private fun Compiler.exprIdent(ident: Spanned<IdentP<CstPayload, *>>): ExprCompiled {
+    val resolvedIdent = ident.node.payload as? ResolvedIdent
         ?: error("variable not resolved: `${ident.node.ident}`")
     return when (resolvedIdent) {
         is ResolvedIdent.Slot -> {
@@ -1463,14 +1460,14 @@ private fun Compiler.optCtx(): OptCtx {
  * Compile an expression from the CST to the IR.
  */
 internal fun Compiler.expr(
-    expr: CstExpr,
+    expr: Spanned<ExprP<CstPayload>>,
 ): Result<IrSpanned<ExprCompiled>> {
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, expr.span))
     val compiledExpr: ExprCompiled = try {
         when (val node = expr.node) {
             is ExprP.Identifier<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
-                val ident = node.ident as CstIdent
+                val ident = node.ident as Spanned<IdentP<CstPayload, *>>
                 exprIdent(ident)
             }
             is ExprP.Lambda<*, *> -> {
@@ -1489,19 +1486,19 @@ internal fun Compiler.expr(
             }
             is ExprP.Tuple<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<CstExpr>
+                val elements = node.elements as List<Spanned<ExprP<CstPayload>>>
                 val xs = this.exprs(elements).getOrThrow()
                 ExprCompiled.tuple(xs, this.eval.moduleEnv.frozenHeap())
             }
             is ExprP.ListExpr<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<CstExpr>
+                val elements = node.elements as List<Spanned<ExprP<CstPayload>>>
                 val xs = this.exprs(elements).getOrThrow()
                 ExprCompiled.ListExpr(xs)
             }
             is ExprP.Dict<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<Pair<CstExpr, CstExpr>>
+                val elements = node.elements as List<Pair<Spanned<ExprP<CstPayload>>, Spanned<ExprP<CstPayload>>>>
                 val xs = elements.map { (k, v) ->
                     Pair(this.expr(k).getOrThrow(), this.expr(v).getOrThrow())
                 }
@@ -1509,76 +1506,80 @@ internal fun Compiler.expr(
             }
             is ExprP.If<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val cond = this.expr(node.cond as CstExpr).getOrThrow()
+                val cond = this.expr(node.cond as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val thenExpr = this.expr(node.v1 as CstExpr).getOrThrow()
+                val thenExpr = this.expr(node.v1 as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val elseExpr = this.expr(node.v2 as CstExpr).getOrThrow()
+                val elseExpr = this.expr(node.v2 as Spanned<ExprP<CstPayload>>).getOrThrow()
                 return Result.success(ExprCompiled.ifExpr(cond, thenExpr, elseExpr))
             }
             is ExprP.Dot<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val left = this.expr(node.expr as CstExpr).getOrThrow()
+                val left = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 val s = Symbol.new(node.field.node)
                 ExprCompiled.dot(left, s, this.optCtx())
             }
             is ExprP.Call<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val left = this.expr(node.expr as CstExpr).getOrThrow()
+                val left = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
                 val args = this.compileArgs(node.args as CallArgsP<CstPayload>).getOrThrow()
                 CallCompiled.call(span, left, args, this.optCtx())
             }
             is ExprP.Index<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val array = this.expr(node.expr as CstExpr).getOrThrow()
+                val array = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val index = this.expr(node.index as CstExpr).getOrThrow()
+                val index = this.expr(node.index as Spanned<ExprP<CstPayload>>).getOrThrow()
                 ExprCompiled.index(array, index, this.optCtx())
             }
             is ExprP.Index2<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val array = this.expr(node.expr as CstExpr).getOrThrow()
+                val array = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val index0 = this.expr(node.index0 as CstExpr).getOrThrow()
+                val index0 = this.expr(node.index0 as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val index1 = this.expr(node.index1 as CstExpr).getOrThrow()
+                val index1 = this.expr(node.index1 as Spanned<ExprP<CstPayload>>).getOrThrow()
                 ExprCompiled.index2(array, index0, index1)
             }
             is ExprP.Slice<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val collection = this.expr(node.expr as CstExpr).getOrThrow()
+                val collection = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 @Suppress("UNCHECKED_CAST")
-                val start = (node.start as CstExpr?)?.let { this.expr(it).getOrThrow() }
+                val start = (node.start as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
                 @Suppress("UNCHECKED_CAST")
-                val stop = (node.stop as CstExpr?)?.let { this.expr(it).getOrThrow() }
+                val stop = (node.stop as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
                 @Suppress("UNCHECKED_CAST")
-                val stride = (node.step as CstExpr?)?.let { this.expr(it).getOrThrow() }
+                val stride = (node.step as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
                 ExprCompiled.slice(span, collection, start, stop, stride, this.optCtx())
             }
             is ExprP.Not<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as CstExpr).getOrThrow()
+                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 return Result.success(ExprCompiled.not(span, inner))
             }
             is ExprP.Minus<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as CstExpr).getOrThrow()
+                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.Minus, inner, this.optCtx())
             }
             is ExprP.Plus<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as CstExpr).getOrThrow()
+                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.Plus, inner, this.optCtx())
             }
             is ExprP.BitNot<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as CstExpr).getOrThrow()
+                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.BitNot, inner, this.optCtx())
             }
             is ExprP.Op<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                val reduced = reducesToString(node.op, node.lhs as CstExpr, node.rhs as CstExpr)
+                val reduced = reducesToString(
+                    node.op,
+                    node.lhs as Spanned<ExprP<CstPayload>>,
+                    node.rhs as Spanned<ExprP<CstPayload>>,
+                )
                 if (reduced != null) {
                     // Note there's const propagation for `+` on compiled expressions,
                     // but special handling of `+` on AST might be slightly more efficient
@@ -1587,14 +1588,14 @@ internal fun Compiler.expr(
                     ExprCompiled.ValueExpr(v.toFrozenValue())
                 } else {
                     @Suppress("UNCHECKED_CAST")
-                    val right: CstExpr = if (node.op == BinOp.In || node.op == BinOp.NotIn) {
-                        listToTuple(node.rhs as CstExpr)
+                    val right: Spanned<ExprP<CstPayload>> = if (node.op == BinOp.In || node.op == BinOp.NotIn) {
+                        listToTuple(node.rhs as Spanned<ExprP<CstPayload>>)
                     } else {
-                        node.rhs as CstExpr
+                        node.rhs as Spanned<ExprP<CstPayload>>
                     }
 
                     @Suppress("UNCHECKED_CAST")
-                    val l = this.expr(node.lhs as CstExpr).getOrThrow()
+                    val l = this.expr(node.lhs as Spanned<ExprP<CstPayload>>).getOrThrow()
                     val r = this.expr(right).getOrThrow()
 
                     when (node.op) {
@@ -1631,7 +1632,7 @@ internal fun Compiler.expr(
             is ExprP.ListComprehension<*> -> {
                 @Suppress("UNCHECKED_CAST")
                 this.listComprehension(
-                    node.expr as CstExpr,
+                    node.expr as Spanned<ExprP<CstPayload>>,
                     node.forClause as ForClauseP<CstPayload>,
                     node.clauses as List<ClauseP<CstPayload>>,
                 ).getOrThrow()
@@ -1639,8 +1640,8 @@ internal fun Compiler.expr(
             is ExprP.DictComprehension<*> -> {
                 @Suppress("UNCHECKED_CAST")
                 this.dictComprehension(
-                    node.key as CstExpr,
-                    node.value as CstExpr,
+                    node.key as Spanned<ExprP<CstPayload>>,
+                    node.value as Spanned<ExprP<CstPayload>>,
                     node.forClause as ForClauseP<CstPayload>,
                     node.clauses as List<ClauseP<CstPayload>>,
                 ).getOrThrow()
@@ -1669,7 +1670,7 @@ internal fun Compiler.expr(
                 val args = ArgsCompiledValue()
                 for (expression in fstring.node.expressions) {
                     @Suppress("UNCHECKED_CAST")
-                    args.pushPos(this.expr(expression as CstExpr).getOrThrow())
+                    args.pushPos(this.expr(expression as Spanned<ExprP<CstPayload>>).getOrThrow())
                 }
 
                 CallCompiled.call(span, method, args, this.optCtx())
@@ -1690,7 +1691,7 @@ internal fun Compiler.expr(
  * only the truth of the result is needed.
  */
 internal fun Compiler.exprTruth(
-    expr: CstExpr,
+    expr: Spanned<ExprP<CstPayload>>,
 ): Result<IrSpanned<ExprCompiledBool>> {
     return this.expr(expr).map { ExprCompiledBool.new(it) }
 }
@@ -1701,7 +1702,7 @@ internal fun Compiler.exprTruth(
 
 /** Compile a list of expressions. */
 internal fun Compiler.exprs(
-    exprs: List<CstExpr>,
+    exprs: List<Spanned<ExprP<CstPayload>>>,
 ): Result<List<IrSpanned<ExprCompiled>>> {
     val results = mutableListOf<IrSpanned<ExprCompiled>>()
     for (e in exprs) {

@@ -7,12 +7,12 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value.localAsValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrameAlloc
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.FrozenEnumType
+import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
+import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
 import io.github.kotlinmania.starlark_kotlin.values.types.string.parseFormatOne
 
 /*
@@ -120,7 +120,7 @@ internal class CallCompiled(
 
         /** Try to inline a function like `lambda x: type(x) == "y"`. */
         private fun tryTypeIs(fun_: ExprCompiled, args: ArgsCompiledValue): ExprCompiled? {
-            val frozenDef: FrozenValueTyped<FrozenDef> = fun_.asFrozenDef() ?: return null
+            val frozenDef: FrozenValueTyped<DefGen<FrozenValue>> = fun_.asFrozenDef() ?: return null
             val pos = args.onePos() ?: return null
             val body = frozenDef.asRef().defInfo.inlineDefBody
             if (body is InlineDefBody.ReturnTypeIs) {
@@ -136,7 +136,7 @@ internal class CallCompiled(
             args: ArgsCompiledValue,
             ctx: OptCtx,
         ): IrSpanned<ExprCompiled>? {
-            val frozenDef: FrozenValueTyped<FrozenDef> = fun_.asFrozenDef() ?: return null
+            val frozenDef: FrozenValueTyped<DefGen<FrozenValue>> = fun_.asFrozenDef() ?: return null
 
             if (frozenDef.asRef().parameters.hasArgsOrKwargs()) {
                 // Functions with `*args` or `**kwargs` are not marked safe to inline,
@@ -218,7 +218,7 @@ internal class CallCompiled(
             fun_: IrSpanned<ExprCompiled>,
             args: ArgsCompiledValue,
         ): ExprCompiled? {
-            val enumType = fun_.node.asValue()?.downcastFrozenRef<FrozenEnumType>() ?: return null
+            val enumType = fun_.node.asValue()?.downcastFrozenRef<EnumTypeGen>() ?: return null
             val arg = args.onePos()?.let { it.node.asValue() } ?: return null
             val constructed = try {
                 enumType.value.construct(arg.toValue())
@@ -234,7 +234,7 @@ internal class CallCompiled(
             args: ArgsCompiledValue,
             ctx: OptCtx,
         ): ExprCompiled? {
-            val boundMethod: FrozenValueTyped<FrozenBoundMethod> = fun_.node.asFrozenBoundMethod() ?: return null
+            val boundMethod: FrozenValueTyped<BoundMethodGen<FrozenValue>> = fun_.node.asFrozenBoundMethod() ?: return null
             val format = FrozenStringValue.new(boundMethod.asRef().thisValue) ?: return null
             if (boundMethod.asRef().method.asRef().name != "format") {
                 return null

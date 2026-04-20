@@ -6,10 +6,9 @@ This is **starlark-kotlin**, a line-by-line port of Facebook's starlark-rust to 
 
 ## Critical Workflows
 
-### 1. Task Assignment (DISABLED)
+### 1. No Swarm/Task System
 
-The `ast_distance` swarm task-assignment flags are **disabled** in this workspace:
-`--init-tasks`, `--tasks`, `--assign`, `--complete`, `--release`, `--agent`, `--task-file`, `--override`.
+This repo is **not** using the swarm/task-assignment workflow (`tasks.json`). Do not create or depend on it.
 
 Use file comparisons and directory-level checks instead:
 
@@ -121,12 +120,6 @@ If a type doesn't exist yet, port the file that defines it. Don't create placeho
 ```bash
 # Overall progress
 ./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
-
-# Task queue status
-./tools/ast_distance/ast_distance --tasks tasks.json
-
-# Missing files by priority
-./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
 ```
 
 ## Naming Conventions

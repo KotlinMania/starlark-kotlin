@@ -33,7 +33,7 @@ internal interface Vector {
     fun splat(byte: Byte): Vector
 
     /**
-     * Load the vector from given memory address.
+     * LoadP<AstNoPayload, Unit> the vector from given memory address.
      */
     fun loadUnaligned(ptr: ByteArray, offset: Int): Vector
 

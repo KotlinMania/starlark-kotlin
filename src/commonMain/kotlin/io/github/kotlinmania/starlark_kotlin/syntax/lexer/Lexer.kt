@@ -26,9 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 
-// type Lexeme = Result<(usize, Token, usize), EvalException>
-typealias Lexeme = Triple<Int, Token, Int>
-
 sealed class LexemeError(val message: String) {
     data object Indentation : LexemeError("Parse error: incorrect indentation")
     data class InvalidInput(val input: String) : LexemeError("Parse error: invalid input `$input`")
@@ -46,11 +43,11 @@ class Lexer(
     input: String,
     @Suppress("unused_parameter") dialect: Dialect,
     val codemap: CodeMap,
-) : Iterator<Lexeme> {
+) : Iterator<Triple<Int, Token, Int>> {
     private val source: String = input
     private var pos: Int = 0
     private val indentLevels: MutableList<Int> = mutableListOf()
-    private val buffer: ArrayDeque<Lexeme> = ArrayDeque()
+    private val buffer: ArrayDeque<Triple<Int, Token, Int>> = ArrayDeque()
     private var parens: Int = 0
     private var done: Boolean = false
 
@@ -320,7 +317,7 @@ class Lexer(
 
     // --- Integer parsing ---
 
-    private fun parseInt(literal: String, start: Int, end: Int, radix: Int): Lexeme {
+    private fun parseInt(literal: String, start: Int, end: Int, radix: Int): Triple<Int, Token, Int> {
         try {
             val value = TokenInt.fromStrRadix(literal, radix)
             return Triple(start, Token.IntToken(value), end)
@@ -331,7 +328,7 @@ class Lexer(
 
     // --- Main tokenization ---
 
-    private fun scanToken(): Lexeme? {
+    private fun scanToken(): Triple<Int, Token, Int>? {
         // Skip whitespace (spaces only - tabs are handled by indentation)
         while (pos < source.length && source[pos] == ' ') pos++
 
@@ -506,7 +503,7 @@ class Lexer(
         }
     }
 
-    private fun scanNumber(start: Int): Lexeme {
+    private fun scanNumber(start: Int): Triple<Int, Token, Int> {
         // Check for hex, octal, binary prefixes
         if (source[pos] == '0' && pos + 1 < source.length) {
             when (source[pos + 1]) {
@@ -549,7 +546,7 @@ class Lexer(
         return parseInt(literal, start, pos, 10)
     }
 
-    private fun scanFloat(start: Int): Lexeme {
+    private fun scanFloat(start: Int): Triple<Int, Token, Int> {
         // Starts with '.', digits already checked
         pos++ // skip '.'
         while (pos < source.length && source[pos] in '0'..'9') pos++
@@ -564,7 +561,7 @@ class Lexer(
         return Triple(start, Token.FloatToken(value), pos)
     }
 
-    private fun scanFloatRest(start: Int): Lexeme {
+    private fun scanFloatRest(start: Int): Triple<Int, Token, Int> {
         // We've consumed digits, now handle '.', 'e'/'E'
         if (pos < source.length && source[pos] == '.') {
             pos++
@@ -600,7 +597,7 @@ class Lexer(
         return false
     }
 
-    override fun next(): Lexeme {
+    override fun next(): Triple<Int, Token, Int> {
         while (true) {
             if (buffer.isNotEmpty()) {
                 val item = buffer.removeFirst()
@@ -621,7 +618,7 @@ class Lexer(
      * May add additional tokens to the buffer (e.g. DEDENT at EOF).
      * Throws EvalException on lexing errors.
      */
-    private fun produceNext(): Lexeme? {
+    private fun produceNext(): Triple<Int, Token, Int>? {
         // Drain buffered tokens first
         if (buffer.isNotEmpty()) return buffer.removeFirst()
 

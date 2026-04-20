@@ -34,9 +34,9 @@ package io.github.kotlinmania.starlark_kotlin.values
  * hold several values.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import starlark_map.Hashed
+import starlark_map.StarlarkHasher
+import starlark_map.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocMember
 import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
@@ -51,7 +51,11 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 
 /**
  * A trait for values which are more complex - because they are either mutable,
@@ -89,6 +93,15 @@ interface StarlarkValue {
      */
     val TYPE: String
         get() = error("TYPE must be implemented by StarlarkValue implementations")
+
+    /**
+     * `HAS_*` capability flags mirror Rust's `#[starlark_value]` macro, which
+     * generates a `const HAS_<method>: bool = false;` default in the trait and
+     * sets it to `true` on the implementing impl when that method is overridden.
+     * Implementations override these to advertise overridden behavior to the vtable.
+     */
+    val HAS_iterate: Boolean get() = false
+    val HAS_eval_type: Boolean get() = false
 
     /**
      * Like TYPE, but returns a reusable FrozenStringValue
@@ -484,5 +497,5 @@ interface StarlarkValue {
      * This function is needed in the rare case when freezing some values, it may be possible
      * to return a statically allocated value instead of allocating a new one.
      */
-    fun tryFreezeDirectly(freezer: Freezer): FreezeResult<FrozenValue>? = null
+    fun tryFreezeDirectly(freezer: Freezer): Result<FrozenValue>? = null
 }

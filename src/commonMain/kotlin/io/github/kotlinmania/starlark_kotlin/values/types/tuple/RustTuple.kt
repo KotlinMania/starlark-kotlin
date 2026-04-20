@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 /** Bindings to/from tuple types. */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
@@ -111,7 +111,7 @@ fun <T1, T2> unpackTuple2(
     unpack1: (Value) -> T1?,
     unpack2: (Value) -> T2?,
 ): Pair<T1, T2>? {
-    val t = Tuple.fromValue(value) ?: return null
+    val t = TupleGen.fromValue(value) ?: return null
     val content = t.content()
     if (content.size != 2) return null
     val a = unpack1(content[0]) ?: return null
@@ -126,7 +126,7 @@ fun <T1, T2, T3> unpackTuple3(
     unpack2: (Value) -> T2?,
     unpack3: (Value) -> T3?,
 ): Triple<T1, T2, T3>? {
-    val t = Tuple.fromValue(value) ?: return null
+    val t = TupleGen.fromValue(value) ?: return null
     val content = t.content()
     if (content.size != 3) return null
     val a = unpack1(content[0]) ?: return null

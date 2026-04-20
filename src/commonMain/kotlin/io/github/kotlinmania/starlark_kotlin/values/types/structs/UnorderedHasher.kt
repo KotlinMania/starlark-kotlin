@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.StarlarkHasher
 
 /**
  * Utility to compute hash of an unordered collection (e.g. unordered set).

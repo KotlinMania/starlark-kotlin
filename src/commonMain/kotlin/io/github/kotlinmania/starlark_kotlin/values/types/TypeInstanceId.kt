@@ -25,11 +25,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 /** Globally unique identifier for a type, like record type or enum type. */
 data class TypeInstanceId(
     private val id: Long,
-) : Comparable<TypeInstanceId> {
-
-    override fun compareTo(other: TypeInstanceId): Int {
-        return id.compareTo(other.id)
-    }
+) {
 
     companion object {
         @OptIn(ExperimentalAtomicApi::class)

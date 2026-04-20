@@ -20,13 +20,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import starlark_map.Hashed
+import starlark_map.small_map.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.docs.DocModule
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -128,9 +128,6 @@ data class NamespaceGen<V>(
 @Suppress("UNCHECKED_CAST")
 fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
     frozen as NamespaceGen<Value>
-
-typealias FrozenNamespace = NamespaceGen<FrozenValue>
-typealias Namespace = NamespaceGen<Value>
 
 private fun <K, V> fmtKeyedContainer(
     start: String,

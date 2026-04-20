@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-// Only check it compiles.
+// Only check it compiles (test-only).
 
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 // #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
 // #[display("ValueWithLifetimeParam")]
 // struct ValueWithLifetimeParam<'v>(Value<'v>);
-@Suppress("unused")
 private class ValueWithLifetimeParam(val value: Value) : StarlarkValue {
     // #[starlark_value(type = "ValueWithLifetimeParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithLifetimeParam"
@@ -37,7 +36,6 @@ private class ValueWithLifetimeParam(val value: Value) : StarlarkValue {
 // #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
 // #[display("ValueWithoutParam")]
 // struct ValueWithoutParam(String);
-@Suppress("unused")
 private class ValueWithoutParam(val value: String) : StarlarkValue {
     // #[starlark_value(type = "ValueWithoutParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithoutParam"

@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
+import starlark_map.Hashed
+import starlark_map.StarlarkHashValue
+import starlark_map.StarlarkHasher
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.demand.Demand
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
@@ -36,8 +36,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 
 /**
@@ -79,7 +78,7 @@ class AValueVTable(
     // AValue
     val isStr: Boolean,
     internal val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
-    internal val heapFreezeFn: (StarlarkValueRawPtr, Freezer) -> FreezeResult<FrozenValue>,
+    internal val heapFreezeFn: (StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
     internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
 
     // StarlarkValue dispatch
@@ -193,7 +192,7 @@ internal class AValueDyn(
         return _vtable.memorySizeFn(value)
     }
 
-    fun heapFreeze(freezer: Freezer): FreezeResult<FrozenValue> {
+    fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         return _vtable.heapFreezeFn(value, freezer)
     }
 

@@ -292,7 +292,7 @@ def test():
 // #[test]
 // fn test_dict_bug()
 internal fun testDictBug() {
-    // TODO(nga): figure out how to fix it.
+    // NOTE(nga): figure out how to fix it.
     //   Type of `y` should be inferred to `str`.
     TypeCheck().ty("y").check(
         "dict_bug",
@@ -339,7 +339,7 @@ def test():
 // #[test]
 // fn test_new_list_dict_syntax_as_value()
 internal fun testNewListDictSyntaxAsValue() {
-    // TODO(nga): fix.
+    // NOTE(nga): fix.
     TypeCheck().ty("x").ty("y").check(
         "new_list_dict_syntax_as_value",
         """

@@ -58,7 +58,7 @@ private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn test_attribute(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setAttribute("test_attribute") { _, _ ->
-        // TODO(nga): this marker is no-op.
+        // NOTE(nga): this marker is no-op.
         Result.success(Value.newNone())
     }
 }

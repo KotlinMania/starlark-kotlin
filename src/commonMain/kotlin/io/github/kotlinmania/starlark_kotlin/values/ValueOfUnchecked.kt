@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark_kotlin.values
  */
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.freeze_error.FreezeResult
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
@@ -38,15 +37,14 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
  * In Kotlin, `T` is a phantom type parameter used only for type-level annotation.
  * The `V` parameter represents the underlying value type ([Value] or [FrozenValue]).
  */
-class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
+open class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> protected constructor(
     private val value: V,
 ) {
 
     /**
      * Cast to a different Rust type for the same Starlark type.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> {
+    open fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> {
         return new(this.value)
     }
 
@@ -97,7 +95,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * The heap parameter is unused because the value is already allocated;
      * this simply extracts the [Value] from the wrapper.
      */
-    fun allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value {
+    fun allocValue(heap: Heap): Value {
         return when (val v = value) {
             is Value -> v
             is ValueLike -> v.toValue()
@@ -111,9 +109,11 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * The heap parameter is unused because the value is already frozen;
      * this simply extracts the [FrozenValue] from the wrapper.
      */
-    fun allocFrozenValue(@Suppress("UNUSED_PARAMETER") heap: FrozenHeap): FrozenValue {
-        @Suppress("UNCHECKED_CAST")
-        return value as FrozenValue
+    fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+        return when (val v = value) {
+            is FrozenValue -> v
+            else -> throw IllegalStateException("ValueOfUncheckedGeneric: cannot allocFrozenValue non-FrozenValue type")
+        }
     }
 
     /** Trace the inner value for garbage collection. */
@@ -125,7 +125,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
     }
 
     /** Freeze this value, producing a frozen equivalent. */
-    fun freeze(freezer: Freezer): FreezeResult<ValueOfUncheckedGeneric<FrozenValue, T>> {
+    fun freeze(freezer: Freezer): Result<ValueOfUncheckedGeneric<FrozenValue, T>> {
         val v = value
         val frozen: FrozenValue = when (v) {
             is Value -> v.freeze(freezer).getOrThrow()
@@ -136,7 +136,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
     }
 
     /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
-    fun toValue(): ValueOfUncheckedGeneric<Value, T> {
+    open fun toValue(): ValueOfUncheckedGeneric<Value, T> {
         val v = value
         val asValue: Value = when (v) {
             is Value -> v
@@ -158,35 +158,58 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
  * Starlark value with type annotation.
  *
  * Can be used in function signatures to provide types to the type checker.
+ *
  * Note this type does not actually check the type of the value.
  * Providing incorrect type annotation will result
  * in incorrect error reporting by the type checker.
  */
-typealias ValueOfUnchecked<T> = ValueOfUncheckedGeneric<Value, T>
+class ValueOfUnchecked<T : StarlarkTypeRepr> private constructor(value: Value) : ValueOfUncheckedGeneric<Value, T>(value) {
+    override fun <U : StarlarkTypeRepr> cast(): ValueOfUnchecked<U> {
+        return new(get())
+    }
 
-/** Frozen starlark value with type annotation. */
-typealias FrozenValueOfUnchecked<T> = ValueOfUncheckedGeneric<FrozenValue, T>
+    override fun toValue(): ValueOfUnchecked<T> {
+        return this
+    }
 
-/**
- * Construct after checking the type.
- *
- * In Rust, the `T: UnpackValue<'v>` bound ensures the type check can be
- * performed at compile time. In Kotlin, an explicit [UnpackValue] instance
- * is required to perform the runtime check.
- */
-fun <T : StarlarkTypeRepr, R> ValueOfUncheckedGeneric.Companion.newChecked(
-    value: Value,
-    unpacker: UnpackValue<R>,
-): ValueOfUnchecked<T> {
-    unpacker.unpackValueErr(value)
-    return ValueOfUncheckedGeneric.new(value)
+    companion object {
+        /** New. */
+        fun <T : StarlarkTypeRepr> new(value: Value): ValueOfUnchecked<T> {
+            return ValueOfUnchecked(value)
+        }
+
+        /** Construct after checking the type. */
+        fun <T : StarlarkTypeRepr, R> newChecked(
+            value: Value,
+            unpacker: UnpackValue<R>,
+        ): ValueOfUnchecked<T> {
+            unpacker.unpackValueErr(value)
+            return new(value)
+        }
+
+        /** Construct after checking the type (convenience overload that skips type checking). */
+        fun <T : StarlarkTypeRepr> newChecked(value: Value): ValueOfUnchecked<T> {
+            return new(value)
+        }
+    }
 }
 
-/** Construct after checking the type (convenience overload that skips type checking). */
-fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
-    value: Value,
-): ValueOfUnchecked<T> {
-    return ValueOfUncheckedGeneric.new(value)
+/** Frozen starlark value with type annotation. */
+class FrozenValueOfUnchecked<T : StarlarkTypeRepr> private constructor(value: FrozenValue) :
+    ValueOfUncheckedGeneric<FrozenValue, T>(value) {
+    override fun <U : StarlarkTypeRepr> cast(): FrozenValueOfUnchecked<U> {
+        return new(get())
+    }
+
+    override fun toValue(): ValueOfUnchecked<T> {
+        return ValueOfUnchecked.new(super.toValue().get())
+    }
+
+    companion object {
+        fun <T : StarlarkTypeRepr> new(value: FrozenValue): FrozenValueOfUnchecked<T> {
+            return FrozenValueOfUnchecked(value)
+        }
+    }
 }
 
 /**
@@ -195,5 +218,5 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
  * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.
  */
 fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> {
-    return ValueOfUncheckedGeneric.new(value)
+    return ValueOfUnchecked.new(value)
 }
