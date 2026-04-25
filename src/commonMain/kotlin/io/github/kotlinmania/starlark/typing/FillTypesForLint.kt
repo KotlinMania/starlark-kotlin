@@ -68,7 +68,7 @@ private data class GlobalValue(
         fun value(v: Value): GlobalValue {
             return GlobalValue(
                 value = v,
-                ty = Ty.any(), // Ty::of_value not yet ported
+                ty = Ty.ofValue(v),
             )
         }
 

@@ -4,10 +4,10 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 81.6% (423/468 files)
-- **Matched Files:** 382
+- **Current Progress:** 81.4% (396/468 files)
+- **Matched Files:** 381
 - **Average Similarity:** 0.64
-- **Critical Issues:** 128 files with <0.60 similarity
+- **Critical Issues:** 125 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -119,7 +119,7 @@ For each file to be considered "complete":
 ```bash
 # Initialize task queue for systematic porting
 cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin kotlin tasks.json ../../AGENTS.md
+./ast_distance --init-tasks ../../tmp/starlark/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/starlark kotlin tasks.json ../../AGENTS.md
 
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>

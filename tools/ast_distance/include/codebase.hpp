@@ -1274,6 +1274,54 @@ public:
         if (present.find("to") != present.end()) {
             add_if_missing("bitor");
         }
+        // Kotlin operator-fun unary minus → Rust `Neg::neg`.
+        if (present.find("unaryminus") != present.end()) {
+            add_if_missing("neg");
+        }
+        // Kotlin operator-fun unary plus → Rust `UnaryOp` impls (rare but symmetric).
+        if (present.find("unaryplus") != present.end()) {
+            add_if_missing("pos");
+        }
+        // Kotlin assignment-operator funs → Rust `*Assign` traits.
+        if (present.find("plusassign") != present.end()) {
+            add_if_missing("add_assign");
+            add_if_missing("addassign");
+        }
+        if (present.find("minusassign") != present.end()) {
+            add_if_missing("sub_assign");
+            add_if_missing("subassign");
+        }
+        if (present.find("timesassign") != present.end()) {
+            add_if_missing("mul_assign");
+            add_if_missing("mulassign");
+        }
+        if (present.find("divassign") != present.end()) {
+            add_if_missing("div_assign");
+            add_if_missing("divassign");
+        }
+        if (present.find("remassign") != present.end()) {
+            add_if_missing("rem_assign");
+            add_if_missing("remassign");
+        }
+        // Kotlin `equals` (override of Any) → Rust `Eq::eq` / `PartialEq::eq`.
+        if (present.find("equals") != present.end()) {
+            add_if_missing("eq");
+        }
+        // Kotlin `iterator` (override of Iterable) → Rust `IntoIterator::into_iter`.
+        if (present.find("iterator") != present.end()) {
+            add_if_missing("into_iter");
+            add_if_missing("intoiter");
+            add_if_missing("iter");
+        }
+        // Kotlin `get(...)` operator overload → Rust `Index::index`.
+        if (present.find("get") != present.end()) {
+            add_if_missing("index");
+        }
+        // Kotlin `set(...)` operator overload → Rust `IndexMut::index_mut`.
+        if (present.find("set") != present.end()) {
+            add_if_missing("index_mut");
+            add_if_missing("indexmut");
+        }
 
         return out;
     }

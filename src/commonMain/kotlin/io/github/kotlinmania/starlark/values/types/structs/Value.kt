@@ -71,10 +71,14 @@ data class StructGen<V>(
 
     private fun selfTy(): Ty {
         // Rust: Ty::of_value(value.to_value()) for each field value.
-        // Ty::of_value is not yet ported; approximate with Ty.any() per value.
         return Ty.custom(TyStruct(
-            fields = fields.iter().associate { (k, _) ->
-                k to Ty.any()
+            fields = fields.iter().associate { (k, v) ->
+                val asValue = when (v) {
+                    is Value -> v
+                    is FrozenValue -> v.toValue()
+                    else -> error("StructGen V must be Value or FrozenValue, got: ${v!!::class}")
+                }
+                k to Ty.ofValue(asValue)
             },
             extra = false
         ))

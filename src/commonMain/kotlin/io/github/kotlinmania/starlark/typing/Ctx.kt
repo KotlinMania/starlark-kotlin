@@ -459,10 +459,7 @@ internal class TypingContext(
                     }
                 }
             }
-            is ResolvedIdent.Global -> {
-                // Ty.ofValue not yet ported; use Ty.any() as fallback
-                Ty.any()
-            }
+            is ResolvedIdent.Global -> Ty.ofValue(resolved.value.toValue())
             null -> {
                 // All identifiers must be resolved at this point,
                 // but we don't stop after scope resolution error,

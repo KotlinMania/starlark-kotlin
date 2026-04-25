@@ -104,11 +104,15 @@ private fun matchInefficientBoolCheck(
     val arg = argNode.expr.node
 
     when (arg) {
-        // any([blah for blah in blahs]) or any({k: v for ...})
-        is ExprP.ListExpr, is ExprP.Dict -> {
-            // Comprehension variants — in the full AST these would be
-            // ExprP.ListComprehension / ExprP.DictComprehension.
-            // Placeholder: trigger on list/dict comprehensions once available.
+        // any([blah for blah in blahs])
+        is ExprP.ListComprehension<AstNoPayload>, is ExprP.DictComprehension<AstNoPayload> -> {
+            res.add(
+                LintT.new(
+                    codemap,
+                    x.span,
+                    Performance.EagerAndInefficientBoolCheck(funcIdent),
+                )
+            )
         }
         is ExprP.Call -> {
             // any(list(_get_some_dict())) or any(dict([]))
