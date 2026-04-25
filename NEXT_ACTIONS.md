@@ -4,7 +4,7 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 100.0% (569/470 files)
+- **Current Progress:** 100.0% (572/470 files)
 - **Matched Files:** 470
 - **Average Similarity:** 0.53
 - **Critical Issues:** 251 files with <0.60 similarity
@@ -36,7 +36,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Review and complete missing sections
 
 ### 4. environment.globals
-- **Similarity:** 0.76 (needs 9% improvement)
+- **Similarity:** 0.75 (needs 10% improvement)
 - **Dependencies:** 21
 - **Priority Score:** 117.1
 - **Symbol Deficit:** 7 (functions: 6, types: 1)
@@ -44,10 +44,10 @@ Based on AST analysis, here are the concrete next steps.
 - **Action:** Minor refinements needed
 
 ### 5. runtime.arguments
-- **Similarity:** 0.71 (needs 14% improvement)
+- **Similarity:** 0.74 (needs 11% improvement)
 - **Dependencies:** 25
-- **Priority Score:** 103.9
-- **Symbol Deficit:** 6 (functions: 6, types: 0)
+- **Priority Score:** 86.8
+- **Symbol Deficit:** 5 (functions: 5, types: 0)
 - **Missing Tests:** 4 of 4 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
