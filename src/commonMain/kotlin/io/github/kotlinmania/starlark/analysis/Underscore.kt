@@ -132,7 +132,7 @@ private fun Spanned<StmtP<AstNoPayload>>.visitStmtExprU(visitor: (Spanned<ExprP<
 
 /** There's no reason to make a def or lambda and give it an underscore name not at the top level. */
 // fn inappropriate_underscore(codemap: &CodeMap, x: &Spanned<StmtP<AstNoPayload>>, top: bool, res: &mut Vec<LintT<UnderscoreWarning>>)
-private fun inappropriateUnderscore(
+internal fun inappropriateUnderscore(
     codemap: CodeMap,
     x: Spanned<StmtP<AstNoPayload>>,
     top: Boolean,
@@ -190,7 +190,7 @@ private fun inappropriateUnderscore(
 
 /** Don't want to use a variable that has been defined to be ignored. */
 // fn use_ignored(codemap: &CodeMap, x: &Spanned<StmtP<AstNoPayload>>, res: &mut Vec<LintT<UnderscoreWarning>>)
-private fun useIgnored(
+internal fun useIgnored(
     codemap: CodeMap,
     x: Spanned<StmtP<AstNoPayload>>,
     res: MutableList<LintT<UnderscoreWarning>>,

@@ -134,7 +134,7 @@ private fun matchInefficientBoolCheck(
 }
 
 // fn check_call_expr(module: &AstModule, res: &mut Vec<LintT<Performance>>)
-private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>>) {
+internal fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>>) {
     fun check(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
         matchDictCopy(codemap, x, res)
         matchInefficientBoolCheck(codemap, x, res)

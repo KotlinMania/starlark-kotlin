@@ -19,10 +19,30 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.assert.allTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ReprTest {
+    // #[test]
+    // fn test_to_repr() {
+    //     assert::all_true(
+    //         r#"
+    // "\"\\t\\n'\\\"\"" == repr("\t\n'\"")
+    // "\"Hello, 世界\"" == repr("Hello, 世界")
+    // "#,
+    //     );
+    // }
+    @Test
+    fun testToRepr() {
+        allTrue(
+            """
+"\"\\t\\n'\\\"\"" == repr("\t\n'\"")
+"\"Hello, 世界\"" == repr("Hello, 世界")
+"""
+        )
+    }
+
     @Test
     fun testStringRepr() {
         fun test(expected: String, input: String) {

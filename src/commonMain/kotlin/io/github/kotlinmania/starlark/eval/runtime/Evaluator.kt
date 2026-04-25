@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/evaluator.rs
+// port-lint: source src/eval/runtime/evaluator.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

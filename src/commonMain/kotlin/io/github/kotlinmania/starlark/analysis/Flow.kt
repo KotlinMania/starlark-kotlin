@@ -68,6 +68,9 @@ class LintT<T>(
     val location: FileSpan,
     val problem: T,
 ) {
+    // impl<T: LintWarning> Display for LintT<T>
+    override fun toString(): String = "$location: $problem"
+
     companion object {
         fun <T> new(codemap: CodeMap, span: Span, problem: T): LintT<T> {
             return LintT(codemap.fileSpan(span), problem)

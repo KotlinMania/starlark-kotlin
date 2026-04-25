@@ -1,5 +1,5 @@
-// port-lint: source src/values/types/num.rs
-package io.github.kotlinmania.starlark.values.types
+// port-lint: source src/util/non_static_type_id.rs (tests)
+package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,17 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-//! Helpers for numerical values.
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-// pub(crate) mod globals;
-// pub(crate) mod typecheck;
-// pub(crate) mod value;
+class NonStaticTypeIdTest {
+
+    // #[test]
+    // fn test_non_static_type_id()
+    @Test
+    fun testNonStaticTypeId() {
+        // Rust: assert_eq!(non_static_type_id::<&str>(), TypeId::of::<&'static str>());
+        // Kotlin has no lifetimes, so &str and &'static str both correspond to String::class.
+        assertEquals(String::class, nonStaticTypeId<String>())
+    }
+}
