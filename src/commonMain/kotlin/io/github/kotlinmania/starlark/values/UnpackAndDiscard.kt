@@ -1,5 +1,5 @@
 // port-lint: source src/values/unpack_and_discard.rs
-package io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard
+package io.github.kotlinmania.starlark.values.unpackanddiscard
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * Unpack the value of type [T], but do not store result.

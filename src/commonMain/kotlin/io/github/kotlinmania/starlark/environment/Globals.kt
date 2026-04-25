@@ -1,5 +1,5 @@
 // port-lint: source src/environment/globals.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,41 +19,41 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.LibraryExtension
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableComponents
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
-import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocModule
-import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecBuilder
-import io.github.kotlinmania.starlark_kotlin.standardEnvironment
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.SpecialBuiltinFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.MaybeDocHiddenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.NamespaceGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
+import io.github.kotlinmania.starlark.LibraryExtension
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark.docs.DocFunction
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocModule
+import io.github.kotlinmania.starlark.docs.DocString
+import io.github.kotlinmania.starlark.docs.DocStringKind
+import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecBuilder
+import io.github.kotlinmania.starlark.standardEnvironment
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark.values.types.NativeFunc
+import io.github.kotlinmania.starlark.values.types.NativeFuncFn
+import io.github.kotlinmania.starlark.values.types.NativeFunction
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
+import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
+import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 import kotlin.concurrent.Volatile
 
 /** Matches Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
@@ -374,32 +374,31 @@ class GlobalsBuilder private constructor(
         name: String,
         speculativeExecSafe: Boolean = false,
         asType: Ty? = null,
-        f: (io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments,
-            io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator) -> Any?,
+        f: (io.github.kotlinmania.starlark.eval.runtime.Arguments,
+            io.github.kotlinmania.starlark.eval.runtime.Evaluator) -> Any?,
     ) {
-        val sig = io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+        val sig = io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
             .withCapacity<FrozenValue>(name).finish()
         val nativeFn: NativeFuncFn = { eval, _, args ->
             try {
-                @Suppress("UNCHECKED_CAST")
                 val raw = f(args, eval)
                 val heap = eval.heap()
-                fun toValue(x: Any?): io.github.kotlinmania.starlark_kotlin.values.layout.Value {
+                fun toValue(x: Any?): io.github.kotlinmania.starlark.values.layout.Value {
                     return when (x) {
-                        null -> io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone()
-                        is Unit -> io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone()
-                        is io.github.kotlinmania.starlark_kotlin.values.layout.Value -> x
-                        is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue -> x.toValue()
-                        is io.github.kotlinmania.starlark_kotlin.values.AllocValue -> x.allocValue(heap)
-                        else -> io.github.kotlinmania.starlark_kotlin.values.layout.Value.newNone()
+                        null -> io.github.kotlinmania.starlark.values.layout.Value.newNone()
+                        is Unit -> io.github.kotlinmania.starlark.values.layout.Value.newNone()
+                        is io.github.kotlinmania.starlark.values.layout.Value -> x
+                        is io.github.kotlinmania.starlark.values.layout.FrozenValue -> x.toValue()
+                        is io.github.kotlinmania.starlark.values.AllocValue -> x.allocValue(heap)
+                        else -> io.github.kotlinmania.starlark.values.layout.Value.newNone()
                     }
                 }
                 when (raw) {
-                    is io.github.kotlinmania.starlark_kotlin.values.layout.Value ->
+                    is io.github.kotlinmania.starlark.values.layout.Value ->
                         kotlin.Result.success(raw)
-                    is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
+                    is io.github.kotlinmania.starlark.values.layout.FrozenValue ->
                         kotlin.Result.success(raw.toValue())
-                    is io.github.kotlinmania.starlark_kotlin.values.AllocValue ->
+                    is io.github.kotlinmania.starlark.values.AllocValue ->
                         kotlin.Result.success(raw.allocValue(heap))
                     is kotlin.Result<*> -> {
                         if (raw.isFailure) {

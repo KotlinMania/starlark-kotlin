@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/expr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -23,62 +23,62 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * Evaluation of an expression.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.compileArgs
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.FStringP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LambdaP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
-import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
-import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
-import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
-import io.github.kotlinmania.starlark_kotlin.values.types.bool.BOOL_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.types.bool.StarlarkBool
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.float.allocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtxEvalForEvaluator
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.environment.ModuleSlotId
+import io.github.kotlinmania.starlark.errors.didYouMean
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark.eval.compiler.args.compileArgs
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark.syntax.ast.FStringP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.LambdaP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
+import io.github.kotlinmania.starlark.values.types.UnboundValue
+import io.github.kotlinmania.starlark.values.types.BoundMethodGen
+import io.github.kotlinmania.starlark.values.types.list.FrozenListData
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.types.list.ListData
+import io.github.kotlinmania.starlark.values.types.list.ListRef
+import io.github.kotlinmania.starlark.values.types.range.Range
+import io.github.kotlinmania.starlark.values.types.bool.BOOL_TYPE
+import io.github.kotlinmania.starlark.values.types.bool.StarlarkBool
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.float.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtxEvalForEvaluator
 
 // ---------------------------------------------------------------------------
 // MaybeNot
@@ -157,13 +157,13 @@ internal sealed class Builtin1 {
             is Not -> Value.newBool(!v.toValue().toBool())
             is TypeIs -> Value.newBool(v.toValue().getTypeValue() == type)
             is FormatOne -> {
-                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
+                val result = io.github.kotlinmania.starlark.values.types.string.formatOne(
                     before.asStr(), v.toValue(), after.asStr(), ctx.heap()
                 )
                 result.toValue()
             }
             is PercentSOne -> {
-                io.github.kotlinmania.starlark_kotlin.values.types.string.percentSOne(
+                io.github.kotlinmania.starlark.values.types.string.percentSOne(
                     before.asStr(), v.toValue(), after.asStr(), ctx.heap()
                 ).getOrNull()?.toValue()
             }
@@ -599,7 +599,7 @@ internal sealed class ExprCompiled {
         ): ExprCompiled {
             val argVal = arg.node.asValue()
             if (argVal != null) {
-                val result = io.github.kotlinmania.starlark_kotlin.values.types.string.percentSOne(
+                val result = io.github.kotlinmania.starlark.values.types.string.percentSOne(
                     before.asStr(), argVal.toValue(), after.asStr(), ctx.heap()
                 )
                 if (result.isSuccess) {
@@ -622,7 +622,7 @@ internal sealed class ExprCompiled {
         ): ExprCompiled {
             val argVal = arg.node.asValue()
             if (argVal != null) {
-                val value = io.github.kotlinmania.starlark_kotlin.values.types.string.formatOne(
+                val value = io.github.kotlinmania.starlark.values.types.string.formatOne(
                     before.asStr(), argVal.toValue(), after.asStr(), ctx.heap()
                 )
                 val frozen = ctx.frozenHeap().allocStrIntern(value.asStr())
@@ -862,7 +862,6 @@ internal sealed class ExprCompiled {
                             BoundMethodGen(member.method, left)
                         )
                         is UnboundValue.Attr -> null
-                        else -> null
                     }
                 }
                 is MemberOrValue.ValueResult -> v.value.unpackFrozen()
@@ -1257,7 +1256,7 @@ private fun AstLiteral.compile(heap: FrozenHeap): FrozenValue = when (this) {
     }
     is AstLiteral.Float -> StarlarkFloat(value.node).allocFrozenValue(heap)
     is AstLiteral.String -> heap.allocStrIntern(value.node).toFrozenValue()
-    is AstLiteral.Ellipsis -> heap.alloc(io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis)
+    is AstLiteral.Ellipsis -> heap.alloc(io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis)
 }
 
 // ---------------------------------------------------------------------------
@@ -1292,12 +1291,10 @@ private fun <P : AstPayload> reducesToString(
         val x = currentRight.node.unpackStringLiteral() ?: return null
         results.add(x)
         when (val leftNode = currentLeft.node) {
-            is ExprP.Op<*> -> {
+            is ExprP.Op -> {
                 currentOp = leftNode.op
-                @Suppress("UNCHECKED_CAST")
-                currentLeft = leftNode.lhs as Spanned<ExprP<P>>
-                @Suppress("UNCHECKED_CAST")
-                currentRight = leftNode.rhs as Spanned<ExprP<P>>
+                currentLeft = leftNode.lhs
+                currentRight = leftNode.rhs
             }
             else -> {
                 val y = currentLeft.node.unpackStringLiteral() ?: return null
@@ -1439,7 +1436,6 @@ private fun Compiler.exprIdent(ident: Spanned<IdentP<CstPayload, *>>): ExprCompi
             }
         }
         is ResolvedIdent.Global -> ExprCompiled.ValueExpr(resolvedIdent.value)
-        else -> error("Unexpected resolved ident: $resolvedIdent")
     }
 }
 
@@ -1465,12 +1461,10 @@ internal fun Compiler.expr(
     val span = FrameSpan.new(FrozenFileSpan.new(this.codemap, expr.span))
     val compiledExpr: ExprCompiled = try {
         when (val node = expr.node) {
-            is ExprP.Identifier<*, *> -> {
-                @Suppress("UNCHECKED_CAST")
-                val ident = node.ident as Spanned<IdentP<CstPayload, *>>
-                exprIdent(ident)
+            is ExprP.Identifier<CstPayload, *> -> {
+                exprIdent(node.ident)
             }
-            is ExprP.Lambda<*, *> -> {
+            is ExprP.Lambda<CstPayload, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val lambda = node.lambda as LambdaP<CstPayload, ScopeId>
                 val signatureSpan = lambda.signatureSpan()
@@ -1484,101 +1478,75 @@ internal fun Compiler.expr(
                     lambda.params, null, suite
                 )
             }
-            is ExprP.Tuple<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<Spanned<ExprP<CstPayload>>>
-                val xs = this.exprs(elements).getOrThrow()
+            is ExprP.Tuple -> {
+                val xs = this.exprs(node.elements).getOrThrow()
                 ExprCompiled.tuple(xs, this.eval.moduleEnv.frozenHeap())
             }
-            is ExprP.ListExpr<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<Spanned<ExprP<CstPayload>>>
-                val xs = this.exprs(elements).getOrThrow()
+            is ExprP.ListExpr -> {
+                val xs = this.exprs(node.elements).getOrThrow()
                 ExprCompiled.ListExpr(xs)
             }
-            is ExprP.Dict<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val elements = node.elements as List<Pair<Spanned<ExprP<CstPayload>>, Spanned<ExprP<CstPayload>>>>
-                val xs = elements.map { (k, v) ->
+            is ExprP.Dict -> {
+                val xs = node.elements.map { (k, v) ->
                     Pair(this.expr(k).getOrThrow(), this.expr(v).getOrThrow())
                 }
                 ExprCompiled.DictExpr(xs)
             }
-            is ExprP.If<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val cond = this.expr(node.cond as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val thenExpr = this.expr(node.v1 as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val elseExpr = this.expr(node.v2 as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.If -> {
+                val cond = this.expr(node.cond).getOrThrow()
+                val thenExpr = this.expr(node.v1).getOrThrow()
+                val elseExpr = this.expr(node.v2).getOrThrow()
                 return Result.success(ExprCompiled.ifExpr(cond, thenExpr, elseExpr))
             }
-            is ExprP.Dot<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val left = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Dot -> {
+                val left = this.expr(node.expr).getOrThrow()
                 val s = Symbol.new(node.field.node)
                 ExprCompiled.dot(left, s, this.optCtx())
             }
-            is ExprP.Call<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val left = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val args = this.compileArgs(node.args as CallArgsP<CstPayload>).getOrThrow()
+            is ExprP.Call -> {
+                val left = this.expr(node.expr).getOrThrow()
+                val args = this.compileArgs(node.args).getOrThrow()
                 CallCompiled.call(span, left, args, this.optCtx())
             }
-            is ExprP.Index<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val array = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val index = this.expr(node.index as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Index -> {
+                val array = this.expr(node.expr).getOrThrow()
+                val index = this.expr(node.index).getOrThrow()
                 ExprCompiled.index(array, index, this.optCtx())
             }
-            is ExprP.Index2<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val array = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val index0 = this.expr(node.index0 as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val index1 = this.expr(node.index1 as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Index2 -> {
+                val array = this.expr(node.expr).getOrThrow()
+                val index0 = this.expr(node.index0).getOrThrow()
+                val index1 = this.expr(node.index1).getOrThrow()
                 ExprCompiled.index2(array, index0, index1)
             }
-            is ExprP.Slice<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val collection = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
-                @Suppress("UNCHECKED_CAST")
-                val start = (node.start as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
-                @Suppress("UNCHECKED_CAST")
-                val stop = (node.stop as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
-                @Suppress("UNCHECKED_CAST")
-                val stride = (node.step as Spanned<ExprP<CstPayload>>?)?.let { this.expr(it).getOrThrow() }
+            is ExprP.Slice -> {
+                val collection = this.expr(node.expr).getOrThrow()
+                val start = node.start?.let { this.expr(it).getOrThrow() }
+                val stop = node.stop?.let { this.expr(it).getOrThrow() }
+                val stride = node.step?.let { this.expr(it).getOrThrow() }
                 ExprCompiled.slice(span, collection, start, stop, stride, this.optCtx())
             }
-            is ExprP.Not<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Not -> {
+                val inner = this.expr(node.expr).getOrThrow()
                 return Result.success(ExprCompiled.not(span, inner))
             }
-            is ExprP.Minus<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Minus -> {
+                val inner = this.expr(node.expr).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.Minus, inner, this.optCtx())
             }
-            is ExprP.Plus<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.Plus -> {
+                val inner = this.expr(node.expr).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.Plus, inner, this.optCtx())
             }
-            is ExprP.BitNot<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val inner = this.expr(node.expr as Spanned<ExprP<CstPayload>>).getOrThrow()
+            is ExprP.BitNot -> {
+                val inner = this.expr(node.expr).getOrThrow()
                 ExprCompiled.unOp(span, Builtin1.BitNot, inner, this.optCtx())
             }
-            is ExprP.Op<*> -> {
-                @Suppress("UNCHECKED_CAST")
+            is ExprP.Op -> {
                 val reduced = reducesToString(
                     node.op,
-                    node.lhs as Spanned<ExprP<CstPayload>>,
-                    node.rhs as Spanned<ExprP<CstPayload>>,
+                    node.lhs,
+                    node.rhs,
                 )
                 if (reduced != null) {
                     // Note there's const propagation for `+` on compiled expressions,
@@ -1587,15 +1555,13 @@ internal fun Compiler.expr(
                     val v = this.eval.moduleEnv.frozenHeap().allocStrIntern(reduced)
                     ExprCompiled.ValueExpr(v.toFrozenValue())
                 } else {
-                    @Suppress("UNCHECKED_CAST")
                     val right: Spanned<ExprP<CstPayload>> = if (node.op == BinOp.In || node.op == BinOp.NotIn) {
-                        listToTuple(node.rhs as Spanned<ExprP<CstPayload>>)
+                        listToTuple(node.rhs)
                     } else {
-                        node.rhs as Spanned<ExprP<CstPayload>>
+                        node.rhs
                     }
 
-                    @Suppress("UNCHECKED_CAST")
-                    val l = this.expr(node.lhs as Spanned<ExprP<CstPayload>>).getOrThrow()
+                    val l = this.expr(node.lhs).getOrThrow()
                     val r = this.expr(right).getOrThrow()
 
                     when (node.op) {
@@ -1629,30 +1595,27 @@ internal fun Compiler.expr(
                     }
                 }
             }
-            is ExprP.ListComprehension<*> -> {
-                @Suppress("UNCHECKED_CAST")
+            is ExprP.ListComprehension -> {
                 this.listComprehension(
-                    node.expr as Spanned<ExprP<CstPayload>>,
-                    node.forClause as ForClauseP<CstPayload>,
-                    node.clauses as List<ClauseP<CstPayload>>,
+                    node.expr,
+                    node.forClause,
+                    node.clauses,
                 ).getOrThrow()
             }
-            is ExprP.DictComprehension<*> -> {
-                @Suppress("UNCHECKED_CAST")
+            is ExprP.DictComprehension -> {
                 this.dictComprehension(
-                    node.key as Spanned<ExprP<CstPayload>>,
-                    node.value as Spanned<ExprP<CstPayload>>,
-                    node.forClause as ForClauseP<CstPayload>,
-                    node.clauses as List<ClauseP<CstPayload>>,
+                    node.key,
+                    node.value,
+                    node.forClause,
+                    node.clauses,
                 ).getOrThrow()
             }
-            is ExprP.Literal<*> -> {
+            is ExprP.Literal -> {
                 val v = node.literal.compile(this.eval.moduleEnv.frozenHeap())
                 ExprCompiled.ValueExpr(v)
             }
-            is ExprP.FString<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                val fstring = node.fstring as Spanned<FStringP<CstPayload>>
+            is ExprP.FString -> {
+                val fstring = node.fstring
                 val fstringSpan = FrameSpan.new(FrozenFileSpan.new(this.codemap, fstring.span))
 
                 // Desugar f"foo{x}bar{y}" to "foo{}bar{}.format(x, y)"
@@ -1669,8 +1632,7 @@ internal fun Compiler.expr(
 
                 val args = ArgsCompiledValue()
                 for (expression in fstring.node.expressions) {
-                    @Suppress("UNCHECKED_CAST")
-                    args.pushPos(this.expr(expression as Spanned<ExprP<CstPayload>>).getOrThrow())
+                    args.pushPos(this.expr(expression).getOrThrow())
                 }
 
                 CallCompiled.call(span, method, args, this.optCtx())
@@ -1721,5 +1683,5 @@ internal fun Compiler.exprs(
  * Returns `null` if the string doesn't match the single `%s` pattern.
  */
 private fun parsePercentSOne(s: String): Pair<String, String>? {
-    return io.github.kotlinmania.starlark_kotlin.values.types.string.parsePercentSOne(s)
+    return io.github.kotlinmania.starlark.values.types.string.parsePercentSOne(s)
 }

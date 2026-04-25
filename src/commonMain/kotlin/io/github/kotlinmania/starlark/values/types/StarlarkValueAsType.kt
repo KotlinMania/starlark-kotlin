@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/starlark_value_as_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type
+package io.github.kotlinmania.starlark.values.types.starlarkvalueastype
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -50,21 +50,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_typ
 // use crate::values::typing::TypeType;
 // use crate::values::typing::ty::AbstractType;
 
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocProperty
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 
 // #[derive(Debug, NoSerialize, Allocative, ProvidesStaticType)]
 // struct StarlarkValueAsTypeStarlarkValue(fn() -> Ty, fn() -> DocItem);

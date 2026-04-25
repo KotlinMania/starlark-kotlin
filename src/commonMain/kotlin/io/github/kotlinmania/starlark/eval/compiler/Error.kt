@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/error.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
+import io.github.kotlinmania.starlark.typing.EvalException
 
 class CompilerInternalError(private val exception: EvalException) : Exception(exception.message, exception) {
 

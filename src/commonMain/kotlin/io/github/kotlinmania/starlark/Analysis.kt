@@ -1,5 +1,5 @@
 // port-lint: source src/analysis.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.analysis.LintMessage
-import io.github.kotlinmania.starlark_kotlin.analysis.EvalMessage
-import io.github.kotlinmania.starlark_kotlin.analysis.EvalSeverity
-import io.github.kotlinmania.starlark_kotlin.analysis.Lint
-import io.github.kotlinmania.starlark_kotlin.analysis.LintT
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.analysis.LintMessage
+import io.github.kotlinmania.starlark.analysis.EvalMessage
+import io.github.kotlinmania.starlark.analysis.EvalSeverity
+import io.github.kotlinmania.starlark.analysis.Lint
+import io.github.kotlinmania.starlark.analysis.LintT
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 /**
  * Linter.
@@ -36,16 +36,16 @@ import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
  * - [Lint]
  *
  * Submodules:
- * - [dubious][io.github.kotlinmania.starlark_kotlin.analysis.Dubious] - dubious pattern detection
- * - [findCallName][io.github.kotlinmania.starlark_kotlin.analysis.FindCallName] - call name finder
- * - [flow][io.github.kotlinmania.starlark_kotlin.analysis.Flow] - control flow analysis
- * - [incompatible][io.github.kotlinmania.starlark_kotlin.analysis.Incompatible] - incompatibility checks
- * - [lintMessage][io.github.kotlinmania.starlark_kotlin.analysis.LintMessage] - lint message types
- * - [names][io.github.kotlinmania.starlark_kotlin.analysis.Names] - name analysis
- * - [performance][io.github.kotlinmania.starlark_kotlin.analysis.Performance] - performance lint
- * - [types][io.github.kotlinmania.starlark_kotlin.analysis.Types] - type analysis
- * - [underscore][io.github.kotlinmania.starlark_kotlin.analysis.Underscore] - underscore analysis
- * - [unusedLoads][io.github.kotlinmania.starlark_kotlin.analysis.UnusedLoads] - unused load detection
+ * - [dubious][io.github.kotlinmania.starlark.analysis.Dubious] - dubious pattern detection
+ * - [findCallName][io.github.kotlinmania.starlark.analysis.FindCallName] - call name finder
+ * - [flow][io.github.kotlinmania.starlark.analysis.Flow] - control flow analysis
+ * - [incompatible][io.github.kotlinmania.starlark.analysis.Incompatible] - incompatibility checks
+ * - [lintMessage][io.github.kotlinmania.starlark.analysis.LintMessage] - lint message types
+ * - [names][io.github.kotlinmania.starlark.analysis.Names] - name analysis
+ * - [performance][io.github.kotlinmania.starlark.analysis.Performance] - performance lint
+ * - [types][io.github.kotlinmania.starlark.analysis.Types] - type analysis
+ * - [underscore][io.github.kotlinmania.starlark.analysis.Underscore] - underscore analysis
+ * - [unusedLoads][io.github.kotlinmania.starlark.analysis.UnusedLoads] - unused load detection
  */
 
 /**

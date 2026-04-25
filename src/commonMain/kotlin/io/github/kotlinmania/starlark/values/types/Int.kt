@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -33,4 +33,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 // mod tests;
 
 // pub use pointer_i32::INT_TYPE;
-internal val INT_TYPE = io.github.kotlinmania.starlark_kotlin.values.types.int.INT_TYPE
+internal val INT_TYPE = io.github.kotlinmania.starlark.values.types.int.INT_TYPE

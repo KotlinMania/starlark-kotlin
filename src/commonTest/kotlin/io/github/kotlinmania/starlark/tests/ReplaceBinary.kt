@@ -1,5 +1,5 @@
 // port-lint: source src/tests/replace_binary.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Run Go implementation tests. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import kotlin.test.Test
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.AstModule
 import kotlin.test.assertEquals
 
 class ReplaceBinaryTests {

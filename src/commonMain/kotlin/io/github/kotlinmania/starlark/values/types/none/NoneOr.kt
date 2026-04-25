@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/none/none_or.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.none
+package io.github.kotlinmania.starlark.values.types.none
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Equivalent of a Kotlin nullable type, where `null`
@@ -52,7 +52,7 @@ sealed class NoneOr<out T> : StarlarkTypeRepr {
     }
 
     /** Convert the [NoneOr] to a nullable type. */
-    inline fun intoOption(): T? {
+    fun intoOption(): T? {
         return when (this) {
             is None -> null
             is Other -> this.value
@@ -66,7 +66,7 @@ sealed class NoneOr<out T> : StarlarkTypeRepr {
 
     companion object {
         /** Convert a nullable type to a [NoneOr]. */
-        inline fun <T> fromOption(option: T?): NoneOr<T> {
+        fun <T> fromOption(option: T?): NoneOr<T> {
             return when (option) {
                 null -> None
                 else -> Other(option)

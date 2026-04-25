@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs/other.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
+package io.github.kotlinmania.starlark.stdlib.funcs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.allTrue
-import io.github.kotlinmania.starlark_kotlin.assert.eq
-import io.github.kotlinmania.starlark_kotlin.assert.fail
-import io.github.kotlinmania.starlark_kotlin.assert.isTrue
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.allTrue
+import io.github.kotlinmania.starlark.assert.eq
+import io.github.kotlinmania.starlark.assert.fail
+import io.github.kotlinmania.starlark.assert.isTrue
 import kotlin.test.Test
 
 // #[cfg(test)]

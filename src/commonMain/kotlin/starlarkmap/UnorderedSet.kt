@@ -1,5 +1,5 @@
 // port-lint: source src/unordered_set.rs
-package starlark_map.unordered_set
+package starlarkmap.unorderedset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package starlark_map.unordered_set
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
-import starlark_map.unordered_map.UnorderedMap
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
+import starlarkmap.unorderedmap.UnorderedMap
 
 /**
  * `HashSet` that does not expose insertion order.
@@ -123,7 +123,7 @@ class UnorderedSet<T> internal constructor(
  * Corresponds to Rust `RawEntryBuilderMut<'a, T>`.
  */
 class RawEntryBuilderMut<T>(
-    private val entry: starlark_map.unordered_map.RawEntryBuilderMut<T, Unit>,
+    private val entry: starlarkmap.unorderedmap.RawEntryBuilderMut<T, Unit>,
 ) {
     /**
      * Find the entry for a key.
@@ -131,9 +131,9 @@ class RawEntryBuilderMut<T>(
      */
     fun fromEntry(value: T): RawEntryMut<T> {
         return when (val raw = entry.fromKey(value)) {
-            is starlark_map.unordered_map.RawEntryMut.Occupied ->
+            is starlarkmap.unorderedmap.RawEntryMut.Occupied ->
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is starlark_map.unordered_map.RawEntryMut.Vacant ->
+            is starlarkmap.unorderedmap.RawEntryMut.Vacant ->
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
         }
     }
@@ -150,9 +150,9 @@ class RawEntryBuilderMut<T>(
      */
     fun fromHash(hash: StarlarkHashValue, isMatch: (T) -> Boolean): RawEntryMut<T> {
         return when (val raw = entry.fromHash(hash, isMatch)) {
-            is starlark_map.unordered_map.RawEntryMut.Occupied ->
+            is starlarkmap.unorderedmap.RawEntryMut.Occupied ->
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is starlark_map.unordered_map.RawEntryMut.Vacant ->
+            is starlarkmap.unorderedmap.RawEntryMut.Vacant ->
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
         }
     }
@@ -174,7 +174,7 @@ sealed class RawEntryMut<T> {
  * Corresponds to Rust `RawOccupiedEntryMut<'a, T>`.
  */
 class RawOccupiedEntryMut<T>(
-    private val entry: starlark_map.unordered_map.RawOccupiedEntryMut<T, Unit>,
+    private val entry: starlarkmap.unorderedmap.RawOccupiedEntryMut<T, Unit>,
 ) {
     /** Remove the entry. */
     fun remove(): T = entry.removeEntry().first
@@ -188,7 +188,7 @@ class RawOccupiedEntryMut<T>(
  * Corresponds to Rust `RawVacantEntryMut<'a, T>`.
  */
 class RawVacantEntryMut<T>(
-    private val entry: starlark_map.unordered_map.RawVacantEntryMut<T, Unit>,
+    private val entry: starlarkmap.unorderedmap.RawVacantEntryMut<T, Unit>,
 ) {
     /** Insert an entry to the set. Computes the hash of the key. */
     fun insert(value: T) {

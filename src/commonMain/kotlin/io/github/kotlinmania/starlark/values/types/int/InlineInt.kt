@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int/inline_int.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,22 +20,26 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.likely
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.likely
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Integer which is stored inline in `RawPointer`. */
 // Rust: #[derive(Clone, Copy, Dupe, derive_more::Display, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
 // Rust: #[serde(transparent)]
 // Rust: pub struct InlineInt(i32)
-data class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
+@ConsistentCopyVisibility
+data class InlineInt internal constructor(private val value: Int) :
+    Comparable<InlineInt>,
+    StarlarkTypeRepr,
+    AllocValue,
+    AllocFrozenValue {
 
     // Rust: impl Debug for InlineInt
     // fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -70,7 +74,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         }
 
         // Rust: fn new_unchecked(i: i32) -> InlineInt
-        internal inline fun newUnchecked(i: Int): InlineInt {
+        internal fun newUnchecked(i: Int): InlineInt {
             return InlineInt(i)
         }
 
@@ -122,7 +126,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
 
         // Rust: fn try_from_impl<I>(i: I) -> Result<InlineInt, InlineIntOverflow>
         //     where i32: TryFrom<I>,
-        private inline fun <T> tryFromImpl(value: T): Result<InlineInt>
+        private fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
             val i = when (value) {
                 is Int -> value
@@ -144,37 +148,56 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
         }
     }
 
+    // Rust: impl StarlarkTypeRepr for InlineInt
+    // type Canonical = <StarlarkInt as StarlarkTypeRepr>::Canonical;
+    // fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
+    override fun starlarkTypeRepr(): Ty {
+        return Ty.int()
+    }
+
+    // Rust: impl<'v> AllocValue<'v> for InlineInt
+    // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
+    override fun allocValue(heap: Heap): Value {
+        return Value.newInt(this)
+    }
+
+    // Rust: impl AllocFrozenValue for InlineInt
+    // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+        return FrozenValue.newInt(this)
+    }
+
     // --- Conversion methods ---
 
     /** Rust: fn to_i32(self) -> i32 */
-    internal inline fun toI32(): Int {
+    internal fun toI32(): Int {
         return value
     }
 
     /** Rust: fn to_u64(self) -> Option<u64> */
-    internal inline fun toU64(): ULong? {
+    internal fun toU64(): ULong? {
         return if (value >= 0) value.toULong() else null
     }
 
     /** Rust: fn to_u32(self) -> Option<u32> */
-    internal inline fun toU32(): UInt? {
+    internal fun toU32(): UInt? {
         return if (value >= 0) value.toUInt() else null
     }
 
     /** Rust: fn to_f64(self) -> f64 */
-    internal inline fun toF64(): Double {
+    internal fun toF64(): Double {
         return value.toDouble()
     }
 
     /** Rust: fn signum(self) -> i32 */
-    internal inline fun signum(): Int {
+    internal fun signum(): Int {
         return value.compareTo(0)
     }
 
     // --- Checked arithmetic ---
 
     /** Rust: fn checked_add(self, rhs: InlineInt) -> Option<InlineInt> */
-    internal inline fun checkedAdd(rhs: InlineInt): InlineInt? {
+    internal fun checkedAdd(rhs: InlineInt): InlineInt? {
         val result = value.toLong() + rhs.value.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
             return null
@@ -183,12 +206,12 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_sub(self, rhs: InlineInt) -> Option<InlineInt> */
-    internal inline fun checkedSub(rhs: InlineInt): InlineInt? {
+    internal fun checkedSub(rhs: InlineInt): InlineInt? {
         return checkedSubI32(rhs.value)
     }
 
     /** Rust: fn checked_sub_i32(self, rhs: i32) -> Option<InlineInt> */
-    internal inline fun checkedSubI32(rhs: Int): InlineInt? {
+    internal fun checkedSubI32(rhs: Int): InlineInt? {
         val result = value.toLong() - rhs.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
             return null
@@ -197,7 +220,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_neg(self) -> Option<InlineInt> */
-    internal inline fun checkedNeg(): InlineInt? {
+    internal fun checkedNeg(): InlineInt? {
         if (value == Int.MIN_VALUE) {
             return null
         }
@@ -205,7 +228,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_div(self, rhs: InlineInt) -> Option<InlineInt> */
-    internal inline fun checkedDiv(rhs: InlineInt): InlineInt? {
+    internal fun checkedDiv(rhs: InlineInt): InlineInt? {
         if (rhs.value == 0) {
             return null
         }
@@ -217,7 +240,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_mul_i32(self, rhs: i32) -> Option<InlineInt> */
-    internal inline fun checkedMulI32(rhs: Int): InlineInt? {
+    internal fun checkedMulI32(rhs: Int): InlineInt? {
         val result = value.toLong() * rhs.toLong()
         if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) {
             return null
@@ -226,7 +249,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_shr(self, rhs: u32) -> Option<InlineInt> */
-    internal inline fun checkedShr(rhs: UInt): InlineInt? {
+    internal fun checkedShr(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
             return null
         }
@@ -235,7 +258,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     }
 
     /** Rust: fn checked_shl(self, rhs: u32) -> Option<InlineInt> */
-    internal inline fun checkedShl(rhs: UInt): InlineInt? {
+    internal fun checkedShl(rhs: UInt): InlineInt? {
         if (rhs >= 32u) {
             return null
         }
@@ -303,7 +326,7 @@ data class InlineInt internal constructor(private val value: Int) : Comparable<I
     // Rust: impl PartialEq<i32> for InlineInt
     // Value class equals/hashCode are derived from the underlying Int.
     // For explicit comparison with Int, use equalsInt.
-    internal inline fun equalsInt(other: Int): Boolean {
+    internal fun equalsInt(other: Int): Boolean {
         return value == other
     }
 
@@ -322,67 +345,3 @@ internal operator fun Int.compareTo(other: InlineInt): Int {
 
 /** Rust: pub struct InlineIntOverflow */
 internal class InlineIntOverflow : Exception("InlineInt overflow")
-
-// --- Trait impls that InlineInt cannot directly implement as a value class ---
-
-/** Rust: impl StarlarkTypeRepr for InlineInt */
-// type Canonical = <StarlarkInt as StarlarkTypeRepr>::Canonical;
-object InlineIntStarlarkTypeRepr : StarlarkTypeRepr {
-    // Rust: fn starlark_type_repr() -> Ty { PointerI32::starlark_type_repr() }
-    override fun starlarkTypeRepr(): Ty {
-        return Ty.int()
-    }
-}
-
-/** Rust: impl<'v> UnpackValue<'v> for InlineInt */
-object InlineIntUnpackValue : UnpackValue<InlineInt> {
-    // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
-
-    // Rust: fn unpack_value_impl(value: Value<'v>) -> crate::Result<Option<Self>>
-    override fun unpackValueImpl(value: Value): Result<InlineInt?> {
-        return Result.success(value.unpackInlineInt())
-    }
-}
-
-/** Rust: impl<'v> AllocValue<'v> for InlineInt */
-object InlineIntAllocValue : AllocValue {
-    // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
-
-    // Rust: fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
-    override fun allocValue(heap: Heap): Value {
-        error("Use InlineInt.allocValue(heap) extension instead")
-    }
-}
-
-/** Extension to allocate an [InlineInt] as a [Value]. */
-// Rust: impl<'v> AllocValue<'v> for InlineInt
-//     fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
-internal fun InlineInt.allocValue(heap: Heap): Value {
-    return Value.newInt(this)
-}
-
-/** Rust: impl AllocFrozenValue for InlineInt */
-object InlineIntAllocFrozenValue : AllocFrozenValue {
-    // Rust: fn starlark_type_repr() -> Ty
-    override fun starlarkTypeRepr(): Ty {
-        return InlineIntStarlarkTypeRepr.starlarkTypeRepr()
-    }
-
-    // Rust: fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
-        error("Use InlineInt.allocFrozenValue(heap) extension instead")
-    }
-}
-
-/** Extension to allocate an [InlineInt] as a [FrozenValue]. */
-// Rust: impl AllocFrozenValue for InlineInt
-//     fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
-internal fun InlineInt.allocFrozenValue(heap: FrozenHeap): FrozenValue {
-    return FrozenValue.newInt(this)
-}

@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/basic.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalNamed
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalNamed
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // The examples from the starlark_module documentation.
 // #[test]
@@ -65,7 +65,7 @@ internal fun testStarlarkMethods() {
         builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
             val index = args.optionalNamed<Int>("index") ?: 3
             val sv = eval.heap().allocStr("$thisVal $index")
-            Result.success(sv)
+            Result.success(sv.toValue())
         }
     }
 

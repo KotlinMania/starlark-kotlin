@@ -1,5 +1,5 @@
 // port-lint: source src/unordered_map.rs
-package starlark_map.unordered_map
+package starlarkmap.unorderedmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package starlark_map.unordered_map
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
 
 /**
  * Hash map which does not expose any insertion order-specific behavior

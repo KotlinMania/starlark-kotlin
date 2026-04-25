@@ -1,10 +1,10 @@
-package io.github.kotlinmania.starlark_kotlin.syntax.parser
+package io.github.kotlinmania.starlark.syntax.parser
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.*
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Token
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenFString
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.*
+import io.github.kotlinmania.starlark.syntax.lexer.Token
+import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
+import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Marker for nested Option<> handling where nullability flattening in Kotlin loses state. */
 

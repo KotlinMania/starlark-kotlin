@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/arguments.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
+import starlarkmap.smallmap.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -34,7 +34,7 @@ import kotlin.test.assertTrue
 private fun testingNewInt(x: Int): Value = Value.testingNewInt(x)
 
 private fun stringValue(heap: Heap, value: String): StringValue {
-    return StringValue.new(heap.allocStr(value)) ?: error("Expected string value")
+    return heap.allocStr(value)
 }
 
 private fun parameterUnpackCase(

@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/tuple.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
+package io.github.kotlinmania.starlark.values.layout.avalues
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 // fn tuple_avalue<'v>(len: usize) -> AValueImpl<'v, AValueTuple>
 internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> {
@@ -58,12 +58,12 @@ internal object AValueTuple : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("heapCopy should be dispatched via vtable with actual value")
     }
 
@@ -87,12 +87,12 @@ internal object AValueFrozenTuple : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(_me, _freezer) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 
     // unsafe fn heap_copy(_me, _tracer) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

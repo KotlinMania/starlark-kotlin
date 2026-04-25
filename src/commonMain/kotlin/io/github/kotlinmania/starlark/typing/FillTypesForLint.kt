@@ -1,35 +1,34 @@
 // port-lint: source src/typing/fill_types_for_lint.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopeData
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.AssignP
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.syntax.ast.ForP
+import io.github.kotlinmania.starlark.syntax.ast.DefP
+import io.github.kotlinmania.starlark.syntax.ast.LoadP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.environment.ModuleSlotId
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
+import io.github.kotlinmania.starlark.eval.compiler.Slot
+import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
+import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -109,7 +108,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn call(&mut self, _f: &CstExpr, _args: &CallArgsP<CstPayload>) -> Result<GlobalValue, InternalError>
-    fun call(_f: Spanned<ExprP<CstPayload>>, _args: CallArgsP<CstPayload>): GlobalValue {
+    fun call(f: Spanned<ExprP<CstPayload>>, args: CallArgsP<CstPayload>): GlobalValue {
         return GlobalValue.any()
     }
 
@@ -136,7 +135,7 @@ private class GlobalTypesBuilder(
     // fn expr_literal(&mut self, literal: &AstLiteral) -> Result<GlobalValue, InternalError>
     fun exprLiteral(literal: AstLiteral): GlobalValue {
         return when (literal) {
-            is AstLiteral.String -> GlobalValue.value(heap.allocStr(literal.value.node))
+            is AstLiteral.String -> GlobalValue.value(heap.allocStr(literal.value.node).toValue())
             else -> GlobalValue.any()
         }
     }
@@ -210,36 +209,30 @@ private class GlobalTypesBuilder(
     }
 
     // fn expr(&mut self, expr: &CstExpr) -> Result<GlobalValue, InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun expr(e: Spanned<ExprP<CstPayload>>): GlobalValue {
         val span = e.span
         return when (val node = e.node) {
-            is ExprP.Tuple<*> -> tuple(node.elements as List<Spanned<ExprP<CstPayload>>>)
-            is ExprP.Dot<*> -> dot(span, node.expr as Spanned<ExprP<CstPayload>>, node.field)
-            is ExprP.Call<*> -> call(node.expr as Spanned<ExprP<CstPayload>>, node.args as CallArgsP<CstPayload>)
-            is ExprP.Index<*> -> index(span, node.expr as Spanned<ExprP<CstPayload>>, node.index as Spanned<ExprP<CstPayload>>)
-            is ExprP.Index2<*> -> index2(
-                span,
-                node.expr as Spanned<ExprP<CstPayload>>,
-                node.index0 as Spanned<ExprP<CstPayload>>,
-                node.index1 as Spanned<ExprP<CstPayload>>,
-            )
-            is ExprP.Identifier<*, *> -> exprIdent(node.ident as Spanned<IdentP<CstPayload, *>>)
-            is ExprP.Literal<*> -> exprLiteral(node.literal)
-            is ExprP.Op<*> -> binOp(span, node.lhs as Spanned<ExprP<CstPayload>>, node.op, node.rhs as Spanned<ExprP<CstPayload>>)
+            is ExprP.Tuple -> tuple(node.elements)
+            is ExprP.Dot -> dot(span, node.expr, node.field)
+            is ExprP.Call -> call(node.expr, node.args)
+            is ExprP.Index -> index(span, node.expr, node.index)
+            is ExprP.Index2 -> index2(span, node.expr, node.index0, node.index1)
+            is ExprP.Identifier<CstPayload, *> -> exprIdent(node.ident)
+            is ExprP.Literal -> exprLiteral(node.literal)
+            is ExprP.Op -> binOp(span, node.lhs, node.op, node.rhs)
             // These are not used in type expressions.
-            is ExprP.Slice<*>,
-            is ExprP.Lambda<*, *>,
-            is ExprP.Not<*>,
-            is ExprP.Minus<*>,
-            is ExprP.Plus<*>,
-            is ExprP.BitNot<*>,
-            is ExprP.If<*>,
-            is ExprP.ListExpr<*>,
-            is ExprP.Dict<*>,
-            is ExprP.ListComprehension<*>,
-            is ExprP.DictComprehension<*>,
-            is ExprP.FString<*> -> GlobalValue.any()
+            is ExprP.Slice,
+            is ExprP.Lambda<CstPayload, *>,
+            is ExprP.Not,
+            is ExprP.Minus,
+            is ExprP.Plus,
+            is ExprP.BitNot,
+            is ExprP.If,
+            is ExprP.ListExpr,
+            is ExprP.Dict,
+            is ExprP.ListComprehension,
+            is ExprP.DictComprehension,
+            is ExprP.FString -> GlobalValue.any()
         }
     }
 
@@ -250,16 +243,14 @@ private class GlobalTypesBuilder(
     }
 
     // fn load(&mut self, load: &LoadP<CstPayload>) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun load(loadStmt: LoadP<CstPayload, *>) {
         for (arg in loadStmt.args) {
             val ty = (loadStmt.payload as? Interface)?.get(arg.their.node) ?: Ty.any()
-            assignIdentValue(arg.local as Spanned<AssignIdentP<CstPayload, *>>, GlobalValue.ty(ty))
+            assignIdentValue(arg.local, GlobalValue.ty(ty))
         }
     }
 
     // fn resolve_assign_ident_to_module_slot_id(&self, ident: &CstAssignIdent) -> Result<ModuleSlotId, InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun resolveAssignIdentToModuleSlotId(ident: Spanned<AssignIdentP<CstPayload, *>>): ModuleSlotId {
         val bindingId = ident.node.payload as? BindingId
             ?: throw internalError(ident.span, "binding not resolved")
@@ -289,17 +280,16 @@ private class GlobalTypesBuilder(
     }
 
     // fn assign_value(&mut self, lhs: &AssignTargetP<CstPayload>, rhs: GlobalValue) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun assignValue(lhs: Spanned<AssignTargetP<CstPayload>>, rhs: GlobalValue) {
         when (val node = lhs.node) {
-            is AssignTargetP.Tuple<*> -> {
+            is AssignTargetP.Tuple -> {
                 for (x in node.elements) {
-                    assignUnset(x as Spanned<AssignTargetP<CstPayload>>)
+                    assignUnset(x)
                 }
             }
-            is AssignTargetP.Index<*> -> { /* noop */ }
-            is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignIdentValue(node.ident as Spanned<AssignIdentP<CstPayload, *>>, rhs)
+            is AssignTargetP.Index -> { /* noop */ }
+            is AssignTargetP.Dot -> { /* noop */ }
+            is AssignTargetP.Identifier<CstPayload, *> -> assignIdentValue(node.ident, rhs)
         }
     }
 
@@ -324,17 +314,16 @@ private class GlobalTypesBuilder(
      * We don't know what branch is taken. So we just unset both `a` and `b`.
      */
     // fn assign_unset(&mut self, lhs: &AssignTargetP<CstPayload>) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun assignUnset(lhs: Spanned<AssignTargetP<CstPayload>>) {
         when (val node = lhs.node) {
-            is AssignTargetP.Tuple<*> -> {
+            is AssignTargetP.Tuple -> {
                 for (x in node.elements) {
-                    assignUnset(x as Spanned<AssignTargetP<CstPayload>>)
+                    assignUnset(x)
                 }
             }
-            is AssignTargetP.Index<*> -> { /* noop */ }
-            is AssignTargetP.Dot<*> -> { /* noop */ }
-            is AssignTargetP.Identifier<*, *> -> assignUnsetIdent(node.ident as Spanned<AssignIdentP<CstPayload, *>>)
+            is AssignTargetP.Index -> { /* noop */ }
+            is AssignTargetP.Dot -> { /* noop */ }
+            is AssignTargetP.Identifier<CstPayload, *> -> assignUnsetIdent(node.ident)
         }
     }
 
@@ -355,34 +344,32 @@ private class GlobalTypesBuilder(
      * we just reset all the variables.
      */
     // fn eval_stmt_unset(&mut self, stmt: &CstStmt) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun evalStmtUnset(stmt: Spanned<StmtP<CstPayload>>) {
         when (val node = stmt.node) {
-            is StmtP.Break<*> -> { /* noop */ }
-            is StmtP.Continue<*> -> { /* noop */ }
-            is StmtP.Pass<*> -> { /* noop */ }
-            is StmtP.Return<*> -> throw internalError(stmt.span, "return")
-            is StmtP.Expression<*> -> { /* noop */ }
-            is StmtP.Assign<*> -> assignUnset((node.assign as AssignP<CstPayload>).lhs)
-            is StmtP.AssignModify<*> -> assignUnset(node.lhs as Spanned<AssignTargetP<CstPayload>>)
-            is StmtP.Statements<*> -> {
+            is StmtP.Break -> { /* noop */ }
+            is StmtP.Continue -> { /* noop */ }
+            is StmtP.Pass -> { /* noop */ }
+            is StmtP.Return -> throw internalError(stmt.span, "return")
+            is StmtP.Expression -> { /* noop */ }
+            is StmtP.Assign -> assignUnset(node.assign.lhs)
+            is StmtP.AssignModify -> assignUnset(node.lhs)
+            is StmtP.Statements -> {
                 for (x in node.stmts) {
-                    evalStmtUnset(x as Spanned<StmtP<CstPayload>>)
+                    evalStmtUnset(x)
                 }
             }
-            is StmtP.If<*> -> evalStmtUnset(node.suite as Spanned<StmtP<CstPayload>>)
-            is StmtP.IfElse<*> -> {
-                evalStmtUnset(node.suite1 as Spanned<StmtP<CstPayload>>)
-                evalStmtUnset(node.suite2 as Spanned<StmtP<CstPayload>>)
+            is StmtP.If -> evalStmtUnset(node.suite)
+            is StmtP.IfElse -> {
+                evalStmtUnset(node.suite1)
+                evalStmtUnset(node.suite2)
             }
-            is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
-            is StmtP.Def<*, *> -> assignUnsetIdent(node.def.name as Spanned<AssignIdentP<CstPayload, *>>)
-            is StmtP.Load<*, *> -> throw internalError(stmt.span, "load")
+            is StmtP.For -> forStmtUnset(node.forStmt)
+            is StmtP.Def<CstPayload, *> -> assignUnsetIdent(node.def.name)
+            is StmtP.Load<CstPayload, *> -> throw internalError(stmt.span, "load")
         }
     }
 
     // fn top_level_def(&mut self, def: &DefP<CstPayload>) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun topLevelDef(def: DefP<CstPayload, *>) {
         val defParams = unpackDefParams(def.params, ctx.codemap)
 
@@ -411,30 +398,29 @@ private class GlobalTypesBuilder(
 
         val result = getTyExprOpt(def.returnType)
         val paramSpec = ParamSpec.newParts(posOnly, posOrName, args, nameOnly, kwargs)
-        assignIdentValue(def.name as Spanned<AssignIdentP<CstPayload, *>>, GlobalValue.ty(Ty.function(paramSpec, result)))
+        assignIdentValue(def.name, GlobalValue.ty(Ty.function(paramSpec, result)))
     }
 
     // fn eval_stmt(&mut self, stmt: &CstStmt) -> Result<(), InternalError>
-    @Suppress("UNCHECKED_CAST")
     fun evalStmt(stmt: Spanned<StmtP<CstPayload>>) {
         val span = stmt.span
         when (val node = stmt.node) {
-            is StmtP.Break<*> -> throw internalError(span, "top-level break")
-            is StmtP.Continue<*> -> throw internalError(span, "top-level continue")
-            is StmtP.Pass<*> -> { /* noop */ }
-            is StmtP.Return<*> -> throw internalError(span, "top-level return")
-            is StmtP.Expression<*> -> { /* noop */ }
-            is StmtP.Assign<*> -> assignStmt(node.assign as AssignP<CstPayload>)
-            is StmtP.AssignModify<*> -> { /* noop */ }
-            is StmtP.Statements<*> -> throw internalError(span, "statements in top-level statement")
-            is StmtP.If<*> -> evalStmtUnset(node.suite as Spanned<StmtP<CstPayload>>)
-            is StmtP.IfElse<*> -> {
-                evalStmtUnset(node.suite1 as Spanned<StmtP<CstPayload>>)
-                evalStmtUnset(node.suite2 as Spanned<StmtP<CstPayload>>)
+            is StmtP.Break -> throw internalError(span, "top-level break")
+            is StmtP.Continue -> throw internalError(span, "top-level continue")
+            is StmtP.Pass -> { /* noop */ }
+            is StmtP.Return -> throw internalError(span, "top-level return")
+            is StmtP.Expression -> { /* noop */ }
+            is StmtP.Assign -> assignStmt(node.assign)
+            is StmtP.AssignModify -> { /* noop */ }
+            is StmtP.Statements -> throw internalError(span, "statements in top-level statement")
+            is StmtP.If -> evalStmtUnset(node.suite)
+            is StmtP.IfElse -> {
+                evalStmtUnset(node.suite1)
+                evalStmtUnset(node.suite2)
             }
-            is StmtP.For<*> -> forStmtUnset(node.forStmt as ForP<CstPayload>)
-            is StmtP.Def<*, *> -> topLevelDef(node.def as DefP<CstPayload, *>)
-            is StmtP.Load<*, *> -> load(node.loadStmt as LoadP<CstPayload, *>)
+            is StmtP.For -> forStmtUnset(node.forStmt)
+            is StmtP.Def<CstPayload, *> -> topLevelDef(node.def)
+            is StmtP.Load<CstPayload, *> -> load(node.loadStmt)
         }
     }
 
@@ -536,28 +522,30 @@ private class GlobalTypesBuilder(
 }
 
 // Helper to unpack def params (mirrors Bindings.kt's unpackDefParams)
-@Suppress("UNCHECKED_CAST")
-private fun unpackDefParams(params: List<Spanned<*>>, _codemap: CodeMap): List<DefParam> {
+private fun unpackDefParams(
+    params: List<Spanned<io.github.kotlinmania.starlark.syntax.ast.ParameterP<CstPayload>>>,
+    codemap: CodeMap,
+): List<DefParam> {
     val result = mutableListOf<DefParam>()
     var seenStar = false
     for (p in params) {
         when (val param = p.node) {
-            is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* skip */ }
-            is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.NoArgs<*> -> seenStar = true
-            is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash -> { /* skip */ }
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs -> seenStar = true
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal -> {
                 val mode = if (seenStar) DefRegularParamMode.NameOnly else DefRegularParamMode.PosOrName
                 result.add(DefParam(
-                    param.name as Spanned<AssignIdentP<CstPayload, *>>,
-                    DefParamKind.Regular(mode, param.defaultVal as Spanned<ExprP<CstPayload>>?),
-                    param.typ as Spanned<TypeExprP<CstPayload, *>>?,
+                    param.name,
+                    DefParamKind.Regular(mode, param.defaultVal),
+                    param.typ,
                 ))
             }
-            is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args -> {
                 seenStar = true
-                result.add(DefParam(param.name as Spanned<AssignIdentP<CstPayload, *>>, DefParamKind.Args, param.typ as Spanned<TypeExprP<CstPayload, *>>?))
+                result.add(DefParam(param.name, DefParamKind.Args, param.typ))
             }
-            is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> ->
-                result.add(DefParam(param.name as Spanned<AssignIdentP<CstPayload, *>>, DefParamKind.Kwargs, param.typ as Spanned<TypeExprP<CstPayload, *>>?))
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs ->
+                result.add(DefParam(param.name, DefParamKind.Kwargs, param.typ))
         }
     }
     return result

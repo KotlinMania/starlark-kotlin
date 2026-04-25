@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/compr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr
+package io.github.kotlinmania.starlark.eval.bc.compiler.compr
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,17 +26,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr
  * including nested for-loops and if-clauses within comprehension expressions.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeFor
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeIfThen
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ClauseCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ComprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBcCb
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeFor
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeIfThen
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeNExprs
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.compiler.ClauseCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ComprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
 
 /**
  * Compiles a single comprehension clause to bytecode.

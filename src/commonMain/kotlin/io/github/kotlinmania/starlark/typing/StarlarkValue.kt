@@ -1,5 +1,5 @@
 // port-lint: source src/typing/starlark_value.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingUnOp
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.StarlarkTypeIdMatcher
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.typing.oracle.TypingUnOp
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.StarlarkTypeIdMatcher
 
 private sealed class TyStarlarkValueError : Exception() {
     data class NotCallable(val ty: TyStarlarkValue) : TyStarlarkValueError() {
@@ -253,7 +253,7 @@ class TyStarlarkValue private constructor(
         }
     }
 
-    internal fun index(_index: TyBasic): Result<Ty> {
+    internal fun index(index: TyBasic): Result<Ty> {
         return if (vtable.hasAt) {
             Result.success(Ty.any())
         } else {
@@ -306,7 +306,7 @@ class TyStarlarkValue private constructor(
      * Returns [Ty.any] if callable, throws if not.
      */
     internal fun validateCall(
-        _span: Span,
+        span: Span,
         _oracle: TypingOracleCtx,
     ): Ty {
         if (isCallable()) {

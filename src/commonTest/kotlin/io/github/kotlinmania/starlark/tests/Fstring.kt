@@ -1,5 +1,5 @@
 // port-lint: source src/tests/fstring.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 
 // mod pass
 

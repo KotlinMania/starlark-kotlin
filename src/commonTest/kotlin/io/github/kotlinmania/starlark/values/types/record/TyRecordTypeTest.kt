@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/ty_record_type.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.types.record
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class TyRecordTypeTest {

@@ -1,13 +1,13 @@
 // port-lint: source src/values/types/string/dot_format.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat3
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.collections.StringPool
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat3
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.collections.StringPool
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -38,7 +38,6 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
     while (true) {
         val token = parser.next().getOrNull() ?: return null
         when (token) {
-            null -> return null
             is FormatToken.Text -> before.append(token.text)
             is FormatToken.Escape -> before.append(token.escape.asStr())
             is FormatToken.Capture -> {
@@ -55,7 +54,6 @@ internal fun parseFormatOne(s: String): Pair<String, String>? {
     while (true) {
         val token = parser.next().getOrNull() ?: break
         when (token) {
-            null -> break
             is FormatToken.Text -> after.append(token.text)
             is FormatToken.Escape -> after.append(token.escape.asStr())
             is FormatToken.Capture -> return null
@@ -80,7 +78,7 @@ internal fun formatOne(
             result.append(before)
             arg.collectRepr(result)
             result.append(after)
-            StringValue.newUnchecked(heap.allocStr(result.toString()))
+            heap.allocStr(result.toString())
         }
         else -> heap.allocStrConcat3(before, argStr.toString(), after)
     }
@@ -155,7 +153,7 @@ internal fun format(
         }
     }
 
-    val r = StringValue.newUnchecked(heap.allocStr(result.toString()))
+    val r = heap.allocStr(result.toString())
     stringPool.release(result)
     r
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/vec_map/hint.rs
-package starlark_map.vec_map.hint
+package starlarkmap.vecmap.hint
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

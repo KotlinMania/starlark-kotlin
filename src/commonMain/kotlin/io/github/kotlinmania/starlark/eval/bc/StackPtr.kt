@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/stack_ptr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -34,7 +34,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 // #[derive(Copy, Clone, Dupe, Debug, PartialOrd, Ord, PartialEq, Eq, Hash, derive_more::Display)]
 // #[display("&{}", _0)]
 // pub(crate) struct BcSlot(pub(crate) u32);
-data class BcSlot(val index: UInt) : Comparable<BcSlot> {
+internal data class BcSlot(val index: UInt) : Comparable<BcSlot> {
 
     // impl BcSlot
 
@@ -59,7 +59,7 @@ data class BcSlot(val index: UInt) : Comparable<BcSlot> {
  */
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BcSlotsN<const N: usize> { pub(crate) start: BcSlot }
-class BcSlotsN(
+internal class BcSlotsN(
     /** The const generic N parameter from Rust. */
     val n: Int,
     /** [n] slots starting with given slot. */
@@ -90,7 +90,7 @@ class BcSlotsN(
 // #[derive(Copy, Clone, Dupe, Debug, derive_more::Display)]
 // #[display("{}..{}", start, end)]
 // pub(crate) struct BcSlotRange { pub(crate) start: BcSlot, pub(crate) end: BcSlot }
-data class BcSlotRange(
+internal data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,
 ) : Iterable<BcSlot> {
@@ -123,7 +123,7 @@ data class BcSlotRange(
  */
 // #[derive(Debug, Copy, Clone, Dupe, derive_more::Display, PartialEq, Eq)]
 // pub(crate) struct BcSlotIn(BcSlot);
-data class BcSlotIn(val slot: BcSlot) {
+internal data class BcSlotIn(val slot: BcSlot) {
 
     // impl Add<u32> for BcSlotIn
     // fn add(self, rhs: u32) -> BcSlotIn
@@ -145,7 +145,7 @@ data class BcSlotIn(val slot: BcSlot) {
 // #[derive(Copy, Clone, Dupe, Debug, derive_more::Display)]
 // #[display("{}..{}", start, end)]
 // pub(crate) struct BcSlotInRange { pub(crate) start: BcSlotIn, pub(crate) end: BcSlotIn }
-data class BcSlotInRange(
+internal data class BcSlotInRange(
     var start: BcSlotIn,
     var end: BcSlotIn,
 ) {
@@ -196,7 +196,7 @@ data class BcSlotInRange(
 
 // #[derive(Copy, Clone, Dupe, Debug)]
 // pub(crate) struct BcSlotInRangeFrom(pub(crate) BcSlotIn);
-data class BcSlotInRangeFrom(val start: BcSlotIn) {
+internal data class BcSlotInRangeFrom(val start: BcSlotIn) {
 
     // impl BcSlotInRangeFrom
 
@@ -214,7 +214,7 @@ data class BcSlotInRangeFrom(val start: BcSlotIn) {
  */
 // #[derive(Debug, Copy, Clone, Dupe, derive_more::Display)]
 // pub(crate) struct BcSlotOut(BcSlot);
-data class BcSlotOut(val slot: BcSlot) {
+internal data class BcSlotOut(val slot: BcSlot) {
 
     // impl BcSlotOut
 

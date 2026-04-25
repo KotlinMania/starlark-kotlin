@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/list/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.list
+package io.github.kotlinmania.starlark.values.types.list
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyFunction
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyFunction
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Custom type function implementation for the `list` constructor.
@@ -108,7 +108,7 @@ private val LIST_FUNCTION: TyFunction by lazy {
  *
  * Corresponds to Rust's `register_list` function with `#[starlark_module]`.
  */
-internal fun registerList(_globals: GlobalsBuilder) {
+internal fun registerList(globals: GlobalsBuilder) {
     // The list() function takes an optional positional argument (an iterable).
     // If no argument is provided, it returns an empty list.
     // If an iterable is provided, its elements are collected into a new list.

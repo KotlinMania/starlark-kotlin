@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/sig.rs
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.deriverefs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
 // pub enum NativeSigArg
 sealed class NativeSigArg {

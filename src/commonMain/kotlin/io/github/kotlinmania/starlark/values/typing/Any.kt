@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/any.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
 // pub(crate) struct TypingAny

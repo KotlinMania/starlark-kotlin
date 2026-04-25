@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/rust_loc.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
+package io.github.kotlinmania.starlark.eval.runtime.rustloc
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 /** Source text used by native code locations, matching Rust's `NativeCodeMap::SOURCE`. */
 private const val NATIVE_SOURCE = "<native>"

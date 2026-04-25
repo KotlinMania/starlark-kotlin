@@ -1,5 +1,5 @@
 // port-lint: source src/typing/typecheck.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,26 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingSource
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtsMut
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.MutableNames
+import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.eval.compiler.BindingSource
+import io.github.kotlinmania.starlark.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark.eval.compiler.topLevelStmtsMut
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.Visibility
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(
@@ -213,7 +212,7 @@ fun AstModule.typecheck(
     val allSolveErrors = mutableListOf<TypingError>()
 
     for (top in cstStmts) {
-        if (top.node is StmtP.Def<*, *>) {
+        if (top.node is StmtP.Def<CstPayload, *>) {
             val bindingsCollect = try {
                 BindingsCollect.collectOne(
                     x = top,

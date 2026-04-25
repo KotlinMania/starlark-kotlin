@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/field.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.record
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /**
  * The result of `field()`.

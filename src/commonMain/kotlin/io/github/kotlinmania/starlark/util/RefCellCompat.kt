@@ -1,6 +1,6 @@
-package io.github.kotlinmania.starlark_kotlin.util
+package io.github.kotlinmania.starlark.util
 
-import io.github.kotlinmania.starlark_kotlin.util.refcell.RefCell
-import io.github.kotlinmania.starlark_kotlin.util.refcell.unleakBorrow as unleakBorrowImpl
+import io.github.kotlinmania.starlark.util.refcell.RefCell
+import io.github.kotlinmania.starlark.util.refcell.unleakBorrow as unleakBorrowImpl
 
 internal val unleakBorrow: (RefCell<*>) -> Unit = { refCell -> unleakBorrowImpl(refCell) }

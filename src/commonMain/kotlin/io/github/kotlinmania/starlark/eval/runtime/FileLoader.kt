@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/file_loader.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader
+package io.github.kotlinmania.starlark.eval.runtime.fileloader
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,7 +28,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader
 
 // use crate::environment::FrozenModule;
 
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
+import io.github.kotlinmania.starlark.environment.FrozenModule
 
 /// A trait for turning a `path` given by a `load()` statement into a [`FrozenModule`].
 // pub trait FileLoader {

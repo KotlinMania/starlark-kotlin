@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/bumpalo.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
+package io.github.kotlinmania.starlark.values.layout.heap.allocator
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 
 /**
  * Wrapper around allocated chunks for iteration.

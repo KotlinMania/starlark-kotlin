@@ -1,5 +1,5 @@
 // port-lint: source src/eval/soft_error.rs
-package io.github.kotlinmania.starlark_kotlin.eval
+package io.github.kotlinmania.starlark.eval
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,7 +25,7 @@ interface SoftErrorHandler {
     /// Handle deprecation error. If this function returns `Ok`, error will be ignored,
     /// otherwise error will be propagated.
     // fn soft_error(&self, category: &str, error: crate::Error) -> Result<(), crate::Error>;
-    fun softError(category: String, error: io.github.kotlinmania.starlark_kotlin.Error)
+    fun softError(category: String, error: io.github.kotlinmania.starlark.Error)
 }
 
 /// Default handler: warnings are treated as errors.
@@ -35,7 +35,7 @@ internal object HardErrorSoftErrorHandler : SoftErrorHandler {
     // fn soft_error(&self, _category: &str, error: crate::Error) -> Result<(), crate::Error> {
     //     Err(error)
     // }
-    override fun softError(_category: String, error: io.github.kotlinmania.starlark_kotlin.Error) {
+    override fun softError(category: String, error: io.github.kotlinmania.starlark.Error) {
         throw error
     }
 }

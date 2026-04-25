@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/freeze/validator_order.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
+package io.github.kotlinmania.starlark.tests.derive.freeze
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 // struct FreezeSentinel { frozen: bool }
 private class FreezeSentinel(
@@ -29,7 +29,7 @@ private class FreezeSentinel(
 ) : Freeze<FreezeSentinel> {
     // impl Freeze for FreezeSentinel
     // fn freeze(self, _: &Freezer) -> Result<Self>
-    override fun freeze(_freezer: Freezer): Result<FreezeSentinel> {
+    override fun freeze(freezer: Freezer): Result<FreezeSentinel> {
         check(!frozen)
         return Result.success(FreezeSentinel(frozen = true))
     }

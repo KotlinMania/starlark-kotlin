@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bool/type_repr.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.bool
+package io.github.kotlinmania.starlark.values.types.bool
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
 // impl StarlarkTypeRepr for Boolean
 // Kotlin: Boolean type repr delegates to StarlarkBool.

@@ -1,5 +1,5 @@
 // port-lint: source src/util/arc_str.rs
-package io.github.kotlinmania.starlark_kotlin.util
+package io.github.kotlinmania.starlark.util
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -29,7 +29,7 @@ package io.github.kotlinmania.starlark_kotlin.util
 
 // use crate::util::arc_or_static::ArcOrStatic;
 
-import io.github.kotlinmania.starlark_kotlin.util.arc_or_static.ArcOrStatic
+import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
 
 /// Wrapper for `Arc<str>`.
 // #[derive(Clone, Dupe, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, derive_more::Display, Allocative)]

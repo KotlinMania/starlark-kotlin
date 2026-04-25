@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bool.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -34,4 +34,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 // pub use value::BOOL_TYPE;
 // pub use value::StarlarkBool;
-internal val BOOL_TYPE = io.github.kotlinmania.starlark_kotlin.values.types.bool.BOOL_TYPE
+internal val BOOL_TYPE = io.github.kotlinmania.starlark.values.types.bool.BOOL_TYPE

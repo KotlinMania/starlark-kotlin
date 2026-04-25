@@ -1,5 +1,5 @@
 // port-lint: source src/util/arc_or_static.rs
-package io.github.kotlinmania.starlark_kotlin.util.arc_or_static
+package io.github.kotlinmania.starlark.util.arcorstatic
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -36,22 +36,22 @@ internal sealed interface Inner<T : Any> {
 
 // #[derive(Debug, Allocative)]
 // pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>);
-internal class ArcOrStatic<T : Any> private constructor(
+internal class ArcOrStatic<T> private constructor(
     private val inner: Inner<T>,
-) : Comparable<ArcOrStatic<T>> {
+) : Comparable<ArcOrStatic<T>> where T : Any, T : Comparable<T> {
     companion object {
         // pub(crate) fn new_static(a: &'static T) -> Self
-        fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
+        fun <T> newStatic(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
             return ArcOrStatic(Inner.Static(a))
         }
 
         // pub(crate) fn new_arc(a: Arc<T>) -> Self
-        fun <T : Any> newArc(a: T): ArcOrStatic<T> {
+        fun <T> newArc(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
             return ArcOrStatic(Inner.Arc(a))
         }
 
         // pub(crate) fn new(a: T) -> Self
-        fun <T : Any> new(a: T): ArcOrStatic<T> {
+        fun <T> new(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
             return newArc(a)
         }
     }
@@ -87,8 +87,7 @@ internal class ArcOrStatic<T : Any> private constructor(
     override fun hashCode(): Int = deref().hashCode()
 
     // impl Ord for ArcOrStatic
-    @Suppress("UNCHECKED_CAST")
     override fun compareTo(other: ArcOrStatic<T>): Int {
-        return (deref() as Comparable<T>).compareTo(other.deref())
+        return deref().compareTo(other.deref())
     }
 }

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/list_or_tuple.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,16 +25,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * Corresponds to Rust's `src/values/types/list_or_tuple.rs`.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.values.EitherUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.EitherTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackListStarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackListUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTupleStarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTupleUnpackValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.starlark.values.EitherUnpackValue
+import io.github.kotlinmania.starlark.values.EitherTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.list.UnpackListStarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.types.list.UnpackListUnpackValue
+import io.github.kotlinmania.starlark.values.types.tuple.UnpackTupleStarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.types.tuple.UnpackTupleUnpackValue
 
 /** Unpack a value of type `list[T]` or `tuple[T, ...]` into a list. */
 // #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]

@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/bytecode.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,18 +21,18 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /** Unsorted/core interpreter stuff. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrControl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
+import io.github.kotlinmania.starlark.eval.bc.InstrControl
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.EvaluationCallbacks
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.typing.StarlarkError
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Ready to execute bytecode. */
 // #[derive(Default)]
 // pub(crate) struct Bc
-class Bc(
+internal class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /** Number of local variable slots. */
     val localCount: UInt = 0u,
@@ -139,8 +139,10 @@ private fun dispatchInstruction(
     arg: Any?,
 ): InstrControl {
     // Helper for InstrNoFlowImpl-based instructions: execute and wrap result.
-    fun noFlow(impl: InstrNoFlowImpl): InstrControl {
-        val result = impl.runWithArgs(eval, frame, ip, arg ?: Unit)
+    fun <A> noFlow(impl: InstrNoFlowImpl<A>): InstrControl {
+        @Suppress("UNCHECKED_CAST")
+        val typedArg = (arg ?: Unit) as A
+        val result = impl.runWithArgs(eval, frame, ip, typedArg)
         return if (result.isSuccess) {
             InstrControl.Next(ip.add(opcode.sizeOfRepr()))
         } else {
@@ -240,7 +242,7 @@ private fun dispatchInstruction(
         BcOpcode.Break -> InstrBreak.run(eval, frame, ip, arg as Pair<BcSlotIn, BcAddrOffset>)
         BcOpcode.IterStop -> InstrIterStop.run(eval, frame, ip, arg as BcSlotIn)
         BcOpcode.Return -> InstrReturn.run(eval, frame, ip, arg as BcSlotIn)
-        BcOpcode.ReturnConst -> InstrReturnConst.run(eval, frame, ip, arg as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue)
+        BcOpcode.ReturnConst -> InstrReturnConst.run(eval, frame, ip, arg as io.github.kotlinmania.starlark.values.layout.FrozenValue)
         BcOpcode.ReturnCheckType -> InstrReturnCheckType.run(eval, frame, ip, arg as BcSlotIn)
 
         // --- End pseudo-instruction ---
@@ -250,7 +252,7 @@ private fun dispatchInstruction(
 
 /** Execute the code block, either a module or a function body. */
 // pub(crate) fn run_block<'v, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, mut ip: BcPtrAddr) -> Result<Value, EvalException>
-fun runBlock(
+internal fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,
     startIp: BcPtrAddr,

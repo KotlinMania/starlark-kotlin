@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int/int_or_big.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.bigint.StarlarkBigInt
+import io.github.kotlinmania.starlark.values.layout.Value
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 
 /**
  * Starlark integer error types.
@@ -96,7 +96,7 @@ sealed class StarlarkInt {
                 Small(i)
             } else {
                 val bi = BigInteger.tryFromDouble(f, exactRequired = true)
-                if (bi != null && bi.doubleValue(exactRequired = false) == f) {
+                if (bi.doubleValue(exactRequired = false) == f) {
                     from(bi)
                 } else {
                     throw StarlarkIntError.CannotRepresentAsExact(f)
@@ -148,9 +148,9 @@ sealed class StarlarkInt {
         )
 
         // Rust: impl From<TokenInt> for StarlarkInt
-        fun from(value: io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt): StarlarkInt = when (value) {
-            is io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt.I32 -> from(value.value)
-            is io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt.BigInt -> from(value.value)
+        fun from(value: io.github.kotlinmania.starlark.syntax.lexer.TokenInt): StarlarkInt = when (value) {
+            is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.I32 -> from(value.value)
+            is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> from(value.value)
         }
     }
 }

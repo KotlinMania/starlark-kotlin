@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/instance.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.record
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,21 +21,21 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 /** An actual record instance. */
 
-import starlark_map.small_map.SmallMap
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.recordFields
+import starlarkmap.smallmap.SmallMap
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.freeze
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.record.recordtype.recordFields
 
 /** Helper: format keyed container like "record[Name](a=1, b=2)". */
 private fun <K, V> fmtKeyedContainer(
@@ -142,7 +142,7 @@ class RecordGen internal constructor(
     // fn get_record_fields(&self) -> &'v SmallMap<String, FieldGen<Value<'v>>>
     private fun getRecordFields(): SmallMap<String, Field> {
         @Suppress("UNCHECKED_CAST")
-        return recordFields(getRecordType()) as SmallMap<String, Field>
+        return recordFields(getRecordType())
     }
 
     /** Iterate over the elements in the record. */

@@ -1,5 +1,5 @@
 // port-lint: source src/typing/function.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 /** Custom function typechecker. */
 // pub trait TyCustomFunctionImpl: Debug + Eq + Ord + Hash + Allocative + Send + Sync + 'static
@@ -70,7 +70,7 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     }
 
     // fn bin_op(&self, bin_op, rhs, ctx) -> Result<Ty, TypingNoContextOrInternalError>
-    override fun binOp(binOp: TypingBinOp, _rhs: TyBasic, _ctx: TypingOracleCtx): Result<Ty> {
+    override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         return when {
             // `str | list`.
             binOp == TypingBinOp.BitOr && inner.isType() -> Result.success(Ty.basic(TyBasic.Type))
@@ -79,14 +79,14 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     }
 
     // fn index(&self, item, ctx) -> Result<Ty, TypingNoContextOrInternalError>
-    override fun index(_item: TyBasic, _ctx: TypingOracleCtx): Result<Ty> {
+    override fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         // NOTE(nga): this is hack for `enum` (type) which pretends to be a function.
         //   Should be a custom type.
         return Result.success(Ty.any())
     }
 
     // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
-    override fun attribute(_attr: String): Result<Ty> {
+    override fun attribute(attr: String): Result<Ty> {
         return Result.failure(TypingNoContextError)
     }
 

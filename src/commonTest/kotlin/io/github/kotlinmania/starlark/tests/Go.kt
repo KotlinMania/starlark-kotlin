@@ -1,5 +1,5 @@
 // port-lint: source src/tests/go.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,14 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Run Go implementation tests. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.conformanceExcept
-import io.github.kotlinmania.starlark_kotlin.assert.conformance
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.conformanceExcept
+import io.github.kotlinmania.starlark.assert.conformance
 
 /** LoadP<AstNoPayload, Unit> a test case file from the testcases directory. */
 // macro_rules! test_case { ($name:expr) => { include_str!(...) } }
 private fun testCase(name: String): String {
-    return io.github.kotlinmania.starlark_kotlin.tests.loadTestResource("eval/go/$name")
+    return io.github.kotlinmania.starlark.tests.loadTestResource("eval/go/$name")
 }
 
 // Rust uses include_str! macro to embed file contents at compile time.

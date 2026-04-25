@@ -1,7 +1,7 @@
 // port-lint: source src/typing/tests/special_function.rs
-package io.github.kotlinmania.starlark_kotlin.typing.tests
+package io.github.kotlinmania.starlark.typing.tests
 
-import io.github.kotlinmania.starlark_kotlin.typing.TypeCheck
+import io.github.kotlinmania.starlark.typing.TypeCheck
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

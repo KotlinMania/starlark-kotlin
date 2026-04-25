@@ -1,5 +1,5 @@
 // port-lint: source src/eval/params.rs
-package io.github.kotlinmania.starlark_kotlin.eval
+package io.github.kotlinmania.starlark.eval
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 
 /**
  * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)

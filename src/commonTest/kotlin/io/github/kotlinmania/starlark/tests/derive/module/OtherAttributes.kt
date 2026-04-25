@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/other_attributes.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,11 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * attributes should be preserved and no warnings should be emitted.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 // #[starlark_module]
 // fn test_other_attributes_in_globals(globals: &mut GlobalsBuilder)

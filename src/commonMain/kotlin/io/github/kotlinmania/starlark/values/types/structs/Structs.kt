@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs/structs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.structs
+package io.github.kotlinmania.starlark.values.types.structs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -23,19 +23,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * Implementation of `struct` function.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.typing.TyStruct
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.codemap.Span
+import starlarkmap.smallmap.SmallMap
 
 /**
  * Type implementation for the struct type.
@@ -72,7 +72,7 @@ internal object StructType : TyCustomFunctionImpl {
         return Result.success(
             Ty.custom(
                 TyStruct(
-                    fields = fields.toList().sortedBy { it.first.toString() }.toMap(),
+                    fields = fields.toList().sortedBy { it.first }.toMap(),
                     extra = extra
                 )
             )

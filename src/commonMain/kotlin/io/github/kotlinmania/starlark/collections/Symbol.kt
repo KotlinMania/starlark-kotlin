@@ -1,6 +1,6 @@
 // port-lint: source src/collections/symbol.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark.collections
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

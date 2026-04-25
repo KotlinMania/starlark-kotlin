@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/named_positional.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTuple
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.values.types.tuple.UnpackTuple
 
 // #[starlark_module]
 // fn named_positional_functions(globals: &mut GlobalsBuilder)

@@ -1,5 +1,5 @@
 // port-lint: source src/docs/tests/rustdocs.rs
-package io.github.kotlinmania.starlark_kotlin.docs.tests
+package io.github.kotlinmania.starlark.docs.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,27 +19,27 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocParam
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocParam
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
 
 // struct InputTypeRepr;
 private class InputTypeRepr : StarlarkValue, StarlarkTypeRepr {
@@ -64,32 +64,32 @@ private fun globals(builder: GlobalsBuilder) {
     builder.set("Output", StarlarkValueAsType.new(OutputTypeRepr()))
 
     // fn simple(arg_int: i32, arg_bool: bool, arg_vec: UnpackList<&str>, arg_dict: SmallMap<String, (bool, i32)>) -> anyhow::Result<NoneType>
-    builder.setFunction("simple") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("simple") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn default_arg(arg1: Option<Value>, arg2: Value, eval: &mut Evaluator) -> anyhow::Result<Vec<String>>
-    builder.setFunction("default_arg") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("default_arg") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn args_kwargs(args: UnpackTuple<Value>, kwargs: Value) -> anyhow::Result<NoneType>
-    builder.setFunction("args_kwargs") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("args_kwargs") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn custom_types(arg1: StringValue, arg2: ValueOfUnchecked<InputTypeRepr>, heap: Heap) -> anyhow::Result<ValueOfUnchecked<OutputTypeRepr>>
-    builder.setFunction("custom_types") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("custom_types") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn pos_named(arg1: i32, #[starlark(require = named)] arg2: i32) -> anyhow::Result<i32>
-    builder.setFunction("pos_named") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("pos_named") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 
     // fn with_arguments(args: &Arguments) -> anyhow::Result<i32>
-    builder.setFunction("with_arguments") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("with_arguments") { args: Arguments, eval: Evaluator ->
         error("unimplemented")
     }
 }
@@ -125,7 +125,7 @@ def with_arguments(*args, **kwargs) -> int: pass
             // be replicated with normal functions
             val memberItem = item as? DocItem.Member ?: error("unreachable")
             val funcItem = (memberItem.member as? DocMember.Function) ?: error("unreachable")
-            val firstParam = funcItem.function.params.docParamsMut().next()!!
+            val firstParam = funcItem.function.params.docParamsMut().next()
             firstParam.defaultValue = PARAM_FMT_OPTIONAL
         }
         // Comparing one at a time produces more useful error messages
@@ -153,7 +153,7 @@ internal class Obj : StarlarkValue {
 private fun objectMethods(builder: MethodsBuilder) {
     /** Docs for func1 */
     // fn func1(this: Value, foo: String) -> anyhow::Result<String>
-    builder.setMethod("func1") { _eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, _args: Arguments ->
+    builder.setMethod("func1") { eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, args: Arguments ->
         Result.success(Value.newNone())
     }
 }
@@ -186,7 +186,7 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
 
     /** Docs for func1 */
     // fn func1(foo: String) -> anyhow::Result<String>
-    builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("func1") { args: Arguments, eval: Evaluator ->
         Value.newNone()
     }
 }

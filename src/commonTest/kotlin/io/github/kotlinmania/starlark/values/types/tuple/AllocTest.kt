@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/alloc.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.num.Num
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.FrozenTupleRef
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.num.Num
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.tuple.FrozenTupleRef
+import io.github.kotlinmania.starlark.values.types.tuple.TupleRef
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

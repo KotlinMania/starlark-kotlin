@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -33,73 +33,82 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // our val_ref requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Pointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLifetimeless
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
-import io.github.kotlinmania.starlark_kotlin.values.stackGuard
-import io.github.kotlinmania.starlark_kotlin.values.reprStackPush
-import io.github.kotlinmania.starlark_kotlin.values.jsonStackPush
-import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.demand.requestValueImpl
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.BoundMethodGen
-import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.values.types.range.Range
-import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordGen
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
-import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructGen
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValueLike
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.none.VALUE_NONE
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.types.bool.VALUE_FALSE_TRUE
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.FrozenPointer
+import io.github.kotlinmania.starlark.values.layout.Pointer
+import io.github.kotlinmania.starlark.values.layout.RawPointer
+import io.github.kotlinmania.starlark.values.layout.ValueLifetimeless
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark.values.types.int.PointerI32
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.StarlarkIterator
+import io.github.kotlinmania.starlark.values.stackGuard
+import io.github.kotlinmania.starlark.values.reprStackPush
+import io.github.kotlinmania.starlark.values.jsonStackPush
+import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.values.demand.requestValueImpl
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.values.types.NativeFunction
+import io.github.kotlinmania.starlark.values.types.BoundMethodGen
+import io.github.kotlinmania.starlark.values.types.list.FrozenListData
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDictRef
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark.values.types.range.Range
+import io.github.kotlinmania.starlark.values.types.record.RecordGen
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
+import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark.values.types.structs.StructGen
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.none.VALUE_NONE
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.bool.VALUE_FALSE_TRUE
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 // VALUE_EMPTY_STRING is in the same package (values.layout) via StaticString.kt
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.VALUE_EMPTY_TUPLE
-import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.VALUE_EMPTY_FROZEN_DICT
+import io.github.kotlinmania.starlark.values.types.tuple.VALUE_EMPTY_TUPLE
+import io.github.kotlinmania.starlark.values.types.list.VALUE_EMPTY_FROZEN_LIST
+import io.github.kotlinmania.starlark.values.types.dict.VALUE_EMPTY_FROZEN_DICT
+import io.github.kotlinmania.starlark.values.types.dict.DictGen
+import io.github.kotlinmania.starlark.values.types.dict.DictLike
+import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.list.ListLike
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
@@ -994,32 +1003,92 @@ class Value internal constructor(
     // pub fn to_json(self) -> anyhow::Result<String>
     fun toJson(): Result<String> {
         // In Rust: serde_json::to_string(&self).map_err(|e| anyhow::anyhow!(e))
-        return serializeImpl()
+        return toJsonValue().map { it.toString() }
     }
 
     /**
      * Convert the value to a JSON value object.
      */
     // pub fn to_json_value(self) -> anyhow::Result<serde_json::Value>
-    fun toJsonValue(): Result<Any> {
+    fun toJsonValue(): Result<JsonElement> {
         // In Rust: serde_json::to_value(self).map_err(|e| anyhow::anyhow!(e))
-        return serializeImpl()
+        return serializeJsonElementImpl()
     }
 
     // impl Serialize for Value<'v>
     // fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
-    internal fun serializeImpl(): Result<String> {
+    internal fun serializeJsonElementImpl(): Result<JsonElement> {
         val guard = jsonStackPush(this)
         return if (guard.isSuccess) {
             try {
                 // In Rust: erased_serde::serialize(self.get_ref().as_serialize(), s)
-                Result.success(toRepr())
+                serializeToJsonElement()
             } finally {
                 guard.getOrThrow().close()
             }
         } else {
             Result.failure(ToJsonCycleError(getType()))
         }
+    }
+
+    private fun serializeToJsonElement(): Result<JsonElement> {
+        if (isNone()) return Result.success(JsonNull)
+        unpackBool()?.let { return Result.success(JsonPrimitive(it)) }
+        unpackStr()?.let { return Result.success(JsonPrimitive(it)) }
+
+        val int = StarlarkIntRef.unpackValueOpt(this)
+        if (int != null) {
+            return when (int) {
+                is StarlarkIntRef.Small -> Result.success(JsonPrimitive(int.value.toI32()))
+                is StarlarkIntRef.Big -> {
+                    val serialized = int.value.serialize()
+                    when (serialized) {
+                        is Long -> Result.success(JsonPrimitive(serialized))
+                        is ULong -> Result.success(JsonPrimitive(serialized.toString()))
+                        is String -> Result.success(JsonPrimitive(serialized))
+                        else -> Result.failure(
+                            IllegalStateException("Unsupported bigint JSON serialization: ${serialized::class.simpleName}")
+                        )
+                    }
+                }
+            }
+        }
+
+        val num = unpackNum()
+        if (num != null) {
+            return when (num) {
+                is NumRef.Float -> Result.success(JsonPrimitive(num.value.value))
+                // Int handled above.
+                else -> Result.failure(IllegalStateException("Unsupported numeric JSON serialization: $num"))
+            }
+        }
+
+        val rawPtr = getRef().value.ptr
+        if (rawPtr is ListGen<*>) {
+            val listLike = rawPtr.data as? ListLike
+                ?: return Result.failure(IllegalStateException("Unsupported list backing for JSON: ${rawPtr.data::class.simpleName}"))
+            val out = mutableListOf<JsonElement>()
+            for (v in listLike.content()) {
+                val el = v.toJsonValue().getOrElse { return Result.failure(it) }
+                out.add(el)
+            }
+            return Result.success(JsonArray(out))
+        }
+
+        if (rawPtr is DictGen<*>) {
+            val dictLike = rawPtr.inner as? DictLike
+                ?: return Result.failure(IllegalStateException("Unsupported dict backing for JSON: ${rawPtr.inner::class.simpleName}"))
+            val out = mutableMapOf<String, JsonElement>()
+            for ((k, v) in dictLike.content().iter()) {
+                val key = k.unpackStr()
+                    ?: return Result.failure(IllegalStateException("JSON object keys must be strings, got `${k.toStringForTypeError()}`"))
+                val el = v.toJsonValue().getOrElse { return Result.failure(it) }
+                out[key] = el
+            }
+            return Result.success(JsonObject(out))
+        }
+
+        return Result.failure(IllegalStateException("Unsupported JSON serialization for `${toStringForTypeError()}`"))
     }
 
     /**
@@ -1222,37 +1291,51 @@ class Value internal constructor(
      */
     // pub fn to_string_for_type_error(self) -> String
     fun toStringForTypeError(): String {
-        return displayForTypeError()
+        return displayForTypeError().toString()
     }
 
     // fn display_for_type_error(self) -> impl Display + 'v
-    private fun displayForTypeError(): String {
-        // fn split_at_safe(s: &str, index: usize) -> (&str, &str)
-        fun splitAtSafe(s: String, index: Int): Pair<String, String> {
-            // In Kotlin strings are always valid character sequences
-            val safeIndex = index.coerceIn(0, s.length)
-            return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
-        }
+    private fun displayForTypeError(): DisplayWithTypeImpl {
+        return DisplayWithTypeImpl(this)
+    }
 
-        var repr = toRepr()
-        val maxLen = 60
-
-        if (repr.length > maxLen && repr.toList().size > maxLen) {
-            val truncated = "<<...>>"
-
-            // 1/3 from back, 2/3 from front, because front is usually more interesting.
-            val takeFromBack = maxOf(0, maxLen - truncated.length) / 3
-            val takeFromFront = takeFromBack * 2
-
-            // Resulting repr is approximately `maxLen` long.
-            repr = buildString {
-                append(splitAtSafe(repr, takeFromFront).first)
-                append(truncated)
-                append(splitAtSafe(repr, maxOf(0, repr.length - takeFromBack)).second)
+    // Rust: struct DisplayWithTypeImpl<'v>(Value<'v>);
+    private class DisplayWithTypeImpl(
+        private val value: Value,
+    ) {
+        // Rust: impl Display for DisplayWithTypeImpl { fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { ... } }
+        fun fmt(): String {
+            // fn split_at_safe(s: &str, index: usize) -> (&str, &str)
+            fun splitAtSafe(s: String, index: Int): Pair<String, String> {
+                var i = index.coerceIn(0, s.length)
+                while (i < s.length) {
+                    return Pair(s.substring(0, i), s.substring(i))
+                }
+                return Pair(s, "")
             }
+
+            var repr = value.toRepr()
+            val maxLen = 60
+
+            if (repr.length > maxLen && repr.toList().size > maxLen) {
+                val truncated = "<<...>>"
+
+                // 1/3 from back, 2/3 from front, because front is usually more interesting.
+                val takeFromBack = maxOf(0, maxLen - truncated.length) / 3
+                val takeFromFront = takeFromBack * 2
+
+                // Resulting repr is approximately `maxLen` long.
+                repr = buildString {
+                    append(splitAtSafe(repr, takeFromFront).first)
+                    append(truncated)
+                    append(splitAtSafe(repr, maxOf(0, repr.length - takeFromBack)).second)
+                }
+            }
+
+            return "${value.getType()} (repr: $repr)"
         }
 
-        return "${getType()} (repr: $repr)"
+        override fun toString(): String = fmt()
     }
 
     /**
@@ -1295,13 +1378,7 @@ class Value internal constructor(
                 null
             }
         }
-        val ref = getRef()
-        return if (clazz.isInstance(ref)) {
-            @Suppress("UNCHECKED_CAST")
-            ref as T
-        } else {
-            null
-        }
+        return getRef().downcastRef(clazz)
     }
 
     /**
@@ -1751,7 +1828,7 @@ class FrozenValue internal constructor(
 // In Rust, the Serialize impl uses json_stack_push for cycle detection,
 // then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
 // The cycle detection logic is in Value.serializeImpl().
-fun Value.serialize(): Result<String> = serializeImpl()
+fun Value.serialize(): Result<String> = toJson()
 
 // impl Serialize for FrozenValue
 // fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
@@ -1817,7 +1894,7 @@ interface ValueLike : ValueLifetimeless {
      * Get hash value.
      */
     // fn get_hashed(self) -> crate::Result<Hashed<Self>>
-    fun getHashed(): Result<Hashed<out ValueLike>> {
+    fun getHashed(): Result<Hashed<ValueLike>> {
         val v = toValue()
         val str = v.unpackStarlarkStr()
         val hash = try {
@@ -1904,6 +1981,11 @@ private fun _testSendSync() {
     // Compile-time assertion in Rust that FrozenValue is Send + Sync.
     // In Kotlin, all objects can be shared across threads.
     val v: FrozenValue? = null
+}
+
+@Suppress("unused", "FunctionName")
+private fun _test_send_sync() {
+    _testSendSync()
 }
 
 // Static value references are imported from their defining modules.

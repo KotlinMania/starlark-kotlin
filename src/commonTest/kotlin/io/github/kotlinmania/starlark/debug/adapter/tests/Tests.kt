@@ -1,5 +1,5 @@
 // port-lint: source src/debug/adapter/tests.rs
-package io.github.kotlinmania.starlark_kotlin.debug.adapter
+package io.github.kotlinmania.starlark.debug.adapter.tests
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,19 +19,31 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.testFunctions
-import io.github.kotlinmania.starlark_kotlin.debug.*
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.isWasm
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.runBlocking
+import io.github.kotlinmania.starlark.assert.testFunctions
+import io.github.kotlinmania.starlark.debug.DapAdapter
+import io.github.kotlinmania.starlark.debug.DapAdapterClient
+import io.github.kotlinmania.starlark.debug.DapAdapterEvalHook
+import io.github.kotlinmania.starlark.debug.EvaluateExprInfo
+import io.github.kotlinmania.starlark.debug.InspectVariableInfo
+import io.github.kotlinmania.starlark.debug.Source
+import io.github.kotlinmania.starlark.debug.SourceBreakpoint
+import io.github.kotlinmania.starlark.debug.SetBreakpointsArguments
+import io.github.kotlinmania.starlark.debug.StepKind
+import io.github.kotlinmania.starlark.debug.Variable
+import io.github.kotlinmania.starlark.debug.VariablePath
+import io.github.kotlinmania.starlark.debug.prepareDapAdapter
+import io.github.kotlinmania.starlark.debug.resolveBreakpoints
+import io.github.kotlinmania.starlark.environment.FrozenModule
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
+import io.github.kotlinmania.starlark.isWasm
+import io.github.kotlinmania.starlark.runBlocking
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlin.concurrent.atomics.AtomicInt
@@ -39,168 +51,172 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
-private class Client(
-    val controller: BreakpointController,
-) : DapAdapterClient {
-    override fun eventStopped(): Result<Unit> {
-        println("stopped!")
-        return controller.evalStopped()
-    }
-}
+// Rust: #[cfg(test)] mod t { ... }
+internal object t {
 
-private class BreakpointController {
-    /** The number of breakpoint hits or 999999 if cancelled. */
-    val breakpointsHit: AtomicInt = AtomicInt(0)
-
-    fun getClient(): DapAdapterClient {
-        return Client(this)
+    private class Client(
+        val controller: BreakpointController,
+    ) : DapAdapterClient {
+        override fun eventStopped(): Result<Unit> {
+            println("stopped!")
+            return controller.evalStopped()
+        }
     }
 
-    fun evalStopped(): Result<Unit> {
-        while (true) {
-            val current = this.breakpointsHit.load()
-            if (current == 999999) {
-                println("eval_stopped: cancelled")
-                return Result.failure(Exception("cancelled"))
+    private class BreakpointController {
+        /** The number of breakpoint hits or 999999 if cancelled. */
+        val breakpointsHit: AtomicInt = AtomicInt(0)
+
+        fun getClient(): DapAdapterClient {
+            return Client(this)
+        }
+
+        fun evalStopped(): Result<Unit> {
+            while (true) {
+                val current = this.breakpointsHit.load()
+                if (current == 999999) {
+                    println("eval_stopped: cancelled")
+                    return Result.failure(Exception("cancelled"))
+                }
+                if (this.breakpointsHit.compareAndSet(current, current + 1)) {
+                    return Result.success(Unit)
+                }
             }
-            if (this.breakpointsHit.compareAndSet(current, current + 1)) {
-                return Result.success(Unit)
+        }
+
+        fun waitForEvalStopped(breakpointCount: Int, timeout: Duration) {
+            val now = TimeSource.Monotonic.markNow()
+            while (true) {
+                val current = this.breakpointsHit.load()
+                check(current != 999999) { "cancelled" }
+                check(current <= breakpointCount)
+                if (current == breakpointCount) {
+                    break
+                }
+                if (now.elapsedNow() > timeout) {
+                    error("didn't hit expected breakpoint")
+                }
             }
         }
     }
 
-    fun waitForEvalStopped(breakpointCount: Int, timeout: Duration) {
-        val now = TimeSource.Monotonic.markNow()
-        while (true) {
-            val current = this.breakpointsHit.load()
-            check(current != 999999) { "cancelled" }
-            check(current <= breakpointCount)
-            if (current == breakpointCount) {
-                break
+    private class BreakpointControllerDropGuard(
+        val controller: BreakpointController,
+    ) : AutoCloseable {
+        override fun close() {
+            println("dropping controller")
+            controller.breakpointsHit.store(999999)
+        }
+    }
+
+    private fun breakpoint(line: Long, condition: String?): SourceBreakpoint {
+        return SourceBreakpoint(
+            column = null,
+            condition = condition,
+            hitCondition = null,
+            line = line,
+            logMessage = null,
+        )
+    }
+
+    private fun breakpointsArgs(path: String, lines: List<Pair<Long, String?>>): SetBreakpointsArguments {
+        return SetBreakpointsArguments(
+            breakpoints = lines.map { (line, condition) -> breakpoint(line, condition) },
+            lines = null,
+            source = Source(
+                adapterData = null,
+                checksums = null,
+                name = null,
+                origin = null,
+                path = path,
+                presentationHint = null,
+                sourceReference = null,
+                sources = null,
+            ),
+            sourceModified = null,
+        )
+    }
+
+    private fun evalWithHook(
+        ast: AstModule,
+        hook: DapAdapterEvalHook,
+    ): Result<OwnedFrozenValue> {
+        val modules = HashMap<String, FrozenModule>()
+        val loader = ReturnFileLoader(modules)
+        val globals = GlobalsBuilder.extended().with(::testFunctions).build()
+        return Module.withTempHeap { env ->
+            val res = run {
+                val eval = Evaluator(env)
+                hook.addDapHooks(eval)
+                eval.setLoader(loader)
+                eval.evalModule(ast, globals).getOrElse { return@withTempHeap Result.failure(it) }
             }
-            if (now.elapsedNow() > timeout) {
-                error("didn't hit expected breakpoint")
+
+            env.set("_", res)
+            env.freeze().getOrElse { error("error freezing module") }
+                .get("_").getOrElse { error("missing _") }
+                .let { Result.success(it) }
+        }
+    }
+
+    private fun <T> joinTimeout(waiting: kotlinx.coroutines.Deferred<T>, timeout: Duration): T {
+        val start = TimeSource.Monotonic.markNow()
+        while (!waiting.isCompleted) {
+            if (start.elapsedNow() > timeout) {
+                error("timeout waiting for thread")
             }
         }
+        return runBlocking { waiting.await() }
     }
-}
 
-private class BreakpointControllerDropGuard(
-    val controller: BreakpointController,
-) : AutoCloseable {
-    override fun close() {
-        println("dropping controller")
-        controller.breakpointsHit.store(999999)
-    }
-}
+    private val TIMEOUT: Duration = 10.seconds
 
-private fun sourceBreakpoint(line: Long, condition: String?): SourceBreakpoint {
-    return SourceBreakpoint(
-        column = null,
-        condition = condition,
-        hitCondition = null,
-        line = line,
-        logMessage = null,
-    )
-}
+    private fun <R> dapTestTemplate(
+        f: (BreakpointController, DapAdapter, DapAdapterEvalHook) -> Result<R>,
+    ): Result<R> {
+        val controller = BreakpointController()
 
-private fun breakpointsArgs(path: String, lines: List<Pair<Long, String?>>): SetBreakpointsArguments {
-    return SetBreakpointsArguments(
-        breakpoints = lines.map { (line, condition) -> sourceBreakpoint(line, condition) },
-        lines = null,
-        source = Source(
-            adapterData = null,
-            checksums = null,
-            name = null,
-            origin = null,
-            path = path,
-            presentationHint = null,
-            sourceReference = null,
-            sources = null,
-        ),
-        sourceModified = null,
-    )
-}
-
-private fun evalWithHook(
-    ast: AstModule,
-    hook: DapAdapterEvalHook,
-): Result<OwnedFrozenValue> {
-    val modules = HashMap<String, FrozenModule>()
-    val loader = ReturnFileLoader(modules)
-    val globals = GlobalsBuilder.extended().with(::testFunctions).build()
-    return Module.withTempHeap { env ->
-        val res = run {
-            val eval = Evaluator(env)
-            hook.addDapHooks(eval)
-            eval.setLoader(loader)
-            eval.evalModule(ast, globals).getOrElse { return@withTempHeap Result.failure(it) }
-        }
-
-        env.set("_", res)
-        env.freeze().getOrElse { error("error freezing module") }
-            .get("_").getOrElse { error("missing _") }
-            .let { Result.success(it) }
-    }
-}
-
-private fun <T> joinTimeout(waiting: kotlinx.coroutines.Deferred<T>, timeout: Duration): T {
-    val start = TimeSource.Monotonic.markNow()
-    while (!waiting.isCompleted) {
-        if (start.elapsedNow() > timeout) {
-            error("timeout waiting for thread")
+        BreakpointControllerDropGuard(controller).use {
+            val (adapter, evalHook) = prepareDapAdapter(controller.getClient())
+            return f(controller, adapter, evalHook)
         }
     }
-    return runBlocking { waiting.await() }
-}
 
-private val TIMEOUT: Duration = 10.seconds
+    internal fun testBreakpoint() {
+        if (isWasm()) {
+            return
+        }
 
-private fun <R> dapTestTemplate(
-    f: (BreakpointController, DapAdapter, DapAdapterEvalHook) -> Result<R>,
-): Result<R> {
-    val controller = BreakpointController()
-
-    BreakpointControllerDropGuard(controller).use {
-        val (adapter, evalHook) = prepareDapAdapter(controller.getClient())
-        return f(controller, adapter, evalHook)
-    }
-}
-
-internal fun testBreakpoint() {
-    if (isWasm()) {
-        return
-    }
-
-    val fileContents = """
+        val fileContents = """
 
 x = [1, 2, 3]
 print(x)
         """
-    dapTestTemplate { controller, adapter, evalHook ->
-        val ast = AstModule.parse(
-            "test.bzl",
-            fileContents,
-            Dialect.AllOptionsInternal,
-        ).getOrThrow()
-        val breakpoints =
-            resolveBreakpoints(breakpointsArgs("test.bzl", listOf(3L to null)), ast).getOrThrow()
-        adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
+        dapTestTemplate { controller, adapter, evalHook ->
+            val ast = AstModule.parse(
+                "test.bzl",
+                fileContents,
+                Dialect.AllOptionsInternal,
+            ).getOrThrow()
+            val breakpoints =
+                resolveBreakpoints(breakpointsArgs("test.bzl", listOf(3L to null)), ast).getOrThrow()
+            adapter.setBreakpoints("test.bzl", breakpoints).getOrThrow()
 
-        val evalResult = runBlocking {
-            val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
+            runBlocking {
+                val deferred = async(Dispatchers.Default) { evalWithHook(ast, evalHook) }
 
-            controller.waitForEvalStopped(1, TIMEOUT)
-            adapter.continue_().getOrThrow()
-            controller.waitForEvalStopped(2, TIMEOUT)
+                controller.waitForEvalStopped(1, TIMEOUT)
+                adapter.continue_().getOrThrow()
+                controller.waitForEvalStopped(2, TIMEOUT)
 
-            adapter.continue_().getOrThrow()
+                adapter.continue_().getOrThrow()
 
-            joinTimeout(deferred, TIMEOUT).getOrThrow()
+                joinTimeout(deferred, TIMEOUT).getOrThrow()
+            }
+            Result.success(Unit)
         }
-        Result.success(Unit)
-    }.getOrThrow()
-}
+            .getOrThrow()
+    }
 
 internal fun testBreakpointWithFailingCondition() {
     if (isWasm()) {
@@ -657,14 +673,12 @@ private fun assertVariable(
     )
 }
 
-internal fun testTruncateString() {
-    check("Hello" == Variable.truncateString("Hello", 10))
-    check("Hello" == Variable.truncateString("Hello", 5))
-    // A string that should be truncated at a character boundary
-    check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 7))
-    // A string that would be truncated within a multi-byte character
-    check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 8))
-    // A string that should be truncated just before a multi-byte character
-    check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 9))
-    check("Hello, \u4E16...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 10))
+    internal fun testTruncateString() {
+        check("Hello" == Variable.truncateString("Hello", 10))
+        check("Hello" == Variable.truncateString("Hello", 5))
+        check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 7))
+        check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 8))
+        check("Hello, ...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 9))
+        check("Hello, \u4E16...(truncated)" == Variable.truncateString("Hello, \u4E16\u754C", 10))
+    }
 }

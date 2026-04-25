@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/scope/scope_resolver_globals.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
+package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 
 // pub(crate) struct ScopeResolverGlobals {
 //     pub(crate) globals: Option<FrozenRef<'static, Globals>>,

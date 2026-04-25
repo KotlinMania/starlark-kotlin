@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/any_array.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.any_array
+package io.github.kotlinmania.starlark.values.types.anyarray
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -34,7 +34,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_array
 // use crate::any::ProvidesStaticType;
 // use crate::values::StarlarkValue;
 
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
 
 // #[derive(derive_more::Display, ProvidesStaticType, NoSerialize, Allocative)]
 // #[repr(C)]

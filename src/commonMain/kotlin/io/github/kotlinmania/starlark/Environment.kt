@@ -1,5 +1,5 @@
 // port-lint: source src/environment.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

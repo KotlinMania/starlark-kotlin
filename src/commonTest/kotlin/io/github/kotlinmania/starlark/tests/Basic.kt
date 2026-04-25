@@ -1,5 +1,5 @@
 // port-lint: source src/tests/basic.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,10 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Basic expression tests. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[test]
 // fn arithmetic_test()

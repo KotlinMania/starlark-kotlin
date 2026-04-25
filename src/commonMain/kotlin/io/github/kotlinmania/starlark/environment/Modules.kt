@@ -1,5 +1,5 @@
 // port-lint: source src/environment/modules.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,35 +26,35 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * all values from this environment become immutable.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocModule
-import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocModule
+import io.github.kotlinmania.starlark.docs.DocString
+import io.github.kotlinmania.starlark.docs.DocStringKind
+import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import kotlin.time.Duration
 import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.RetainedHeapProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
-import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
-import io.github.kotlinmania.starlark_kotlin.EnvironmentError
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.profile.RetainedHeapProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.syntax.ast.Visibility
+import io.github.kotlinmania.starlark.eval.compiler.postFreeze
+import io.github.kotlinmania.starlark.errors.didYouMean
+import io.github.kotlinmania.starlark.EnvironmentError
 
 /**
  * #[derive(Debug, thiserror::Error)]
@@ -363,11 +363,9 @@ class Module internal constructor(
          * pub async fn with_temp_heap_async<R, F>(f: F) -> R
          */
         suspend fun <R> withTempHeapAsync(f: suspend (Module) -> R): R {
-            return Heap.temp { h ->
+            return Heap.tempAsync { h ->
                 h.allowGc()
-                // Note: suspend lambdas require kotlinx.coroutines runBlocking in some contexts
-                @Suppress("UNCHECKED_CAST")
-                (f as (Module) -> R)(withHeap(h))
+                f(withHeap(h))
             }
         }
 

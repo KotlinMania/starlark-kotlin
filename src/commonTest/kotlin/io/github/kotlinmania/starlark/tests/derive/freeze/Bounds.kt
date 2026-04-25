@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/freeze/bounds.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
+package io.github.kotlinmania.starlark.tests.derive.freeze
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
 
 // trait Bound<'x> {}
 internal interface Bound

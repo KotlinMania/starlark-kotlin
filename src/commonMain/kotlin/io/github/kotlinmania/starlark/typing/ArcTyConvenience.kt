@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 // Convenience helpers on top of the Rust transliteration in `ArcTy.kt`.
 

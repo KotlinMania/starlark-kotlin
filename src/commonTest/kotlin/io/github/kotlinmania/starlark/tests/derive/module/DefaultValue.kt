@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/default_value.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalPositional
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
 
 // #[starlark_module]
 // fn default_value_functions(globals: &mut GlobalsBuilder)
 private fun defaultValueFunctions(globals: GlobalsBuilder) {
     // fn foo(#[starlark(default = 75)] x: i32) -> anyhow::Result<i32>
-    globals.setFunction("foo") { args: Arguments, _eval: Evaluator ->
+    globals.setFunction("foo") { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Int>(0)
         Result.success(x ?: 75)
     }

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -39,11 +39,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * ```
  *
  * Submodules:
- * - [enumType][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumType] - enum type definition
- * - [globals][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Globals] - global enum functions
- * - [matcher][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Matcher] - enum matcher
- * - [tyEnumType][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumType] - enum typing
- * - [value][io.github.kotlinmania.starlark_kotlin.values.types.enumeration.Value] - enum value
+ * - [enumType][io.github.kotlinmania.starlark.values.types.enumeration.EnumType] - enum type definition
+ * - [globals][io.github.kotlinmania.starlark.values.types.enumeration.Globals] - global enum functions
+ * - [matcher][io.github.kotlinmania.starlark.values.types.enumeration.Matcher] - enum matcher
+ * - [tyEnumType][io.github.kotlinmania.starlark.values.types.enumeration.TyEnumType] - enum typing
+ * - [value][io.github.kotlinmania.starlark.values.types.enumeration.Value] - enum value
  */
 
 // Re-exports (mirrors Rust's pub use declarations) are done via direct imports at call sites.

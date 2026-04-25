@@ -1,5 +1,5 @@
 // port-lint: source src/environment/slots.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Allocative, Hash)]
 // pub(crate) struct ModuleSlotId(pub(crate) u32);

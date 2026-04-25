@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,30 +19,30 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import starlark_map.Equivalent
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.freeze
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.toValue
+import starlarkmap.Equivalent
 import kotlin.reflect.KClass
 
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
@@ -66,11 +66,8 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         }
     }
 
-    override fun toString(): String = when (inner) {
-        is DictLike -> {
-            @Suppress("UNCHECKED_CAST")
-            fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
-        }
+    override fun toString(): String = when (val innerVal = inner) {
+        is DictLike -> fmtKeyedContainer("{", "}", ": ", innerVal.content().iter())
         else -> super<ComplexValue>.toString()
     }
 
@@ -112,13 +109,13 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         val innerVal = inner
         if (innerVal !is DictLike) return Result.success(false)
         val otherDict = dictRefFromValue(other) ?: return Result.success(false)
-        return io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap<Exception, Value, Value, Value>(
+        return io.github.kotlinmania.starlark.values.equalsSmallMap<Exception, Value, Value, Value>(
             innerVal.content(),
             getDictFromRef(otherDict).content,
         ) { x, y -> x.equals(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
@@ -140,7 +137,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         return Result.success(innerVal.content().getHashedByValue(hashed) != null)
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "(iter)")
         innerVal.iterStart()
@@ -242,7 +239,7 @@ class Dict(
         }
     }
 
-    override fun trace(_tracer: Tracer) {
+    override fun trace(tracer: Tracer) {
         // Trace all keys and values in the content map
     }
 

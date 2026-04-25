@@ -1,5 +1,5 @@
 // port-lint: source fuzz/fuzz_targets/starlark.rs
-package io.github.kotlinmania.starlark_kotlin.fuzz.fuzz_targets
+package io.github.kotlinmania.starlark.fuzz.fuzztargets
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.fuzz.fuzz_targets
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 // fn run_arbitrary_starlark_err(content: &str) -> starlark::Result<String>
 private fun runArbitraryStarlarkErr(content: String): Result<String> {

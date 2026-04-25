@@ -1,24 +1,24 @@
 // port-lint: source src/values/layout/heap/profile/aggregated.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
+package io.github.kotlinmania.starlark.values.layout.heap.profile
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringId
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringIndex
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphNode
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.RawPointer
 
 
 /*
@@ -46,7 +46,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 // SmallDuration → eval.runtime
 // Value → values.layout
 // Heap → values.layout.heap
-// StringId, StringIndex → values.layout.heap.profile.string_index
+// StringId, StringIndex → values.layout.heap.profile.stringindex
 class SmallMap<K, V> {
     private val map: MutableMap<K, V> = mutableMapOf()
     fun entry(key: K): SmallMapEntry<K, V> = SmallMapEntry(map, key)
@@ -371,7 +371,6 @@ internal class RetainedHeapProfile(
                     ProfileDataImpl.HeapFlameRetained(info.clone())
                 RetainedHeapProfileMode.Summary ->
                     ProfileDataImpl.HeapSummaryRetained(info.clone())
-                else -> throw IllegalStateException("Unexpected mode: $mode")
             },
         )
     }

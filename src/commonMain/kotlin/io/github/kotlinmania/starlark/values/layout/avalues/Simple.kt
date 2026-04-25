@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/simple.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple
+package io.github.kotlinmania.starlark.values.layout.avalues.simple
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
+import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
+import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 // pub(crate) fn simple<'v, T: StarlarkValue<'v>>(x: T) -> AValueImpl<'v, AValueSimple<T>>
 internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> {

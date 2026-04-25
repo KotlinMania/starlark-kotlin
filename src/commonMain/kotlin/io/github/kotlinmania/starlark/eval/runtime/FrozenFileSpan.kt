@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/frozen_file_span.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span
+package io.github.kotlinmania.starlark.eval.runtime.frozenfilespan
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.values.FrozenRef
 
 // #[derive(Debug, Copy, Clone, Dupe, PartialEq, Eq)]
 // pub(crate) struct FrozenFileSpan {

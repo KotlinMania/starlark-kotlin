@@ -1,5 +1,5 @@
 // port-lint: source src/environment/globals.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_map.rs
-package starlark_map.sorted_map
+package starlarkmap.sortedmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package starlark_map.sorted_map
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.ordered_map.OrderedMap
-import starlark_map.small_map.SmallMap
+import starlarkmap.Equivalent
+import starlarkmap.orderedmap.OrderedMap
+import starlarkmap.smallmap.SmallMap
 
 /**
  * [OrderedMap] but with keys sorted.

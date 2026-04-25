@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/unused_loads/find_tests.rs
-package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
+package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

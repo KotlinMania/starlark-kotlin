@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/stmt.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
+package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,25 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtsCompiled
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.StmtCompileContext
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.writeBc
+import io.github.kotlinmania.starlark.eval.bc.Bc
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.StmtCompiled
+import io.github.kotlinmania.starlark.eval.compiler.StmtsCompiled
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.eval.compiler.StmtCompileContext
+import io.github.kotlinmania.starlark.eval.compiler.AssignCompiledValue
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.eval.compiler.asLocalNonCaptured
+import io.github.kotlinmania.starlark.eval.bc.compiler.assign.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.eval.bc.compiler.assign.writeBc
 
 /** Compile a for-loop to bytecode. */
 internal fun writeFor(

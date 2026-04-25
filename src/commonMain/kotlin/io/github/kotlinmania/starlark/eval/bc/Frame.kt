@@ -1,6 +1,6 @@
 
 // port-lint: source src/eval/bc/frame.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,11 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * Local variables and stack, in single allocation.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * Current `def` frame (but not native function frame).
@@ -200,7 +200,7 @@ internal fun BcFrame.trace(tracer: Tracer) {
 // pub(crate) struct BcFramePtr<'v> {
 //     slots_ptr: *mut Option<Value<'v>>,
 // }
-class BcFramePtr internal constructor(
+internal class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {
     companion object {

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/range/range_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.range
+package io.github.kotlinmania.starlark.values.types.range
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.values.convertSliceIndices
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.convertSliceIndices
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
+@ConsistentCopyVisibility
 data class NonZeroI32 private constructor(val value: Int) {
     companion object {
         fun new(value: Int): NonZeroI32? =
@@ -43,7 +44,7 @@ data class Range(
     val start: Int,
     val stop: Int,
     val step: NonZeroI32
-) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue, io.github.kotlinmania.starlark_kotlin.values.AllocValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue, io.github.kotlinmania.starlark.values.AllocValue {
     override val TYPE: String get() = Companion.TYPE
     companion object {
         /** The result of calling `type()` on a range. */
@@ -191,7 +192,7 @@ data class Range(
         )))
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         return Result.success(me)
     }
 

@@ -1,13 +1,13 @@
 // port-lint: source src/values/types/int/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalNamed
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalPositional
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.optionalNamed
+import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.num.NumRef
 import kotlin.math.truncate
 
 /*
@@ -208,7 +208,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
  */
 private fun allocStarlarkInt(
     starlarkInt: StarlarkInt,
-    heap: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap,
+    heap: io.github.kotlinmania.starlark.values.layout.heap.Heap,
 ): Value {
     return when (starlarkInt) {
         is StarlarkInt.Small -> Value.newInt(starlarkInt.value)

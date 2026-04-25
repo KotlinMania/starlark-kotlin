@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/call_enter_exit.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap
+package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 // Marker objects to track allocations.
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /// A type which is either drop or non-drop.
 // pub(crate) trait MaybeDrop: Debug + Sync + Send + Allocative + 'static {}

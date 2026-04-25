@@ -1,5 +1,5 @@
 // port-lint: source src/util/rtabort.rs
-package io.github.kotlinmania.starlark_kotlin.util.rtabort
+package io.github.kotlinmania.starlark.util.rtabort
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

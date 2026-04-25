@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int/i32.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -35,9 +35,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
 // use crate::values::types::int::int_or_big::StarlarkInt;
 // use crate::values::types::int::int_or_big::StarlarkIntRef;
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.IntegerTooBigError
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
 
 // impl<'v> AllocValue<'v> for i32
 // impl AllocFrozenValue for i32

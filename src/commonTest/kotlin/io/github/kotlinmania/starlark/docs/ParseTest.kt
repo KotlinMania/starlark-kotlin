@@ -1,5 +1,5 @@
 // port-lint: source src/docs/parse.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark.typing.Ty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -320,18 +320,18 @@ class ParseTest {
 
         // Verify function-level docs
         assertNotNull(functionDocs.docs)
-        assertEquals("This is an example docstring", functionDocs.docs!!.summary)
-        assertEquals("Details here", functionDocs.docs!!.details)
+        assertEquals("This is an example docstring", functionDocs.docs.summary)
+        assertEquals("Details here", functionDocs.docs.details)
 
         // Verify kwargs docs
         assertNotNull(functionDocs.params.kwargs)
-        assertNotNull(functionDocs.params.kwargs!!.docs)
-        assertEquals("Docs for kwargs", functionDocs.params.kwargs!!.docs!!.summary)
+        assertNotNull(functionDocs.params.kwargs.docs)
+        assertEquals("Docs for kwargs", functionDocs.params.kwargs.docs!!.summary)
 
         // Verify args docs
         assertNotNull(functionDocs.params.args)
-        assertNotNull(functionDocs.params.args!!.docs)
-        assertEquals("Docs for args", functionDocs.params.args!!.docs!!.summary)
+        assertNotNull(functionDocs.params.args.docs)
+        assertEquals("Docs for args", functionDocs.params.args.docs!!.summary)
 
         // Verify positional param docs
         val argBar = functionDocs.params.posOrNamed[0]
@@ -394,8 +394,8 @@ class ParseTest {
 
         // Verify function-level docs
         assertNotNull(functionDocs.docs)
-        assertEquals("This is an example docstring", functionDocs.docs!!.summary)
-        assertEquals("Details here", functionDocs.docs!!.details)
+        assertEquals("This is an example docstring", functionDocs.docs.summary)
+        assertEquals("Details here", functionDocs.docs.details)
 
         // Verify positional param docs
         val argBar = functionDocs.params.posOrNamed[0]

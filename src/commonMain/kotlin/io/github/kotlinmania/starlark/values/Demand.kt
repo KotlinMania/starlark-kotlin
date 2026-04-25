@@ -1,5 +1,5 @@
 // port-lint: source src/values/demand.rs
-package io.github.kotlinmania.starlark_kotlin.values.demand
+package io.github.kotlinmania.starlark.values.demand
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.demand
  */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Taken by [StarlarkValue.provide]
@@ -78,6 +78,5 @@ internal fun fillDemand(value: Value, demand: Demand) {
 internal inline fun <reified T : Any> requestValueImpl(value: Value): T? {
     val demand: Demand = Demand.new<T>()
     fillDemand(value, demand)
-    @Suppress("UNCHECKED_CAST")
     return if (demand.filled) demand.option as? T else null
 }

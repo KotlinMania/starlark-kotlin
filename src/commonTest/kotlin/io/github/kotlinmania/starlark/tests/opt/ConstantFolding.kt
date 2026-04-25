@@ -1,5 +1,5 @@
 // port-lint: source src/tests/opt/constant_folding.rs
-package io.github.kotlinmania.starlark_kotlin.tests.opt
+package io.github.kotlinmania.starlark.tests.opt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 // #[test]
 // fn test_fold_list_add()

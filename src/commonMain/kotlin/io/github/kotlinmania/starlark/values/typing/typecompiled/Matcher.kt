@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/matcher.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.typing.TyCustom
 
 /**
  * Marker interface for type matchers which are registered.

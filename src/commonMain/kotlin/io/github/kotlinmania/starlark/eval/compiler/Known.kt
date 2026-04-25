@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/known.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
 
 /**
  * Convert a list into a tuple. In many cases (iteration, `in`) these types

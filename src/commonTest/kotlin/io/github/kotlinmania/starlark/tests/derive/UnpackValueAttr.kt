@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/unpack_value_attr.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
 
 // Only check it compiles (test-only).
 
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
 // #[display("ValueWithLifetimeParam")]

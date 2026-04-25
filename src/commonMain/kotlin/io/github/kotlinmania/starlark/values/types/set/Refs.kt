@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/set/refs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.set
+package io.github.kotlinmania.starlark.values.types.set
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.SetType
-import starlark_map.small_set.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueStarlarkTypeRepr
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.ValueError
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.SetType
+import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 
 /**
  * Define the set type.
@@ -112,7 +112,7 @@ class SetMut internal constructor(
         /**
          * Downcast the value to a mutable set reference.
          */
-        internal inline fun fromValue(x: Value): Result<SetMut> {
+        internal fun fromValue(x: Value): Result<SetMut> {
             val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()
             return when (ptr) {
                 null -> Result.failure(error(x))

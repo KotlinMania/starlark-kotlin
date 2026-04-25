@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/generic.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 // fn global_builder<T: Default, U>(globals: &mut GlobalsBuilder)
@@ -65,10 +65,10 @@ private fun <T, U> methodBuilder(
     // Just check that this compiles
     // #[starlark(attribute)]
     // fn test_attribute(this: u32) -> starlark::Result<CustomNone<T>>
-    builder.setAttribute("test_attribute") { _this, _heap ->
+    builder.setAttribute("test_attribute") { _this, heap ->
         val _u = defaultU().toString()
         val _t = defaultT()
-        Result.success(CustomNone<T>().allocValue(_heap))
+        Result.success(CustomNone<T>().allocValue(heap))
     }
 }
 

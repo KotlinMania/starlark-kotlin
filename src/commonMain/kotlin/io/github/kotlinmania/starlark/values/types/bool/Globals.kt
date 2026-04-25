@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bool/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.bool
+package io.github.kotlinmania.starlark.values.types.bool
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalPositional
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
+import io.github.kotlinmania.starlark.values.layout.Value
 
 internal fun registerBool(globals: GlobalsBuilder) {
     /** A boolean representing true. */

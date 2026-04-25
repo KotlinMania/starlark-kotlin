@@ -1,11 +1,11 @@
 // port-lint: source src/analysis/performance.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.codemap.*
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.codemap.*
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.values.layout.size
 
 
 /*
@@ -26,9 +26,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.size
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.layout.size
+import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.values.layout.size
 
 // pub(crate) enum Performance
 internal sealed class Performance : LintWarning {
@@ -60,14 +60,14 @@ internal sealed class Performance : LintWarning {
 private fun matchDictCopy(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
     // If we see `dict(**x)` suggest `dict(x)`
     val expr = x.node
-    if (expr is ExprP.Call<*> && expr.args.args.size == 1) {
+    if (expr is ExprP.Call && expr.args.args.size == 1) {
         val func = expr.expr.node
         val arg = expr.args.args[0]
-        if (func is ExprP.Identifier<*, *>
+        if (func is ExprP.Identifier<AstNoPayload, *>
             && func.ident.node.ident == "dict"
-            && arg.node is ArgumentP.KwArgs<*>
+            && arg.node is ArgumentP.KwArgs
         ) {
-            val kwArg = (arg.node as ArgumentP.KwArgs<*>).expr
+            val kwArg = arg.node.expr
             res.add(
                 LintT.new(
                     codemap,
@@ -89,30 +89,31 @@ private fun matchInefficientBoolCheck(
     res: MutableList<LintT<Performance>>,
 ) {
     val expr = x.node
-    if (expr !is ExprP.Call<*> || expr.args.args.size != 1) return
+    if (expr !is ExprP.Call || expr.args.args.size != 1) return
 
     val func = expr.expr.node
     val argAst = expr.args.args[0]
 
-    if (func !is ExprP.Identifier<*, *>) return
+    if (func !is ExprP.Identifier<AstNoPayload, *>) return
     val funcIdent = func.ident.node.ident
     if (funcIdent != "any" && funcIdent != "all") return
 
     // Check for positional argument patterns
-    if (argAst.node !is ArgumentP.Positional<*>) return
-    val arg = (argAst.node as ArgumentP.Positional<*>).expr.node
+    val argNode = argAst.node
+    if (argNode !is ArgumentP.Positional) return
+    val arg = argNode.expr.node
 
     when (arg) {
         // any([blah for blah in blahs]) or any({k: v for ...})
-        is ExprP.ListExpr<*>, is ExprP.Dict<*> -> {
+        is ExprP.ListExpr, is ExprP.Dict -> {
             // Comprehension variants — in the full AST these would be
             // ExprP.ListComprehension / ExprP.DictComprehension.
             // Placeholder: trigger on list/dict comprehensions once available.
         }
-        is ExprP.Call<*> -> {
+        is ExprP.Call -> {
             // any(list(_get_some_dict())) or any(dict([]))
             val innerFunc = arg.expr.node
-            if (innerFunc is ExprP.Identifier<*, *>) {
+            if (innerFunc is ExprP.Identifier<AstNoPayload, *>) {
                 val innerIdent = innerFunc.ident.node.ident
                 if (innerIdent == "dict" || innerIdent == "list") {
                     res.add(

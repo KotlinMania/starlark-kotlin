@@ -1,5 +1,5 @@
 // port-lint: source src/tests/freeze_access_value.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.int.allocValue
+import io.github.kotlinmania.starlark.values.types.list.ListRef
+import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // struct Test<V> { field: V }
 private class TestFreeze(var field: Value) : Freeze<TestFrozen> {

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/namespace/typing.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.namespace
+package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,20 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallArgs
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustomImpl
-import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextError
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyCallArgs
+import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
+import io.github.kotlinmania.starlark.typing.TyCustomImpl
+import io.github.kotlinmania.starlark.typing.TypingNoContextError
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 internal object NamespaceMatcher : TypeMatcher {

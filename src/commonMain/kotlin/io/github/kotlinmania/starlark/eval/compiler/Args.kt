@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/args.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.args
+package io.github.kotlinmania.starlark.eval.compiler.args
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.args
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Compiler
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.expr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.optimize
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrIntern
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.compiler.Compiler
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.expr
+import io.github.kotlinmania.starlark.eval.compiler.optimize
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.runtime.ArgNames
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrIntern
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 // #[derive(Default, Clone, Debug, VisitSpanMut)]
 // pub(crate) struct ArgsCompiledValue {

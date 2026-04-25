@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/num/typecheck.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.num
+package io.github.kotlinmania.starlark.values.types.num
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp
 // TyBasic.Any is a data object in the typing module
 
 internal enum class NumTy {

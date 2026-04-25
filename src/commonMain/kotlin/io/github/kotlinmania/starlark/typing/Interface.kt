@@ -1,5 +1,5 @@
 // port-lint: source src/typing/interface.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark.typing.Ty
 
 /** Interface representing the types of all bindings in a module. */
 // #[derive(Default, Dupe, Clone, Debug)]

@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/unused_loads/remove.rs
-package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
+package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
 
 /**
  * Helper for building the output string with span-based skipping.

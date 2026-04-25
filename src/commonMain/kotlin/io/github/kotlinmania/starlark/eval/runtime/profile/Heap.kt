@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/heap.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap
+package io.github.kotlinmania.starlark.eval.runtime.profile.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,20 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.eval.evalFunction
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.evalFunction
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 // pub(crate) struct HeapAllocatedProfilerType
 internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {

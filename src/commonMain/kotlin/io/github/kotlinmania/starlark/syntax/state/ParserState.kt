@@ -1,10 +1,10 @@
-package io.github.kotlinmania.starlark_kotlin.syntax.state
+package io.github.kotlinmania.starlark.syntax.state
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.typing.StarlarkError
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
 class ParserState(
     val dialect: Dialect,

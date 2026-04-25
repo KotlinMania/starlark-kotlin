@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/call.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
+package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,37 +21,37 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Compile function calls. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPos
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcNativeFunction
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.resolve
-import io.github.kotlinmania.starlark_kotlin.eval.bc.CallArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.CallFrozenArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.CallFrozenDefArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.CallMethodArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.CallMaybeKnownMethodArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcNativeFunctionCallable
-import io.github.kotlinmania.starlark_kotlin.eval.bc.FrozenValueCallable
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPosCallArgs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFullCallArgs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsPosForDef
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFullForDef
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.CallCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.types.getKnownMethod
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFull
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPos
+import io.github.kotlinmania.starlark.eval.bc.BcNativeFunction
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.resolve
+import io.github.kotlinmania.starlark.eval.bc.CallArg
+import io.github.kotlinmania.starlark.eval.bc.CallFrozenArg
+import io.github.kotlinmania.starlark.eval.bc.CallFrozenDefArg
+import io.github.kotlinmania.starlark.eval.bc.CallMethodArg
+import io.github.kotlinmania.starlark.eval.bc.CallMaybeKnownMethodArg
+import io.github.kotlinmania.starlark.eval.bc.BcNativeFunctionCallable
+import io.github.kotlinmania.starlark.eval.bc.FrozenValueCallable
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosCallArgs
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullCallArgs
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosForDef
+import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullForDef
+import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
+import io.github.kotlinmania.starlark.eval.compiler.CallCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.types.NativeFunction
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.types.getKnownMethod
+import io.github.kotlinmania.starlark.eval.bc.compiler.assign.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
 
 // impl ArgsCompiledValue
 

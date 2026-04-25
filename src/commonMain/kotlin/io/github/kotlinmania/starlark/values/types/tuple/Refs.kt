@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/refs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -36,9 +36,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
 // use crate::values::types::tuple::value::FrozenTuple;
 // use crate::values::types::tuple::value::Tuple;
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /// Reference to tuple data in Starlark heap.
 // #[derive(RefCastCustom, Debug)]

@@ -1,5 +1,5 @@
 // port-lint: source src/tests/bc/golden.rs
-package io.github.kotlinmania.starlark_kotlin.tests.bc
+package io.github.kotlinmania.starlark.tests.bc
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.tests.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 
 // fn test_function_bytecode(program: &str) -> String
 private fun testFunctionBytecode(program: String): String {

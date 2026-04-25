@@ -1,5 +1,5 @@
 // port-lint: source src/dialect.rs
-package io.github.kotlinmania.starlark_kotlin.syntax.dialect
+package io.github.kotlinmania.starlark.syntax.dialect
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

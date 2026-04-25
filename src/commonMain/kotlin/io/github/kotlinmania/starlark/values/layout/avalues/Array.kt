@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/array.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
+package io.github.kotlinmania.starlark.values.layout.avalues
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,25 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.types.any_array.AnyArray
-import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
-import io.github.kotlinmania.starlark_kotlin.values.types.array.ValueEmptyArray
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.types.anyarray.AnyArray
+import io.github.kotlinmania.starlark.values.types.array.Array
+import io.github.kotlinmania.starlark.values.types.array.ValueEmptyArray
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.types.allocAny
 
 // fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
 private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> {
@@ -70,7 +70,7 @@ internal object AValueArray : AValue {
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("arrays should not be frozen")
     }
 
@@ -122,12 +122,12 @@ internal class AValueAnyArray<T> : AValue {
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
     // unsafe fn heap_copy(...) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 

@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin.docs.tests
+package io.github.kotlinmania.starlark.docs.tests
 
 import kotlin.test.Test
 

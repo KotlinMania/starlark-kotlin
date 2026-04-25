@@ -1,5 +1,5 @@
 // port-lint: source src/values/error.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.ErrorKind
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.ErrorKind
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Common errors returned by Starlark evaluation. */
 sealed class ValueError(override val message: String) : Exception(message) {
@@ -109,9 +109,9 @@ sealed class ValueError(override val message: String) : Exception(message) {
     }
 }
 
-/** Convert a [ValueError] to a starlark [io.github.kotlinmania.starlark_kotlin.Error]. */
-fun ValueError.toStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error {
-    return io.github.kotlinmania.starlark_kotlin.Error.newKind(ErrorKind.Value(this))
+/** Convert a [ValueError] to a starlark [io.github.kotlinmania.starlark.Error]. */
+fun ValueError.toStarlarkError(): io.github.kotlinmania.starlark.Error {
+    return io.github.kotlinmania.starlark.Error.newKind(ErrorKind.Value(this))
 }
 
 internal sealed class ControlError(override val message: String) : Exception(message) {

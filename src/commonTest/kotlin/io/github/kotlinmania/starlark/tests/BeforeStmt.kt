@@ -1,5 +1,5 @@
 // port-lint: source src/tests/before_stmt.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.beforeStmtFn
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.runtime.beforeStmtFn
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 // #[test]
 // fn before_stmt()
@@ -34,7 +34,7 @@ internal fun beforeStmt() {
     Module.withTempHeap { module ->
         val globals = Globals.new()
         var counter = 0
-        val beforeStmt = { _span: FileSpanRef, _continued: Boolean, _eval: Evaluator ->
+        val beforeStmt = { span: FileSpanRef, _continued: Boolean, eval: Evaluator ->
             counter += 1
         }
 

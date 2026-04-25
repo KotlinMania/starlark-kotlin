@@ -1,5 +1,5 @@
 // port-lint: source src/typing/oracle/traits.rs
-package io.github.kotlinmania.starlark_kotlin.typing.oracle
+package io.github.kotlinmania.starlark.typing.oracle
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

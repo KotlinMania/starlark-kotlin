@@ -1,5 +1,5 @@
 // port-lint: source src/environment/module_dump.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.types.string.format
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.types.string.format
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 // impl FrozenModule
 

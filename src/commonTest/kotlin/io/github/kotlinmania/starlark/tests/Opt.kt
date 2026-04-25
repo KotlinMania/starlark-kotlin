@@ -1,7 +1,7 @@
 // port-lint: source src/tests/opt.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

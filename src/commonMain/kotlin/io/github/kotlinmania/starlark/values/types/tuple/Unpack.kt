@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/unpack.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Unpack a value of type `tuple[T, ...]` into a list. */
 // #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]

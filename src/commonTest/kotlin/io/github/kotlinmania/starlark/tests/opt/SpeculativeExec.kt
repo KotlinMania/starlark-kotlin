@@ -1,7 +1,7 @@
 // port-lint: source src/tests/opt/speculative_exec.rs
-package io.github.kotlinmania.starlark_kotlin.tests.opt
+package io.github.kotlinmania.starlark.tests.opt
 
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,5 +1,5 @@
 // port-lint: source src/small_set/iter.rs
-package starlark_map.small_set.iter
+package starlarkmap.smallset.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package starlark_map.small_set.iter
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.iter.Iter as SmallMapIter
-import starlark_map.small_map.iter.IterMutUnchecked as SmallMapIterMutUnchecked
-import starlark_map.small_map.iter.IterHashed as SmallMapIterHashed
-import starlark_map.small_map.iter.IntoIter as SmallMapIntoIter
-import starlark_map.small_map.iter.IntoIterHashed as SmallMapIntoIterHashed
+import starlarkmap.Hashed
+import starlarkmap.smallmap.iter.Iter as SmallMapIter
+import starlarkmap.smallmap.iter.IterMutUnchecked as SmallMapIterMutUnchecked
+import starlarkmap.smallmap.iter.IterHashed as SmallMapIterHashed
+import starlarkmap.smallmap.iter.IntoIter as SmallMapIntoIter
+import starlarkmap.smallmap.iter.IntoIterHashed as SmallMapIntoIterHashed
 
 /**
- * Iterator types for [SmallSet][starlark_map.small_set.SmallSet].
+ * Iterator types for [SmallSet][starlarkmap.smallset.SmallSet].
  *
  * In Rust, these are thin wrappers around [small_map] iterators that
  * discard the `()` value component. In Kotlin, they wrap the

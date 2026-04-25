@@ -1,6 +1,6 @@
 // port-lint: source src/stdlib/funcs.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
+package io.github.kotlinmania.starlark.stdlib.funcs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/extra.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListRef
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleRef
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark.values.types.dict.iter
+import io.github.kotlinmania.starlark.values.types.list.ListRef
+import io.github.kotlinmania.starlark.values.types.tuple.TupleRef
 
 /**
  * Apply a predicate to each element of the iterable, returning those that match.
@@ -243,7 +243,7 @@ private fun prettyRepr(
     // Rust: write!(s, "{a:#}") — alternate Display format
     val s = prettyReprString(a, indent = 0)
     val r = eval.heap().allocStr(s)
-    return Result.success(StringValue.newUnchecked(r))
+    return Result.success(r)
 }
 
 /** Like `str`, but produces more verbose pretty-printed output. */

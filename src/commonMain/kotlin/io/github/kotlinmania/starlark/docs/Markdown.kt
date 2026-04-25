@@ -1,5 +1,5 @@
 // port-lint: source src/docs/markdown.rs
-package io.github.kotlinmania.starlark_kotlin.docs.markdown
+package io.github.kotlinmania.starlark.docs.markdown
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,18 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.docs.markdown
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocModule
-import io.github.kotlinmania.starlark_kotlin.docs.DocParam
-import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
-import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.docs.RenderConfig
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
-import io.github.kotlinmania.starlark_kotlin.docs.renderCode
+import io.github.kotlinmania.starlark.docs.DocFunction
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocModule
+import io.github.kotlinmania.starlark.docs.DocParam
+import io.github.kotlinmania.starlark.docs.DocProperty
+import io.github.kotlinmania.starlark.docs.DocString
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.docs.RenderConfig
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TypeRenderConfig
+import io.github.kotlinmania.starlark.docs.renderCode
 
 /** Configuration for layout rendering. */
 // pub enum LayoutRenderConfig

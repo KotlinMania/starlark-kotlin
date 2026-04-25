@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,26 +19,26 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
-import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.values.compareSlice
-import io.github.kotlinmania.starlark_kotlin.values.applySlice
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.ValueLike
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.equalsSlice
+import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.compareSlice
+import io.github.kotlinmania.starlark.values.applySlice
 
 /** Define the tuple type. See [Tuple] and [FrozenTuple] as the two aliases. */
 class TupleGen<V>(
     /** The data stored by the tuple. */
     private val content: List<V>,
-) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
 
     companion object {
@@ -103,7 +103,7 @@ class TupleGen<V>(
         return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).compare(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, len()).getOrElse { return Result.failure(it) }
         return Result.success((content()[i] as ValueLike).toValue())
     }
@@ -139,8 +139,8 @@ class TupleGen<V>(
 
     override fun iterStop() {}
 
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val otherTuple = TupleGen.fromValue(rhs) ?: return null
+    override fun add(other: Value, heap: Heap): Result<Value>? {
+        val otherTuple = TupleGen.fromValue(other) ?: return null
         val result = mutableListOf<Value>()
         for (x in content()) {
             result.add((x as ValueLike).toValue())
@@ -151,8 +151,8 @@ class TupleGen<V>(
         return Result.success(heap.allocTuple(result))
     }
 
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val l = rhs.unpackI32() ?: return null
+    override fun mul(other: Value, heap: Heap): Result<Value>? {
+        val l = other.unpackI32() ?: return null
         val result = mutableListOf<Value>()
         for (i in 0 until l) {
             result.addAll(content().map { (it as ValueLike).toValue() })

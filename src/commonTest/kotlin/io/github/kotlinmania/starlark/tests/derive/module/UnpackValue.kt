@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/module/unpack_value.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.module
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.BoolUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.IntUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.StringUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOfUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntriesUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackListUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.BoolUnpackValue
+import io.github.kotlinmania.starlark.values.IntUnpackValue
+import io.github.kotlinmania.starlark.values.StringUnpackValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.valueof.ValueOfUnpackValue
+import io.github.kotlinmania.starlark.values.valueof.ValueOf
+import io.github.kotlinmania.starlark.values.types.dict.UnpackDictEntriesUnpackValue
+import io.github.kotlinmania.starlark.values.types.dict.UnpackDictEntries
+import io.github.kotlinmania.starlark.values.types.list.UnpackListUnpackValue
+import io.github.kotlinmania.starlark.values.types.list.UnpackList
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 
 // NOTE(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
 // #[starlark_module]
@@ -44,7 +44,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val heap = eval.heap()
         val unpacker = ValueOfUnpackValue(IntUnpackValue)
         val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
-        heap.allocTuple(listOf(v.value, heap.allocStr(v.typed.toString())))
+        heap.allocTuple(listOf(v.value, heap.allocStr(v.typed.toString()).toValue()))
     }
 
     // fn with_int_list(v: ValueOf<UnpackList<i32>>) -> Result<(Value, String)>
@@ -53,7 +53,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val unpacker = ValueOfUnpackValue(UnpackListUnpackValue(IntUnpackValue))
         val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
         val repr = v.typed.items.joinToString(", ")
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_list_list(v: ValueOf<UnpackList<ValueOf<UnpackList<i32>>>>) -> Result<(Value, String)>
@@ -65,7 +65,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val repr = v.typed.items.joinToString(" + ") { l ->
             l.typed.items.joinToString(", ")
         }
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_dict_list(v: ValueOf<UnpackList<UnpackDictEntries<i32, i32>>>) -> Result<(Value, String)>
@@ -77,7 +77,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val repr = v.typed.items.joinToString(" + ") { l ->
             l.entries.joinToString(", ") { (k, v2) -> "$k: $v2" }
         }
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_int_dict(v: ValueOf<UnpackDictEntries<i32, i32>>) -> Result<(Value, String)>
@@ -86,7 +86,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val unpacker = ValueOfUnpackValue(UnpackDictEntriesUnpackValue(IntUnpackValue, IntUnpackValue))
         val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
         val repr = v.typed.entries.joinToString(" + ") { (k, v2) -> "$k: $v2" }
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_list_dict(v: ValueOf<UnpackDictEntries<i32, ValueOf<UnpackList<i32>>>>) -> Result<(Value, String)>
@@ -99,7 +99,7 @@ private fun validateModule(builder: GlobalsBuilder) {
         val repr = v.typed.entries.joinToString(" + ") { (k, v2) ->
             "$k: ${v2.typed.items.joinToString(", ")}"
         }
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_dict_dict(v: ValueOf<UnpackDictEntries<i32, UnpackDictEntries<i32, i32>>>) -> Result<(Value, String)>
@@ -112,17 +112,17 @@ private fun validateModule(builder: GlobalsBuilder) {
             val innerRepr = v2.entries.joinToString(", ") { (k2, v3) -> "$k2:$v3" }
             "$k: $innerRepr"
         }
-        heap.allocTuple(listOf(v.value, heap.allocStr(repr)))
+        heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
     }
 
     // fn with_either(v: Either<i32, Either<String, ValueOf<UnpackList<i32>>>>) -> Result<String>
     builder.setFunction("with_either") { args, eval ->
         val heap = eval.heap()
-        val nested = io.github.kotlinmania.starlark_kotlin.values.EitherUnpackValue(
+        val nested = io.github.kotlinmania.starlark.values.EitherUnpackValue(
             StringUnpackValue,
             ValueOfUnpackValue(UnpackListUnpackValue(IntUnpackValue)),
         )
-        val unpacker = io.github.kotlinmania.starlark_kotlin.values.EitherUnpackValue(
+        val unpacker = io.github.kotlinmania.starlark.values.EitherUnpackValue(
             IntUnpackValue,
             nested,
         )

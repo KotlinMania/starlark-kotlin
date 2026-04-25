@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalue.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,25 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ForwardPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.unpackTuple2
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
+import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
+import io.github.kotlinmania.starlark.values.types.list.ListData
+import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.types.tuple.unpackTuple2
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
 interface AValue {

@@ -1,7 +1,7 @@
 // port-lint: source src/values/types/record.rs
 @file:OptIn(ExperimentalStdlibApi::class)
 
-package io.github.kotlinmania.starlark_kotlin.values.types.record
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,9 +24,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 /**
  * A `record` type, comprising of a fixed set of fields.
  *
- * Calling `record()` produces a [io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen].
- * Calling [io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen] produces a
- * [io.github.kotlinmania.starlark_kotlin.values.types.record.RecordGen].
+ * Calling `record()` produces a [io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen].
+ * Calling [io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen] produces a
+ * [io.github.kotlinmania.starlark.values.types.record.RecordGen].
  * The field names of the record are only stored once, potentially reducing memory usage.
  * Created in Starlark using the `record()` function, which accepts keyword arguments.
  * The keys become field names, and values are the types. Calling the resulting
@@ -51,7 +51,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
  * - globals: [registerRecord], registers the `record` and `field` global functions
  * - instance: [RecordGen], an actual record instance
  * - matcher: [RecordTypeMatcher], type matcher for record instances
- * - record_type: [io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen], the type of records
+ * - record_type: [io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen], the type of records
  * - ty_record_type: [TyRecordData], typechecking data for a record type
  *
  * Re-export: `pub use crate::values::record::instance::Record`

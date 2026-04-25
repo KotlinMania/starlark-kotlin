@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/breakpoint.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
-import io.github.kotlinmania.starlark_kotlin.debug.localVariables
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.read_line.ReadLine
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.ReentrantLock
-import io.github.kotlinmania.starlark_kotlin.withLock
+import io.github.kotlinmania.starlark.debug.evalStatements
+import io.github.kotlinmania.starlark.debug.localVariables
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.readline.ReadLine
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.ReentrantLock
+import io.github.kotlinmania.starlark.withLock
 
 // A breakpoint takes over the console UI, so having two going at once confuses everything.
 // Have a global mutex to ensure one at a time.
@@ -85,7 +85,7 @@ private enum class Next {
     Fail,   // Stop running
 }
 
-private fun cmdHelp(_eval: Evaluator, rl: BreakpointConsole): Next {
+private fun cmdHelp(eval: Evaluator, rl: BreakpointConsole): Next {
     for ((names, msg, _) in COMMANDS) {
         rl.println("* :${names[0]}, $msg")
     }
@@ -114,11 +114,11 @@ private fun cmdStack(eval: Evaluator, rl: BreakpointConsole): Next {
     return Next.Again
 }
 
-private fun cmdResume(_eval: Evaluator, _rl: BreakpointConsole): Next {
+private fun cmdResume(eval: Evaluator, rl: BreakpointConsole): Next {
     return Next.Resume
 }
 
-private fun cmdFail(_eval: Evaluator, _rl: BreakpointConsole): Next {
+private fun cmdFail(eval: Evaluator, rl: BreakpointConsole): Next {
     return Next.Fail
 }
 
@@ -191,8 +191,15 @@ private fun breakpointLoop(eval: Evaluator, rl: BreakpointConsole): State {
 /** Error thrown when no breakpoint handler is configured on the evaluator. */
 internal class BreakpointError(message: String) : RuntimeException(message)
 
-private const val BREAKPOINT_HIT_MESSAGE: String =
+internal const val BREAKPOINT_HIT_MESSAGE: String =
     "BREAKPOINT HIT! :resume to continue, :help for all options"
+
+internal fun resetBreakpointGlobalStateForTests() {
+    // `breakpoint()` function modifies the global state.
+    breakpointLock.withLock {
+        breakpointState = State.Allow
+    }
+}
 
 /**
  * When a debugger is available, breaks into the debugger.
@@ -211,90 +218,5 @@ fun breakpointGlobal(builder: GlobalsBuilder) {
             }
         }
         NoneType
-    }
-}
-
-// --- Tests ---
-
-// Breakpoint tests should not be executed concurrently
-// to avoid interfering with the breakpoint state.
-private val testLock = ReentrantLock()
-
-private fun resetGlobalState() {
-    // `breakpoint()` function modifies the global state.
-    breakpointLock.withLock {
-        breakpointState = State.Allow
-    }
-}
-
-/** Tests for the breakpoint module. */
-internal class BreakpointTests {
-
-    /**
-     * Test with: BREAKPOINT=1 to enable real terminal breakpoint.
-     * Skipped by default since it requires interactive input.
-     */
-    @kotlin.test.Test
-    fun testBreakpointReal() {
-        testLock.withLock {
-            resetGlobalState()
-
-            // Skip unless BREAKPOINT=1 is set in the environment
-            // In Kotlin/Multiplatform there is no universal env access, so this
-            // test is effectively a no-op placeholder matching the Rust original.
-            return
-        }
-    }
-
-    @kotlin.test.Test
-    fun testBreakpointMock() {
-        testLock.withLock {
-            resetGlobalState()
-
-            val printedLines = mutableListOf<String>()
-
-            val a = io.github.kotlinmania.starlark_kotlin.assert.Assert()
-            a.globalsAdd(::breakpointGlobal)
-            a.setupEval { eval ->
-                // `Assert` runs tests several times, take only lines from the last iteration.
-                printedLines.clear()
-
-                eval.breakpointHandler = {
-                    object : BreakpointConsole {
-                        private var called = false
-
-                        override fun readLine(): String? {
-                            val wasCalled = called
-                            called = true
-                            return if (!wasCalled) "x" else null
-                        }
-
-                        override fun println(line: String) {
-                            printedLines.add(line)
-                        }
-                    }
-                }
-            }
-            a.pass("x = [1,2,3]; breakpoint()")
-
-            kotlin.test.assertEquals(
-                listOf(BREAKPOINT_HIT_MESSAGE, "[1, 2, 3]"),
-                printedLines,
-            )
-        }
-    }
-
-    @kotlin.test.Test
-    fun testBreakpointDisabled() {
-        testLock.withLock {
-            resetGlobalState()
-
-            val a = io.github.kotlinmania.starlark_kotlin.assert.Assert()
-            a.globalsAdd(::breakpointGlobal)
-            a.fail(
-                "x = [1,2,3]; breakpoint()",
-                "Breakpoint handler is not enabled",
-            )
-        }
     }
 }

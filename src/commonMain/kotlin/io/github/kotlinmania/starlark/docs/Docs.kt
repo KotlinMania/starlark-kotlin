@@ -1,5 +1,5 @@
 // port-lint: source src/docs.rs
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,11 +22,11 @@ package io.github.kotlinmania.starlark_kotlin.docs
 /** Types supporting documentation for code written in or for Starlark. */
 
 import kotlin.js.JsName
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.FmtParam
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.iterFmtParamSpec
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.eval.runtime.params.FmtParam
+import io.github.kotlinmania.starlark.eval.runtime.params.iterFmtParamSpec
 
 /** The documentation provided by a user for a specific module, object, function, etc. */
 // #[derive(Debug, Clone, PartialEq, Trace, Default, Allocative)]

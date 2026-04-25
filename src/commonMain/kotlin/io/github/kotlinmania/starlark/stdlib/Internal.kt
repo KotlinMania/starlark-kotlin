@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/internal.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib.internal
+package io.github.kotlinmania.starlark.stdlib.internal
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -25,9 +25,9 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.internal
  * None of this code is meant to be used in production. Can be changed any time.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 // fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)

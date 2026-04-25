@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/trace/enums.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
+package io.github.kotlinmania.starlark.tests.derive.trace
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
 
 // Just check it compiles.
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[derive(Trace)]
 // enum TestEnumForTrace<'v>

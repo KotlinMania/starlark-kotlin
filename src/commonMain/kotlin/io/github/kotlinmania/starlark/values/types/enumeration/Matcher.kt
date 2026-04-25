@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/matcher.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
+package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 
 internal data class EnumTypeMatcher(
     val id: TypeInstanceId,

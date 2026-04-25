@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.typing.ty.AbstractType
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 
 /** Represent a type of type. (For example, an expression `int` is valid for this type.) */
 class TypeType private constructor() : StarlarkTypeRepr, UnpackValue<TypeType> {

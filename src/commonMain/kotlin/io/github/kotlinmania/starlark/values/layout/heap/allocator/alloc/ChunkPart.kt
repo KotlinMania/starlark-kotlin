@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/chunk_part.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
 
 /** Chunk is shared by multiple `ChunkPart`s. */
 // #[derive(Debug, Default, PartialEq)]

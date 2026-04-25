@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/instr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /** Define the bytecode instruction. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.StarlarkError
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * Result of instruction evaluation.
@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
  */
 // #[must_use]
 // pub(crate) enum InstrControl<'v, 'b>
-sealed class InstrControl {
+internal sealed class InstrControl {
     /** Go to address. */
     // Next(BcPtrAddr<'b>)
     data class Next(val ip: BcPtrAddr) : InstrControl()
@@ -53,16 +53,13 @@ sealed class InstrControl {
 /**
  * Bytecode instruction interface.
  *
- * Each instruction type implements this interface, defining its argument type
- * and its execution behavior.
+ * Each instruction type implements this interface with its concrete argument type [A],
+ * mirroring Rust's `type Arg: BcInstrArg` associated type.
  */
 // pub(crate) trait BcInstr: Sized + 'static
-interface BcInstr {
+internal interface BcInstr<A> {
     /**
      * Execute the instruction.
-     *
-     * Rust's associated type `type Arg: BcInstrArg` has no runtime representation;
-     * in Kotlin the concrete arg is passed as [Any] and cast by each implementation.
      */
     // fn run<'v, 'b>(
     //     eval: &mut Evaluator<'v, '_, '_>,
@@ -74,6 +71,6 @@ interface BcInstr {
         eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
-        arg: Any,
+        arg: A,
     ): InstrControl
 }

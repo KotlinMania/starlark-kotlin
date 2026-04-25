@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,8 +43,8 @@ class AllocatorTest {
         assertTrue(p1 is Int)
         assertTrue(p2 is Int)
         // Verify contiguous allocation: p1 - p0 = 3*ALIGN, p2 - p1 = 4*ALIGN
-        assertEquals(3 * ALIGN, (p1 as Int) - (p0 as Int))
-        assertEquals(4 * ALIGN, (p2 as Int) - (p1 as Int))
+        assertEquals(3 * ALIGN, (p1) - (p0))
+        assertEquals(4 * ALIGN, (p2) - (p1))
 
         val chunks = allocator.iterAllocatedChunksRev().toList()
         assertEquals(1, chunks.size)

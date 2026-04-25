@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/ty_enum_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
+package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 
 class TyEnumData(
     /** Name of the enum type. */

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/float.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.float
+package io.github.kotlinmania.starlark.values.types.float
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

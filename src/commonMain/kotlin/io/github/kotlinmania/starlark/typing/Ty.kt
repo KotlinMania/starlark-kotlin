@@ -1,5 +1,5 @@
 // port-lint: source src/typing/ty.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.Either
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.Either
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.typing.TypingNever
 
 /**
  * A typing operation wasn't able to produce a precise result,
@@ -178,7 +178,7 @@ class Ty private constructor(
 
         /** Typechecker type of value. */
         // pub fn of_value(value: Value) -> Ty
-        fun ofValue(value: io.github.kotlinmania.starlark_kotlin.values.layout.Value): Ty {
+        fun ofValue(value: io.github.kotlinmania.starlark.values.layout.Value): Ty {
             return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
         }
 
@@ -189,7 +189,7 @@ class Ty private constructor(
          */
         // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
         internal fun fromNativeCallableComponents(
-            comp: io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableComponents,
+            comp: io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents,
             asType: Ty?,
         ): Result<Ty> {
             val result = comp.returnType

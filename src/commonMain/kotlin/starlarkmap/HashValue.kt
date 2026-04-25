@@ -1,5 +1,5 @@
 // port-lint: source src/hash_value.rs
-package starlark_map
+package starlarkmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,6 +22,7 @@ package starlark_map
 /**
  * A hash value.
  */
+@ConsistentCopyVisibility
 data class StarlarkHashValue private constructor(
     private val value: UInt,
 ) {

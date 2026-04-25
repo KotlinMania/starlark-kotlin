@@ -1,5 +1,5 @@
 // port-lint: source src/docs/multipage.rs
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.docs.markdown.LayoutRenderConfig
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
-import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderMarkdownPageForMultipageRender
+import io.github.kotlinmania.starlark.docs.markdown.LayoutRenderConfig
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.typing.TypeRenderConfig
+import io.github.kotlinmania.starlark.docs.markdown.renderMarkdownPageForMultipageRender
 
 // pub struct RenderConfig
 class RenderConfig(

@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/partial.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,32 +19,32 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.iter
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.ArgNames
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.eval.runtime.rustloc.rustLoc
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.DictRef
+import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark.values.types.dict.iter
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
 
 // #[starlark_module]
 // pub fn partial(builder: &mut GlobalsBuilder)
@@ -107,11 +107,9 @@ open class PartialGen<V : Any, S : Any>(
     // impl<'v, V: ValueLike<'v>, S> PartialGen<V, S>
     // fn pos_content(&self) -> &'v [Value<'v>]
     fun posContent(): List<Value> {
-        @Suppress("UNCHECKED_CAST")
-        val posValue = when (pos) {
-            is Value -> pos
-            is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
-                (pos as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+        val posValue = when (val p = pos) {
+            is Value -> p
+            is io.github.kotlinmania.starlark.values.layout.FrozenValue -> p.toValue()
             else -> return emptyList()
         }
         return TupleGen.fromValue(posValue)?.content() ?: emptyList()
@@ -134,11 +132,9 @@ open class PartialGen<V : Any, S : Any>(
             if (i != 0) sb.append(",")
             sb.append(kPair.first.asStr())
             sb.append(":")
-            @Suppress("UNCHECKED_CAST")
             val value = when (v) {
                 is Value -> v
-                is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
-                    (v as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+                is io.github.kotlinmania.starlark.values.layout.FrozenValue -> v.toValue()
                 else -> v
             }
             sb.append(value)
@@ -155,28 +151,24 @@ open class PartialGen<V : Any, S : Any>(
 
     // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
     override fun invoke(
-        _me: Value,
+        me: Value,
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {
         // apply the partial arguments first, then the remaining arguments I was given
 
         val selfPos = posContent()
-        @Suppress("UNCHECKED_CAST")
         val selfNamed = named.map { v ->
             when (v) {
                 is Value -> v
-                is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
-                    (v as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+                is io.github.kotlinmania.starlark.values.layout.FrozenValue -> v.toValue()
                 else -> v as Value
             }
         }
-        @Suppress("UNCHECKED_CAST")
         val selfNames = names.map { (sym, sv) ->
             val strVal = when (sv) {
                 is StringValue -> sv
-                is FrozenStringValue ->
-                    StringValue.new((sv as FrozenStringValue).toValue())!!
+                is FrozenStringValue -> StringValue.new(sv.toValue())!!
                 else -> sv as StringValue
             }
             Pair(sym, strVal)
@@ -213,18 +205,16 @@ open class PartialGen<V : Any, S : Any>(
             )
         )
 
-        @Suppress("UNCHECKED_CAST")
         val funcValue = when (func) {
             is Value -> func
-            is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
-                (func as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
+            is io.github.kotlinmania.starlark.values.layout.FrozenValue -> func.toValue()
             else -> func as Value
         }
         return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }
 
     // Trace implementation
-    override fun trace(_tracer: Tracer) {
+    override fun trace(tracer: Tracer) {
         // In Kotlin, GC handles tracing. No-op.
     }
 }
@@ -250,7 +240,7 @@ class Partial(
         if (frozenFunc.isFailure) return Result.failure(frozenFunc.exceptionOrNull()!!)
         val frozenPos = freezer.freeze(pos)
         if (frozenPos.isFailure) return Result.failure(frozenPos.exceptionOrNull()!!)
-        val frozenNamed = mutableListOf<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue>()
+        val frozenNamed = mutableListOf<io.github.kotlinmania.starlark.values.layout.FrozenValue>()
         for (v in named) {
             val f = freezer.freeze(v)
             if (f.isFailure) return Result.failure(f.exceptionOrNull()!!)
@@ -275,11 +265,11 @@ class Partial(
 // type FrozenPartial = PartialGen<FrozenValue, FrozenStringValue>;
 /** Partial application with frozen values. */
 class FrozenPartial(
-    func: io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue,
-    pos: io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue,
-    named: List<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue>,
+    func: io.github.kotlinmania.starlark.values.layout.FrozenValue,
+    pos: io.github.kotlinmania.starlark.values.layout.FrozenValue,
+    named: List<io.github.kotlinmania.starlark.values.layout.FrozenValue>,
     names: List<Pair<Symbol, FrozenStringValue>>,
     namesIndex: HashMap<ULong, Int> = HashMap(),
-) : PartialGen<io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue, FrozenStringValue>(
+) : PartialGen<io.github.kotlinmania.starlark.values.layout.FrozenValue, FrozenStringValue>(
     func, pos, named, names, namesIndex
 )

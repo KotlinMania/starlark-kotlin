@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
+package io.github.kotlinmania.starlark.values.layout.heap.allocator
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -34,6 +34,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
  * - pub(crate) mod allocator   -> values.layout.heap.allocator.alloc.allocator
  * - pub(crate) mod chain       -> values.layout.heap.allocator.alloc.chain
  * - pub(crate) mod chunk       -> values.layout.heap.allocator.alloc.chunk
- * - pub(crate) mod chunk_part  -> values.layout.heap.allocator.alloc.chunk_part
+ * - pub(crate) mod chunk_part  -> values.layout.heap.allocator.alloc.chunkpart
  * - pub(crate) mod per_thread  -> values.layout.heap.allocator.alloc.per_thread
  */

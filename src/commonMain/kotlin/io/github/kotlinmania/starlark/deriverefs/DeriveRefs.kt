@@ -1,7 +1,7 @@
 // port-lint: source src/__derive_refs.rs
 @file:Suppress("unused")
 
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

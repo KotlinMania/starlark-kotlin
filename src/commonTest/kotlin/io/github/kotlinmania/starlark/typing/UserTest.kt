@@ -1,5 +1,5 @@
 // port-lint: source src/typing/user.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.TyUser
+import io.github.kotlinmania.starlark.typing.TyUserParams
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import kotlin.test.Test
 
 // Test types: In Rust these use #[derive] macros and #[starlark_value].

@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/components.rs
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.deriverefs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocParam
-import io.github.kotlinmania.starlark_kotlin.docs.DocParams
-import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark.docs.DocFunction
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocParam
+import io.github.kotlinmania.starlark.docs.DocParams
+import io.github.kotlinmania.starlark.docs.DocStringKind
+import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
 
 /** A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method` */
 // pub struct NativeCallableComponents

@@ -1,17 +1,17 @@
 // port-lint: source src/analysis/dubious.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -81,10 +81,9 @@ private sealed class DubiousKey {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun toKey(x: Spanned<ExprP<AstNoPayload>>): Pair<DubiousKey, Span>? {
+private fun toKey(x: Spanned<ExprP<*>>): Pair<DubiousKey, Span>? {
     return when (val node = x.node) {
-        is ExprP.Literal<*> -> when (val lit = node.literal) {
+        is ExprP.Literal -> when (val lit = node.literal) {
             is AstLiteral.Int -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
             is AstLiteral.Float -> {
                 val n = NumRef.from(lit.value.node)
@@ -110,13 +109,12 @@ private fun toKey(x: Spanned<ExprP<AstNoPayload>>): Pair<DubiousKey, Span>? {
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-@Suppress("UNCHECKED_CAST")
 internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun expr(x: Spanned<ExprP<AstNoPayload>>, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
-            is ExprP.Dict<*> -> {
+            is ExprP.Dict -> {
                 val seen = HashMap<DubiousKey, Span>()
-                for ((key, _) in node.elements as List<Pair<Spanned<ExprP<AstNoPayload>>, Spanned<ExprP<AstNoPayload>>>>) {
+                for ((key, _) in node.elements) {
                     val keyPair = toKey(key)
                     if (keyPair != null) {
                         val (keyId, pos) = keyPair
@@ -143,12 +141,11 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
         .visitExprs { x -> expr(x, module.codemap, res) }
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun stmt(x: Spanned<StmtP<AstNoPayload>>, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
-            is StmtP.Expression<*> -> when (val exprNode = (node.expr as Spanned<ExprP<AstNoPayload>>).node) {
-                is ExprP.Identifier<*, *> -> results.add(
+            is StmtP.Expression -> when (val exprNode = node.expr.node) {
+                is ExprP.Identifier<AstNoPayload, *> -> results.add(
                     LintT.new(
                         codemap,
                         exprNode.ident.span,

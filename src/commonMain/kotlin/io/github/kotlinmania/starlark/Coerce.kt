@@ -1,5 +1,5 @@
 // port-lint: source src/coerce.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,16 +20,27 @@ package io.github.kotlinmania.starlark_kotlin
  */
 
 /**
- * A marker interface such that the existence of `From: Coerce<To>` implies
- * that `From` can be treated as `To` without any data manipulation.
- * Particularly useful for containers, e.g. `List<From>` can be treated as
- * `List<To>` in _O(1)_. If such an instance is available,
- * you can use [coerce] to perform the conversion.
+ * A marker interface to represent zero-cost conversions.
  *
- * In Kotlin, due to type erasure, the Rust `unsafe impl Coerce<To> for From`
- * blanket implementations for references, slices, Vec, Box, HashMap, HashSet,
- * tuples, arrays, PhantomData, String, str, Unit, SmallMap, and SmallSet are
- * all handled implicitly via unchecked casts rather than explicit trait impls.
+ * This is a transliteration of Rust's `unsafe trait Coerce<To: ?Sized> {}`.
+ *
+ * A marker interface such that the existence of `From: Coerce<To>` implies that `From` can be treated
+ * as `To` without any data manipulation. Particularly useful for containers, e.g. `Vec<From>` can be
+ * treated as `Vec<To>` in _O(1)_. If such an instance is available, you can use [coerce] to perform
+ * the conversion.
+ *
+ * Rust safety notes (from the original):
+ * - Rust must not change the type representation between the different types (typically using a `repr` directive).
+ * - It must be safe for the `From` to be treated as `To`: same (or less restrictive) alignment, no additional
+ *   invariants, and the value can be dropped as `To`.
+ *
+ * Kotlin does not expose Rust-style representation controls, nor does it offer a general-purpose `transmute`.
+ * The [coerce] function is therefore implemented as an unchecked cast, and this interface primarily exists
+ * to document intent and mirror the Rust structure.
+ *
+ * Rust defined a number of blanket `unsafe impl` conversions (references, slices, `Vec`, `Box`, `HashMap`,
+ * `HashSet`, tuples, arrays, `PhantomData`, `String`, `str`, `()`, `SmallMap`, `SmallSet`). Kotlin relies on
+ * erased generics and explicit casts at call sites rather than expressing those blanket impls directly.
  */
 interface Coerce<To>
 
@@ -50,10 +61,16 @@ interface CoerceKey<To> : Coerce<To>
  * Often the second type argument will need to be given explicitly,
  * e.g. `coerce<FromType, ToType>(x)`.
  *
- * In Kotlin, type erasure means this is an unchecked cast, which is the zero-cost
- * equivalent of Rust's `transmute`-style coercion via `ManuallyDrop` + raw pointer read.
+ * This is a transliteration of Rust's:
+ *
+ * `assert_eq!(Layout::new::<From>(), Layout::new::<To>());`
+ * `let x = ManuallyDrop::new(x);`
+ * `unsafe { ptr::read(x.deref() as *const From as *const To) }`
+ *
+ * Kotlin cannot check or enforce layout equality for generic types. This function is therefore an unchecked cast,
+ * which is the closest available analogue to Rust's "zero-cost" coercion in this port.
  */
-@Suppress("UNCHECKED_CAST")
-inline fun <From, reified To> coerce(x: From): To {
+fun <From, To> coerce(x: From): To {
+    @Suppress("UNCHECKED_CAST")
     return x as To
 }

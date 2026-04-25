@@ -1,6 +1,6 @@
 // port-lint: source src/eval/bc.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

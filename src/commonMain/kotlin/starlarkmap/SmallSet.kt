@@ -1,5 +1,5 @@
 // port-lint: source src/small_set.rs
-package starlark_map.small_set
+package starlarkmap.smallset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package starlark_map.small_set
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
 
 /**
  * A set with deterministic iteration order.

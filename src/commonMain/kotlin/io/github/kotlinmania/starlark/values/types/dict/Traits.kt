@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/traits.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
 // SmallMap
 
@@ -41,13 +41,13 @@ fun <K : AllocFrozenValue, V : AllocFrozenValue> SmallMap<K, V>.allocFrozenValue
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** AllocValue for &SmallMap<K, V>. */
-fun <K : StarlarkTypeRepr, T : StarlarkTypeRepr> SmallMap<K, T>.allocValueRef(heap: Heap): Value
-    where K : AllocValue, T : AllocValue =
+fun <K, T> SmallMap<K, T>.allocValueRef(heap: Heap): Value
+    where K : StarlarkTypeRepr, K : AllocValue, T : StarlarkTypeRepr, T : AllocValue =
     AllocDict(this.iter().asIterable()).allocValue(heap)
 
 /** AllocFrozenValue for &SmallMap<K, V>. */
-fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
-    where K : AllocFrozenValue, V : AllocFrozenValue =
+fun <K, V> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
+    where K : StarlarkTypeRepr, K : AllocFrozenValue, V : StarlarkTypeRepr, V : AllocFrozenValue =
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** StarlarkTypeRepr for &SmallMap<K, V>. */
@@ -117,14 +117,18 @@ object BTreeMapStarlarkTypeRepr {
 
 /** UnpackValue for BTreeMap<K, V> where K: UnpackValue + Ord, V: UnpackValue. */
 object BTreeMapUnpackValue {
-    fun <K : Comparable<K>, T : Any> unpackValueImpl(value: Value): Result<MutableMap<K, T>?> {
+    fun <K : Comparable<K>, T : Any> unpackValueImpl(
+        value: Value,
+        unpackKey: io.github.kotlinmania.starlark.values.UnpackValue<K>,
+        unpackValue: io.github.kotlinmania.starlark.values.UnpackValue<T>,
+    ): Result<MutableMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
         val r = mutableMapOf<K, T>()
         for ((k, v) in dict.deref().iter()) {
-            @Suppress("UNCHECKED_CAST")
-            val unpackedK = (k as? K) ?: return Result.success(null)
-            @Suppress("UNCHECKED_CAST")
-            val unpackedV = (v as? T) ?: return Result.success(null)
+            val unpackedK = unpackKey.unpackValueImpl(k).getOrElse { return Result.failure(it) }
+                ?: return Result.success(null)
+            val unpackedV = unpackValue.unpackValueImpl(v).getOrElse { return Result.failure(it) }
+                ?: return Result.success(null)
             r[unpackedK] = unpackedV
         }
         return Result.success(r)

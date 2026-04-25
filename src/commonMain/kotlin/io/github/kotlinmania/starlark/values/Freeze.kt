@@ -1,5 +1,5 @@
 // port-lint: source src/values/freeze.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import starlark_map.small_set.SmallSet
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import starlarkmap.smallset.SmallSet
 
 /**
  * Kotlin equivalent of Rust's `PhantomData<T>`.
@@ -233,16 +233,6 @@ fun <T : Freeze<TFrozen>, TFrozen> SmallSet<T>.freeze(freezer: Freezer): Result<
         result.insertHashedUniqueUnchecked(hashed)
     }
     return Result.success(result)
-}
-
-/** Freeze implementation for [Value]. Delegates to [Freezer.freeze]. */
-fun Value.freeze(freezer: Freezer): Result<FrozenValue> {
-    return freezer.freeze(this)
-}
-
-/** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-fun FrozenValue.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenValue> {
-    return Result.success(this)
 }
 
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */

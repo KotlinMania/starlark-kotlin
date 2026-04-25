@@ -1,7 +1,7 @@
 // port-lint: source src/values/types/string/repr.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.unlikely
+import io.github.kotlinmania.starlark.unlikely
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

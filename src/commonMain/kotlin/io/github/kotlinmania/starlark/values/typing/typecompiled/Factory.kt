@@ -1,11 +1,11 @@
 // port-lint: source src/values/typing/type_compiled/factory.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledImplAsStarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledImplAsStarlarkValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCom
  */
 
 // TypeMatcherAlloc<R> is defined in Alloc.kt (same package)
-import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
+import io.github.kotlinmania.starlark.typing.TyCustom
 
 /** Allocate a `Ty` with a `TypeMatcher` in starlark heap as `TypeCompiled`. */
 class TypeCompiledFactory(

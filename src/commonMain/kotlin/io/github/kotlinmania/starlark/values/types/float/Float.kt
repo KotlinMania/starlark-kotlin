@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/float/float.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.float
+package io.github.kotlinmania.starlark.values.types.float
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,20 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.*
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
-import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp
+import io.github.kotlinmania.starlark.values.*
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.values.types.num.NumTy
+import io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp
 import kotlin.math.*
 
 private const val WRITE_PRECISION: Int = 6
@@ -205,9 +205,9 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
     override fun minus(heap: Heap): Result<Value> =
         Result.success(heap.alloc(StarlarkFloat(-value)))
 
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val rhsNum = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Float(this) + rhsNum))
+    override fun add(other: Value, heap: Heap): Result<Value>? {
+        val otherNum = other.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Float(this) + otherNum))
     }
 
     override fun sub(other: Value, heap: Heap): Result<Value> {

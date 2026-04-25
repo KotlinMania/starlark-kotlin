@@ -1,19 +1,19 @@
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
-import io.github.kotlinmania.starlark_kotlin.tests.testContextCaptured as testContextCapturedImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testDefFreeze as testDefFreezeImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testDoubleCaptureAndFreeze as testDoubleCaptureAndFreezeImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testFrozenLambda as testFrozenLambdaImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testFrozenLambdaNest as testFrozenLambdaNestImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambda as testLambdaImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambdaCaptureFromDef as testLambdaCaptureFromDefImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambdaCaptureFromModule as testLambdaCaptureFromModuleImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambdaCaptureReassignedFromDef as testLambdaCaptureReassignedFromDefImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambdaErrors as testLambdaErrorsImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testLambdaErrorsNested as testLambdaErrorsNestedImpl
-import io.github.kotlinmania.starlark_kotlin.tests.testNestedDef1 as testNestedDef1Impl
-import io.github.kotlinmania.starlark_kotlin.tests.testNestedDef2 as testNestedDef2Impl
-import io.github.kotlinmania.starlark_kotlin.tests.testNestedDef3 as testNestedDef3Impl
+import io.github.kotlinmania.starlark.tests.testContextCaptured as testContextCapturedImpl
+import io.github.kotlinmania.starlark.tests.testDefFreeze as testDefFreezeImpl
+import io.github.kotlinmania.starlark.tests.testDoubleCaptureAndFreeze as testDoubleCaptureAndFreezeImpl
+import io.github.kotlinmania.starlark.tests.testFrozenLambda as testFrozenLambdaImpl
+import io.github.kotlinmania.starlark.tests.testFrozenLambdaNest as testFrozenLambdaNestImpl
+import io.github.kotlinmania.starlark.tests.testLambda as testLambdaImpl
+import io.github.kotlinmania.starlark.tests.testLambdaCaptureFromDef as testLambdaCaptureFromDefImpl
+import io.github.kotlinmania.starlark.tests.testLambdaCaptureFromModule as testLambdaCaptureFromModuleImpl
+import io.github.kotlinmania.starlark.tests.testLambdaCaptureReassignedFromDef as testLambdaCaptureReassignedFromDefImpl
+import io.github.kotlinmania.starlark.tests.testLambdaErrors as testLambdaErrorsImpl
+import io.github.kotlinmania.starlark.tests.testLambdaErrorsNested as testLambdaErrorsNestedImpl
+import io.github.kotlinmania.starlark.tests.testNestedDef1 as testNestedDef1Impl
+import io.github.kotlinmania.starlark.tests.testNestedDef2 as testNestedDef2Impl
+import io.github.kotlinmania.starlark.tests.testNestedDef3 as testNestedDef3Impl
 import kotlin.test.Test
 
 class DefTest {

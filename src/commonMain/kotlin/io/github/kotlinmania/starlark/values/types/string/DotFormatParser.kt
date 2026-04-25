@@ -1,5 +1,5 @@
 // port-lint: source src/dot_format_parser.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

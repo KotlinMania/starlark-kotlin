@@ -1,5 +1,5 @@
 // port-lint: source src/typing/structs.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.TypingNoContextOrInternalError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.structs.StructRef
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.typing.TypingNoContextOrInternalError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.types.structs.StructRef
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
 // #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 // struct StructMatcher;

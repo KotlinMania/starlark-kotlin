@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/typed/string.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.typed
+package io.github.kotlinmania.starlark.values.layout.typed
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,18 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.typed
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
 
-// Hashed is defined in starlark_map.Hashed
-// Freezer is defined in io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+// Hashed is defined in starlarkmap.Hashed
+// Freezer is defined in io.github.kotlinmania.starlark.values.layout.Freezer
 
 /**
  * Convenient type alias.
@@ -89,7 +89,7 @@ class FrozenStringValue(
 
     companion object {
         fun default(): FrozenStringValue {
-            return io.github.kotlinmania.starlark_kotlin.values.layout.VALUE_EMPTY_STRING.erase()
+            return io.github.kotlinmania.starlark.values.layout.VALUE_EMPTY_STRING.erase()
         }
 
         /** Construct without checking type. */

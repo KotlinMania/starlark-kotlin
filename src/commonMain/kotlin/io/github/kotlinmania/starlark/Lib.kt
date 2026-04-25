@@ -1,5 +1,5 @@
 // port-lint: source src/lib.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -84,10 +84,10 @@ package io.github.kotlinmania.starlark_kotlin
 
 // Re-exports (equivalent to `pub use` in Rust lib.rs)
 // pub use starlark_derive::starlark_module -> annotation-based in Kotlin
-// pub use starlark_syntax::Error -> io.github.kotlinmania.starlark_kotlin.Error
-// pub use starlark_syntax::ErrorKind -> io.github.kotlinmania.starlark_kotlin.ErrorKind
+// pub use starlark_syntax::Error -> io.github.kotlinmania.starlark.Error
+// pub use starlark_syntax::ErrorKind -> io.github.kotlinmania.starlark.ErrorKind
 // pub use starlark_syntax::Result -> kotlin.Result
-// pub use stdlib::PrintHandler -> io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
+// pub use stdlib::PrintHandler -> io.github.kotlinmania.starlark.stdlib.PrintHandler
 
 /**
  * Root module marker for the starlark-kotlin library.

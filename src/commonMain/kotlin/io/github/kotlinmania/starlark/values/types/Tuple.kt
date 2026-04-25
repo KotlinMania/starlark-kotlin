@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

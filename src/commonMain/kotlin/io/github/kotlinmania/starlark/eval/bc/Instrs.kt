@@ -1,6 +1,6 @@
 // port-lint: source src/eval/bc/instrs.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
+package io.github.kotlinmania.starlark.eval.bc
+import io.github.kotlinmania.starlark.eval.bc.BcInstrHeader
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -118,7 +118,7 @@ private fun emptyInstrs(): List<Any> {
  * Instructions are stored as `(BcInstrHeader, arg)` pairs. Each header occupies
  * one list slot and its corresponding argument occupies the next slot.
  */
-class BcInstrs private constructor(
+internal class BcInstrs private constructor(
     // instrs: Either<Box<[u64]>, &'static [u64]>
     private val instrs: List<Any>,
     // pub(crate) stmt_locs: BcStatementLocations
@@ -414,7 +414,7 @@ class BcInstrs private constructor(
      */
     private fun fmtAppendArg(
         ptr: BcPtrAddr,
-        _ip: BcAddr,
+        ip: BcAddr,
         endArg: BcInstrEndArg?,
         sb: StringBuilder,
     ) {
@@ -433,7 +433,7 @@ class BcInstrs private constructor(
  * Used during bytecode writing for forward jumps where the target
  * address is not yet known at write time.
  */
-class PatchAddr(
+internal class PatchAddr(
     // pub(crate) instr_start: BcAddr,
     val instrStart: BcAddr,
     // pub(crate) arg: BcAddr,
@@ -453,7 +453,7 @@ class PatchAddr(
  * where each instruction is stored as a header/arg pair of objects, and the
  * garbage collector handles cleanup.
  */
-class BcInstrsWriter {
+internal class BcInstrsWriter {
     // pub(crate) instrs: Vec<u64>
     internal val instrs: MutableList<Any> = mutableListOf()
 
@@ -570,7 +570,7 @@ class BcInstrsWriter {
                 mutable[fwdIndex] = newOffset
                 mutable
             }
-            else -> error("patchAddr: unexpected arg type: ${existing!!::class.simpleName}")
+            else -> error("patchAddr: unexpected arg type: ${existing::class.simpleName}")
         }
     }
 
@@ -588,7 +588,7 @@ class BcInstrsWriter {
     fun finish(
         slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>>,
         stmtLocs: BcStatementLocations,
-        localNames: List<io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue>,
+        localNames: List<io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue>,
     ): BcInstrs {
         // self.write::<InstrEnd>(BcInstrEndArg {
         //     end_addr: self.ip(),
@@ -600,7 +600,7 @@ class BcInstrsWriter {
             BcInstrEndArg(
                 endAddr = ip(),
                 slowArgs = slowArgs,
-                localNames = io.github.kotlinmania.starlark_kotlin.values.FrozenRef.new(localNames),
+                localNames = io.github.kotlinmania.starlark.values.FrozenRef.new(localNames),
             ),
         )
         // let instrs = mem::take(&mut self.instrs);

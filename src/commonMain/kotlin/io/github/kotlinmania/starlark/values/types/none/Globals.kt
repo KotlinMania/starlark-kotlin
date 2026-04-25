@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/none/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.none
+package io.github.kotlinmania.starlark.values.types.none
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 
 /**
  * Register the `None` constant in globals.

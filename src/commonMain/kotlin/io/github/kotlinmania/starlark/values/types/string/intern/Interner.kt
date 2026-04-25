@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string/intern/interner.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
+package io.github.kotlinmania.starlark.values.types.string.intern
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,11 +28,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
 // use crate::values::StringValue;
 // use crate::values::Trace;
 
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 
 /**
  * [FrozenStringValue] interner.

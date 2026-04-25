@@ -1,6 +1,6 @@
 // port-lint: source src/values/layout.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

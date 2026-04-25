@@ -1,5 +1,5 @@
 // port-lint: source ../starlark_syntax/src/golden_test_template.rs
-package io.github.kotlinmania.starlark_kotlin.golden_test_template
+package io.github.kotlinmania.starlark.goldentesttemplate
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

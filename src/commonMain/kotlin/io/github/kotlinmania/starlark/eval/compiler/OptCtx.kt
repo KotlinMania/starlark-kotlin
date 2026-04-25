@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/opt_ctx.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx
+package io.github.kotlinmania.starlark.eval.compiler.optctx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.OptimizeOnFreezeContext
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.environment.FrozenModuleData
+import io.github.kotlinmania.starlark.eval.compiler.OptimizeOnFreezeContext
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 /**
  * Trait for optimization context evaluation.

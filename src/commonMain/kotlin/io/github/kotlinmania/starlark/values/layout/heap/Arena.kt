@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/arena.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
+package io.github.kotlinmania.starlark.values.layout.heap.arena
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,36 +19,36 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.BlackHole
-import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapCopyImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heapFreezeSimpleImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.tryFreezeDirectly
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForward
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallEnter
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.CallExit
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NeedsDrop
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.NoDrop
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ArenaAllocator
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.ChunkAllocator
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
+import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.BlackHole
+import io.github.kotlinmania.starlark.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
+import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
+import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
+import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
+import io.github.kotlinmania.starlark.values.layout.heap.CallEnter
+import io.github.kotlinmania.starlark.values.layout.heap.CallExit
+import io.github.kotlinmania.starlark.values.layout.heap.NeedsDrop
+import io.github.kotlinmania.starlark.values.layout.heap.NoDrop
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.ArenaAllocator
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.ChunkAllocator
+import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
+import io.github.kotlinmania.starlark.values.layout.heap.profile.SmallMap
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 import kotlin.math.max
 
 /**

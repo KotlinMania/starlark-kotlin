@@ -1,11 +1,11 @@
 // port-lint: source src/values/typing/ty.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.ty
+package io.github.kotlinmania.starlark.values.typing.ty
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Type of type. */
 // #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]

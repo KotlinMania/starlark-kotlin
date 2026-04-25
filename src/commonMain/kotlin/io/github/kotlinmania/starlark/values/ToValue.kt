@@ -1,7 +1,7 @@
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
 
 /**
  * Extension functions to mimic Rust's ToValue trait.
@@ -13,5 +13,3 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 fun Int.toValue(): Value = Value.newInt(InlineInt(this))
 
 fun Boolean.toValue(): Value = Value.newBool(this)
-
-fun Value.toValue(): Value = this

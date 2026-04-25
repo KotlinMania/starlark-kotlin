@@ -1,5 +1,5 @@
 // port-lint: source src/tests/comprehension.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test dict and list comprehension. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark.assert.Assert
 
 // comprehensions should work whether they are at the root, or under a def
 // but these are actually quite different locations semantically, so test both

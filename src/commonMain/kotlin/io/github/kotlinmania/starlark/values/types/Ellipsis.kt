@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/ellipsis.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.ellipsis
+package io.github.kotlinmania.starlark.values.types.ellipsis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.ellipsis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
 
 internal object Ellipsis : StarlarkValue, AllocFrozenValue {
 
@@ -35,7 +35,7 @@ internal object Ellipsis : StarlarkValue, AllocFrozenValue {
     override fun toString(): String = "Ellipsis"
 
     private val VALUE_ELLIPSIS: FrozenValue =
-        io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple.alloc(Ellipsis).toFrozenValue()
+        io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple.alloc(Ellipsis).toFrozenValue()
 
     fun newValue(): FrozenValue = VALUE_ELLIPSIS
 

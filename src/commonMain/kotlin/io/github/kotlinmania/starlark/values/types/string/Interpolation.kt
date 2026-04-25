@@ -1,18 +1,18 @@
 // port-lint: source src/values/types/string/interpolation.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat3
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.float.writeDecimal
-import io.github.kotlinmania.starlark_kotlin.values.types.float.writeScientific
-import io.github.kotlinmania.starlark_kotlin.values.types.float.writeCompact
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.TupleGen
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat3
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.float.writeDecimal
+import io.github.kotlinmania.starlark.values.types.float.writeScientific
+import io.github.kotlinmania.starlark.values.types.float.writeCompact
+import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import kotlin.math.truncate
 

@@ -1,5 +1,5 @@
 // port-lint: source src/typing/macro_support.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

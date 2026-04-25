@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/native_function.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunc
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.values.types.NativeFunction
+import io.github.kotlinmania.starlark.values.types.NativeFunc
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 /** Pointer to a native function optimized for bytecode execution. */
-class BcNativeFunction private constructor(
+internal class BcNativeFunction private constructor(
     private val func: FrozenValueTyped<NativeFunction>,
     /** Copy function here from [func] to avoid extra dereference when calling. */
     private val imp: NativeFunc,

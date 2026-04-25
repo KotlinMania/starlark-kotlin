@@ -1,5 +1,5 @@
 // port-lint: source ../starlark_syntax/src/call_stack.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

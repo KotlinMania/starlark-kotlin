@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/repr.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap
+package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.ReentrantLock
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.withLock
+import io.github.kotlinmania.starlark.ReentrantLock
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueDyn
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.withLock
 
 // #[derive(Clone)]
 // #[repr(C)]

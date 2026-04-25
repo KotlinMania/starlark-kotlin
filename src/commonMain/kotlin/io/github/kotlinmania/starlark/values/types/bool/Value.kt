@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bool/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.bool
+package io.github.kotlinmania.starlark.values.types.bool
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bool
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** The result of calling type() on booleans. */
 const val BOOL_TYPE: String = "bool"

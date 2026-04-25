@@ -1,5 +1,5 @@
 // port-lint: source src/errors/did_you_mean.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.errors
+package io.github.kotlinmania.starlark.errors
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

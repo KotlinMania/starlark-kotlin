@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bigint.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.types.bigint
+package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.assert.Assert
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

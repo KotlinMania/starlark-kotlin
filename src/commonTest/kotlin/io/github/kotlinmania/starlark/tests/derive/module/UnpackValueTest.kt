@@ -1,17 +1,17 @@
-package io.github.kotlinmania.starlark_kotlin.tests.derive.module
+package io.github.kotlinmania.starlark.tests.derive.module
 
 import kotlin.test.Test
 
 class UnpackValueTest {
     @Test
-    fun testValueOf() = io.github.kotlinmania.starlark_kotlin.tests.derive.module.testValueOf()
+    fun testValueOf() = io.github.kotlinmania.starlark.tests.derive.module.testValueOf()
 
     @Test
-    fun testListOf() = io.github.kotlinmania.starlark_kotlin.tests.derive.module.testListOf()
+    fun testListOf() = io.github.kotlinmania.starlark.tests.derive.module.testListOf()
 
     @Test
-    fun testDictOf() = io.github.kotlinmania.starlark_kotlin.tests.derive.module.testDictOf()
+    fun testDictOf() = io.github.kotlinmania.starlark.tests.derive.module.testDictOf()
 
     @Test
-    fun testEitherOf() = io.github.kotlinmania.starlark_kotlin.tests.derive.module.testEitherOf()
+    fun testEitherOf() = io.github.kotlinmania.starlark.tests.derive.module.testEitherOf()
 }

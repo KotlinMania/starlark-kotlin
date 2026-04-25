@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/chunk.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import kotlin.concurrent.atomics.AtomicInt
 
 // #[repr(C)]

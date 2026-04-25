@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/slots.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
+import io.github.kotlinmania.starlark.eval.bc.BcSlot
 
 /** Not captured. */
 // #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, Freeze, VisitSpanMut, Allocative)]

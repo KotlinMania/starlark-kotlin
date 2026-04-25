@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bigint/convert.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.bigint
+package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -29,17 +29,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark.values.types.int.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.int.allocValue
 
 /**
  * Starlark type repr for all integer types.
@@ -154,7 +154,6 @@ fun Value.unpackBigInteger(): Result<BigInteger?> {
         when (intRef) {
             is StarlarkIntRef.Small -> BigInteger.fromInt(intRef.value.toI32())
             is StarlarkIntRef.Big -> intRef.value.get()
-            else -> throw IllegalStateException("Unexpected StarlarkIntRef: $intRef")
         }
     )
 }

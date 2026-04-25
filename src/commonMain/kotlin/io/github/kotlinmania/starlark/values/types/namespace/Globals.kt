@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/namespace/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.namespace
+package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.types.namespace
  * limitations under the License.
  */
 
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 fun registerNamespace(builder: GlobalsBuilder) {

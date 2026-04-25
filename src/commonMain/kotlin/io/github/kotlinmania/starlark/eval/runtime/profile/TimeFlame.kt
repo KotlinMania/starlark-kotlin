@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/time_flame.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
+package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,18 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphNode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphNode
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.RawPointer
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 // pub(crate) struct TimeFlameProfilerType
 internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
@@ -193,7 +193,7 @@ internal class TimeFlameProfile {
 
     // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
-        val x = data ?: throw io.github.kotlinmania.starlark_kotlin.Error.newOther(FlameProfileError.NotEnabled())
+        val x = data ?: throw io.github.kotlinmania.starlark.Error.newOther(FlameProfileError.NotEnabled())
         return genProfile(x)
     }
 
@@ -221,7 +221,7 @@ private class Stacks(
     // name: &'a str
     val name: String,
     // time: SmallDuration
-    var time: SmallDuration = SmallDuration.ZERO,
+    var time: SmallDuration = SmallDuration.default(),
     // children: HashMap<ValueId, Stacks<'a>, StarlarkHasherBuilder>
     val children: MutableMap<ValueId, Stacks> = mutableMapOf(),
 ) {

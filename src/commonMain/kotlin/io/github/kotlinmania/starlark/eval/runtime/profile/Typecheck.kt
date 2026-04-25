@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/typecheck.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
+package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,15 +21,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /** Runtime typecheck profile. */
 
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import kotlin.time.Duration
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
 // pub(crate) struct TypecheckProfilerType
 internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
@@ -49,7 +49,7 @@ internal object TypecheckProfilerType : ProfilerType<TypecheckProfileData> {
         val byFunction = mutableMapOf<ArcStr, SmallDuration>()
         for (profile in profiles) {
             for ((name, time) in profile.byFunction) {
-                byFunction[name] = (byFunction[name] ?: SmallDuration.ZERO) + time
+                byFunction[name] = (byFunction[name] ?: SmallDuration.default()) + time
             }
         }
         return Result.success(TypecheckProfileData(byFunction))
@@ -72,7 +72,7 @@ internal data class TypecheckProfileData(
 ) {
     // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
-        val totalTime = byFunction.values.fold(SmallDuration.ZERO) { acc, v -> acc + v }
+        val totalTime = byFunction.values.fold(SmallDuration.default()) { acc, v -> acc + v }
 
         val w = CsvWriter(listOf("Function", "Time (s)"))
         w.writeDisplay("TOTAL")
@@ -106,13 +106,13 @@ internal class TypecheckProfile {
     // pub(crate) fn add(&mut self, function: FrozenStringValue, time: Duration)
     fun add(function: FrozenStringValue, time: Duration) {
         check(enabled)
-        byFunction[function] = (byFunction[function] ?: SmallDuration.ZERO) + SmallDuration.fromDuration(time)
+        byFunction[function] = (byFunction[function] ?: SmallDuration.default()) + SmallDuration.fromDuration(time)
     }
 
     // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
         if (!enabled) {
-            throw io.github.kotlinmania.starlark_kotlin.Error.newOther(TypecheckProfileError.NotEnabled())
+            throw io.github.kotlinmania.starlark.Error.newOther(TypecheckProfileError.NotEnabled())
         }
         return ProfileData(
             profile = ProfileDataImpl.Typecheck(

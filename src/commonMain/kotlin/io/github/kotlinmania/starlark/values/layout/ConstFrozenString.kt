@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/const_frozen_string.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
 
 /// Create a [`FrozenStringValue`](crate::values::FrozenStringValue).
 // #[macro_export]

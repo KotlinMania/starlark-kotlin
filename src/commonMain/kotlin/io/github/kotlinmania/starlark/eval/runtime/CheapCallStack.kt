@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/cheap_call_stack.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.CallStack
-import io.github.kotlinmania.starlark_kotlin.Frame
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.InlinedFrames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.CallStack
+import io.github.kotlinmania.starlark.Frame
+import io.github.kotlinmania.starlark.eval.runtime.InlinedFrames
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.codemap.FileSpan
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.

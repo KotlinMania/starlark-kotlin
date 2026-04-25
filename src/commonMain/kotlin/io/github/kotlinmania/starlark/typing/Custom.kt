@@ -1,5 +1,5 @@
 // port-lint: source src/typing/custom.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAllocImpl
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAllocImpl
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledFactory
 
 enum class TypingBinOp(private val symbol: String) {
     Less("<"),

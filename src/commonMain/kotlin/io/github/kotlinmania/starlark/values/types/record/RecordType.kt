@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/record_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.record.record_type
+package io.github.kotlinmania.starlark.values.types.record.recordtype
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,40 +19,40 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record.record_type
  * limitations under the License.
  */
 
-import starlark_map.small_map.SmallMap
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpecParam
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.types.record.Field
-import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordGen
-import io.github.kotlinmania.starlark_kotlin.values.types.record.RecordTypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.record.TyRecordData
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
+import starlarkmap.smallmap.SmallMap
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.params.ParametersParser
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.typing.TyUser
+import io.github.kotlinmania.starlark.typing.TyUserFields
+import io.github.kotlinmania.starlark.typing.TyUserParams
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueUnpackValue
+import io.github.kotlinmania.starlark.values.freeze
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.record.Field
+import io.github.kotlinmania.starlark.values.types.record.RecordGen
+import io.github.kotlinmania.starlark.values.types.record.RecordTypeMatcher
+import io.github.kotlinmania.starlark.values.types.record.TyRecordData
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
 // #[doc(hidden)]
 // pub trait RecordCell: ValueLifetimeless {
@@ -221,7 +221,7 @@ class RecordTypeGen internal constructor(
     }
 
     // fn export_as(...)
-    override fun exportAs(variableName: String, _eval: Evaluator): Result<Unit> {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val fieldsTy = linkedMapOf<String, Ty>().apply {
                 for ((name, field) in fields) {
@@ -319,7 +319,7 @@ private fun recordTypeMethods(methods: MethodsBuilder) {
             tyRecordType != null -> tyRecordType.name
             else -> RecordGen.TYPE
         }
-        Result.success(heap.allocStr(name))
+        Result.success(heap.allocStr(name).toValue())
     }
 }
 

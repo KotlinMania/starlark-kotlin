@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/value_lifetimeless.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -30,8 +30,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // use crate::values::Freeze;
 // use crate::values::FrozenValue;
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
 /// Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
 // pub trait ValueLifetimeless:

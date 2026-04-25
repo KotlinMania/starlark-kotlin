@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/json.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictGen
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.FrozenDictData
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.DictGen
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -43,8 +43,8 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
 
 // ---- JsonNumber: analogous to serde_json::Number ----
 
@@ -213,7 +213,7 @@ fun allocJsonValue(json: JsonValue, heap: Heap): Value {
         is JsonValue.Null -> Value.newNone()
         is JsonValue.Bool -> Value.newBool(json.value)
         is JsonValue.Number -> allocJsonNumber(json.value, heap)
-        is JsonValue.Str -> heap.allocStr(json.value)
+        is JsonValue.Str -> heap.allocStr(json.value).toValue()
         is JsonValue.Array -> heap.allocListIter(json.value.map { allocJsonValue(it, heap) })
         is JsonValue.Object -> allocJsonMapOnHeap(
             json.value.mapValues { allocJsonValue(it.value, heap) },
@@ -288,7 +288,7 @@ private fun allocJsonMapOnHeap(map: Map<String, Value>, heap: Heap): Value {
     val sm = SmallMap.withCapacity<Value, Value>(map.size)
     for ((k, v) in map) {
         val keyValue = heap.allocStr(k)
-        sm.insertHashed(keyValue.getHashed().getOrThrow(), v)
+        sm.insertHashed(keyValue.getHashedValue(), v)
     }
     return Dict.new(sm).allocValue(heap)
 }

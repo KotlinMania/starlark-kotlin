@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/set/methods.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.set
+package io.github.kotlinmania.starlark.values.types.set
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -23,13 +23,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * Methods for the `set` type.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import starlark_map.Hashed
-import starlark_map.small_set.SmallSet
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import starlarkmap.Hashed
+import starlarkmap.smallset.SmallSet
 
 private sealed class SetFromValue {
     data class Set(val set: SmallSet<Value>) : SetFromValue()
@@ -88,7 +88,7 @@ private sealed class SetFromValue {
  *
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
-internal fun setMethods(_builder: MethodsBuilder) {
+internal fun setMethods(builder: MethodsBuilder) {
     // Methods are registered through the MethodsBuilder
 }
 

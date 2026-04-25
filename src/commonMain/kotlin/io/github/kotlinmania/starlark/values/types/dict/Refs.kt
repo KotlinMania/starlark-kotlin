@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/refs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -41,13 +41,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 // use crate::values::types::dict::dict_type::DictType;
 
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()

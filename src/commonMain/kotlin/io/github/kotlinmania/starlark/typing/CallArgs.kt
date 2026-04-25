@@ -1,5 +1,5 @@
 // port-lint: source src/typing/call_args.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+import io.github.kotlinmania.starlark.codemap.Spanned
 
 // pub struct TyCallArgs<'a> {
 //     pub(crate) pos: Vec<Spanned<Ty>>,

@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap
+package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,5 +21,18 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 /** Starlark heap implementation. */
 
-// Rust `mod` declarations have no direct Kotlin equivalent; Kotlin uses packages/files.
-// Rust modules for this area live under `io.github.kotlinmania.starlark_kotlin.values.layout.heap.*`.
+// Rust `mod` declarations in `heap.rs` map to Kotlin sub-packages of
+// `io.github.kotlinmania.starlark.values.layout.heap`:
+//   pub(crate) mod allocator;              -> heap.allocator
+//   pub(crate) mod arena;                  -> heap.arena
+//   mod branding;                          -> heap.branding
+//   pub(crate) mod call_enter_exit;        -> heap.call_enter_exit
+//   mod fast_cell;                         -> heap.fast_cell
+//   pub(crate) mod heap_type;              -> heap.heap_type
+//   pub(crate) mod maybe_uninit_slice_util;-> heap.maybe_uninit_slice_util
+//   pub(crate) mod profile;                -> heap.profile
+//   pub(crate) mod repr;                   -> heap.repr
+//   pub(crate) mod send;                   -> heap.send
+//
+// Kotlin packages cannot coexist with a classifier of the same simple name in the
+// parent package, so no stub objects are declared here.

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/enum_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type
+package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,39 +19,39 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.typing.TyUser
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserFields
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserIndex
-import io.github.kotlinmania.starlark_kotlin.typing.TyUserParams
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.ValueStr
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.EnumTypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value.EnumValueGen
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.typing.TyUser
+import io.github.kotlinmania.starlark.typing.TyUserFields
+import io.github.kotlinmania.starlark.typing.TyUserIndex
+import io.github.kotlinmania.starlark.typing.TyUserParams
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.dict.ValueStr
+import io.github.kotlinmania.starlark.values.types.enumeration.EnumTypeMatcher
+import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
+import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 
 private sealed class EnumError(message: String) : Exception(message) {
     class DuplicateEnumValue(value: String) :
@@ -130,7 +130,7 @@ class EnumTypeGen internal constructor(
             ?: throw EnumError.InvalidElement(value.toStr(), toString())
     }
 
-    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         args.noNamedArgs().getOrElse { return Result.failure(it) }
         val v = args.positional1(eval.heap()).getOrElse { return Result.failure(it) }
         return Result.success(construct(v))
@@ -146,7 +146,7 @@ class EnumTypeGen internal constructor(
 
     override fun length(): Result<Int> = Result.success(elements().len())
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, elements().len()).getOrElse { return Result.failure(it) }
         return Result.success(elements().getIndex(i)!!.second)
     }
@@ -177,7 +177,7 @@ class EnumTypeGen internal constructor(
         return tyEnumData()?.tyEnumType
     }
 
-    override fun exportAs(variableName: String, _eval: Evaluator): Result<Unit> {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val tyEnumValue = Ty.custom(
                 TyUser.new(
@@ -285,8 +285,8 @@ private fun enumTypeMethods(builder: MethodsBuilder) {
         val enumTypeGen = thisValue.downcastRef<EnumTypeGen>()!!
         val tyEnumType = enumTypeGen.tyEnumData()
         when {
-            tyEnumType != null -> Result.success(heap.allocStr(tyEnumType.name))
-            else -> Result.success(heap.allocStr(EnumValueGen.TYPE))
+            tyEnumType != null -> Result.success(heap.allocStr(tyEnumType.name).toValue())
+            else -> Result.success(heap.allocStr(EnumValueGen.TYPE).toValue())
         }
     }
 

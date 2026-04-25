@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/writer.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,20 +22,20 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Bytecode writer. */
 
 import kotlin.math.max
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcDefinitelyAssigned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BC_INSTR_ALIGN
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalCapturedSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.bc.BcDefinitelyAssigned
+import io.github.kotlinmania.starlark.eval.bc.BC_INSTR_ALIGN
+import io.github.kotlinmania.starlark.eval.bc.BcInstrHeader
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 // --- BcStmtLoc ---
 
-class BcStmtLoc(
+internal class BcStmtLoc(
     val span: FrameSpan,
 )
 
@@ -45,7 +45,7 @@ class BcStmtLoc(
  * do a lookup for every instruction) and so it's implemented as a vec of statements and then a vec of
  * statement indexes for each possible BcAddr in a bytecode Bc.
  */
-class BcStatementLocations(
+internal class BcStatementLocations(
     val locs: MutableList<BcStmtLoc> = mutableListOf(),
     /** Map bytecode offset to index in `locs`. */
     val stmts: MutableList<Int> = mutableListOf(),

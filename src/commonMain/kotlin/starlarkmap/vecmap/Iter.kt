@@ -1,5 +1,5 @@
 // port-lint: source src/vec_map/iter.rs
-package starlark_map.vec_map.iter
+package starlarkmap.vecmap.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package starlark_map.vec_map.iter
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
 
 /**
  * Iterator adaptors for VecMap.

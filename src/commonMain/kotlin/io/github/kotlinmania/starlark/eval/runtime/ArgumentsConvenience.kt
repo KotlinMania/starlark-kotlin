@@ -1,6 +1,6 @@
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // Convenience accessors for starlark_module-style argument extraction.
 // Not part of the Rust `arguments.rs` transliteration (kept separate for AST similarity hygiene).
@@ -16,7 +16,6 @@ fun Arguments.positionalAll(): List<Value> = full.pos
  * For other types performs an unchecked cast of the underlying [Value].
  * When T is inferred as [Value] (default), returns the raw [Value].
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <reified T> Arguments.positional(index: Int): T {
     val v = full.pos[index]
     return unpackValueAs(v)
@@ -26,7 +25,6 @@ inline fun <reified T> Arguments.positional(index: Int): T {
  * Get an optional positional argument by 0-based index, unpacking it to type [T],
  * or null if the index is out of range.
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <reified T> Arguments.optionalPositional(index: Int): T? {
     val v = full.pos.getOrNull(index) ?: return null
     return unpackValueAs(v)
@@ -36,7 +34,6 @@ inline fun <reified T> Arguments.optionalPositional(index: Int): T? {
  * Get an optional named argument by name, unpacking it to type [T],
  * or null if the argument is not present.
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <reified T> Arguments.optionalNamed(name: String): T? {
     val idx = full.names.names().indexOfFirst { it.second.asStr() == name }
     if (idx < 0) return null
@@ -47,7 +44,6 @@ inline fun <reified T> Arguments.optionalNamed(name: String): T? {
  * Get an optional named argument by name, unpacking it to type [T],
  * or null if the argument is not present. Alias for [optionalNamed].
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <reified T> Arguments.namedOptional(name: String): T? = optionalNamed<T>(name)
 
 /**

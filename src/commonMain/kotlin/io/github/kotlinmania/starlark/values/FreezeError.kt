@@ -1,5 +1,5 @@
 // port-lint: source src/values/freeze_error.rs
-package io.github.kotlinmania.starlark_kotlin.values.freeze_error
+package io.github.kotlinmania.starlark.values.freezeerror
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.freeze_error
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.ErrorKind
+import io.github.kotlinmania.starlark.ErrorKind
 
 /**
  * Freeze error type, only carries the original error message and potentially an array of contexts.
@@ -43,9 +43,9 @@ class FreezeError(
         return Exception(sb.toString(), this)
     }
 
-    /** Convert to a starlark [io.github.kotlinmania.starlark_kotlin.Error] (mirrors `From<FreezeError> for starlark_syntax::Error`). */
-    fun toStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error {
-        return io.github.kotlinmania.starlark_kotlin.Error.newKind(ErrorKind.Freeze(this.toException()))
+    /** Convert to a starlark [io.github.kotlinmania.starlark.Error] (mirrors `From<FreezeError> for starlark_syntax::Error`). */
+    fun toStarlarkError(): io.github.kotlinmania.starlark.Error {
+        return io.github.kotlinmania.starlark.Error.newKind(ErrorKind.Freeze(this.toException()))
     }
 
     companion object {

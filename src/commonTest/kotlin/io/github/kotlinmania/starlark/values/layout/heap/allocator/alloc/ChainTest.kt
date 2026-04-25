@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/chain.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

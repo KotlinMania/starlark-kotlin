@@ -1,5 +1,5 @@
 // port-lint: source src/lexer.rs
-package io.github.kotlinmania.starlark_kotlin.syntax.lexer
+package io.github.kotlinmania.starlark.syntax.lexer
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.syntax.lexer
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.typing.StarlarkError
 
 sealed class LexemeError(val message: String) {
     data object Indentation : LexemeError("Parse error: incorrect indentation")
@@ -660,7 +660,7 @@ private class CharIteratorWithPos(private val source: String, startPos: Int) {
         return c
     }
 
-    fun unnext(_c: Char) {
+    fun unnext(c: Char) {
         pos--
     }
 }

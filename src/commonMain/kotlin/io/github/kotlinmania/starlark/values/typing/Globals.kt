@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.registerEvalType
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.typing.typecompiled.registerEvalType
 
 internal fun registerTyping(globals: GlobalsBuilder) {
     registerEvalType(globals)

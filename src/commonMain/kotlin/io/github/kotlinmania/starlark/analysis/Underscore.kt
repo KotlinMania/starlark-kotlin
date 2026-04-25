@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/underscore.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,14 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 // #[derive(Error, Debug)]
 // pub(crate) enum UnderscoreWarning
@@ -70,14 +69,14 @@ internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
 // Visit immediate child statements of this Spanned<StmtP<AstNoPayload>> (local helper).
 private fun Spanned<StmtP<AstNoPayload>>.visitStmtU(visitor: (Spanned<StmtP<AstNoPayload>>) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Statements -> s.stmts.forEach { visitor(it as Spanned<StmtP<AstNoPayload>>) }
-        is StmtP.Def<*, *> -> visitor(s.def.body as Spanned<StmtP<AstNoPayload>>)
-        is StmtP.If -> visitor(s.suite as Spanned<StmtP<AstNoPayload>>)
+        is StmtP.Statements -> s.stmts.forEach { visitor(it) }
+        is StmtP.Def<AstNoPayload, *> -> visitor(s.def.body)
+        is StmtP.If -> visitor(s.suite)
         is StmtP.IfElse -> {
-            visitor(s.suite1 as Spanned<StmtP<AstNoPayload>>)
-            visitor(s.suite2 as Spanned<StmtP<AstNoPayload>>)
+            visitor(s.suite1)
+            visitor(s.suite2)
         }
-        is StmtP.For -> visitor(s.forStmt.body as Spanned<StmtP<AstNoPayload>>)
+        is StmtP.For -> visitor(s.forStmt.body)
         else -> {}
     }
 }
@@ -86,23 +85,23 @@ private fun Spanned<StmtP<AstNoPayload>>.visitStmtU(visitor: (Spanned<StmtP<AstN
 private fun Spanned<ExprP<AstNoPayload>>.visitExprU(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (val e = this.node) {
         is ExprP.Call -> {
-            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.expr)
             for (arg in e.args.args) {
-                visitor(arg.node.expr() as Spanned<ExprP<AstNoPayload>>)
+                visitor(arg.node.expr())
             }
         }
         is ExprP.If -> {
-            visitor(e.cond as Spanned<ExprP<AstNoPayload>>)
-            visitor(e.v1 as Spanned<ExprP<AstNoPayload>>)
-            visitor(e.v2 as Spanned<ExprP<AstNoPayload>>)
+            visitor(e.cond)
+            visitor(e.v1)
+            visitor(e.v2)
         }
-        is ExprP.Tuple -> e.elements.forEach { visitor(it as Spanned<ExprP<AstNoPayload>>) }
-        is ExprP.ListExpr -> e.elements.forEach { visitor(it as Spanned<ExprP<AstNoPayload>>) }
+        is ExprP.Tuple -> e.elements.forEach { visitor(it) }
+        is ExprP.ListExpr -> e.elements.forEach { visitor(it) }
         is ExprP.Dict -> e.elements.forEach { (k, v) ->
-            visitor(k as Spanned<ExprP<AstNoPayload>>)
-            visitor(v as Spanned<ExprP<AstNoPayload>>)
+            visitor(k)
+            visitor(v)
         }
-        is ExprP.Lambda<*, *> -> visitor(e.lambda.body as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.Lambda<AstNoPayload, *> -> visitor(e.lambda.body)
         else -> {}
     }
 }
@@ -110,22 +109,22 @@ private fun Spanned<ExprP<AstNoPayload>>.visitExprU(visitor: (Spanned<ExprP<AstN
 // Visit immediate child expressions of this Spanned<StmtP<AstNoPayload>> (local helper).
 private fun Spanned<StmtP<AstNoPayload>>.visitStmtExprU(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Expression -> visitor(s.expr as Spanned<ExprP<AstNoPayload>>)
-        is StmtP.Return -> (s.expr as Spanned<ExprP<AstNoPayload>>?)?.let(visitor)
-        is StmtP.Statements -> s.stmts.forEach { (it as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor) }
-        is StmtP.Def<*, *> -> (s.def.body as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor)
+        is StmtP.Expression -> visitor(s.expr)
+        is StmtP.Return -> (s.expr)?.let(visitor)
+        is StmtP.Statements -> s.stmts.forEach { (it).visitStmtExprU(visitor) }
+        is StmtP.Def<AstNoPayload, *> -> s.def.body.visitStmtExprU(visitor)
         is StmtP.If -> {
-            visitor(s.cond as Spanned<ExprP<AstNoPayload>>)
-            (s.suite as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor)
+            visitor(s.cond)
+            (s.suite).visitStmtExprU(visitor)
         }
         is StmtP.IfElse -> {
-            visitor(s.cond as Spanned<ExprP<AstNoPayload>>)
-            (s.suite1 as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor)
-            (s.suite2 as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor)
+            visitor(s.cond)
+            (s.suite1).visitStmtExprU(visitor)
+            (s.suite2).visitStmtExprU(visitor)
         }
         is StmtP.For -> {
-            visitor(s.forStmt.over as Spanned<ExprP<AstNoPayload>>)
-            (s.forStmt.body as Spanned<StmtP<AstNoPayload>>).visitStmtExprU(visitor)
+            visitor(s.forStmt.over)
+            (s.forStmt.body).visitStmtExprU(visitor)
         }
         else -> {}
     }
@@ -143,35 +142,36 @@ private fun inappropriateUnderscore(
     // fn is_allowed(x: &Spanned<ExprP<AstNoPayload>>) -> bool
     fun isAllowed(x: Spanned<ExprP<AstNoPayload>>): Boolean {
         return when (val e = x.node) {
-            is ExprP.Tuple<*> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
-            is ExprP.Identifier<*, *> -> true
+            is ExprP.Tuple -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<AstNoPayload, *> }
+            is ExprP.Identifier<AstNoPayload, *> -> true
             else -> false
         }
     }
 
     when (val s = x.node) {
-        is StmtP.Def<*, *> -> {
+        is StmtP.Def<AstNoPayload, *> -> {
             val name = s.def.name
-            val nameIdent = (name as Spanned<*>).node as AssignIdentP<*, *>
+            val nameIdent = name.node
             if (!top && nameIdent.ident.startsWith('_')) {
                 res.add(
                     LintT.new(
                         codemap,
-                        (name as Spanned<*>).span,
+                        name.span,
                         UnderscoreWarning.UnderscoreDefinition(nameIdent.ident),
                     )
                 )
             }
-            inappropriateUnderscore(codemap, s.def.body as Spanned<StmtP<AstNoPayload>>, false, res)
+            inappropriateUnderscore(codemap, s.def.body, false, res)
         }
         // StmtP<AstNoPayload>::Assign(assign) if !top =>
-        is StmtP.Assign<*> -> if (!top) {
+        is StmtP.Assign -> if (!top) {
             val assign = s.assign
-            val lhsNode = (assign.lhs as Spanned<*>).node
-            if (lhsNode is AssignTargetP.Identifier<*, *>) {
-                val identSpanned = lhsNode.ident as Spanned<*>
-                val assignIdent = identSpanned.node as AssignIdentP<*, *>
-                if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs as Spanned<ExprP<AstNoPayload>>)) {
+            val lhs = assign.lhs
+            val lhsNode = lhs.node
+            if (lhsNode is AssignTargetP.Identifier<AstNoPayload, *>) {
+                val identSpanned = lhsNode.ident
+                val assignIdent = identSpanned.node
+                if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs)) {
                     res.add(
                         LintT.new(
                             codemap,
@@ -197,44 +197,22 @@ private fun useIgnored(
 ) {
     // We are ok with using things that were defined at the top level, but not nested.
     // fn root_definitions<'a>(x: &'a Spanned<StmtP<AstNoPayload>>, res: &mut HashSet<&'a str>)
+    fun visitLvalue(target: AssignTargetP<AstNoPayload>, defs: MutableSet<String>) {
+        when (target) {
+            is AssignTargetP.Tuple -> target.elements.forEach { visitLvalue(it.node, defs) }
+            is AssignTargetP.Identifier<AstNoPayload, *> -> defs.add(target.ident.node.ident)
+            else -> {}
+        }
+    }
+
     fun rootDefinitions(x: Spanned<StmtP<AstNoPayload>>, defs: MutableSet<String>) {
         when (val s = x.node) {
-            is StmtP.Assign<*> -> {
-                val lhsNode = (s.assign.lhs as Spanned<*>).node
-                fun visitLvalue(target: Any?) {
-                    when (target) {
-                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
-                        is AssignTargetP.Identifier<*, *> -> {
-                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
-                            defs.add(assignIdent.ident)
-                        }
-                        else -> {}
-                    }
-                }
-                visitLvalue(lhsNode)
-            }
-            is StmtP.AssignModify<*> -> {
-                val lhsNode = (s.lhs as Spanned<*>).node
-                fun visitLvalue(target: Any?) {
-                    when (target) {
-                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
-                        is AssignTargetP.Identifier<*, *> -> {
-                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
-                            defs.add(assignIdent.ident)
-                        }
-                        else -> {}
-                    }
-                }
-                visitLvalue(lhsNode)
-            }
-            is StmtP.Def<*, *> -> {
-                val nameIdent = (s.def.name as Spanned<*>).node as AssignIdentP<*, *>
-                defs.add(nameIdent.ident)
-            }
-            is StmtP.Load<*, *> -> {
+            is StmtP.Assign -> visitLvalue(s.assign.lhs.node, defs)
+            is StmtP.AssignModify -> visitLvalue(s.lhs.node, defs)
+            is StmtP.Def<AstNoPayload, *> -> defs.add(s.def.name.node.ident)
+            is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
-                    val localIdent = (arg.local as Spanned<*>).node as AssignIdentP<*, *>
-                    defs.add(localIdent.ident)
+                    defs.add(arg.local.node.ident)
                 }
             }
             else -> x.visitStmtU { child -> rootDefinitions(child, defs) }
@@ -255,10 +233,9 @@ private fun useIgnored(
         res: MutableList<LintT<UnderscoreWarning>>,
     ) {
         when (val e = x.node) {
-            is ExprP.Identifier<*, *> -> {
-                val identSpanned = e.ident as Spanned<*>
-                @Suppress("UNCHECKED_CAST")
-                val ident = (identSpanned.node as io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP<*, *>).ident
+            is ExprP.Identifier<AstNoPayload, *> -> {
+                val identSpanned = e.ident
+                val ident = identSpanned.node.ident
                 if (isIgnored(ident) && ident !in roots) {
                     res.add(
                         LintT.new(

@@ -1,5 +1,5 @@
 // port-lint: source src/values/stack_guard.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 /** Guard to check we don't recurse too deeply with nested operations like Equals. */
 
-import io.github.kotlinmania.starlark_kotlin.unlikely
+import io.github.kotlinmania.starlark.unlikely
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 

@@ -1,5 +1,5 @@
 // port-lint: source src/hashed.rs
-package starlark_map
+package starlarkmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

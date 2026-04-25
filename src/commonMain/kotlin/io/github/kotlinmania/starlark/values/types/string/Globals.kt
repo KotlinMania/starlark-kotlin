@@ -1,14 +1,14 @@
 // port-lint: source src/values/types/string/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
+package io.github.kotlinmania.starlark.values.types.string
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalPositional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
 
 /*
@@ -185,7 +185,7 @@ internal fun repr(a: Value, eval: Evaluator): Result<StringValue> {
     a.collectRepr(s)
     val r = eval.heap().allocStr(s.toString())
     eval.stringPool.release(s)
-    return Result.success(StringValue.newUnchecked(r))
+    return Result.success(r)
 }
 
 /**
@@ -212,5 +212,5 @@ internal fun str(a: Value, eval: Evaluator): Result<StringValue> {
     a.collectRepr(s)
     val r = eval.heap().allocStr(s.toString())
     eval.stringPool.release(s)
-    return Result.success(StringValue.newUnchecked(r))
+    return Result.success(r)
 }

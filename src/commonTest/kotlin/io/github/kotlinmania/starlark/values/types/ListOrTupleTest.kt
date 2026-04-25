@@ -1,14 +1,14 @@
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.unpackValueImplBorrowedString
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.types.string.allocValue
+import io.github.kotlinmania.starlark.values.types.string.unpackValueImplBorrowedString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

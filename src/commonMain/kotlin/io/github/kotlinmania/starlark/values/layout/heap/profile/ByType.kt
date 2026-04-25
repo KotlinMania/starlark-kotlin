@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/profile/by_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
+package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.sum
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.sum
 
 /**
  * Information about the data stored on a heap. Accessible through

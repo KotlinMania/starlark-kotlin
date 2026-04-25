@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -34,4 +34,4 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 
 // pub use crate::values::types::string::str_type::STRING_TYPE;
 // pub use crate::values::types::string::str_type::StarlarkStr;
-internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark_kotlin.values.types.string.STRING_TYPE
+internal val STRING_TYPE_EXPORT = io.github.kotlinmania.starlark.values.types.string.STRING_TYPE

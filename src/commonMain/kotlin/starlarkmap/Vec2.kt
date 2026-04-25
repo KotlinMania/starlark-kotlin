@@ -1,5 +1,5 @@
 // port-lint: source src/vec2.rs
-package starlark_map.vec2
+package starlarkmap.vec2
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -42,7 +42,7 @@ class Vec2<A, B> private constructor(
 
     fun capacity(): Int = a.size
 
-    fun reserve(_additional: Int) {
+    fun reserve(additional: Int) {
         // No-op in this Kotlin implementation.
     }
 

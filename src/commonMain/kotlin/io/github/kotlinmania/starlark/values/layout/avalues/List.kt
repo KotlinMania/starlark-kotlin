@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/list.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
+package io.github.kotlinmania.starlark.values.layout.avalues
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.list.FrozenListData
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListData
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListGen
-import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
-import io.github.kotlinmania.starlark_kotlin.values.types.array.Array
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.list.FrozenListData
+import io.github.kotlinmania.starlark.values.types.list.ListData
+import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.list.VALUE_EMPTY_FROZEN_LIST
+import io.github.kotlinmania.starlark.values.types.array.Array
 
 // fn list_avalue<'v>(content: ValueTyped<'v, Array<'v>>) -> AValueImpl<'v, impl AValue<'v, ...>>
 internal fun listAvalue(
@@ -60,14 +60,14 @@ internal object AValueList : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         // In the full implementation, this is called via vtable dispatch
         // with the actual StarlarkValue. The object form uses unpack() as placeholder.
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
     // unsafe fn heap_copy(me: ..., tracer: &Tracer<'v>) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("heapCopy should be dispatched via vtable with actual value")
     }
 
@@ -90,12 +90,12 @@ internal object AValueFrozenList : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 
     // unsafe fn heap_copy(...) -> Value<'v>
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

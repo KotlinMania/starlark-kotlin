@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/avalues/static_.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
+package io.github.kotlinmania.starlark.values.layout.avalues
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * For types which are only allocated statically (never in heap).
@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTyp
 internal class AValueBasic<T : StarlarkValue> : AValue {
 
     // fn extra_len(_value: &T) -> usize
-    override fun extraLen(_value: StarlarkValue): Int {
+    override fun extraLen(value: StarlarkValue): Int {
         error("Basic types don't appear in the heap")
     }
 
@@ -53,12 +53,12 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
     }
 
     // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         error("Basic types don't appear in the heap")
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value
-    override fun heapCopy(_tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("Basic types don't appear in the heap")
     }
 
@@ -68,7 +68,7 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
     }
 
     // fn total_memory_for_profile(_value: &Self::StarlarkValue) -> usize
-    override fun totalMemoryForProfile(_value: StarlarkValue): Int {
+    override fun totalMemoryForProfile(value: StarlarkValue): Int {
         // This avalue is always statically allocated so don't charge anyone for the memory.
         //
         // The fact that we need this at all is a bit weird - it comes about only because of the way

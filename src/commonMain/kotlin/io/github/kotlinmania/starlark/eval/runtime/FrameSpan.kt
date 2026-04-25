@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/frame_span.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  */
 
 // FrozenFileSpan.DEFAULT is used directly below
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 
 /** Span of the call frame (including inlined call frames). */
 @ConsistentCopyVisibility

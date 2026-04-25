@@ -1,5 +1,5 @@
 // port-lint: source src/debug/inspect.rs
-package io.github.kotlinmania.starlark_kotlin.debug
+package io.github.kotlinmania.starlark.debug
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import starlark_map.Hashed
+import io.github.kotlinmania.starlark.assert.Assert
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.ValueLike
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import starlarkmap.Hashed
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {
@@ -43,7 +43,7 @@ internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
 
 /**
  * Obtain the local variables currently in scope. When at top-level these will be
- * [Module][io.github.kotlinmania.starlark_kotlin.environment.Module] variables, otherwise local
+ * [Module][io.github.kotlinmania.starlark.environment.Module] variables, otherwise local
  * definitions. The precise number of variables may change over time due to optimisation. The only
  * legitimate use of this function is for debugging.
  */
@@ -81,14 +81,14 @@ private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
 // Tests
 
 private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
+    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
         Result.success(eval.callStack().intoFrames().map { it.toString() })
     }
 
-    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments, eval: Evaluator ->
+    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
         val sm = SmallMap.new<Value, Value>()
         for ((k, v) in eval.localVariables()) {
-            val sv = StringValue.newUnchecked(eval.heap().allocStr(k))
+            val sv = eval.heap().allocStr(k)
             val hashedValue = Hashed.newUnchecked(sv.getHash(), sv.toValue())
             sm.insertHashed(hashedValue, v)
         }

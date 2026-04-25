@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/extra.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.stdlib
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.pass
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.pass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

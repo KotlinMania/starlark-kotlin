@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/types.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,28 +19,28 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.TypeExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypePathP
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.typing.StarlarkError
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypesError
@@ -80,7 +80,6 @@ internal fun Compiler.exprForType(
     }
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
-    @Suppress("UNCHECKED_CAST")
     val payload = expr.node.payload as? CstTypeExprPayload
     val ty = payload?.compilerTy
     if (ty == null) {
@@ -146,11 +145,9 @@ private fun Compiler.evalIdentInTypeExpr(ident: Spanned<IdentP<CstPayload, Resol
                             codemap.value,
                         )
                 }
-                else -> throw IllegalStateException("Unexpected slot: $slot")
             }
         }
         is ResolvedIdent.Global -> identPayload.value.toValue()
-        else -> throw IllegalStateException("Unexpected resolved ident: $identPayload")
     }
 }
 
@@ -249,7 +246,6 @@ private fun Compiler.evalExpr(
 //     &mut self,
 //     type_expr: &mut CstTypeExpr,
 // ) -> Result<(), EvalException>
-@Suppress("UNCHECKED_CAST")
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: Spanned<TypeExprP<CstPayload, *>>,
 ) {
@@ -262,9 +258,8 @@ private fun Compiler.populateTypesInTypeExpr(
         )
     }
     // This should not fail because we validated it at parse time.
-    @Suppress("UNCHECKED_CAST")
     val unpack = TypeExprUnpackP.unpack<CstPayload, ResolvedIdent?>(
-        typeExpr.node.expr as Spanned<ExprP<CstPayload>>,
+        typeExpr.node.expr,
         codemap.value,
     )
     val typeValue = evalExprAsType(unpack)
@@ -287,24 +282,23 @@ internal fun Compiler.populateTypesInStmt(
  * Visit all type expressions in this statement.
  * Port of `StmtP::visit_type_expr_err_mut` from starlark_syntax uniplate.rs.
  */
-@Suppress("UNCHECKED_CAST")
 private fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
     f: (Spanned<TypeExprP<P, *>>) -> Unit,
 ) {
     when (this) {
-        is StmtP.Def<*, *> -> {
+        is StmtP.Def<P, *> -> {
             for (param in def.params) {
                 when (val p = param.node) {
-                    is ParameterP.Normal<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
-                    is ParameterP.Args<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
-                    is ParameterP.KwArgs<*> -> p.typ?.let { f(it as Spanned<TypeExprP<P, *>>) }
-                    is ParameterP.Slash<*>, is ParameterP.NoArgs<*> -> { /* no type */ }
+                    is ParameterP.Normal -> p.typ?.let { f(it) }
+                    is ParameterP.Args -> p.typ?.let { f(it) }
+                    is ParameterP.KwArgs -> p.typ?.let { f(it) }
+                    is ParameterP.Slash, is ParameterP.NoArgs -> { /* no type */ }
                 }
             }
-            (def.returnType as? Spanned<TypeExprP<P, *>>)?.let { f(it) }
+            def.returnType?.let { f(it) }
         }
-        is StmtP.Assign<*> -> {
-            (assign.ty as? Spanned<TypeExprP<P, *>>)?.let { f(it) }
+        is StmtP.Assign -> {
+            assign.ty?.let { f(it) }
         }
         else -> { /* no type expressions in other statements */ }
     }

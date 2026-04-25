@@ -1,5 +1,5 @@
 // port-lint: source src/small_map.rs
-package starlark_map.small_map
+package starlarkmap.smallmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package starlark_map.small_map
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
 
 /**
  * A map with deterministic iteration order.
@@ -64,7 +64,7 @@ class SmallMap<K, V> internal constructor(
 
     fun iterHashed(): Sequence<Pair<Hashed<K>, V>> = entries.asSequence().map { Pair(it.key, it.value) }
 
-    fun reserve(_additional: Int) {
+    fun reserve(additional: Int) {
         // No-op in this Kotlin implementation.
     }
 

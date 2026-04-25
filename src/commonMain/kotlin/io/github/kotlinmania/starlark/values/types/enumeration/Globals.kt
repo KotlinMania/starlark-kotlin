@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
+package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,14 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
 
 /** Implementation of `enum` function. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 // pub fn register_enum(builder: &mut GlobalsBuilder)

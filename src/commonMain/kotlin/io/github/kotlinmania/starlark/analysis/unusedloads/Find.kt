@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/unused_loads/find.rs
-package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
+package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,29 +19,29 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.environment.MutableNames
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.BindingId
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ResolvedIdent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Slot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.ScopeResolverGlobals
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.topLevelStmtsMut
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.environment.MutableNames
+import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.eval.compiler.ModuleScopes
+import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
+import io.github.kotlinmania.starlark.eval.compiler.Slot
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
+import io.github.kotlinmania.starlark.eval.compiler.topLevelStmtsMut
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
+import io.github.kotlinmania.starlark.syntax.ast.LoadP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.types.allocAny
 
 // Forward-reference AST types until starlark_syntax port is complete.
 // use starlark_syntax::codemap::FileSpanRef;
@@ -86,98 +86,97 @@ private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
  * Visit all identifiers in read position recursively within a CstStmt.
  * Port of `StmtP::visit_ident` from Rust's `uniplate.rs`.
  */
-@Suppress("UNCHECKED_CAST")
 private fun Spanned<StmtP<CstPayload>>.visitIdent(f: (Spanned<IdentP<CstPayload, *>>) -> Unit) {
-    fun visitExprIdent(expr: Spanned<out ExprP<*>>) {
+    fun visitExprIdent(expr: Spanned<ExprP<CstPayload>>) {
         when (val e = expr.node) {
-            is ExprP.Identifier<*, *> -> f(e.ident as Spanned<IdentP<CstPayload, *>>)
-            is ExprP.Tuple<*> -> e.elements.forEach { visitExprIdent(it as Spanned<ExprP<*>>) }
-            is ExprP.ListExpr<*> -> e.elements.forEach { visitExprIdent(it as Spanned<ExprP<*>>) }
-            is ExprP.Dict<*> -> e.elements.forEach { (k, v) ->
-                visitExprIdent(k as Spanned<ExprP<*>>)
-                visitExprIdent(v as Spanned<ExprP<*>>)
+            is ExprP.Identifier<CstPayload, *> -> f(e.ident)
+            is ExprP.Tuple -> e.elements.forEach { visitExprIdent(it) }
+            is ExprP.ListExpr -> e.elements.forEach { visitExprIdent(it) }
+            is ExprP.Dict -> e.elements.forEach { (k, v) ->
+                visitExprIdent(k)
+                visitExprIdent(v)
             }
-            is ExprP.If<*> -> {
-                visitExprIdent(e.cond as Spanned<ExprP<*>>)
-                visitExprIdent(e.v1 as Spanned<ExprP<*>>)
-                visitExprIdent(e.v2 as Spanned<ExprP<*>>)
+            is ExprP.If -> {
+                visitExprIdent(e.cond)
+                visitExprIdent(e.v1)
+                visitExprIdent(e.v2)
             }
-            is ExprP.Dot<*> -> visitExprIdent(e.expr as Spanned<ExprP<*>>)
-            is ExprP.Call<*> -> {
-                visitExprIdent(e.expr as Spanned<ExprP<*>>)
-                e.args.args.forEach { arg -> visitExprIdent(arg.node.expr() as Spanned<ExprP<*>>) }
+            is ExprP.Dot -> visitExprIdent(e.expr)
+            is ExprP.Call -> {
+                visitExprIdent(e.expr)
+                e.args.args.forEach { arg -> visitExprIdent(arg.node.expr()) }
             }
-            is ExprP.Index<*> -> {
-                visitExprIdent(e.expr as Spanned<ExprP<*>>)
-                visitExprIdent(e.index as Spanned<ExprP<*>>)
+            is ExprP.Index -> {
+                visitExprIdent(e.expr)
+                visitExprIdent(e.index)
             }
-            is ExprP.Index2<*> -> {
-                visitExprIdent(e.expr as Spanned<ExprP<*>>)
-                visitExprIdent(e.index0 as Spanned<ExprP<*>>)
-                visitExprIdent(e.index1 as Spanned<ExprP<*>>)
+            is ExprP.Index2 -> {
+                visitExprIdent(e.expr)
+                visitExprIdent(e.index0)
+                visitExprIdent(e.index1)
             }
-            is ExprP.Slice<*> -> {
-                visitExprIdent(e.expr as Spanned<ExprP<*>>)
-                e.start?.let { visitExprIdent(it as Spanned<ExprP<*>>) }
-                e.stop?.let { visitExprIdent(it as Spanned<ExprP<*>>) }
-                e.step?.let { visitExprIdent(it as Spanned<ExprP<*>>) }
+            is ExprP.Slice -> {
+                visitExprIdent(e.expr)
+                e.start?.let { visitExprIdent(it) }
+                e.stop?.let { visitExprIdent(it) }
+                e.step?.let { visitExprIdent(it) }
             }
-            is ExprP.Not<*> -> visitExprIdent(e.expr as Spanned<ExprP<*>>)
-            is ExprP.Minus<*> -> visitExprIdent(e.expr as Spanned<ExprP<*>>)
-            is ExprP.Plus<*> -> visitExprIdent(e.expr as Spanned<ExprP<*>>)
-            is ExprP.BitNot<*> -> visitExprIdent(e.expr as Spanned<ExprP<*>>)
-            is ExprP.Op<*> -> {
-                visitExprIdent(e.lhs as Spanned<ExprP<*>>)
-                visitExprIdent(e.rhs as Spanned<ExprP<*>>)
+            is ExprP.Not -> visitExprIdent(e.expr)
+            is ExprP.Minus -> visitExprIdent(e.expr)
+            is ExprP.Plus -> visitExprIdent(e.expr)
+            is ExprP.BitNot -> visitExprIdent(e.expr)
+            is ExprP.Op -> {
+                visitExprIdent(e.lhs)
+                visitExprIdent(e.rhs)
             }
-            is ExprP.ListComprehension<*> -> {
-                visitExprIdent(e.expr as Spanned<ExprP<*>>)
+            is ExprP.ListComprehension -> {
+                visitExprIdent(e.expr)
             }
-            is ExprP.DictComprehension<*> -> {
-                visitExprIdent(e.key as Spanned<ExprP<*>>)
-                visitExprIdent(e.value as Spanned<ExprP<*>>)
+            is ExprP.DictComprehension -> {
+                visitExprIdent(e.key)
+                visitExprIdent(e.value)
             }
-            is ExprP.FString<*> -> {
-                e.fstring.node.expressions.forEach { visitExprIdent(it as Spanned<ExprP<*>>) }
+            is ExprP.FString -> {
+                e.fstring.node.expressions.forEach { visitExprIdent(it) }
             }
-            is ExprP.Lambda<*, *> -> {
-                visitExprIdent(e.lambda.body as Spanned<ExprP<*>>)
+            is ExprP.Lambda<CstPayload, *> -> {
+                visitExprIdent(e.lambda.body)
             }
-            is ExprP.Literal<*> -> { /* no identifiers */ }
+            is ExprP.Literal -> { /* no identifiers */ }
         }
     }
 
     fun visitStmt(stmt: Spanned<StmtP<CstPayload>>) {
         when (val s = stmt.node) {
-            is StmtP.Statements<*> -> s.stmts.forEach { visitStmt(it as Spanned<StmtP<CstPayload>>) }
-            is StmtP.Expression<*> -> visitExprIdent(s.expr as Spanned<ExprP<*>>)
-            is StmtP.Return<*> -> (s.expr as Spanned<ExprP<*>>?)?.let { visitExprIdent(it) }
-            is StmtP.Assign<*> -> {
-                visitExprIdent(s.assign.rhs as Spanned<ExprP<*>>)
+            is StmtP.Statements -> s.stmts.forEach { visitStmt(it) }
+            is StmtP.Expression -> visitExprIdent(s.expr)
+            is StmtP.Return -> (s.expr)?.let { visitExprIdent(it) }
+            is StmtP.Assign -> {
+                visitExprIdent(s.assign.rhs)
             }
-            is StmtP.AssignModify<*> -> {
-                visitExprIdent(s.rhs as Spanned<ExprP<*>>)
+            is StmtP.AssignModify -> {
+                visitExprIdent(s.rhs)
             }
-            is StmtP.If<*> -> {
-                visitExprIdent(s.cond as Spanned<ExprP<*>>)
-                visitStmt(s.suite as Spanned<StmtP<CstPayload>>)
+            is StmtP.If -> {
+                visitExprIdent(s.cond)
+                visitStmt(s.suite)
             }
-            is StmtP.IfElse<*> -> {
-                visitExprIdent(s.cond as Spanned<ExprP<*>>)
-                visitStmt(s.suite1 as Spanned<StmtP<CstPayload>>)
-                visitStmt(s.suite2 as Spanned<StmtP<CstPayload>>)
+            is StmtP.IfElse -> {
+                visitExprIdent(s.cond)
+                visitStmt(s.suite1)
+                visitStmt(s.suite2)
             }
-            is StmtP.For<*> -> {
-                visitExprIdent(s.forStmt.over as Spanned<ExprP<*>>)
-                visitStmt(s.forStmt.body as Spanned<StmtP<CstPayload>>)
+            is StmtP.For -> {
+                visitExprIdent(s.forStmt.over)
+                visitStmt(s.forStmt.body)
             }
-            is StmtP.Def<*, *> -> {
-                visitStmt(s.def.body as Spanned<StmtP<CstPayload>>)
+            is StmtP.Def<CstPayload, *> -> {
+                visitStmt(s.def.body)
             }
-            is StmtP.Load<*, *> -> { /* no identifiers in read position */ }
-            is StmtP.Break<*>,
-            is StmtP.Continue<*>,
-            is StmtP.Pass<*> -> { /* no expressions */ }
+            is StmtP.Load<CstPayload, *> -> { /* no identifiers in read position */ }
+            is StmtP.Break,
+            is StmtP.Continue,
+            is StmtP.Pass -> { /* no expressions */ }
         }
     }
 
@@ -229,7 +228,7 @@ internal fun findUnusedLoads(
 
     for (top in topLevelStmtsMut(moduleScopes.cst)) {
         val node = top.node
-        if (node is StmtP.Load<*, *>) {
+        if (node is StmtP.Load<CstPayload, *>) {
             val loadNode = node.loadStmt
             val args = mutableListOf<LoadSymbol>()
             for (arg in loadNode.args) {

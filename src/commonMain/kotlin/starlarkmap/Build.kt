@@ -1,6 +1,6 @@
 // port-lint: source build.rs
 @file:Suppress("unused")
-package starlark_map.build
+package starlarkmap.build
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,7 +26,7 @@ package starlark_map.build
  *
  * Kotlin has no equivalent of nightly-specific features or build-script cfg flags.
  * The SIMD code path is not applicable to the Kotlin port; the scalar fallback
- * is always used (see [starlark_map.vec_map.simd.findHashInArray]).
+ * is always used (see [starlarkmap.vecmap.simd.findHashInArray]).
  *
  * This file exists solely to maintain file-level parity with the Rust crate.
  */

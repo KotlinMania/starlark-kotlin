@@ -1,5 +1,5 @@
 // port-lint: source src/tests/opt/def_inline.rs
-package io.github.kotlinmania.starlark_kotlin.tests.opt
+package io.github.kotlinmania.starlark.tests.opt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,10 +21,10 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /** Test function bodies inlined. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.tests.bc.bcGoldenTest
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.eval.bc.BcOpcode
+import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 // #[test]
 // fn test_def_const_inlined()

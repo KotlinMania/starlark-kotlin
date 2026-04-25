@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs/unordered_hasher.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.structs
+package io.github.kotlinmania.starlark.values.types.structs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHasher
+import starlarkmap.StarlarkHasher
 
 /**
  * Utility to compute hash of an unordered collection (e.g. unordered set).

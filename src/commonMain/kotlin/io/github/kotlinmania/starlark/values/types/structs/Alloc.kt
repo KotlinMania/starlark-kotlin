@@ -1,6 +1,6 @@
 
 // port-lint: source src/values/types/structs/alloc.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.structs
+package io.github.kotlinmania.starlark.values.types.structs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -20,18 +20,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.AllocStringValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.AllocStringValue
+import io.github.kotlinmania.starlark.values.AllocFrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import starlarkmap.smallmap.SmallMap
 
 /**
  * Utility to allocate a struct on a heap.

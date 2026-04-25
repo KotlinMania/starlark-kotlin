@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 actual class ReentrantLock actual constructor() {
     private val lock = java.util.concurrent.locks.ReentrantLock()

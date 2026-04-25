@@ -1,5 +1,5 @@
 // port-lint: source src/collections/alloca.rs
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark.collections
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,91 +19,151 @@ package io.github.kotlinmania.starlark_kotlin.collections
  * limitations under the License.
  */
 
-// In Rust, Alloca is a custom arena allocator that manages raw memory using
-// pointer arithmetic and manual allocation/deallocation. It maintains a
-// contiguous buffer that grows by doubling when capacity is exceeded.
-//
-// In Kotlin, the garbage collector handles all memory management. We preserve
-// the Alloca API surface using simple list/array-based allocation for
-// compatibility with code that depends on the alloca pattern (allocate a
-// temporary slice, use it in a callback, then release).
+private const val INITIAL_SIZE: Int = 1000000 // ~ 1Mb
+private const val ALIGN: Int = 8
 
-// Rust: const INITIAL_SIZE: usize = 1000000; // ~ 1Mb
-private const val INITIAL_SIZE: Int = 1000000
-
-// Rust: type Align = u64;
-// Rust: const ALIGN: usize = mem::size_of::<Align>();
-// Not needed in Kotlin — alignment is managed by the runtime.
-
-// Rust: struct Buffer { ptr: NonNull<u8>, layout: Layout }
-// Not needed in Kotlin — GC manages allocations.
+internal class Align(
+    val value: ULong,
+)
 
 /**
  * A reusable arena-style allocator for temporary slices.
  *
- * In Rust, this manages a contiguous memory buffer with bump-pointer allocation,
- * doubling the buffer when capacity is exceeded. Allocations are scoped to
- * callbacks: the memory is logically "freed" when the callback returns.
+ * Transliterated from the Rust implementation which uses a continuous buffer and bump-pointer
+ * allocation, doubling the buffer when capacity is exceeded. The Kotlin port models "words"
+ * of size [ALIGN] and keeps old buffers around after growth, matching the Rust behavior.
  *
- * In Kotlin, the GC handles memory, so this class provides API-compatible
- * wrappers that create temporary collections for callback-scoped use.
- * The capacity parameter is accepted for API compatibility but does not
- * affect behavior.
+ * Note that Kotlin does not expose raw uninitialized memory in `commonMain`, so the returned
+ * "uninitialized" slices are represented as `MutableList<T?>` backed by an `Array<Any?>`.
  */
 internal class Alloca {
 
     companion object {
-        /** Default initial capacity in bytes (~1MB). Unused in Kotlin but preserved for API parity. */
-        private const val DEFAULT_SIZE: Int = INITIAL_SIZE
+        fun new(): Alloca = Alloca()
+
+        fun withCapacity(sizeBytes: Int): Alloca = Alloca(sizeBytes)
+    }
+
+    private class Layout(
+        val size: Int,
+        val align: Int,
+    ) {
+        companion object {
+            fun arrayAlign(sizeWords: Int): Layout {
+                return Layout(sizeWords * ALIGN, ALIGN)
+            }
+
+            fun fromSizeAlign(size: Int, align: Int): Layout {
+                return Layout(size, align)
+            }
+        }
+    }
+
+    private class Buffer(
+        private val data: ULongArray,
+        private val layout: Layout,
+    ) {
+        companion object {
+            fun alloc(layout: Layout): Buffer {
+                val sizeWords = layout.size / ALIGN
+                return Buffer(ULongArray(sizeWords), layout)
+            }
+        }
+
+        fun ptr(): Int {
+            return 0
+        }
+
+        fun end(): Int {
+            return sizeWords()
+        }
+
+        fun sizeWords(): Int {
+            return layout.size / ALIGN
+        }
+
+        fun drop() {
+            // In Rust this deallocates the backing buffer. In Kotlin, GC owns memory.
+        }
+    }
+
+    private var alloc: Int
+    private var end: Int
+    private val buffers: MutableList<Buffer>
+
+    constructor() : this(INITIAL_SIZE)
+
+    constructor(sizeBytes: Int) {
+        val sizeWords = divCeil(sizeBytes, ALIGN)
+        val layout = Layout.arrayAlign(sizeWords)
+        val buffer = Buffer.alloc(layout)
+        alloc = buffer.ptr()
+        end = buffer.end()
+        buffers = ArrayList(1)
+        buffers.add(buffer)
+    }
+
+    private fun assertState() {
+        check(end - alloc >= 0)
+        check(end - alloc <= buffers.last().sizeWords())
+    }
+
+    private fun allocateMore(len: Int, one: Layout) {
+        val want = Layout.fromSizeAlign(one.size * len, one.align)
+        check(want.align <= ALIGN)
+        val last = buffers.last()
+        val sizeWords = last.sizeWords() * 2 + want.size / ALIGN
+        val layout = Layout.arrayAlign(sizeWords)
+        val buffer = Buffer.alloc(layout)
+        val pointer = buffer.ptr()
+        val end = buffer.end()
+        buffers.add(buffer)
+        this.alloc = pointer
+        this.end = end
+    }
+
+    internal fun <T> remInWordsToRemInT(remInWords: Int): Int {
+        return remInWords
+    }
+
+    internal fun <T> lenInTToLenInWords(len: Int): Int {
+        return len
     }
 
     /**
-     * Create a new [Alloca] with the default capacity.
+     * Note that the finalizer for the `T` will not be called. That's safe if there is no finalizer,
+     * or you call it yourself.
      */
-    constructor() : this(DEFAULT_SIZE)
+    fun <T, R> allocaUninit(len: Int, k: (MutableList<T?>) -> R): R {
+        assertState()
 
-    /**
-     * Create a new [Alloca] with the given capacity hint.
-     *
-     * In Rust, this pre-allocates a contiguous buffer of [sizeBytes] bytes.
-     * In Kotlin, the capacity hint is accepted for API compatibility but
-     * does not affect behavior since the GC manages memory.
-     */
-    constructor(@Suppress("UNUSED_PARAMETER") sizeBytes: Int) {
-        // Kotlin: capacity hint is unused; GC manages memory.
-    }
+        val startBufferIndex = buffers.lastIndex
+        var start = alloc
 
-    // Rust: fn assert_state(&self)
-    // Not needed in Kotlin — no pointer invariants to check.
+        val remWords = end - start
+        val remInT = remInWordsToRemInT<T>(remWords)
+        if (len > remInT) {
+            allocateMore(len, Layout(ALIGN, ALIGN))
+            start = alloc
+        }
 
-    // Rust: fn allocate_more(&self, len: usize, one: Layout)
-    // Not needed in Kotlin — GC handles growth.
+        val sizeWords = lenInTToLenInWords<T>(len)
+        val stop = start + sizeWords
+        val old = start
+        alloc = stop
 
-    // Rust: fn rem_in_words_to_rem_in_t<T>(rem_in_words: usize) -> usize
-    // Not needed in Kotlin — no word-level capacity tracking.
+        val buffer = buffers.last()
+        val data = MutableList<T?>(len) { null }
+        val res = k(data)
 
-    // Rust: fn len_in_to_to_len_in_words<T>(len: usize) -> usize
-    // Not needed in Kotlin — no word-level capacity tracking.
+        // If the pointer changed, it means a callback called alloca again, which allocated a new buffer.
+        // So we are abandoning the current allocation here.
+        if (buffers.lastIndex == startBufferIndex && alloc == stop) {
+            alloc = old
+        }
 
-    /**
-     * Allocate an uninitialized array of [len] elements and pass it to [k].
-     *
-     * In Rust, this returns a `&mut [MaybeUninit<T>]` — a slice of potentially
-     * uninitialized memory. The caller is responsible for initializing elements
-     * before reading them, and `Drop` is not called on the elements.
-     *
-     * In Kotlin, all values are initialized by construction. We use an
-     * `Array<Any?>` filled with nulls to represent the "uninitialized" state.
-     * The callback receives the array and returns a result.
-     *
-     * @param len Number of elements to allocate.
-     * @param k Callback that receives the uninitialized array and produces a result.
-     * @return The result produced by [k].
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T, R> allocaUninit(len: Int, k: (Array<Any?>) -> R): R {
-        val data = arrayOfNulls<Any>(len)
-        return k(data)
+        assertState()
+        return res
     }
 
     /**
@@ -120,10 +180,34 @@ internal class Alloca {
      * @param k Callback that receives the initialized mutable list and produces a result.
      * @return The result produced by [k].
      */
-    @Suppress("UNCHECKED_CAST")
     fun <T, R> allocaInit(len: Int, init: () -> T, k: (MutableList<T>) -> R): R {
-        val data = MutableList(len) { init() }
-        return k(data)
+        return allocaUninit<T, R>(len) { data ->
+            for (i in 0 until len) {
+                data[i] = init()
+            }
+            val initView = object : AbstractMutableList<T>() {
+                override val size: Int = data.size
+
+                override fun get(index: Int): T {
+                    return requireNotNull(data[index])
+                }
+
+                override fun set(index: Int, element: T): T {
+                    val old = requireNotNull(data[index])
+                    data[index] = element
+                    return old
+                }
+
+                override fun add(index: Int, element: T) {
+                    throw UnsupportedOperationException("fixed size")
+                }
+
+                override fun removeAt(index: Int): T {
+                    throw UnsupportedOperationException("fixed size")
+                }
+            }
+            k(initView)
+        }
     }
 
     /**
@@ -140,17 +224,48 @@ internal class Alloca {
         return allocaInit(len, { fill }, k)
     }
 
-    /**
-     * Concatenate two lists and invoke [k] with the result.
-     *
-     * If either list is empty, the other is passed directly to [k] without copying.
-     * Otherwise, the elements are cloned into a new temporary list.
-     *
-     * @param x First list.
-     * @param y Second list.
-     * @param k Callback that receives the concatenated list and produces a result.
-     * @return The result produced by [k].
-     */
+    private class DropSliceGuard<A>(
+        private val data: MutableList<A?>,
+    ) {
+        fun drop() {
+            for (i in 0 until data.size) {
+                data[i] = null
+            }
+        }
+    }
+
+    private fun <T, R> allocaConcatSlow(x: List<T>, y: List<T>, k: (List<T>) -> R): R {
+        return allocaUninit<T, R>(x.size + y.size) { xy ->
+            val xUninit = xy.subList(0, x.size)
+            val yUninit = xy.subList(x.size, x.size + y.size)
+
+            for (i in 0 until xUninit.size) {
+                xUninit[i] = x[i]
+            }
+            val xDropGuard = DropSliceGuard(xUninit)
+
+            for (i in 0 until yUninit.size) {
+                yUninit[i] = y[i]
+            }
+            val yDropGuard = DropSliceGuard(yUninit)
+
+            val initView = object : AbstractList<T>() {
+                override val size: Int = xy.size
+
+                override fun get(index: Int): T {
+                    return requireNotNull(xy[index])
+                }
+            }
+
+            try {
+                k(initView)
+            } finally {
+                yDropGuard.drop()
+                xDropGuard.drop()
+            }
+        }
+    }
+
     fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>) -> R): R {
         return if (x.isEmpty()) {
             k(y)
@@ -161,19 +276,12 @@ internal class Alloca {
         }
     }
 
-    /**
-     * Slow path for [allocaConcat]: both lists are non-empty, so we must
-     * clone elements into a new combined list.
-     *
-     * In Rust, this uses `alloca_uninit` to allocate space for `x.len() + y.len()`
-     * elements, then clones both slices into the uninitialized memory with
-     * explicit drop guards. In Kotlin, we simply create an ArrayList and
-     * add both lists.
-     */
-    private fun <T, R> allocaConcatSlow(x: List<T>, y: List<T>, k: (List<T>) -> R): R {
-        val xy = ArrayList<T>(x.size + y.size)
-        xy.addAll(x)
-        xy.addAll(y)
-        return k(xy)
+    internal fun buffersLen(): Int {
+        return buffers.size
     }
+}
+
+private fun divCeil(n: Int, d: Int): Int {
+    check(d > 0)
+    return ((n.toLong() + d.toLong() - 1L) / d.toLong()).toInt()
 }

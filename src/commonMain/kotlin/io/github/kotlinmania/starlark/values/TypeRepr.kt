@@ -1,5 +1,5 @@
 // port-lint: source src/values/type_repr.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,11 +24,11 @@ package io.github.kotlinmania.starlark_kotlin.values
  * given type.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.list.ListType
 
 /**
  * Provides a starlark type representation, even if StarlarkValue is not implemented.

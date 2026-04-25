@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/aligned_size.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -29,7 +29,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // use allocative::Allocative;
 // use dupe::Dupe;
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 
 /// Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
 // #[derive(Copy, Clone, Dupe, Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative, derive_more::Display)]

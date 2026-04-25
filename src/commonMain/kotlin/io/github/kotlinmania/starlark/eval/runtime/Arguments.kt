@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/arguments.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,22 +19,22 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import starlark_map.small_set.SmallSet
-import starlark_map.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.coerce
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkIterator
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Either as DictEither
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import starlarkmap.smallset.SmallSet
+import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.coerce
+import io.github.kotlinmania.starlark.values.StarlarkIterator
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.DictRef
+import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
+import io.github.kotlinmania.starlark.values.layout.ValueLike
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
@@ -577,7 +577,6 @@ private fun DictRef.dict(): Dict {
     return when (val ref = aref) {
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
-        else -> throw IllegalStateException("Unexpected DictEither: $ref")
     }
 }
 
@@ -587,17 +586,17 @@ private fun DictRef.len(): Int {
 
 private fun DictRef.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
     @Suppress("UNCHECKED_CAST")
-    return dict().iterHashed() as Sequence<Pair<Hashed<Value>, Value>>
+    return dict().iterHashed()
 }
 
 private fun DictRef.keys(): Sequence<Value> {
     @Suppress("UNCHECKED_CAST")
-    return dict().keys() as Sequence<Value>
+    return dict().keys()
 }
 
 private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
     @Suppress("UNCHECKED_CAST")
-    return dict().downcastRefKeyString() as SmallMap<StringValue, Value>?
+    return dict().downcastRefKeyString()
 }
 
 // #[cfg(test)] mod tests

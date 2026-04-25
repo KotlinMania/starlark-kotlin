@@ -1,5 +1,5 @@
 // port-lint: source src/pagable/error.rs
-package io.github.kotlinmania.starlark_kotlin.pagable
+package io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Error
-import io.github.kotlinmania.starlark_kotlin.ErrorKind
+import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.ErrorKind
 
 /** Errors that can occur during pagable serialization/deserialization. */
 sealed class PagableError(message: String) : Exception(message) {

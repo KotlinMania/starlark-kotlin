@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/any.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -29,14 +29,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * and consume it in another.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTypedStatic
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
 
 /**
  * A type that can be passed around as a Starlark [Value], but in most
@@ -84,8 +84,7 @@ class StarlarkAny<T>(
 
 /** Allocate any value in the frozen heap. */
 fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> {
-    @Suppress("UNCHECKED_CAST")
     return this.allocSimpleTypedStatic(StarlarkAny.new(value))
         .asFrozenRef()
-        .map { r -> (r as StarlarkAny<T>).inner }
+        .map { r -> r.inner }
 }

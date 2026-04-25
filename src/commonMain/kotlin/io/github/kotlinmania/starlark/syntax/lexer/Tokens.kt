@@ -1,5 +1,5 @@
 // port-lint: source src/lexer.rs
-package io.github.kotlinmania.starlark_kotlin.syntax.lexer
+package io.github.kotlinmania.starlark.syntax.lexer
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -200,13 +200,13 @@ sealed class Token {
     }
 
     /** Wrap this token into the appropriate GrammarSymbol variant for the parser stack. */
-    fun toSymbol(): io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol = when (this) {
-        is FloatToken -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant1(value)
-        is FStringToken -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant2(value)
-        is Identifier -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant3(name)
-        is IntToken -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant4(value)
-        is StringToken -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant3(value)
-        else -> io.github.kotlinmania.starlark_kotlin.syntax.parser.GrammarSymbol.Variant0(this)
+    fun toSymbol(): io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol = when (this) {
+        is FloatToken -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant1(value)
+        is FStringToken -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant2(value)
+        is Identifier -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant3(name)
+        is IntToken -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant4(value)
+        is StringToken -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant3(value)
+        else -> io.github.kotlinmania.starlark.syntax.parser.GrammarSymbol.Variant0(this)
     }
 
     override fun toString(): String = when (this) {

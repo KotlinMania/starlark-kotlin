@@ -1,5 +1,5 @@
 // port-lint: source src/syntax/ast.rs
-package io.github.kotlinmania.starlark_kotlin.syntax.ast
+package io.github.kotlinmania.starlark.syntax.ast
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.syntax.ast
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenInt
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.codemap.Span
 
 /** Payload types attached to AST nodes. */
 interface AstPayload {

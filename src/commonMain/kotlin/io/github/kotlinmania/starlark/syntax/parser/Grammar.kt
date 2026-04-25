@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin.syntax.parser
+package io.github.kotlinmania.starlark.syntax.parser
 
 object Grammar {
     fun __action(state: Int, integer: Int): Int {

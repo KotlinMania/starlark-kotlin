@@ -1,5 +1,5 @@
 // port-lint: source src/docs/code.rs
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.docs
 
 /** Render documentation items as Starlark code. */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TypeRenderConfig
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TypeRenderConfig
 
 /**
  * There have been bugs around line endings in the textwrap crate. Just join
@@ -191,7 +191,7 @@ fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): Strin
 
     // *args
     if (args != null) {
-        parts.add("*${fmtParam(args!!, renderConfig)}")
+        parts.add("*${fmtParam(args, renderConfig)}")
     } else if (namedOnly.isNotEmpty()) {
         parts.add("*")
     }
@@ -203,7 +203,7 @@ fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): Strin
 
     // **kwargs
     if (kwargs != null) {
-        parts.add("**${fmtParam(kwargs!!, renderConfig)}")
+        parts.add("**${fmtParam(kwargs, renderConfig)}")
     }
 
     return if (indent != null) {

@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/bc.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
+package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,17 +21,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 
 /** Bytecode profiler. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.bc.BcOpcode
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.AstModule
 import kotlin.math.roundToLong
 
 // Format a Double to 3 decimal places (KMP-safe, no String.format)

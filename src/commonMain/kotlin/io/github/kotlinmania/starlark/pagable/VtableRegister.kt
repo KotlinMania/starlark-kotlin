@@ -1,5 +1,5 @@
 // port-lint: source src/pagable/vtable_register.rs
-package io.github.kotlinmania.starlark_kotlin.pagable
+package io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
 
 /**
  * In Rust, `register_avalue_simple_frozen!` is a macro that registers a frozen value type

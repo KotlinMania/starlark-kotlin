@@ -1,5 +1,5 @@
 // port-lint: source src/values/recursive_repr_or_json_guard.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,9 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 /** Detect recursion when doing `repr` or `to_json`. */
 
-import starlark_map.small_set.SmallSet
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlark.values.layout.RawPointer
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Pop the stack on drop. */
 // pub(crate) struct ReprStackGuard;

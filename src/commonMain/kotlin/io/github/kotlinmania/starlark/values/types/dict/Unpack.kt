@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/unpack.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
 /**
  * Unpack `dict`.
  *
- * There's an [UnpackValue] implementation for [SmallMap][starlark_map.small_map.SmallMap]
+ * There's an [UnpackValue] implementation for [SmallMap][starlarkmap.smallmap.SmallMap]
  * but this can be used when hashing of unpacked keys is not needed.
  */
 class UnpackDictEntries<K, V>(

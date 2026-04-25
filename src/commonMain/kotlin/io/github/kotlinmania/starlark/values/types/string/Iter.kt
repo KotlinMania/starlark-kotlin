@@ -1,17 +1,17 @@
 // port-lint: source src/values/types/string/iter.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.any.ProvidesStaticType
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTupleIter
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
+import io.github.kotlinmania.starlark.any.ProvidesStaticType
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.int.allocValue
 import kotlin.reflect.KClass
 
 /*
@@ -57,10 +57,10 @@ internal class StringIterableGen(
     override val staticType: KClass<*> get() = StringIterableGen::class
 
     // unsafe fn iterate(&self, _me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(_me: Value, heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         // Lazy implementation: we allocate a tuple and then iterate over it.
         val iter = if (this.produceChar) {
-            heap.allocTupleIter(this.string.asStr().map { c -> heap.allocStr(c.toString()) })
+            heap.allocTupleIter(this.string.asStr().map { c -> heap.allocStr(c.toString()).toValue() })
         } else {
             heap.allocTupleIter(this.string.asStr().map { c ->
                 StarlarkInt.from(c.code).allocValue(heap)

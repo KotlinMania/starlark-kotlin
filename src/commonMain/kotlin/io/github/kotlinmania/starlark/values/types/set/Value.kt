@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/set/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.set
+package io.github.kotlinmania.starlark.values.types.set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_set.SmallSet
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import starlarkmap.Hashed
+import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.freeze
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /**
  * Generic set wrapper.
@@ -101,7 +101,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun getMethods(): Methods? = setMethods()
 
     // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }
@@ -128,18 +128,18 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         !setLike().content().isEmpty()
 
     // fn bit_or(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitOr(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
             // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "|", rhs)
+            val otherSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "|", other)
 
             if (setLike().content().isEmpty()) {
-                return Result.success(copySetData(rhsSet.content).allocValue(heap))
+                return Result.success(copySetData(otherSet.content).allocValue(heap))
             }
 
             val items = copySmallSet(setLike().content())
-            for (h in rhsSet.iterHashed()) {
+            for (h in otherSet.iterHashed()) {
                 items.insertHashed(h)
             }
             Result.success(SetData().apply { content.addAll(items.iterHashed().asIterable()) }.allocValue(heap))
@@ -149,17 +149,17 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitAnd(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "&", rhs)
+            val otherSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "&", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
             }
 
             val items = SmallSet<Value>()
-            for (h in rhsSet.iterHashed()) {
+            for (h in otherSet.iterHashed()) {
                 if (setLike().content().containsHashed(h.asRef())) {
                     items.insertHashedUniqueUnchecked(h)
                 }
@@ -172,23 +172,23 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun bitXor(rhs: Value, heap: Heap): Result<Value> {
+    override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "^", rhs)
+            val otherSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "^", other)
 
-            if (rhsSet.content.isEmpty()) {
+            if (otherSet.content.isEmpty()) {
                 return Result.success(copySetData(setLike().content()).allocValue(heap))
             }
 
             val data = SetData()
             for (elem in setLike().content().iterHashed()) {
-                if (!rhsSet.containsHashed(elem.copied())) {
+                if (!otherSet.containsHashed(elem.copied())) {
                     data.addHashedUniqueUnchecked(elem.copied())
                 }
             }
 
-            for (hashed in rhsSet.iterHashed()) {
+            for (hashed in otherSet.iterHashed()) {
                 if (!setLike().content().containsHashed(hashed.asRef())) {
                     data.addHashed(hashed)
                 }
@@ -200,23 +200,23 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun sub(rhs: Value, heap: Heap): Result<Value> {
+    override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
-            val rhsSet = SetRef.unpackValueOpt(rhs)
-                ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)
+            val otherSet = SetRef.unpackValueOpt(other)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
 
             if (setLike().content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
             }
 
-            if (rhsSet.content.isEmpty()) {
+            if (otherSet.content.isEmpty()) {
                 return Result.success(copySetData(setLike().content()).allocValue(heap))
             }
 
             val data = SetData()
 
             for (elem in setLike().content().iterHashed()) {
-                if (!rhsSet.containsHashed(elem.copied())) {
+                if (!otherSet.containsHashed(elem.copied())) {
                     data.addHashed(elem.copied())
                 }
             }
@@ -324,7 +324,7 @@ fun setMethods(): Methods? {
 private val RES = MethodsStatic()
 
 /** Delegate to the set methods registration in Methods.kt. */
-private fun setMethodsImpl(builder: io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder) {
+private fun setMethodsImpl(builder: io.github.kotlinmania.starlark.environment.MethodsBuilder) {
     setMethods(builder)
 }
 

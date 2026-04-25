@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_set.rs
-package starlark_map.ordered_set
+package starlarkmap.orderedset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package starlark_map.ordered_set
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
-import starlark_map.small_set.SmallSet
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
+import starlarkmap.smallset.SmallSet
 
 /**
  * [SmallSet] wrapper, but equality and hash of self depends on iteration order.

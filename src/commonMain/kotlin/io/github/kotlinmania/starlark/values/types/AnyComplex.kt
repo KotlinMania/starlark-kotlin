@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/any_complex.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.any_complex
+package io.github.kotlinmania.starlark.values.types.anycomplex
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -42,12 +42,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.any_complex
 // use crate::values::ValueLike;
 // use crate::values::layout::heap::send::HeapSyncable;
 
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 /// Allocate arbitrary value on the starlark heap without implementing full [`StarlarkValue`].
 ///
 /// This is useful for data not directly visible to starlark code.
@@ -69,7 +69,6 @@ class StarlarkAnyComplex<T : Any>(
 
         // pub fn get(value: Value<'v>) -> Option<&'v T>
         /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
-        @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> get(value: Any): T? {
             val complex = value as? StarlarkAnyComplex<*> ?: return null
             return complex.value as? T
@@ -77,7 +76,6 @@ class StarlarkAnyComplex<T : Any>(
 
         // pub fn get_err(value: Value<'v>) -> crate::Result<&'v T>
         /** Obtain the value from a `Value`, if it is a `StarlarkAnyComplex<T>`. */
-        @Suppress("UNCHECKED_CAST")
         inline fun <reified T : Any> getErr(value: Any): T {
             val complex = value as? StarlarkAnyComplex<*>
                 ?: throw IllegalArgumentException("Value is not StarlarkAnyComplex")

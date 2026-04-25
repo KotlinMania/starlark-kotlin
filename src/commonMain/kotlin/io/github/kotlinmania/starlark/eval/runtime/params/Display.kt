@@ -1,5 +1,5 @@
 // port-lint: source eval/runtime/params/display.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.params
+package io.github.kotlinmania.starlark.eval.runtime.params
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

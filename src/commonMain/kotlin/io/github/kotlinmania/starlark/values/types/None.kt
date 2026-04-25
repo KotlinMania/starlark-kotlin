@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/none.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.none
+package io.github.kotlinmania.starlark.values.types.none
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

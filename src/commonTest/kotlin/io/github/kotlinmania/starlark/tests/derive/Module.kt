@@ -1,6 +1,6 @@
 // port-lint: source src/tests/derive/module.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.tests.derive
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

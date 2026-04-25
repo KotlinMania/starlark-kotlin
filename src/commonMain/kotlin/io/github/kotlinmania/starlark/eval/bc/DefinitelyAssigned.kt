@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/definitely_assigned.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  */
 
 // use crate::eval::runtime::slots::LocalSlotId;
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 
 /**
  * Tracker for local variables which are definitely assigned.
@@ -41,7 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
 // pub(crate) struct BcDefinitelyAssigned {
 //     definitely_assigned: Vec<bool>,
 // }
-class BcDefinitelyAssigned private constructor(
+internal class BcDefinitelyAssigned private constructor(
     /// Map from local variable slot to flag indicating whether it is definitely assigned
     /// at the current program point.
     private val definitelyAssigned: BooleanArray,

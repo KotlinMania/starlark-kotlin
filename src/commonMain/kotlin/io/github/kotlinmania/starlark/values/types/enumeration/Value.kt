@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/enumeration/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
+package io.github.kotlinmania.starlark.values.types.enumeration.value
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.value
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.TyEnumData
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type.EnumTypeGen
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.values.types.TypeInstanceId
+import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
 
 /** A value from an enumeration. */
 class EnumValueGen(
@@ -36,7 +36,7 @@ class EnumValueGen(
     internal val value: Value,   // The value of this enumeration
     internal val index: Int, // The index in the enumeration
     internal val id: TypeInstanceId,
-) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
     companion object {
         /** The result of calling `type()` on an enum value. */
@@ -72,7 +72,7 @@ class EnumValueGen(
 
     // impl serde::Serialize for EnumValueGen
     // Delegates serialization to the inner value.
-    fun serialize(_serializer: Any): Result<Any> {
+    fun serialize(serializer: Any): Result<Any> {
         return Result.success(value)
     }
 }
@@ -82,7 +82,7 @@ class EnumValueGen(
 // pub type FrozenEnumValue = EnumValueGen<FrozenValue>;
 // Kotlin: Use EnumValueGen directly; frozen flag distinguishes.
 
-fun enumValueMethods(_methods: MethodsBuilder) {
+fun enumValueMethods(methods: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn index(this: &EnumValue) -> starlark::Result<i32>
     fun index(thisVal: EnumValueGen): Result<Int> {

@@ -1,5 +1,5 @@
 // port-lint: source src/syntax/grammar.lalrpop
-package io.github.kotlinmania.starlark_kotlin.syntax.parser
+package io.github.kotlinmania.starlark.syntax.parser
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,15 +19,15 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Token
-import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.lexer.Token
+import io.github.kotlinmania.starlark.syntax.state.ParserState
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.typing.StarlarkError
 
 /**
  * LR(1) parser driven by pre-computed ACTION/GOTO tables from GrammarState.
@@ -52,7 +52,7 @@ object Parser {
             val currentState = states.last()
 
             val action: Int = if (lookahead != null) {
-                val (_, token, _) = lookahead!!
+                val (_, token, _) = lookahead
                 Grammar.__action(currentState, token.toInteger())
             } else {
                 GrammarState.EOF_ACTION[currentState].toInt()

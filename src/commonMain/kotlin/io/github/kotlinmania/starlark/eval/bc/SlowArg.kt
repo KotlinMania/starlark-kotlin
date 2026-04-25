@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/slow_arg.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcAddr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.bc.BcAddr
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /**
  * Slow instruction arg: stored in the end of bytecode,
  * expensive to access. Used to implement errors.
  */
-data class BcInstrSlowArg(
+internal data class BcInstrSlowArg(
     /** Instruction code span. */
     val span: FrameSpan = FrameSpan.DEFAULT,
     /** Spans when an instruction needs multiple spans. */
     val spans: MutableList<FrameSpan> = mutableListOf(),
 )
 
-data class BcInstrEndArg(
+internal data class BcInstrEndArg(
     /** Offset of end instruction. */
     val endAddr: BcAddr = BcAddr(0u),
     /** Spans of all instructions. */

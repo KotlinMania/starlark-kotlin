@@ -1,6 +1,6 @@
 
 // port-lint: source src/values/layout/value_captured.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,12 +27,12 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  * [Value] holding [ValueCaptured] is equivalent to `Box<Option<Value>>`.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import kotlin.concurrent.Volatile
 
 // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
@@ -89,11 +89,7 @@ internal class ValueCaptured private constructor(
     override fun freeze(freezer: Freezer): Result<FrozenValueCaptured> {
         val frozenPayload: FrozenValue? = if (payload != null) {
             val result = payload!!.freeze(freezer)
-            if (result.isFailure) {
-                @Suppress("UNCHECKED_CAST")
-                return result as Result<FrozenValueCaptured>
-            }
-            result.getOrThrow()
+            result.getOrElse { return Result.failure(it) }
         } else {
             null
         }

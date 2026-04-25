@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/profiler_type.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
+package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileError {

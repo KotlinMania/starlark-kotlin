@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.structs
+package io.github.kotlinmania.starlark.values.types.structs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,20 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStruct
-import starlark_map.Hashed
-import starlark_map.StarlarkHasher
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.docs.DocProperty
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.compareSmallMap
-import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStruct
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHasher
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.docs.DocProperty
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.compareSmallMap
+import io.github.kotlinmania.starlark.values.equalsSmallMap
 
 /**
  * The result of calling `struct()`.
@@ -44,7 +44,7 @@ import io.github.kotlinmania.starlark_kotlin.values.equalsSmallMap
 data class StructGen<V>(
     /** The fields in a struct. */
     val fields: SmallMap<String, V>
-) : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {
+) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
 
     companion object {
@@ -144,7 +144,6 @@ data class StructGen<V>(
             // Hash the key's hash value into the entry hasher
             entryHasher.writeU32(hashedKey.hash().get())
             // Hash the value
-            @Suppress("UNCHECKED_CAST")
             val value = v as? Value ?: (v as? FrozenValue)?.toValue()
                 ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
             value.writeHash(entryHasher).getOrElse { return Result.failure(it) }

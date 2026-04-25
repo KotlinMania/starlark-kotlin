@@ -1,5 +1,5 @@
 // port-lint: source src/values/iter.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,8 +24,8 @@ package io.github.kotlinmania.starlark_kotlin.values
 // use crate::values::Heap;
 // use crate::values::Value;
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /// Iterator of starlark values.
 // #[derive(Debug)]

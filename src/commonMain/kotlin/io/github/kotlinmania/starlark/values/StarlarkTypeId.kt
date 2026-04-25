@@ -1,5 +1,5 @@
 // port-lint: source src/values/starlark_type_id.rs
-package io.github.kotlinmania.starlark_kotlin.values.starlark_type_id
+package io.github.kotlinmania.starlark.values.starlarktypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values.starlark_type_id
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.ConstTypeId
 import kotlin.reflect.KClass
 
 /**

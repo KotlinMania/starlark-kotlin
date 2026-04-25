@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/parse_args.rs
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,18 +19,18 @@ package io.github.kotlinmania.starlark_kotlin.deriverefs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.coerce
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
+import io.github.kotlinmania.starlark.coerce
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
 
 /**
  * Collect `N` arguments.

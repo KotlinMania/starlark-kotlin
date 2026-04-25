@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_set.rs
-package starlark_map.sorted_set
+package starlarkmap.sortedset
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package starlark_map.sorted_set
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.ordered_set.OrderedSet
-import starlark_map.small_set.SmallSet
-import starlark_map.sorted_vec.SortedVec
+import starlarkmap.Equivalent
+import starlarkmap.orderedset.OrderedSet
+import starlarkmap.smallset.SmallSet
+import starlarkmap.sortedvec.SortedVec
 
 /**
  * An immutable [SmallSet] with values guaranteed to be sorted.

@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 // JS is single-threaded; no-op lock.
 actual class ReentrantLock actual constructor() {

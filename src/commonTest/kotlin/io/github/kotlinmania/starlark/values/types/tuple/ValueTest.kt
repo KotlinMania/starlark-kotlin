@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/tuple/value.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.types.tuple
+package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.types.tuple
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.assert.allTrue
-import io.github.kotlinmania.starlark_kotlin.assert.isFalse
-import io.github.kotlinmania.starlark_kotlin.assert.isTrue
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.allTrue
+import io.github.kotlinmania.starlark.assert.isFalse
+import io.github.kotlinmania.starlark.assert.isTrue
 import kotlin.test.Test
 
 class ValueTest {

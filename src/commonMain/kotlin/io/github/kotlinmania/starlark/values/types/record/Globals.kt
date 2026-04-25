@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/record/globals.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.record
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.record
 
 /** Implementation of `record` function. */
 
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.values.types.record.record_type.RecordTypeGen
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 // pub(crate) fn register_record(builder: &mut GlobalsBuilder)

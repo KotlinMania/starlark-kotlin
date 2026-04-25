@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/call.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,28 +21,28 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /** Call-related bytecode interpreter code. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgNames
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsPos
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
+import io.github.kotlinmania.starlark.eval.runtime.ArgNames
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsPos
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
 
 /** Call arguments. */
 // pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg
-interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
+internal interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
     // fn pop_from_stack<'a, 'v>(&'a self, frame: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>;
     fun popFromStack(frame: BcFramePtr): ArgumentsFull<S>
 }
 
 /** Call arguments for `def` call. */
 // pub(crate) trait BcCallArgsForDef: BcInstrArg
-interface BcCallArgsForDef : BcInstrArg {
+internal interface BcCallArgsForDef : BcInstrArg {
     // type Args<'v, 'a>: ArgumentsImpl<'v, 'a, ArgSymbol = ResolvedArgName>
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> Self::Args<'v, 'a>;
     fun popFromStack(stack: BcFramePtr): ArgumentsImpl<ResolvedArgName>
@@ -51,7 +51,7 @@ interface BcCallArgsForDef : BcInstrArg {
 /** Full call arguments: positional, named, star and star-star. All taken from the stack. */
 // #[derive(Debug)]
 // pub(crate) struct BcCallArgsFull<S: ArgSymbol>
-class BcCallArgsFull<S : ArgSymbol>(
+internal class BcCallArgsFull<S : ArgSymbol>(
     val posNamed: BcSlotInRange,
     val names: List<Pair<S, FrozenStringValue>>,
     val args: BcSlotIn?,
@@ -94,7 +94,7 @@ class BcCallArgsFull<S : ArgSymbol>(
 /** Positional-only call arguments, from stack. */
 // #[derive(Debug)]
 // pub(crate) struct BcCallArgsPos
-class BcCallArgsPos(
+internal class BcCallArgsPos(
     /** Range of positional arguments. */
     val pos: BcSlotInRange,
 )
@@ -115,7 +115,7 @@ internal fun BcCallArgsFull<Symbol>.resolve(def: DefGen<FrozenValue>): BcCallArg
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsFull<S>
 /** Pop full call arguments from the stack frame. */
-class BcCallArgsFullCallArgs<S : ArgSymbol>(
+internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
     private val full: BcCallArgsFull<S>,
 ) : BcCallArgs<S> {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
@@ -136,7 +136,7 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
 
@@ -147,7 +147,7 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
 
 // impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsPos
 /** Pop positional-only call arguments from the stack frame. */
-class BcCallArgsPosCallArgs<S : ArgSymbol>(
+internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgs<S> {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
@@ -163,7 +163,7 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }
 
@@ -174,7 +174,7 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
 
 // impl BcCallArgsForDef for BcCallArgsFull<ResolvedArgName>
 /** Full call arguments for def calls, popping from the stack frame. */
-class BcCallArgsFullForDef(
+internal class BcCallArgsFullForDef(
     private val full: BcCallArgsFull<ResolvedArgName>,
 ) : BcCallArgsForDef {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, ResolvedArgName>
@@ -195,7 +195,7 @@ class BcCallArgsFullForDef(
     }
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
 
@@ -206,7 +206,7 @@ class BcCallArgsFullForDef(
 
 // impl BcCallArgsForDef for BcCallArgsPos
 /** Positional-only call arguments for def calls, popping from the stack frame. */
-class BcCallArgsPosForDef(
+internal class BcCallArgsPosForDef(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgsForDef {
     // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsPos<'v, 'a, ResolvedArgName>
@@ -216,7 +216,7 @@ class BcCallArgsPosForDef(
     }
 
     // impl BcInstrArg for BcCallArgsPos
-    override fun fmtAppend(_ip: BcAddr, _endArg: BcInstrEndArg?, f: StringBuilder) {
+    override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }
 

@@ -1,5 +1,5 @@
 // port-lint: source src/collections/symbol/symbol.rs
-package io.github.kotlinmania.starlark_kotlin.collections.symbol
+package io.github.kotlinmania.starlark.collections.symbol
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,15 +28,15 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
 
 // use allocative::Allocative;
 // use starlark_derive::Trace;
-// use starlark_map::Hashed;
-// use starlark_map::StarlarkHashValue;
+// use starlarkmap::Hashed;
+// use starlarkmap::StarlarkHashValue;
 
-import io.github.kotlinmania.starlark_kotlin.Coerce
-import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgSymbol
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import io.github.kotlinmania.starlark.Coerce
+import io.github.kotlinmania.starlark.collections.alignedpaddedstr.AlignedPaddedStr
+import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
 
 // use crate as starlark;
 // use crate::coerce::Coerce;

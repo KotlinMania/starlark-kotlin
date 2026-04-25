@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/unpack_value.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.typing.StarlarkNever
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.typing.StarlarkNever
 import kotlin.test.assertEquals
 
 // #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]

@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs/other.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.other
+package io.github.kotlinmania.starlark.stdlib.funcs.other
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,21 +24,21 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.other
  * dialects of Starlark.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalNamed
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalPositional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.bool.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalNamed
+import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.types.bool.allocValue
+import io.github.kotlinmania.starlark.values.types.list.allocList
 
 /**
  * fail: fail the execution.
@@ -397,7 +397,7 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
     })
 
     if (compareOk != null) {
-        throw compareOk!!
+        throw compareOk
     }
 
     return heap.allocList(pairs.map { it.first })
@@ -454,7 +454,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
     // fn dir(x: Value) -> anyhow::Result<Vec<String>>
     globals.setFunction("dir", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
-        eval.heap().allocList(dir(x).map { eval.heap().allocStr(it) })
+        eval.heap().allocList(dir(x).map { eval.heap().allocStr(it).toValue() })
     }
 
     // #[starlark(speculative_exec_safe)]

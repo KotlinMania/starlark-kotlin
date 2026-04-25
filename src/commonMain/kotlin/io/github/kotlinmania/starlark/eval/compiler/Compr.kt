@@ -1,12 +1,12 @@
 // port-lint: source src/eval/compiler/compr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -67,14 +67,13 @@ private fun Compiler.compileIfs(
     val ifs = mutableListOf<IrSpanned<ExprCompiled>>()
     while (clauses.isNotEmpty()) {
         when (val x = clauses.removeAt(clauses.lastIndex)) {
-            is ClauseP.For<*> -> {
+            is ClauseP.For<CstPayload> -> {
                 ifs.reverse()
-                @Suppress("UNCHECKED_CAST")
-                return Result.success(Pair(x.forClause as ForClauseP<CstPayload>, ifs))
+                return Result.success(Pair(x.forClause, ifs))
             }
-            is ClauseP.If<*> -> {
-                val compiled = this.exprTruth(x.cond as Spanned<ExprP<CstPayload>>).getOrElse { return Result.failure(it) }
-                if (compiled.node is ExprCompiledBool.Const && (compiled.node as ExprCompiledBool.Const).b) {
+            is ClauseP.If<CstPayload> -> {
+                val compiled = this.exprTruth(x.cond).getOrElse { return Result.failure(it) }
+                if (compiled.node is ExprCompiledBool.Const && (compiled.node).b) {
                     // If the condition is always true, skip the clause.
                     continue
                 }

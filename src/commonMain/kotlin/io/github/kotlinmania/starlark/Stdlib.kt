@@ -1,26 +1,26 @@
 // port-lint: source src/stdlib.rs
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.stdlib.breakpointGlobal
-import io.github.kotlinmania.starlark_kotlin.stdlib.callStackGlobal
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.registerGlobals
-import io.github.kotlinmania.starlark_kotlin.stdlib.internal.registerInternal
-import io.github.kotlinmania.starlark_kotlin.stdlib.partialStdlib
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerDebug
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerFilter
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerJson
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerMap
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerPprint
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerPrint
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerPrepr
-import io.github.kotlinmania.starlark_kotlin.stdlib.registerPstr
-import io.github.kotlinmania.starlark_kotlin.values.types.enumeration.registerEnum
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.registerNamespace
-import io.github.kotlinmania.starlark_kotlin.values.types.record.registerRecord
-import io.github.kotlinmania.starlark_kotlin.values.types.set.registerSet
-import io.github.kotlinmania.starlark_kotlin.values.types.structs.registerStruct
-import io.github.kotlinmania.starlark_kotlin.values.typing.registerTyping
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.stdlib.breakpointGlobal
+import io.github.kotlinmania.starlark.stdlib.callStackGlobal
+import io.github.kotlinmania.starlark.stdlib.funcs.registerGlobals
+import io.github.kotlinmania.starlark.stdlib.internal.registerInternal
+import io.github.kotlinmania.starlark.stdlib.partialStdlib
+import io.github.kotlinmania.starlark.stdlib.registerDebug
+import io.github.kotlinmania.starlark.stdlib.registerFilter
+import io.github.kotlinmania.starlark.stdlib.registerJson
+import io.github.kotlinmania.starlark.stdlib.registerMap
+import io.github.kotlinmania.starlark.stdlib.registerPprint
+import io.github.kotlinmania.starlark.stdlib.registerPrint
+import io.github.kotlinmania.starlark.stdlib.registerPrepr
+import io.github.kotlinmania.starlark.stdlib.registerPstr
+import io.github.kotlinmania.starlark.values.types.enumeration.registerEnum
+import io.github.kotlinmania.starlark.values.types.namespace.registerNamespace
+import io.github.kotlinmania.starlark.values.types.record.registerRecord
+import io.github.kotlinmania.starlark.values.types.set.registerSet
+import io.github.kotlinmania.starlark.values.types.structs.registerStruct
+import io.github.kotlinmania.starlark.values.typing.registerTyping
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

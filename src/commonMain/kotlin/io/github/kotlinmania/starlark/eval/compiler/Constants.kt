@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/constants.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.constants
+package io.github.kotlinmania.starlark.eval.compiler.constants
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.constants
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.namespace.NamespaceGen
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 
 /**
  * A wrapper around [FrozenValue] representing a built-in function.

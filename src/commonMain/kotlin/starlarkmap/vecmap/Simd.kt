@@ -1,5 +1,7 @@
 // port-lint: source src/vec_map/simd.rs
-package starlark_map.vec_map.simd
+@file:OptIn(kotlin.ExperimentalUnsignedTypes::class)
+
+package starlarkmap.vecmap.simd
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

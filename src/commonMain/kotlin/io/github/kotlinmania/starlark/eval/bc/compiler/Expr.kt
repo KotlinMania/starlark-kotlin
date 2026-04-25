@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/expr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
+package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,31 +21,31 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Compile expressions. */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlot
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotInRange
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin2
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.CompareOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueNotSpecial
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.bc.ArrayIndex2Arg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrSlowArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.SliceArg
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterCompr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.writeBc as comprWriteBc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterDef
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def.writeBc as defWriteBc
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.eval.bc.BcSlot
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.eval.bc.BcSlotInRange
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.compiler.Builtin1
+import io.github.kotlinmania.starlark.eval.compiler.Builtin2
+import io.github.kotlinmania.starlark.eval.compiler.CompareOp
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ExprLogicalBinOp
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueNotSpecial
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.bc.ArrayIndex2Arg
+import io.github.kotlinmania.starlark.eval.bc.BcInstrSlowArg
+import io.github.kotlinmania.starlark.eval.bc.SliceArg
+import io.github.kotlinmania.starlark.eval.bc.compiler.compr.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterCompr
+import io.github.kotlinmania.starlark.eval.bc.compiler.compr.writeBc as comprWriteBc
+import io.github.kotlinmania.starlark.eval.bc.compiler.def.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterDef
+import io.github.kotlinmania.starlark.eval.bc.compiler.def.writeBc as defWriteBc
 
 /** Try extract consecutive definitely initialized locals from expressions. */
 // fn try_slot_range(exprs, bc) -> Option<BcSlotInRange>

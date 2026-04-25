@@ -1,5 +1,5 @@
 // port-lint: source src/typing/tests.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,22 +21,22 @@ package io.github.kotlinmania.starlark_kotlin.typing
 
 // Test-only transliterations from Rust `src/typing/tests.rs` live in `commonTest`.
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnOwnedFileLoader
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.typing.Interface
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.tests.trimRustBacktrace
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
-import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.FrozenModule
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnOwnedFileLoader
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.typing.Interface
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.tests.trimRustBacktrace
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 
 // Submodules:
 // mod call           -> typing.tests.call (Call.kt)
@@ -172,17 +172,17 @@ private object NamedXy : StarlarkCallableParamSpec {
 // fn register_typecheck_globals(globals: &mut GlobalsBuilder)
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
     // fn accepts_iterable<'v>(xs: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_iterable") { _args: Arguments, _eval: Evaluator ->
+    globals.setFunction("accepts_iterable") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 
     // fn accepts_typed_kwargs(x: SmallMap<String, u32>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_typed_kwargs") { _args: Arguments, _eval: Evaluator ->
+    globals.setFunction("accepts_typed_kwargs") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 
     // fn accepts_callable_named_xy<'v>(f: StarlarkCallable<'v, NamedXy, NoneType>) -> anyhow::Result<NoneType>
-    globals.setFunction("accepts_callable_named_xy") { _args: Arguments, _eval: Evaluator ->
+    globals.setFunction("accepts_callable_named_xy") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 }

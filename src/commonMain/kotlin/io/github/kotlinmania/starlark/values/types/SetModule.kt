@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/set.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.set
+package io.github.kotlinmania.starlark.values.types.set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

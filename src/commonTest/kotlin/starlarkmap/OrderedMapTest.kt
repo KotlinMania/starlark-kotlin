@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_map.rs (tests module)
-package starlark_map.ordered_map
+package starlarkmap.orderedmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -73,7 +73,7 @@ class OrderedMapTest {
     /**
      * Port of Rust test `test_serde`.
      *
-     * Since we don't have kotlinx-serialization wired up for starlark_map,
+     * Since we don't have kotlinx-serialization wired up for starlarkmap,
      * this test verifies ordered equality and round-trip consistency instead.
      */
     @Test
@@ -196,7 +196,7 @@ class OrderedMapTest {
 
     @Test
     fun testFromSmallMap() {
-        val small = starlark_map.small_map.SmallMap.new<String, Int>()
+        val small = starlarkmap.smallmap.SmallMap.new<String, Int>()
         small.insert("x", 10)
         val ordered = OrderedMap.from(small)
         assertEquals(1, ordered.len())

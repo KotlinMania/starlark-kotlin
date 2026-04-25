@@ -1,9 +1,9 @@
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena
+package io.github.kotlinmania.starlark.values.layout.heap.arena
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.types.StarlarkAny
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

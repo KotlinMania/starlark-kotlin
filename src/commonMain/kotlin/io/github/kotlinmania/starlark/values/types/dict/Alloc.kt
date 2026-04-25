@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/alloc.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 // use std::iter;
 
-// use starlark_map::small_map::SmallMap;
+// use starlarkmap::small_map::SmallMap;
 
 // use crate::typing::Ty;
 // use crate::values::AllocFrozenValue;
@@ -36,16 +36,16 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 // use crate::values::type_repr::StarlarkTypeRepr;
 // use crate::values::types::dict::dict_type::DictType;
 
-import starlark_map.small_map.SmallMap
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
+import starlarkmap.smallmap.SmallMap
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
 /// Utility to allocate a dict from iterator.
 ///

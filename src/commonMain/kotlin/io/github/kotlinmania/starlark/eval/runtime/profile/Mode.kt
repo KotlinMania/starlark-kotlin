@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/mode.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode
+package io.github.kotlinmania.starlark.eval.runtime.profile.mode
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

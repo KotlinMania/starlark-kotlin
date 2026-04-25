@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/small_duration.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -40,15 +40,9 @@ internal data class SmallDuration(
     internal var nanos: ULong = 0u,
 ) : Comparable<SmallDuration> {
 
-    override fun compareTo(other: SmallDuration): Int {
-        return nanos.compareTo(other.nanos)
-    }
-
     // impl SmallDuration
 
     companion object {
-        val ZERO: SmallDuration = SmallDuration(0u)
-
         fun default(): SmallDuration = SmallDuration(0u)
 
         // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
@@ -67,10 +61,6 @@ internal data class SmallDuration(
     fun toDuration(): Duration {
         return nanos.toLong().nanoseconds
     }
-
-    // impl AddAssign for SmallDuration
-    // Kotlin: += works via reassignment (x = x + other) thanks to plus operators.
-    // Explicit plusAssign would cause ambiguity with plus operators on data classes.
 
     // impl Add<Duration> for SmallDuration
     // type Output = SmallDuration;
@@ -92,6 +82,9 @@ internal data class SmallDuration(
     operator fun div(other: ULong): SmallDuration {
         return SmallDuration(nanos / other)
     }
+
+    // #[derive(Ord, PartialOrd)] in Rust
+    override fun compareTo(other: SmallDuration): Int = nanos.compareTo(other.nanos)
 }
 
 // impl<'a> Sum<&'a SmallDuration> for SmallDuration

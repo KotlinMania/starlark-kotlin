@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/addr.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,15 +22,15 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Address types used in bytecode interpreter. */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrHeader
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BC_INSTR_ALIGN
+import io.github.kotlinmania.starlark.eval.bc.BcInstr
+import io.github.kotlinmania.starlark.eval.bc.BcInstrRepr
+import io.github.kotlinmania.starlark.eval.bc.BcInstrHeader
+import io.github.kotlinmania.starlark.eval.bc.BC_INSTR_ALIGN
 
 /** Address relative to bytecode start. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display, Hash, Default)]
 // pub(crate) struct BcAddr(pub(crate) u32);
-data class BcAddr(val value: UInt) : Comparable<BcAddr> {
+internal data class BcAddr(val value: UInt) : Comparable<BcAddr> {
     constructor() : this(0u)
 
     override fun toString(): String = "@$value"
@@ -77,7 +77,7 @@ data class BcAddr(val value: UInt) : Comparable<BcAddr> {
  */
 // #[derive(Copy, Clone, Dupe, Debug, PartialEq)]
 // pub(crate) struct BcPtrRange
-data class BcPtrRange(
+internal data class BcPtrRange(
     // start: *const u8,
     val start: Int,
     /** Length in bytes. */
@@ -121,7 +121,7 @@ data class BcPtrRange(
  * In Kotlin, this is an offset into a bytecode buffer with debug validation.
  */
 // pub(crate) struct BcPtrAddr<'b>
-data class BcPtrAddr(
+internal data class BcPtrAddr(
     // ptr: *const u8
     val offset: Int,
     /** When assertions enabled, we validate the pointer is in this range. */
@@ -180,13 +180,13 @@ data class BcPtrAddr(
     }
 
     // pub(crate) fn get_instr<I: BcInstr>(self) -> &'b BcInstrRepr<I>
-    fun <I : BcInstr> getInstr(_instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
+    fun <I : BcInstr<*>> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
         @Suppress("UNCHECKED_CAST")
         return instrs as BcInstrRepr<I>
     }
 
     // pub(crate) fn get_instr_checked<I: BcInstr>(self) -> Option<&'b BcInstrRepr<I>>
-    fun <I : BcInstr> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? {
+    fun <I : BcInstr<*>> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? {
         return if (getOpcode(instrs) == BcOpcode.forInstr(instrClass)) {
             getInstr(instrClass, instrs)
         } else {
@@ -239,7 +239,7 @@ data class BcPtrAddr(
     }
 
     // pub(crate) fn add_instr<I: BcInstr>(self) -> BcPtrAddr<'b>
-    fun <I : BcInstr> addInstr(instrClass: KClass<I>): BcPtrAddr {
+    fun <I : BcInstr<*>> addInstr(instrClass: KClass<I>): BcPtrAddr {
         return addRel(BcAddrOffset.forInstr(instrClass))
     }
 }
@@ -247,7 +247,7 @@ data class BcPtrAddr(
 /** Difference between addresses. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display)]
 // pub(crate) struct BcAddrOffset(pub(crate) u32);
-data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
+internal data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
     override fun toString(): String = value.toString()
 
     override fun compareTo(other: BcAddrOffset): Int = value.compareTo(other.value)
@@ -259,7 +259,7 @@ data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
 
         /** Size of an instruction. */
         // fn for_instr<I: BcInstr>() -> BcAddrOffset
-        fun <I : BcInstr> forInstr(instrClass: KClass<I>): BcAddrOffset {
+        fun <I : BcInstr<*>> forInstr(instrClass: KClass<I>): BcAddrOffset {
             BcInstrRepr.assertAlign(instrClass)
             return BcAddrOffset(BcInstrRepr.sizeOf(instrClass).toUInt())
         }
@@ -274,7 +274,7 @@ data class BcAddrOffset(val value: UInt) : Comparable<BcAddrOffset> {
 /** Negative difference between addresses. */
 // #[derive(Eq, PartialEq, Copy, Clone, Dupe, Debug, PartialOrd, Ord, Display)]
 // pub(crate) struct BcAddrOffsetNeg(pub(crate) u32);
-data class BcAddrOffsetNeg(val value: UInt) : Comparable<BcAddrOffsetNeg> {
+internal data class BcAddrOffsetNeg(val value: UInt) : Comparable<BcAddrOffsetNeg> {
     override fun toString(): String = value.toString()
 
     override fun compareTo(other: BcAddrOffsetNeg): Int = value.compareTo(other.value)

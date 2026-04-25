@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 import kotlin.concurrent.AtomicInt
 

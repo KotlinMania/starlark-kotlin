@@ -1,5 +1,5 @@
 // port-lint: source src/typing/callable.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 // use std::fmt::Display;
 // use std::sync::OnceLock;
@@ -16,8 +16,8 @@ package io.github.kotlinmania.starlark_kotlin.typing
 // use crate::typing::ty::TypeRenderConfig;
 // use crate::util::arc_or_static::ArcOrStatic;
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

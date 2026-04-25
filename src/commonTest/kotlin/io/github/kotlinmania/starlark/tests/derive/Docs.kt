@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/docs.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.docs.DocStringKind
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.docs.fromDocstring
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocString
+import io.github.kotlinmania.starlark.docs.DocStringKind
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Main module docs */
 // #[starlark_module]
@@ -40,7 +40,7 @@ private fun objectDocs1(builder: MethodsBuilder) {
     // #[starlark(attribute)]
     // fn foo(this: &TestExample) -> Result<String>
     builder.setAttribute("foo", "Returns the string \"foo\"") { _: Value, heap: Heap ->
-        Result.success(heap.allocStr("foo"))
+        Result.success(heap.allocStr("foo").toValue())
     }
 }
 

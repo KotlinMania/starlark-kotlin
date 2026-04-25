@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/list/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.list
+package io.github.kotlinmania.starlark.values.types.list
 
 // Copyright 2018 The Starlark in Rust Authors.
 // Copyright (c) Facebook, Inc. and its affiliates.
@@ -17,25 +17,25 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.applySlice
-import io.github.kotlinmania.starlark_kotlin.values.compareSlice
-import io.github.kotlinmania.starlark_kotlin.values.convertIndex
-import io.github.kotlinmania.starlark_kotlin.values.equalsSlice
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.applySlice
+import io.github.kotlinmania.starlark.values.compareSlice
+import io.github.kotlinmania.starlark.values.convertIndex
+import io.github.kotlinmania.starlark.values.equalsSlice
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.math.max
 
 /** Generic list container, parameterized on the data type. */
@@ -94,7 +94,7 @@ class ListGen<T>(val data: T) : StarlarkValue {
         return compareSlice<Exception, Value, Value>(listLike().content(), otherRef.content()) { x, y -> x.compare(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, listLike().content().size).getOrElse {
             return Result.failure(it)
         }
@@ -121,13 +121,13 @@ class ListGen<T>(val data: T) : StarlarkValue {
         return Result.success(heap.allocList(res))
     }
 
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val otherRef = ListRef.fromValue(rhs) ?: return null
+    override fun add(other: Value, heap: Heap): Result<Value>? {
+        val otherRef = ListRef.fromValue(other) ?: return null
         return Result.success(heap.allocListConcat(listLike().content(), otherRef.content()))
     }
 
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? {
-        val l = rhs.unpackI32() ?: return null
+    override fun mul(other: Value, heap: Heap): Result<Value>? {
+        val l = other.unpackI32() ?: return null
         val content = listLike().content()
         val resultSize = content.size * max(0, l)
         val result = ArrayList<Value>(resultSize)
@@ -215,7 +215,7 @@ class ListData(
         // Also note Array removes extra capacity on GC.
         val finalCap = max(newCap, 4)
         if (content is ArrayList) {
-            (content as ArrayList).ensureCapacity(finalCap)
+            (content).ensureCapacity(finalCap)
         }
     }
 
@@ -413,7 +413,7 @@ internal class ListDataListLike(private val data: ListData) : ListLike {
         return me
     }
 
-    override fun iterSizeHint(_index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         error("Iteration is performed on Array")
     }
 
@@ -489,14 +489,6 @@ fun ListGen<out ListLike>.collectRepr(s: StringBuilder) {
     s.append(']')
 }
 
-// fn collect_repr_cycle
-fun ListGen<out ListLike>.collectReprCycle(collector: StringBuilder) {
-    collector.append("[...]")
-}
-
-// fn to_bool
-fun ListGen<out ListLike>.toBool(): Boolean = data.content().isNotEmpty()
-
 // fn equals
 fun ListGen<out ListLike>.starlarkEquals(other: Value): Result<Boolean> {
     val otherRef = ListRef.fromValue(other) ?: return Result.success(false)
@@ -510,86 +502,13 @@ fun ListGen<out ListLike>.starlarkCompare(other: Value): Result<Int> {
     return compareSlice<Exception, Value, Value>(data.content(), otherRef.content()) { x, y -> x.compare(y) }
 }
 
-// fn at
-fun ListGen<out ListLike>.at(index: Value, heap: Heap): Result<Value> {
-    val i = convertIndex(index, data.content().size as Int).getOrElse {
-        return Result.failure(it)
-    }
-    return Result.success(data.content()[i])
-}
-
-// fn length
-fun ListGen<out ListLike>.length(): Result<Int> =
-    Result.success(data.content().size as Int)
-
-// fn is_in
-fun ListGen<out ListLike>.isIn(other: Value): Result<Boolean> {
-    for (x in data.content()) {
-        if (x.equals(other).getOrElse { return Result.failure(it) }) {
-            return Result.success(true)
-        }
-    }
-    return Result.success(false)
-}
-
-// fn slice
-fun ListGen<out ListLike>.slice(
-    start: Value?,
-    stop: Value?,
-    stride: Value?,
-    heap: Heap,
-): Result<Value> {
-    val xs = data.content()
-    val res = applySlice(xs, start, stop, stride).getOrElse { return Result.failure(it) }
-    return Result.success(heap.allocList(res))
-}
-
-// unsafe fn iterate
-fun ListGen<out ListLike>.iterate(me: Value, heap: Heap): Result<Value> =
-    Result.success(data.newIter(me))
-
-// unsafe fn iter_size_hint
-fun ListGen<out ListLike>.iterSizeHint(index: Int): Pair<Int, Int?> =
-    data.iterSizeHint(index)
-
-// unsafe fn iter_next
-fun ListGen<out ListLike>.iterNext(index: Int, heap: Heap): Value? =
-    data.iterNext(index)
-
-// unsafe fn iter_stop
-fun ListGen<out ListLike>.iterStop() = data.iterStop()
-
-// fn add
-fun ListGen<out ListLike>.add(other: Value, heap: Heap): Result<Value>? {
-    val otherRef = ListRef.fromValue(other) ?: return null
-    return Result.success(heap.allocListConcat(data.content(), otherRef.content()))
-}
-
-// fn mul
-fun ListGen<out ListLike>.mul(other: Value, heap: Heap): Result<Value>? {
-    val l = other.unpackI32() ?: return null
-    val content = data.content()
-    val resultSize = content.size * max(0, l)
-    val result = ArrayList<Value>(resultSize)
-    for (unused in 0 until l) {
-        result.addAll(content)
-    }
-    return Result.success(heap.allocList(result))
-}
-
-// fn rmul
-fun ListGen<out ListLike>.rmul(lhs: Value, heap: Heap): Result<Value>? = mul(lhs, heap)
-
 // fn set_at
 fun ListGen<out ListLike>.setAt(index: Value, allocValue: Value): Result<Unit> {
-    val i = convertIndex(index, data.content().size as Int).getOrElse {
+    val i = convertIndex(index, data.content().size).getOrElse {
         return Result.failure(it)
     }
     return data.setAt(i, allocValue)
 }
-
-// fn typechecker_ty
-fun ListGen<out ListLike>.typecheckerTy(): Ty? = Ty.anyList()
 
 // impl Serialize for ListGen<T>
 fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()

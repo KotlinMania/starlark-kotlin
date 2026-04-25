@@ -1,5 +1,5 @@
 // port-lint: source ../starlark_syntax/src/syntax/grammar_util.rs
-package io.github.kotlinmania.starlark_kotlin.syntax.parser
+package io.github.kotlinmania.starlark.syntax.parser
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,20 +21,20 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
 
 /** Code called by the parser to handle complex cases not handled by the grammar. */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.*
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.DialectTypes
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.TokenFString
-import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
-import io.github.kotlinmania.starlark_kotlin.syntax.type_expr.TypeExprUnpackP
-import io.github.kotlinmania.starlark_kotlin.typing.CallArgsUnpack
-import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatConv
-import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatParser
-import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatToken
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.syntax.ast.*
+import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
+import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
+import io.github.kotlinmania.starlark.syntax.state.ParserState
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
+import io.github.kotlinmania.starlark.typing.CallArgsUnpack
+import io.github.kotlinmania.starlark.values.types.string.FormatConv
+import io.github.kotlinmania.starlark.values.types.string.FormatParser
+import io.github.kotlinmania.starlark.values.types.string.FormatToken
 
 // #[derive(Debug, thiserror::Error)]
 // enum GrammarUtilError
@@ -74,7 +74,7 @@ object GrammarUtil {
             )
             is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
             is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
-            is ExprP.Identifier<*, *> -> {
+            is ExprP.Identifier<AstNoPayload, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val ident = expr.ident as Spanned<IdentP<AstNoPayload, Unit>>
                 AssignTargetP.Identifier(ident.map { s ->
@@ -172,7 +172,7 @@ object GrammarUtil {
             LoadArgP(
                 local = local,
                 their = their,
-                comma = comma as Spanned<io.github.kotlinmania.starlark_kotlin.syntax.ast.Comma>?
+                comma = comma as Spanned<io.github.kotlinmania.starlark.syntax.ast.Comma>?
             )
         } + if (last != null) {
             listOf(LoadArgP(

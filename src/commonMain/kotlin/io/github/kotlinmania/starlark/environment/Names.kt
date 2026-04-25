@@ -1,5 +1,5 @@
 // port-lint: source src/environment/names.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.syntax.ast.Visibility
 
 /**
  * MutableNames are how we allocate slots (index-based) to variables

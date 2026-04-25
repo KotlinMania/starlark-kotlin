@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/typed.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,30 +24,30 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  *  - typed/String.kt (string)
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUncheckedGeneric
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark_kotlin.values.types.int.PointerI32
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.ValueOfUncheckedGeneric
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.types.int.PointerI32
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
 
 /** [Value] wrapper which asserts contained value is of type `<T>`. */
 // pub struct ValueTyped<'v, T: StarlarkValue<'v>>(Value<'v>, marker::PhantomData<T>)
@@ -315,7 +315,7 @@ internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Va
  */
 @Suppress("UNCHECKED_CAST")
 internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Value, *> {
-    return ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr>(value)
+    return ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<Value, *>
 }
 
@@ -325,6 +325,6 @@ internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Va
  */
 @Suppress("UNCHECKED_CAST")
 internal fun frozenValueOfUncheckedFromFrozenValue(value: FrozenValue): ValueOfUncheckedGeneric<FrozenValue, *> {
-    return ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr>(value)
+    return ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<FrozenValue, *>
 }

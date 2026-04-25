@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/params/spec.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec
+package io.github.kotlinmania.starlark.eval.runtime.params.spec
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,34 +19,34 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
-import io.github.kotlinmania.starlark_kotlin.docs.DocParam
-import io.github.kotlinmania.starlark_kotlin.docs.DocParams
-import io.github.kotlinmania.starlark_kotlin.docs.DocString
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ArgumentsImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FunctionError
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark_kotlin.typing.DefParamIndices
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParamFmt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.PARAM_FMT_OPTIONAL
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.fmtParamSpec
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.ParametersParser
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getValue
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark.docs.DocParam
+import io.github.kotlinmania.starlark.docs.DocParams
+import io.github.kotlinmania.starlark.docs.DocString
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.ValueLike
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
+import io.github.kotlinmania.starlark.eval.runtime.FunctionError
+import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
+import io.github.kotlinmania.starlark.typing.DefParamIndices
+import io.github.kotlinmania.starlark.eval.runtime.params.ParamFmt
+import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
+import io.github.kotlinmania.starlark.eval.runtime.params.fmtParamSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.ParametersParser
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.DictRef
+import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark.values.types.dict.getValue
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import starlarkmap.smallmap.SmallMap
 
 /** Describe parameter for [`ParametersSpec`]. */
 // #[derive(Debug, Clone, Copy, Dupe, PartialEq, Eq, PartialOrd, Ord, Trace, Freeze, Allocative)]

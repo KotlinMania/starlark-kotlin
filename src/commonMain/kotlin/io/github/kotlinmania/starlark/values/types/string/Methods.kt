@@ -1,16 +1,16 @@
 // port-lint: source src/values/types/string/methods.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.collections.StringPool
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.none.NoneOr
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.collections.StringPool
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 
 
 /*
@@ -102,7 +102,7 @@ sealed class StringOrTuple {
  *
  * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
-internal fun stringMethods(_builder: MethodsBuilder) {
+internal fun stringMethods(builder: MethodsBuilder) {
     // The implementations below would be registered through the MethodsBuilder
     // when it's properly ported.
 }
@@ -678,7 +678,7 @@ internal fun join(
         r.append(thisStr)
         r.append(asStr(x).asStr())
     }
-    return Result.success(heap.allocStr(r.toString()))
+    return Result.success(heap.allocStr(r.toString()).toValue())
 }
 
 /**
@@ -1452,7 +1452,7 @@ private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int {
 private fun dotFormat(
     format: kotlin.String,
     args: Iterator<Value>,
-    kwargs: io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict,
+    kwargs: io.github.kotlinmania.starlark.values.types.dict.Dict,
     stringPool: StringPool,
     heap: Heap,
 ): Result<StringValue> {
@@ -1467,18 +1467,17 @@ private fun asStr(value: Value): StringValue {
 
 /**
  * Allocate a string on the heap, returning a [StringValue].
- * This wraps the [Heap.allocStr] member (which returns [Value]) with
- * [StringValue.newUnchecked] to produce the typed wrapper.
+ * Thin wrapper over [Heap.allocStr] kept for naming clarity at call sites.
  */
 private fun allocStrValue(heap: Heap, x: kotlin.String): StringValue {
-    return StringValue.newUnchecked(heap.allocStr(x))
+    return heap.allocStr(x)
 }
 
 /**
  * Allocate a list of strings on the heap, returning a [Value] representing the list.
  */
 private fun allocStringList(strings: List<kotlin.String>, heap: Heap): Value {
-    val values = strings.map { heap.allocStr(it) }
+    val values = strings.map { heap.allocStr(it).toValue() }
     return heap.allocListIter(values)
 }
 

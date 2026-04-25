@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string/str_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,19 +20,19 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  */
 
 import kotlin.math.max
-import starlark_map.Hashed
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str.AlignedPaddedStr
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.toValue
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import starlarkmap.Hashed
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.collections.alignedpaddedstr.AlignedPaddedStr
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.toValue
+import io.github.kotlinmania.starlark.values.types.none.NoneOr
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
@@ -153,9 +153,9 @@ class StarlarkStr(
     override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> =
         starlarkStrSlice(this, start, stop, stride, heap)
 
-    override fun add(rhs: Value, heap: Heap): Result<Value>? = starlarkStrAdd(this, rhs, heap)
+    override fun add(other: Value, heap: Heap): Result<Value>? = starlarkStrAdd(this, other, heap)
 
-    override fun mul(rhs: Value, heap: Heap): Result<Value>? = starlarkStrMul(this, rhs, heap)
+    override fun mul(other: Value, heap: Heap): Result<Value>? = starlarkStrMul(this, other, heap)
 
     override fun rmul(lhs: Value, heap: Heap): Result<Value>? = starlarkStrRmul(this, lhs, heap)
 
@@ -253,7 +253,7 @@ internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<
             return Result.failure(ValueError.IndexOutOfBound(i))
         }
         val cp = codePointSubstringAt(s, cpIndex)!!
-        return Result.success(heap.allocStr(cp))
+        return Result.success(heap.allocStr(cp).toValue())
     }
 
     val ind = -i // Index from the end, minimum of 1
@@ -262,7 +262,7 @@ internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<
     }
     val cpIndex = lenChars - ind
     val cp = codePointSubstringAt(s, cpIndex)!!
-    return Result.success(heap.allocStr(cp))
+    return Result.success(heap.allocStr(cp).toValue())
 }
 
 internal fun starlarkStrLength(self: StarlarkStr): Result<Int> {
@@ -297,7 +297,7 @@ internal fun starlarkStrSlice(
         for (i in indices) {
             result.append(codePointSubstringAt(s, i)!!)
         }
-        return Result.success(heap.allocStr(result.toString()))
+        return Result.success(heap.allocStr(result.toString()).toValue())
     }
 
     // No stride (or stride == 1)
@@ -318,11 +318,11 @@ internal fun starlarkStrSlice(
         s = s,
         start = startNoneOr.intoOption(),
         stop = stopNoneOr.intoOption(),
-    ) ?: return Result.success(heap.allocStr(""))
+    ) ?: return Result.success(heap.allocStr("").toValue())
 
     val startUtf16 = utf16IndexForCodePointIndex(s, startCp)
     val stopUtf16 = utf16IndexForCodePointIndex(s, stopCp)
-    return Result.success(heap.allocStr(s.substring(startUtf16, stopUtf16)))
+    return Result.success(heap.allocStr(s.substring(startUtf16, stopUtf16)).toValue())
 }
 
 internal fun starlarkStrAdd(self: StarlarkStr, other: Value, heap: Heap): Result<Value>? {
@@ -331,7 +331,7 @@ internal fun starlarkStrAdd(self: StarlarkStr, other: Value, heap: Heap): Result
         if (self.asStr().isEmpty()) {
             Result.success(other)
         } else {
-            Result.success(heap.allocStr(self.asStr() + otherStr))
+            Result.success(heap.allocStr(self.asStr() + otherStr).toValue())
         }
     } else {
         null
@@ -345,7 +345,7 @@ internal fun starlarkStrMul(self: StarlarkStr, other: Value, heap: Heap): Result
     repeat(max(0, l)) {
         result.append(self.asStr())
     }
-    return Result.success(heap.allocStr(result.toString()))
+    return Result.success(heap.allocStr(result.toString()).toValue())
 }
 
 internal fun starlarkStrRmul(self: StarlarkStr, lhs: Value, heap: Heap): Result<Value>? {
@@ -353,7 +353,7 @@ internal fun starlarkStrRmul(self: StarlarkStr, lhs: Value, heap: Heap): Result<
 }
 
 internal fun starlarkStrPercent(self: StarlarkStr, other: Value, heap: Heap): Result<Value> {
-    return percent(self.asStr(), other).map { heap.allocStr(it) }
+    return percent(self.asStr(), other).map { heap.allocStr(it).toValue() }
 }
 
 internal fun starlarkStrIsSpecial(): Boolean {

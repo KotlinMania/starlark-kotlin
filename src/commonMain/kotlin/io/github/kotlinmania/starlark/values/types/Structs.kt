@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/structs.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -22,8 +22,8 @@ package io.github.kotlinmania.starlark_kotlin.values.types
 /**
  * The struct type, an associative-map created with `struct()`.
  *
- * This struct type is related to both the [dictionary][io.github.kotlinmania.starlark_kotlin.values.types.dict]
- * and the [record][io.github.kotlinmania.starlark_kotlin.values.types.record] types, all being associative maps.
+ * This struct type is related to both the [dictionary][io.github.kotlinmania.starlark.values.types.dict]
+ * and the [record][io.github.kotlinmania.starlark.values.types.record] types, all being associative maps.
  *
  * * Like a record, a struct is immutable, fields can be referred to with `struct.field`, and
  *   it uses strings for keys.
@@ -38,11 +38,11 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * ```
  *
  * Submodules:
- * - [alloc][io.github.kotlinmania.starlark_kotlin.values.types.structs.Alloc] - allocation helpers
- * - [refs][io.github.kotlinmania.starlark_kotlin.values.types.structs.Refs] - struct references
- * - [structs][io.github.kotlinmania.starlark_kotlin.values.types.structs.Structs] - struct implementation
- * - [unorderedHasher][io.github.kotlinmania.starlark_kotlin.values.types.structs.UnorderedHasher] - hash support
- * - [value][io.github.kotlinmania.starlark_kotlin.values.types.structs.Value] - StarlarkStruct value
+ * - [alloc][io.github.kotlinmania.starlark.values.types.structs.Alloc] - allocation helpers
+ * - [refs][io.github.kotlinmania.starlark.values.types.structs.Refs] - struct references
+ * - [structs][io.github.kotlinmania.starlark.values.types.structs.Structs] - struct implementation
+ * - [unorderedHasher][io.github.kotlinmania.starlark.values.types.structs.UnorderedHasher] - hash support
+ * - [value][io.github.kotlinmania.starlark.values.types.structs.Value] - StarlarkStruct value
  */
 
 // Re-exports (mirrors Rust's pub use declarations) are done via direct imports at call sites.

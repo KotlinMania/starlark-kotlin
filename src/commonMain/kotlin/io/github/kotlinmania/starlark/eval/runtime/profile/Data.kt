@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/data.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data
+package io.github.kotlinmania.starlark.eval.runtime.profile.data
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,25 +19,25 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcPairsProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcPairsProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.CoverageProfileType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.StmtProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.StmtProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.FlameGraphData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapAllocatedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapFlameAllocatedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapFlameRetainedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapRetainedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapSummaryAllocatedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapSummaryRetainedProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfilerType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.BcPairsProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.BcPairsProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.CoverageProfileType
+import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapAllocatedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapFlameAllocatedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapFlameRetainedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapRetainedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapSummaryAllocatedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapSummaryRetainedProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
+import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfilerType
+import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfilerType
 
 // #[derive(Debug, thiserror::Error)]
 // enum ProfileDataError

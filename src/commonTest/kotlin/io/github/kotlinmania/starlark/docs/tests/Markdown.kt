@@ -1,5 +1,5 @@
 // port-lint: source src/docs/tests/markdown.rs
-package io.github.kotlinmania.starlark_kotlin.docs.tests
+package io.github.kotlinmania.starlark.docs.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,41 +19,41 @@ package io.github.kotlinmania.starlark_kotlin.docs.tests
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableComponents
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableParam
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableParamDefaultValue
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableParamSpec
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeSigArg
-import io.github.kotlinmania.starlark_kotlin.deriverefs.parameterSpec
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocModuleInfo
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.docs.markdown.renderDocItemNoLink
-import io.github.kotlinmania.starlark_kotlin.docs.renderMarkdownMultipage
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.golden_test_template.goldenTestTemplate
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFuncFn
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethFn
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.starlark_value_as_type.StarlarkValueAsType
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.UnpackTuple
-import starlark_map.small_map.SmallMap
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParam
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamDefaultValue
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
+import io.github.kotlinmania.starlark.deriverefs.NativeSigArg
+import io.github.kotlinmania.starlark.deriverefs.parameterSpec
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocModuleInfo
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.docs.markdown.renderDocItemNoLink
+import io.github.kotlinmania.starlark.docs.renderMarkdownMultipage
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.NativeFuncFn
+import io.github.kotlinmania.starlark.values.types.NativeMethFn
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.list.UnpackList
+import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
+import io.github.kotlinmania.starlark.values.types.tuple.UnpackTuple
+import starlarkmap.smallmap.SmallMap
 
 // fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
 private fun docsGoldenTest(testFileName: String, doc: DocItem): String {
@@ -195,8 +195,8 @@ The string 'func1'
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { eval: Evaluator, _sig, _args: Arguments ->
-            Result.success(eval.heap().allocStr("func1"))
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
+            Result.success(eval.heap().allocStr("func1").toValue())
         },
     )
 
@@ -230,8 +230,8 @@ The string 'func1'
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { eval: Evaluator, _sig, _args: Arguments ->
-            Result.success(eval.heap().allocStr("func2"))
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
+            Result.success(eval.heap().allocStr("func2").toValue())
         },
     )
 
@@ -314,8 +314,8 @@ And some assertions:
         ),
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { eval: Evaluator, _sig, _args: Arguments ->
-            Result.success(eval.heap().allocStr("func3"))
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
+            Result.success(eval.heap().allocStr("func3").toValue())
         },
     )
 
@@ -366,7 +366,7 @@ And some assertions:
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { _eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(Value.newNone())
         },
     )
@@ -396,7 +396,7 @@ And some assertions:
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(eval.heap().allocSimple(Magic()))
         },
     )
@@ -452,7 +452,7 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { _eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(Value.newNone())
         },
     )
@@ -482,7 +482,7 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { _eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(Value.newNone())
         },
     )
@@ -512,7 +512,7 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { _eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(Value.newNone())
         },
     )
@@ -542,7 +542,7 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
         asType = null,
         ty = null,
         specialBuiltinFunction = null,
-        f = NativeFuncFn { eval: Evaluator, _sig, _args: Arguments ->
+        f = NativeFuncFn { eval: Evaluator, _sig, args: Arguments ->
             Result.success(eval.heap().allocSimple(Obj()))
         },
     )
@@ -582,7 +582,7 @@ private fun objectMethods(builder: MethodsBuilder) {
         typ = Ty.string(),
         f = { _frozen: FrozenValue?, thisValue: Value, heap: Heap ->
             val res = attr1(thisValue)
-            Result.success(heap.allocStr(res.getOrThrow()))
+            Result.success(heap.allocStr(res.getOrThrow()).toValue())
         },
     )
 
@@ -593,7 +593,7 @@ private fun objectMethods(builder: MethodsBuilder) {
         typ = Ty.string(),
         f = { _frozen: FrozenValue?, thisValue: Value, heap: Heap ->
             val res = attr2(thisValue)
-            Result.success(heap.allocStr(res.getOrThrow()))
+            Result.success(heap.allocStr(res.getOrThrow()).toValue())
         },
     )
 
@@ -646,8 +646,8 @@ The string 'func1'
             namedOnly = emptyList(),
             kwargs = false,
         ),
-        f = NativeMethFn { eval: Evaluator, _thisValue: Value, _sig, _args: Arguments ->
-            Result.success(eval.heap().allocStr("func1"))
+        f = NativeMethFn { eval: Evaluator, _thisValue: Value, _sig, args: Arguments ->
+            Result.success(eval.heap().allocStr("func1").toValue())
         },
     )
 
@@ -673,8 +673,8 @@ The string 'func1'
             namedOnly = emptyList(),
             kwargs = false,
         ),
-        f = NativeMethFn { eval: Evaluator, _thisValue: Value, _sig, _args: Arguments ->
-            Result.success(eval.heap().allocStr("func2"))
+        f = NativeMethFn { eval: Evaluator, _thisValue: Value, _sig, args: Arguments ->
+            Result.success(eval.heap().allocStr("func2").toValue())
         },
     )
 
@@ -700,7 +700,7 @@ The string 'func1'
             namedOnly = emptyList(),
             kwargs = false,
         ),
-        f = NativeMethFn { _eval: Evaluator, _thisValue: Value, _sig, _args: Arguments ->
+        f = NativeMethFn { eval: Evaluator, _thisValue: Value, _sig, args: Arguments ->
             Result.success(Value.newNone())
         },
     )

@@ -1,5 +1,5 @@
 // port-lint: source src/tests/runtime.rs
-package io.github.kotlinmania.starlark_kotlin.tests
+package io.github.kotlinmania.starlark.tests
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,21 +21,21 @@ package io.github.kotlinmania.starlark_kotlin.tests
 
 /** Test of runtime. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.StarlarkAny
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.types.StarlarkAny
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 import kotlin.test.assertEquals
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
 class RuntimeTests {
 
@@ -214,15 +214,15 @@ f()
             val listVal = heap.allocList(listOf(1.allocValue(heap), 2.allocValue(heap)))
             val strVal = heap.allocStr("test")
             val boolVal = Value.newBool(true)
-            val v = heap.allocTuple(listOf(listVal, strVal, boolVal))
+            val v = heap.allocTuple(listOf(listVal, strVal.toValue(), boolVal))
             assertEquals("([1, 2], \"test\", True)", v.toString())
             assertEquals("([1, 2], \"test\", True)", v.toRepr())
             assertEquals("([1, 2], \"test\", True)", v.toStr())
 
             val sv = heap.allocStr("test")
             assertEquals("\"test\"", sv.toString())
-            assertEquals("\"test\"", sv.toRepr())
-            assertEquals("test", sv.toStr())
+            assertEquals("\"test\"", sv.toValue().toRepr())
+            assertEquals("test", sv.toValue().toStr())
         }
 
         val frozenHeap = FrozenHeap()

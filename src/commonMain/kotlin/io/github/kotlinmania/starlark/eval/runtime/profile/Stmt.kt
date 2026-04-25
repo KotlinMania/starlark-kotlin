@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/stmt.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
+package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,19 +19,19 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMapId
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMaps
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Pos
-import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.CodeMapId
+import io.github.kotlinmania.starlark.codemap.CodeMaps
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Pos
+import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 
 // pub(crate) struct StmtProfilerType
 internal object StmtProfilerType : ProfilerType<StmtProfileData> {
@@ -377,7 +377,7 @@ internal fun testMerge() {
 
     val merged = ProfileData.merge(listOf(aData, bData)).profile
     check(merged is ProfileDataImpl.Statement)
-    val mergedData = (merged as ProfileDataImpl.Statement).data
+    val mergedData = (merged).data
 
     val expected = StmtProfileData(
         stmts = mutableMapOf(

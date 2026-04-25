@@ -1,5 +1,5 @@
 // port-lint: source src/docs/parse.rs
-package io.github.kotlinmania.starlark_kotlin.docs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
 // #[derive(Copy, Clone, Dupe)]
@@ -139,13 +139,13 @@ private val PARAM_INDENTED_RE = Regex("""^(?:\s|$)""")
 // pub(crate) fn extract_raw_starlark_docstring<P: AstPayload>(body: &Spanned<StmtP<P>>) -> Option<String>
 fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: Spanned<StmtP<P>>): String? {
     val stmtNode = body.node
-    if (stmtNode is StmtP.Statements<*>) {
+    if (stmtNode is StmtP.Statements) {
         val first = stmtNode.stmts.firstOrNull() ?: return null
         val firstNode = first.node
-        if (firstNode is StmtP.Expression<*>) {
+        if (firstNode is StmtP.Expression) {
             val exprSpanned = firstNode.expr
             val exprNode = exprSpanned.node
-            if (exprNode is ExprP.Literal<*>) {
+            if (exprNode is ExprP.Literal) {
                 val lit = exprNode.literal
                 if (lit is AstLiteral.String) {
                     return lit.value.node

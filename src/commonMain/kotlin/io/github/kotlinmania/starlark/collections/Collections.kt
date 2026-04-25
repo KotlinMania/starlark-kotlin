@@ -1,6 +1,6 @@
 // port-lint: source src/collections.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark.collections
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,10 +25,10 @@ package io.github.kotlinmania.starlark_kotlin.collections
 /// These structures use vector backed storage if there are only a few elements, and and index
 /// for larger collections. The API mirrors standard Rust collections.
 
-// pub use starlark_map::Equivalent;
-// pub use starlark_map::small_map::IntoIter;
-// pub use starlark_map::small_map::Iter;
-// pub use starlark_map::small_map::IterMut;
+// pub use starlarkmap::Equivalent;
+// pub use starlarkmap::small_map::IntoIter;
+// pub use starlarkmap::small_map::Iter;
+// pub use starlarkmap::small_map::IterMut;
 
 // pub(crate) mod aligned_padded_str;
 internal val aligned_padded_str = "aligned_padded_str"

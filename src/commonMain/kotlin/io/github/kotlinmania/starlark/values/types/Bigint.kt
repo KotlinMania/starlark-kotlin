@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/bigint.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.bigint
+package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,31 +20,31 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp as OracleTypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.int.INT_TYPE
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.and
-import io.github.kotlinmania.starlark_kotlin.values.types.int.not
-import io.github.kotlinmania.starlark_kotlin.values.types.int.or
-import io.github.kotlinmania.starlark_kotlin.values.types.int.xor
-import io.github.kotlinmania.starlark_kotlin.values.types.float.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
-import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.TypingBinOp
+import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp as OracleTypingBinOp
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.int.INT_TYPE
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark.values.types.int.allocValue
+import io.github.kotlinmania.starlark.values.types.int.and
+import io.github.kotlinmania.starlark.values.types.int.not
+import io.github.kotlinmania.starlark.values.types.int.or
+import io.github.kotlinmania.starlark.values.types.int.xor
+import io.github.kotlinmania.starlark.values.types.float.allocValue
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.values.types.num.NumTy
+import io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp
 
 /**
  * `int` implementation for larger integers.
@@ -213,10 +213,10 @@ class StarlarkBigInt private constructor(
         return Result.success(NumRef.Int(StarlarkIntRef.Big(this)).compareTo(otherNum))
     }
 
-    /** Addition. Returns null if rhs is not numeric. Rust: `fn add` */
-    override fun add(rhs: Value, heap: Heap): Result<Value>? {
-        val rhsNum = rhs.unpackNum() ?: return null
-        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) + rhsNum))
+    /** Addition. Returns null if other is not numeric. Rust: `fn add` */
+    override fun add(other: Value, heap: Heap): Result<Value>? {
+        val otherNum = other.unpackNum() ?: return null
+        return Result.success(heap.alloc(NumRef.Int(StarlarkIntRef.Big(this)) + otherNum))
     }
 
     /** Subtraction. Rust: `fn sub` */

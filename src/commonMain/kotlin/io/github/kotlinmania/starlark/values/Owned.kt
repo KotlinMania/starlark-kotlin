@@ -1,5 +1,5 @@
 // port-lint: source src/values/owned.rs
-package io.github.kotlinmania.starlark_kotlin.values.owned
+package io.github.kotlinmania.starlark.values.owned
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.values.owned
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedFrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref.OwnedRefFrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ownedfrozenref.OwnedFrozenRef
+import io.github.kotlinmania.starlark.values.ownedfrozenref.OwnedRefFrozenRef
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 internal sealed class OwnedError(override val message: String) : Exception(message) {
     class WrongType(typeName: String, actual: String) : OwnedError(

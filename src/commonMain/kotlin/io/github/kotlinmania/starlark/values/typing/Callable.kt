@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/callable.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing
+package io.github.kotlinmania.starlark.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,32 +19,32 @@ package io.github.kotlinmania.starlark_kotlin.values.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TyCallable
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueStarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamAny
-import io.github.kotlinmania.starlark_kotlin.values.typing.callable.StarlarkCallableParamSpec
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackList
-import io.github.kotlinmania.starlark_kotlin.values.types.list.UnpackListUnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.TyCallable
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamAny
+import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.types.list.UnpackList
+import io.github.kotlinmania.starlark.values.types.list.UnpackListUnpackValue
+import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 // Submodules:
 // pub(crate) mod param -> callable.param (Param.kt)
@@ -69,7 +69,9 @@ internal class TypingCallable : StarlarkValue, AllocFrozenValue {
     }
 
     // fn at2(&self, param_types: Value<'v>, ret: Value<'v>, heap: Heap<'v>, _private: Private) -> crate::Result<Value<'v>>
-    override fun at2(paramTypes: Value, ret: Value, heap: Heap): Result<Value> {
+    override fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> {
+        val paramTypes = index0
+        val ret = index1
         return runCatching {
             val unpacker = UnpackListUnpackValue<Value>(
                 object : UnpackValue<Value> {
@@ -175,7 +177,7 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     }
 
     // impl AllocValue for StarlarkCallable
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         return value
     }
 }
@@ -208,7 +210,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
     }
 
     // impl AllocFrozenValue for FrozenStarlarkCallable
-    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return value
     }
 
@@ -276,7 +278,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     }
 
     // impl AllocValue for StarlarkCallableChecked
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         return value
     }
 }
@@ -288,7 +290,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
 // fn my_module(globals: &mut GlobalsBuilder)
 private fun myModule(globals: GlobalsBuilder) {
     // fn accept_f(_x: StarlarkCallable<(String,), i32>) -> anyhow::Result<NoneType>
-    globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
+    globals.setFunction("accept_f") { args: Arguments, eval: Evaluator ->
         Result.success(NoneType)
     }
 }
@@ -448,17 +450,17 @@ internal fun testCallableCheckedRuntime() {
     // fn module(globals: &mut GlobalsBuilder)
     fun checkedModule(globals: GlobalsBuilder) {
         // fn accept_f(_f: StarlarkCallableChecked<(), NoneType>) -> anyhow::Result<NoneType>
-        globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
+        globals.setFunction("accept_f") { args: Arguments, eval: Evaluator ->
             Result.success(NoneType)
         }
 
         // fn good() -> anyhow::Result<NoneType>
-        globals.setFunction("good") { _args: Arguments, _eval: Evaluator ->
+        globals.setFunction("good") { args: Arguments, eval: Evaluator ->
             Result.success(NoneType)
         }
 
         // fn bad() -> anyhow::Result<i32>
-        globals.setFunction("bad") { _args: Arguments, _eval: Evaluator ->
+        globals.setFunction("bad") { args: Arguments, eval: Evaluator ->
             Result.success(10)
         }
     }

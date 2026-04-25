@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/none/none_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.none
+package io.github.kotlinmania.starlark.values.types.none
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -42,18 +42,18 @@ package io.github.kotlinmania.starlark_kotlin.values.types.none
 // use crate::values::UnpackValue;
 // use crate::values::Value;
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.typing.Ty
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /// Define the None type, use [`NoneType`] in Rust.
 // #[derive(Debug, Clone, Dupe, ProvidesStaticType, Display, Allocative)]
@@ -111,7 +111,7 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     // impl<'v> AllocValue<'v> for NoneType
     // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_none() }
-    override fun allocValue(_heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         return Value.newNone()
     }
 
@@ -120,14 +120,14 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     //         serializer.serialize_none()
     //     }
     // }
-    fun serialize(_serializer: Any): Result<Unit> {
+    fun serialize(serializer: Any): Result<Unit> {
         // NoneType serializes as null/none.
         return Result.success(Unit)
     }
 
     // impl AllocFrozenValue for NoneType
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_none() }
-    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return FrozenValue.newNone()
     }
 

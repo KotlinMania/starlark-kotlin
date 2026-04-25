@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_map.rs
-package starlark_map.ordered_map
+package starlarkmap.orderedmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package starlark_map.ordered_map
  * limitations under the License.
  */
 
-import starlark_map.Equivalent
-import starlark_map.Hashed
-import starlark_map.small_map.SmallMap
+import starlarkmap.Equivalent
+import starlarkmap.Hashed
+import starlarkmap.smallmap.SmallMap
 
 /**
  * Wrapper for [SmallMap] which considers map equal if iteration order is equal.

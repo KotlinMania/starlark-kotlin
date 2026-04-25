@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/opcode.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,21 +22,21 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 /** Instruction opcode. */
 
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrRepr
+import io.github.kotlinmania.starlark.eval.bc.BcInstr
+import io.github.kotlinmania.starlark.eval.bc.BcInstrRepr
 
 /** Callback for the `dispatch` function. */
-interface BcOpcodeHandler<R> {
-    fun <I : BcInstr> handle(instrClass: KClass<I>): R
+internal interface BcOpcodeHandler<R> {
+    fun <I : BcInstr<*>> handle(instrClass: KClass<I>): R
 }
 
 /** Callback for the `dispatch_all` function. */
-interface BcOpcodeAllHandler {
-    fun <I : BcInstr> handle(instrClass: KClass<I>, opcode: BcOpcode)
+internal interface BcOpcodeAllHandler {
+    fun <I : BcInstr<*>> handle(instrClass: KClass<I>, opcode: BcOpcode)
 }
 
 /** Bytecode instruction opcode. */
-enum class BcOpcode {
+internal enum class BcOpcode {
     Const,
     LoadLocal,
     LoadLocalCaptured,
@@ -153,18 +153,18 @@ enum class BcOpcode {
         }
 
         /** Get bytecode opcode for the instruction. */
-        fun forInstr(instrClass: KClass<out BcInstr>): BcOpcode {
+        fun forInstr(target: KClass<out BcInstr<*>>): BcOpcode {
             var found: BcOpcode? = null
             dispatchAll(object : BcOpcodeAllHandler {
-                override fun <I : BcInstr> handle(klass: KClass<I>, opcode: BcOpcode) {
-                    if (klass.equals(instrClass)) {
+                override fun <I : BcInstr<*>> handle(instrClass: KClass<I>, opcode: BcOpcode) {
+                    if (instrClass.equals(target)) {
                         check(found == null)
                         found = opcode
                     }
                 }
             })
             return found
-                ?: throw IllegalStateException("No opcode for instruction ${instrClass.simpleName}")
+                ?: throw IllegalStateException("No opcode for instruction ${target.simpleName}")
         }
     }
 
@@ -182,7 +182,7 @@ enum class BcOpcode {
     // pub(crate) fn size_of_repr(self) -> usize  (in Rust: repr.rs)
     fun sizeOfRepr(): Int {
         val handler = object : BcOpcodeHandler<Int> {
-            override fun <I : BcInstr> handle(instrClass: KClass<I>): Int {
+            override fun <I : BcInstr<*>> handle(instrClass: KClass<I>): Int {
                 return BcInstrRepr.sizeOf(instrClass)
             }
         }

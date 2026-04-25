@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/tests.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // #[test]
 // fn test_types()
@@ -178,7 +178,7 @@ internal fun testTypeCompiledDisplay() {
         Heap.temp { heap ->
             val ty = Assert.pass(ty0)
             val tyValue = ty.uncheckedFrozenValue().toValue()
-            val compiled = TypeCompiled.new(tyValue, heap)!!
+            val compiled = TypeCompiled.new(tyValue, heap)
             check(expected == compiled.toString()) { "for `$ty0`" }
         }
     }

@@ -1,5 +1,5 @@
 // port-lint: source src/values/owned_frozen_ref.rs
-package io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref
+package io.github.kotlinmania.starlark.values.ownedfrozenref
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** A reference to a value stored in a frozen heap with a reference to the heap. */
 // #[derive(Copy_, Clone_, Dupe_)]

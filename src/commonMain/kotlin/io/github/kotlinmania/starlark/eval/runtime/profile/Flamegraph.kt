@@ -1,5 +1,5 @@
 // port-lint: source src/eval/runtime/profile/flamegraph.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph
+package io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph
 
 /** Utility to write files in formats understood by `flamegraph.pl`. */
 
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
+import io.github.kotlinmania.starlark.util.ArcStr
 
 /** Node in flamegraph tree. */
 // #[derive(Debug, Clone, Default, PartialEq, Eq)]

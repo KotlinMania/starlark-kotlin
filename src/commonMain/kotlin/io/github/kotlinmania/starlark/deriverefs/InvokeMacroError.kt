@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/invoke_macro_error.rs
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.deriverefs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
+import io.github.kotlinmania.starlark.Error as StarlarkError
 
 // pub trait InvokeMacroError {
 //     fn into_starlark_error(self) -> crate::Error;
@@ -41,6 +41,6 @@ interface InvokeMacroError {
  * Starlark native functions should not return generic exceptions;
  * this exists as a fallback for external integrations.
  */
-fun Throwable.intoStarlarkError(): io.github.kotlinmania.starlark_kotlin.Error {
-    return io.github.kotlinmania.starlark_kotlin.Error.newNative(this)
+fun Throwable.intoStarlarkError(): io.github.kotlinmania.starlark.Error {
+    return io.github.kotlinmania.starlark.Error.newNative(this)
 }

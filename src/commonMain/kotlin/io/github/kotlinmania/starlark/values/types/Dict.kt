@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -23,14 +23,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * The dictionary type, a mutable associative-map, which iterates in insertion order.
  *
  * Submodules:
- * - [Alloc.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.AllocDict] — allocation helper
- * - [DictType.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.DictType] — type descriptor
+ * - [Alloc.kt][io.github.kotlinmania.starlark.values.types.dict.AllocDict] — allocation helper
+ * - [DictType.kt][io.github.kotlinmania.starlark.values.types.dict.DictType] — type descriptor
  * - [Globals.kt] — global dict constructor functions
  * - [Methods.kt] — dict methods (keys, values, items, etc.)
  * - [Refs.kt] — [DictMut], [DictRef], [FrozenDictRef] reference types
  * - [Traits.kt] — StarlarkValue trait implementations for Dict
- * - [Unpack.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.UnpackDictEntries] — dict unpacking
- * - [Value.kt][io.github.kotlinmania.starlark_kotlin.values.types.dict.Dict] — the Dict value type
+ * - [Unpack.kt][io.github.kotlinmania.starlark.values.types.dict.UnpackDictEntries] — dict unpacking
+ * - [Value.kt][io.github.kotlinmania.starlark.values.types.dict.Dict] — the Dict value type
  */
 
 // Re-exports from submodules (Kotlin: all public types in this package are inherently accessible)

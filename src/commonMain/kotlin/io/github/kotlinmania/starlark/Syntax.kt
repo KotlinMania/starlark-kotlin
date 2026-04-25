@@ -1,6 +1,6 @@
 // port-lint: source src/syntax.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

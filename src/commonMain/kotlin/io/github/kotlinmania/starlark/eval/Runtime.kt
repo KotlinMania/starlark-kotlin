@@ -1,6 +1,6 @@
 // port-lint: source src/eval/runtime.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.eval
+package io.github.kotlinmania.starlark.eval
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

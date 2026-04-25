@@ -1,5 +1,5 @@
 // port-lint: source src/environment/methods.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,32 +19,32 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.deriverefs.NativeCallableComponents
-import starlark_map.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.map.SymbolMap
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.docs.DocFunction
-import io.github.kotlinmania.starlark_kotlin.docs.DocItem
-import io.github.kotlinmania.starlark_kotlin.docs.DocMember
-import io.github.kotlinmania.starlark_kotlin.docs.DocType
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import starlark_map.small_map.SmallMap
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeAttribute
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethFn
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
-import io.github.kotlinmania.starlark_kotlin.values.types.UnboundValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTypedStatic
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
+import starlarkmap.Hashed
+import io.github.kotlinmania.starlark.collections.symbol.map.SymbolMap
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.docs.DocFunction
+import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.docs.DocMember
+import io.github.kotlinmania.starlark.docs.DocType
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.NativeAttribute
+import io.github.kotlinmania.starlark.values.types.NativeMeth
+import io.github.kotlinmania.starlark.values.types.NativeMethFn
+import io.github.kotlinmania.starlark.values.types.NativeMethod
+import io.github.kotlinmania.starlark.values.types.UnboundValue
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
 import kotlin.concurrent.Volatile
 
 /**

@@ -1,5 +1,5 @@
 // port-lint: source src/pagable/vtable_registry.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.pagable
+package io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -100,18 +100,18 @@ private class AnotherTestType
 /// Factory to create test vtables.
 /// In Rust, vtables are created by proc macros. Here we create minimal test instances.
 private object TestVTableFactory {
-    fun createTestVTable(typeName: String): io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable {
-        return io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable(
-            staticTypeOfValue = io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId.of<Any>(),
-            starlarkTypeId = io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId.fromTypeId(
-                io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId.of<Any>()
+    fun createTestVTable(typeName: String): io.github.kotlinmania.starlark.values.layout.AValueVTable {
+        return io.github.kotlinmania.starlark.values.layout.AValueVTable(
+            staticTypeOfValue = io.github.kotlinmania.starlark.values.layout.ConstTypeId.of<Any>(),
+            starlarkTypeId = io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId.fromTypeId(
+                io.github.kotlinmania.starlark.values.layout.ConstTypeId.of<Any>()
             ),
             typeName = typeName,
             isStr = false,
-            memorySizeFn = { io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize(io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize(0u)) },
+            memorySizeFn = { io.github.kotlinmania.starlark.values.layout.ValueAllocSize(io.github.kotlinmania.starlark.values.layout.AlignedSize(0u)) },
             heapFreezeFn = { _, _ -> error("test vtable") },
             heapCopyFn = { _, _ -> error("test vtable") },
-            starlarkValue = object : io.github.kotlinmania.starlark_kotlin.values.StarlarkValue {},
+            starlarkValue = object : io.github.kotlinmania.starlark.values.StarlarkValue {},
         )
     }
 }

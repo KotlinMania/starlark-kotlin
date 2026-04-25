@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/heap_type.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap
+package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,33 +19,33 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.FrozenValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueOfUnchecked
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueImpl
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Arena
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.ArenaVisitor
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.Reservation
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.HeapSummary
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.FrozenStringValueInterner
-import io.github.kotlinmania.starlark_kotlin.values.types.string.intern.StringValueInterner
-import io.github.kotlinmania.starlark_kotlin.values.value_of.ValueOf
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexNoFreeze
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
+import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.FrozenValueOfUnchecked
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.ValueOfUnchecked
+import io.github.kotlinmania.starlark.values.layout.AValue
+import io.github.kotlinmania.starlark.values.layout.AValueImpl
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.arena.Arena
+import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
+import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
+import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValueTyped
+import io.github.kotlinmania.starlark.values.types.string.intern.FrozenStringValueInterner
+import io.github.kotlinmania.starlark.values.types.string.intern.StringValueInterner
+import io.github.kotlinmania.starlark.values.valueof.ValueOf
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import kotlin.math.max
 
 enum class HeapKind {
@@ -194,9 +194,17 @@ class Heap internal constructor(
         return StringValue.newUnchecked(value)
     }
 
-    fun allocStr(x: String): Value {
-        val v = owned.arena.borrow().allocStr(x)
-        return Value.newPtr(v, true)
+    /** Allocate a string on the heap. */
+    // pub fn alloc_str(self, x: &str) -> StringValue<'v>
+    fun allocStr(x: String): StringValue {
+        val constant = io.github.kotlinmania.starlark.values.layout.constantString(x)
+        if (constant != null) {
+            return constant.toStringValue()
+        }
+        val bytes = x.encodeToByteArray()
+        return allocStrInit(bytes.size, io.github.kotlinmania.starlark.values.types.string.StarlarkStr.UNINIT_HASH) { dst ->
+            bytes.copyInto(dst)
+        }
     }
 
     /** Allocate a new value on a Heap. */

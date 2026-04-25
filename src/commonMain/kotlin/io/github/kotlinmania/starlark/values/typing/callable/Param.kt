@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/callable/param.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.callable
+package io.github.kotlinmania.starlark.values.typing.callable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.callable
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
 
 /**
  * Type parameter for [`StarlarkCallable`] or [`FrozenStarlarkCallable`]

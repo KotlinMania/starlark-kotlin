@@ -1,6 +1,6 @@
 // port-lint: source src/values/thin_box_slice_frozen_value.rs
 @file:Suppress("unused", "ObjectPropertyName")
-package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
+package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

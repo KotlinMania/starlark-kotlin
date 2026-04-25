@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/assign_modify.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
+package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,16 +21,16 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Write operators like `+=`. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotsN
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignModifyLhs
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcSlotsN
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.AssignModifyLhs
+import io.github.kotlinmania.starlark.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 // trait AssignOnWriteBc
 // impl AssignOnWriteBc for AssignOp

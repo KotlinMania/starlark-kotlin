@@ -1,5 +1,5 @@
 // port-lint: source src/values/thin_box_slice_frozen_value/packed_impl.rs
-package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
+package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 
 /**
  * Wrapper to handle the packing and most of the unsafety.

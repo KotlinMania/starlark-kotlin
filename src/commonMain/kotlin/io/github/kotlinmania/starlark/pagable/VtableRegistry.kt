@@ -1,5 +1,5 @@
 // port-lint: source src/pagable/vtable_registry.rs
-package io.github.kotlinmania.starlark_kotlin.pagable
+package io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,7 +28,7 @@ package io.github.kotlinmania.starlark_kotlin.pagable
  * that mapping.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
 import kotlin.reflect.KClass
 
 /**

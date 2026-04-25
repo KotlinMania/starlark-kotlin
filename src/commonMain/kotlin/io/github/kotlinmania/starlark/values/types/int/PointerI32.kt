@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int/pointer_i32.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -20,27 +20,27 @@ package io.github.kotlinmania.starlark_kotlin.values.types.int
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import starlark_map.StarlarkHashValue
-import starlark_map.StarlarkHasher
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
-import io.github.kotlinmania.starlark_kotlin.typing.TypingBinOp
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueDyn
-import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
-import io.github.kotlinmania.starlark_kotlin.values.layout.ConstTypeId
-import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
-import io.github.kotlinmania.starlark_kotlin.values.starlark_type_id.StarlarkTypeId
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.StarlarkBigInt
-import io.github.kotlinmania.starlark_kotlin.values.types.num.Num
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumTy
-import io.github.kotlinmania.starlark_kotlin.values.types.num.typecheckNumBinOp
-import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp as OracleTypingBinOp
+import starlarkmap.StarlarkHashValue
+import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
+import io.github.kotlinmania.starlark.typing.TypingBinOp
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.AValueDyn
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.ConstTypeId
+import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.RawPointer
+import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.types.bigint.StarlarkBigInt
+import io.github.kotlinmania.starlark.values.types.num.Num
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.values.types.num.NumTy
+import io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp
+import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp as OracleTypingBinOp
 
 /** The result of calling `type()` on integers. */
 // Rust: pub const INT_TYPE: &str = "int";

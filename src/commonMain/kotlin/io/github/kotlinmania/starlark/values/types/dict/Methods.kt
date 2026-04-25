@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/dict/methods.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.dict
+package io.github.kotlinmania.starlark.values.types.dict
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,14 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 /** Methods for the `dict` type. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 
-internal fun dictMethods(_registry: MethodsBuilder) {
+internal fun dictMethods(registry: MethodsBuilder) {
     // Methods are registered through the MethodsBuilder.
     // In Rust, the #[starlark_module] macro generates the registration code.
     // The actual method implementations are below.

@@ -1,5 +1,5 @@
 // port-lint: source src/vec2/iter.rs
-package starlark_map.vec2.iter
+package starlarkmap.vec2.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

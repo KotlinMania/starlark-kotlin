@@ -1,5 +1,5 @@
 // port-lint: source src/debug/adapter/implementation.rs
-package io.github.kotlinmania.starlark_kotlin.debug.adapter
+package io.github.kotlinmania.starlark.debug.adapter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,38 +19,38 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.debug.Breakpoint
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapter
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterClient
-import io.github.kotlinmania.starlark_kotlin.debug.DapAdapterEvalHook
-import io.github.kotlinmania.starlark_kotlin.debug.DapBreakpoint
-import io.github.kotlinmania.starlark_kotlin.debug.EvaluateExprInfo
-import io.github.kotlinmania.starlark_kotlin.debug.InspectVariableInfo
-import io.github.kotlinmania.starlark_kotlin.debug.PathSegment
-import io.github.kotlinmania.starlark_kotlin.debug.ResolvedBreakpoints
-import io.github.kotlinmania.starlark_kotlin.debug.ScopesInfo
-import io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsArguments
-import io.github.kotlinmania.starlark_kotlin.debug.SetBreakpointsResponseBody
-import io.github.kotlinmania.starlark_kotlin.debug.StackFrame
-import io.github.kotlinmania.starlark_kotlin.debug.StackTraceArguments
-import io.github.kotlinmania.starlark_kotlin.debug.StackTraceResponseBody
-import io.github.kotlinmania.starlark_kotlin.debug.StepKind
-import io.github.kotlinmania.starlark_kotlin.debug.Variable
-import io.github.kotlinmania.starlark_kotlin.debug.VariablePath
-import io.github.kotlinmania.starlark_kotlin.debug.VariablesInfo
-import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
-import io.github.kotlinmania.starlark_kotlin.debug.localVariables
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.runBlocking
-import io.github.kotlinmania.starlark_kotlin.ReentrantLock
-import io.github.kotlinmania.starlark_kotlin.withLock
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.debug.Breakpoint
+import io.github.kotlinmania.starlark.debug.DapAdapter
+import io.github.kotlinmania.starlark.debug.DapAdapterClient
+import io.github.kotlinmania.starlark.debug.DapAdapterEvalHook
+import io.github.kotlinmania.starlark.debug.DapBreakpoint
+import io.github.kotlinmania.starlark.debug.EvaluateExprInfo
+import io.github.kotlinmania.starlark.debug.InspectVariableInfo
+import io.github.kotlinmania.starlark.debug.PathSegment
+import io.github.kotlinmania.starlark.debug.ResolvedBreakpoints
+import io.github.kotlinmania.starlark.debug.ScopesInfo
+import io.github.kotlinmania.starlark.debug.SetBreakpointsArguments
+import io.github.kotlinmania.starlark.debug.SetBreakpointsResponseBody
+import io.github.kotlinmania.starlark.debug.StackFrame
+import io.github.kotlinmania.starlark.debug.StackTraceArguments
+import io.github.kotlinmania.starlark.debug.StackTraceResponseBody
+import io.github.kotlinmania.starlark.debug.StepKind
+import io.github.kotlinmania.starlark.debug.Variable
+import io.github.kotlinmania.starlark.debug.VariablePath
+import io.github.kotlinmania.starlark.debug.VariablesInfo
+import io.github.kotlinmania.starlark.debug.evalStatements
+import io.github.kotlinmania.starlark.debug.localVariables
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.runBlocking
+import io.github.kotlinmania.starlark.ReentrantLock
+import io.github.kotlinmania.starlark.withLock
 import kotlin.concurrent.atomics.AtomicInt
 
 internal fun prepareDapAdapter(
@@ -152,7 +152,7 @@ private class DapAdapterImpl(
         }
     }
 
-    override fun stackTrace(_args: StackTraceArguments): Result<StackTraceResponseBody> {
+    override fun stackTrace(args: StackTraceArguments): Result<StackTraceResponseBody> {
         // Our model of a Frame and the debugger model are a bit different.
         // We record the location of the call, but DAP wants the location we are at.
         // We also have them in the wrong order
@@ -194,14 +194,14 @@ private class DapAdapterImpl(
         return withCtx { _, eval ->
             val accessPath = path.accessPath
             var value = when (val scope = path.scope) {
-                is io.github.kotlinmania.starlark_kotlin.debug.Scope.Local -> {
+                is io.github.kotlinmania.starlark.debug.Scope.Local -> {
                     val vars = eval.localVariables()
                     // since vars is owned within this closure scope we can just remove value from the map
                     // obtaining owned variable as the rest of the map will be dropped anyway
                     vars.shiftRemove(scope.name)
                         ?: return@withCtx Result.failure(Exception("Local variable ${scope.name} not found"))
                 }
-                is io.github.kotlinmania.starlark_kotlin.debug.Scope.Expr -> {
+                is io.github.kotlinmania.starlark.debug.Scope.Expr -> {
                     evaluateExpr(state, eval, scope.expression)
                         .getOrElse { return@withCtx Result.failure(it) }
                 }
@@ -262,7 +262,7 @@ private class DapAdapterEvalHookImpl private constructor(
     private val state: SharedAdapterState,
     private val receiver: Receiver<ToEvalMessage>,
     private var step: Pair<StepKind, Int>?,
-) : DapAdapterEvalHook, io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFuncDyn {
+) : DapAdapterEvalHook, io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFuncDyn {
 
     companion object {
         fun new(state: SharedAdapterState, receiver: Receiver<ToEvalMessage>): DapAdapterEvalHookImpl =

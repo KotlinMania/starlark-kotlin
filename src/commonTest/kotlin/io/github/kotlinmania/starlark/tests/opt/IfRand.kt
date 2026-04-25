@@ -1,5 +1,5 @@
 // port-lint: source src/tests/opt/if_rand.rs
-package io.github.kotlinmania.starlark_kotlin.tests.opt
+package io.github.kotlinmania.starlark.tests.opt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,14 +21,14 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /** Permutations tests for if condition evaluation. */
 
-import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Module
+import io.github.kotlinmania.starlark.any.AnyLifetime
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Module
 import kotlin.random.Random
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 /**
  * Count side effects. For example, in expression like:

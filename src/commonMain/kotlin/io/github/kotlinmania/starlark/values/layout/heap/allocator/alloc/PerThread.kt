@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/alloc/per_thread.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
+import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
+import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 
 /**
  * Minimum usable cached allocation.

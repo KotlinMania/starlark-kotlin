@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/if_debug.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -44,7 +44,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 //     _marker: marker::PhantomData<T>,
 // }
 // Kotlin: no cfg-based conditional compilation; always store the value.
-class IfDebug<T> private constructor(
+internal class IfDebug<T> private constructor(
     private val value: T?,
 ) : Comparable<IfDebug<T>> {
 

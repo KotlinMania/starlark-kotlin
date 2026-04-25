@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/string/alloc_unpack.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.string
+package io.github.kotlinmania.starlark.values.types.string
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -37,15 +37,15 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
 // use crate::values::alloc_value::AllocStringValue;
 // use crate::values::type_repr::StarlarkTypeRepr;
 
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.StringTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.StringTypeRepr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 
 // impl AllocFrozenValue for String {
 //     fn alloc_frozen_value(self, heap: &FrozenHeap) -> FrozenValue {
@@ -93,7 +93,7 @@ fun String.allocValue(heap: Heap): Value {
 //     }
 // }
 fun String.allocStringValue(heap: Heap): StringValue {
-    return StringValue.newUnchecked(heap.allocStr(this))
+    return heap.allocStr(this)
 }
 
 // impl StarlarkTypeRepr for char {

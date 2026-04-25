@@ -1,5 +1,5 @@
 // port-lint: source src/typing/tuple.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleElems
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleElems0
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleElems1
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleElems2
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.IsTupleOf
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.StarlarkTypeIdMatcher
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherT
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems
+import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems0
+import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems1
+import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems2
+import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleOf
+import io.github.kotlinmania.starlark.values.typing.typecompiled.StarlarkTypeIdMatcher
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherT
+import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
  * A tuple type in the Starlark type system.

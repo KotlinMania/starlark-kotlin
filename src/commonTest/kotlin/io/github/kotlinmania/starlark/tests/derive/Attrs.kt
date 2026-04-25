@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/attrs.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 
 // #[test]
 // fn test_derive_attrs()
@@ -42,7 +42,7 @@ internal fun testDeriveAttrs() {
         override fun toString(): String = foo
 
         override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
-            "foo" -> heap.allocStr(foo)
+            "foo" -> heap.allocStr(foo).toValue()
             else -> null
         }
 
@@ -67,10 +67,10 @@ internal fun testDeriveAttrs() {
 
         // starlark_attrs!()
         override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
-            "hello" -> heap.allocStr(hello)
+            "hello" -> heap.allocStr(hello).toValue()
             "nested" -> heap.allocSimple(nested)
             "type" -> type_.allocValue(heap)
-            "escaped" -> heap.allocStr(escaped)
+            "escaped" -> heap.allocStr(escaped).toValue()
             else -> null
         }
 

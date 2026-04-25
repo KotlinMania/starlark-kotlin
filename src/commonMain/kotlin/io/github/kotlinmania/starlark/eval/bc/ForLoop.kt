@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/for_loop.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc
+package io.github.kotlinmania.starlark.eval.bc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -34,7 +34,7 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 //     Eq, PartialEq, Ord, PartialOrd
 // )]
 // pub(crate) struct LoopDepth(pub(crate) u32);
-data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
+internal data class LoopDepth(val depth: Int = 0) : Comparable<LoopDepth> {
     override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)
     override fun toString(): String = depth.toString()
 }

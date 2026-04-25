@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/freeze/enums.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
+package io.github.kotlinmania.starlark.tests.derive.freeze
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
 
 // Only check it compiles.
 
-import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark.values.Freeze
 
 // #[derive(Freeze)]
 // enum TestFreezeEnum<V>

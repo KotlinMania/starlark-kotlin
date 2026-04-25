@@ -1,5 +1,5 @@
 // port-lint: source src/typing/error.rs
-package io.github.kotlinmania.starlark_kotlin.typing
+package io.github.kotlinmania.starlark.typing
 
 // use std::fmt::Display;
 
@@ -9,8 +9,8 @@ package io.github.kotlinmania.starlark_kotlin.typing
 // use crate::codemap::CodeMap;
 // use crate::codemap::Span;
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.CodeMap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,5 +1,5 @@
 // port-lint: source src/syntax/module.rs
-package io.github.kotlinmania.starlark_kotlin.syntax
+package io.github.kotlinmania.starlark.syntax
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,26 +19,26 @@ package io.github.kotlinmania.starlark_kotlin.syntax
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.DefP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.LoadArgP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Lexer
-import io.github.kotlinmania.starlark_kotlin.syntax.parser.Parser
-import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.syntax.ast.DefP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
+import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.ForP
+import io.github.kotlinmania.starlark.syntax.ast.AssignP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.syntax.lexer.Lexer
+import io.github.kotlinmania.starlark.syntax.parser.Parser
+import io.github.kotlinmania.starlark.syntax.state.ParserState
+import io.github.kotlinmania.starlark.codemap.Span
 
 class AstLoad(
     val span: FileSpan,
@@ -77,7 +77,7 @@ class AstModule(
                 } else {
                     Result.success(AstModule(codemap, statement, dialect, false))
                 }
-            } catch (e: io.github.kotlinmania.starlark_kotlin.typing.EvalException) {
+            } catch (e: io.github.kotlinmania.starlark.typing.EvalException) {
                 Result.failure(e)
             }
         }
@@ -87,7 +87,7 @@ class AstModule(
         val loads = mutableListOf<AstLoad>()
         fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
             when (val node = ast.node) {
-                is StmtP.Load<*, *> -> {
+                is StmtP.Load<AstNoPayload, *> -> {
                     loads.add(
                         AstLoad(
                             span = FileSpan(codemap, node.loadStmt.module.span),
@@ -98,9 +98,9 @@ class AstModule(
                         )
                     )
                 }
-                is StmtP.Statements<*> -> {
+                is StmtP.Statements -> {
                     for (stmt in node.stmts) {
-                        walk(stmt as Spanned<StmtP<AstNoPayload>>)
+                        walk(stmt)
                     }
                 }
                 else -> {}
@@ -120,7 +120,7 @@ class AstModule(
     fun stmtLocations(): List<FileSpan> {
         val res = mutableListOf<FileSpan>()
         fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
-            if (ast.node !is StmtP.Statements<*>) {
+            if (ast.node !is StmtP.Statements) {
                 res.add(FileSpan(codemap, ast.span))
             }
             // we should descend if possible (like visitStmt), but since we omit Spanned<StmtP<AstNoPayload>>'s walk here,
@@ -168,8 +168,8 @@ private fun BinOp.toSymbol(): String = when (this) {
  */
 private fun rewriteExpr(expr: Spanned<ExprP<AstNoPayload>>, replace: Map<String, String>): Spanned<ExprP<AstNoPayload>> {
     val node = expr.node
-    val rewritten = when (node) {
-        is ExprP.Op<AstNoPayload> -> {
+    val rewritten: ExprP<AstNoPayload> = when (node) {
+        is ExprP.Op -> {
             val func = replace[node.op.toSymbol()]
             if (func != null) {
                 // Replace: Op(lhs, op, rhs) -> Call(Identifier(func), [lhs, rhs])
@@ -196,50 +196,49 @@ private fun rewriteExpr(expr: Spanned<ExprP<AstNoPayload>>, replace: Map<String,
                 )
             }
         }
-        is ExprP.Call<AstNoPayload> -> ExprP.Call(
+        is ExprP.Call -> ExprP.Call(
             rewriteExpr(node.expr, replace),
             CallArgsP(node.args.args.map { arg ->
                 Spanned(rewriteArg(arg.node, replace), arg.span)
             }),
         )
-        is ExprP.Tuple<AstNoPayload> -> ExprP.Tuple(node.elements.map { rewriteExpr(it, replace) })
-        is ExprP.Dot<AstNoPayload> -> ExprP.Dot(rewriteExpr(node.expr, replace), node.field)
-        is ExprP.Index<AstNoPayload> -> ExprP.Index(rewriteExpr(node.expr, replace), rewriteExpr(node.index, replace))
-        is ExprP.Slice<AstNoPayload> -> ExprP.Slice(
+        is ExprP.Tuple -> ExprP.Tuple(node.elements.map { rewriteExpr(it, replace) })
+        is ExprP.Dot -> ExprP.Dot(rewriteExpr(node.expr, replace), node.field)
+        is ExprP.Index -> ExprP.Index(rewriteExpr(node.expr, replace), rewriteExpr(node.index, replace))
+        is ExprP.Slice -> ExprP.Slice(
             rewriteExpr(node.expr, replace),
             node.start?.let { rewriteExpr(it, replace) },
             node.stop?.let { rewriteExpr(it, replace) },
             node.step?.let { rewriteExpr(it, replace) },
         )
-        is ExprP.Not<AstNoPayload> -> ExprP.Not(rewriteExpr(node.expr, replace))
-        is ExprP.Minus<AstNoPayload> -> ExprP.Minus(rewriteExpr(node.expr, replace))
-        is ExprP.Plus<AstNoPayload> -> ExprP.Plus(rewriteExpr(node.expr, replace))
-        is ExprP.BitNot<AstNoPayload> -> ExprP.BitNot(rewriteExpr(node.expr, replace))
-        is ExprP.If<AstNoPayload> -> ExprP.If(
+        is ExprP.Not -> ExprP.Not(rewriteExpr(node.expr, replace))
+        is ExprP.Minus -> ExprP.Minus(rewriteExpr(node.expr, replace))
+        is ExprP.Plus -> ExprP.Plus(rewriteExpr(node.expr, replace))
+        is ExprP.BitNot -> ExprP.BitNot(rewriteExpr(node.expr, replace))
+        is ExprP.If -> ExprP.If(
             rewriteExpr(node.cond, replace),
             rewriteExpr(node.v1, replace),
             rewriteExpr(node.v2, replace),
         )
-        is ExprP.ListExpr<AstNoPayload> -> ExprP.ListExpr(node.elements.map { rewriteExpr(it, replace) })
-        is ExprP.Dict<AstNoPayload> -> ExprP.Dict(node.elements.map { (k, v) ->
+        is ExprP.ListExpr -> ExprP.ListExpr(node.elements.map { rewriteExpr(it, replace) })
+        is ExprP.Dict -> ExprP.Dict(node.elements.map { (k, v) ->
             Pair(rewriteExpr(k, replace), rewriteExpr(v, replace))
         })
-        is ExprP.ListComprehension<AstNoPayload> -> ExprP.ListComprehension(
+        is ExprP.ListComprehension -> ExprP.ListComprehension(
             rewriteExpr(node.expr, replace), node.forClause, node.clauses,
         )
-        is ExprP.DictComprehension<AstNoPayload> -> ExprP.DictComprehension(
+        is ExprP.DictComprehension -> ExprP.DictComprehension(
             rewriteExpr(node.key, replace), rewriteExpr(node.value, replace),
             node.forClause, node.clauses,
         )
         // Leaf nodes: no children to rewrite
-        is ExprP.Identifier<*, *> -> node
-        is ExprP.Lambda<*, *> -> node
-        is ExprP.Literal<*> -> node
-        is ExprP.Index2<*> -> node
-        is ExprP.FString<*> -> node
+        is ExprP.Identifier<AstNoPayload, *> -> node
+        is ExprP.Lambda<AstNoPayload, *> -> node
+        is ExprP.Literal -> node
+        is ExprP.Index2 -> node
+        is ExprP.FString -> node
     }
-    @Suppress("UNCHECKED_CAST")
-    return Spanned(rewritten as ExprP<AstNoPayload>, expr.span)
+    return Spanned(rewritten, expr.span)
 }
 
 private fun rewriteArg(arg: ArgumentP<AstNoPayload>, replace: Map<String, String>): ArgumentP<AstNoPayload> {
@@ -252,61 +251,66 @@ private fun rewriteArg(arg: ArgumentP<AstNoPayload>, replace: Map<String, String
 }
 
 /** Rewrite a statement, recursively rewriting all contained expressions. */
-@Suppress("UNCHECKED_CAST")
 private fun rewriteStmt(stmt: Spanned<StmtP<AstNoPayload>>, replace: Map<String, String>): Spanned<StmtP<AstNoPayload>> {
     val node = stmt.node
-    val rewritten = when (node) {
-        is StmtP.Statements<*> -> StmtP.Statements<AstNoPayload>(
-            (node.stmts as List<Spanned<StmtP<AstNoPayload>>>).map { rewriteStmt(it, replace) },
+    val rewritten: StmtP<AstNoPayload> = when (node) {
+        is StmtP.Statements -> StmtP.Statements<AstNoPayload>(
+            node.stmts.map { rewriteStmt(it, replace) },
         )
-        is StmtP.Expression<*> -> StmtP.Expression<AstNoPayload>(
-            rewriteExpr(node.expr as Spanned<ExprP<AstNoPayload>>, replace),
+        is StmtP.Expression -> StmtP.Expression<AstNoPayload>(
+            rewriteExpr(node.expr, replace),
         )
-        is StmtP.Return<*> -> StmtP.Return<AstNoPayload>(
-            (node.expr as Spanned<ExprP<AstNoPayload>>?)?.let { rewriteExpr(it, replace) },
+        is StmtP.Return -> StmtP.Return<AstNoPayload>(
+            node.expr?.let { rewriteExpr(it, replace) },
         )
-        is StmtP.If<*> -> StmtP.If<AstNoPayload>(
-            rewriteExpr(node.cond as Spanned<ExprP<AstNoPayload>>, replace),
-            rewriteStmt(node.suite as Spanned<StmtP<AstNoPayload>>, replace),
+        is StmtP.If -> StmtP.If<AstNoPayload>(
+            rewriteExpr(node.cond, replace),
+            rewriteStmt(node.suite, replace),
         )
-        is StmtP.IfElse<*> -> StmtP.IfElse<AstNoPayload>(
-            rewriteExpr(node.cond as Spanned<ExprP<AstNoPayload>>, replace),
-            rewriteStmt(node.suite1 as Spanned<StmtP<AstNoPayload>>, replace),
-            rewriteStmt(node.suite2 as Spanned<StmtP<AstNoPayload>>, replace),
+        is StmtP.IfElse -> StmtP.IfElse<AstNoPayload>(
+            rewriteExpr(node.cond, replace),
+            rewriteStmt(node.suite1, replace),
+            rewriteStmt(node.suite2, replace),
         )
-        is StmtP.For<*> -> {
-            val forStmt = node.forStmt as ForP<AstNoPayload>
+        is StmtP.For -> {
+            val forStmt = node.forStmt
             StmtP.For<AstNoPayload>(forStmt.copy(
                 over = rewriteExpr(forStmt.over, replace),
-                body = rewriteStmt(forStmt.body as Spanned<StmtP<AstNoPayload>>, replace),
+                body = rewriteStmt(forStmt.body, replace),
             ))
         }
-        is StmtP.Def<*, *> -> {
-            val def = node.def as DefP<AstNoPayload, Any?>
-            StmtP.Def<AstNoPayload, Any?>(DefP(
-                name = def.name,
-                params = def.params,
-                returnType = def.returnType,
-                body = rewriteStmt(def.body as Spanned<StmtP<AstNoPayload>>, replace),
-                payload = def.payload,
-            ))
-        }
-        is StmtP.Assign<*> -> {
-            val assign = node.assign as AssignP<AstNoPayload>
+        is StmtP.Def<AstNoPayload, *> -> rewriteDef(node, replace)
+        is StmtP.Assign -> {
+            val assign = node.assign
             StmtP.Assign<AstNoPayload>(assign.copy(
                 rhs = rewriteExpr(assign.rhs, replace),
             ))
         }
-        is StmtP.AssignModify<*> -> StmtP.AssignModify<AstNoPayload>(
-            node.lhs as Spanned<AssignTargetP<AstNoPayload>>,
+        is StmtP.AssignModify -> StmtP.AssignModify<AstNoPayload>(
+            node.lhs,
             node.op,
-            rewriteExpr(node.rhs as Spanned<ExprP<AstNoPayload>>, replace),
+            rewriteExpr(node.rhs, replace),
         )
-        is StmtP.Load<*, *> -> node
-        is StmtP.Break<*> -> node
-        is StmtP.Continue<*> -> node
-        is StmtP.Pass<*> -> node
-        else -> node
+        is StmtP.Load<AstNoPayload, *> -> node
+        is StmtP.Break -> node
+        is StmtP.Continue -> node
+        is StmtP.Pass -> node
     }
-    return Spanned(rewritten as StmtP<AstNoPayload>, stmt.span)
+    return Spanned(rewritten, stmt.span)
+}
+
+// IAP for Def is captured through a star projection — extracted to a generic
+// helper so the IAP type variable is bound rather than asserted via UNCHECKED_CAST.
+private fun <IAP> rewriteDef(
+    node: StmtP.Def<AstNoPayload, IAP>,
+    replace: Map<String, String>,
+): StmtP.Def<AstNoPayload, IAP> {
+    val def = node.def
+    return StmtP.Def(DefP(
+        name = def.name,
+        params = def.params,
+        returnType = def.returnType,
+        body = rewriteStmt(def.body, replace),
+        payload = def.payload,
+    ))
 }

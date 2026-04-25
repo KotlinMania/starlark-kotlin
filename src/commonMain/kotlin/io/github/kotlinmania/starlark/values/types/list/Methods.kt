@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/list/methods.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.list
+package io.github.kotlinmania.starlark.values.types.list
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
 
 /** Methods for the `list` type. */
 
-import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
-import io.github.kotlinmania.starlark_kotlin.values.ValueError
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
+import io.github.kotlinmania.starlark.environment.MethodsBuilder
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.none.NoneOr
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.UnpackValue
 
 // -- Index conversion helpers (from starlark_syntax::convert_indices) ----------
 //
@@ -138,7 +138,7 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
 internal fun append(
     thisValue: Value,
     el: Value,
-    _heap: Heap,
+    heap: Heap,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     thisList.push(el)
@@ -299,7 +299,7 @@ internal fun insert(
     thisValue: Value,
     insertIndex: Int,
     el: Value,
-    _heap: Heap,
+    heap: Heap,
 ): Result<NoneType> {
     val thisList = ListData.fromValueMut(thisValue).getOrElse { return Result.failure(it) }
     val idx = convertIndex(thisList.len(), insertIndex)

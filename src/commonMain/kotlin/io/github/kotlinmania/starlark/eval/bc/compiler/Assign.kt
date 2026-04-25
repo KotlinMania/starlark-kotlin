@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/assign.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign
+package io.github.kotlinmania.starlark.eval.bc.compiler.assign
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,17 +21,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.assign
 
 /** Compile assignment lhs. */
 
-import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeNExprs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBcCb
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.AssignCompiledValue
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.asLocalNonCaptured
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocAnySlice
+import io.github.kotlinmania.starlark.collections.symbol.Symbol
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.compiler.markDefinitelyAssignedAfter
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeNExprs
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBcCb
+import io.github.kotlinmania.starlark.eval.compiler.AssignCompiledValue
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.asLocalNonCaptured
+import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
 
 // impl AssignCompiledValue
 

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/known_methods.rs
-package io.github.kotlinmania.starlark_kotlin.values.types
+package io.github.kotlinmania.starlark.values.types
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark_kotlin.values.types
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.Methods
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMeth
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeMethod
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.set.setMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.list.listMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.getDictMethods
-import io.github.kotlinmania.starlark_kotlin.values.types.string.strMethods
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.values.types.NativeMeth
+import io.github.kotlinmania.starlark.values.types.NativeMethod
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.set.setMethods
+import io.github.kotlinmania.starlark.values.types.list.listMethods
+import io.github.kotlinmania.starlark.values.types.dict.getDictMethods
+import io.github.kotlinmania.starlark.values.types.string.strMethods
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 /** Method and a `Methods` container which declares it. */
 // #[derive(Clone, Copy, Dupe)]

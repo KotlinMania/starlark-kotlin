@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_vec.rs
-package starlark_map.sorted_vec
+package starlarkmap.sortedvec
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/int/int_or_big.rs (tests)
-package io.github.kotlinmania.starlark_kotlin.values.types.int
+package io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

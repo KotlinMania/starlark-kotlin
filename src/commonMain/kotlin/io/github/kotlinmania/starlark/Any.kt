@@ -1,5 +1,5 @@
 // port-lint: source src/any.rs
-package io.github.kotlinmania.starlark_kotlin.any
+package io.github.kotlinmania.starlark.any
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

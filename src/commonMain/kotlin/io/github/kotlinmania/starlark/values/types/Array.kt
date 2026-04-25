@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/array.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.array
+package io.github.kotlinmania.starlark.values.types.array
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,12 +25,12 @@ package io.github.kotlinmania.starlark_kotlin.values.types.array
  * This object is used internally, and not visible outside of `starlark` crate.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.types.list.displayList
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.types.list.displayList
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 /**
  * Fixed-capacity list.

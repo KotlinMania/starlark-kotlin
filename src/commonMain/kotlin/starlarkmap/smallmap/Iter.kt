@@ -1,5 +1,5 @@
 // port-lint: source src/small_map/iter.rs
-package starlark_map.small_map.iter
+package starlarkmap.smallmap.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package starlark_map.small_map.iter
  * limitations under the License.
  */
 
-import starlark_map.Hashed
-import starlark_map.vec_map.iter.IterHashed as VecMapIterHashed
-import starlark_map.vec_map.iter.Iter as VecMapIter
-import starlark_map.vec_map.iter.IntoIterHashed as VecMapIntoIterHashed
-import starlark_map.vec_map.iter.IntoIter as VecMapIntoIter
-import starlark_map.vec_map.iter.Keys as VecMapKeys
-import starlark_map.vec_map.iter.Values as VecMapValues
+import starlarkmap.Hashed
+import starlarkmap.vecmap.iter.IterHashed as VecMapIterHashed
+import starlarkmap.vecmap.iter.Iter as VecMapIter
+import starlarkmap.vecmap.iter.IntoIterHashed as VecMapIntoIterHashed
+import starlarkmap.vecmap.iter.IntoIter as VecMapIntoIter
+import starlarkmap.vecmap.iter.Keys as VecMapKeys
+import starlarkmap.vecmap.iter.Values as VecMapValues
 
 /**
- * Iterator types for [SmallMap][starlark_map.small_map.SmallMap].
+ * Iterator types for [SmallMap][starlarkmap.smallmap.SmallMap].
  *
  * In Rust, these are thin wrappers around vec_map iterators with
  * `def_iter!()` and `def_double_ended_iter!()` macro expansions.

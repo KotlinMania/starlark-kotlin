@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/if_compiler.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
+package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.Builtin1
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprLogicalBinOp
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.MaybeNot
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.bc.PatchAddr
+import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.compiler.Builtin1
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ExprLogicalBinOp
+import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.bc.PatchAddr
 
 /** Common code for compiling if statements and if expressions. */
 // pub(crate) fn write_if_else(...)

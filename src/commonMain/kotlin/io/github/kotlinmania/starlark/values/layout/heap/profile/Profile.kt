@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/profile.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
+package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -23,9 +23,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  * Summary of heap allocations and function times with stacks.
  *
  * Submodules:
- * - [aggregated][io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.Aggregated] - Aggregated profile data
- * - [allocCounts][io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.AllocCounts] - Allocation counters
- * - [byType][io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.ByType] - Profile data grouped by type
- * - [stringIndex][io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.StringIndex] - String interning index for profiles
- * - [summaryByFunction][io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.SummaryByFunction] - Summary organized by function
+ * - [aggregated][io.github.kotlinmania.starlark.values.layout.heap.profile.Aggregated] - Aggregated profile data
+ * - [allocCounts][io.github.kotlinmania.starlark.values.layout.heap.profile.AllocCounts] - Allocation counters
+ * - [byType][io.github.kotlinmania.starlark.values.layout.heap.profile.ByType] - Profile data grouped by type
+ * - [stringIndex][io.github.kotlinmania.starlark.values.layout.heap.profile.StringIndex] - String interning index for profiles
+ * - [summaryByFunction][io.github.kotlinmania.starlark.values.layout.heap.profile.SummaryByFunction] - Summary organized by function
  */

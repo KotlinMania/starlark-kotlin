@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs/min_max.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max
+package io.github.kotlinmania.starlark.stdlib.funcs.minmax
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.optionalNamed
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.optionalNamed
+import io.github.kotlinmania.starlark.eval.runtime.positionalAll
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // fn min_max_iter<'v>(
 //     mut it: impl Iterator<Item = Value<'v>>,

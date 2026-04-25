@@ -1,5 +1,5 @@
-// port-lint: source src/coerce.rs (tests)
-package io.github.kotlinmania.starlark_kotlin
+// port-lint: tests src/coerce.rs
+package io.github.kotlinmania.starlark
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,11 +19,10 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.PhantomData
-import io.github.kotlinmania.starlark_kotlin.values.Tuple1
+import io.github.kotlinmania.starlark.values.PhantomData
+import io.github.kotlinmania.starlark.values.Tuple1
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
 
 class CoerceTest {
     @Test
@@ -38,30 +37,50 @@ class CoerceTest {
 
     @Test
     fun testCoerceTypeAndLifetimeParams() {
+        // Rust:
+        //   #[repr(C)] struct Aaa<'a>(&'a u32);
+        //   #[repr(C)] struct Bbb<'a>(&'a u32);
+        //   unsafe impl<'a> Coerce<Bbb<'a>> for Aaa<'a> {}
+        //
+        // Kotlin cannot express Rust `repr` layout guarantees. We approximate the "same representation" idea by
+        // storing a value that can be viewed through both Aaa and Bbb interfaces.
         val ten = IntRef(10)
         val old = StructWithLifetimeAndTypeParams<Aaa>(
-            x = Aaa(ten),
+            x = AaaBbb(ten),
             marker = PhantomData.new(),
         )
 
-        val new: StructWithLifetimeAndTypeParams<Aaa> = coerce(old)
+        val new: StructWithLifetimeAndTypeParams<Bbb> = coerce(old)
         assertEquals(10, new.x.value.value)
     }
 
     @Test
     fun testCoerceIsUnsound() {
+        // Rust:
+        //   let s: &Struct<u8> = &Struct(());
+        //   let _c: &Struct<Newtype> = coerce(s);
+        //
+        // Kotlin cannot express the Rust associated-type soundness issue, but this preserves the intent:
+        // a coercion that "type-checks" yet would be unsound under stronger guarantees.
         val s: Struct<UByte> = Struct(Unit)
         val c: Struct<Newtype> = coerce(s)
-        assertSame(Unit, c.assoc)
     }
 }
 
-private data class Aaa(val value: IntRef)
+private interface Aaa {
+    val value: IntRef
+}
+
+private interface Bbb {
+    val value: IntRef
+}
+
+private class AaaBbb(override val value: IntRef) : Aaa, Bbb
+
 private data class StructWithLifetimeAndTypeParams<X>(
     val x: X,
     val marker: PhantomData<IntRef>,
 )
 private class Struct<T>(val assoc: Any?)
-// @JvmInline not available in commonTest (JVM-only annotation)
 private class Newtype(val value: UByte)
 private data class IntRef(val value: Int)

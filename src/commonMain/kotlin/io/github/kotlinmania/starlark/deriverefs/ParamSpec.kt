@@ -1,5 +1,5 @@
 // port-lint: source src/__derive_refs/param_spec.rs
-package io.github.kotlinmania.starlark_kotlin.deriverefs
+package io.github.kotlinmania.starlark.deriverefs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.deriverefs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.typing.ParamIsRequired
-import io.github.kotlinmania.starlark_kotlin.util.ArcStr
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.typing.unpackKwargsValueTy
-import io.github.kotlinmania.starlark_kotlin.typing.unpackArgsItemTy
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.ParamIsRequired
+import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.typing.unpackKwargsValueTy
+import io.github.kotlinmania.starlark.typing.unpackArgsItemTy
 
 // pub enum NativeCallableParamDefaultValue
 sealed class NativeCallableParamDefaultValue {

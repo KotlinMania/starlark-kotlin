@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 // ModuleScopeData, ScopeId, ScopeNames are in the same package (eval.compiler)
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.values.FrozenRef
 
 /**
  * Compiler module.
@@ -42,13 +42,13 @@ import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
  * | `compr`           | `eval.compiler.compr`                   |
  * | `constants`       | `eval.compiler.constants`               |
  * | `def`             | `eval.compiler.def`                     |
- * | `def_inline`      | `eval.compiler.def_inline`              |
+ * | `def_inline`      | `eval.compiler.definline`              |
  * | `error`           | `eval.compiler.error`                   |
  * | `expr`            | `eval.compiler.expr`                    |
  * | `expr_bool`       | `eval.compiler.expr_bool`               |
  * | `known`           | `eval.compiler.known`                   |
  * | `module`          | `eval.compiler.module`                  |
- * | `opt_ctx`         | `eval.compiler.opt_ctx`                 |
+ * | `opt_ctx`         | `eval.compiler.optctx`                 |
  * | `scope`           | `eval.compiler.scope`                   |
  * | `small_vec_1`     | `eval.compiler.small_vec_1`             |
  * | `span`            | `eval.compiler.span`                    |

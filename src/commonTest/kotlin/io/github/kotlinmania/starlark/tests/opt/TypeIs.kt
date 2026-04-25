@@ -1,5 +1,5 @@
 // port-lint: source src/tests/opt/type_is.rs
-package io.github.kotlinmania.starlark_kotlin.tests.opt
+package io.github.kotlinmania.starlark.tests.opt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark_kotlin.tests.opt
 
 /** Test for type-is optimizations. */
 
-import io.github.kotlinmania.starlark_kotlin.assert.Assert
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.InlineDefBody
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.positional
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.layout.ValueLike
+import io.github.kotlinmania.starlark.eval.compiler.InlineDefBody
+import io.github.kotlinmania.starlark.eval.runtime.positional
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[starlark_module]
 // fn globals(builder: &mut GlobalsBuilder)

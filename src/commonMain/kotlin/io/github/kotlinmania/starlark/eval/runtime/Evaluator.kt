@@ -1,5 +1,5 @@
 // port-lint: source eval/runtime/evaluator.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,59 +19,59 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark_kotlin.collections.Alloca
-import io.github.kotlinmania.starlark_kotlin.collections.StringPool
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModuleData
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
-import io.github.kotlinmania.starlark_kotlin.eval.HardErrorSoftErrorHandler
-import io.github.kotlinmania.starlark_kotlin.eval.SoftErrorHandler
-import io.github.kotlinmania.starlark_kotlin.eval.bc.Bc
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrs
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcPtrAddr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcStatementLocations
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark_kotlin.eval.bc.trace
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.CopySlotFromParent
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefGen
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefInfo
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmt
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt.BeforeStmtFunc
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.FileLoader
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.BcProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.ProfileOrInstrumentationMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.StmtProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TimeFlameProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.TypecheckProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapProfile
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.HeapProfileFormat
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.rust_loc.rustLoc
-import io.github.kotlinmania.starlark_kotlin.stdlib.BreakpointConsole
-import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
-import io.github.kotlinmania.starlark_kotlin.stdlib.RealBreakpointConsole
-import io.github.kotlinmania.starlark_kotlin.stdlib.StderrPrintHandler
-import io.github.kotlinmania.starlark_kotlin.typing.EvalException
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueCaptured
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueCaptured
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.valueCapturedGet
-import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
+import io.github.kotlinmania.starlark.any.AnyLifetime
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark.collections.Alloca
+import io.github.kotlinmania.starlark.collections.StringPool
+import io.github.kotlinmania.starlark.environment.FrozenModuleData
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.environment.ModuleSlotId
+import io.github.kotlinmania.starlark.eval.HardErrorSoftErrorHandler
+import io.github.kotlinmania.starlark.eval.SoftErrorHandler
+import io.github.kotlinmania.starlark.eval.bc.Bc
+import io.github.kotlinmania.starlark.eval.bc.BcInstrs
+import io.github.kotlinmania.starlark.eval.bc.BcOpcode
+import io.github.kotlinmania.starlark.eval.bc.BcPtrAddr
+import io.github.kotlinmania.starlark.eval.bc.BcStatementLocations
+import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
+import io.github.kotlinmania.starlark.eval.bc.trace
+import io.github.kotlinmania.starlark.eval.compiler.CopySlotFromParent
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.eval.compiler.DefInfo
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmt
+import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
+import io.github.kotlinmania.starlark.eval.runtime.fileloader.FileLoader
+import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfileOrInstrumentationMode
+import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
+import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfile
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfileFormat
+import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.rustloc.rustLoc
+import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
+import io.github.kotlinmania.starlark.stdlib.PrintHandler
+import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
+import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
+import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.FrozenValueCaptured
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueCaptured
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
+import io.github.kotlinmania.starlark.values.types.NativeFunction
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :
@@ -240,7 +240,7 @@ class Evaluator(
     /**
      * Set the [FileLoader] used to resolve `load()` statements.
      * A list of all load statements can be obtained through
-     * [AstModule.loads][io.github.kotlinmania.starlark_kotlin.syntax.AstModule.loads].
+     * [AstModule.loads][io.github.kotlinmania.starlark.syntax.AstModule.loads].
      */
     fun setLoader(loader: FileLoader) {
         this.loader = loader
@@ -317,12 +317,12 @@ class Evaluator(
     fun genProfile(): ProfileData {
         val mode = when (val pMode = profileOrInstrumentationMode) {
             ProfileOrInstrumentationMode.None -> {
-                throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+                throw io.github.kotlinmania.starlark.Error.newOther(
                     EvaluatorError.ProfilingNotEnabled
                 )
             }
             ProfileOrInstrumentationMode.Collected -> {
-                throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+                throw io.github.kotlinmania.starlark.Error.newOther(
                     EvaluatorError.ProfileDataAlreadyCollected
                 )
             }
@@ -338,7 +338,7 @@ class Evaluator(
                 .gen(heap(), HeapProfileFormat.FlameGraph)
             ProfileMode.HeapSummaryRetained,
             ProfileMode.HeapFlameRetained,
-            ProfileMode.HeapRetained -> throw io.github.kotlinmania.starlark_kotlin.Error.newOther(
+            ProfileMode.HeapRetained -> throw io.github.kotlinmania.starlark.Error.newOther(
                 EvaluatorError.RetainedMemoryProfilingCannotBeObtainedFromEvaluator
             )
             ProfileMode.Statement -> stmtProfile.gen()
@@ -367,7 +367,7 @@ class Evaluator(
         if (pMode is ProfileOrInstrumentationMode.Profile && pMode.mode == ProfileMode.Coverage) {
             return stmtProfile.coverage()
         }
-        throw io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.CoverageNotEnabled)
+        throw io.github.kotlinmania.starlark.Error.newOther(EvaluatorError.CoverageNotEnabled)
     }
 
     /**
@@ -380,13 +380,13 @@ class Evaluator(
     }
 
     /** Obtain the current call-stack, suitable for use in diagnostics. */
-    fun callStack(): io.github.kotlinmania.starlark_kotlin.CallStack {
+    fun callStack(): io.github.kotlinmania.starlark.CallStack {
         return callStack.toDiagnosticFrames(InlinedFrames())
     }
 
     /** Obtain the top frame on the call-stack. May be `null` if the
      * call happened via native functions. */
-    fun callStackTopFrame(): io.github.kotlinmania.starlark_kotlin.Frame? {
+    fun callStackTopFrame(): io.github.kotlinmania.starlark.Frame? {
         return callStack.topFrame()
     }
 
@@ -438,7 +438,7 @@ class Evaluator(
         isCancelled = isCanceled
     }
 
-    private fun addCallStackDiagnostics(e: io.github.kotlinmania.starlark_kotlin.Error): io.github.kotlinmania.starlark_kotlin.Error {
+    private fun addCallStackDiagnostics(e: io.github.kotlinmania.starlark.Error): io.github.kotlinmania.starlark.Error {
         // Make sure we capture the call_stack before popping things off it
         e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
         return e
@@ -457,7 +457,7 @@ class Evaluator(
         // Must always call .pop regardless
         val res = try {
             within(this)
-        } catch (e: io.github.kotlinmania.starlark_kotlin.Error) {
+        } catch (e: io.github.kotlinmania.starlark.Error) {
             callStack.pop()
             throw addCallStackDiagnostics(e)
         }
@@ -476,18 +476,18 @@ class Evaluator(
     }
 
     /**
-     * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark_kotlin.values.FrozenValue]s here,
+     * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark.values.FrozenValue]s here,
      * but often not a great idea, as they will remain allocated as long
      * as the results of this execution are required.
      * Suitable for use with [addReference][FrozenHeap.addReference]
-     * and [OwnedFrozenValue.ownedFrozenValue][io.github.kotlinmania.starlark_kotlin.values.OwnedFrozenValue.ownedFrozenValue].
+     * and [OwnedFrozenValue.ownedFrozenValue][io.github.kotlinmania.starlark.values.OwnedFrozenValue.ownedFrozenValue].
      */
     fun frozenHeap(): FrozenHeap {
         return moduleEnv.frozenHeap()
     }
 
     internal fun getSlotModule(slot: ModuleSlotId): Result<Value> {
-        fun error(eval: Evaluator, slot: ModuleSlotId): io.github.kotlinmania.starlark_kotlin.Error {
+        fun error(eval: Evaluator, slot: ModuleSlotId): io.github.kotlinmania.starlark.Error {
             val name = try {
                 when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
                     null -> eval.moduleEnv
@@ -499,7 +499,7 @@ class Evaluator(
             } catch (e: Exception) {
                 "<internal error: $e>"
             } ?: "<unknown>"
-            return io.github.kotlinmania.starlark_kotlin.Error.newOther(
+            return io.github.kotlinmania.starlark.Error.newOther(
                 EvaluatorError.LocalVariableReferencedBeforeAssignment(name)
             )
         }
@@ -515,15 +515,15 @@ class Evaluator(
         }
     }
 
-    internal fun localVarReferencedBeforeAssignment(slot: LocalSlotId): io.github.kotlinmania.starlark_kotlin.Error {
+    internal fun localVarReferencedBeforeAssignment(slot: LocalSlotId): io.github.kotlinmania.starlark.Error {
         val defInfo = try {
             topFrameDefInfo()
-        } catch (e: io.github.kotlinmania.starlark_kotlin.Error) {
+        } catch (e: io.github.kotlinmania.starlark.Error) {
             return e
         }
         val names = defInfo.used
         val name = names[slot.index.toInt()].asStr()
-        return io.github.kotlinmania.starlark_kotlin.Error.newOther(
+        return io.github.kotlinmania.starlark.Error.newOther(
             EvaluatorError.LocalVariableReferencedBeforeAssignment(name)
         )
     }
@@ -639,7 +639,7 @@ class Evaluator(
             return frozenDefRef.checkReturnType(ret, this)
         }
         return Result.failure(
-            io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.TopFrameNotDef)
+            io.github.kotlinmania.starlark.Error.newOther(EvaluatorError.TopFrameNotDef)
         )
     }
 
@@ -650,7 +650,7 @@ class Evaluator(
             // For module, it is `None`.
             return moduleDefInfo
         }
-        throw io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.TopFrameNotDef)
+        throw io.github.kotlinmania.starlark.Error.newOther(EvaluatorError.TopFrameNotDef)
     }
 
     internal fun topFrameDefInfo(): DefInfo {
@@ -756,9 +756,8 @@ class Evaluator(
      * Note that the finalizer for the `T` will not be called. That's safe if there is no finalizer,
      * or you call it yourself.
      */
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T, R> allocaUninit(len: Int, k: (Array<Any?>, Evaluator) -> R): R {
-        return alloca.allocaUninit<T, R>(len) { xs -> k(xs, this) }
+    internal fun <T, R> allocaUninit(len: Int, k: (MutableList<T?>, Evaluator) -> R): R {
+        return alloca.allocaUninit(len) { xs -> k(xs, this) }
     }
 
     /**
@@ -855,14 +854,14 @@ class Evaluator(
     internal fun runInfrequentInstrChecks(): Result<Unit> {
         if (isCancelled()) {
             return Result.failure(
-                io.github.kotlinmania.starlark_kotlin.Error.newOther(EvaluatorError.Cancelled)
+                io.github.kotlinmania.starlark.Error.newOther(EvaluatorError.Cancelled)
             )
         }
         return Result.success(Unit)
     }
 }
 
-interface EvaluationCallbacks {
+internal interface EvaluationCallbacks {
     fun beforeInstr(
         eval: Evaluator,
         ip: BcPtrAddr,
@@ -870,22 +869,22 @@ interface EvaluationCallbacks {
     )
 }
 
-object EvalCallbacksDisabled : EvaluationCallbacks {
+internal object EvalCallbacksDisabled : EvaluationCallbacks {
     override fun beforeInstr(
-        _eval: Evaluator,
-        _ip: BcPtrAddr,
-        _opcode: BcOpcode,
+        eval: Evaluator,
+        ip: BcPtrAddr,
+        opcode: BcOpcode,
     ) {
         // No-op
     }
 }
 
-enum class EvalCallbacksMode {
+internal enum class EvalCallbacksMode {
     BcProfile,
     BeforeStmt,
 }
 
-class EvalCallbacksEnabled(
+internal class EvalCallbacksEnabled(
     val mode: EvalCallbacksMode,
     val stmtLocs: BcStatementLocations,
     val bcStartPtr: BcPtrAddr,

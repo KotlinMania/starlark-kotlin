@@ -1,5 +1,5 @@
 // port-lint: source src/stdlib/funcs/globals.rs
-package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
+package io.github.kotlinmania.starlark.stdlib.funcs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,20 +19,20 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max.registerMinMax
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip.registerZip
-import io.github.kotlinmania.starlark_kotlin.stdlib.funcs.other.registerOther
-import io.github.kotlinmania.starlark_kotlin.values.types.bool.registerBool
-import io.github.kotlinmania.starlark_kotlin.values.types.float.registerFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.int.registerInt
-import io.github.kotlinmania.starlark_kotlin.values.types.none.registerNone
-import io.github.kotlinmania.starlark_kotlin.values.types.range.registerRange
-import io.github.kotlinmania.starlark_kotlin.values.types.string.registerStr
-import io.github.kotlinmania.starlark_kotlin.values.types.tuple.registerTuple
-import io.github.kotlinmania.starlark_kotlin.values.types.dict.registerDict
-import io.github.kotlinmania.starlark_kotlin.values.types.list.registerList
-import io.github.kotlinmania.starlark_kotlin.values.types.num.registerNum
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.stdlib.funcs.minmax.registerMinMax
+import io.github.kotlinmania.starlark.stdlib.funcs.zip.registerZip
+import io.github.kotlinmania.starlark.stdlib.funcs.other.registerOther
+import io.github.kotlinmania.starlark.values.types.bool.registerBool
+import io.github.kotlinmania.starlark.values.types.float.registerFloat
+import io.github.kotlinmania.starlark.values.types.int.registerInt
+import io.github.kotlinmania.starlark.values.types.none.registerNone
+import io.github.kotlinmania.starlark.values.types.range.registerRange
+import io.github.kotlinmania.starlark.values.types.string.registerStr
+import io.github.kotlinmania.starlark.values.types.tuple.registerTuple
+import io.github.kotlinmania.starlark.values.types.dict.registerDict
+import io.github.kotlinmania.starlark.values.types.list.registerList
+import io.github.kotlinmania.starlark.values.types.num.registerNum
 
 internal fun registerGlobals(globals: GlobalsBuilder) {
     registerList(globals)

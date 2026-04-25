@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/def_inline/local_as_value.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value
+package io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,11 +25,11 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_
  * To be able to propagate the local slot number through parameter binding machinery.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimpleTyped
+import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTyped
 
 /**
  * Local slot id as `FrozenValue`. This object is only used during compilation

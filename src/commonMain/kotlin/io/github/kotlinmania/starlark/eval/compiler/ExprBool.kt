@@ -1,5 +1,5 @@
 // port-lint: source src/eval/compiler/expr_bool.rs
-package io.github.kotlinmania.starlark_kotlin.eval.compiler
+package io.github.kotlinmania.starlark.eval.compiler
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 /** Boolean expression. */
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 /** Boolean expression. */
 // pub(crate) enum ExprCompiledBool

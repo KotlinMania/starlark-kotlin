@@ -1,5 +1,5 @@
 // port-lint: source src/sorting/insertion.rs
-package starlark_map.sorting.insertion
+package starlarkmap.sorting.insertion
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

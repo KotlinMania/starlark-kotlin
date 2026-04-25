@@ -1,5 +1,5 @@
 // port-lint: source src/eval/bc/compiler/def.rs
-package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def
+package io.github.kotlinmania.starlark.eval.bc.compiler.def
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,17 +21,17 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def
 
 /** Compile def. */
 
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark_kotlin.eval.bc.BcWriter
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.DefCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParameterCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ParametersCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrDefData
-import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.writeBc
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark_kotlin.eval.compiler.mapExpr
+import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
+import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
+import io.github.kotlinmania.starlark.eval.compiler.DefCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ParameterCompiled
+import io.github.kotlinmania.starlark.eval.compiler.ParametersCompiled
+import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
+import io.github.kotlinmania.starlark.eval.bc.InstrDefData
+import io.github.kotlinmania.starlark.eval.bc.compiler.writeBc
+import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
+import io.github.kotlinmania.starlark.eval.compiler.mapExpr
 
 // impl DefCompiled
 

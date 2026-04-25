@@ -1,5 +1,5 @@
 // port-lint: source src/mix_u32.rs
-package starlark_map
+package starlarkmap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/profile/summary_by_function.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
+package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,13 +19,13 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts.AllocCounts
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringId
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index.StringIndex
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringId
+import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.StringIndex
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.evalModule
 
 /** Information relating to a function. */
 // #[derive(Default, Debug, Clone)]
@@ -195,7 +195,7 @@ internal class HeapSummaryByFunction(
 // #[test]
 // fn drop_non_drop()
 internal fun dropNonDrop() {
-    val ast = io.github.kotlinmania.starlark_kotlin.syntax.AstModule.parse(
+    val ast = io.github.kotlinmania.starlark.syntax.AstModule.parse(
         "x.star",
         """
 _ignore = {1: 2}       # allocate a dict in drop
@@ -204,10 +204,10 @@ _ignore = str([1])     # allocate a string in non_drop
         Dialect.AllOptionsInternal,
     ).getOrThrow()
 
-    val globals = io.github.kotlinmania.starlark_kotlin.environment.Globals.standard()
-    io.github.kotlinmania.starlark_kotlin.environment.Module.withTempHeap { module ->
-        val eval = io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator(module)
-        eval.enableProfile(io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode.HeapSummaryAllocated)
+    val globals = io.github.kotlinmania.starlark.environment.Globals.standard()
+    io.github.kotlinmania.starlark.environment.Module.withTempHeap { module ->
+        val eval = io.github.kotlinmania.starlark.eval.runtime.Evaluator(module)
+        eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.HeapSummaryAllocated)
 
         eval.evalModule(ast, globals).getOrThrow()
 

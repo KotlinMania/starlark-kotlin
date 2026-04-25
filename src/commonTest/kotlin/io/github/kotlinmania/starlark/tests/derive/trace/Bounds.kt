@@ -1,5 +1,5 @@
 // port-lint: source src/tests/derive/trace/bounds.rs
-package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
+package io.github.kotlinmania.starlark.tests.derive.trace
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
 
 // Only check it compiles.
 
-import io.github.kotlinmania.starlark_kotlin.values.Trace
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
 // #[derive(Trace)]
 // #[trace(bound = "A: Trace<'v>, B: 'static")]

@@ -1,5 +1,5 @@
 // port-lint: source src/values/types/num/value.rs
-package io.github.kotlinmania.starlark_kotlin.values.types.num
+package io.github.kotlinmania.starlark.values.types.num
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -19,23 +19,23 @@ package io.github.kotlinmania.starlark_kotlin.values.types.num
  * limitations under the License.
  */
 
-import starlark_map.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.typing.Ty
-import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.AllocValue
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocFrozenValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.allocValue
-import io.github.kotlinmania.starlark_kotlin.values.types.int.plus
-import io.github.kotlinmania.starlark_kotlin.values.types.int.minus
-import io.github.kotlinmania.starlark_kotlin.values.types.int.times
+import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
+import io.github.kotlinmania.starlark.values.types.int.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.int.allocValue
+import io.github.kotlinmania.starlark.values.types.int.plus
+import io.github.kotlinmania.starlark.values.types.int.minus
+import io.github.kotlinmania.starlark.values.types.int.times
 
 /** Error type for numeric operations. */
 sealed class NumError : Exception() {

@@ -1,5 +1,5 @@
 // port-lint: source src/analysis/incompatible.rs
-package io.github.kotlinmania.starlark_kotlin.analysis
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -44,18 +44,18 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 // use crate::codemap::Span;
 // use crate::syntax::AstModule;
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 // #[derive(Error, Debug)]
 // pub(crate) enum Incompatibility {
@@ -118,55 +118,47 @@ private val TYPES: Map<String, String> = mapOf(
 
 // visit_stmt helper: visit immediate child statements
 private fun Spanned<StmtP<AstNoPayload>>.visitStmt(visitor: (Spanned<StmtP<AstNoPayload>>) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val s = this.node) {
-        is StmtP.Statements<*> -> (s.stmts as List<Spanned<StmtP<AstNoPayload>>>).forEach(visitor)
-        is StmtP.Def<*, *> -> visitor(s.def.body as Spanned<StmtP<AstNoPayload>>)
+        is StmtP.Statements -> s.stmts.forEach(visitor)
+        is StmtP.Def<AstNoPayload, *> -> visitor(s.def.body)
         else -> {}
     }
 }
 
 // visit_expr helper: visit immediate child expressions in a statement
 private fun Spanned<StmtP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val s = this.node) {
-        is StmtP.Expression<*> -> visitor(s.expr as Spanned<ExprP<AstNoPayload>>)
-        is StmtP.Statements<*> -> (s.stmts as List<Spanned<StmtP<AstNoPayload>>>).forEach { it.visitExpr(visitor) }
-        is StmtP.Def<*, *> -> (s.def.body as Spanned<StmtP<AstNoPayload>>).visitExpr(visitor)
-        is StmtP.Assign<*> -> {
-            visitor(s.assign.rhs as Spanned<ExprP<AstNoPayload>>)
-        }
-        is StmtP.AssignModify<*> -> {
-            visitor(s.rhs as Spanned<ExprP<AstNoPayload>>)
-        }
+        is StmtP.Expression -> visitor(s.expr)
+        is StmtP.Statements -> s.stmts.forEach { it.visitExpr(visitor) }
+        is StmtP.Def<AstNoPayload, *> -> s.def.body.visitExpr(visitor)
+        is StmtP.Assign -> visitor(s.assign.rhs)
+        is StmtP.AssignModify -> visitor(s.rhs)
         else -> {}
     }
 }
 
 // visit_expr helper for expressions: visit immediate child expressions
 private fun Spanned<ExprP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
-        is ExprP.Call<*> -> {
-            visitor(e.expr as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.Call -> {
+            visitor(e.expr)
             for (arg in e.args.args) {
-                visitor(arg.node.expr() as Spanned<ExprP<AstNoPayload>>)
+                visitor(arg.node.expr())
             }
         }
-        is ExprP.Op<*> -> {
-            visitor(e.lhs as Spanned<ExprP<AstNoPayload>>)
-            visitor(e.rhs as Spanned<ExprP<AstNoPayload>>)
+        is ExprP.Op -> {
+            visitor(e.lhs)
+            visitor(e.rhs)
         }
         else -> {}
     }
 }
 
 // visit_lvalue helper: visit all identifier lvalues in an assignment target
-private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, Unit>>) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
+private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, *>>) -> Unit) {
     when (val t = this.node) {
-        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>)
-        is AssignTargetP.Tuple<*> -> (t.elements as List<Spanned<AssignTargetP<AstNoPayload>>>).forEach { it.visitLvalue(visitor) }
+        is AssignTargetP.Identifier<AstNoPayload, *> -> visitor(t.ident)
+        is AssignTargetP.Tuple -> t.elements.forEach { it.visitLvalue(visitor) }
         else -> {} // Index, Dot don't contain identifiers
     }
 }
@@ -174,7 +166,7 @@ private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<A
 // fn lookup_type<'a>(x: &Spanned<ExprP<AstNoPayload>>, types: &HashMap<&str, &'a str>) -> Option<&'a str>
 private fun lookupType(x: Spanned<ExprP<AstNoPayload>>, types: Map<String, String>): String? {
     return when (val e = x.node) {
-        is ExprP.Identifier<*, *> -> types[(e.ident as Spanned<IdentP<AstNoPayload, Unit>>).node.ident]
+        is ExprP.Identifier<AstNoPayload, *> -> types[e.ident.node.ident]
         else -> null
     }
 }
@@ -183,11 +175,10 @@ private fun lookupType(x: Spanned<ExprP<AstNoPayload>>, types: Map<String, Strin
 // fn is_type_call(x: &Spanned<ExprP<AstNoPayload>>) -> bool
 private fun isTypeCall(x: Spanned<ExprP<AstNoPayload>>): Boolean {
     return when (val e = x.node) {
-        is ExprP.Call<*> -> {
+        is ExprP.Call<AstNoPayload> -> {
             if (e.args.args.size == 1) {
-                @Suppress("UNCHECKED_CAST")
-                val func = (e.expr as Spanned<ExprP<AstNoPayload>>).node
-                func is ExprP.Identifier<*, *> && (func.ident as Spanned<IdentP<AstNoPayload, Unit>>).node.ident == "type"
+                val func = e.expr.node
+                func is ExprP.Identifier<AstNoPayload, *> && func.ident.node.ident == "type"
             } else {
                 false
             }
@@ -197,7 +188,6 @@ private fun isTypeCall(x: Spanned<ExprP<AstNoPayload>>): Boolean {
 }
 
 // fn match_bad_type_equality(...)
-@Suppress("UNCHECKED_CAST")
 private fun matchBadTypeEquality(
     codemap: CodeMap,
     x: Spanned<ExprP<AstNoPayload>>,
@@ -206,9 +196,9 @@ private fun matchBadTypeEquality(
 ) {
     // If we see type(x) == y (or negated), where y is in our types table, suggest a replacement
     when (val e = x.node) {
-        is ExprP.Op<*> -> {
-            if ((e.op == BinOp.Equal || e.op == BinOp.NotEqual) && isTypeCall(e.lhs as Spanned<ExprP<AstNoPayload>>)) {
-                val replacement = lookupType(e.rhs as Spanned<ExprP<AstNoPayload>>, types)
+        is ExprP.Op -> {
+            if ((e.op == BinOp.Equal || e.op == BinOp.NotEqual) && isTypeCall(e.lhs)) {
+                val replacement = lookupType(e.rhs, types)
                 if (replacement != null) {
                     res.add(
                         LintT.new(
@@ -216,7 +206,7 @@ private fun matchBadTypeEquality(
                             x.span,
                             Incompatibility.IncompatibleTypeCheck(
                                 x.toString(),
-                                "${(e.lhs as Spanned<ExprP<AstNoPayload>>).node}${e.op}type($replacement)",
+                                "${e.lhs.node}${e.op}type($replacement)",
                             ),
                         )
                     )
@@ -246,13 +236,12 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
 // fn duplicate_top_level_assignment(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
-@Suppress("UNCHECKED_CAST")
 private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, is_load))
     val exported = HashSet<String>() // name's already exported by is_load
 
     fun ident(
-        x: Spanned<AssignIdentP<AstNoPayload, Unit>>,
+        x: Spanned<AssignIdentP<AstNoPayload, *>>,
         isLoad: Boolean,
         codemap: CodeMap,
         defined: HashMap<String, Pair<Span, Boolean>>,
@@ -280,35 +269,34 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
         res: MutableList<LintT<Incompatibility>>,
     ) {
         when (val s = x.node) {
-            is StmtP.Assign<*> -> {
-                val lhsNode = (s.assign.lhs as Spanned<AssignTargetP<AstNoPayload>>).node
-                val rhsNode = (s.assign.rhs as Spanned<ExprP<AstNoPayload>>).node
+            is StmtP.Assign -> {
+                val lhsNode = s.assign.lhs.node
+                val rhsNode = s.assign.rhs.node
                 when {
-                    lhsNode is AssignTargetP.Identifier<*, *>
-                        && rhsNode is ExprP.Identifier<*, *>
-                        && (lhsNode.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>).node.ident ==
-                            (rhsNode.ident as Spanned<IdentP<AstNoPayload, Unit>>).node.ident
-                        && defined[(lhsNode.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>).node.ident]?.second == true
-                        && !exported.contains((lhsNode.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>).node.ident) -> {
+                    lhsNode is AssignTargetP.Identifier<AstNoPayload, *>
+                        && rhsNode is ExprP.Identifier<AstNoPayload, *>
+                        && lhsNode.ident.node.ident == rhsNode.ident.node.ident
+                        && defined[lhsNode.ident.node.ident]?.second == true
+                        && !exported.contains(lhsNode.ident.node.ident) -> {
                         // Normally this would be an error, but if we load()'d it,
                         // this is how we'd reexport through Starlark.
                         // But only allow one export
-                        exported.add((lhsNode.ident as Spanned<AssignIdentP<AstNoPayload, Unit>>).node.ident)
+                        exported.add(lhsNode.ident.node.ident)
                     }
-                    else -> (s.assign.lhs as Spanned<AssignTargetP<AstNoPayload>>).visitLvalue { ident(it, false, codemap, defined, res) }
+                    else -> s.assign.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
                 }
             }
-            is StmtP.AssignModify<*> -> {
-                (s.lhs as Spanned<AssignTargetP<AstNoPayload>>).visitLvalue { ident(it, false, codemap, defined, res) }
+            is StmtP.AssignModify -> {
+                s.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
             }
-            is StmtP.Def<*, *> -> {
+            is StmtP.Def<AstNoPayload, *> -> {
                 // StmtP<AstNoPayload>::Def(DefP { name, .. }) => ident(name, false, codemap, defined, res),
-                ident(s.def.name as Spanned<AssignIdentP<AstNoPayload, Unit>>, false, codemap, defined, res)
+                ident(s.def.name, false, codemap, defined, res)
             }
-            is StmtP.Load<*, *> -> {
+            is StmtP.Load<AstNoPayload, *> -> {
                 // for LoadArgP { local, .. } in &load.args { ident(local, true, ...) }
                 for (arg in s.loadStmt.args) {
-                    ident(arg.local as Spanned<AssignIdentP<AstNoPayload, Unit>>, true, codemap, defined, res)
+                    ident(arg.local, true, codemap, defined, res)
                 }
             }
             // Visit statements, but don't descend under def - only top-level statements are interesting

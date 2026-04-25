@@ -1,5 +1,5 @@
 // port-lint: source src/values/comparison.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark_kotlin.values
  * limitations under the License.
  */
 
-import starlark_map.small_map.SmallMap
+import starlarkmap.smallmap.SmallMap
 
 // pub(crate) fn equals_slice<E, X1, X2>(xs, ys, f) -> Result<bool, E>
 internal fun <E : Exception, X1, X2> equalsSlice(

@@ -1,5 +1,5 @@
 // port-lint: source src/values/typing/type_compiled/type_matcher_factory.rs
-package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
+package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAlloc
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBox
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcher
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledFactory
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAlloc
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
+import io.github.kotlinmania.starlark.values.layout.Value
 
 // #[derive(Allocative, Debug)]
 // struct TypeMatcherFactoryImpl<M: TypeMatcher> { matcher: M }

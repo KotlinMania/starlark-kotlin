@@ -1,5 +1,5 @@
 // port-lint: source src/values/layout/heap/allocator/api.rs
-package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
+package io.github.kotlinmania.starlark.values.layout.heap.allocator
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator
 
 // use crate::values::layout::value_alloc_size::ValueAllocSize;
 
-import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 
 // pub(crate) enum ChunkAllocationDirection {
 enum class ChunkAllocationDirection {
