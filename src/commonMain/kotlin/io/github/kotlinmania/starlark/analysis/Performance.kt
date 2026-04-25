@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark.values.layout.size
 
 import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.starlarkSrc
 import io.github.kotlinmania.starlark.values.layout.size
 
 // pub(crate) enum Performance
@@ -73,8 +74,8 @@ private fun matchDictCopy(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res
                     codemap,
                     x.span,
                     Performance.DictWithoutStarStar(
-                        x.toString(),
-                        "dict(${kwArg.node})",
+                        x.node.starlarkSrc(),
+                        "dict(${kwArg.node.starlarkSrc()})",
                     ),
                 )
             )
@@ -125,7 +126,7 @@ private fun matchInefficientBoolCheck(
                             codemap,
                             x.span,
                             Performance.InefficientBoolCheck(
-                                x.toString(),
+                                x.node.starlarkSrc(),
                                 innerIdent,
                             ),
                         )

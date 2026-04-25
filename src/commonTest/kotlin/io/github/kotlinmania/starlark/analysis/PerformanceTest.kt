@@ -21,20 +21,9 @@ package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// Both tests below are blocked on two pieces of Rust functionality not yet
-// translated to the Kotlin AST:
-//   1. ExprP does not have a starlark-source Display formatter (Rust's
-//      `impl Display for Expr`), so `x.toString()` inside Performance.kt
-//      currently dumps the data-class structure instead of e.g.
-//      `dict(**kwargs)`.
-//   2. ExprP lacks ListComprehension / DictComprehension variants, so
-//      `matchInefficientBoolCheck` cannot detect `any([x for x in xs])`.
-// The tests below mirror the Rust expectations 1:1 and will pass once both
-// gaps are closed; they are @Ignored until then so CI stays green.
 class PerformanceTest {
 
     // fn module(x: &str) -> AstModule
@@ -45,7 +34,6 @@ class PerformanceTest {
     // #[test]
     // fn test_lint_matches_dict_issue()
     @Test
-    @Ignore
     fun testLintMatchesDictIssue() {
         val res = mutableListOf<LintT<Performance>>()
         checkCallExpr(
@@ -70,7 +58,6 @@ def foo(extra, **kwargs):
     // #[test]
     // fn test_lint_matches_any_function()
     @Test
-    @Ignore
     fun testLintMatchesAnyFunction() {
         val res = mutableListOf<LintT<Performance>>()
         checkCallExpr(
