@@ -33,7 +33,7 @@ Every ported Kotlin file **must** start with a provenance marker:
 
 ```kotlin
 // port-lint: source <relative-path-to-rust-file>
-package io.github.kotlinmania.starlark_kotlin.<module>
+package io.github.kotlinmania.starlark.<module>
 
 // Rest of file...
 ```
@@ -41,13 +41,13 @@ package io.github.kotlinmania.starlark_kotlin.<module>
 Examples:
 ```kotlin
 // port-lint: source src/environment/module.rs
-package io.github.kotlinmania.starlark_kotlin.environment
+package io.github.kotlinmania.starlark.environment
 
 // port-lint: source src/values/layout.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 
 // port-lint: source src/eval/runtime/evaluator.rs
-package io.github.kotlinmania.starlark_kotlin.eval.runtime
+package io.github.kotlinmania.starlark.eval.runtime
 ```
 
 **Path Format:** The path should be relative to `tmp/starlark/` (the Rust source root). So for a file at `tmp/starlark/src/values/layout.rs`, use `src/values/layout.rs`.
@@ -125,7 +125,7 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 ### Naming Conventions
 
 - **Files:** Match Rust file names but use PascalCase for Kotlin files (e.g., `module.rs` → `Module.kt`)
-- **Packages:** Mirror Rust crate structure (e.g., `starlark::environment` → `io.github.kotlinmania.starlark_kotlin.environment`)
+- **Packages:** Mirror Rust crate structure (e.g., `starlark::environment` → `io.github.kotlinmania.starlark.environment`)
 - **Types:** PascalCase (same as Rust)
 - **Functions/Variables:** camelCase (Rust snake_case → Kotlin camelCase)
 - **Constants:** UPPER_SNAKE_CASE (same as Rust)
@@ -198,7 +198,7 @@ Use `ast_distance` directly for analysis and verification:
 
 # Check similarity of a specific file
 ./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+  src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
 
 # Find missing files ranked by importance (if supported by your ast_distance build)
 ./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
@@ -213,7 +213,7 @@ Use the built-in AST distance tool:
 ./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
 
 # Check similarity of specific files
-./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
 
 # Find missing files ranked by importance
 ./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin

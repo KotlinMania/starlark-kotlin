@@ -1,6 +1,6 @@
 {
   "source_root": "tmp/starlark",
-  "target_root": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
+  "target_root": "src/commonMain/kotlin/io/github/kotlinmania/starlark",
   "source_lang": "rust",
   "target_lang": "kotlin",
   "agents_md": "",

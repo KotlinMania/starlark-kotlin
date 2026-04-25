@@ -16,4 +16,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "starlark-kotlin"
+rootProject.name = "starlark"

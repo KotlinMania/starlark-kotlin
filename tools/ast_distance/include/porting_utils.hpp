@@ -303,7 +303,12 @@ public:
      *   - "// port-lint: source path/to/file.<ext>"
      *   - "// port-lint: tests path/to/file.<ext>"
      *   - "// port-lint: source codex-rs/path/to/file.<ext>"
+     *
      * Returns the source path if found.
+     *
+     * IMPORTANT: `// port-lint: tests <path>` is treated as a test-only
+     * translation unit and is returned as `tests:<path>` so it does not
+     * collide with the production `// port-lint: source <path>` mapping.
      */
     static std::string extract_transliterated_from(const std::string& filepath) {
         std::ifstream file(filepath);
@@ -313,7 +318,7 @@ public:
         std::regex trans_re(R"(Transliterated from:\s*(.+))", std::regex::icase);
         // NOTE: Some ports append qualifiers after the path (e.g. "(tests)").
         // For matching purposes we only want the first path token.
-        std::regex portlint_re(R"(port-lint:\s*(?:source|tests)\s+([^\s]+))", std::regex::icase);
+        std::regex portlint_re(R"(port-lint:\s*(source|tests)\s+([^\s]+))", std::regex::icase);
         std::string line;
         int line_count = 0;
 
@@ -326,12 +331,16 @@ public:
                 return result;
             }
             if (std::regex_search(line, match, portlint_re)) {
-                std::string result = match[1].str();
+                std::string kind = match[1].str();
+                std::string result = match[2].str();
                 result.erase(0, result.find_first_not_of(" \t\r\n"));
                 result.erase(result.find_last_not_of(" \t\r\n") + 1);
                 // Strip "codex-rs/" prefix if present
                 if (result.substr(0, 9) == "codex-rs/") {
                     result = result.substr(9);
+                }
+                if (kind == "tests" || kind == "TESTS") {
+                    return "tests:" + result;
                 }
                 return result;
             }

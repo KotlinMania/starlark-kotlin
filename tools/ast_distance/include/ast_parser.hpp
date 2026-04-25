@@ -73,7 +73,7 @@ struct IdentifierStats {
             "com",
             "kotlin",
             "kotlinmania",
-            "starlarkkotlin",
+            "starlark",
             // Common tiny temp vars (tuple destructuring / iterator glue)
             "xk",
             "xv",
@@ -1057,7 +1057,7 @@ public:
      * identifiers should be excluded from similarity scoring.
      *
      * Import paths (e.g. `use crate::values::layout::Foo` in Rust,
-     * `import io.github.kotlinmania.starlark_kotlin.values.Foo` in Kotlin)
+     * `import io.github.kotlinmania.starlark.values.Foo` in Kotlin)
      * introduce high-frequency namespace identifiers ("crate", "io",
      * "github", "kotlinmania") that are pure noise for cross-language
      * comparison.  Filtering them dramatically improves canonical cosine

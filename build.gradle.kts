@@ -32,6 +32,10 @@ kotlin {
         languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
     }
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     val xcf = XCFramework("Starlark")
 
     macosArm64 {
@@ -77,7 +81,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "io.github.kotlinmania.starlark_kotlin"
+        namespace = "io.github.kotlinmania.starlark"
         compileSdk = 34
         minSdk = 24
     }
@@ -91,8 +95,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
                 implementation("com.ionspin.kotlin:bignum:0.3.10")
-                // Ported Rust test modules live in commonMain (inline with source, matching Rust convention)
-                implementation(kotlin("test"))
             }
         }
 
@@ -106,10 +108,10 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group.toString(), "starlark-kotlin", version.toString())
+    coordinates(group.toString(), "starlark", version.toString())
 
     pom {
-        name.set("starlark-kotlin")
+        name.set("starlark")
         description.set("Kotlin Multiplatform port of facebook/starlark-rust - Starlark configuration language interpreter")
         inceptionYear.set("2026")
         url.set("https://github.com/KotlinMania/starlark-kotlin")

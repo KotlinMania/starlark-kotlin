@@ -25,3 +25,7 @@ high_priority_ports.md
 # AST distance agent state and lock files
 .cache/
 *.lock
+
+# JVM heap dumps
+*.hprof
+java_pid*.hprof

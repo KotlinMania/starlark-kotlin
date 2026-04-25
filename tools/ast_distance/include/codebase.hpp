@@ -1338,8 +1338,18 @@ public:
             return cov;
         }
 
-        std::string src_text = src_file.paths.empty() ? "" : read_file_to_string(src_file.paths.front());
-        std::string tgt_text = tgt_file.paths.empty() ? "" : read_file_to_string(tgt_file.paths.front());
+        auto read_files_to_string = [&](const std::vector<std::string>& paths) -> std::string {
+            std::stringstream ss;
+            for (const auto& p : paths) {
+                std::string part = read_file_to_string(p);
+                if (part.empty()) continue;
+                ss << part << "\n\n";
+            }
+            return ss.str();
+        };
+
+        std::string src_text = read_files_to_string(src_file.paths);
+        std::string tgt_text = read_files_to_string(tgt_file.paths);
         if (src_text.empty() || tgt_text.empty()) {
             return cov;
         }
@@ -1390,6 +1400,19 @@ public:
         return cov;
     }
 
+    static std::vector<std::string> kotlin_test_translation_units_for_source(
+            const Codebase& kotlin_target,
+            const std::string& rust_relative_path) {
+        std::vector<std::string> keys;
+        const std::string needle = "tests:" + rust_relative_path;
+        for (const auto& [key, sf] : kotlin_target.files) {
+            if (sf.transliterated_from == needle) {
+                keys.push_back(key);
+            }
+        }
+        return keys;
+    }
+
     void compute_similarities() {
         ASTParser parser;
         TSParser* symbol_src = ts_parser_new();
@@ -1407,6 +1430,21 @@ public:
                 const auto& tgt_file = target.files.at(m.target_path);
                 auto src_lang = string_to_language(source.language);
                 auto tgt_lang = string_to_language(target.language);
+
+                // For Rust→Kotlin, Kotlin tests live in `commonTest` and are expected to be
+                // linked via `// port-lint: tests <rust-path>`. Associate those units to
+                // the production file for function/test/type parity without forcing the
+                // production Kotlin file to contain test-only symbols.
+                std::vector<std::string> extra_kotlin_test_paths;
+                if (src_lang == Language::RUST && tgt_lang == Language::KOTLIN) {
+                    for (const auto& key : kotlin_test_translation_units_for_source(target, src_file.relative_path)) {
+                        const auto& test_unit = target.files.at(key);
+                        extra_kotlin_test_paths.insert(
+                            extra_kotlin_test_paths.end(),
+                            test_unit.paths.begin(),
+                            test_unit.paths.end());
+                    }
+                }
 
                 bool has_stubs = parser.has_stub_bodies_in_files(
                     tgt_file.paths, tgt_lang);
@@ -1434,22 +1472,69 @@ public:
 
                     // Parity penalty: if target is missing functions (by name),
                     // reduce the score even if the file-level shape looks similar.
-                    auto source_functions = parser.extract_function_infos_from_files(
-                        src_file.paths, src_lang);
-                    auto target_functions = parser.extract_function_infos_from_files(
+                    auto source_functions = parser.extract_function_infos_from_files(src_file.paths, src_lang);
+
+                    auto target_prod_functions = parser.extract_function_infos_from_files(
                         tgt_file.paths, tgt_lang);
-                    auto fn_cov = function_name_coverage_with_lang(
-                        source_functions, target_functions, src_lang, tgt_lang);
 
-                    m.source_function_count = fn_cov.source_total;
-                    m.target_function_count = fn_cov.target_total;
-                    m.matched_function_count = fn_cov.matched;
-                    m.function_coverage = fn_cov.ratio;
-                    m.source_test_function_count = fn_cov.source_test_count;
-                    m.matched_test_function_count = fn_cov.matched_test_count;
+                    std::vector<std::string> all_target_paths = tgt_file.paths;
+                    all_target_paths.insert(all_target_paths.end(),
+                                            extra_kotlin_test_paths.begin(),
+                                            extra_kotlin_test_paths.end());
+                    auto target_all_functions = parser.extract_function_infos_from_files(
+                        all_target_paths, tgt_lang);
 
-                    auto ty_cov = type_name_coverage(
-                        symbol_src, symbol_tgt, src_lang, tgt_lang, src_file, tgt_file);
+                    // Overall function parity (includes tests) is computed against production + associated test units.
+                    auto fn_cov_all = function_name_coverage_with_lang(
+                        source_functions, target_all_functions, src_lang, tgt_lang);
+
+                    // Similarity should not be penalized by Rust cfg(test) contents being placed in Kotlin commonTest.
+                    // Compute production-only coverage for the similarity multiplier.
+                    std::vector<FunctionInfo> source_prod_only;
+                    source_prod_only.reserve(source_functions.size());
+                    for (const auto& f : source_functions) {
+                        if (!f.is_test) {
+                            source_prod_only.push_back(f);
+                        }
+                    }
+                    auto fn_cov_prod = function_name_coverage_with_lang(
+                        source_prod_only, target_prod_functions, src_lang, tgt_lang);
+
+                    // Explicit test parity reporting: compare Rust tests to Kotlin tests only.
+                    std::vector<FunctionInfo> source_tests_only;
+                    source_tests_only.reserve(source_functions.size());
+                    for (const auto& f : source_functions) {
+                        if (f.is_test) {
+                            source_tests_only.push_back(f);
+                        }
+                    }
+                    std::vector<FunctionInfo> target_tests_only;
+                    if (!extra_kotlin_test_paths.empty()) {
+                        target_tests_only = parser.extract_function_infos_from_files(
+                            extra_kotlin_test_paths, tgt_lang);
+                    }
+                    auto fn_cov_tests = function_name_coverage_with_lang(
+                        source_tests_only, target_tests_only, src_lang, tgt_lang);
+
+                    m.source_function_count = fn_cov_all.source_total;
+                    m.target_function_count = fn_cov_all.target_total;
+                    m.matched_function_count = fn_cov_all.matched;
+                    m.function_coverage = fn_cov_all.ratio;
+                    m.source_test_function_count = fn_cov_tests.source_total;
+                    m.matched_test_function_count = fn_cov_tests.matched;
+
+                    // Type parity is computed across production + associated test units so that test-local structs
+                    // (declared inside Rust cfg(test) blocks) can be matched to Kotlin commonTest ports.
+                    // NOTE: Kotlin-only extra helper types in tests may exist; they do not reduce coverage because we
+                    // only require every Rust type name to exist somewhere in the combined Kotlin units.
+                    TypeNameCoverage ty_cov;
+                    if ((src_lang == Language::RUST || src_lang == Language::CPP) && tgt_lang == Language::KOTLIN) {
+                        SourceFile combined_tgt = tgt_file;
+                        combined_tgt.paths = all_target_paths;
+                        ty_cov = type_name_coverage(symbol_src, symbol_tgt, src_lang, tgt_lang, src_file, combined_tgt);
+                    } else {
+                        ty_cov = type_name_coverage(symbol_src, symbol_tgt, src_lang, tgt_lang, src_file, tgt_file);
+                    }
                     m.source_type_count = ty_cov.source_total;
                     m.target_type_count = ty_cov.target_total;
                     m.matched_type_count = ty_cov.matched;
@@ -1461,7 +1546,7 @@ public:
                     // Type coverage is still reported separately (m.type_coverage) but is not
                     // folded into the similarity score to avoid false negatives for faithful
                     // transliterations that must introduce Kotlin-only type names.
-                    m.similarity = file_sim * fn_cov.ratio;
+                    m.similarity = file_sim * fn_cov_prod.ratio;
                 }
 
                 // Extract documentation statistics

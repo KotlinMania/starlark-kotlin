@@ -14,10 +14,10 @@ Use file comparisons and directory-level checks instead:
 
 ```bash
 # Deep comparison over directories
-./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
+./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark kotlin
 
 # Rank missing/priority (if available in your ast_distance build)
-./tools/ast_distance/ast_distance --rank tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
+./tools/ast_distance/ast_distance --rank tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark kotlin
 ```
 
 ### 2. Port-Lint Headers (REQUIRED)
@@ -26,13 +26,13 @@ Every Kotlin file MUST start with:
 
 ```kotlin
 // port-lint: source <path-relative-to-tmp/starlark>
-package io.github.kotlinmania.starlark_kotlin.module
+package io.github.kotlinmania.starlark.module
 ```
 
 Example:
 ```kotlin
 // port-lint: source src/values/layout.rs
-package io.github.kotlinmania.starlark_kotlin.values
+package io.github.kotlinmania.starlark.values
 ```
 
 This is how `ast_distance` tracks provenance — which Rust file each Kotlin file was translated from. Without this header, the file is invisible to all port analysis tooling. Never remove, move, or alter the header unless the file is being re-targeted to a different Rust source.
@@ -44,7 +44,7 @@ After porting a file, verify with:
 ```bash
 ./tools/ast_distance/ast_distance \
   tmp/starlark/src/values/layout.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+  src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
 ```
 
 **Target: Similarity ≥ 0.85** (excellent port)
@@ -151,7 +151,7 @@ Preserve error messages and context. Use Kotlin's `Result` type or throw appropr
 
 ```
 src/
-├── commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/
+├── commonMain/kotlin/io/github/kotlinmania/starlark/
 │   ├── values/      # Port of tmp/starlark/src/values/
 │   ├── eval/        # Port of tmp/starlark/src/eval/
 │   ├── typing/      # Port of tmp/starlark/src/typing/

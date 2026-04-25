@@ -168,7 +168,7 @@ void cmd_symbol_parity(const std::string& rust_root,
 
 struct KotlinTypeEntry {
     std::string name;              // Simple name (e.g., "Value")
-    std::string package;           // Package (e.g., "io.github.kotlinmania.starlark_kotlin.values.layout")
+    std::string package;           // Package (e.g., "io.github.kotlinmania.starlark.values.layout")
     std::string fqn;               // Fully qualified (package + name)
     std::string file;              // Relative file path
     int line = 0;
