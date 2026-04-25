@@ -221,7 +221,7 @@ class RecordTypeGen internal constructor(
     }
 
     // fn export_as(...)
-    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
+    override fun exportAs(variableName: String, _eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val fieldsTy = linkedMapOf<String, Ty>().apply {
                 for ((name, field) in fields) {

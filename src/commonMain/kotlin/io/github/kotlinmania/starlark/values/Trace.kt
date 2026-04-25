@@ -126,7 +126,7 @@ fun <T : Trace> traceBox(self: T, tracer: Tracer) {
 
 /** Trace for `()` — nothing to trace. */
 @Suppress("UNUSED_PARAMETER")
-fun traceUnit(tracer: Tracer) {
+fun traceUnit(_tracer: Tracer) {
 }
 
 /** Trace for 1-tuple `(T1,)`. */

@@ -127,7 +127,7 @@ interface StarlarkValue {
     fun isSpecial(): Boolean = false
 
     /** Function is implemented for type values. */
-    fun typeMatchesValue(value: Value): Boolean {
+    fun typeMatchesValue(_value: Value): Boolean {
         error("typeMatchesValue should only be called on special types")
     }
 
@@ -222,7 +222,7 @@ interface StarlarkValue {
      *
      * Equality must be symmetric (`a == b` implies `b == a`).
      */
-    fun equals(other: Value): Result<Boolean> {
+    fun equals(_other: Value): Result<Boolean> {
         // Type is only equal via a pointer
         return Result.success(false)
     }
@@ -241,23 +241,23 @@ interface StarlarkValue {
      * The number of `named` and `names` arguments are guaranteed to be equal.
      */
     fun invoke(
-        me: Value,
-        args: Arguments,
-        eval: Evaluator,
+        _me: Value,
+        _args: Arguments,
+        _eval: Evaluator,
     ): Result<Value> {
         return ValueError.unsupported(TYPE, "call()")
     }
 
     /** Return the result of `a[index]` if `a` is indexable. */
-    fun at(index: Value, heap: Heap): Result<Value> {
+    fun at(index: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "[]", index)
     }
 
     /** Return the result of `a[index0, index1]` if `a` is indexable by two parameters. */
     fun at2(
-        index0: Value,
-        index1: Value,
-        heap: Heap,
+        _index0: Value,
+        _index1: Value,
+        _heap: Heap,
     ): Result<Value> {
         return ValueError.unsupported(TYPE, "[,]")
     }
@@ -269,10 +269,10 @@ interface StarlarkValue {
      * `stride` indicates the direction.
      */
     fun slice(
-        start: Value?,
-        stop: Value?,
-        stride: Value?,
-        heap: Heap,
+        _start: Value?,
+        _stop: Value?,
+        _stride: Value?,
+        _heap: Heap,
     ): Result<Value> {
         return ValueError.unsupported(TYPE, "[::]")
     }
@@ -294,7 +294,7 @@ interface StarlarkValue {
      * Returned iterator value must implement
      * iterNext and iterStop.
      */
-    fun iterate(me: Value, heap: Heap): Result<Value> {
+    fun iterate(_me: Value, heap: Heap): Result<Value> {
         val collected = iterateCollect(heap)
         return collected.map { heap.allocTuple(it) }
     }
@@ -372,12 +372,12 @@ interface StarlarkValue {
     }
 
     /** Apply the `+` unary operator to the current value. */
-    fun plus(heap: Heap): Result<Value> {
+    fun plus(_heap: Heap): Result<Value> {
         return ValueError.unsupported(TYPE, "+")
     }
 
     /** Apply the `-` unary operator to the current value. */
-    fun minus(heap: Heap): Result<Value> {
+    fun minus(_heap: Heap): Result<Value> {
         return ValueError.unsupported(TYPE, "-")
     }
 
@@ -394,7 +394,7 @@ interface StarlarkValue {
     fun add(other: Value, heap: Heap): Result<Value>? = null
 
     /** Subtract `other` from the current value. */
-    fun sub(other: Value, heap: Heap): Result<Value> {
+    fun sub(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "-", other)
     }
 
@@ -409,7 +409,7 @@ interface StarlarkValue {
     fun mul(other: Value, heap: Heap): Result<Value>? = null
 
     /** Divide the current value by `other`. Always results in a float value. */
-    fun div(other: Value, heap: Heap): Result<Value> {
+    fun div(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "/", other)
     }
 
@@ -417,42 +417,42 @@ interface StarlarkValue {
      * Apply the percent operator between the current value and `other`. Usually used on
      * strings, as per the Starlark spec string interpolation.
      */
-    fun percent(other: Value, heap: Heap): Result<Value> {
+    fun percent(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "%", other)
     }
 
     /** Floor division between the current value and `other`. */
-    fun floorDiv(other: Value, heap: Heap): Result<Value> {
+    fun floorDiv(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "//", other)
     }
 
     /** Bitwise `&` operator. */
-    fun bitAnd(other: Value, heap: Heap): Result<Value> {
+    fun bitAnd(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "&", other)
     }
 
     /** Bitwise `|` operator. */
-    fun bitOr(other: Value, heap: Heap): Result<Value> {
+    fun bitOr(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "|", other)
     }
 
     /** Bitwise `^` operator. */
-    fun bitXor(other: Value, heap: Heap): Result<Value> {
+    fun bitXor(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "^", other)
     }
 
     /** Bitwise `~` operator. */
-    fun bitNot(heap: Heap): Result<Value> {
+    fun bitNot(_heap: Heap): Result<Value> {
         return ValueError.unsupported(TYPE, "~")
     }
 
     /** Bitwise `<<` operator. */
-    fun leftShift(other: Value, heap: Heap): Result<Value> {
+    fun leftShift(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "<<", other)
     }
 
     /** Bitwise `>>` operator. */
-    fun rightShift(other: Value, heap: Heap): Result<Value> {
+    fun rightShift(other: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, ">>", other)
     }
 
@@ -465,7 +465,7 @@ interface StarlarkValue {
     /** Called when exporting a value under a specific name. */
     fun exportAs(
         variableName: String,
-        eval: Evaluator,
+        _eval: Evaluator,
     ): Result<Unit> {
         // Most data types ignore how they are exported
         // but rules/providers like to use it as a helpful hint for users
@@ -473,7 +473,7 @@ interface StarlarkValue {
     }
 
     /** Set the value at `index` with the new value. */
-    fun setAt(index: Value, newValue: Value): Result<Unit> {
+    fun setAt(_index: Value, newValue: Value): Result<Unit> {
         return Result.failure(ValueError.CannotMutateImmutableValue)
     }
 

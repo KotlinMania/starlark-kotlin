@@ -151,7 +151,7 @@ open class PartialGen<V : Any, S : Any>(
 
     // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
     override fun invoke(
-        me: Value,
+        _me: Value,
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {

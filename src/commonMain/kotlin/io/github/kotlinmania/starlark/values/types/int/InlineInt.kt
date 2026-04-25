@@ -157,13 +157,13 @@ data class InlineInt internal constructor(private val value: Int) :
 
     // Rust: impl<'v> AllocValue<'v> for InlineInt
     // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_int(self) }
-    override fun allocValue(heap: Heap): Value {
+    override fun allocValue(_heap: Heap): Value {
         return Value.newInt(this)
     }
 
     // Rust: impl AllocFrozenValue for InlineInt
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_int(self) }
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
         return FrozenValue.newInt(this)
     }
 

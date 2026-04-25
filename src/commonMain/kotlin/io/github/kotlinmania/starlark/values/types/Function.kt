@@ -141,7 +141,7 @@ internal class NativeFunction(
     }
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return function.invoke(eval, args)
     }
 
@@ -158,7 +158,7 @@ internal class NativeFunction(
     override fun evalType(): Ty? = asType
 
     // fn has_attr(&self, _attribute: &str, _heap: Heap<'v>) -> bool
-    override fun hasAttr(attribute: String, heap: Heap): Boolean {
+    override fun hasAttr(_attribute: String, _heap: Heap): Boolean {
         return false
     }
 
@@ -328,7 +328,7 @@ internal class BoundMethodGen<V>(
     }
 
     // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return method.asRef().function.invoke(eval, thisAsValue(), args)
     }
 

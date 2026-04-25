@@ -103,7 +103,7 @@ class TupleGen<V>(
         return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).compare(y) }
     }
 
-    override fun at(index: Value, heap: Heap): Result<Value> {
+    override fun at(index: Value, _heap: Heap): Result<Value> {
         val i = convertIndex(index, len()).getOrElse { return Result.failure(it) }
         return Result.success((content()[i] as ValueLike).toValue())
     }

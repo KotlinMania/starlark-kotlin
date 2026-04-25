@@ -58,12 +58,12 @@ internal object AValueTuple : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(_tracer: Tracer): Value {
         error("heapCopy should be dispatched via vtable with actual value")
     }
 
@@ -87,12 +87,12 @@ internal object AValueFrozenTuple : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(_me, _freezer) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 
     // unsafe fn heap_copy(_me, _tracer) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(_tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

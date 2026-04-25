@@ -60,14 +60,14 @@ internal object AValueList : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         // In the full implementation, this is called via vtable dispatch
         // with the actual StarlarkValue. The object form uses unpack() as placeholder.
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
     // unsafe fn heap_copy(me: ..., tracer: &Tracer<'v>) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(_tracer: Tracer): Value {
         error("heapCopy should be dispatched via vtable with actual value")
     }
 
@@ -90,12 +90,12 @@ internal object AValueFrozenList : AValue {
     override fun offsetOfExtra(): Int = 0
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("already frozen")
     }
 
     // unsafe fn heap_copy(...) -> Value<'v>
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(_tracer: Tracer): Value {
         error("shouldn't be copying frozen values")
     }
 

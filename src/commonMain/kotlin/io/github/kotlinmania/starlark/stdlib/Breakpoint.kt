@@ -85,7 +85,7 @@ private enum class Next {
     Fail,   // Stop running
 }
 
-private fun cmdHelp(eval: Evaluator, rl: BreakpointConsole): Next {
+private fun cmdHelp(_eval: Evaluator, rl: BreakpointConsole): Next {
     for ((names, msg, _) in COMMANDS) {
         rl.println("* :${names[0]}, $msg")
     }
@@ -114,11 +114,11 @@ private fun cmdStack(eval: Evaluator, rl: BreakpointConsole): Next {
     return Next.Again
 }
 
-private fun cmdResume(eval: Evaluator, rl: BreakpointConsole): Next {
+private fun cmdResume(_eval: Evaluator, _rl: BreakpointConsole): Next {
     return Next.Resume
 }
 
-private fun cmdFail(eval: Evaluator, rl: BreakpointConsole): Next {
+private fun cmdFail(_eval: Evaluator, _rl: BreakpointConsole): Next {
     return Next.Fail
 }
 

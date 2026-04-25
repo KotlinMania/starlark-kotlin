@@ -253,7 +253,7 @@ class TyStarlarkValue private constructor(
         }
     }
 
-    internal fun index(index: TyBasic): Result<Ty> {
+    internal fun index(_index: TyBasic): Result<Ty> {
         return if (vtable.hasAt) {
             Result.success(Ty.any())
         } else {

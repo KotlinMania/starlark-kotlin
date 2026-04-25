@@ -414,7 +414,7 @@ internal class BcInstrs private constructor(
      */
     private fun fmtAppendArg(
         ptr: BcPtrAddr,
-        ip: BcAddr,
+        _ip: BcAddr,
         endArg: BcInstrEndArg?,
         sb: StringBuilder,
     ) {

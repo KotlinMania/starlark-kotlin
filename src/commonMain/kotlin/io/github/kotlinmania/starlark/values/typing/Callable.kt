@@ -177,7 +177,7 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     }
 
     // impl AllocValue for StarlarkCallable
-    override fun allocValue(heap: Heap): Value {
+    override fun allocValue(_heap: Heap): Value {
         return value
     }
 }
@@ -210,7 +210,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
     }
 
     // impl AllocFrozenValue for FrozenStarlarkCallable
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
         return value
     }
 
@@ -278,7 +278,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     }
 
     // impl AllocValue for StarlarkCallableChecked
-    override fun allocValue(heap: Heap): Value {
+    override fun allocValue(_heap: Heap): Value {
         return value
     }
 }

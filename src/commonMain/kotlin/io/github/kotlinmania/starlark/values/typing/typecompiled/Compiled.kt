@@ -140,7 +140,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
 
 /** Dummy type matcher used as a canonical type. */
 class DummyTypeMatcher : TypeMatcher {
-    override fun matches(value: Value): Boolean {
+    override fun matches(_value: Value): Boolean {
         throw IllegalStateException("unreachable")
     }
 

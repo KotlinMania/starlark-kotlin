@@ -111,7 +111,7 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     // impl<'v> AllocValue<'v> for NoneType
     // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_none() }
-    override fun allocValue(heap: Heap): Value {
+    override fun allocValue(_heap: Heap): Value {
         return Value.newNone()
     }
 
@@ -127,7 +127,7 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 
     // impl AllocFrozenValue for NoneType
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue { FrozenValue::new_none() }
-    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
         return FrozenValue.newNone()
     }
 

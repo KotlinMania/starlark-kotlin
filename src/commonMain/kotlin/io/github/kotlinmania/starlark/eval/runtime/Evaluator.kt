@@ -871,9 +871,9 @@ internal interface EvaluationCallbacks {
 
 internal object EvalCallbacksDisabled : EvaluationCallbacks {
     override fun beforeInstr(
-        eval: Evaluator,
-        ip: BcPtrAddr,
-        opcode: BcOpcode,
+        _eval: Evaluator,
+        _ip: BcPtrAddr,
+        _opcode: BcOpcode,
     ) {
         // No-op
     }

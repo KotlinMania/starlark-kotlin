@@ -873,7 +873,7 @@ internal class DefGen<V>(
     /**
      * Returns the name used in call stack frames.
      */
-    override fun nameForCallStack(me: Value): String {
+    override fun nameForCallStack(_me: Value): String {
         return defInfo.name.asStr()
     }
 

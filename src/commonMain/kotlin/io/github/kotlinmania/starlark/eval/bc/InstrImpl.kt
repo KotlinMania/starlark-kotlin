@@ -95,7 +95,7 @@ internal fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
     v0.add(v1, heap)
 internal fun bitOrAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
     v0.bitOr(v1, heap)
-internal fun possibleGc(eval: Evaluator) {}
+internal fun possibleGc(_eval: Evaluator) {}
 internal fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
     kotlin.Result.success(StringValue.default())
 internal fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue.default()
@@ -940,7 +940,7 @@ internal object InstrDictNewImpl : InstrNoFlowImpl<BcSlotOut> {
 
 internal object InstrComprListAppend : BcInstr<Pair<BcSlotIn, BcSlotIn>> {
     override fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcSlotIn>,
@@ -956,7 +956,7 @@ internal object InstrComprListAppend : BcInstr<Pair<BcSlotIn, BcSlotIn>> {
 
 internal object InstrComprDictInsert : BcInstr<Triple<BcSlotIn, BcSlotIn, BcSlotIn>> {
     override fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Triple<BcSlotIn, BcSlotIn, BcSlotIn>,
@@ -1002,7 +1002,7 @@ internal object InstrCheckTypeImpl : InstrNoFlowImpl<Pair<BcSlotIn, TypeCompiled
 
 internal object InstrBr {
     fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         _frame: BcFramePtr,
         ip: BcPtrAddr,
         target: BcAddrOffset,
@@ -1013,7 +1013,7 @@ internal object InstrBr {
 
 internal object InstrIfBr : BcInstr<Pair<BcSlotIn, BcAddrOffset>> {
     override fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcAddrOffset>,
@@ -1030,7 +1030,7 @@ internal object InstrIfBr : BcInstr<Pair<BcSlotIn, BcAddrOffset>> {
 
 internal object InstrIfNotBr : BcInstr<Pair<BcSlotIn, BcAddrOffset>> {
     override fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcAddrOffset>,
@@ -1117,7 +1117,7 @@ internal object InstrContinue {
 /** `break` statement. */
 internal object InstrBreak {
     fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcAddrOffset>,
@@ -1132,7 +1132,7 @@ internal object InstrBreak {
 /** Stop all the iterations to release mutation locks before `return`. */
 internal object InstrIterStop : BcInstr<BcSlotIn> {
     override fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: BcSlotIn,
@@ -1148,9 +1148,9 @@ internal object InstrIterStop : BcInstr<BcSlotIn> {
 
 internal object InstrReturnConst {
     fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         _frame: BcFramePtr,
-        ip: BcPtrAddr,
+        _ip: BcPtrAddr,
         value: FrozenValue,
     ): InstrControl {
         return InstrControl.Return(value.toValue())
@@ -1159,9 +1159,9 @@ internal object InstrReturnConst {
 
 internal object InstrReturn {
     fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         frame: BcFramePtr,
-        ip: BcPtrAddr,
+        _ip: BcPtrAddr,
         slot: BcSlotIn,
     ): InstrControl {
         val v = frame.getBcSlot(slot)
@@ -1173,7 +1173,7 @@ internal object InstrReturnCheckType {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
-        ip: BcPtrAddr,
+        _ip: BcPtrAddr,
         slot: BcSlotIn,
     ): InstrControl {
         val v = frame.getBcSlot(slot)
@@ -1535,9 +1535,9 @@ internal object InstrPossibleGcImpl : InstrNoFlowImpl<Unit> {
  */
 internal object InstrEnd {
     fun run(
-        eval: Evaluator,
+        _eval: Evaluator,
         _frame: BcFramePtr,
-        ip: BcPtrAddr,
+        _ip: BcPtrAddr,
         _arg: BcInstrEndArg,
     ): InstrControl {
         throw IllegalStateException("this instruction is not meant to be executed")

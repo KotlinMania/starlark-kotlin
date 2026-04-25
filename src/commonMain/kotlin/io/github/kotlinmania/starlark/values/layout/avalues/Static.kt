@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 internal class AValueBasic<T : StarlarkValue> : AValue {
 
     // fn extra_len(_value: &T) -> usize
-    override fun extraLen(value: StarlarkValue): Int {
+    override fun extraLen(_value: StarlarkValue): Int {
         error("Basic types don't appear in the heap")
     }
 
@@ -53,12 +53,12 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
     }
 
     // unsafe fn heap_freeze(me, freezer) -> Result<FrozenValue>
-    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("Basic types don't appear in the heap")
     }
 
     // unsafe fn heap_copy(me, tracer) -> Value
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(_tracer: Tracer): Value {
         error("Basic types don't appear in the heap")
     }
 
@@ -68,7 +68,7 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
     }
 
     // fn total_memory_for_profile(_value: &Self::StarlarkValue) -> usize
-    override fun totalMemoryForProfile(value: StarlarkValue): Int {
+    override fun totalMemoryForProfile(_value: StarlarkValue): Int {
         // This avalue is always statically allocated so don't charge anyone for the memory.
         //
         // The fact that we need this at all is a bit weird - it comes about only because of the way

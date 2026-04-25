@@ -108,7 +108,7 @@ private class GlobalTypesBuilder(
     }
 
     // fn call(&mut self, _f: &CstExpr, _args: &CallArgsP<CstPayload>) -> Result<GlobalValue, InternalError>
-    fun call(f: Spanned<ExprP<CstPayload>>, args: CallArgsP<CstPayload>): GlobalValue {
+    fun call(_f: Spanned<ExprP<CstPayload>>, _args: CallArgsP<CstPayload>): GlobalValue {
         return GlobalValue.any()
     }
 
