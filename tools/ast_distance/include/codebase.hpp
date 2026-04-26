@@ -1186,144 +1186,21 @@ public:
         return cov;
     }
 
-    static bool rust_kotlin_ignorable_function_name_for_coverage(const std::string& canonical_name) {
-        // Rust trait impl methods frequently appear as small, repeated function names
-        // (e.g. `fmt`, `eq`) that don't exist as explicit functions in Kotlin ports
-        // (they map to `toString`/`equals`/`hashCode`).
-        //
-        // Requiring these names for parity creates systematic false negatives on
-        // faithful Rust→Kotlin transliterations.
-        //
-        // Keep this list small and explicit to preserve the strength of function-set
-        // parity as a guardrail against logic rewrites.
-        static const std::unordered_set<std::string> k = {
-            "fmt",
-            "eq",
-            "hash",
-            "partialcmp",
-            "cmp",
-            "equivalent",
-            "default",
-            "serialize",
-            // Rust assigns via traits (`AddAssign`, `SubAssign`, `MulAssign`) which don't appear as
-            // explicit function names in Kotlin (Kotlin desugars `+=` to `a = a + b` when no
-            // `plusAssign` exists, which is the correct pattern for immutable value types).
-            "addassign",
-            "subassign",
-            "mulassign",
-            // Local helper in Rust (`fn split_at_safe` inside `display_for_type_error`).
-            // Kotlin ports may keep this helper local or inline it, and Kotlin function
-            // extraction is less reliable for nested locals, so do not require it.
-            "splitatsafe",
-        };
-        return k.find(canonical_name) != k.end();
+    static bool rust_kotlin_ignorable_function_name_for_coverage(const std::string& /*canonical_name*/) {
+        // Strict parity: every Rust function name must have a Kotlin counterpart.
+        // No exemptions — Rust trait methods (`fmt`, `eq`, `hash`, `cmp`, `default`, etc.)
+        // are required to surface as Kotlin functions or be flagged as missing.
+        return false;
     }
 
     static std::vector<FunctionInfo> rust_kotlin_augment_target_functions_for_coverage(
             const std::vector<FunctionInfo>& target_functions) {
-        // Function-name coverage is a guardrail: it ensures ports preserve the set of meaningful
-        // behaviors within a file. However, some Rust behaviors are expressed through trait
-        // methods whose names do not exist literally in Kotlin ports:
-        //   - `Mul::mul` maps to `operator fun times(...)`
-        //   - `Ord::cmp` / `PartialOrd::partial_cmp` map to `compareTo`
-        //   - `Add::add` / `Sub::sub` may map to `plus` / `minus` operator functions
-        //
-        // To avoid false negatives on faithful transliterations, we augment the Kotlin function
-        // set with a small, explicit set of canonical equivalents for coverage matching only.
-        std::vector<FunctionInfo> out = target_functions;
-
-        std::unordered_set<std::string> present;
-        present.reserve(target_functions.size());
-        bool has_to_string_raw = false;
-        bool has_compare_to_raw = false;
-        for (const auto& f : target_functions) {
-            if (f.name.empty() || f.name == "<anonymous>") continue;
-            if (f.name == "toString") has_to_string_raw = true;
-            if (f.name == "compareTo") has_compare_to_raw = true;
-            present.insert(IdentifierStats::canonicalize(f.name));
-        }
-
-        auto add_if_missing = [&](const std::string& name) {
-            std::string key = IdentifierStats::canonicalize(name);
-            if (present.find(key) != present.end()) return;
-            FunctionInfo fi;
-            fi.name = name;
-            out.push_back(std::move(fi));
-            present.insert(std::move(key));
-        };
-
-        if (present.find("times") != present.end()) {
-            add_if_missing("mul");
-        }
-        if (present.find("compareto") != present.end() || has_compare_to_raw) {
-            add_if_missing("cmp");
-            add_if_missing("partial_cmp");
-        }
-        if (present.find("plus") != present.end()) {
-            add_if_missing("add");
-        }
-        if (present.find("minus") != present.end()) {
-            add_if_missing("sub");
-        }
-        if (present.find("hashcode") != present.end()) {
-            add_if_missing("hash");
-        }
-        if (present.find("tostring") != present.end() || has_to_string_raw) {
-            add_if_missing("fmt");
-        }
-        if (present.find("to") != present.end()) {
-            add_if_missing("bitor");
-        }
-        // Kotlin operator-fun unary minus → Rust `Neg::neg`.
-        if (present.find("unaryminus") != present.end()) {
-            add_if_missing("neg");
-        }
-        // Kotlin operator-fun unary plus → Rust `UnaryOp` impls (rare but symmetric).
-        if (present.find("unaryplus") != present.end()) {
-            add_if_missing("pos");
-        }
-        // Kotlin assignment-operator funs → Rust `*Assign` traits.
-        if (present.find("plusassign") != present.end()) {
-            add_if_missing("add_assign");
-            add_if_missing("addassign");
-        }
-        if (present.find("minusassign") != present.end()) {
-            add_if_missing("sub_assign");
-            add_if_missing("subassign");
-        }
-        if (present.find("timesassign") != present.end()) {
-            add_if_missing("mul_assign");
-            add_if_missing("mulassign");
-        }
-        if (present.find("divassign") != present.end()) {
-            add_if_missing("div_assign");
-            add_if_missing("divassign");
-        }
-        if (present.find("remassign") != present.end()) {
-            add_if_missing("rem_assign");
-            add_if_missing("remassign");
-        }
-        // Kotlin `equals` (override of Any) → Rust `Eq::eq` / `PartialEq::eq`.
-        if (present.find("equals") != present.end()) {
-            add_if_missing("eq");
-        }
-        // Kotlin `iterator` (override of Iterable) → Rust `IntoIterator::into_iter`.
-        if (present.find("iterator") != present.end()) {
-            add_if_missing("into_iter");
-            add_if_missing("intoiter");
-            add_if_missing("iter");
-        }
-        // Kotlin `get(...)` operator overload → Rust `Index::index`.
-        if (present.find("get") != present.end()) {
-            add_if_missing("index");
-        }
-        // Kotlin `set(...)` operator overload → Rust `IndexMut::index_mut`.
-        if (present.find("set") != present.end()) {
-            add_if_missing("index_mut");
-            add_if_missing("indexmut");
-        }
-
-        return out;
+        // Strict parity: do not silently add synthetic Kotlin function names to satisfy
+        // Rust trait-method coverage. If `Ord::cmp` exists in Rust, the port must declare
+        // a Kotlin function whose snake_case→camelCase canonical form matches `cmp`
+        // (e.g. literally name it `cmp`). Operator-fun renames like `times`/`plus`/`compareTo`
+        // are real naming drift and should surface as a coverage gap, not be papered over.
+        return target_functions;
     }
 
     static FunctionNameCoverage function_name_coverage_with_lang(

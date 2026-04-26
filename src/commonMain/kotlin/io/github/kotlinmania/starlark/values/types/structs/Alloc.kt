@@ -67,9 +67,9 @@ data class AllocStruct<S>(val value: S) {
  * Implementation of StarlarkTypeRepr for AllocStruct<S>
  * where S: IntoIterator, S::Item = (K, V), V: StarlarkTypeRepr.
  *
- * In Kotlin, we provide this as an extension function on the companion object.
+ * Rust: impl<K, V, S> StarlarkTypeRepr for AllocStruct<S> where ... { fn starlark_type_repr() -> Ty { Struct::starlark_type_repr() } }
  */
-inline fun <reified K, reified V, reified S> allocStructStarlarkTypeRepr(): Ty
+inline fun <reified K, reified V, reified S> starlarkTypeRepr(): Ty
     where S : Iterable<Pair<K, V>>,
           V : StarlarkTypeRepr {
     // Return the canonical type for StructRef

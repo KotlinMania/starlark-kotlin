@@ -422,8 +422,13 @@ class FrozenHeap internal constructor(
      * Port of `FrozenHeap::alloc_str_intern`.
      */
     fun allocStrIntern(s: String): FrozenStringValue {
-        // Simplified interning: just allocate the string.
-        // A full implementation would use an interner to deduplicate.
+        // Match Rust's `alloc_str_hashed`: short strings (len <= 1) live in the
+        // static `constant_string` table and must not flow through arena allocation,
+        // because `MIN_ALLOC` is larger than a single-byte string payload.
+        val constant = io.github.kotlinmania.starlark.values.layout.constantString(s)
+        if (constant != null) {
+            return constant
+        }
         val hash = StarlarkHashValue.new(s)
         val bytes = s.encodeToByteArray()
         return allocStrInit(bytes.size, hash) { dst ->

@@ -137,7 +137,6 @@ internal class Alloca {
     fun <T, R> allocaUninit(len: Int, k: (MutableList<T?>) -> R): R {
         assertState()
 
-        val startBufferIndex = buffers.lastIndex
         var start = alloc
 
         val remWords = end - start
@@ -146,13 +145,16 @@ internal class Alloca {
             allocateMore(len, Layout(ALIGN, ALIGN))
             start = alloc
         }
+        // Capture the active buffer AFTER any growth so the rollback check below
+        // mirrors Rust's `ptr::eq(self.alloc.get(), stop)` — we only need to know
+        // whether the callback added another buffer beyond the one we just sat in.
+        val startBufferIndex = buffers.lastIndex
 
         val sizeWords = lenInTToLenInWords<T>(len)
         val stop = start + sizeWords
         val old = start
         alloc = stop
 
-        val buffer = buffers.last()
         val data = MutableList<T?>(len) { null }
         val res = k(data)
 

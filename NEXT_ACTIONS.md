@@ -4,14 +4,22 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 81.4% (396/468 files)
-- **Matched Files:** 381
-- **Average Similarity:** 0.64
-- **Critical Issues:** 125 files with <0.60 similarity
+- **Current Progress:** 81.0% (395/468 files)
+- **Matched Files:** 379
+- **Average Similarity:** 0.60
+- **Critical Issues:** 150 files with <0.60 similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
-### 1. coerce
+### 1. int.inline_int
+- **Similarity:** 0.61 (needs 24% improvement)
+- **Dependencies:** 11
+- **Priority Score:** 199.4
+- **Symbol Deficit:** 13 (functions: 10, types: 3)
+- **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
+- **Action:** Review and complete missing sections
+
+### 2. coerce
 - **Similarity:** 0.61 (needs 24% improvement)
 - **Dependencies:** 34
 - **Priority Score:** 195.1
@@ -19,30 +27,37 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 4 of 4 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
-### 2. int.inline_int
-- **Similarity:** 0.67 (needs 18% improvement)
-- **Dependencies:** 11
-- **Priority Score:** 168.8
-- **Symbol Deficit:** 11 (functions: 8, types: 3)
-- **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
-- **Action:** Review and complete missing sections
-
 ### 3. values.value_of_unchecked
-- **Similarity:** 0.84 (needs 1% improvement)
+- **Similarity:** 0.77 (needs 8% improvement)
 - **Dependencies:** 20
-- **Priority Score:** 147.3
-- **Symbol Deficit:** 9 (functions: 5, types: 4)
+- **Priority Score:** 164.4
+- **Symbol Deficit:** 10 (functions: 6, types: 4)
 - **Missing Tests:** 6 of 6 `#[test]` functions have no Kotlin counterpart
 - **Action:** Minor refinements needed
 
-### 4. values.frozen_ref
-- **Similarity:** 0.85 (needs 0% improvement)
-- **Dependencies:** 27
-- **Priority Score:** 35.9
-- **Symbol Deficit:** 2 (functions: 0, types: 2)
+### 4. typing.starlark_value
+- **Similarity:** 0.72 (needs 13% improvement)
+- **Dependencies:** 76
+- **Priority Score:** 118.1
+- **Symbol Deficit:** 6 (functions: 6, types: 0)
+- **Action:** Review and complete missing sections
+
+### 5. environment.globals
+- **Similarity:** 0.80 (needs 5% improvement)
+- **Dependencies:** 20
+- **Priority Score:** 115.6
+- **Symbol Deficit:** 7 (functions: 6, types: 1)
+- **Missing Tests:** 5 of 5 `#[test]` functions have no Kotlin counterpart
 - **Action:** Minor refinements needed
 
-### 5. layout.const_frozen_string
+### 6. values.frozen_ref
+- **Similarity:** 0.70 (needs 15% improvement)
+- **Dependencies:** 27
+- **Priority Score:** 88.4
+- **Symbol Deficit:** 5 (functions: 3, types: 2)
+- **Action:** Review and complete missing sections
+
+### 7. layout.const_frozen_string
 - **Similarity:** 0.70 (needs 15% improvement)
 - **Dependencies:** 12
 - **Priority Score:** 34.1
@@ -50,52 +65,39 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
-### 6. util.refcell
-- **Similarity:** 0.54 (needs 31% improvement)
+### 8. util.refcell
+- **Similarity:** 0.52 (needs 33% improvement)
 - **Dependencies:** 20
-- **Priority Score:** 23.1
+- **Priority Score:** 23.3
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Missing Tests:** 1 of 1 `#[test]` functions have no Kotlin counterpart
 - **Action:** Deep review - likely missing major functionality
 
-### 7. values.error
-- **Similarity:** 0.51 (needs 34% improvement)
-- **Dependencies:** 17
-- **Priority Score:** 22.9
+### 9. runtime.frame_span
+- **Similarity:** 0.60 (needs 25% improvement)
+- **Dependencies:** 26
+- **Priority Score:** 23.1
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
-- **Action:** Deep review - likely missing major functionality
-
-### 8. values.freeze
-- **Similarity:** 0.78 (needs 7% improvement)
-- **Dependencies:** 42
-- **Priority Score:** 21.6
-- **Symbol Deficit:** 1 (functions: 0, types: 1)
-- **Action:** Minor refinements needed
-
-### 9. util.arc_str
-- **Similarity:** 0.67 (needs 18% improvement)
-- **Dependencies:** 21
-- **Priority Score:** 21.3
-- **Symbol Deficit:** 1 (functions: 0, types: 1)
 - **Action:** Review and complete missing sections
 
-### 10. debug
-- **Similarity:** 0.05 (needs 80% improvement)
-- **Dependencies:** 53
-- **Priority Score:** 19.0
+### 10. values.error
+- **Similarity:** 0.50 (needs 35% improvement)
+- **Dependencies:** 17
+- **Priority Score:** 23.0
+- **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Action:** Deep review - likely missing major functionality
 
 ## Priority 2: Port Missing High-Value Files
 
 Critical missing files (>10 dependencies):
 
-1. **layout.heap** (109 deps)
-   - Path: `values/layout/heap.rs`
-   - Essential for 109 other files
-
-2. **assert** (84 deps)
+1. **assert** (84 deps)
    - Path: `assert.rs`
    - Essential for 84 other files
+
+2. **debug** (53 deps)
+   - Path: `debug.rs`
+   - Essential for 53 other files
 
 3. **derive.unpack_value** (51 deps)
    - Path: `tests/derive/unpack_value.rs`
@@ -124,3 +126,17 @@ cd tools/ast_distance
 # Get next high-priority task
 ./ast_distance --assign tasks.json <agent-id>
 ```
+## Reexport / Wiring Modules
+
+These files match patterns in `ast_distance.config.json` (`reexport_modules`) and are excluded from the priority and
+missing ladders above. They are typically declarations-only
+(`pub mod foo; pub use bar::*;`) and should NOT be transliterated
+directly. **Consult them when porting** — they tell you which
+submodule a caller actually resolves to in the Rust source.
+
+### Untracked (no matching Kotlin file)
+
+| Source | Deps | Path |
+|--------|------|------|
+| `layout.heap` | 109 | `values/layout/heap.rs` |
+

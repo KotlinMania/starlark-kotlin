@@ -282,7 +282,7 @@ internal fun Compiler.populateTypesInStmt(
  * Visit all type expressions in this statement.
  * Port of `StmtP::visit_type_expr_err_mut` from starlark_syntax uniplate.rs.
  */
-private fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
+internal fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
     f: (Spanned<TypeExprP<P, *>>) -> Unit,
 ) {
     when (this) {

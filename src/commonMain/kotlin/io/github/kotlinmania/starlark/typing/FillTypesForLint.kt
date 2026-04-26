@@ -27,8 +27,13 @@ import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.Slot
 import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark.eval.compiler.BindingId
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
+import io.github.kotlinmania.starlark.eval.compiler.visitTypeExprErrMut
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
+import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark.values.types.list.allocList
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -474,21 +479,147 @@ private class GlobalTypesBuilder(
     }
 
     // fn from_type_expr_impl(&mut self, x: &Spanned<TypeExprUnpackP<CstPayload>>) -> Result<Ty, InternalError>
-    // TypeExprUnpackP is not yet ported as a Kotlin type.
-    // This function currently cannot be fully implemented until TypeExprUnpackP is ported.
-    // For now we provide a stub that returns Ty.any() with an approximation.
-    fun fromTypeExprImpl(x: Spanned<*>): Ty {
-        approximations.add(Approximation.new("TypeExprUnpackP not yet ported", x))
-        return Ty.any()
+    fun fromTypeExprImpl(x: Spanned<TypeExprUnpackP<CstPayload, ResolvedIdent?>>): Ty {
+        return when (val node = x.node) {
+            is TypeExprUnpackP.Ellipsis<CstPayload, ResolvedIdent?> -> {
+                approximations.add(Approximation.new("Ellipsis cannot be used as type", x))
+                Ty.any()
+            }
+            is TypeExprUnpackP.List<CstPayload, ResolvedIdent?> -> {
+                approximations.add(Approximation.new("List literal [...] cannot be used as type", x))
+                Ty.any()
+            }
+            is TypeExprUnpackP.Tuple<CstPayload, ResolvedIdent?> -> {
+                Ty.tuple(node.xs.map { fromTypeExprImpl(it) })
+            }
+            is TypeExprUnpackP.Union<CstPayload, ResolvedIdent?> -> {
+                Ty.unions(node.xs.map { fromTypeExprImpl(it) })
+            }
+            is TypeExprUnpackP.Path<CstPayload, ResolvedIdent?> -> {
+                pathTy(node.path.first, node.path.rem)
+            }
+            is TypeExprUnpackP.Index<CstPayload, ResolvedIdent?> -> {
+                val pathFirst = node.ident
+                val pathSpanned = Spanned(
+                    node = io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP<CstPayload, ResolvedIdent?>(
+                        first = pathFirst,
+                        rem = emptyList(),
+                    ),
+                    span = pathFirst.span,
+                )
+                val a = exprIdent(pathFirst).value
+                if (a == null) {
+                    approximations.add(Approximation.new("Not global", x))
+                    return Ty.any()
+                }
+                val fnList = Constants.get().fnList?.value?.toValue()
+                if (fnList == null || !a.ptrEq(fnList)) {
+                    approximations.add(Approximation.new("Not list", x))
+                    return Ty.any()
+                }
+                val i = fromTypeExprImpl(node.index)
+                val iCompiled = TypeCompiled.fromTy(i, heap)
+                val atResult = a.getRef().at(iCompiled.toInner(), heap)
+                atResult.fold(
+                    onSuccess = { t ->
+                        try {
+                            TypeCompiled.new(t, heap).asTy()
+                        } catch (e: Exception) {
+                            approximations.add(Approximation.new("TypeCompiled::new failed", x))
+                            Ty.any()
+                        }
+                    },
+                    onFailure = { e ->
+                        approximations.add(Approximation.new("Getitem failed", e))
+                        Ty.any()
+                    },
+                )
+            }
+            is TypeExprUnpackP.Index2<CstPayload, ResolvedIdent?> -> {
+                val a = evalPath(node.path.node.first, node.path.node.rem)
+                if (a == null) {
+                    approximations.add(Approximation.new("Not global", x))
+                    return Ty.any()
+                }
+                val constants = Constants.get()
+                val fnDict = constants.fnDict?.value?.toValue()
+                val fnTuple = constants.fnTuple?.value?.toValue()
+                val typingCallable = constants.typingCallable?.value?.toValue()
+                when {
+                    fnDict != null && a.ptrEq(fnDict) -> {
+                        val i0 = fromTypeExprImpl(node.i0)
+                        val i1 = fromTypeExprImpl(node.i1)
+                        val r0 = TypeCompiled.fromTy(i0, heap)
+                        val r1 = TypeCompiled.fromTy(i1, heap)
+                        a.getRef().at2(r0.toInner(), r1.toInner(), heap).fold(
+                            onSuccess = { t ->
+                                try { TypeCompiled.new(t, heap).asTy() } catch (e: Exception) {
+                                    approximations.add(Approximation.new("TypeCompiled::new failed", x))
+                                    Ty.any()
+                                }
+                            },
+                            onFailure = { e ->
+                                approximations.add(Approximation.new("Getitem2 failed", e))
+                                Ty.any()
+                            },
+                        )
+                    }
+                    fnTuple != null && a.ptrEq(fnTuple) -> {
+                        val i0 = fromTypeExprImpl(node.i0)
+                        if (node.i1.node !is TypeExprUnpackP.Ellipsis<*, *>) {
+                            approximations.add(Approximation.new("Expecting ellipsis in tuple[x, ...]", x))
+                            return Ty.any()
+                        }
+                        val r0 = TypeCompiled.fromTy(i0, heap)
+                        a.getRef().at2(r0.toInner(), Ellipsis.newValue().toValue(), heap).fold(
+                            onSuccess = { t ->
+                                try { TypeCompiled.new(t, heap).asTy() } catch (e: Exception) {
+                                    approximations.add(Approximation.new("TypeCompiled::new failed", x))
+                                    Ty.any()
+                                }
+                            },
+                            onFailure = { e ->
+                                approximations.add(Approximation.new("Getitem2 failed", e))
+                                Ty.any()
+                            },
+                        )
+                    }
+                    typingCallable != null && a.ptrEq(typingCallable) -> {
+                        val items = node.i0.node
+                        if (items !is TypeExprUnpackP.List<CstPayload, ResolvedIdent?>) {
+                            approximations.add(Approximation.new("Expecting list in Callable[[...], ...]", x))
+                            return Ty.any()
+                        }
+                        val argList = items.items.map { TypeCompiled.fromTy(fromTypeExprImpl(it), heap).toInner() }
+                        val argsValue = heap.allocList(argList)
+                        val ret = fromTypeExprImpl(node.i1)
+                        val retValue = TypeCompiled.fromTy(ret, heap).toInner()
+                        a.getRef().at2(argsValue, retValue, heap).fold(
+                            onSuccess = { t ->
+                                try { TypeCompiled.new(t, heap).asTy() } catch (e: Exception) {
+                                    approximations.add(Approximation.new("TypeCompiled::new failed", x))
+                                    Ty.any()
+                                }
+                            },
+                            onFailure = { e ->
+                                approximations.add(Approximation.new("Getitem2 failed", e))
+                                Ty.any()
+                            },
+                        )
+                    }
+                    else -> {
+                        approximations.add(Approximation.new("Not dict or tuple", x))
+                        Ty.any()
+                    }
+                }
+            }
+        }
     }
 
     // fn ty_expr(&mut self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
     fun tyExpr(expr: Spanned<TypeExprP<CstPayload, *>>): Ty {
-        // TypeExprUnpackP.unpack not yet available
-        // When TypeExprUnpackP is ported, this should be:
-        //   val x = TypeExprUnpackP.unpack(expr.node.expr, ctx.codemap)
-        //   return fromTypeExprImpl(x)
-        return Ty.any()
+        val unpacked = TypeExprUnpackP.unpack<CstPayload, ResolvedIdent?>(expr.node.expr, ctx.codemap)
+        return fromTypeExprImpl(unpacked)
     }
 
     // fn get_ty_expr(&self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
@@ -506,10 +637,14 @@ private class GlobalTypesBuilder(
 
     // fn fill_types(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>
     fun fillTypes(stmt: Spanned<StmtP<CstPayload>>) {
-        // stmt.visit_type_expr_err_mut is not available yet.
-        // When it is ported, this should iterate over all type expressions
-        // in the statement and set their typecheckerTy payload.
-        // For now, this is a no-op since we can't traverse type expressions.
+        stmt.node.visitTypeExprErrMut { typeExpr ->
+            val payload = typeExpr.node.payload as? CstTypeExprPayload
+                ?: throw internalError(typeExpr.span, "type expr without CstTypeExprPayload")
+            if (payload.typecheckerTy != null) {
+                throw internalError(typeExpr.span, "type already set")
+            }
+            payload.typecheckerTy = tyExpr(typeExpr)
+        }
     }
 
     // fn top_level_stmt(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>

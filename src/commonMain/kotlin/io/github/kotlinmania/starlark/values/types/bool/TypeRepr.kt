@@ -22,8 +22,16 @@ package io.github.kotlinmania.starlark.values.types.bool
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
-// impl StarlarkTypeRepr for Boolean
-// Kotlin: Boolean type repr delegates to StarlarkBool.
-internal fun boolStarlarkTypeRepr(): Ty {
-    return Ty.bool()
+// impl StarlarkTypeRepr for bool {
+//     type Canonical = <StarlarkBool as StarlarkTypeRepr>::Canonical;
+//     fn starlark_type_repr() -> Ty {
+//         StarlarkBool::get_type_starlark_repr()
+//     }
+// }
+/** StarlarkTypeRepr impl for Kotlin [Boolean] (Starlark `bool`). */
+object BoolStarlarkTypeRepr : StarlarkTypeRepr {
+    override fun starlarkTypeRepr(): Ty {
+        // Rust: StarlarkBool::get_type_starlark_repr()
+        return Ty.bool()
+    }
 }
