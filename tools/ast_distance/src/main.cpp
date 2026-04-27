@@ -237,6 +237,8 @@ static std::optional<std::filesystem::path> find_repo_root(std::filesystem::path
     return std::nullopt;
 }
 
+static std::string lowercase_ascii(std::string s);
+
 static std::string repo_relative_display_path(const std::string& raw_path) {
     std::error_code ec;
     std::filesystem::path input(raw_path);
@@ -255,6 +257,89 @@ static std::string repo_relative_display_path(const std::string& raw_path) {
         return input.lexically_normal().generic_string();
     }
     return absolute.generic_string();
+}
+
+static std::string kotlin_namespace_segment_from_source(const std::string& segment) {
+    std::string out;
+    out.reserve(segment.size());
+    for (char c : segment) {
+        if (std::isalnum(static_cast<unsigned char>(c))) {
+            out.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+        }
+    }
+    if (!out.empty()) return out;
+    return lowercase_ascii(segment);
+}
+
+static std::filesystem::path expected_target_relative_path_for_source(const SourceFile& sf,
+                                                                      const std::string& target_lang) {
+    std::filesystem::path rel(sf.relative_path);
+    std::vector<std::string> dirs;
+    std::filesystem::path parent = rel.parent_path();
+    bool first_segment = true;
+    for (const auto& part : parent) {
+        std::string segment = part.string();
+        if (segment.empty() || segment == ".") continue;
+        if (first_segment && (segment == "src" || segment == "include")) {
+            first_segment = false;
+            continue;
+        }
+        first_segment = false;
+        if (target_lang == "kotlin") {
+            dirs.push_back(kotlin_namespace_segment_from_source(segment));
+        } else if (target_lang == "typescript") {
+            dirs.push_back(SourceFile::to_kebab_case(segment));
+        } else {
+            dirs.push_back(segment);
+        }
+    }
+
+    std::string stem = rel.stem().string();
+    if (target_lang == "kotlin" && rel.extension() == ".rs" && stem != "mod" && stem != "lib" &&
+        !sf.paths.empty()) {
+        std::error_code ec;
+        std::filesystem::path mod_dir = std::filesystem::path(sf.paths.front()).parent_path() / stem;
+        bool has_rs_children = false;
+        if (std::filesystem::is_directory(mod_dir, ec)) {
+            for (const auto& entry : std::filesystem::directory_iterator(mod_dir, ec)) {
+                if (ec) break;
+                if (entry.is_regular_file(ec) && entry.path().extension() == ".rs") {
+                    has_rs_children = true;
+                    break;
+                }
+            }
+        }
+        if (has_rs_children) {
+            dirs.push_back(kotlin_namespace_segment_from_source(stem));
+        }
+    }
+
+    std::string target_file = rel.filename().string();
+    if (target_lang == "kotlin") {
+        target_file = SourceFile::to_pascal_case(stem) + ".kt";
+    } else if (target_lang == "typescript") {
+        target_file = SourceFile::to_kebab_case(stem) + ".ts";
+    } else if (target_lang == "cpp") {
+        target_file = stem + ".cpp";
+    } else if (target_lang == "python") {
+        target_file = lowercase_ascii(stem) + ".py";
+    }
+
+    std::filesystem::path out;
+    for (const auto& dir : dirs) {
+        if (!dir.empty()) out /= dir;
+    }
+    out /= target_file;
+    return out.lexically_normal();
+}
+
+static std::string expected_target_qualified_name_for_source(const SourceFile& sf,
+                                                            const std::string& target_lang) {
+    std::filesystem::path expected = expected_target_relative_path_for_source(sf, target_lang);
+    expected.replace_extension("");
+    std::string qualified = expected.generic_string();
+    std::replace(qualified.begin(), qualified.end(), '/', '.');
+    return qualified;
 }
 
 static void write_missing_config_after_comparison(const ConfigEndpoint& source,
@@ -356,6 +441,156 @@ static void print_cheat_detection_failure(
     if (!remediation.empty()) {
         out << remediation << "\n";
     }
+}
+
+static bool comparison_mode_requires_direct_terminal(const std::string& mode, int argc) {
+    return mode == "--compare-functions" || (mode[0] != '-' && argc >= 5);
+}
+
+static std::string parent_process_command() {
+    std::string cmd = "ps -o comm= -p " + std::to_string(static_cast<long long>(getppid()));
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) return "";
+    std::string out;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        out += buffer;
+    }
+    pclose(pipe);
+    out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
+    out.erase(std::remove(out.begin(), out.end(), '\r'), out.end());
+    return out;
+}
+
+struct ProcessCommandLine {
+    long long pid = 0;
+    long long ppid = 0;
+    std::string command;
+};
+
+static std::vector<ProcessCommandLine> process_command_lines() {
+    FILE* pipe = popen("ps -axo pid=,ppid=,command=", "r");
+    if (!pipe) return {};
+
+    std::vector<ProcessCommandLine> rows;
+    char buffer[4096];
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        std::string line(buffer);
+        line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        std::istringstream in(line);
+        ProcessCommandLine row;
+        if (!(in >> row.pid >> row.ppid)) {
+            continue;
+        }
+        std::getline(in, row.command);
+        row.command = ltrim_copy(row.command);
+        rows.push_back(std::move(row));
+    }
+    pclose(pipe);
+    return rows;
+}
+
+static std::string lowercase_for_guard(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return s;
+}
+
+static bool command_line_contains_filter_operator(const std::string& command) {
+    static const std::regex shell_operator(
+        R"((^|[[:space:]])(\|&?|\&>|[0-9]*>{1,2}&?[0-9-]?|<\(|>\(|<<<)([[:space:]]|$))");
+    return std::regex_search(command, shell_operator);
+}
+
+static bool command_line_contains_filter_program(const std::string& command) {
+    static const std::regex filter_program(
+        R"((^|[[:space:]/])(grep|egrep|fgrep|rg|ripgrep|awk|sed|tee|head|tail|cut|sort|uniq|wc|jq|yq|perl|ruby|node|xargs|less|more|bat|cat|script|unbuffer|stdbuf|expect)([[:space:]]|$))",
+        std::regex::icase);
+    return std::regex_search(command, filter_program);
+}
+
+static std::vector<std::string> visible_filter_pipeline_reasons() {
+    std::vector<std::string> reasons;
+    auto rows = process_command_lines();
+    const long long self = static_cast<long long>(getpid());
+    const long long parent = static_cast<long long>(getppid());
+
+    std::unordered_map<long long, ProcessCommandLine> by_pid;
+    by_pid.reserve(rows.size());
+    for (const auto& row : rows) {
+        by_pid[row.pid] = row;
+    }
+
+    auto add_command_reason = [&](const std::string& role, const std::string& command) {
+        std::string trimmed = command;
+        if (trimmed.size() > 180) {
+            trimmed = trimmed.substr(0, 177) + "...";
+        }
+        reasons.push_back(role + " command line contains output filtering: `" + trimmed + "`");
+    };
+
+    for (const auto& row : rows) {
+        if (row.pid == self) {
+            continue;
+        }
+        bool related = row.ppid == parent;
+        long long ancestor = parent;
+        int depth = 0;
+        while (!related && ancestor > 1 && depth++ < 8) {
+            auto it = by_pid.find(ancestor);
+            if (it == by_pid.end()) break;
+            if (row.pid == it->second.pid || row.ppid == it->second.pid) {
+                related = true;
+                break;
+            }
+            ancestor = it->second.ppid;
+        }
+        if (!related) {
+            continue;
+        }
+
+        std::string lower = lowercase_for_guard(row.command);
+        if (lower.find("ast_distance") != std::string::npos && row.pid != parent) {
+            continue;
+        }
+        if (command_line_contains_filter_operator(row.command) ||
+            command_line_contains_filter_program(row.command)) {
+            add_command_reason(row.pid == parent ? "parent" : "sibling/ancestor", row.command);
+            if (reasons.size() >= 3) {
+                break;
+            }
+        }
+    }
+    return reasons;
+}
+
+static int reject_redirected_comparison_output_if_needed(const std::string& mode, int argc) {
+    if (!comparison_mode_requires_direct_terminal(mode, argc)) {
+        return 0;
+    }
+
+    std::vector<std::string> reasons;
+    std::string parent = parent_process_command();
+    std::string parent_lower = lowercase_for_guard(parent);
+    if (parent_lower == "script" || parent_lower.find("/script") != std::string::npos) {
+        reasons.push_back("parent process appears to be `script`; PTY wrapping is not allowed");
+    }
+    auto filter_reasons = visible_filter_pipeline_reasons();
+    reasons.insert(reasons.end(), filter_reasons.begin(), filter_reasons.end());
+
+    if (reasons.empty()) {
+        return 0;
+    }
+
+    std::cerr << "\n*** REDIRECT GUARD REJECTED ***\n";
+    std::cerr << "Comparison output must be read directly from the tool result.\n";
+    std::cerr << "Why:\n";
+    for (const auto& reason : reasons) {
+        std::cerr << "  - " << reason << "\n";
+    }
+    std::cerr << "Run the comparison without pipes, redirects, grep, tee, or script wrapping.\n";
+    return 2;
 }
 
 struct RustModReexportHint {
@@ -613,16 +848,12 @@ void print_usage(const char* program) {
     std::cerr << "      Scan directory and show file list with import counts\n\n";
     std::cerr << "  " << program << " --deps <directory> <rust|kotlin|cpp|python|typescript>\n";
     std::cerr << "      Build and show dependency graph\n\n";
-    std::cerr << "  " << program << " --rank <src_dir> <src_lang> <tgt_dir> <tgt_lang>\n";
-    std::cerr << "      Rank files by porting priority (dependents + similarity)\n\n";
     std::cerr << "  " << program << " --deep <src_dir> <src_lang> <tgt_dir> <tgt_lang>\n";
     std::cerr << "      Full analysis: AST + deps + TODOs + lint + line ratios\n\n";
     std::cerr << "  " << program << " --numpy-mlx <numpy_dir> <mlx_dir>\n";
     std::cerr << "      Python-focused report: compare two Python codebases and audit residual NumPy usage\n\n";
     std::cerr << "  " << program << " --emberlint <path>\n";
     std::cerr << "      Fast multi-language lint: NumPy usage + common MLX graph breakers (casts, conversions, operators)\n\n";
-    std::cerr << "  " << program << " --missing <src_dir> <src_lang> <tgt_dir> <tgt_lang>\n";
-    std::cerr << "      Show files missing from target, ranked by importance\n\n";
     std::cerr << "  " << program << " --todos <directory>\n";
     std::cerr << "      Scan for TODO comments with tags and context\n\n";
     std::cerr << "  " << program << " --lint <directory>\n";
@@ -1570,12 +1801,148 @@ static std::string parity_cell(int matched, int source_total, int target_total) 
     return out.str();
 }
 
+static std::vector<CodebaseComparator::ProvenanceProposal>
+dedupe_provenance_proposals(std::vector<CodebaseComparator::ProvenanceProposal> proposals) {
+    std::vector<CodebaseComparator::ProvenanceProposal> deduped;
+    std::set<std::tuple<std::string, std::string, std::string, std::string>> seen;
+    for (auto& proposal : proposals) {
+        auto key = std::make_tuple(
+            proposal.source_path,
+            proposal.target_path,
+            proposal.current_header,
+            proposal.proposed_header);
+        if (!seen.insert(key).second) continue;
+        deduped.push_back(std::move(proposal));
+    }
+    return deduped;
+}
+
+static std::vector<CodebaseComparator::ProvenanceProposal>
+collect_provenance_proposals(const std::vector<CodebaseComparator::Match>& matches) {
+    std::vector<CodebaseComparator::ProvenanceProposal> proposals;
+    for (const auto& m : matches) {
+        proposals.insert(
+            proposals.end(),
+            m.provenance_proposals.begin(),
+            m.provenance_proposals.end());
+    }
+    return dedupe_provenance_proposals(std::move(proposals));
+}
+
+static void write_port_lint_proposed_changes_file(
+        const std::vector<CodebaseComparator::ProvenanceProposal>& proposals,
+        const std::string& source_display,
+        const std::string& target_display) {
+    std::time_t now = std::time(nullptr);
+    char date_buf[100];
+    std::strftime(date_buf, sizeof(date_buf), "%Y-%m-%d", std::localtime(&now));
+
+    std::ofstream report("port_lint_proposed_changes.md");
+    report << "# port-lint Proposed Changes\n\n";
+    report << "**Generated:** " << date_buf << "\n";
+    if (!source_display.empty()) report << "**Source:** " << source_display << "\n";
+    if (!target_display.empty()) report << "**Target:** " << target_display << "\n";
+    report << "\n";
+    report << "These are review proposals only. They are emitted when a Rust -> Kotlin "
+              "pair matches only after fallback normalization, so the existing "
+              "`port-lint` header is not an exact provenance match.\n\n";
+
+    if (proposals.empty()) {
+        report << "_No fallback provenance matches detected._\n";
+        return;
+    }
+
+    report << "| Target file | Current header | Proposed header | Source path | Reason |\n";
+    report << "|-------------|----------------|-----------------|-------------|--------|\n";
+    for (const auto& proposal : proposals) {
+        report << "| " << markdown_code_span(proposal.target_path)
+               << " | " << markdown_code_span(proposal.current_header)
+               << " | " << markdown_code_span(proposal.proposed_header)
+               << " | " << markdown_code_span(proposal.source_path)
+               << " | " << markdown_code_span(proposal.reason)
+               << " |\n";
+    }
+}
+
+static SourceFile provenance_file_from_path(const std::string& path, bool is_source) {
+    SourceFile file;
+    file.paths.push_back(path);
+    std::filesystem::path p(path);
+    file.filename = p.filename().string();
+    file.stem = p.stem().string();
+    file.extension = p.extension().string();
+    file.relative_path = is_source
+        ? CodebaseComparator::canonical_source_annotation_path(path)
+        : repo_relative_display_path(path);
+    file.qualified_name = SourceFile::make_qualified_name(file.relative_path);
+    return file;
+}
+
+static std::vector<CodebaseComparator::ProvenanceProposal>
+provenance_proposals_for_direct_file_pair(const std::string& file1,
+                                          Language lang1,
+                                          const std::string& file2,
+                                          Language lang2) {
+    std::string source_path;
+    std::string target_path;
+    if (lang1 == Language::RUST && lang2 == Language::KOTLIN) {
+        source_path = file1;
+        target_path = file2;
+    } else if (lang1 == Language::KOTLIN && lang2 == Language::RUST) {
+        source_path = file2;
+        target_path = file1;
+    } else {
+        return {};
+    }
+
+    SourceFile source = provenance_file_from_path(source_path, true);
+    SourceFile target = provenance_file_from_path(target_path, false);
+    target.transliterated_from = PortingAnalyzer::extract_transliterated_from(target_path);
+    if (target.transliterated_from.empty() ||
+        CodebaseComparator::is_test_transliteration(target.transliterated_from)) {
+        return {};
+    }
+
+    auto match = CodebaseComparator::exact_transliteration_header_match_result(source, target);
+    if (!match.normalized_fallback) {
+        return {};
+    }
+    return {match.proposal};
+}
+
+static void print_direct_provenance_proposals(
+        const std::vector<CodebaseComparator::ProvenanceProposal>& proposals) {
+    if (proposals.empty()) return;
+
+    std::cout << "\n=== Provenance Header Fallback ===\n";
+    std::cout << "This file pair matched only after fallback normalization; "
+                 "do not treat the current header as an exact match.\n";
+    for (const auto& proposal : proposals) {
+        std::cout << "Target:   " << proposal.target_path << "\n";
+        std::cout << "Current:  " << proposal.current_header << "\n";
+        std::cout << "Proposed: " << proposal.proposed_header << "\n";
+        std::cout << "Why:      " << proposal.reason << "\n";
+    }
+}
+
+static std::string match_target_label_for_report(const CodebaseComparator::Match& m) {
+    std::string label = m.target_qualified;
+    if (m.is_stub) {
+        label += " [STUB]";
+    } else if (!m.zero_reasons.empty()) {
+        label += " [ZERO]";
+    }
+    if (m.matched_by_normalized_provenance) {
+        label += " [PROVENANCE-FALLBACK]";
+    }
+    return label;
+}
+
 static void write_match_detail_block(std::ostream& report,
                                      const CodebaseComparator::Match& m,
                                      int rank) {
     report << "### " << rank << ". " << m.source_qualified << "\n\n";
-    report << "- **Target:** `" << m.target_qualified << "`";
-    if (m.is_stub) report << " `[STUB]`";
+    report << "- **Target:** `" << match_target_label_for_report(m) << "`";
     report << "\n";
     report << "- **Similarity:** " << std::fixed << std::setprecision(2) << m.similarity << "\n";
     report << "- **Dependents:** " << m.source_dependents << "\n";
@@ -1592,6 +1959,14 @@ static void write_match_detail_block(std::ostream& report,
     if (m.source_test_function_count > 0) {
         report << "- **Tests:** " << m.matched_test_function_count << "/"
                << m.source_test_function_count << " matched\n";
+    }
+    for (const auto& warning : m.provenance_warnings) {
+        report << "- **Provenance warning:** " << warning << "\n";
+    }
+    for (const auto& proposal : m.provenance_proposals) {
+        report << "- **Proposed provenance header:** "
+               << markdown_code_span(proposal.proposed_header)
+               << " (current: " << markdown_code_span(proposal.current_header) << ")\n";
     }
     if (m.todo_count > 0) report << "- **TODOs:** " << m.todo_count << "\n";
     if (m.lint_count > 0) report << "- **Lint issues:** " << m.lint_count << "\n";
@@ -1630,15 +2005,104 @@ void generate_reports(const Codebase& source, const Codebase& target,
         }
         if (!reexport_missing.empty()) {
             out << "### Missing\n\n";
-            out << "| Source | Deps | Path |\n";
-            out << "|--------|------|------|\n";
+            out << "| Source | Expected target | Deps | Source path | Expected path |\n";
+            out << "|--------|-----------------|------|-------------|---------------|\n";
             for (const auto* sf : reexport_missing) {
-                out << "| `" << sf->qualified_name << "` | " << sf->dependent_count
-                    << " | `" << sf->relative_path << "` |\n";
+                auto expected_path = expected_target_relative_path_for_source(*sf, target.language);
+                out << "| `" << sf->qualified_name << "` | `"
+                    << expected_target_qualified_name_for_source(*sf, target.language)
+                    << "` | " << sf->dependent_count
+                    << " | `" << sf->relative_path << "` | `"
+                    << expected_path.generic_string() << "` |\n";
             }
             out << "\n";
         }
     };
+
+    struct MissingSourceSurface {
+        const SourceFile* file = nullptr;
+        int function_count = 0;
+        int test_count = 0;
+        int type_count = 0;
+        std::vector<std::string> functions;
+        std::vector<std::string> types;
+
+        int symbol_count() const {
+            return function_count + type_count;
+        }
+    };
+
+    std::vector<MissingSourceSurface> missing_surfaces;
+    missing_surfaces.reserve(missing.size());
+    ASTParser report_parser;
+    Language report_source_lang = parse_language(source.language);
+    TSParser* missing_symbol_parser = ts_parser_new();
+    bool missing_symbol_parser_ready = false;
+    if (source.language == "rust") {
+        missing_symbol_parser_ready = ts_parser_set_language(missing_symbol_parser, tree_sitter_rust());
+    } else if (source.language == "cpp") {
+        missing_symbol_parser_ready = ts_parser_set_language(missing_symbol_parser, tree_sitter_cpp());
+    } else if (source.language == "typescript") {
+        missing_symbol_parser_ready = ts_parser_set_language(missing_symbol_parser, tree_sitter_typescript());
+    } else if (source.language == "kotlin") {
+        missing_symbol_parser_ready = ts_parser_set_language(missing_symbol_parser, tree_sitter_kotlin());
+    } else if (source.language == "python") {
+        missing_symbol_parser_ready = ts_parser_set_language(missing_symbol_parser, tree_sitter_python());
+    }
+
+    for (const auto* sf : missing) {
+        MissingSourceSurface surface;
+        surface.file = sf;
+        try {
+            auto funcs = report_parser.extract_function_infos_from_files(sf->paths, report_source_lang);
+            surface.function_count = static_cast<int>(funcs.size());
+            for (const auto& f : funcs) {
+                if (f.is_test) surface.test_count++;
+                if (!f.name.empty()) surface.functions.push_back(f.name);
+            }
+        } catch (...) {
+            // Missing-file surface is diagnostic; keep reporting even if one file fails to parse.
+        }
+
+        if (missing_symbol_parser_ready) {
+            std::string text = CodebaseComparator::read_files_to_string(sf->paths);
+            if (!text.empty()) {
+                TSTree* tree = ts_parser_parse_string(
+                    missing_symbol_parser, nullptr, text.c_str(), text.size());
+                if (tree) {
+                    TSNode root = ts_tree_root_node(tree);
+                    auto symbols = SymbolExtractor::extract_symbols(
+                        root, text, sf->package.path, sf->relative_path);
+                    std::set<std::string> seen_types;
+                    for (const auto& sym : symbols) {
+                        if (sym.name.empty()) continue;
+                        std::string key = IdentifierStats::canonicalize(sym.name);
+                        if (key.empty()) key = sym.name;
+                        if (!seen_types.insert(key).second) continue;
+                        surface.types.push_back(sym.name);
+                    }
+                    surface.type_count = static_cast<int>(surface.types.size());
+                    ts_tree_delete(tree);
+                }
+            }
+        }
+        missing_surfaces.push_back(std::move(surface));
+    }
+    ts_parser_delete(missing_symbol_parser);
+
+    auto missing_by_symbol_surface = missing_surfaces;
+    std::sort(missing_by_symbol_surface.begin(), missing_by_symbol_surface.end(),
+        [](const MissingSourceSurface& a, const MissingSourceSurface& b) {
+            if (a.symbol_count() != b.symbol_count()) return a.symbol_count() > b.symbol_count();
+            if (a.file->dependent_count != b.file->dependent_count) {
+                return a.file->dependent_count > b.file->dependent_count;
+            }
+            return a.file->qualified_name < b.file->qualified_name;
+        });
+    std::unordered_map<const SourceFile*, const MissingSourceSurface*> missing_surface_by_file;
+    for (const auto& surface : missing_surfaces) {
+        missing_surface_by_file[surface.file] = &surface;
+    }
     
     std::cout << "\n=== Generating Reports ===\n\n";
     
@@ -1670,6 +2134,59 @@ void generate_reports(const Codebase& source, const Codebase& target,
         avg_similarity /= avg_count;
     }
     float matched_denominator = matched > 0 ? static_cast<float>(matched) : 1.0f;
+
+    int total_source_functions = 0;
+    int total_matched_functions = 0;
+    int total_target_functions = 0;
+    int total_source_types = 0;
+    int total_matched_types = 0;
+    int total_target_types = 0;
+    int zeroed_files = 0;
+    for (const auto& m : ranked) {
+        total_source_functions += m.source_function_count;
+        total_matched_functions += m.matched_function_count;
+        total_target_functions += m.target_function_count;
+        total_source_types += m.source_type_count;
+        total_matched_types += m.matched_type_count;
+        total_target_types += m.target_type_count;
+        if (!m.zero_reasons.empty()) zeroed_files++;
+    }
+    int missing_source_functions = 0;
+    int missing_source_types = 0;
+    int missing_source_symbols = 0;
+    int missing_source_files_with_symbols = 0;
+    for (const auto& surface : missing_surfaces) {
+        total_source_functions += surface.function_count;
+        total_source_types += surface.type_count;
+        missing_source_functions += surface.function_count;
+        missing_source_types += surface.type_count;
+        missing_source_symbols += surface.symbol_count();
+        if (surface.symbol_count() > 0) missing_source_files_with_symbols++;
+    }
+    const int total_source_symbols = total_source_functions + total_source_types;
+    const int total_matched_symbols = total_matched_functions + total_matched_types;
+    const int total_target_symbols = total_target_functions + total_target_types;
+
+    auto parity_count_cell = [](int matched_count, int source_count, int target_count) {
+        std::ostringstream out;
+        out << matched_count << "/" << source_count << " matched";
+        if (target_count > 0) out << " (target " << target_count << ")";
+        return out.str();
+    };
+    auto parity_pct_cell = [](int matched_count, int source_count) {
+        if (source_count <= 0) return std::string("N/A");
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1)
+            << (100.0f * static_cast<float>(matched_count) / static_cast<float>(source_count))
+            << "%";
+        return out.str();
+    };
+    auto avg_similarity_cell = [&]() {
+        if (avg_count <= 0) return std::string("N/A (no matched function-bearing files)");
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(2) << avg_similarity;
+        return out.str();
+    };
     
     // Get current date/time as string
     std::time_t now = std::time(nullptr);
@@ -1677,6 +2194,7 @@ void generate_reports(const Codebase& source, const Codebase& target,
     std::strftime(date_buf, sizeof(date_buf), "%Y-%m-%d", std::localtime(&now));
     const std::string source_display_path = repo_relative_display_path(source.root_path);
     const std::string target_display_path = repo_relative_display_path(target.root_path);
+    const auto provenance_proposals = collect_provenance_proposals(ranked);
     
     // 1. Generate port_status_report.md
     {
@@ -1705,6 +2223,21 @@ void generate_reports(const Codebase& source, const Codebase& target,
         report << "## Executive Summary\n\n";
         report << "| Metric | Count | Percentage |\n";
         report << "|--------|-------|------------|\n";
+        report << "| Function parity | "
+               << parity_count_cell(total_matched_functions, total_source_functions, total_target_functions)
+               << " | " << parity_pct_cell(total_matched_functions, total_source_functions) << " |\n";
+        report << "| Class/type parity | "
+               << parity_count_cell(total_matched_types, total_source_types, total_target_types)
+               << " | " << parity_pct_cell(total_matched_types, total_source_types) << " |\n";
+        report << "| Combined symbol parity | "
+               << parity_count_cell(total_matched_symbols, total_source_symbols, total_target_symbols)
+               << " | " << parity_pct_cell(total_matched_symbols, total_source_symbols) << " |\n";
+        report << "| Average function body similarity | " << avg_similarity_cell() << " | required score |\n";
+        report << "| Missing source functions | " << missing_source_functions << " | 0% parity until ported |\n";
+        report << "| Missing source classes/types | " << missing_source_types << " | 0% parity until ported |\n";
+        report << "| Missing source symbol files | " << missing_source_files_with_symbols
+               << " | " << missing_source_symbols << " symbols |\n";
+        report << "| Cheat/scoring failures | " << zeroed_files << " | forced to 0% |\n";
         report << "| Total source files | " << total_source << " | 100% |\n";
         report << "| Target units (paired) | " << total_target_logical << " | - |\n";
         report << "| Target files (total) | " << total_target_physical << " | - |\n";
@@ -1718,9 +2251,13 @@ void generate_reports(const Codebase& source, const Codebase& target,
             report << "| Reexport/wiring files | " << reexport_missing.size() << " | consult-only |\n";
         }
         report << "\n";
+        if (ranked.empty()) {
+            report << "**Report warning:** no source/target files were matched. "
+                      "Check the source and target roots or missing `port-lint` provenance before trusting this run.\n\n";
+        }
         
         report << "## Port Quality Analysis\n\n";
-        report << "**Average Function Similarity:** " << std::fixed << std::setprecision(2) << avg_similarity << "\n\n";
+        report << "**Average Function Similarity:** " << avg_similarity_cell() << "\n\n";
         report << "Similarity in this report is the required function-by-function body/parameter score. "
                   "Class/type parity and symbol deficits are reported beside it; whole-file shape is diagnostic only.\n\n";
         report << "**Work Distribution:**\n";
@@ -1743,7 +2280,7 @@ void generate_reports(const Codebase& source, const Codebase& target,
                         std::to_string(m.source_test_function_count);
             }
             report << "| " << detail_rank++ << " | `" << m.source_qualified << "` | `"
-                   << m.target_qualified << (m.is_stub ? " [STUB]" : "") << "` | "
+                   << match_target_label_for_report(m) << "` | "
                    << std::fixed << std::setprecision(2) << m.similarity << " | "
                    << parity_cell(m.matched_function_count, m.source_function_count, m.target_function_count)
                    << " | " << markdown_symbol_list(m.missing_functions) << " | "
@@ -1759,7 +2296,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
         for (const auto& m : status_order) {
             if (m.zero_reasons.empty()) continue;
             wrote_failures = true;
-            report << "- `" << m.source_qualified << "` -> `" << m.target_qualified
+            report << "- `" << m.source_qualified << "` -> `"
+                   << match_target_label_for_report(m)
                    << "`: function-by-function score forced to 0. "
                    << CodebaseComparator::join_reasons(m.zero_reasons) << "\n";
         }
@@ -1772,7 +2310,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
         report << "These files need significant work:\n\n";
         for (const auto& m : status_order) {
             if (m.similarity < 0.60) {
-                report << "- `" << m.source_qualified << "` → `" << m.target_qualified 
+                report << "- `" << m.source_qualified << "` -> `"
+                       << match_target_label_for_report(m)
                        << "` (" << std::fixed << std::setprecision(2) << m.similarity;
                 if (m.source_dependents > 0) report << ", " << m.source_dependents << " deps";
                 report << ")\n";
@@ -1790,7 +2329,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
 	            if (m.source_type_count == 0) continue;
 	            if (m.type_coverage >= 1.0f) continue;
 	            shown_incorrect++;
-	            report << "| `" << m.source_qualified << "` | `" << m.target_qualified << "` | "
+	            report << "| `" << m.source_qualified << "` | `"
+                       << match_target_label_for_report(m) << "` | "
 	                   << (m.source_type_count - m.matched_type_count) << "/" << m.source_type_count << " | ";
 	            if (!m.missing_types.empty()) {
 	                report << markdown_symbol_list(m.missing_types);
@@ -1808,13 +2348,21 @@ void generate_reports(const Codebase& source, const Codebase& target,
 	        if (missing.empty()) {
 	            report << "No missing files detected.\n\n";
 	        } else {
-	            report << "| Rank | Source file | Deps | Path |\n";
-	            report << "|------|------------|------|------|\n";
+	            report << "| Rank | Source file | Expected target | Deps | Functions | Classes/types | Symbols | Source path | Expected path |\n";
+	            report << "|------|-------------|-----------------|------|-----------|---------------|---------|-------------|---------------|\n";
 	            int shown_missing = 0;
-	            for (const auto* sf : missing) {
+	            for (const auto& surface : missing_by_symbol_surface) {
+	                const auto* sf = surface.file;
+	                auto expected_path = expected_target_relative_path_for_source(*sf, target.language);
 	                shown_missing++;
 	                report << "| " << shown_missing << " | `" << sf->qualified_name << "` | "
-	                       << sf->dependent_count << " | `" << sf->relative_path << "` |\n";
+	                       << "`" << expected_target_qualified_name_for_source(*sf, target.language)
+	                       << "` | " << sf->dependent_count << " | "
+	                       << surface.function_count << " | "
+	                       << surface.type_count << " | "
+	                       << surface.symbol_count() << " | `"
+	                       << sf->relative_path << "` | `"
+	                       << expected_path.generic_string() << "` |\n";
 	            }
 	            report << "\n";
 	        }
@@ -1875,9 +2423,7 @@ void generate_reports(const Codebase& source, const Codebase& target,
         for (const auto& m : ranked) {
             float priority = m.priority_score();
             report << "| " << rank++ << " | `" << m.source_qualified << "` | `"
-                   << m.target_qualified
-                   << (m.is_stub ? " [STUB]" : (!m.zero_reasons.empty() ? " [ZERO]" : ""))
-                   << "` | "
+                   << match_target_label_for_report(m) << "` | "
                    << std::fixed << std::setprecision(2) << m.similarity << " | "
                    << m.source_dependents << " | "
                    << parity_cell(m.matched_function_count, m.source_function_count, m.target_function_count)
@@ -1894,7 +2440,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
         for (const auto& m : ranked) {
             if (m.zero_reasons.empty()) continue;
             wrote_priority_failures = true;
-            report << "- `" << m.source_qualified << "` -> `" << m.target_qualified
+            report << "- `" << m.source_qualified << "` -> `"
+                   << match_target_label_for_report(m)
                    << "`: function-by-function score forced to 0. "
                    << CodebaseComparator::join_reasons(m.zero_reasons) << "\n";
         }
@@ -1911,7 +2458,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
                     report << "These files need immediate attention:\n\n";
                     has_critical = true;
                 }
-                report << "- **" << m.source_qualified << "** → `" << m.target_qualified << "`\n";
+                report << "- **" << m.source_qualified << "** → `"
+                       << match_target_label_for_report(m) << "`\n";
                 report << "  - Function similarity: " << std::fixed << std::setprecision(2) << m.similarity << "\n";
                 report << "  - Dependencies: " << m.source_dependents << "\n";
                 report << "  - Functions: "
@@ -1939,13 +2487,27 @@ void generate_reports(const Codebase& source, const Codebase& target,
 	        if (missing.empty()) {
 	            report << "No missing files detected.\n\n";
 	        } else {
-	            report << "| Rank | Source file | Deps | Path |\n";
-	            report << "|------|------------|------|------|\n";
+	            report << "| Rank | Source file | Expected target | Deps | Functions | Classes/types | Symbols | Source path | Expected path |\n";
+	            report << "|------|-------------|-----------------|------|-----------|---------------|---------|-------------|---------------|\n";
 	            int shown_missing = 0;
 	            for (const auto* sf : missing) {
+	                auto surface_it = missing_surface_by_file.find(sf);
+	                int function_count = 0;
+	                int type_count = 0;
+	                int symbol_count = 0;
+	                if (surface_it != missing_surface_by_file.end()) {
+	                    function_count = surface_it->second->function_count;
+	                    type_count = surface_it->second->type_count;
+	                    symbol_count = surface_it->second->symbol_count();
+	                }
+	                auto expected_path = expected_target_relative_path_for_source(*sf, target.language);
 	                shown_missing++;
 	                report << "| " << shown_missing << " | `" << sf->qualified_name << "` | "
-	                       << sf->dependent_count << " | `" << sf->relative_path << "` |\n";
+	                       << "`" << expected_target_qualified_name_for_source(*sf, target.language)
+	                       << "` | " << sf->dependent_count << " | "
+	                       << function_count << " | " << type_count << " | " << symbol_count
+	                       << " | `" << sf->relative_path << "` | `"
+	                       << expected_path.generic_string() << "` |\n";
 	            }
 	            report << "\n";
 	        }
@@ -2059,6 +2621,15 @@ void generate_reports(const Codebase& source, const Codebase& target,
         write_reexport_section(report);
         
         std::cout << "✅ Generated: NEXT_ACTIONS.md\n";
+    }
+
+    // 4. Generate port_lint_proposed_changes.md
+    {
+        write_port_lint_proposed_changes_file(
+            provenance_proposals,
+            source_display_path,
+            target_display_path);
+        std::cout << "✅ Generated: port_lint_proposed_changes.md\n";
     }
     
     std::cout << "\n📁 All reports generated successfully!\n";
@@ -2350,17 +2921,27 @@ void cmd_deep(const std::string& src_dir, const std::string& src_lang,
     int total_todos = 0;
     int total_lint = 0;
     int stub_count = 0;
-    int header_matched = 0;
+    int exact_header_matched = 0;
+    int fallback_header_matched = 0;
 
     for (const auto& m : comp.matches) {
         total_todos += m.todo_count;
         total_lint += m.lint_count;
         if (m.is_stub) stub_count++;
-        if (m.matched_by_header) header_matched++;
+        if (m.matched_by_header && m.matched_by_normalized_provenance) {
+            fallback_header_matched++;
+        } else if (m.matched_by_header) {
+            exact_header_matched++;
+        }
     }
 
-    std::cout << "Matched by header:    " << header_matched << " / " << comp.matches.size() << "\n";
-    std::cout << "Matched by name:      " << (comp.matches.size() - header_matched) << " / " << comp.matches.size() << "\n";
+    std::cout << "Matched by exact header:          " << exact_header_matched
+              << " / " << comp.matches.size() << "\n";
+    std::cout << "Matched by provenance fallback:   " << fallback_header_matched
+              << " / " << comp.matches.size() << "\n";
+    std::cout << "Matched by name:                  "
+              << (comp.matches.size() - exact_header_matched - fallback_header_matched)
+              << " / " << comp.matches.size() << "\n";
 	    std::cout << "Total TODOs in target: " << total_todos << "\n";
 	    std::cout << "Total lint errors:    " << total_lint << "\n";
 	    std::cout << "Stub files:           " << stub_count << "\n";
@@ -2485,7 +3066,8 @@ void cmd_deep(const std::string& src_dir, const std::string& src_lang,
 	                    std::to_string(m.source_test_function_count);
 	        }
 
-		        std::cout << std::setw(30) << std::left << m.target_qualified.substr(0, 28)
+                std::string target_display = match_target_label_for_report(m);
+		        std::cout << std::setw(30) << std::left << target_display.substr(0, 28)
 		                  << std::setw(11) << std::fixed << std::setprecision(2) << m.similarity
 		                  << std::setw(11) << std::fixed << std::setprecision(2) << ratio
 		                  << std::setw(14) << funcs
@@ -2556,19 +3138,26 @@ void cmd_deep(const std::string& src_dir, const std::string& src_lang,
 	        std::sort(missing_reexports.begin(), missing_reexports.end(), by_dependents);
 
 		        std::cout << std::setw(30) << std::left << "Source File"
+		                  << std::setw(38) << "Expected Target"
 		                  << std::setw(11) << "Dependents"
 		                  << "Path\n";
-		        std::cout << std::string(81, '-') << "\n";
+		        std::cout << std::string(119, '-') << "\n";
 
 	        for (const auto* sf : missing) {
+		            std::string expected_target =
+		                expected_target_qualified_name_for_source(*sf, target.language);
 		            std::cout << std::setw(30) << std::left << sf->qualified_name.substr(0, 28)
+		                      << std::setw(38) << expected_target.substr(0, 36)
 		                      << std::setw(11) << sf->dependent_count
 		                      << sf->relative_path << "\n";
 		        }
 	        if (!missing_reexports.empty()) {
 	            std::cout << "\n=== Reexport / Wiring Modules (consult, don't transliterate) ===\n\n";
 	            for (const auto* sf : missing_reexports) {
+	                std::string expected_target =
+	                    expected_target_qualified_name_for_source(*sf, target.language);
 	                std::cout << std::setw(30) << std::left << sf->qualified_name.substr(0, 28)
+	                          << std::setw(38) << expected_target.substr(0, 36)
 	                          << std::setw(11) << sf->dependent_count
 	                          << sf->relative_path << "\n";
 	            }
@@ -3899,8 +4488,6 @@ void cmd_release(const std::string& task_file, const std::string& source_qualifi
 }
 
 int main(int argc, char* argv[]) {
-    // Keep progress visible when stdout is captured or piped without rejecting
-    // legitimate large-output workflows such as `ast_distance ... | tee report.txt`.
     setvbuf(stdout, nullptr, _IOLBF, 0);
 
     int agent = 0;
@@ -3949,6 +4536,10 @@ int main(int argc, char* argv[]) {
     }
 
     std::string mode = argv[1];
+    if (int redirect_status = reject_redirected_comparison_output_if_needed(mode, argc);
+        redirect_status != 0) {
+        return redirect_status;
+    }
 
     // Guardrails: if a task system exists, require --agent and lock the session number.
     GuardrailsContext guard;
@@ -4011,9 +4602,10 @@ int main(int argc, char* argv[]) {
         } else if (mode == "--deps" && argc >= 4) {
             cmd_deps(argv[2], argv[3]);
 
-        } else if (mode == "--rank" && argc >= 6) {
-            cmd_rank(argv[2], argv[3], argv[4], argv[5]);
-            write_missing_config_after_comparison({argv[2], argv[3]}, {argv[4], argv[5]});
+        } else if (mode == "--rank") {
+            std::cerr << "Error: --rank has been removed because it hides parts of the full report.\n"
+                      << "Use --deep <src_dir> <src_lang> <tgt_dir> <tgt_lang> instead.\n";
+            return 2;
 
         } else if (mode == "--deep" && argc >= 6) {
             cmd_deep(argv[2], argv[3], argv[4], argv[5]);
@@ -4025,9 +4617,10 @@ int main(int argc, char* argv[]) {
         } else if (mode == "--emberlint" && argc >= 3) {
             cmd_emberlint(argv[2]);
 
-        } else if (mode == "--missing" && argc >= 6) {
-            cmd_missing(argv[2], argv[3], argv[4], argv[5]);
-            write_missing_config_after_comparison({argv[2], argv[3]}, {argv[4], argv[5]});
+        } else if (mode == "--missing") {
+            std::cerr << "Error: --missing has been removed because it hides parts of the full report.\n"
+                      << "Use --deep <src_dir> <src_lang> <tgt_dir> <tgt_lang> instead.\n";
+            return 2;
 
         } else if (mode == "--todos" && argc >= 3) {
             bool verbose = true;
@@ -4562,6 +5155,8 @@ int main(int argc, char* argv[]) {
             Language lang1 = parse_language(argv[2]);
             std::string file2 = argv[3];
             Language lang2 = parse_language(argv[4]);
+            auto direct_provenance_proposals =
+                provenance_proposals_for_direct_file_pair(file1, lang1, file2, lang2);
             warn_kotlin_suspicious_constructs(file1, lang1, file2, lang2);
 
             auto file_contains_macro_rules = [](const std::string& path) -> bool {
@@ -4611,6 +5206,7 @@ int main(int argc, char* argv[]) {
                       << translit_report.kgram_jaccard << "\n";
             std::cout << "Transliteration score:" << std::fixed << std::setprecision(4)
                       << translit_report.score << "\n";
+            print_direct_provenance_proposals(direct_provenance_proposals);
 
             auto ids1 = file1_source ? parser.extract_identifiers(*file1_source, lang1)
                                      : parser.extract_identifiers_from_file(file1, lang1);
@@ -4808,6 +5404,13 @@ int main(int argc, char* argv[]) {
                       << (doc_weighted * 100.0f) << "%\n";
             std::cout << "Unique doc words:     " << comments1.word_freq.size()
                       << " vs " << comments2.word_freq.size() << "\n";
+            if (!direct_provenance_proposals.empty()) {
+                write_port_lint_proposed_changes_file(
+                    direct_provenance_proposals,
+                    repo_relative_display_path(file1),
+                    repo_relative_display_path(file2));
+                std::cout << "\nGenerated: port_lint_proposed_changes.md\n";
+            }
             write_missing_config_after_comparison(
                 {file1, language_config_name(lang1)},
                 {file2, language_config_name(lang2)});

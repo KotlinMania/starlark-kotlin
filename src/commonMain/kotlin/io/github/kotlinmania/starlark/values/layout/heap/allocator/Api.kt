@@ -28,8 +28,17 @@ enum class ChunkAllocationDirection {
     Down,
 }
 
-/** Fast memory allocator for the heap. */
-internal interface ArenaAllocator {
+/**
+ * Fast memory allocator for the heap.
+ *
+ * Sealed: the upstream `values/layout/heap/allocator/alloc.rs` mod groups the
+ * closed set of allocator implementations (chain, chunk, chunk_part,
+ * per_thread) alongside the `allocator` trait file, and the sibling
+ * `allocator/bumpalo.rs` provides the bumpalo-based allocator. Sealing the
+ * contract here gives the Kotlin compiler the same closed-variant guarantee
+ * that the Rust mod declaration provides.
+ */
+internal sealed interface ArenaAllocator {
     /**
      * Number of bytes allocated by this allocator.
      *

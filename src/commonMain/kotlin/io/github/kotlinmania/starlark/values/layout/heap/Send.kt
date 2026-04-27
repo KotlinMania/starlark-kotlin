@@ -6,7 +6,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -18,78 +18,83 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.ProvidesStaticType
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.SealedSend.Sealed
+import kotlin.reflect.KClass
+
 /**
  * A trait for handling the unusual sendness requirements of starlark values.
  *
- * Semantically, the send and sync impls in starlark exist in support of the
- * following goals, from more obvious to less obvious:
+ * Semantically, the send and sync impls in starlark exist in support of the following goals,
+ * from more obvious to less obvious:
  *
- *  1. Frozen heaps and values should be fully thread safe — parallel starlark
- *     evaluations must be able to depend on the same frozen heap.
- *  2. Unfrozen values should support non-thread-safe interior mutability such
- *     as a borrow-checked cell; in other words, they must support being
- *     non-sync.
- *  3. Unfrozen heaps should be sendable. Concretely, it should be possible to
- *     hold them across a suspension point so as to interleave starlark
- *     evaluation with other async work.
+ *  1. Frozen heaps and values should be fully thread safe — parallel starlark evaluations must
+ *     be able to depend on the same frozen heap.
+ *  2. Unfrozen values should support non-thread-safe interior mutability such as a borrow
+ *     checked cell; in other words, they must support being non-sync.
+ *  3. Unfrozen heaps should be sendable. Concretely, it should be possible to hold them across
+ *     a suspension point so as to interleave starlark evaluation with other async work.
  *
- * Since a value is semantically a reference to an unfrozen value, an immediate
- * consequence of (2) is that an unfrozen value reference cannot itself be
- * sent. Given that starlark values need to contain other values, this makes
- * the third condition weird. However, soundness is achieved by requiring a
- * combination of two properties:
+ * Since a value is semantically a reference to an unfrozen value, an immediate consequence
+ * of (2) is that a value reference cannot itself be sent. Given that starlark values need to
+ * contain other values, this makes the third condition weird. However, soundness is achieved
+ * by requiring a combination of two properties:
  *
- *  a. Unfrozen starlark values must be send up to any value reference inside
- *     them. In other words, they can contain a list of value references or
- *     similar, but not arbitrary non-sendable interior state.
- *  b. When a heap is sent to another thread, the heap is sent "in its
- *     entirety", together with any references into it.
+ *  a. Unfrozen starlark values must be send up to any value reference inside them. In other
+ *     words, they can contain a list of value references or whatever, but not arbitrary
+ *     non-sendable interior state.
+ *  b. When a heap is sent to another thread, the heap is sent "in its entirety", together
+ *     with any references into it.
  *
- * To be able to check these requirements, the heap allocation functions have
- * a signature that conceptually looks like:
+ * To be able to check these requirements, the heap allocation functions have a signature that
+ * conceptually looks like this:
  *
  * ```
  * fun <T> Heap.alloc(value: T): Value
  *     where T : StarlarkValue,
  *           T : ProvidesStaticType,
- *           T.StaticType : Send
+ *           T.staticType : HeapSendable
  * ```
  *
- * The first bound is obvious. The second says that all lifetimes appearing on
- * `T` must match the heap's lifetime; together with branding, this guarantees
- * that any value references that `T` holds point back into the same heap. The
- * third bound replaces a direct `T : Send` requirement (which would prevent
- * `T` from holding a value reference) with one on `T.StaticType` — `T` with
- * its lifetime parameter replaced by a static lifetime. That is *almost* as
- * good as `T : Send`, while remaining satisfied for a `T` that contains an
- * unfrozen value reference, which is what we want.
+ * The first bound is obvious. The second pins `T` to the same heap as its contained value
+ * references via [ProvidesStaticType]; together with branding, this guarantees that any
+ * value references that `T` holds point back into the same heap. The third bound replaces a
+ * direct thread-shareability requirement (which would prevent `T` from holding a value
+ * reference) with one on `T.staticType` — the heap-detached static representative of `T`.
+ * That is *almost* as good as direct thread-shareability, while remaining satisfied for a
+ * `T` that contains a value reference, which is what we want.
  */
-interface HeapSendable : SealedSend
+interface HeapSendable : Sealed
 
-/** Sealing supertype: only types in this module may declare [HeapSendable]. */
-interface SealedSend
+/** The sealing supertype for [HeapSendable]; only types declared in this module may extend it. */
+internal object SealedSend {
+    interface Sealed : ProvidesStaticType
+}
 
 /**
  * The sync analogue of [HeapSendable].
  *
- * Mostly see the docs on [HeapSendable], which are slightly more interesting —
- * this one is just needed on frozen heaps.
+ * Mostly see the docs on [HeapSendable], which is slightly more interesting — this one is
+ * just needed on frozen heaps.
  */
-interface HeapSyncable : SealedSync
+interface HeapSyncable : SealedSync.Sealed
 
-/** Sealing supertype: only types in this module may declare [HeapSyncable]. */
-interface SealedSync
+/** The sealing supertype for [HeapSyncable]; only types declared in this module may extend it. */
+internal object SealedSync {
+    interface Sealed : ProvidesStaticType
+}
 
 /**
  * A helper to pass the send-if-static property through dynamic dispatch.
  *
- * Unfortunately, the property of starlark values that they are send when the
- * heap lifetime is replaced by a static one does not cleanly pass through an
- * open-interface field; concretely, it's not possible to make an arbitrary
- * `MyTrait` reference sendable just because the underlying concrete type is.
+ * Unfortunately, the property of starlark values that they are send when their heap-detached
+ * representative is also send does not cleanly pass through an open-interface field;
+ * concretely, an arbitrary `MyTrait` reference cannot be made [HeapSendable] just because the
+ * underlying concrete type is.
  *
- * This type acts as a wrapper to recover the send implementation; where previously you
- * might have written
+ * This type acts as a wrapper to recover the [HeapSendable] implementation; where previously
+ * you might have written:
  *
  * ```
  * interface MyTrait : Trace
@@ -109,20 +114,28 @@ interface SealedSync
  * }
  * ```
  */
-class DynStarlark<T>(private val value: T) {
+class DynStarlark<T>(private val inner: T) : Trace, ProvidesStaticType
+where T : Any {
+    override val staticType: KClass<*> get() = DynStarlark::class
+
+    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+        if (inner is Trace) inner.trace(tracer)
+    }
+
+    /** Create a new [DynStarlark] containing [v]. */
     companion object {
-        /** Create a new [DynStarlark] containing the value. */
-        fun <T> new(v: T): DynStarlark<T> = DynStarlark(v)
+        fun <T : Any> new(v: T): DynStarlark<T> = DynStarlark(v)
     }
 
     /** Extract the contained value. */
-    fun intoInner(): T = value
+    fun intoInner(): T = inner
 
     /** Borrow the contained value. */
-    fun deref(): T = value
+    fun deref(): T = inner
 
     /** Borrow the contained value mutably. */
-    fun derefMut(): T = value
+    fun derefMut(): T = inner
 
-    override fun toString(): String = value.toString()
+    /** Mirrors the upstream `Debug`/`Display` impls, both of which delegate to the inner value. */
+    override fun toString(): String = inner.toString()
 }

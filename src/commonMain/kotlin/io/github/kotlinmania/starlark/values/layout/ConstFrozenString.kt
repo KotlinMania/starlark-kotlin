@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,28 +20,10 @@ package io.github.kotlinmania.starlark.values.layout
  */
 
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
 
 /** Create a [FrozenStringValue]. */
 fun constFrozenString(s: String): FrozenStringValue {
-    return constantString(s) ?: run {
-        // `s.len() <= 1`, `StarlarkStrNRepr::new` should not be called
-        // because it fails and it should be handled by `constantString`.
-        // But we still have to put something in `static`.
-        // so for `s.len() <= 1` we put dummy string of length 2 there,
-        // and `N == 1` in that case.
-        val unreachable: Boolean = s.length <= 1
-        val n: Int = if (unreachable) {
-            1
-        } else {
-            StarlarkStr.payloadLenForLen(s.length)
-        }
-        val x: StarlarkStrNRepr =
-            StarlarkStrNRepr.new(if (unreachable) "xx" else s)
-        if (unreachable) {
-            error("unreachable")
-        } else {
-            x.erase()
-        }
-    }
+    // Short-string fast path lives in [constantString]; long strings allocate a fresh
+    // [StarlarkStrNRepr] and erase the type parameter.
+    return constantString(s) ?: StarlarkStrNRepr.new(s).erase()
 }

@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/value.rs
+// port-lint: source values/layout/value.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -29,7 +29,7 @@ package io.github.kotlinmania.starlark.values.layout
 // 11 => this is a bool (next bit: 1 => true, 0 => false)
 // 10 => this is a None
 //
-// We don't import pointer tagging for Int (although we'd like to), because
+// We do not use pointer tagging for Int (although we would like to), because
 // our getRef requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
@@ -170,7 +170,7 @@ class Value internal constructor(
         }
 
         /**
-         * Create a new [Value] from an [AValueHeader], querying whether it's a string.
+         * Create a new [Value] from an [AValueHeader], querying whether it is a string.
          */
         internal fun newPtrQueryIsStr(x: AValueHeader): Value {
             val isString = x.vtable.isStr
@@ -184,9 +184,6 @@ class Value internal constructor(
             return newPtr(x.header, x.header.vtable.isStr)
         }
 
-        /**
-         * Create a new [Value] from a raw [Long] pointer with string tag.
-         */
         internal fun newPtrUsizeWithStrTag(x: Long): Value {
             return Value(Pointer.newUnfrozenUsizeWithStrTag(x))
         }
@@ -249,14 +246,7 @@ class Value internal constructor(
         fun fromFrozenValue(v: FrozenValue): Value = v.toValue()
     }
 
-    /**
-     * Cast the lifetime of this value. Constructs a new [Value] wrapping
-     * `ptr.castLifetime()`; the lifetime tag does not exist in Kotlin but
-     * the call shape mirrors Rust's wrapper around the pointer-level cast.
-     */
     internal fun castLifetime(): Value = Value(this.ptr.castLifetime())
-
-    override fun self(): Value = this
 
     /**
      * Produce a [Value] regardless of the type you are starting with.
@@ -271,7 +261,7 @@ class Value internal constructor(
         return if (ptr.isUnfrozen()) {
             null
         } else {
-            // SAFETY: We've just checked the value is frozen.
+            // SAFETY: We have just checked the value is frozen.
             unpackFrozenUnchecked()
         }
     }
@@ -303,7 +293,7 @@ class Value internal constructor(
     }
 
     /**
-     * Unpack this value as an integer of type [Long], or return an error if it's too big.
+     * Unpack this value as an integer of type [Long], or return an error if it is too big.
      * Returns `null` if the value is not an integer at all.
      */
     internal fun unpackInteger(): Result<Long?> {
@@ -314,7 +304,7 @@ class Value internal constructor(
                 if (i32 != null) {
                     Result.success(i32.toLong())
                 } else {
-                    // Small value that doesn't fit in i32 shouldn't normally happen,
+                    // Small value that does not fit in i32 should not normally happen,
                     // but fall through to error.
                     Result.failure(IntegerTooBigError(
                         integerType = "Long",
@@ -372,7 +362,7 @@ class Value internal constructor(
      */
     internal fun unpackIntValue(): FrozenValueTyped<PointerI32>? {
         return if (unpackInlineInt() != null) {
-            // SAFETY: We've just checked the value is an int.
+            // SAFETY: We have just checked the value is an int.
             FrozenValueTyped.newUnchecked(unpackFrozenUnchecked())
         } else {
             null
@@ -453,7 +443,7 @@ class Value internal constructor(
     }
 
     /**
-     * Get the raw underlying pointer from this value's AValueDyn.
+     * Get the raw underlying pointer from the AValueDyn of this value.
      * Used by inline functions that need to access the underlying object
      * from a different package (e.g. ValueOf.unpackValueImpl).
      */
@@ -466,8 +456,6 @@ class Value internal constructor(
      * Downcast without checking the value type.
      */
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
-        // Kotlin `assert` mirrors Rust's debug-only assertion: it can be disabled at runtime
-        // via the `-ea` flag (or kotlin.assertions.disabled) and is a no-op when off.
         assert(getRef().downcastRef<T>() != null)
         if (PointerI32.typeIsPointerI32<T>()) {
             val pi32 = PointerI32(ptr.unpackIntValue())
@@ -1295,8 +1283,6 @@ class Value internal constructor(
     }
 }
 
-// Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
-
 fun Value.Companion.default(): Value = Value.newNone()
 
 fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
@@ -1330,16 +1316,13 @@ class FrozenValue internal constructor(
         }
 
         /**
-         * Create a new [FrozenValue] from an [AValueHeader], querying whether it's a string.
+         * Create a new [FrozenValue] from an [AValueHeader], querying whether it is a string.
          */
         internal fun newPtrQueryIsStr(x: AValueHeader): FrozenValue {
             val isString = x.vtable.isStr
             return newPtr(x, isString)
         }
 
-        /**
-         * Create a new [FrozenValue] from a raw usize with string tag.
-         */
         internal fun newPtrUsizeWithStrTag(x: Long): FrozenValue {
             return FrozenValue(FrozenPointer.newFrozenUsizeWithStrTag(x))
         }
@@ -1452,17 +1435,9 @@ class FrozenValue internal constructor(
         return toValue().isStr()
     }
 
-    /**
-     * Obtain the underlying [String] if this value is a string. The returned [String]
-     * is owned by the [FrozenHeap] backing this [FrozenValue]; we do not expose this
-     * accessor outside Starlark because callers must not retain it past the heap's
-     * lifetime.
-     */
     internal fun unpackStr(): String? {
         return toValue().unpackStr()
     }
-
-    override fun self(): FrozenValue = this
 
     /**
      * Convert a [FrozenValue] back to a [Value].
@@ -1477,7 +1452,7 @@ class FrozenValue internal constructor(
      */
     internal fun isBuiltin(): Boolean {
         // The list is not comprehensive, this is fine.
-        // If some type is not listed here, some optimizations won't work for this type.
+        // If some type is not listed here, some optimizations will not work for this type.
         return isNone()
             || isStr()
             || unpackBool() != null
@@ -1655,16 +1630,6 @@ object FrozenValueStarlarkTypeRepr : StarlarkTypeRepr {
  */
 interface ValueLike<Self : ValueLike<Self>> : ValueLifetimeless {
     /**
-     * Return `this` typed as `Self`. Each implementor of [ValueLike] returns
-     * `this` directly, which the Kotlin compiler verifies without a cast
-     * because the implementor's body sees `this` as the concrete `Self` type.
-     * Used by [getHashed] (and any future Self-typed default method) to
-     * deliver `this` to a `Self`-parameterised position without an unchecked
-     * cast.
-     */
-    fun self(): Self
-
-    /**
      * Produce a [Value] regardless of the type you are starting with.
      */
     fun toValue(): Value
@@ -1692,7 +1657,7 @@ interface ValueLike<Self : ValueLike<Self>> : ValueLifetimeless {
     fun getHashed(): Result<Hashed<Self>> {
         val hash = toValue().unpackStarlarkStr()?.getHash()
             ?: toValue().getHash().getOrElse { return Result.failure(it) }
-        return Result.success(Hashed.newUnchecked(hash, self()))
+        return Result.success(Hashed.newUnchecked(hash, this as Self))
     }
 
     /**

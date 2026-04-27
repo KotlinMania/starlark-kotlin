@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,36 +19,39 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
+/** Statically allocated strings. */
+
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.avalues.str.VALUE_STR_A_VALUE_PTR
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.layout.avalues.str.VALUE_STR_A_VALUE_PTR
-import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrIntern
-import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import kotlin.concurrent.atomics.AtomicInt
 
 /**
- * Internal string representation with packed body bytes.
- * In Kotlin, we import a dynamic LongArray.
+ * Internal string representation with packed body words.
  */
 internal class StarlarkStrN(
-    val len: Int,
-    val hash: UInt,
+    val len: UInt,
+    val hash: AtomicInt,
     val body: LongArray,
 )
 
 /**
  * A constant string that can be converted to a [FrozenValue].
  *
- * the struct layout matches the heap representation. In Kotlin, we hold the
- * `AValueRepr<StarlarkStrN>` directly and rely on the runtime representation.
+ * **Note** the body length is in words, not bytes.
  */
 class StarlarkStrNRepr internal constructor(
     private val repr: AValueRepr<StarlarkStrN>,
 ) {
     companion object {
-        /** Create a new [StarlarkStrNRepr] given a string of length greater than 1. */
+        /**
+         * Create a new [StarlarkStrNRepr] given a string of length greater than 1.
+         *
+         * This function is used internally by [constantString] and friends to statically
+         * allocate strings.
+         */
         fun new(s: String): StarlarkStrNRepr {
             require(s.length > 1) {
                 "static strings of length <= 1 cannot be created from outside of the crate"
@@ -58,52 +61,23 @@ class StarlarkStrNRepr internal constructor(
 
         internal fun newUnchecked(s: String): StarlarkStrNRepr {
             val payloadLen = StarlarkStr.payloadLenForLen(s.length)
-            // Pack the string bytes into word-sized payload array.
-            // This mirrors the Rust compile-time byte packing into usize words.
-            val wordSize = ULong.SIZE_BYTES // sizeof(usize) equivalent
+            require(s.length.toUInt().toInt() == s.length)
             val payload = LongArray(payloadLen)
-            for (i in s.indices) {
-                val wordIdx = i / wordSize
-                val shift = 8 * (i % wordSize)
-                payload[wordIdx] = payload[wordIdx] or
-                    ((s[i].code.toLong() and 0xFF) shl shift)
-            }
 
-            // in the arena bytes after the header.  In Kotlin there is no raw memory so
-            // we need the AValueHeader's vtable to carry the actual StarlarkStr so that
-            // `Value.unpackStarlarkStr()` can find it via `getRef().downcastRef<StarlarkStr>()`.
-            val str = StarlarkStr(s)
-            val typeId = ConstTypeId.of<StarlarkStr>()
-            val header = AValueHeader(
-                AValueVTable(
-                    staticTypeOfValue = typeId,
-                    starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
-                    typeName = "string",
-                    isStr = true,
-                    memorySizeFn = { _ ->
-                        val byteLen = str.len()
-                        ValueAllocSize.new(
-                            AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen)
-                        )
-                    },
-                    heapFreezeFn = { _, freezer ->
-                        // Static constant strings: re-intern on the frozen heap.
-                        val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
-                        Result.success(fv.toFrozenValue())
-                    },
-                    heapCopyFn = { _, tracer ->
-                        tracer.allocStr(str.asStr())
-                    },
-                    starlarkValue = str,
-                )
-            )
+            val wordSize = ULong.SIZE_BYTES
+            var i = 0
+            while (i != s.length) {
+                payload[i / wordSize] = payload[i / wordSize] or
+                    ((s[i].code.toLong() and 0xFF) shl (8 * (i % wordSize)))
+                i += 1
+            }
 
             return StarlarkStrNRepr(
                 repr = AValueRepr(
-                    header = header,
+                    header = VALUE_STR_A_VALUE_PTR,
                     payload = StarlarkStrN(
-                        len = s.length,
-                        hash = 0u,
+                        len = s.length.toUInt(),
+                        hash = AtomicInt(0),
                         body = payload,
                     ),
                 ),
@@ -124,10 +98,7 @@ class StarlarkStrNRepr internal constructor(
 
 internal val VALUE_EMPTY_STRING: StarlarkStrNRepr = StarlarkStrNRepr.newUnchecked("")
 
-/**
- * Returns a cached [FrozenStringValue] for strings of length <= 1,
- * or null for longer strings.
- */
+/** For static strings of length > 1, allocate via [StarlarkStrNRepr] directly. */
 fun constantString(x: String): FrozenStringValue? {
     return if (x.length > 1) {
         null
@@ -136,12 +107,7 @@ fun constantString(x: String): FrozenStringValue? {
     } else {
         // If the string is 1 byte long there can only be up to the first 128 characters present
         // therefore this index will be total
-        val b = x[0].code
-        if (b < 128) {
-            VALUE_BYTE_STRINGS[b].erase()
-        } else {
-            null
-        }
+        VALUE_BYTE_STRINGS[x[0].code].erase()
     }
 }
 

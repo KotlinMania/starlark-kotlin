@@ -624,6 +624,14 @@ public:
         int stub_mismatch_count = 0;
     };
 
+    struct ProvenanceProposal {
+        std::string source_path;
+        std::string target_path;
+        std::string current_header;
+        std::string proposed_header;
+        std::string reason;
+    };
+
     struct Match {
         std::string source_path;
         std::string target_path;
@@ -638,6 +646,9 @@ public:
         int lint_count = 0;
         bool is_stub = false;
         bool matched_by_header = false;  // True if matched via "Transliterated from:"
+        bool matched_by_normalized_provenance = false;
+        std::vector<std::string> provenance_warnings;
+        std::vector<ProvenanceProposal> provenance_proposals;
         std::vector<std::string> zero_reasons;  // Hard-fail reasons that force similarity to 0
 
         // Additional target files that explicitly point to this same source
@@ -738,6 +749,93 @@ public:
             path = path.substr(2);
         }
         return path;
+    }
+
+    static std::string normalized_source_annotation_component(const std::string& component,
+                                                              bool is_filename) {
+        if (!is_filename) {
+            return SourceFile::normalize_name(component);
+        }
+
+        fs::path p(component);
+        std::string stem = SourceFile::normalize_name(p.stem().string());
+        std::string ext = p.extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return stem + ext;
+    }
+
+    static std::string normalized_source_annotation_match_key(std::string path) {
+        path = normalize_source_annotation_path(std::move(path));
+        std::vector<std::string> parts;
+        fs::path p(path);
+        for (const auto& part : p) {
+            std::string segment = part.string();
+            if (segment.empty() || segment == ".") {
+                continue;
+            }
+            parts.push_back(segment);
+        }
+
+        if (parts.empty()) {
+            return "";
+        }
+
+        std::ostringstream out;
+        for (size_t i = 0; i < parts.size(); ++i) {
+            if (i > 0) out << "/";
+            out << normalized_source_annotation_component(parts[i], i + 1 == parts.size());
+        }
+        return out.str();
+    }
+
+    static std::set<std::string> source_annotation_match_keys(std::string path) {
+        path = normalize_source_annotation_path(std::move(path));
+        std::set<std::string> variants;
+
+        auto add_variant = [&](const std::string& variant) {
+            std::string key = normalized_source_annotation_match_key(variant);
+            if (!key.empty()) {
+                variants.insert(std::move(key));
+            }
+        };
+
+        add_variant(path);
+
+        if (path.rfind("src/", 0) == 0) {
+            add_variant(path.substr(4));
+        }
+
+        size_t crate_src = path.find("/src/");
+        if (crate_src != std::string::npos) {
+            add_variant(path.substr(crate_src + 5));
+        }
+
+        return variants;
+    }
+
+    static std::string canonical_source_annotation_path(std::string path) {
+        path = normalize_source_annotation_path(std::move(path));
+
+        if (path.rfind("src/", 0) == 0) {
+            path = path.substr(4);
+        }
+
+        size_t crate_src = path.find("/src/");
+        if (crate_src != std::string::npos) {
+            path = path.substr(crate_src + 5);
+        }
+
+        return normalize_source_annotation_path(std::move(path));
+    }
+
+    static std::string port_lint_source_header_line(const std::string& source_path) {
+        return "// port-lint: source " + canonical_source_annotation_path(source_path);
+    }
+
+    static std::string port_lint_header_line(const std::string& kind,
+                                             const std::string& source_path) {
+        return "// port-lint: " + kind + " " + canonical_source_annotation_path(source_path);
     }
 
     static std::string join_reasons(const std::vector<std::string>& reasons) {
@@ -1143,14 +1241,69 @@ public:
         return header_path;
     }
 
+    struct HeaderMatchResult {
+        float score = 0.0f;
+        bool normalized_fallback = false;
+        std::string warning;
+        ProvenanceProposal proposal;
+    };
+
+    static ProvenanceProposal provenance_proposal_for_header(
+            const SourceFile& src_file,
+            const SourceFile& tgt_file,
+            const std::string& reason) {
+        ProvenanceProposal proposal;
+        const bool is_tests = is_test_transliteration(tgt_file.transliterated_from);
+        const std::string kind = is_tests ? "tests" : "source";
+        proposal.source_path = canonical_source_annotation_path(src_file.relative_path);
+        proposal.target_path = tgt_file.relative_path.empty()
+            ? tgt_file.filename
+            : tgt_file.relative_path;
+        proposal.current_header =
+            "// port-lint: " + kind + " " +
+            normalize_source_annotation_path(
+                source_path_from_transliteration(tgt_file.transliterated_from));
+        proposal.proposed_header = port_lint_header_line(kind, src_file.relative_path);
+        proposal.reason = reason;
+        return proposal;
+    }
+
+    static HeaderMatchResult exact_transliteration_header_match_result(
+            const SourceFile& src_file,
+            const SourceFile& tgt_file) {
+        HeaderMatchResult result;
+        if (tgt_file.transliterated_from.empty()) return result;
+
+        const std::string header_path = normalize_source_annotation_path(
+            source_path_from_transliteration(tgt_file.transliterated_from));
+        const std::string source_rel = normalize_source_annotation_path(src_file.relative_path);
+        if (header_path == source_rel) {
+            result.score = 1.0f;
+            return result;
+        }
+
+        const auto from_keys = source_annotation_match_keys(header_path);
+        const auto source_keys = source_annotation_match_keys(source_rel);
+
+        for (const auto& from : from_keys) {
+            if (source_keys.count(from)) {
+                result.score = 0.99f;
+                result.normalized_fallback = true;
+                result.warning =
+                    "port-lint provenance header matched only after fallback normalization: `" +
+                    tgt_file.transliterated_from + "` vs expected `" +
+                    canonical_source_annotation_path(src_file.relative_path) + "`";
+                result.proposal = provenance_proposal_for_header(src_file, tgt_file, result.warning);
+                return result;
+            }
+        }
+        return result;
+    }
+
     static float exact_transliteration_header_match_score(
             const SourceFile& src_file,
             const SourceFile& tgt_file) {
-        if (tgt_file.transliterated_from.empty()) return 0.0f;
-        const std::string from = normalize_source_annotation_path(
-            source_path_from_transliteration(tgt_file.transliterated_from));
-        const std::string source_rel = normalize_source_annotation_path(src_file.relative_path);
-        return from == source_rel ? 1.0f : 0.0f;
+        return exact_transliteration_header_match_result(src_file, tgt_file).score;
     }
 
     static float transliteration_header_match_score(
@@ -1207,7 +1360,15 @@ public:
         // First pass: Match by "Transliterated from:" header
         // Target files reference source files, so look in target for headers
         // Store candidates with scores for best matching
-        std::vector<std::tuple<float, std::string, std::string>> header_candidates;
+        struct HeaderCandidate {
+            float score = 0.0f;
+            std::string src_path;
+            std::string tgt_path;
+            bool normalized_fallback = false;
+            std::string warning;
+            ProvenanceProposal proposal;
+        };
+        std::vector<HeaderCandidate> header_candidates;
 
         for (const auto& [tgt_path, tgt_file] : target.files) {
             if (tgt_file.transliterated_from.empty()) continue;
@@ -1215,12 +1376,22 @@ public:
 
             // Try to find the source file that matches the header
             for (const auto& [src_path, src_file] : source.files) {
-                float match_score = strict_provenance_matching
-                    ? exact_transliteration_header_match_score(src_file, tgt_file)
-                    : transliteration_header_match_score(src_file, tgt_file);
+                HeaderMatchResult match;
+                if (strict_provenance_matching) {
+                    match = exact_transliteration_header_match_result(src_file, tgt_file);
+                } else {
+                    match.score = transliteration_header_match_score(src_file, tgt_file);
+                }
 
-                if (match_score > 0.0f) {
-                    header_candidates.emplace_back(match_score, src_path, tgt_path);
+                if (match.score > 0.0f) {
+                    header_candidates.push_back({
+                        match.score,
+                        src_path,
+                        tgt_path,
+                        match.normalized_fallback,
+                        match.warning,
+                        match.proposal,
+                    });
                 }
             }
         }
@@ -1228,22 +1399,24 @@ public:
         // Sort by score descending, with header preference for ties
         std::sort(header_candidates.begin(), header_candidates.end(),
             [this](const auto& a, const auto& b) {
-                float score_a = std::get<0>(a);
-                float score_b = std::get<0>(b);
+                float score_a = a.score;
+                float score_b = b.score;
                 if (std::abs(score_a - score_b) > 0.001f) {
                     return score_a > score_b;  // Higher score first
                 }
                 // Same score - prefer header files
-                const auto& tgt_a = target.files.at(std::get<2>(a));
-                const auto& tgt_b = target.files.at(std::get<2>(b));
+                const auto& tgt_a = target.files.at(a.tgt_path);
+                const auto& tgt_b = target.files.at(b.tgt_path);
                 bool a_header = is_header_file(tgt_a);
                 bool b_header = is_header_file(tgt_b);
                 if (a_header != b_header) return a_header;  // Headers first
                 // Same type - prefer shorter path (less nesting)
-                return std::get<2>(a).size() < std::get<2>(b).size();
+                return a.tgt_path.size() < b.tgt_path.size();
             });
 
-        for (const auto& [score, src_path, tgt_path] : header_candidates) {
+        for (const auto& candidate : header_candidates) {
+            const auto& src_path = candidate.src_path;
+            const auto& tgt_path = candidate.tgt_path;
             if (matched_sources.count(src_path) || matched_targets.count(tgt_path)) {
                 continue;  // Already matched
             }
@@ -1275,6 +1448,14 @@ public:
                 }
             }
             m.matched_by_header = true;
+            if (candidate.normalized_fallback) {
+                m.matched_by_normalized_provenance = true;
+                m.lint_count += 1;
+                if (!candidate.warning.empty()) {
+                    m.provenance_warnings.push_back(candidate.warning);
+                }
+                m.provenance_proposals.push_back(candidate.proposal);
+            }
 
             matches.push_back(m);
             matched_sources.insert(src_path);
@@ -1297,21 +1478,34 @@ public:
 
                 Match* best = nullptr;
                 float best_score = 0.0f;
+                HeaderMatchResult best_match;
                 for (const auto& [src_path, src_file] : source.files) {
                     auto mit = match_by_src.find(src_path);
                     if (mit == match_by_src.end()) continue;
 
-                    float score = strict_provenance_matching
-                        ? exact_transliteration_header_match_score(src_file, tgt_file)
-                        : transliteration_header_match_score(src_file, tgt_file);
-                    if (score > best_score) {
-                        best_score = score;
+                    HeaderMatchResult match;
+                    if (strict_provenance_matching) {
+                        match = exact_transliteration_header_match_result(src_file, tgt_file);
+                    } else {
+                        match.score = transliteration_header_match_score(src_file, tgt_file);
+                    }
+                    if (match.score > best_score) {
+                        best_score = match.score;
+                        best_match = match;
                         best = mit->second;
                     }
                 }
                 if (best != nullptr) {
                     for (const auto& p : tgt_file.paths) {
                         best->additional_target_paths.push_back(p);
+                    }
+                    if (best_match.normalized_fallback) {
+                        best->matched_by_normalized_provenance = true;
+                        best->lint_count += 1;
+                        if (!best_match.warning.empty()) {
+                            best->provenance_warnings.push_back(best_match.warning);
+                        }
+                        best->provenance_proposals.push_back(best_match.proposal);
                     }
                     matched_targets.insert(tgt_path);
                 }
@@ -1928,10 +2122,13 @@ public:
                             std::to_string(m.source_type_count);
                 }
                 float priority = m.priority_score();
-                std::string stub_flag = m.is_stub ? " [STUB]" : "";
-                if (!m.zero_reasons.empty() && !m.is_stub) stub_flag = " [ZERO]";
+                std::string match_flags = m.is_stub ? " [STUB]" : "";
+                if (!m.zero_reasons.empty() && !m.is_stub) match_flags = " [ZERO]";
+                if (m.matched_by_normalized_provenance) {
+                    match_flags += " [PROVENANCE-FALLBACK]";
+                }
                 std::cout << std::setw(30) << std::left << m.source_qualified.substr(0, 28)
-                          << std::setw(30) << (m.target_qualified.substr(0, 28) + stub_flag)
+                          << std::setw(30) << (m.target_qualified.substr(0, 28) + match_flags)
                           << std::setw(10) << std::fixed << std::setprecision(2) << m.similarity
                           << std::setw(11) << m.source_dependents
                           << std::setw(14) << funcs
@@ -1955,10 +2152,14 @@ public:
                 std::cout << m.source_qualified << " -> " << m.target_qualified;
                 if (m.is_stub) std::cout << " [STUB]";
                 if (!m.zero_reasons.empty() && !m.is_stub) std::cout << " [ZERO]";
+                if (m.matched_by_normalized_provenance) std::cout << " [PROVENANCE-FALLBACK]";
                 std::cout << "\n";
                 std::cout << "  similarity: " << std::fixed << std::setprecision(2) << m.similarity
                           << ", priority: " << std::fixed << std::setprecision(1) << m.priority_score()
                           << ", dependents: " << m.source_dependents << "\n";
+                for (const auto& warning : m.provenance_warnings) {
+                    std::cout << "  provenance warning: " << warning << "\n";
+                }
                 std::cout << "  functions: " << m.matched_function_count << "/"
                           << m.source_function_count << " matched"
                           << " (target total: " << m.target_function_count
@@ -1995,6 +2196,29 @@ public:
                         std::cout << "  - " << m.source_qualified << " -> "
                                   << m.target_qualified << ": "
                                   << join_reasons(m.zero_reasons) << "\n";
+                    }
+                }
+            }
+
+            bool any_provenance_warning = false;
+            for (const auto& m : ranked) {
+                if (!m.provenance_warnings.empty()) {
+                    any_provenance_warning = true;
+                    break;
+                }
+            }
+            if (any_provenance_warning) {
+                std::cout << "\n=== Provenance Header Fallbacks ===\n\n";
+                std::cout << "These files were paired only after normalization; fix the port-lint source header.\n";
+                for (const auto& m : ranked) {
+                    for (size_t i = 0; i < m.provenance_warnings.size(); ++i) {
+                        const auto& warning = m.provenance_warnings[i];
+                        std::cout << "  - " << m.source_qualified << " -> "
+                                  << m.target_qualified << ": " << warning << "\n";
+                        if (i < m.provenance_proposals.size()) {
+                            std::cout << "    proposed: "
+                                      << m.provenance_proposals[i].proposed_header << "\n";
+                        }
                     }
                 }
             }

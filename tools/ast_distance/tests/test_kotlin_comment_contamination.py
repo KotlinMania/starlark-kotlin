@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+from pty_run import run_with_pty
 
 
 def main() -> None:
@@ -37,7 +38,7 @@ fun fooBar(x: Int): Int {
             encoding="utf-8",
         )
 
-        proc = subprocess.run(
+        proc = run_with_pty(
             [
                 str(ast_distance),
                 "--compare-functions",
@@ -46,10 +47,6 @@ fun fooBar(x: Int): Int {
                 str(kotlin_file),
                 "kotlin",
             ],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=True,
         )
 
     out = proc.stdout

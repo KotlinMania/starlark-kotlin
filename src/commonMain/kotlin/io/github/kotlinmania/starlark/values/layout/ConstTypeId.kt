@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,20 +21,27 @@ package io.github.kotlinmania.starlark.values.layout
 
 import kotlin.reflect.KClass
 
-/** Type-id wrapper/provider keyed off [KClass]. */
-data class ConstTypeId(
-    private val klass: KClass<*>,
+/** [KClass] wrapper/provider so callers can carry a type id without a generic parameter. */
+class ConstTypeId internal constructor(
+    private val typeIdFn: () -> KClass<*>,
 ) {
-
     override fun toString(): String {
-        return "ConstTypeId(type_id=${get()})"
+        return "ConstTypeId { type_id: ${get()} }"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ConstTypeId) return false
+        return get() == other.get()
+    }
+
+    override fun hashCode(): Int = get().hashCode()
+
+    fun get(): KClass<*> = typeIdFn()
 
     companion object {
-        inline fun <reified T : Any> of(): ConstTypeId = ConstTypeId(T::class)
+        inline fun <reified T : Any> of(): ConstTypeId = ConstTypeId { T::class }
 
-        fun of(klass: KClass<*>): ConstTypeId = ConstTypeId(klass)
+        fun of(klass: KClass<*>): ConstTypeId = ConstTypeId { klass }
     }
-
-    fun get(): KClass<*> = klass
 }

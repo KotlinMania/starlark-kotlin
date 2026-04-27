@@ -39,8 +39,16 @@ import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.types.tuple.unpackTuple2
 
-/** Extended vtable methods (those not covered by [StarlarkValue]). */
-interface AValue {
+/**
+ * Extended vtable methods (those not covered by [StarlarkValue]).
+ *
+ * Sealed: the upstream `values/layout/avalues.rs` mod groups the closed set of
+ * AValue implementations (array, complex, list, simple, static_, str_, tuple).
+ * Sealing the contract here gives the Kotlin compiler the same closed-variant
+ * guarantee that the Rust mod declaration provides; concrete implementations
+ * live in the `avalues` subpackage.
+ */
+sealed interface AValue {
 
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array

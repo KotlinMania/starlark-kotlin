@@ -38,6 +38,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import kotlin.reflect.KClass
+import kotlin.reflect.safeCast
 
 /**
  * Untyped raw pointer to a [StarlarkValue] without an attached vtable.
@@ -56,8 +57,23 @@ class StarlarkValueRawPtr(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> valueRef(): T = ptr as T
+    /**
+     * Pointer to the typed payload. The [ptr] field carries the typed object
+     * reference directly; this method runtime-checks the type via the Kotlin
+     * smart-cast and returns the value.
+     */
+    inline fun <reified T : Any> valuePtr(): T {
+        val p = ptr
+        check(p is T) { "StarlarkValueRawPtr is not a ${T::class.simpleName}" }
+        return p
+    }
+
+    /** Reference to the typed payload; equivalent to [valuePtr]. */
+    inline fun <reified T : Any> valueRef(): T = valuePtr()
+
+    /** Non-reified counterpart of [valueRef] / [valuePtr] using runtime [KClass] lookup. */
+    fun <T : Any> valueRef(clazz: KClass<T>): T =
+        clazz.safeCast(ptr) ?: error("StarlarkValueRawPtr cannot be viewed as ${clazz.simpleName}")
 }
 
 /**
@@ -150,6 +166,23 @@ class AValueVTable(
         }
     }
 
+    /**
+     * Drop the value at the given pointer. the Kotlin GC supersedes explicit
+     * destruction, so this is a no-op kept for symbol parity with the upstream
+     * vtable layout.
+     */
+    fun dropInPlace(value: StarlarkValueRawPtr) {
+        // GC handles destruction.
+    }
+
+    /**
+     * Display formatter; the Kotlin equivalent of the upstream display dispatch
+     * is [toString] on the underlying value.
+     */
+    fun fmt(value: StarlarkValueRawPtr): String {
+        return value.ptr.toString()
+    }
+
     fun typeValue(): FrozenStringValue {
         return starlarkValue.getTypeValueStatic()
     }
@@ -186,6 +219,24 @@ internal class AValueDyn(
     fun memorySize(): ValueAllocSize {
         return _vtable.memorySizeFn(value)
     }
+
+    /**
+     * Allocative-trait reference. Kotlin has no equivalent trait, so the
+     * underlying value is returned for callers to inspect via [kotlin.reflect].
+     */
+    fun asAllocative(): Any = value.ptr
+
+    /**
+     * Total bytes attributed to this value when building a heap profile.
+     * Defers to the [memorySize] accessor and converts to bytes.
+     */
+    fun totalMemoryForProfile(): UInt = _vtable.memorySizeFn(value).bytes()
+
+    /**
+     * Serializable view. Returns the underlying value for kotlinx.serialization
+     * to dispatch on at the JSON path.
+     */
+    fun asSerialize(): Any = value.ptr
 
     fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         return _vtable.heapFreezeFn(value, freezer)
@@ -345,9 +396,7 @@ internal class AValueDyn(
     }
 
     fun <T : StarlarkValue> downcastRef(clazz: kotlin.reflect.KClass<T>): T? {
-        val sv = starlarkValue()
-        @Suppress("UNCHECKED_CAST")
-        return if (clazz.isInstance(sv)) sv as T else null
+        return clazz.safeCast(starlarkValue())
     }
 
     fun equals(other: Value): Result<Boolean> {
