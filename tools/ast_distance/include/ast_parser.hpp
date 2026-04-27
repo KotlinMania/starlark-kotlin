@@ -12,6 +12,7 @@
 #include <cctype>
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 // External declarations for tree-sitter language functions
 extern "C" {
@@ -19,6 +20,7 @@ extern "C" {
     const TSLanguage* tree_sitter_kotlin();
     const TSLanguage* tree_sitter_cpp();
     const TSLanguage* tree_sitter_python();
+    const TSLanguage* tree_sitter_typescript();
 }
 
 namespace ast_distance {
@@ -27,7 +29,8 @@ enum class Language {
     RUST,
     KOTLIN,
     CPP,
-    PYTHON
+    PYTHON,
+    TYPESCRIPT
 };
 
 /**
@@ -44,15 +47,14 @@ struct IdentifierStats {
      * "foo_bar" and "fooBar" and "FooBar" all become "foobar".
      * This lets snake_case Rust match camelCase Kotlin.
      *
-     * Also normalizes cross-language equivalents:
-     *   self/this → "this", Option/nullable → "option",
-     *   Vec/List/MutableList → "list", etc.
+     * This is intentionally strict: it does not map `fmt` to `toString`,
+     * `cmp` to `compareTo`, or collection/type synonyms. Those translations
+     * are real naming choices and should stay visible in parity reports.
      */
     static std::string canonicalize(const std::string& name) {
         // Strict snake_case <-> camelCase / PascalCase parity:
         // collapse case and drop underscores. No type-name remapping,
-        // no ignore lists, no synonym tables — those would mask real
-        // identifier drift between the Rust source and the Kotlin port.
+        // no ignore lists, no synonym tables.
         std::string result;
         result.reserve(name.size());
         for (char c : name) {
@@ -252,8 +254,8 @@ struct CommentStats {
 
 /**
  * Function metadata extracted from source code.
- * The AST is kept as the function body (not the whole declaration)
- * so that stub checks and identifier matching are aligned with behavior.
+ * The AST and identifiers are kept as parameters + body so transliteration
+ * reports compare callable behavior, not loose whole-file shape.
  */
 struct FunctionInfo {
     std::string name;
@@ -261,6 +263,10 @@ struct FunctionInfo {
     IdentifierStats identifiers;
     bool has_stub_markers = false;
     bool is_test = false;  // true if #[test] or inside #[cfg(test)] mod
+    int start_line = 0;    // 1-based declaration start line
+    int end_line = 0;      // 1-based declaration end line
+    int line_count = 0;    // declaration line span, inclusive
+    int body_line_count = 0;
 };
 
 /**
@@ -321,6 +327,7 @@ public:
             case Language::KOTLIN: ts_lang = tree_sitter_kotlin(); break;
             case Language::CPP: ts_lang = tree_sitter_cpp(); break;
             case Language::PYTHON: ts_lang = tree_sitter_python(); break;
+            case Language::TYPESCRIPT: ts_lang = tree_sitter_typescript(); break;
         }
 
         if (!ts_parser_set_language(parser_, ts_lang)) {
@@ -356,6 +363,7 @@ public:
             case Language::KOTLIN: ts_lang = tree_sitter_kotlin(); break;
             case Language::CPP: ts_lang = tree_sitter_cpp(); break;
             case Language::PYTHON: ts_lang = tree_sitter_python(); break;
+            case Language::TYPESCRIPT: ts_lang = tree_sitter_typescript(); break;
         }
 
         if (!ts_parser_set_language(parser_, ts_lang)) {
@@ -411,6 +419,7 @@ public:
             case Language::KOTLIN: ts_lang = tree_sitter_kotlin(); break;
             case Language::CPP: ts_lang = tree_sitter_cpp(); break;
             case Language::PYTHON: ts_lang = tree_sitter_python(); break;
+            case Language::TYPESCRIPT: ts_lang = tree_sitter_typescript(); break;
         }
 
         if (!ts_parser_set_language(parser_, ts_lang)) {
@@ -483,6 +492,7 @@ public:
             case Language::KOTLIN: ts_lang = tree_sitter_kotlin(); break;
             case Language::CPP: ts_lang = tree_sitter_cpp(); break;
             case Language::PYTHON: ts_lang = tree_sitter_python(); break;
+            case Language::TYPESCRIPT: ts_lang = tree_sitter_typescript(); break;
         }
 
         if (!ts_parser_set_language(parser_, ts_lang)) {
@@ -670,6 +680,7 @@ public:
             case Language::KOTLIN: ts_lang = tree_sitter_kotlin(); break;
             case Language::CPP: ts_lang = tree_sitter_cpp(); break;
             case Language::PYTHON: ts_lang = tree_sitter_python(); break;
+            case Language::TYPESCRIPT: ts_lang = tree_sitter_typescript(); break;
         }
 
         if (!ts_parser_set_language(parser_, ts_lang)) return false;
@@ -803,6 +814,10 @@ public:
         } else if (lang == Language::PYTHON) {
             is_comment = (type_s == "comment");
             is_line_comment = is_comment;
+        } else if (lang == Language::TYPESCRIPT) {
+            is_line_comment = (type_s == "comment");
+            is_block_comment = (type_s == "comment");
+            is_comment = (type_s == "comment");
         }
 
         if (is_comment) {
@@ -848,6 +863,8 @@ public:
                 // Python has no standardized doc-comment syntax.
                 // Docstrings are AST string nodes, not comment nodes.
                 is_doc_comment = false;
+            } else if (lang == Language::TYPESCRIPT) {
+                is_doc_comment = (text.find("/**") == 0);
             }
 
             if (is_doc_comment) {
@@ -875,7 +892,7 @@ public:
      * identifiers should be excluded from similarity scoring.
      *
      * Import paths (e.g. `use crate::values::layout::Foo` in Rust,
-     * `import io.github.kotlinmania.starlark.values.Foo` in Kotlin)
+     * `import io.github.kotlinmania.starlark_kotlin.values.Foo` in Kotlin)
      * introduce high-frequency namespace identifiers ("crate", "io",
      * "github", "kotlinmania") that are pure noise for cross-language
      * comparison.  Filtering them dramatically improves canonical cosine
@@ -889,6 +906,7 @@ public:
                node_type == "import_statement" ||        // Python
                node_type == "preproc_include" ||         // C++
                node_type == "using_declaration" ||       // C++
+               node_type == "import_declaration" ||      // TypeScript
                node_type == "package_header";            // Kotlin package declaration
     }
 
@@ -909,6 +927,9 @@ public:
         }
         if (lang == Language::CPP) {
             return node_type == "template_parameter_list";
+        }
+        if (lang == Language::TYPESCRIPT) {
+            return node_type == "type_parameters";
         }
         return false;
     }
@@ -1308,6 +1329,7 @@ public:
             case Language::KOTLIN: normalized_type = kotlin_node_to_type(type_str); break;
             case Language::CPP: normalized_type = cpp_node_to_type(type_str); break;
             case Language::PYTHON: normalized_type = python_node_to_type(type_str); break;
+            case Language::TYPESCRIPT: normalized_type = typescript_node_to_type(type_str); break;
         }
 
         // Special-case: Rust `impl Trait for Type { ... }` blocks.
@@ -1484,7 +1506,10 @@ public:
             (lang == Language::KOTLIN && type_s == "function_declaration") ||
             (lang == Language::CPP &&
              (type_s == "function_definition" || type_s == "function_declarator")) ||
-            (lang == Language::PYTHON && type_s == "function_definition");
+            (lang == Language::PYTHON && type_s == "function_definition") ||
+            (lang == Language::TYPESCRIPT &&
+             (type_s == "function_declaration" || type_s == "method_definition" ||
+              type_s == "function_expression" || type_s == "arrow_function"));
     }
 
     /**
@@ -1605,11 +1630,37 @@ public:
                 (lang == Language::KOTLIN && ct == "simple_identifier") ||
                 (lang == Language::CPP &&
                     (ct == "identifier" || ct == "field_identifier")) ||
-                (lang == Language::PYTHON && ct == "identifier")) {
+                (lang == Language::PYTHON && ct == "identifier") ||
+                (lang == Language::TYPESCRIPT &&
+                    (ct == "identifier" || ct == "property_identifier"))) {
                 uint32_t start = ts_node_start_byte(child);
                 uint32_t end = ts_node_end_byte(child);
                 if (end > start && end <= source.length()) {
-                    return source.substr(start, end - start);
+                    std::string name = source.substr(start, end - start);
+                    // Canonicalize TypeScript constructor to Python __init__ for parity
+                    if (lang == Language::TYPESCRIPT && name == "constructor") {
+                        return "__init__";
+                    }
+                    return name;
+                }
+            }
+        }
+
+        // Special-case: TypeScript arrow functions and function expressions
+        // often get their names from the parent (e.g., const name = () => { ... })
+        if (lang == Language::TYPESCRIPT) {
+            TSNode parent = ts_node_parent(node);
+            if (!ts_node_is_null(parent)) {
+                std::string pt(ts_node_type(parent));
+                if (pt == "variable_declarator" || pt == "property_definition") {
+                    TSNode name_node = ts_node_child_by_field_name(parent, "name", 4);
+                    if (!ts_node_is_null(name_node)) {
+                        uint32_t start = ts_node_start_byte(name_node);
+                        uint32_t end = ts_node_end_byte(name_node);
+                        if (end > start && end <= source.length()) {
+                            return source.substr(start, end - start);
+                        }
+                    }
                 }
             }
         }
@@ -1642,6 +1693,7 @@ public:
             "expression_body",
             "body",
             "block",
+            "statement_block",
             "compound_statement"
         };
 
@@ -1676,6 +1728,112 @@ public:
         }
 
         return function_node;
+    }
+
+    bool is_parameter_container_node(const std::string& type_s, Language lang) const {
+        if (lang == Language::RUST) {
+            return type_s == "parameters";
+        }
+        if (lang == Language::KOTLIN) {
+            return type_s == "function_value_parameters";
+        }
+        if (lang == Language::CPP) {
+            return type_s == "parameter_list";
+        }
+        if (lang == Language::PYTHON) {
+            return type_s == "parameters";
+        }
+        if (lang == Language::TYPESCRIPT) {
+            return type_s == "formal_parameters" || type_s == "parameters";
+        }
+        return false;
+    }
+
+    bool node_contains_byte_range(TSNode node, uint32_t start, uint32_t end) const {
+        if (ts_node_is_null(node)) return false;
+        return ts_node_start_byte(node) <= start && ts_node_end_byte(node) >= end;
+    }
+
+    void collect_function_parameter_nodes(
+            TSNode node,
+            TSNode body_node,
+            Language lang,
+            std::vector<TSNode>& out) const {
+        if (ts_node_is_null(node)) return;
+
+        if (!ts_node_is_null(body_node) &&
+            node_contains_byte_range(node, ts_node_start_byte(body_node), ts_node_end_byte(body_node)) &&
+            !ts_node_eq(node, body_node)) {
+            // Keep walking until we reach the body itself, then stop before
+            // collecting nested/local function parameters from the body region.
+        } else if (!ts_node_is_null(body_node) && ts_node_eq(node, body_node)) {
+            return;
+        }
+
+        std::string type_s(ts_node_type(node));
+        if (is_parameter_container_node(type_s, lang)) {
+            out.push_back(node);
+            return;
+        }
+
+        uint32_t child_count = ts_node_child_count(node);
+        for (uint32_t i = 0; i < child_count; ++i) {
+            TSNode child = ts_node_child(node, i);
+            collect_function_parameter_nodes(child, body_node, lang, out);
+        }
+    }
+
+    std::vector<TSNode> extract_function_parameter_nodes(
+            TSNode function_node,
+            TSNode body_node,
+            Language lang) const {
+        std::vector<TSNode> params;
+
+        TSNode by_field = ts_node_child_by_field_name(function_node, "parameters", 10);
+        if (!ts_node_is_null(by_field)) {
+            params.push_back(by_field);
+            return params;
+        }
+
+        collect_function_parameter_nodes(function_node, body_node, lang, params);
+        return params;
+    }
+
+    TreePtr make_function_comparison_tree(
+            TSNode function_node,
+            TSNode body_node,
+            const std::string& source,
+            Language lang) {
+        auto root = std::make_shared<Tree>(
+            static_cast<int>(NodeType::FUNCTION),
+            "function_parameters_and_body");
+
+        auto params = extract_function_parameter_nodes(function_node, body_node, lang);
+        for (const auto& param_node : params) {
+            root->add_child(convert_node(param_node, source, lang));
+        }
+
+        if (!ts_node_is_null(body_node)) {
+            root->add_child(convert_node(body_node, source, lang));
+        }
+
+        return root;
+    }
+
+    IdentifierStats extract_function_comparison_identifiers(
+            TSNode function_node,
+            TSNode body_node,
+            const std::string& source,
+            Language lang) {
+        IdentifierStats ids;
+        auto params = extract_function_parameter_nodes(function_node, body_node, lang);
+        for (const auto& param_node : params) {
+            extract_identifiers_recursive(param_node, source, lang, ids);
+        }
+        if (!ts_node_is_null(body_node)) {
+            extract_identifiers_recursive(body_node, source, lang, ids);
+        }
+        return ids;
     }
 
     bool has_stub_markers_in_node(TSNode node, const std::string& source, Language lang) const {
@@ -1730,7 +1888,7 @@ public:
                         }
                     }
                 }
-            } else if (lang == Language::KOTLIN) {
+            } else if (lang == Language::KOTLIN || lang == Language::TYPESCRIPT) {
                 if (current_type == "simple_identifier" ||
                     current_type == "type_identifier" ||
                     current_type == "identifier") {
@@ -1738,8 +1896,39 @@ public:
                     uint32_t end = ts_node_end_byte(current);
                     if (end > start && end <= source.length()) {
                         std::string text = source.substr(start, end - start);
-                        if (text == "TODO" || text == "NotImplementedError") {
+                        if (text == "TODO" || text == "NotImplementedError" ||
+                            (lang == Language::TYPESCRIPT && text == "undefined")) {
                             return true;
+                        }
+                    }
+                }
+
+                // TypeScript: throw new Error("unimplemented")
+                if (lang == Language::TYPESCRIPT && current_type == "throw_statement") {
+                    uint32_t start = ts_node_start_byte(current);
+                    uint32_t end = ts_node_end_byte(current);
+                    if (end > start && end <= source.length()) {
+                        std::string text = source.substr(start, end - start);
+                        if (text.find("not implemented") != std::string::npos ||
+                            text.find("unimplemented") != std::string::npos ||
+                            text.find("TODO") != std::string::npos) {
+                            return true;
+                        }
+                    }
+                }
+
+                // TypeScript: console.warn("TODO"...)
+                if (lang == Language::TYPESCRIPT && current_type == "call_expression") {
+                    uint32_t start = ts_node_start_byte(current);
+                    uint32_t end = ts_node_end_byte(current);
+                    if (end > start && end <= source.length()) {
+                        std::string text = source.substr(start, end - start);
+                        if (text.find("console.warn") != std::string::npos ||
+                            text.find("console.error") != std::string::npos) {
+                            if (text.find("TODO") != std::string::npos ||
+                                text.find("unimplemented") != std::string::npos) {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -1791,14 +1980,27 @@ public:
             }
             std::string func_name = extract_function_name(node, lang, source);
 
-            IdentifierStats ids;
-            extract_identifiers_recursive(body_node, source, lang, ids);
-
             FunctionInfo info;
             info.name = func_name;
-            info.body_tree = convert_node(body_node, source, lang);
-            info.identifiers = ids;
+            info.body_tree = make_function_comparison_tree(node, body_node, source, lang);
+            info.identifiers = extract_function_comparison_identifiers(node, body_node, source, lang);
             info.has_stub_markers = has_stub_markers_in_node(body_node, source, lang);
+            TSPoint start = ts_node_start_point(node);
+            TSPoint end = ts_node_end_point(node);
+            info.start_line = static_cast<int>(start.row) + 1;
+            info.end_line = static_cast<int>(end.row) + 1;
+            info.line_count = info.end_line >= info.start_line
+                ? (info.end_line - info.start_line + 1)
+                : 0;
+            if (!ts_node_is_null(body_node)) {
+                TSPoint body_start = ts_node_start_point(body_node);
+                TSPoint body_end = ts_node_end_point(body_node);
+                int body_start_line = static_cast<int>(body_start.row) + 1;
+                int body_end_line = static_cast<int>(body_end.row) + 1;
+                info.body_line_count = body_end_line >= body_start_line
+                    ? (body_end_line - body_start_line + 1)
+                    : 0;
+            }
 
             // Tag Rust test functions: #[test] attribute or inside #[cfg(test)] mod
             if (lang == Language::RUST) {

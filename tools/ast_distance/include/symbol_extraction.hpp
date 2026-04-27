@@ -12,6 +12,7 @@
 #include <cctype>
 #include <iostream>
 #include <iomanip>
+#include "ast_parser.hpp"
 
 extern "C" {
     const TSLanguage* tree_sitter_rust();
@@ -138,10 +139,12 @@ struct SymbolParityReport {
 };
 
 struct SymbolParityOptions {
+    Language source_lang = Language::RUST;
+    Language target_lang = Language::KOTLIN;
     bool json = false;
-    bool verbose = false;
+    bool verbose = true;
     bool missing_only = false;     // Show only missing symbols
-    bool include_stubs = false;    // Include Kotlin stubs in "extra" count
+    bool include_stubs = false;    // Include target stubs in "extra" count
     std::string filter_kind;
     std::string filter_file;
 };
@@ -168,7 +171,7 @@ void cmd_symbol_parity(const std::string& rust_root,
 
 struct KotlinTypeEntry {
     std::string name;              // Simple name (e.g., "Value")
-    std::string package;           // Package (e.g., "io.github.kotlinmania.starlark.values.layout")
+    std::string package;           // Package (e.g., "io.github.kotlinmania.starlark_kotlin.values.layout")
     std::string fqn;               // Fully qualified (package + name)
     std::string file;              // Relative file path
     int line = 0;

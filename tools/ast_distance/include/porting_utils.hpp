@@ -303,12 +303,10 @@ public:
      *   - "// port-lint: source path/to/file.<ext>"
      *   - "// port-lint: tests path/to/file.<ext>"
      *   - "// port-lint: source codex-rs/path/to/file.<ext>"
-     *
      * Returns the source path if found.
      *
-     * IMPORTANT: `// port-lint: tests <path>` is treated as a test-only
-     * translation unit and is returned as `tests:<path>` so it does not
-     * collide with the production `// port-lint: source <path>` mapping.
+     * `// port-lint: tests <path>` is returned as `tests:<path>` so test-only
+     * translation units cannot be mistaken for the production port.
      */
     static std::string extract_transliterated_from(const std::string& filepath) {
         std::ifstream file(filepath);
@@ -339,7 +337,9 @@ public:
                 if (result.substr(0, 9) == "codex-rs/") {
                     result = result.substr(9);
                 }
-                if (kind == "tests" || kind == "TESTS") {
+                std::transform(kind.begin(), kind.end(), kind.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                if (kind == "tests") {
                     return "tests:" + result;
                 }
                 return result;
