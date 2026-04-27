@@ -10,9 +10,9 @@
 #include <map>
 #include <set>
 #include <cctype>
+#include <cstring>
 #include <algorithm>
 #include <cmath>
-#include <cstring>
 
 // External declarations for tree-sitter language functions
 extern "C" {
