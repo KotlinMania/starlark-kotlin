@@ -1,13 +1,12 @@
 // port-lint: source src/util/rtabort.rs
-package io.github.kotlinmania.starlark.util.rtabort
+package io.github.kotlinmania.starlark.util
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
- * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,41 +23,33 @@ package io.github.kotlinmania.starlark.util.rtabort
  *
  * Although we compile buck2 with `panic=abort`, this is safer because
  * others may copy-paste code.
- *
- * In Kotlin, there is no unwinding — exceptions propagate normally.
- * This module provides an abort-style error that terminates the process
- * similar to Rust's `process::abort()`.
  */
+// Kotlin has no macros; callers invoke rtabortImplFixedString or
+// rtabortImpl directly with the file and line of the call site.
 
-// macro_rules! rtabort { ... }
-// Kotlin: We use a function instead of a macro.
-
-/**
- * Abort the process with an error message.
- *
- * Prints the message to stderr and terminates the process.
- */
-// pub(crate) fn rtabort_impl(file: &str, line: u32, msg: Arguments) -> !
-internal fun rtabortImpl(file: String, line: Int, msg: String): Nothing {
-    // In Rust, this prints to stderr then calls process::abort().
-    // In Kotlin Multiplatform, we throw an Error (not Exception) to signal
-    // an unrecoverable condition, similar to process abort.
-    throw Error("$file:$line: abort: $msg")
-}
-
-// pub(crate) fn rtabort_impl_fixed_string(file: &str, line: u32, message: &str) -> !
 internal fun rtabortImplFixedString(file: String, line: Int, message: String): Nothing {
     rtabortImpl(file, line, message)
 }
 
-/**
- * Abort the process with a formatted message.
- *
- * In Rust this is the `rtabort!` macro. In Kotlin, call this function directly.
- */
-internal fun rtabort(message: String): Nothing {
-    rtabortImpl("<unknown>", 0, message)
+internal fun rtabortImpl(file: String, line: Int, msg: String): Nothing {
+    // Make sure we abort even if formatting panics.
+    val abort = AbortOnDrop()
+
+    // `eprintln!` followed by `abort` does not print anything in tests.
+    try {
+        println("$file:$line: abort: $msg")
+    } catch (_: Throwable) {
+    }
+    abort.disarm()
+
+    // Tell the compiler that we never return.
+    throw Error("$file:$line: abort: $msg")
 }
 
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.
+internal class AbortOnDrop {
+    private var armed: Boolean = true
+
+    fun disarm() {
+        armed = false
+    }
+}

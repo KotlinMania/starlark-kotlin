@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/value_alloc_size.rs
+// port-lint: source src/values/layout/valueAllocSize.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,10 +34,7 @@ data class ValueAllocSize(
         return size.compareTo(other.size)
     }
 
-    // impl ValueAllocSize
-
     companion object {
-        // pub(crate) fn try_new(size: AlignedSize) -> Option<ValueAllocSize>
         fun tryNew(size: AlignedSize): ValueAllocSize? {
             return if (size < MIN_ALLOC) {
                 null
@@ -46,19 +43,15 @@ data class ValueAllocSize(
             }
         }
 
-        // pub(crate) fn new(size: AlignedSize) -> ValueAllocSize
         fun new(size: AlignedSize): ValueAllocSize {
             return tryNew(size)
                 ?: error("$size is too small for a value (minimum is $MIN_ALLOC)")
         }
     }
 
-    // pub(crate) fn layout(self) -> Layout
     // Kotlin: No `std::alloc::Layout`. Not transliterable.
 
-    // pub(crate) fn size(self) -> AlignedSize
     fun size(): AlignedSize = size
 
-    // pub(crate) const fn bytes(self) -> u32
     fun bytes(): UInt = size.bytes()
 }

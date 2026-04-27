@@ -7,7 +7,7 @@ package starlarkmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,9 +19,16 @@ package starlarkmap
  * limitations under the License.
  */
 
-// Rust defines helper macros in this file (`def_iter`, `def_double_ended_iter`) for iterator boilerplate.
-// Kotlin does not have macros, so we model the same behaviour with small wrapper classes.
+// We define a lot of iterators on top of other iterators, so this file collects shared helpers
+// for that boilerplate as small wrapper classes.
 
+/**
+ * Iterator adapter that maps each element produced by an underlying iterator.
+ *
+ * Subclasses provide the [map] function. This mirrors a typical "iterator wrapper"
+ * helper, exposing forward iteration plus convenience operations like [nth],
+ * [last], [count], and [collect].
+ */
 internal abstract class DefIter<T, R>(
     protected val iter: Iterator<T>,
 ) {
@@ -53,7 +60,7 @@ internal abstract class DefIter<T, R>(
     }
 
     fun sizeHint(): Pair<Int, Int?> {
-        // Kotlin iterators do not expose a size hint, so return unknown upper bound.
+        // Iterators do not expose a size hint, so return an unknown upper bound.
         return Pair(0, null)
     }
 
@@ -74,6 +81,10 @@ internal abstract class DefIter<T, R>(
     }
 }
 
+/**
+ * Iterator adapter for double-ended iteration, exposing [nextBack] in addition
+ * to forward traversal supplied by [DefIter].
+ */
 internal abstract class DefDoubleEndedIter<T, R>(
     protected val iter: ListIterator<T>,
 ) {

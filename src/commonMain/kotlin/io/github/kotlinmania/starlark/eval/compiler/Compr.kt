@@ -14,7 +14,7 @@ import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -95,7 +95,7 @@ private fun Compiler.compileClauses(
     val clausesMut = clauses.toMutableList()
 
     // Now we want to group them into a `for`, followed by any number of `if`.
-    // The evaluator wants to use pop to consume them, so reverse the order.
+    // The evaluator wants to import pop to consume them, so reverse the order.
     val res = mutableListOf<ClauseCompiled>()
     while (true) {
         val result = compileIfs(clausesMut)

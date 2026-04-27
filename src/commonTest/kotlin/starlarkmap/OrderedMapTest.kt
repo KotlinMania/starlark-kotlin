@@ -1,4 +1,4 @@
-// port-lint: source src/ordered_map.rs (tests module)
+// port-lint: source tests:src/orderedMap.rs
 package starlarkmap.orderedmap
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.orderedmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,13 +26,10 @@ import kotlin.test.assertNotEquals
 class OrderedMapTest {
 
     /**
-     * Port of Rust test `test_keys_are_not_hashed_when_map_is_hashed`.
-     *
      * Verifies that when the map itself is hashed (via [hashCode]), keys are not
      * re-hashed (they were hashed on insertion), but values are hashed each time.
      *
-     * In Kotlin, [hashCode] is called by the runtime rather than explicitly via
-     * a Hasher, so we track call counts through a wrapper that counts hashCode calls.
+     * Call counts are tracked through a wrapper that counts [hashCode] invocations.
      */
     @Test
     fun testKeysAreNotHashedWhenMapIsHashed() {
@@ -57,7 +54,7 @@ class OrderedMapTest {
         assertEquals(0, map.values().first().hashCount)
 
         map.hashCode()
-        // Key hashed again during hashCode (Kotlin hashes both key and value)
+        // Key hashed again during hashCode (both key and value are hashed)
         assertEquals(2, map.keys().first().hashCount)
         assertEquals(1, map.values().first().hashCount)
 
@@ -71,8 +68,6 @@ class OrderedMapTest {
     }
 
     /**
-     * Port of Rust test `test_serde`.
-     *
      * Since we don't have kotlinx-serialization wired up for starlarkmap,
      * this test verifies ordered equality and round-trip consistency instead.
      */

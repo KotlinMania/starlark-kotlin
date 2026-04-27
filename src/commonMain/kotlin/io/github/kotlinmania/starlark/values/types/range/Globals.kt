@@ -13,7 +13,7 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 /**
  * Register range-related global functions.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  * The macro in Rust generates code to register these globals; in Kotlin, we
  * implement this explicitly as a regular function.
  */
@@ -61,7 +60,7 @@ internal fun registerRange(globals: GlobalsBuilder) {
      * zero.
      *
      * ```
-     * # starlark::assert::all_true(r#"
+     * # starlark::assert::allTrue(r#"
      * list(range(10))                         == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
      * list(range(3, 10))                      == [3, 4, 5, 6, 7, 8, 9]
      * list(range(3, 10, 2))                   == [3, 5, 7, 9]

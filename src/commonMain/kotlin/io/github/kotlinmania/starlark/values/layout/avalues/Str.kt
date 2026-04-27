@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.avalues.str
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -42,7 +42,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
-// pub(crate) const VALUE_STR_A_VALUE_PTR: AValueHeader = AValueHeader::new_const::<StarlarkStrAValue>()
 internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
     AValueHeader(
         AValueVTable(
@@ -73,47 +72,35 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
     )
 }
 
-// #[inline]
-// pub(crate) fn starlark_str<'v>(len: usize, hash: StarlarkHashValue) -> AValueImpl<...>
 internal fun starlarkStr(len: Int, hash: StarlarkHashValue): AValueImpl<StarlarkStrAValue> {
     return AValueImpl.new(StarlarkStr("".padEnd(len)))
 }
 
-// pub(crate) struct StarlarkStrAValue;
 internal class StarlarkStrAValue(private val str: StarlarkStr) : AValue {
-    // impl AValue for StarlarkStrAValue
 
-    // const IS_STR: bool = true;
     override val isStr: Boolean get() = true
 
-    // fn extra_len(value: &StarlarkStr) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         return StarlarkStr.payloadLenForLen((value as? StarlarkStr)?.len() ?: str.len())
     }
 
-    // fn offset_of_extra() -> usize
     override fun offsetOfExtra(): Int {
         return StarlarkStr.offsetOfContent()
     }
 
-    // unsafe fn heap_freeze(me: ..., freezer: &Freezer) -> Result<FrozenValue>
     override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         val s = str.asStr()
         val fv = freezer.frozenHeap().allocStrIntern(s)
         return Result.success(fv.toFrozenValue())
     }
 
-    // unsafe fn heap_copy(me: ..., tracer: &Tracer<'v>) -> Value<'v>
     override fun heapCopy(tracer: Tracer): Value {
         val s = str.asStr()
         return tracer.allocStr(s)
     }
 
-    // fn unpack(&self) -> &StarlarkValue
     override fun unpack(): StarlarkValue = str
 }
-
-// impl FrozenHeap
 
 /** Allocate a string on the frozen heap. */
 fun FrozenHeap.allocStr(x: String): FrozenStringValue {
@@ -128,7 +115,6 @@ fun FrozenHeap.allocStr(x: String): FrozenStringValue {
 }
 
 /** Allocate prehashed string. */
-// pub fn alloc_str_hashed(&self, s: Hashed<&str>) -> FrozenStringValue
 fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     val constant = constantString(s.key)
     if (constant != null) {
@@ -140,10 +126,7 @@ fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     }
 }
 
-// impl Heap
-
 /** Intern string. */
-// pub fn alloc_str_intern(self, x: &str) -> StringValue<'v>
 fun Heap.allocStrIntern(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {
@@ -157,7 +140,6 @@ fun Heap.allocStrIntern(x: String): StringValue {
 }
 
 /** Allocate a string on the heap, based on two concatenated strings. */
-// pub fn alloc_str_concat(self, x: &str, y: &str) -> StringValue<'v>
 fun Heap.allocStrConcat(x: String, y: String): StringValue {
     val s = when {
         x.isEmpty() -> y
@@ -175,7 +157,6 @@ fun Heap.allocStrConcat(x: String, y: String): StringValue {
 }
 
 /** Allocate a string on the heap, based on three concatenated strings. */
-// pub fn alloc_str_concat3(x: &str, y: &str, z: &str) -> StringValue<'v>
 fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue {
     return when {
         x.isEmpty() -> allocStrConcat(y, z)
@@ -191,7 +172,6 @@ fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue {
     }
 }
 
-// pub(crate) fn alloc_char(self, x: char) -> StringValue<'v>
 internal fun Heap.allocChar(x: Char): StringValue {
     val s = x.toString()
     val bytes = s.encodeToByteArray()

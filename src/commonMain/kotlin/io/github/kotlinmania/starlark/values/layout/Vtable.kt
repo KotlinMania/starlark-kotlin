@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -40,9 +40,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 
 /**
- * Untyped raw pointer to StarlarkValue without vtable.
- *
- * In Kotlin, this wraps an Any reference instead of a raw pointer.
+ * Untyped raw pointer to a [StarlarkValue] without an attached vtable.
  */
 class StarlarkValueRawPtr(
     /** The underlying value reference. */
@@ -63,11 +61,10 @@ class StarlarkValueRawPtr(
 }
 
 /**
- * VTable for AValue operations.
+ * VTable for [AValue] operations.
  *
- * In Kotlin, instead of function pointers for dynamic dispatch, we hold
- * type metadata and delegate to the StarlarkValue interface directly.
- * This struct contains metadata and dispatch shims for all operations on a Starlark value.
+ * Holds type metadata and dispatch shims for all operations on a Starlark value,
+ * supporting dynamic dispatch through the [StarlarkValue] interface.
  */
 class AValueVTable(
     // Common AValue fields.
@@ -85,8 +82,8 @@ class AValueVTable(
     internal val starlarkValue: StarlarkValue,
 
     /**
-     * Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
-     * These indicate which StarlarkValue trait methods are meaningfully implemented.
+     * Capability flags indicating which [StarlarkValue] interface methods are
+     * meaningfully implemented for this vtable.
      */
     val hasInvoke: Boolean = false,
     val hasEvalType: Boolean = false,
@@ -119,10 +116,8 @@ class AValueVTable(
         }
 
         /**
-         * Build an [AValueVTable] from a [KClass].
+         * Build an [AValueVTable] from a reified type parameter [T].
          *
-         * This mirrors the Rust `AValueVTable::new::<T>()` which creates
-         * a static vtable from the type parameter at compile time.
          * Used by the vtable registry for deserialization support.
          */
         inline fun <reified T : Any> new(): AValueVTable {
@@ -177,10 +172,10 @@ class AValueVTable(
 }
 
 /**
- * A dynamically dispatched reference to a Starlark value with its vtable.
+ * A dynamically dispatched reference to a Starlark value paired with its vtable.
  *
- * In Kotlin, this wraps a StarlarkValue reference and its vtable metadata,
- * providing forwarding methods that delegate to the vtable or the StarlarkValue interface.
+ * Wraps a [StarlarkValue] reference and its vtable metadata, providing forwarding
+ * methods that delegate to the vtable or to the [StarlarkValue] interface.
  */
 internal class AValueDyn(
     internal val value: StarlarkValueRawPtr,
@@ -406,7 +401,7 @@ internal class AValueDyn(
     override fun toString(): String = "AValueDyn(..)"
 }
 
-/** Raw pointer, vtable and Value. */
+/** Raw pointer, vtable and [Value]. */
 internal class AValueDynFull(
     private val avalue: AValueDyn,
     val value: Value,

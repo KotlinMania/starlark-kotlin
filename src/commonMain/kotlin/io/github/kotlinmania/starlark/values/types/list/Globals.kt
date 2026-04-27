@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.list
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  *
  * Handles type-checking for `list()` and `list(iterable)` calls.
  *
- * Corresponds to Rust's private `ListType` struct implementing `TyCustomFunctionImpl`.
  */
 internal object ListTypeFunction : TyCustomFunctionImpl {
     override fun isType(): Boolean = true
@@ -106,7 +105,6 @@ private val LIST_FUNCTION: TyFunction by lazy {
  * list("strings are not iterable")  # error: not supported on type
  * ```
  *
- * Corresponds to Rust's `register_list` function with `#[starlark_module]`.
  */
 internal fun registerList(globals: GlobalsBuilder) {
     // The list() function takes an optional positional argument (an iterable).
@@ -122,10 +120,10 @@ internal fun registerList(globals: GlobalsBuilder) {
  * Implementation of the `list()` built-in function.
  *
  * The function is annotated in Rust with:
- * - `as_type = FrozenList` (establishes the canonical type)
- * - `speculative_exec_safe` (safe for speculative evaluation)
- * - `special_builtin_function = SpecialBuiltinFunction::List`
- * - `ty_custom_function = ListType`
+ * - `asType = FrozenList` (establishes the canonical type)
+ * - `speculativeExecSafe` (safe for speculative evaluation)
+ * - `specialBuiltinFunction = SpecialBuiltinFunction::List`
+ * - `tyCustomFunction = ListType`
  *
  * The return type in Rust is `ValueOfUnchecked<&ListRef>`, wrapping
  * the newly allocated list. In Kotlin we return a plain `Result<Value>`.

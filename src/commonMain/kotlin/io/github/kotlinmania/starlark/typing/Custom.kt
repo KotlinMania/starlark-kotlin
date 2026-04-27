@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -59,7 +59,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
     fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> =
         Result.failure(oracle.msgError(span, "Value of type `$this` is not callable"))
 
-    /** Must override if implementing `validate_call`. */
+    /** Must override if implementing `validateCall`. */
     fun asCallable(): TyCallable? = null
 
     fun asFunction(): TyFunction? = null
@@ -88,14 +88,12 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
 /**
  * Dynamic dispatch interface for custom types.
  *
- * In Rust, `TyCustomDyn` is a separate trait from `TyCustomImpl`, with a blanket
- * `impl<T: TyCustomImpl> TyCustomDyn for T`. In Kotlin, we model this as a
  * separate interface that `TyCustomImpl` implementations satisfy through the
  * [TyCustomDynBridge] adapter.
  *
- * The Dyn trait adds dynamic dispatch methods: eq_token, hash_code, cmp_token,
- * into_any, as_any, plus _dyn variants of all TyCustomImpl methods, and
- * union2_dyn/intersects_dyn for cross-type operations.
+ * The Dyn trait adds dynamic dispatch methods: eqToken, hashCode, cmpToken,
+ * intoAny, asAny, plus _dyn variants of all TyCustomImpl methods, and
+ * union2Dyn/intersectsDyn for cross-type operations.
  */
 internal interface TyCustomDyn {
     fun eqToken(): Any
@@ -122,7 +120,6 @@ internal interface TyCustomDyn {
 }
 
 /**
- * Blanket impl: `impl<T: TyCustomImpl> TyCustomDyn for T`.
  *
  * Bridges a concrete [TyCustomImpl] to the [TyCustomDyn] dynamic dispatch interface.
  */
@@ -160,7 +157,6 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
         inner.binOp(binOp, rhs, ctx)
 
     override fun union2Dyn(other: TyCustomDyn): Result<TyCustomDyn> {
-        // In Rust: if TypeId::of::<Self>() == other.eq_token().type_id()
         val otherAny = other.asAny()
         if (inner::class == otherAny::class) {
             @Suppress("UNCHECKED_CAST")
@@ -202,18 +198,15 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 /**
  * A custom type, wrapping a [TyCustomDyn] instance.
  *
- * In Rust: `pub struct TyCustom(pub(crate) Arc<dyn TyCustomDyn>)`
  */
 class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     companion object {
         fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
 
-        /** Rust: `pub(crate) fn union2(x: TyCustom, y: TyCustom) -> Result<TyCustom, (TyCustom, TyCustom)>` */
         internal fun union2(x: TyCustom, y: TyCustom): Result<TyCustom> {
             return x.inner.union2Dyn(y.inner).map { TyCustom(it) }
         }
 
-        /** Rust: `pub(crate) fn intersects(x: &TyCustom, y: &TyCustom) -> bool` */
         internal fun intersects(x: TyCustom, y: TyCustom): Boolean {
             return x.inner.intersectsDyn(y.inner)
         }
@@ -238,9 +231,6 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     internal fun binOpDyn(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
         inner.binOpDyn(binOp, rhs, ctx)
 
-    /**
-     * Rust: `pub(crate) fn intersects_with(&self, other: &TyBasic, ctx: TypingOracleCtx) -> Result<bool, InternalError>`
-     */
     internal fun intersectsWith(other: TyBasic, ctx: TypingOracleCtx): Result<Boolean> {
         if (inner.isIntersectsWithDyn(other)) {
             return Result.success(true)

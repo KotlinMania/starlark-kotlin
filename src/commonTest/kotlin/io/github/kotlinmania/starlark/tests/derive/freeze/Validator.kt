@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,22 +22,19 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
 import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import kotlin.test.Test
 
-// #[derive(Freeze)]
-// #[freeze(validator = check_true)]
-// struct ValidatorTest { field: bool }
 private class ValidatorTest(
     val field: Boolean,
 ) : Freeze<ValidatorTest> {
     override fun freeze(freezer: Freezer): Result<ValidatorTest> {
         val result = ValidatorTest(field)
-        // validator: check_true
+        // validator: checkTrue
         checkTrue(result).getOrElse { return Result.failure(it) }
         return Result.success(result)
     }
 }
 
-// fn check_true(test: &ValidatorTest) -> anyhow::Result<()>
 private fun checkTrue(test: ValidatorTest): Result<Unit> {
     if (!test.field) {
         return Result.failure(Exception("Err"))
@@ -45,20 +42,20 @@ private fun checkTrue(test: ValidatorTest): Result<Unit> {
     return Result.success(Unit)
 }
 
-// #[test]
-// fn test_ok() -> anyhow::Result<()>
-internal fun testOk() {
-    val t = ValidatorTest(field = true)
-    val frozenHeap = FrozenHeap()
-    val freezer = Freezer(frozenHeap)
-    t.freeze(freezer).getOrThrow()
-}
+class ValidatorTests {
+    @Test
+    fun testOk() {
+        val t = ValidatorTest(field = true)
+        val frozenHeap = FrozenHeap()
+        val freezer = Freezer(frozenHeap)
+        t.freeze(freezer).getOrThrow()
+    }
 
-// #[test]
-// fn test_fail() -> anyhow::Result<()>
-internal fun testFail() {
-    val t = ValidatorTest(field = false)
-    val frozenHeap = FrozenHeap()
-    val freezer = Freezer(frozenHeap)
-    check(t.freeze(freezer).isFailure)
+    @Test
+    fun testFail() {
+        val t = ValidatorTest(field = false)
+        val frozenHeap = FrozenHeap()
+        val freezer = Freezer(frozenHeap)
+        check(t.freeze(freezer).isFailure)
+    }
 }

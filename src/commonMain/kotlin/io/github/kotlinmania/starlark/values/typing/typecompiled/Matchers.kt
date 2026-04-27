@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_compiled/matchers.rs
+// port-lint: source src/values/typing/typeCompiled/matchers.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,91 +36,62 @@ import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsAny;
 internal object IsAny : TypeMatcher {
-    // impl TypeMatcher for IsAny
 
-    // fn matches(&self, _value: Value) -> bool
     override fun matches(@Suppress("unused") value: Value): Boolean {
         return true
     }
 
-    // fn is_wildcard(&self) -> bool
     override fun isWildcard(): Boolean {
         return true
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsNever;
 internal object IsNever : TypeMatcher {
-    // impl TypeMatcher for IsNever
 
-    // fn matches(&self, _value: Value) -> bool
     override fun matches(@Suppress("unused") value: Value): Boolean {
         return false
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsStr;
 internal object IsStr : TypeMatcher {
-    // impl TypeMatcher for IsStr
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.unpackStr() != null
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsList;
 internal object IsList : TypeMatcher {
-    // impl TypeMatcher for IsList
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.starlarkTypeId() == StarlarkTypeId.of(ListGen::class)
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsListOf<I: TypeMatcher>(pub(crate) I);
 internal class IsListOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
-    // impl<I: TypeMatcher> TypeMatcher for IsListOf<I>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val list = ListRef.fromValue(value) ?: return false
         return list.content().all { v -> item.matches(v) }
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsTupleOf<A: TypeMatcher>(pub(crate) A);
 internal class IsTupleOf(
     val elem: TypeMatcher,
 ) : TypeMatcher {
-    // impl<A: TypeMatcher> TypeMatcher for IsTupleOf<A>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val tuple = TupleGen.fromValue(value) ?: return false
         return tuple.content().all { v -> elem.matches(v) }
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsTupleElems(pub(crate) Vec<TypeMatcherBox>);
 internal class IsTupleElems(
     val elems: List<TypeMatcherBox>,
 ) : TypeMatcher {
-    // impl TypeMatcher for IsTupleElems
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
@@ -129,26 +100,18 @@ internal class IsTupleElems(
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsTupleElems0;
 internal object IsTupleElems0 : TypeMatcher {
-    // impl TypeMatcher for IsTupleElems0
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val tuple = TupleGen.fromValue(value) ?: return false
         return tuple.content().isEmpty()
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsTupleElems1<A: TypeMatcher>(pub(crate) A);
 internal class IsTupleElems1(
     val a: TypeMatcher,
 ) : TypeMatcher {
-    // impl<A: TypeMatcher> TypeMatcher for IsTupleElems1<A>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
@@ -157,15 +120,11 @@ internal class IsTupleElems1(
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsTupleElems2<A: TypeMatcher, B: TypeMatcher>(pub(crate) A, pub(crate) B);
 internal class IsTupleElems2(
     val a: TypeMatcher,
     val b: TypeMatcher,
 ) : TypeMatcher {
-    // impl<A: TypeMatcher, B: TypeMatcher> TypeMatcher for IsTupleElems2<A, B>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val tuple = TupleGen.fromValue(value) ?: return false
         val content = tuple.content()
@@ -174,158 +133,105 @@ internal class IsTupleElems2(
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsDict;
 internal object IsDict : TypeMatcher {
-    // impl TypeMatcher for IsDict
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.starlarkTypeId() == StarlarkTypeId.of(DictGen::class)
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsDictOf<K: TypeMatcher, V: TypeMatcher>(pub(crate) K, pub(crate) V);
 internal class IsDictOf(
     val key: TypeMatcher,
     val valueMatcher: TypeMatcher,
 ) : TypeMatcher {
-    // impl<K: TypeMatcher, V: TypeMatcher> TypeMatcher for IsDictOf<K, V>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val dict = dictRefFromValue(value) ?: return false
         return dict.iter().all { pair -> key.matches(pair.first) && valueMatcher.matches(pair.second) }
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsSet;
 internal object IsSet : TypeMatcher {
-    // impl TypeMatcher for IsSet
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.starlarkTypeId() == StarlarkTypeId.of(SetGen::class)
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsSetOf<I: TypeMatcher>(pub(crate) I);
 internal class IsSetOf(
     val item: TypeMatcher,
 ) : TypeMatcher {
-    // impl<I: TypeMatcher> TypeMatcher for IsSetOf<I>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         val set = SetRef.unpackValueOpt(value) ?: return false
         return set.content.iter().all { v -> item.matches(v) }
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsAnyOfTwo<A: TypeMatcher, B: TypeMatcher>(pub(crate) A, pub(crate) B);
 internal class IsAnyOfTwo(
     val a: TypeMatcher,
     val b: TypeMatcher,
 ) : TypeMatcher {
-    // impl<A: TypeMatcher, B: TypeMatcher> TypeMatcher for IsAnyOfTwo<A, B>
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return a.matches(value) || b.matches(value)
     }
 }
 
-// #[derive(Clone, Allocative, Debug)]
-// pub(crate) struct IsAnyOf(pub(crate) Vec<TypeMatcherBox>);
 internal class IsAnyOf(
     val matchers: List<TypeMatcher>,
 ) : TypeMatcher {
-    // impl TypeMatcher for IsAnyOf
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return matchers.any { t -> t.matches(value) }
     }
 }
 
-// #[derive(Allocative, Clone, Copy, Dupe, Debug)]
-// pub(crate) struct IsCallable;
 internal object IsCallable : TypeMatcher {
-    // impl TypeMatcher for IsCallable
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.vtable().hasInvoke
     }
 }
 
-// #[derive(Allocative, Clone, Copy, Dupe, Debug)]
-// pub(crate) struct IsType;
 internal object IsType : TypeMatcher {
-    // impl TypeMatcher for IsType
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.vtable().hasEvalType
     }
 }
 
-// #[derive(Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) struct IsIterable;
 internal object IsIterable : TypeMatcher {
-    // impl TypeMatcher for IsIterable
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.vtable().hasIterate
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsInt;
 internal object IsInt : TypeMatcher {
-    // impl TypeMatcher for IsInt
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return StarlarkIntRef.unpack(value) != null
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsBool;
 internal object IsBool : TypeMatcher {
-    // impl TypeMatcher for IsBool
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.unpackBool() != null
     }
 }
 
-// #[derive(Clone, Copy, Dupe, Allocative, Debug)]
-// pub(crate) struct IsNone;
 internal object IsNone : TypeMatcher {
-    // impl TypeMatcher for IsNone
 
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.isNone()
     }
 }
 
-// #[derive(Allocative, Debug, Clone)]
-// pub(crate) struct StarlarkTypeIdMatcher {
-//     starlark_type_id: StarlarkTypeIdAligned,
-// }
 /**
  * Matches a value by its Starlark type name.
  *
- * In Rust, this compares [StarlarkTypeId] values directly. In Kotlin, the typing system
  * uses string-based type names while the runtime uses [KClass]-based IDs. We bridge
  * this by comparing the type name from [AValueVTable.typeName] against the type name
  * from [TyStarlarkValue.starlarkTypeId].
@@ -334,7 +240,6 @@ internal class StarlarkTypeIdMatcher(
     private val expectedTypeName: String,
 ) : TypeMatcher {
     companion object {
-        // pub(crate) fn new(ty: TyStarlarkValue) -> StarlarkTypeIdMatcher
         fun new(ty: TyStarlarkValue): StarlarkTypeIdMatcher {
             return StarlarkTypeIdMatcher(
                 expectedTypeName = ty.starlarkTypeId(),
@@ -342,9 +247,6 @@ internal class StarlarkTypeIdMatcher(
         }
     }
 
-    // impl TypeMatcher for StarlarkTypeIdMatcher
-
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return value.vtable().typeName == expectedTypeName
     }

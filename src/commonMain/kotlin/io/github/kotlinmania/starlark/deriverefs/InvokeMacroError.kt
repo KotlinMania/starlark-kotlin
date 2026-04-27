@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/invoke_macro_error.rs
+// port-lint: source src/__derive_refs/invokeMacroError.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.deriverefs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark.deriverefs
 
 import io.github.kotlinmania.starlark.Error as StarlarkError
 
-// pub trait InvokeMacroError {
-//     fn into_starlark_error(self) -> crate::Error;
-// }
 /**
  * Trait used to convert error returned from native function into [StarlarkError].
  *
@@ -34,7 +31,6 @@ interface InvokeMacroError {
     fun intoStarlarkError(): StarlarkError
 }
 
-// impl InvokeMacroError for anyhow::Error
 /**
  * Default conversion: wraps any [Throwable] as a native [StarlarkError].
  *

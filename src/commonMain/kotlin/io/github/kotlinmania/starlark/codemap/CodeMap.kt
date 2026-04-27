@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.codemap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,9 +21,10 @@ package io.github.kotlinmania.starlark.codemap
 
 import kotlin.concurrent.Volatile
 
-/** A cheap unique identifier per CodeMap, used for profiling optimisations. */
-// In Rust this is a pointer-based identity (CodeMapId). In Kotlin we use an
-// incrementing counter so that each CodeMap instance gets a unique id.
+/**
+ * A cheap unowned unique identifier per file/CodeMap,
+ * somewhat delving into internal details.
+ */
 data class CodeMapId(val value: Long) {
     companion object {
         val EMPTY: CodeMapId = CodeMapId(0L)
@@ -38,8 +39,7 @@ data class CodeMapId(val value: Long) {
     }
 }
 
-/** Multiple [CodeMap]s, keyed by [CodeMapId]. */
-// pub struct CodeMaps { codemaps: HashMap<CodeMapId, CodeMap> }
+/** Multiple [CodeMap]s. */
 class CodeMaps {
     private val codemaps: MutableMap<CodeMapId, CodeMap> = mutableMapOf()
 
@@ -62,6 +62,7 @@ class CodeMaps {
     }
 }
 
+/** A data structure recording a source code file for position lookup. */
 class CodeMap(
     val filename: String,
     val source: String
@@ -86,8 +87,14 @@ class CodeMap(
 
     fun fullSpan(): Span = Span(Pos(0), Pos(source.length))
 
+    /** Gets the file and its line and column ranges represented by a [Span]. */
     fun fileSpan(span: Span): FileSpan = FileSpan(this, span)
 
+    /**
+     * Gets the line number of a [Pos].
+     *
+     * The lines are 0-indexed (first line is numbered 0).
+     */
     fun findLine(pos: Pos): Int {
         val searchIndex = lines.binarySearch(pos)
         return if (searchIndex >= 0) searchIndex else -searchIndex - 2
@@ -123,7 +130,7 @@ class CodeMap(
         return ResolvedSpan(begin = begin, end = end)
     }
 
-    /** Filename method (mirrors Rust's CodeMap::filename()). */
+    /** Gets the name of the file. */
     fun filename(): String = filename
 
     override fun equals(other: Any?): Boolean {
@@ -137,16 +144,18 @@ class CodeMap(
     override fun toString(): String = "CodeMap(\"$filename\")"
 }
 
+/** A file, and a line and column range within it. */
 data class FileSpan(
     val file: CodeMap,
     val span: Span
 ) : Comparable<FileSpan> {
+    /** Resolve the span. */
     fun sourceSpan(): String = file.sourceSpan(span)
 
     /** Resolve the span to lines and columns. */
     fun resolveSpan(): ResolvedSpan = file.resolveSpan(span)
 
-    /** Resolve the span to a [ResolvedFileSpan]. */
+    /** Resolve the span to lines and columns. */
     fun resolve(): ResolvedFileSpan = ResolvedFileSpan(
         file = file.filename,
         span = file.resolveSpan(span),
@@ -163,11 +172,7 @@ data class FileSpan(
     override fun toString(): String = "${file.filename}:${resolveSpan()}"
 }
 
-/**
- * A file, and a line and column range within it.
- * In Rust this is a borrowing reference (`&CodeMap`), but in Kotlin
- * it is structurally identical to [FileSpan].
- */
+/** A file, and a line and column range within it. */
 class FileSpanRef(
     val file: CodeMap,
     val span: Span,

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,45 +28,31 @@ import io.github.kotlinmania.starlark.values.layout.Value
 /**
  * Result of instruction evaluation.
  *
- * This is more efficient than `Result<R, Exception>`,
- * see the Rust version for details on compiler optimisation.
+ * This is more efficient than wrapping every result in an exception-carrying [Result].
  */
-// #[must_use]
-// pub(crate) enum InstrControl<'v, 'b>
 internal sealed class InstrControl {
     /** Go to address. */
-    // Next(BcPtrAddr<'b>)
     data class Next(val ip: BcPtrAddr) : InstrControl()
 
     /** Return from the function. */
-    // Return(Value<'v>)
     data class Return(val value: Value) : InstrControl()
 
     /**
      * Error. This can be either any error or diagnostics.
      * If it is the former, error span will be added from instruction metadata.
      */
-    // Err(crate::Error)
     data class Err(val error: StarlarkError) : InstrControl()
 }
 
 /**
  * Bytecode instruction interface.
  *
- * Each instruction type implements this interface with its concrete argument type [A],
- * mirroring Rust's `type Arg: BcInstrArg` associated type.
+ * Each instruction type implements this interface with its concrete fixed argument type [A]
+ * (which may encode additional arguments pushed or popped from the stack by the
+ * instruction implementation).
  */
-// pub(crate) trait BcInstr: Sized + 'static
 internal interface BcInstr<A> {
-    /**
-     * Execute the instruction.
-     */
-    // fn run<'v, 'b>(
-    //     eval: &mut Evaluator<'v, '_, '_>,
-    //     frame: BcFramePtr<'v>,
-    //     ip: BcPtrAddr<'b>,
-    //     arg: &Self::Arg,
-    // ) -> InstrControl<'v, 'b>;
+    /** Execute the instruction. */
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,

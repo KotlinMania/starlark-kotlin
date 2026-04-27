@@ -1,13 +1,15 @@
 // port-lint: source src/tests/bc/compr.rs
 package io.github.kotlinmania.starlark.tests.bc
 
+import kotlin.test.Test
+
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,41 +23,39 @@ package io.github.kotlinmania.starlark.tests.bc
 
 /** Test compilation of comprehensions. */
 
-// #[test]
-// fn test_no_loop_if_top_collection_is_empty()
-internal fun testNoLoopIfTopCollectionIsEmpty() {
-    bcGoldenTest(
-        "compr_no_loop_if_top_collection_is_empty",
-        "def test(): return [x for x in []]",
-    )
-}
+class ComprTests {
+    @Test
+    fun testNoLoopIfTopCollectionIsEmpty() {
+        bcGoldenTest(
+            "compr_no_loop_if_top_collection_is_empty",
+            "def test(): return [x for x in []]",
+        )
+    }
 
-// #[test]
-// fn test_no_loop_if_top_collection_is_empty_on_freeze()
-internal fun testNoLoopIfTopCollectionIsEmptyOnFreeze() {
-    // This function is not optimized to return a list on compilation,
-    // because `L` is not evaluated yet.
-    // But it eliminates the loop on freeze.
-    bcGoldenTest(
-        "compr_no_loop_if_top_collection_is_empty_on_freeze",
-        "def test(): return [x for x in D]\nD = {}",
-    )
-}
+    @Test
+    fun testNoLoopIfTopCollectionIsEmptyOnFreeze() {
+        // This function is not optimized to return a list on compilation,
+        // because `L` is not evaluated yet.
+        // But it eliminates the loop on freeze.
+        bcGoldenTest(
+            "compr_no_loop_if_top_collection_is_empty_on_freeze",
+            "def test(): return [x for x in D]\nD = {}",
+        )
+    }
 
-// #[test]
-// fn test_if_true_clause()
-internal fun testIfTrueClause() {
-    bcGoldenTest(
-        "compr_if_true_clause",
-        "def test(y): return [x for x in y if True]",
-    )
-}
+    @Test
+    fun testIfTrueClause() {
+        bcGoldenTest(
+            "compr_if_true_clause",
+            "def test(y): return [x for x in y if True]",
+        )
+    }
 
-// #[test]
-// fn test_if_true_clause_on_freeze()
-internal fun testIfTrueClauseOnFreeze() {
-    bcGoldenTest(
-        "compr_if_true_clause_on_freeze",
-        "def test(y): return [x for x in y if C]\nC = False\nC = True",
-    )
+    @Test
+    fun testIfTrueClauseOnFreeze() {
+        bcGoldenTest(
+            "compr_if_true_clause_on_freeze",
+            "def test(y): return [x for x in y if C]\nC = False\nC = True",
+        )
+    }
 }

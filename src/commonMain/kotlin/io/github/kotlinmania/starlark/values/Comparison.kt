@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.values
 
 import starlarkmap.smallmap.SmallMap
 
-// pub(crate) fn equals_slice<E, X1, X2>(xs, ys, f) -> Result<bool, E>
 internal fun <E : Exception, X1, X2> equalsSlice(
     xs: List<X1>,
     ys: List<X2>,
@@ -39,7 +38,6 @@ internal fun <E : Exception, X1, X2> equalsSlice(
     return Result.success(true)
 }
 
-// pub(crate) fn equals_small_map<E, K1, K2, V1, V2>(x, y, f) -> Result<bool, E>
 internal fun <E : Exception, K, V1, V2> equalsSmallMap(
     x: SmallMap<K, V1>,
     y: SmallMap<K, V2>,
@@ -58,7 +56,6 @@ internal fun <E : Exception, K, V1, V2> equalsSmallMap(
     return Result.success(true)
 }
 
-// pub(crate) fn equals_small_set<K1, K2>(xs, ys) -> bool
 internal fun <K> equalsSmallSet(xs: Set<K>, ys: Set<K>): Boolean {
     if (xs.size != ys.size) {
         return false
@@ -71,7 +68,6 @@ internal fun <K> equalsSmallSet(xs: Set<K>, ys: Set<K>): Boolean {
     return true
 }
 
-// pub(crate) fn compare_slice<E, X1, X2>(xs, ys, f) -> Result<Ordering, E>
 internal fun <E : Exception, X1, X2> compareSlice(
     xs: List<X1>,
     ys: List<X2>,
@@ -86,7 +82,6 @@ internal fun <E : Exception, X1, X2> compareSlice(
     return Result.success(xs.size.compareTo(ys.size))
 }
 
-// pub(crate) fn compare_small_map<E, K, K2: Ord + Hash, V1, V2>(x, y, key, f) -> Result<Ordering, E>
 internal fun <E : Exception, K, K2 : Comparable<K2>, V1, V2> compareSmallMap(
     x: SmallMap<K, V1>,
     y: SmallMap<K, V2>,

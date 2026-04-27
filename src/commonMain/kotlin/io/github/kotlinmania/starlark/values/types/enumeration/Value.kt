@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration.value
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -70,27 +70,19 @@ class EnumValueGen(
         return tyEnumType.tyEnumValue
     }
 
-    // impl serde::Serialize for EnumValueGen
     // Delegates serialization to the inner value.
     fun serialize(serializer: Any): Result<Any> {
         return Result.success(value)
     }
 }
 
-// Rust type aliases:
-// pub type EnumValue<'v> = EnumValueGen<Value<'v>>;
-// pub type FrozenEnumValue = EnumValueGen<FrozenValue>;
-// Kotlin: Use EnumValueGen directly; frozen flag distinguishes.
+// Frozen and unfrozen enum values share `EnumValueGen`; the inner value type distinguishes them.
 
 fun enumValueMethods(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
-    // fn index(this: &EnumValue) -> starlark::Result<i32>
     fun index(thisVal: EnumValueGen): Result<Int> {
         return Result.success(thisVal.index)
     }
 
-    // #[starlark(attribute)]
-    // fn value(this: &EnumValue) -> starlark::Result<Value>
     fun value(thisVal: EnumValueGen): Result<Value> {
         return Result.success(thisVal.value)
     }

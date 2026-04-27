@@ -1,4 +1,4 @@
-// port-lint: source src/values/thin_box_slice_frozen_value/thin_box.rs
+// port-lint: source src/values/thinBoxSliceFrozenValue/thinBox.rs
 package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,109 +20,166 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  */
 
 /**
- * This type is a copy-paste of `buck2_util::thin_box::ThinBoxSlice`, with some mild adjustments.
+ * This type is a copy-paste of `buck2Util::thinBox::ThinBoxSlice`, with some mild adjustments.
  *
  * Specifically:
  *  1. This type guarantees that it's always a pointer with the bottom bit zero.
- *  2. This type is not implicitly dropped - `run_drop` must be called explicitly.
- *
- * In Kotlin, this is simplified to a List wrapper since the JVM/Kotlin handles memory management.
+ *  2. This type is not implicitly dropped - `runDrop` must be called explicitly.
  */
+
+internal class ThinBoxSliceLayout<T>(
+    var len: Int,
+    var data: MutableList<T>,
+) {
+    companion object {
+        fun offsetOfData(): Int = 0
+    }
+}
 
 /**
  * `Box<[T]>` but thin pointer to FrozenValue(s)
  *
- * In the Kotlin port, this is simplified to a wrapper around a MutableList
- * since Kotlin has garbage collection and does not need the low-level
- * memory layout optimizations of the Rust version.
+ * Similar to `ThinBoxSlice`, but it ignores the lowest bit, allowing
+ * PackedImpl to import that to store a single FrozenValue in place of this
+ * object. Like `ThinBoxSlice`, the remaining unused pointer bits are used to
+ * store an embedded length. If these bits are zero, the `ptr` points to the
+ * `.data` of a ThinBoxSliceLayout, which stores the `.len`. Otherwise, ptr
+ * points at the T[].
+ *
+ * The current implementation returns what amounts to a null pointer for an
+ * empty list. An alternative would be to return a valid pointer to a
+ * statically allocated "long"-lengthed object with a length of 0. This would
+ * reduce the number of representations, but testing at the time of this
+ * writing shows that empty lists are common, and the pointer dereference in
+ * reading the length causes a small performance hit. Changes in the future may
+ * make this the preferred implementation.
  */
-// pub(super) struct AllocatedThinBoxSlice<T>
-internal class AllocatedThinBoxSlice<T>(
-    private val items: MutableList<T> = mutableListOf(),
+internal class AllocatedThinBoxSlice<T> private constructor(
+    private var data: MutableList<T>,
+    private var ptr: Long,
 ) : AbstractList<T>() {
 
     companion object {
-        // pub(super) const fn empty() -> AllocatedThinBoxSlice<T>
-        fun <T> empty(): AllocatedThinBoxSlice<T> = AllocatedThinBoxSlice(mutableListOf())
+        fun <T> empty(): AllocatedThinBoxSlice<T> =
+            AllocatedThinBoxSlice(mutableListOf(), 0L)
 
-        // pub(super) fn new_uninit(len: usize) -> AllocatedThinBoxSlice<MaybeUninit<T>>
-        fun <T> newUninit(len: Int): AllocatedThinBoxSlice<T?> {
-            return AllocatedThinBoxSlice(MutableList(len) { null })
+        fun getReservedTagBitCount(): Int = 1
+
+        fun getUnshiftedTagBitMask(): Int {
+            val align = 8
+            check((align and (align - 1)) == 0) { "alignment must be a power of two" }
+            return align - 1
         }
 
-        // impl FromIterator<T> for AllocatedThinBoxSlice<T>
+        fun getTagBitMask(): Int {
+            val mask = getUnshiftedTagBitMask() ushr getReservedTagBitCount()
+            check(mask != 0)
+            return mask
+        }
+
+        fun getMaxShortLen(): Int = getTagBitMask() + 1
+
+        /** Allocation layout for a slice of length `len`. */
+        fun <T> layoutForLen(len: Int): Pair<Boolean, Int> {
+            return if (len != 0 && len != 1 && len <= getMaxShortLen()) {
+                Pair(true, len)
+            } else {
+                Pair(false, len)
+            }
+        }
+
+        /** Allocate uninitialized memory for a slice of length `len`. */
+        fun <T> newUninit(len: Int): AllocatedThinBoxSlice<T?> {
+            if (len == 0) {
+                return empty()
+            }
+            val (isShort, _layout) = layoutForLen<T>(len)
+            val data: MutableList<T?> = MutableList(len) { null }
+            val tag = if (isShort) ((len - 1).toLong() shl getReservedTagBitCount()) else 0L
+            return AllocatedThinBoxSlice(data, tag)
+        }
+
+        fun <T> fromInner(ptr: Long, data: MutableList<T>): AllocatedThinBoxSlice<T> {
+            return AllocatedThinBoxSlice(data, ptr)
+        }
+
         fun <T> fromIter(iter: Iterable<T>): AllocatedThinBoxSlice<T> {
-            return AllocatedThinBoxSlice(iter.toMutableList())
+            val list = iter.toMutableList()
+            val lower = list.size
+            val thin = newUninit<T>(lower)
+            var i = 0
+            for (item in list) {
+                check(i < lower) { "iterator produced more than promised" }
+                @Suppress("UNCHECKED_CAST")
+                (thin as AllocatedThinBoxSlice<T?>).setUnchecked(i, item)
+                i += 1
+            }
+            check(i == lower) { "iterator produced less than promised" }
+            return thin.assumeInit()
+        }
+
+        fun <T> default(): AllocatedThinBoxSlice<T> = empty()
+    }
+
+    private fun getTagBits(): Int {
+        return ((ptr.toInt() and getUnshiftedTagBitMask()) ushr getReservedTagBitCount())
+    }
+
+    private fun asPtr(): MutableList<T>? {
+        return if (data.isEmpty() && ptr == 0L) null else data
+    }
+
+    private fun asNonnullPtr(): MutableList<T> = data
+
+    /** Length of the slice. */
+    fun readLen(): Int {
+        if (asPtr() == null) {
+            return 0
+        }
+        val bits = getTagBits()
+        return if (bits != 0) {
+            bits + 1
+        } else {
+            data.size
         }
     }
 
-    // fn read_len(&self) -> usize
-    fun readLen(): Int = items.size
+    override val size: Int get() = readLen()
 
-    override val size: Int get() = items.size
+    override fun get(index: Int): T = data[index]
 
-    override fun get(index: Int): T = items[index]
+    internal fun setUnchecked(index: Int, value: T) {
+        data[index] = value
+    }
 
     operator fun set(index: Int, value: T) {
-        items[index] = value
+        data[index] = value
     }
 
-    // pub(super) fn run_drop(self)
+    @Suppress("UNCHECKED_CAST")
+    fun assumeInit(): AllocatedThinBoxSlice<T> = this as AllocatedThinBoxSlice<T>
+
+    fun intoInner(): Long = ptr
+
     fun runDrop() {
-        items.clear()
+        val len = readLen()
+        if (len != 0) {
+            val (isShort, _layout) = layoutForLen<T>(len)
+            if (!isShort) {
+                // Layout includes ThinBoxSliceLayout header; nothing to free explicitly.
+            }
+            data.clear()
+            ptr = 0L
+        }
     }
-
-    // pub const unsafe fn into_inner(self) -> usize
-    fun intoInner(): List<T> = items.toList()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AllocatedThinBoxSlice<*>) return false
-        return items == other.items
+        return data == other.data
     }
 
-    override fun hashCode(): Int = items.hashCode()
+    override fun hashCode(): Int = data.hashCode()
 
-    override fun toString(): String = items.toString()
-}
-
-// #[cfg(test)]
-// mod tests
-
-// #[test]
-// fn test_empty()
-internal fun testEmpty() {
-    val thin = AllocatedThinBoxSlice.empty<String>()
-    check(thin.size == 0)
-    thin.runDrop()
-}
-
-// #[test]
-// fn test_from_iter_sized()
-internal fun testFromIterSized() {
-    val thin = AllocatedThinBoxSlice.fromIter(listOf("a", "bb", "ccc"))
-    check(thin.toList() == listOf("a", "bb", "ccc"))
-    thin.runDrop()
-}
-
-// #[test]
-// fn test_from_iter_unknown_size()
-internal fun testFromIterUnknownSize() {
-    val thin = AllocatedThinBoxSlice.fromIter(
-        listOf("a", "b", "c").filter { true }
-    )
-    check(thin.toList() == listOf("a", "b", "c"))
-    thin.runDrop()
-}
-
-/** If there are obvious memory violations, this test will catch them. */
-// #[test]
-// fn test_stress()
-internal fun testStress() {
-    for (i in 0 until 1000) {
-        val thin = AllocatedThinBoxSlice.fromIter((0 until i).map { j -> j.toString() })
-        check(thin.size == i)
-        check(thin.toList() == (0 until i).map { j -> j.toString() })
-        thin.runDrop()
-    }
+    override fun toString(): String = data.toString()
 }

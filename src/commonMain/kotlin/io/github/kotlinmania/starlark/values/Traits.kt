@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,17 +20,19 @@ package io.github.kotlinmania.starlark.values
  */
 
 /**
- * The values module define a trait `StarlarkValue` that defines the attribute of
- * any value in Starlark and a few macro to help implementing this trait.
- * The `Value` struct defines the actual structure holding a StarlarkValue. It is
- * mostly used to enable mutable and Rc behavior over a StarlarkValue.
- * This modules also defines this traits for the basic immutable values: int,
+ * The values module defines an interface `StarlarkValue` that defines the
+ * attributes of any value in Starlark, plus a few helpers to make implementing
+ * it easier.
+ * The `Value` class defines the actual structure holding a StarlarkValue. It is
+ * mostly used to enable mutable and reference-counted behaviour over a
+ * StarlarkValue.
+ * This module also defines this interface for the basic immutable values: int,
  * bool and NoneType. Sub-modules implement other common types of all Starlark
- * dialect.
+ * dialects.
  *
- * __Note__: we use _sequence_, _iterable_ and _indexable_ according to the
+ * __Note__: we import _sequence_, _iterable_ and _indexable_ according to the
  * definition in the Starlark specification.
- * We also use the term _container_ for denoting any of those type that can
+ * We also import the term _container_ for denoting any of those types that can
  * hold several values.
  */
 
@@ -58,32 +60,34 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 
 /**
- * A trait for values which are more complex - because they are either mutable,
- * or contain references to other values.
+ * An interface for values which are more complex - because they are either
+ * mutable, or contain references to other values.
  *
- * For values that contain nested Value types (mutable or not) there are a bunch of helpers.
+ * For values that contain nested [Value] types (mutable or not) there are a
+ * bunch of helpers.
  *
- * A Starlark type containing values will need to exist in two states: one containing Value
- * and one containing FrozenValue. To deal with that, if we are defining the type
- * containing a single value, let's call it `One`, we'd define `OneGen`
- * (for the general version), and then have type aliases generate `One` and `FrozenOne`.
+ * A Starlark type containing values will need to exist in two states: one
+ * containing [Value] and one containing [FrozenValue]. To deal with that, if
+ * we are defining the type containing a single value, let's call it `One`,
+ * we'd define `OneGen` (for the general version), and then have type aliases
+ * generating `One` and `FrozenOne`.
  */
 interface ComplexValue : StarlarkValue
 
 /**
- * How to put Kotlin values into Values.
+ * How to put Kotlin values into [Value]s.
  *
- * Every Kotlin value stored in a Value must implement this trait.
- * You _must_ also implement ComplexValue if:
+ * Every Kotlin value stored in a [Value] must implement this interface.
+ * You _must_ also implement [ComplexValue] if:
  *
  * * A type is not thread-safe, typically because it contains interior mutability.
- * * A type contains nested Starlark Values.
+ * * A type contains nested Starlark [Value]s.
  *
- * There are only two required members of StarlarkValue, namely
- * TYPE and getTypeValueStatic.
+ * There are only two required members of [StarlarkValue]: [TYPE] and
+ * [getTypeValueStatic].
  *
- * Every additional field enables further features in Starlark. In most cases the default
- * implementation returns an "unimplemented" error.
+ * Every additional field enables further features in Starlark. In most cases
+ * the default implementation returns an "unimplemented" error.
  */
 interface StarlarkValue {
 
@@ -95,13 +99,12 @@ interface StarlarkValue {
         get() = error("TYPE must be implemented by StarlarkValue implementations")
 
     /**
-     * `HAS_*` capability flags mirror Rust's `#[starlark_value]` macro, which
-     * generates a `const HAS_<method>: bool = false;` default in the trait and
-     * sets it to `true` on the implementing impl when that method is overridden.
-     * Implementations override these to advertise overridden behavior to the vtable.
+     * `has*` capability flags advertise to the vtable which optional methods
+     * the implementation overrides. Default value is `false`; implementations
+     * override these to indicate overridden behaviour.
      */
-    val HAS_iterate: Boolean get() = false
-    val HAS_eval_type: Boolean get() = false
+    val hasIterate: Boolean get() = false
+    val hasEvalType: Boolean get() = false
 
     /**
      * Like TYPE, but returns a reusable FrozenStringValue
@@ -112,7 +115,7 @@ interface StarlarkValue {
     }
 
     /**
-     * Return a string that is the representation of a type that a user would use in
+     * Return a string that is the representation of a type that a user would import in
      * type annotations. This often will be the same as TYPE, but in
      * some instances it might be slightly different than what is returned by TYPE.
      */
@@ -132,7 +135,7 @@ interface StarlarkValue {
     }
 
     /**
-     * Get the members associated with this type, accessible via `this_type.x`.
+     * Get the members associated with this type, accessible via `thisType.x`.
      * These members will have `dir`/`getattr`/`hasattr` properly implemented,
      * so it is the preferred way to go if possible.
      */
@@ -158,7 +161,7 @@ interface StarlarkValue {
      */
     fun typecheckerTy(): Ty? = null
 
-    /** Evaluate this value as a type expression. Basically, `eval_type(this)`. */
+    /** Evaluate this value as a type expression. Basically, `evalType(this)`. */
     fun evalType(): Ty? = null
 
     /**
@@ -197,7 +200,7 @@ interface StarlarkValue {
             // The Starlark spec says values of type "function" must be hashable.
             // We could return the address of the function, but that changes
             // with frozen/non-frozen which breaks freeze for Dict.
-            // We could create an atomic counter and use that, but it takes memory,
+            // We could create an atomic counter and import that, but it takes memory,
             // effort, complexity etc, and we don't expect many Dict's keyed by
             // function. Returning 0 as the hash is valid, as Eq will sort it out.
             Result.success(Unit)
@@ -468,7 +471,7 @@ interface StarlarkValue {
         _eval: Evaluator,
     ): Result<Unit> {
         // Most data types ignore how they are exported
-        // but rules/providers like to use it as a helpful hint for users
+        // but rules/providers like to import it as a helpful hint for users
         return Result.success(Unit)
     }
 
@@ -492,7 +495,7 @@ interface StarlarkValue {
 
     /**
      * When freezing, this function is called on the value first and can return a FrozenValue
-     * directly to bypass the freeze impl.
+     * directly to bypass the freeze implementation.
      *
      * This function is needed in the rare case when freezing some values, it may be possible
      * to return a statically allocated value instead of allocating a new one.

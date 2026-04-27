@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/heap_type.rs
+// port-lint: source src/values/layout/heap/heapType.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -85,7 +85,7 @@ class Heap internal constructor(
 
     companion object {
         /**
-         * Create a heap and use it within the closure.
+         * Create a heap and import it within the closure.
          *
          * Heap is discarded at the end of the closure.
          */
@@ -94,7 +94,7 @@ class Heap internal constructor(
             return f(Heap(heap))
         }
 
-        /** Like temp, but suspend. */
+        /** Like [temp], but suspending. */
         suspend fun <R> tempAsync(f: suspend (Heap) -> R): R {
             val heap = OwnedHeap.new()
             return f(Heap(heap))
@@ -107,9 +107,6 @@ class Heap internal constructor(
     }
 
     internal fun traceInterner(tracer: Tracer) {
-        // In Rust, this traces the string interner's HashTable entries.
-        // Kotlin's GC handles memory management, so explicit tracing is a no-op,
-        // but we call through for structural parity.
         owned.strInterner.trace(tracer)
     }
 
@@ -121,17 +118,19 @@ class Heap internal constructor(
      * Get access to the underlying value within the context of this heap.
      *
      * Adds the frozen value's heap as a dependency of this heap.
+     *
+     * See the `branding` module for more details.
      */
     fun accessOwnedFrozenValue(v: OwnedFrozenValue): Value {
         addReference(v.owner())
-        // Safe: We just added a reference to this heap.
+        // Safe: we just added a reference to this heap.
         return v.uncheckedFrozenValue().toValue()
     }
 
-    /** Similar to accessOwnedFrozenValue, but typed. */
+    /** Similar to [accessOwnedFrozenValue], but typed. */
     fun <T : StarlarkValue> accessOwnedFrozenValueTyped(v: OwnedFrozenValueTyped<T>): ValueTyped<T> {
         addReference(v.owner())
-        // Safe: We just added a reference to this heap.
+        // Safe: we just added a reference to this heap.
         return v.valueTyped().toValueTyped()
     }
 
@@ -195,7 +194,6 @@ class Heap internal constructor(
     }
 
     /** Allocate a string on the heap. */
-    // pub fn alloc_str(self, x: &str) -> StringValue<'v>
     fun allocStr(x: String): StringValue {
         val constant = io.github.kotlinmania.starlark.values.layout.constantString(x)
         if (constant != null) {
@@ -333,7 +331,7 @@ class FrozenHeap internal constructor(
     }
 
     /**
-     * into_ref but also assign a name.
+     * intoRef but also assign a name.
      *
      * See FrozenHeapRef.name for more details.
      */
@@ -418,13 +416,12 @@ class FrozenHeap internal constructor(
     }
 
     /**
-     * Allocate an interned string. Returns a FrozenStringValue.
-     * Port of `FrozenHeap::alloc_str_intern`.
+     * Allocate an interned string. Returns a [FrozenStringValue].
      */
     fun allocStrIntern(s: String): FrozenStringValue {
-        // Match Rust's `alloc_str_hashed`: short strings (len <= 1) live in the
-        // static `constant_string` table and must not flow through arena allocation,
-        // because `MIN_ALLOC` is larger than a single-byte string payload.
+        // Short strings (len <= 1) live in the static `constantString` table and
+        // must not flow through arena allocation, because `MIN_ALLOC` is larger
+        // than a single-byte string payload.
         val constant = io.github.kotlinmania.starlark.values.layout.constantString(s)
         if (constant != null) {
             return constant

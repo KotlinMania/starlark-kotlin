@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,7 +24,6 @@ package io.github.kotlinmania.starlark.eval.bc
 import kotlin.reflect.KClass
 
 /**
- * In Rust, instructions are 8-byte aligned in a raw byte buffer.
  * In Kotlin, instructions are stored as 2 list elements (header + arg),
  * so the stride is 2.
  */
@@ -62,7 +61,6 @@ internal class BcInstrRepr<I : BcInstr<*>>(
         }
 
         fun assertAlign(instrClass: KClass<out BcInstr<*>>) {
-            // In Rust this checks mem::align_of and mem::size_of against BC_INSTR_ALIGN.
             // In Kotlin/Multiplatform there is no direct equivalent of repr(C) alignment,
             // but we preserve the assertion structure for parity.
             // assert(alignOf<BcInstrRepr<I>>() == BC_INSTR_ALIGN)
@@ -70,7 +68,6 @@ internal class BcInstrRepr<I : BcInstr<*>>(
         }
 
         fun sizeOf(instrClass: KClass<out BcInstr<*>>): Int {
-            // In Rust this returns mem::size_of::<BcInstrRepr<I>>().
             // In Kotlin there is no direct equivalent; returns a nominal value.
             return BC_INSTR_ALIGN
         }

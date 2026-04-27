@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.syntax.lexer
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -49,7 +49,7 @@ data class TokenFString(
 
 // Token indices 0-65 must match the LALRPOP-generated __token_to_integer mapping exactly.
 // This ordering is used by GrammarState.ACTION[state * 66 + integer].
-// See tmp/target/debug/build/starlark_syntax-.../out/syntax/grammar.rs __token_to_integer.
+// See tmp/target/debug/build/starlarkSyntax-.../out/syntax/grammar.rs __token_to_integer.
 sealed class Token {
     // LALRPOP indices: Newline=0, symbols 1-34, Dedent=35, literals 36-41,
     //                  brackets 42-43, operators 44-45, keywords 46-60,

@@ -11,7 +11,7 @@ import io.github.kotlinmania.starlark.codemap.Span
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,20 +30,14 @@ import io.github.kotlinmania.starlark.codemap.Span
 // from types.rs are transliterated below; they will unify once flow.kt
 // is updated.
 
-// pub(crate) trait LintWarning: Display
 // Already defined in flow.kt as:
 //   interface LintWarning {
 //       fun severity(): EvalSeverity
 //       fun shortName(): String
-//   }
 
-// pub(crate) struct LintT<T>
-// Already defined in flow.kt. The Rust version also has `original: String`.
 // Extension: add erase() to convert LintT<T> -> Lint.
 
 /** A lint produced by `AstModule::lint`. */
-// #[derive(Debug)]
-// pub struct Lint
 class Lint(
     /** Which code location does this lint refer to. */
     val location: FileSpan,
@@ -59,21 +53,16 @@ class Lint(
     /** The source code at [location]. */
     val original: String,
 ) {
-    // impl Display for Lint
     override fun toString(): String {
         return "$location: $problem"
     }
 }
 
-// impl<T: Display> Display for LintT<T>
 // Already handled: LintT.toString() delegates via location and problem.
 
-// impl<T: LintWarning> LintT<T>
-// pub(crate) fn new(codemap: &CodeMap, span: Span, problem: T) -> Self
 // Already in flow.kt as LintT.Companion.new
 
 /** Erase the typed problem into a generic [Lint]. */
-// pub(crate) fn erase(self) -> Lint
 internal fun <T> LintT<T>.erase(): Lint where T : LintWarning {
     return Lint(
         location = this.location,
@@ -86,13 +75,10 @@ internal fun <T> LintT<T>.erase(): Lint where T : LintWarning {
 
 /** A standardised set of severities. */
 // Note: EvalSeverity is already defined in flow.kt.
-// The Rust version also has Error, Warning, Advice, Disabled.
 // flow.kt currently has: Disabled, Warning, Error.
 // When unified, add Advice.
 
 /** Potential problems that occurred while parsing a starlark program. */
-// #[derive(Debug, Clone)]
-// pub struct EvalMessage
 class EvalMessage(
     /** The path to the starlark program. */
     val path: String,
@@ -109,7 +95,6 @@ class EvalMessage(
     /** The text referred to by [span]. */
     val original: String? = null,
 ) {
-    // impl Display for EvalMessage
     override fun toString(): String {
         return buildString {
             append("$severity: $path:")
@@ -122,10 +107,9 @@ class EvalMessage(
 
     companion object {
         /** Produce an `EvalMessage` from a `starlark::Error`. */
-        // pub fn from_error(file: &Path, err: &crate::Error) -> Self
         fun fromError(file: String, err: Exception): EvalMessage {
-            // If the error has span information, use from_diagnostic.
-            // Otherwise fall back to from_any_error.
+            // If the error has span information, import fromDiagnostic.
+            // Otherwise fall back to fromAnyError.
             return fromAnyError(file, err)
         }
 
@@ -134,7 +118,6 @@ class EvalMessage(
          *
          * Prefer to use `fromError` if at all possible.
          */
-        // pub fn from_any_error(file: &Path, x: &impl std::fmt::Display) -> Self
         fun fromAnyError(file: String, x: Any): EvalMessage {
             return EvalMessage(
                 path = file,
@@ -147,7 +130,6 @@ class EvalMessage(
             )
         }
 
-        // fn from_diagnostic(span: &FileSpan, message: impl Display, full_error: impl Display) -> Self
         private fun fromDiagnostic(
             span: FileSpan,
             message: Any,
@@ -161,13 +143,12 @@ class EvalMessage(
                 name = "error",
                 description = message.toString(),
                 fullErrorWithSpan = fullError.toString(),
-                original = null, // span.source_span() not yet available
+                original = null, // span.sourceSpan() not yet available
             )
         }
     }
 }
 
-// impl From<Lint> for EvalMessage
 fun Lint.toEvalMessage(): EvalMessage {
     return EvalMessage(
         path = location.description,

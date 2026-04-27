@@ -1,5 +1,4 @@
-// port-lint: source src/util/non_static_type_id.rs (tests)
-package io.github.kotlinmania.starlark.util.nonstatictypeid
+// port-lint: source tests:src/util/nonStaticTypeId.rspackage io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.util.nonstatictypeid
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,12 +23,8 @@ import kotlin.test.assertEquals
 
 class NonStaticTypeIdTest {
 
-    // #[test]
-    // fn test_non_static_type_id()
     @Test
     fun testNonStaticTypeId() {
-        // Rust: assert_eq!(non_static_type_id::<&str>(), TypeId::of::<&'static str>());
-        // Kotlin has no lifetimes, so &str and &'static str both correspond to String::class.
         assertEquals(String::class, nonStaticTypeId<String>())
     }
 }

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler.compr
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -49,8 +49,6 @@ import io.github.kotlinmania.starlark.eval.compiler.MaybeNot
  * @param rem the remaining clauses to process (in reverse order)
  * @param term callback to emit the comprehension body expression
  */
-// impl ClauseCompiled
-// fn write_bc(&self, bc: &mut BcWriter, rem: &[ClauseCompiled], term: impl FnOnce(&mut BcWriter))
 internal fun ClauseCompiled.writeBc(
     bc: BcWriter,
     rem: List<ClauseCompiled>,
@@ -71,8 +69,6 @@ internal fun ClauseCompiled.writeBc(
     }
 }
 
-// impl ComprCompiled
-
 /**
  * Marks variables that are definitely assigned after evaluation of this comprehension.
  *
@@ -83,7 +79,6 @@ internal fun ClauseCompiled.writeBc(
  *
  * @param bc the bytecode writer used to track definitely-assigned state
  */
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun ComprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     val clauses = this.clauses()
     // We know that first loop argument is executed, and we don't know anything else.
@@ -102,7 +97,6 @@ internal fun ComprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
  * @param target the output slot where the final collection value is stored
  * @param bc the bytecode writer
  */
-// pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
 internal fun ComprCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWriter) {
     bc.allocSlot { temp, bc ->
         when (this) {

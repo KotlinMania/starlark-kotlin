@@ -1,4 +1,4 @@
-// port-lint: source src/eval/soft_error.rs
+// port-lint: source src/eval/softError.rs
 package io.github.kotlinmania.starlark.eval
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,22 +19,18 @@ package io.github.kotlinmania.starlark.eval
  * limitations under the License.
  */
 
-/// Deprecation handler provided by a user.
-// pub trait SoftErrorHandler {
+/** Deprecation handler provided by a user. */
 interface SoftErrorHandler {
-    /// Handle deprecation error. If this function returns `Ok`, error will be ignored,
-    /// otherwise error will be propagated.
-    // fn soft_error(&self, category: &str, error: crate::Error) -> Result<(), crate::Error>;
+    /**
+     * Handle deprecation error. If this function returns `Ok`, error will be ignored,
+     * otherwise error will be propagated.
+     */
     fun softError(category: String, error: io.github.kotlinmania.starlark.Error)
 }
 
-/// Default handler: warnings are treated as errors.
-// pub(crate) struct HardErrorSoftErrorHandler;
+/** Default handler: warnings are treated as errors. */
 internal object HardErrorSoftErrorHandler : SoftErrorHandler {
-    // impl SoftErrorHandler for HardErrorSoftErrorHandler {
-    // fn soft_error(&self, _category: &str, error: crate::Error) -> Result<(), crate::Error> {
     //     Err(error)
-    // }
     override fun softError(_category: String, error: io.github.kotlinmania.starlark.Error) {
         throw error
     }

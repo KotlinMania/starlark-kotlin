@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/unused_loads/find.rs
+// port-lint: source src/analysis/unusedLoads/find.rs
 package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis.unusedloads
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -43,33 +43,21 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.types.allocAny
 
-// Forward-reference AST types until starlark_syntax port is complete.
-// use starlark_syntax::codemap::FileSpanRef;
-// use starlark_syntax::syntax::ast::LoadArgP;
-// use starlark_syntax::syntax::ast::LoadP;
-// use starlark_syntax::syntax::ast::StmtP;
-
 /** Unused load statement. */
-// pub(crate) struct UnusedLoad
 internal class UnusedLoad(
     /** Location of the statement (i.e. position of `load` keyword). */
-    // pub(crate) load: Spanned<LoadP<CstPayload>>,
     val load: Spanned<LoadP<*, *>>,
     /** Unused local names, e. g. `x` in `load("foo", x="y")`. */
-    // pub(crate) unused_args: Vec<LoadArgP<CstPayload>>,
     val unusedArgs: List<LoadArgP<*, *>>,
 ) {
-    // impl UnusedLoad
 
     /** If the whole `load` statement is unused. */
-    // pub(crate) fn all_unused(&self) -> bool
     fun allUnused(): Boolean {
         return unusedArgs.size == load.node.args.size
     }
 }
 
 /** Check if there are `@unused` markers on the lines with the given span. */
-// fn has_unused_marker_in_range(span: FileSpanRef) -> bool
 private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
     val beginLine = span.file.findLine(span.span.begin)
     val endLine = span.file.findLine(span.span.end)
@@ -84,7 +72,6 @@ private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
 
 /**
  * Visit all identifiers in read position recursively within a CstStmt.
- * Port of `StmtP::visit_ident` from Rust's `uniplate.rs`.
  */
 private fun Spanned<StmtP<CstPayload>>.visitIdent(f: (Spanned<IdentP<CstPayload, *>>) -> Unit) {
     fun visitExprIdent(expr: Spanned<ExprP<CstPayload>>) {
@@ -184,7 +171,6 @@ private fun Spanned<StmtP<CstPayload>>.visitIdent(f: (Spanned<IdentP<CstPayload,
 }
 
 /** Parse the module and find unused loads. */
-// pub(crate) fn find_unused_loads(name: &str, program: &str) -> crate::Result<(CodeMap, Vec<UnusedLoad>)>
 internal fun findUnusedLoads(
     name: String,
     program: String,
@@ -209,14 +195,12 @@ internal fun findUnusedLoads(
 
     // --- Collect load statements ---
 
-    // struct LoadSymbol<'a>
     class LoadSymbol(
         val arg: LoadArgP<*, *>,
         val bindingId: BindingId,
         var used: Boolean,
     )
 
-    // struct LoadWip<'a>
     class LoadWip(
         val load: Spanned<LoadP<*, *>>,
         val args: MutableList<LoadSymbol>,

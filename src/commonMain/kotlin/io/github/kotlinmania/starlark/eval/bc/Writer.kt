@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -511,7 +511,6 @@ internal class BcWriter(
     }
 
     /** Allocate several slots as [BcSlotsN], wrapping [allocSlots]. */
-    // pub(crate) fn alloc_slots_c<const N: usize, R>(&mut self, k: impl FnOnce(BcSlotsN<N>, &mut BcWriter) -> R) -> R
     fun <R> allocSlotsC(count: Int, k: (BcSlotsN, BcWriter) -> R): R {
         return allocSlots(count) { slots, bc -> k(BcSlotsN.fromRange(count, slots), bc) }
     }
@@ -549,7 +548,6 @@ internal class BcWriter(
     }
 
     fun allocFileSpan(span: FrameSpan): FrameSpan {
-        // In Rust, this allocates the span on the frozen heap via alloc_any.
         // In Kotlin, the GC manages memory so we just return the span.
         return span
     }

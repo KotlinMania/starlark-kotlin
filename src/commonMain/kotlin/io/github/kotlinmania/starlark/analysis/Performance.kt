@@ -7,14 +7,13 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.values.layout.size
 
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -31,16 +30,13 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.starlarkSrc
 import io.github.kotlinmania.starlark.values.layout.size
 
-// pub(crate) enum Performance
 internal sealed class Performance : LintWarning {
-    // #[error("Dict copy `{0}` is more efficient as `{1}`")]
     data class DictWithoutStarStar(val original: String, val replacement: String) : Performance() {
         override fun toString(): String = "Dict copy `$original` is more efficient as `$replacement`"
         override fun severity(): EvalSeverity = EvalSeverity.Warning
         override fun shortName(): String = "dict-without-star-star"
     }
 
-    // #[error("`{0}` eagerly evaluates all items...")]
     data class EagerAndInefficientBoolCheck(val expr: String) : Performance() {
         override fun toString(): String =
             "`$expr` eagerly evaluates all items in the iterable, and allocates an array for the results. Prefer using a for-loop."
@@ -48,7 +44,6 @@ internal sealed class Performance : LintWarning {
         override fun shortName(): String = "eager-and-inefficient-bool-check"
     }
 
-    // #[error("`{0}` allocates a new {1}...")]
     data class InefficientBoolCheck(val expr: String, val kind: String) : Performance() {
         override fun toString(): String =
             "`$expr` allocates a new $kind for the results. Prefer using a for-loop."
@@ -57,7 +52,6 @@ internal sealed class Performance : LintWarning {
     }
 }
 
-// fn match_dict_copy(codemap: &CodeMap, x: &Spanned<ExprP<AstNoPayload>>, res: &mut Vec<LintT<Performance>>)
 private fun matchDictCopy(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
     // If we see `dict(**x)` suggest `dict(x)`
     val expr = x.node
@@ -83,7 +77,6 @@ private fun matchDictCopy(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res
     }
 }
 
-// fn match_inefficient_bool_check(codemap: &CodeMap, x: &Spanned<ExprP<AstNoPayload>>, res: &mut Vec<LintT<Performance>>)
 private fun matchInefficientBoolCheck(
     codemap: CodeMap,
     x: Spanned<ExprP<AstNoPayload>>,
@@ -138,7 +131,6 @@ private fun matchInefficientBoolCheck(
     }
 }
 
-// fn check_call_expr(module: &AstModule, res: &mut Vec<LintT<Performance>>)
 internal fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>>) {
     fun check(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>, res: MutableList<LintT<Performance>>) {
         matchDictCopy(codemap, x, res)
@@ -148,12 +140,10 @@ internal fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance
     module.statement.visitExprs { x -> check(module.codemap, x, res) }
 }
 
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Performance>>
 internal fun lintPerformance(module: AstModule): List<LintT<Performance>> {
     val res = mutableListOf<LintT<Performance>>()
     checkCallExpr(module, res)
     return res
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

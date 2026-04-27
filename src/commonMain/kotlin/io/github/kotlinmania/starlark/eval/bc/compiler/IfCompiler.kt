@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/compiler/if_compiler.rs
+// port-lint: source src/eval/bc/compiler/ifCompiler.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.bc.PatchAddr
 
 /** Common code for compiling if statements and if expressions. */
-// pub(crate) fn write_if_else(...)
 internal fun writeIfElse(
     c: IrSpanned<ExprCompiled>,
     t: (BcWriter) -> Unit,
@@ -40,7 +39,6 @@ internal fun writeIfElse(
 }
 
 /** Common code for compiling if statements and if conditions in comprehensions. */
-// pub(crate) fn write_if_then(...)
 internal fun writeIfThen(
     c: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,
@@ -51,7 +49,6 @@ internal fun writeIfThen(
 }
 
 /** Common code for writing if-then or if-then-else expression or statement. */
-// fn write_if_else_impl<T, F>(...)
 private fun writeIfElseImpl(
     cond: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,
@@ -87,11 +84,10 @@ private fun writeIfElseImpl(
 /**
  * Write boolean binary condition.
  *
- * The condition is: `maybe_not(x bin_op y)`.
+ * The condition is: `maybeNot(x binOp y)`.
  *
- * See `write_cond` for semantics of `t`, `f` parameters.
+ * See `writeCond` for semantics of `t`, `f` parameters.
  */
-// fn write_cond_bin_op(...)
 private fun writeCondBinOp(
     x: IrSpanned<ExprCompiled>,
     y: IrSpanned<ExprCompiled>,
@@ -103,7 +99,7 @@ private fun writeCondBinOp(
 ) {
     if ((binOp == ExprLogicalBinOp.And) == (maybeNot == MaybeNot.Id)) {
         // This branch handles either of expressions:
-        // expression   | bin_op | maybe_not
+        // expression   | binOp | maybeNot
         // --------------+-------+----------
         // x and y      | and    | id
         // not (x or y) | or     | not
@@ -115,7 +111,7 @@ private fun writeCondBinOp(
         writeCond(y, maybeNot, t, f, bc)
     } else {
         // This branch handles either of expressions:
-        // expression    | bin_op | maybe_not
+        // expression    | binOp | maybeNot
         // --------------+-----+--+----------
         // x or y        | or     | id
         // not (x and y) | and    | not
@@ -131,7 +127,7 @@ private fun writeCondBinOp(
 /**
  * Write if condition bytecode.
  *
- * The condition is `maybe_not(cond)`.
+ * The condition is `maybeNot(cond)`.
  *
  * This function assumes there are two address:
  * * address of then block
@@ -144,7 +140,6 @@ private fun writeCondBinOp(
  * This function will populate `t` and `f` with addresses of instructions
  * which jump to then or else block respectively. Caller needs to patch these.
  */
-// fn write_cond(...)
 private fun writeCond(
     cond: IrSpanned<ExprCompiled>,
     maybeNot: MaybeNot,

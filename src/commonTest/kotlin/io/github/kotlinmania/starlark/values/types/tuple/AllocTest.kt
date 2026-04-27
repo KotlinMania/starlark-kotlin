@@ -1,5 +1,4 @@
-// port-lint: source src/values/types/tuple/alloc.rs (tests)
-package io.github.kotlinmania.starlark.values.types.tuple
+// port-lint: source tests:src/values/types/tuple/alloc.rspackage io.github.kotlinmania.starlark.values.types.tuple
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values.types.tuple
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,8 +32,7 @@ class AllocTest {
     @Test
     fun testAllocTuple() {
         Heap.temp { heap ->
-            // Rust uses [""; 0] (empty string array) and [1,2,3] (i32 array).
-            // In Kotlin, raw primitives don't implement AllocValue, so we use Num.Int.
+            // In Kotlin, raw primitives don't implement AllocValue, so we import Num.Int.
             val a = heap.alloc(AllocTuple(emptyList<Num>()))
             val b = heap.alloc(AllocTuple(
                 listOf(Num.Int(StarlarkInt.from(1)), Num.Int(StarlarkInt.from(2)), Num.Int(StarlarkInt.from(3)))

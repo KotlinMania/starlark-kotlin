@@ -1,4 +1,4 @@
-// port-lint: source src/pagable/vtable_registry.rs
+// port-lint: source src/pagable/vtableRegistry.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.pagable
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,49 +19,46 @@ package io.github.kotlinmania.starlark.pagable
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import kotlin.reflect.KClass
+
 /**
  * VTable registry for Starlark value deserialization.
  *
  * This module provides a mechanism for registering and looking up vtables
  * by their deserialization type identifiers. During deserialization, we need
- * to know which vtable to use for a given type, and this registry provides
+ * to know which vtable to import for a given type, and this registry provides
  * that mapping.
  */
-
-import io.github.kotlinmania.starlark.values.layout.AValueVTable
-import kotlin.reflect.KClass
 
 /**
  * Deserialization type identifier for vtable lookup.
  *
- * This is a wrapper around [KClass] that uniquely identifies a concrete type
- * for deserialization purposes, unlike `StarlarkValue.TYPE` which can be shared
- * (e.g., "function" for EnumType and NativeFunction).
- *
- * In Rust, this uses `std::any::type_name::<T>()` which returns a `&'static str`.
- * In Kotlin, we use [KClass] as the unique identifier and derive the string name
- * from [KClass.qualifiedName].
+ * This is a newtype wrapper around a type-name string. It uniquely identifies a
+ * concrete type for deserialization purposes, unlike `StarlarkValue::TYPE` which
+ * can be shared (e.g., "function" for EnumType and NativeFunction).
  */
-data class DeserTypeId(val typeClass: KClass<*>) {
-    companion object {
-        /** Create a [DeserTypeId] for a type. */
-        inline fun <reified T : Any> of(): DeserTypeId {
-            return DeserTypeId(T::class)
-        }
-    }
-
+data class DeserTypeId(val name: String) {
     /** Get the underlying type name string. */
-    fun asStr(): String {
-        return typeClass.simpleName ?: typeClass.toString()
-    }
+    fun asStr(): String = name
 
-    override fun toString(): String = asStr()
+    fun fmt(): String = name
+
+    override fun toString(): String = fmt()
+
+    companion object {
+        /** Create a `DeserTypeId` for a type. */
+        inline fun <reified T : Any> of(): DeserTypeId =
+            DeserTypeId(T::class.qualifiedName ?: T::class.toString())
+
+        fun of(type: KClass<*>): DeserTypeId =
+            DeserTypeId(type.qualifiedName ?: type.toString())
+    }
 }
 
 /**
  * Registry entry for vtable lookup during deserialization.
- * In Rust, these are collected at compile time via the `inventory` crate.
- * In Kotlin, entries are registered manually at initialization time.
+ * Collected at compile time.
  */
 class VTableRegistryEntry(
     /**
@@ -73,40 +70,29 @@ class VTableRegistryEntry(
     val vtable: AValueVTable,
 )
 
-/**
- * Lookup table mapping deser_type_id to vtable.
- *
- * In Rust, this is built lazily from `inventory::iter`. In Kotlin, entries are
- * registered imperatively via [registerVTableEntry].
- */
-private object VTableRegistry {
-    val registry: MutableMap<DeserTypeId, AValueVTable> = mutableMapOf()
-}
+/** Lookup table mapping deserTypeId to vtable, built lazily. */
+private val VTABLE_REGISTRY: MutableMap<DeserTypeId, AValueVTable> = mutableMapOf()
 
 /**
- * Register a vtable entry in the global registry.
- *
- * This replaces Rust's `inventory::collect!` / `inventory::submit!` pattern.
- * Call this during module initialization for each type that needs vtable lookup
- * during deserialization.
+ * Submit a vtable entry. Call this during module initialisation for each
+ * registered type.
  */
-fun registerVTableEntry(entry: VTableRegistryEntry) {
-    VTableRegistry.registry[entry.deserTypeId] = entry.vtable
+fun submitVtable(entry: VTableRegistryEntry) {
+    VTABLE_REGISTRY[entry.deserTypeId] = entry.vtable
 }
 
 /**
  * Look up a vtable by its deserialization type id.
- * Returns a failure result if the type is not registered.
+ * Returns an error if the type is not registered.
  */
 fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> {
-    return VTableRegistry.registry[deserTypeId]?.let {
-        Result.success(it)
-    } ?: Result.failure(
-        PagableError.TypeNotRegistered(typeId = deserTypeId.asStr())
-    )
+    val vt = VTABLE_REGISTRY[deserTypeId]
+    return if (vt != null) {
+        Result.success(vt)
+    } else {
+        Result.failure(PagableError.TypeNotRegistered(typeId = deserTypeId.asStr()))
+    }
 }
 
 /** Get a list of all registered type IDs (for debugging/testing). */
-internal fun registeredTypeIds(): List<DeserTypeId> {
-    return VTableRegistry.registry.keys.toList()
-}
+internal fun registeredTypeIds(): List<DeserTypeId> = VTABLE_REGISTRY.keys.toList()

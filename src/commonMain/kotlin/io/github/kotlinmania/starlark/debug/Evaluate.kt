@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.debug
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,7 +45,7 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     disableGc()
 
     // Everything must be evaluated with the current heap (or we'll lose memory), which means
-    // the current module (eval.module_env).
+    // the current module (eval.moduleEnv).
     // We also want access to the module variables (fine), the locals (need to move them over),
     // and the frozen variables (move them over).
     // Afterwards, we want to put everything back - locals can move back to locals, modules

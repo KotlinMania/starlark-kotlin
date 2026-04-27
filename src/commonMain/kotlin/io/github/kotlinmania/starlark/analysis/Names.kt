@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -262,7 +262,7 @@ private class ScopeState {
     var abort: Abort? = null
 }
 
-/** The state we use when scanning the variables. */
+/** The state we import when scanning the variables. */
 private class State(
     val codemap: CodeMap,
     /**
@@ -301,7 +301,7 @@ private class State(
         }
 
         // some of our unbound variables were from our children
-        // these might use any random variable at any point - impossible to know
+        // these might import any random variable at any point - impossible to know
         // so for those, just assume they are used
         val unboundDefined = scope.unbound.filter { it.node in local }
         val unboundUndefined = scope.unbound.filter { it.node !in local }
@@ -338,7 +338,7 @@ private class State(
             }
         } else {
             // these things were unbound, but perhaps in a child, and perhaps we defined it later
-            // as we can use a variable in a child before we define it, since the child is a def,
+            // as we can import a variable in a child before we define it, since the child is a def,
             // so runs later.
             for (x in unboundUndefined) {
                 if (x.node !in local) {

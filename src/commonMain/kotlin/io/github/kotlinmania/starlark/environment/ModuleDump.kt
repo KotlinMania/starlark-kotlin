@@ -1,4 +1,4 @@
-// port-lint: source src/environment/module_dump.rs
+// port-lint: source src/environment/moduleDump.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.environment
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,8 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark.values.types.string.format
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-
-// impl FrozenModule
 
 /** Print a lot of module internals for debugging. */
 fun FrozenModule.dumpDebug(): String {
@@ -47,8 +45,6 @@ fun FrozenModule.dumpDebug(): String {
         }
     }
 }
-
-// impl FrozenHeapRef
 
 private fun FrozenHeapRef.dumpDebug(): String {
     return buildString {

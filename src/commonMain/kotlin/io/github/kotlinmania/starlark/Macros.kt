@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,14 +34,12 @@ import io.github.kotlinmania.starlark.values.layout.Value
 /**
  * Reduce boilerplate when making types instances of ComplexValue.
  *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, UnpackValue,
- * StarlarkTypeRepr, and from_value implementations for complex value types
+ * StarlarkTypeRepr, and fromValue implementations for complex value types
  * (types that can contain references to other Starlark values).
  *
- * In Kotlin, we use a registration function that wires up the same capabilities
+ * In Kotlin, we import a registration function that wires up the same capabilities
  * at runtime via the type registry.
  */
-// macro_rules! starlark_complex_value
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
     frozenType: KClass<out StarlarkValue>,
@@ -59,12 +57,10 @@ fun <T : StarlarkValue> starlarkComplexValue(
 }
 
 /**
- * Similar to starlark_complex_value but from_value returns Either<unfrozen, frozen>.
+ * Similar to starlarkComplexValue but fromValue returns Either<unfrozen, frozen>.
  *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, and a from_value
  * that returns Either<&Self, &FrozenX> instead of coercing to unfrozen.
  */
-// macro_rules! starlark_complex_values
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
     frozenType: KClass<F>,
@@ -85,13 +81,11 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
  * A macro reducing boilerplate defining Starlark values which are simple - they
  * aren't mutable and can't contain references to other Starlark values.
  *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, UnpackValue,
- * StarlarkTypeRepr, and from_value implementations for simple value types.
+ * StarlarkTypeRepr, and fromValue implementations for simple value types.
  *
- * In Kotlin, we use a registration function that wires up the same capabilities
+ * In Kotlin, we import a registration function that wires up the same capabilities
  * at runtime via the type registry.
  */
-// macro_rules! starlark_simple_value
 fun <T : StarlarkValue> starlarkSimpleValue(
     type: KClass<T>,
     allocValue: (T, Heap) -> Value,
@@ -203,7 +197,7 @@ data class SimpleValueEntry<T : StarlarkValue>(
     val fromValue: (Value) -> T?,
 )
 
-/** Either type used by starlark_complex_values for from_value return. */
+/** Either type used by starlarkComplexValues for fromValue return. */
 // (corresponds to either::Either in Rust)
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()

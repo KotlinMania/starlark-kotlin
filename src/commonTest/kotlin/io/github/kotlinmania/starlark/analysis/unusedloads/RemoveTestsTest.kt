@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/unused_loads/remove_tests.rs
+// port-lint: source src/analysis/unusedLoads/removeTests.rs
 package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis.unusedloads
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,10 +22,9 @@ package io.github.kotlinmania.starlark.analysis.unusedloads
 import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 import kotlin.test.Test
 
-/// Tests for unused load removal using golden file comparison.
+/** Tests for unused load removal using golden file comparison. */
 class RemoveTestsTest {
 
-    /// fn test_remove(name: &str, program: &str)
     private fun testRemove(name: String, program: String) {
         val trimmed = program.trim()
 

@@ -1,5 +1,4 @@
-// port-lint: source src/typing/user.rs (tests)
-package io.github.kotlinmania.starlark.typing
+// port-lint: source tests:src/typing/user.rspackage io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,32 +27,7 @@ import io.github.kotlinmania.starlark.typing.TyUserParams
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import kotlin.test.Test
 
-// Test types: In Rust these use #[derive] macros and #[starlark_value].
 // Here we define minimal stubs to capture the test structure.
-
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// #[display("plant")]
-// enum AbstractPlant {}
-// #[starlark_value(type = "plant")]
-// impl<'v> StarlarkValue<'v> for AbstractPlant { ... }
-
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// #[display("fruit_callable")]
-// struct FruitCallable { name: String, ty_fruit_callable: Ty, ty_fruit: Ty }
-// #[starlark_value(type = "fruit_callable")]
-// impl<'v> StarlarkValue<'v> for FruitCallable { ... }
-
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// struct Fruit { name: String }
-// #[starlark_value(type = "fruit")]
-// impl<'v> StarlarkValue<'v> for Fruit { ... }
-
-// #[starlark_module]
-// fn globals(globals: &mut GlobalsBuilder) {
-//     fn fruit(name: String) -> starlark::Result<FruitCallable> { ... }
-//     fn mk_fruit() -> anyhow::Result<Fruit> { panic!("not needed in test") }
-//     const Plant: StarlarkValueAsType<AbstractPlant> = StarlarkValueAsType::new();
-// }
 
 class UserTest {
     @Test

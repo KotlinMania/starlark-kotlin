@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,12 +23,6 @@ package io.github.kotlinmania.starlark.eval
  * Evaluate some code, typically done by creating an [Evaluator], then calling
  * [evalModule].
  */
-
-// pub(crate) mod bc;
-// pub(crate) mod compiler;
-// mod params;
-// pub(crate) mod runtime;
-// pub(crate) mod soft_error;
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.docs.DocString
@@ -53,28 +47,14 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.allocAny
 import kotlin.time.TimeSource
 
-// --- Re-exports (Rust `pub use`) ---
-// pub use runtime::arguments::Arguments;
-// pub use runtime::before_stmt::BeforeStmtFuncDyn;
-// pub use runtime::evaluator::Evaluator;
-// pub use runtime::file_loader::FileLoader;
-// pub use runtime::file_loader::ReturnFileLoader;
-// pub use runtime::params::parser::ParametersParser;
-// pub use runtime::params::spec::ParametersSpec;
-// pub use runtime::params::spec::ParametersSpecParam;
-// pub use runtime::profile::data::ProfileData;
-// pub use runtime::profile::mode::ProfileMode;
-// pub use soft_error::SoftErrorHandler;
-// pub use starlark_syntax::call_stack::CallStack;
 // In Kotlin, these are accessible via their own packages. No re-export needed.
 
-// --- impl Evaluator ---
+// --- implementation Evaluator ---
 
 /**
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
  * [Module] as appropriate.
  */
-// pub fn eval_module(&mut self, ast: AstModule, globals: &Globals) -> crate::Result<Value<'v>>
 fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     val start = TimeSource.Monotonic.markNow()
 
@@ -121,7 +101,7 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
         )
     }.getOrElse { return Result.failure(it) }
 
-    // Set up the world to allow evaluation (do NOT use getOrElse from now on)
+    // Set up the world to allow evaluation (do NOT import getOrElse from now on)
 
     callStack.push(Value.newNone(), null)
 
@@ -153,7 +133,6 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 }
 
 /** Evaluate a function stored in a [Value], passing in `positional` and `named` arguments. */
-// pub fn eval_function(&mut self, function: Value, positional: &[Value], named: &[(&str, Value)]) -> crate::Result<Value>
 fun Evaluator.evalFunction(
     function: Value,
     positional: List<Value>,
@@ -176,7 +155,7 @@ fun Evaluator.evalFunction(
         )
     }.getOrElse { return Result.failure(it) }
 
-    // eval_module pushes an "empty" call stack frame. other places expect that first frame
+    // evalModule pushes an "empty" call stack frame. other places expect that first frame
     // to be ignorable, and so we push an empty frame too (otherwise things would ignore
     // this function's own frame).
     val res = withCallStack(Value.newNone(), null) { eval ->

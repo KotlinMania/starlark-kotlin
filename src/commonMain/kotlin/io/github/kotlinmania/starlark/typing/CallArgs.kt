@@ -1,4 +1,4 @@
-// port-lint: source src/typing/call_args.rs
+// port-lint: source src/typing/callArgs.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,12 +21,6 @@ package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Spanned
 
-// pub struct TyCallArgs<'a> {
-//     pub(crate) pos: Vec<Spanned<Ty>>,
-//     pub(crate) named: Vec<Spanned<(&'a str, Ty)>>,
-//     pub(crate) args: Option<Spanned<Ty>>,
-//     pub(crate) kwargs: Option<Spanned<Ty>>,
-// }
 /**
  * Function call arguments with type information.
  */

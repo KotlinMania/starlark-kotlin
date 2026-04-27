@@ -10,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.Ty
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,8 +26,7 @@ import io.github.kotlinmania.starlark.values.types.num.NumRef
 import io.github.kotlinmania.starlark.values.types.string.stringRepr
 
 /**
- * Sealed class representing the type hierarchy for float() parameter.
- * This mimics Rust's `Either<Either<NumRef, bool>, &str>` type.
+ * The accepted argument shape for `float()`: a numeric value, a boolean, or a string.
  */
 sealed class FloatParam {
     data class Num(val value: NumRef) : FloatParam()
@@ -37,10 +36,6 @@ sealed class FloatParam {
 
 /**
  * Register float-related global functions.
- *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
- * The macro in Rust generates code to register these globals; in Kotlin, we
- * implement this explicitly as a regular function.
  */
 internal fun registerFloat(globals: GlobalsBuilder) {
     /**
@@ -54,7 +49,7 @@ internal fun registerFloat(globals: GlobalsBuilder) {
      * With no arguments, `float()` returns `0.0`.
      *
      * ```
-     * # starlark::assert::all_true(r#"
+     * # starlark::assert::allTrue(r#"
      * float() == 0.0
      * float(1) == 1.0
      * float('1') == 1.0
@@ -77,7 +72,6 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         asType = Ty.float(),
         speculativeExecSafe = true,
     ) { args, eval ->
-        // #[starlark(require = pos)] a: Option<Either<Either<NumRef, bool>, &str>>
         // Get the first positional argument, or return 0.0 if absent.
         val positional = args.positionalAll()
         if (positional.isEmpty()) {
@@ -87,7 +81,6 @@ internal fun registerFloat(globals: GlobalsBuilder) {
         val v = positional.first()
 
         // Try to unpack as NumRef, Bool, or String in order.
-        // This mirrors Rust's Either<Either<NumRef, bool>, &str>.
         val asBool = v.unpackBool()
         if (asBool != null) {
             return@setFunction StarlarkFloat(if (asBool) 1.0 else 0.0).allocValue(eval.heap())

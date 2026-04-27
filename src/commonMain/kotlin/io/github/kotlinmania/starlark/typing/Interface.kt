@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,24 +22,18 @@ package io.github.kotlinmania.starlark.typing
 import io.github.kotlinmania.starlark.typing.Ty
 
 /** Interface representing the types of all bindings in a module. */
-// #[derive(Default, Dupe, Clone, Debug)]
-// pub struct Interface(Arc<HashMap<String, Ty>>);
 class Interface private constructor(
     private val bindings: Map<String, Ty>,
 ) {
-    // impl Interface
 
     companion object {
         /** Create an empty interface, with no bindings. */
-        // pub fn empty() -> Self
         fun empty(): Interface = Interface(emptyMap())
 
         /** Create a new interface with the given bindings. */
-        // pub fn new(bindings: HashMap<String, Ty>) -> Self
         fun new(bindings: Map<String, Ty>): Interface = Interface(bindings)
     }
 
     /** Get the type for a given binding. */
-    // pub fn get(&self, name: &str) -> Option<&Ty>
     fun get(name: String): Ty? = bindings[name]
 }

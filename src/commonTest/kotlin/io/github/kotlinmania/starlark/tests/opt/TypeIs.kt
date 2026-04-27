@@ -1,4 +1,4 @@
-// port-lint: source src/tests/opt/type_is.rs
+// port-lint: source src/tests/opt/typeIs.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.opt
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,11 +28,9 @@ import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.eval.compiler.InlineDefBody
 import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.test.Test
 
-// #[starlark_module]
-// fn globals(builder: &mut GlobalsBuilder)
 private fun globalsFunctions(builder: GlobalsBuilder) {
-    // fn returns_type_is<'v>(value: Value<'v>) -> anyhow::Result<bool>
     builder.setFunction("returns_type_is") { args, _ ->
         val value = args.positional<Value>(0)
         val defGen = value.downcastRef<DefGen<*>>()
@@ -45,45 +43,45 @@ private fun globalsFunctions(builder: GlobalsBuilder) {
     }
 }
 
-// #[test]
-// fn returns_type_is()
-internal fun testReturnsTypeIs() {
-    val a = Assert()
-    a.globalsAdd(::globalsFunctions)
+class TypeIsTests {
+    @Test
+    fun testReturnsTypeIs() {
+        val a = Assert()
+        a.globalsAdd(::globalsFunctions)
 
-    a.module(
-        "types.star",
-        """
-def is_list(x):
-  return type(x) == type([])
-""",
-    )
+        a.module(
+            "types.star",
+            """
+    def is_list(x):
+      return type(x) == type([])
+    """,
+        )
 
-    a.pass(
-        """
-load('types.star', 'is_list')
-assert_true(returns_type_is(is_list))
-assert_true(is_list([]))
-assert_false(is_list({}))
-""",
-    )
-}
+        a.pass(
+            """
+    load('types.star', 'is_list')
+    assert_true(returns_type_is(is_list))
+    assert_true(is_list([]))
+    assert_false(is_list({}))
+    """,
+        )
+    }
 
-// #[test]
-// fn does_not_return_type_is()
-internal fun testDoesNotReturnTypeIs() {
-    val a = Assert()
-    a.globalsAdd(::globalsFunctions)
-    a.pass(
-        """
-def is_not_list(x):
-  return type(x) != type([])
+    @Test
+    fun testDoesNotReturnTypeIs() {
+        val a = Assert()
+        a.globalsAdd(::globalsFunctions)
+        a.pass(
+            """
+    def is_not_list(x):
+      return type(x) != type([])
 
-def something_else(x, y):
-  return type(x) == type([])
+    def something_else(x, y):
+      return type(x) == type([])
 
-assert_false(returns_type_is(is_not_list))
-assert_false(returns_type_is(something_else))
-""",
-    )
+    assert_false(returns_type_is(is_not_list))
+    assert_false(returns_type_is(something_else))
+    """,
+        )
+    }
 }

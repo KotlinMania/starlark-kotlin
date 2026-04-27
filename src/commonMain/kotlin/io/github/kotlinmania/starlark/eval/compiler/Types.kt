@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -42,36 +42,23 @@ import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// #[derive(Debug, thiserror::Error)]
-// enum TypesError
 private sealed class TypesError(message: String) : Exception(message) {
-    // #[error("Identifier is not resolved (internal error)")]
     class UnresolvedIdentifier : TypesError("Identifier is not resolved (internal error)")
 
-    // #[error("Identifier is resolve as local variable (internal error)")]
     class LocalIdentifier : TypesError("Identifier is resolve as local variable (internal error)")
 
-    // #[error("Module variable is not set: `{0}`")]
     class ModuleVariableNotSet(val name: String) : TypesError("Module variable is not set: `$name`")
 
-    // #[error("Type payload not set (internal error)")]
     class TypePayloadNotSet : TypesError("Type payload not set (internal error)")
 
-    // #[error("[] can only be applied to list function in type expression")]
     class TypeIndexOnNonList : TypesError("[] can only be applied to list function in type expression")
 
-    // #[error("[,] can only be applied to dict or tuple functions in type expression")]
     class TypeIndexOnNonDictOrTuple : TypesError("[,] can only be applied to dict or tuple functions in type expression")
 }
 
-// impl<'v> Compiler<'v, '_, '_, '_>
 // Extension functions on Compiler for type expression evaluation.
 
 /** Compile expression when it is expected to be interpreted as type. */
-// pub(crate) fn expr_for_type(
-//     &mut self,
-//     expr: Option<&CstTypeExpr>,
-// ) -> Option<IrSpanned<TypeCompiled>>
 internal fun Compiler.exprForType(
     expr: Spanned<TypeExprP<CstPayload, *>>?,
 ): IrSpanned<TypeCompiled>? {
@@ -105,11 +92,6 @@ internal fun Compiler.exprForType(
 }
 
 /** We evaluated type expression to `Value`, now convert it to `FrozenValue`. */
-// fn alloc_value_for_type(
-//     &mut self,
-//     value: Value<'v>,
-//     span: Span,
-// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.allocValueForType(
     value: Value,
     span: Span,
@@ -121,7 +103,6 @@ private fun Compiler.allocValueForType(
     }
 }
 
-// fn eval_ident_in_type_expr(&mut self, ident: &CstIdent) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalIdentInTypeExpr(ident: Spanned<IdentP<CstPayload, ResolvedIdent?>>): Value {
     val identPayload = ident.node.payload
         ?: throw EvalException.newAnyhow(
@@ -152,10 +133,9 @@ private fun Compiler.evalIdentInTypeExpr(ident: Spanned<IdentP<CstPayload, Resol
 }
 
 /**
- * We may use non-frozen values as types, so we don't reuse `expr_ident` function
+ * We may import non-frozen values as types, so we don't reuse `exprIdent` function
  * which is used in normal compilation.
  */
-// fn eval_path(&mut self, path: TypePathP<CstPayload>) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalPath(path: TypePathP<CstPayload, ResolvedIdent?>): Value {
     var value = evalIdentInTypeExpr(path.first)
     for (step in path.rem) {
@@ -166,10 +146,6 @@ private fun Compiler.evalPath(path: TypePathP<CstPayload, ResolvedIdent?>): Valu
     return value
 }
 
-// fn eval_expr_as_type(
-//     &mut self,
-//     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.evalExprAsType(
     expr: Spanned<TypeExprUnpackP<CstPayload, ResolvedIdent?>>,
 ): TypeCompiled {
@@ -182,10 +158,6 @@ private fun Compiler.evalExprAsType(
  * Evaluate expression in context of typechecker.
  * It is very restricted in what it can do.
  */
-// fn eval_expr(
-//     &mut self,
-//     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-// ) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalExpr(
     expr: Spanned<TypeExprUnpackP<CstPayload, ResolvedIdent?>>,
 ): Value {
@@ -242,10 +214,6 @@ private fun Compiler.evalExpr(
     }
 }
 
-// fn populate_types_in_type_expr(
-//     &mut self,
-//     type_expr: &mut CstTypeExpr,
-// ) -> Result<(), EvalException>
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: Spanned<TypeExprP<CstPayload, *>>,
 ) {
@@ -268,10 +236,6 @@ private fun Compiler.populateTypesInTypeExpr(
     }
 }
 
-// pub(crate) fn populate_types_in_stmt(
-//     &mut self,
-//     stmt: &mut CstStmt,
-// ) -> Result<(), EvalException>
 internal fun Compiler.populateTypesInStmt(
     stmt: Spanned<StmtP<CstPayload>>,
 ) {
@@ -280,7 +244,7 @@ internal fun Compiler.populateTypesInStmt(
 
 /**
  * Visit all type expressions in this statement.
- * Port of `StmtP::visit_type_expr_err_mut` from starlark_syntax uniplate.rs.
+ * Port of `StmtP::visitTypeExprErrMut` from starlarkSyntax uniplate.rs.
  */
 internal fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
     f: (Spanned<TypeExprP<P, *>>) -> Unit,

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.deriverefs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,15 +23,11 @@ import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
-// pub enum NativeSigArg
 sealed class NativeSigArg {
     data class Required(val name: String) : NativeSigArg()
     data class Optional(val name: String) : NativeSigArg()
     data class Defaulted(val name: String, val value: FrozenValue) : NativeSigArg()
 
-    // impl NativeSigArg
-
-    // fn param(&self) -> (&str, ParametersSpecParam<FrozenValue>)
     internal fun param(): Pair<String, ParametersSpecParam<FrozenValue>> {
         return when (this) {
             is Required -> Pair(name, ParametersSpecParam.Required)
@@ -41,7 +37,6 @@ sealed class NativeSigArg {
     }
 }
 
-// pub fn parameter_spec(...)
 fun parameterSpec(
     name: String,
     posOnly: List<NativeSigArg>,
@@ -61,7 +56,6 @@ fun parameterSpec(
 }
 
 /** [ParametersSpec] for a function which accepts `&Arguments`. */
-// pub fn parameter_spec_for_arguments(name: &'static str) -> ParametersSpec<FrozenValue>
 fun parameterSpecForArguments(name: String): ParametersSpec<FrozenValue> {
     return parameterSpec(name, emptyList(), emptyList(), true, emptyList(), true)
 }

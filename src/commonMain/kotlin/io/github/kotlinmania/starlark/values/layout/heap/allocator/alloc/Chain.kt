@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpa
 /**
  * What is stored inside each node of the ChunkChain linked list.
  *
- * In Rust this is a `#[repr(C, align(8))]` struct stored at the beginning
  * of each chunk part. In Kotlin the header is a simple wrapper with
  * a reference to the previous chain node.
  */
@@ -40,7 +39,6 @@ private class ChunkChainData(
  * are reserved for the chain header ([ChunkChainData]).
  * The remaining bytes in the chunk part are available for allocation.
  *
- * In Rust, the header is written via raw pointer operations (`ptr::write`)
  * into the beginning of the chunk memory. In Kotlin, we store the header
  * as a separate reference since we don't manage raw memory.
  */

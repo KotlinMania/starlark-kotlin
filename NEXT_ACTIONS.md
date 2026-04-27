@@ -4,108 +4,166 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 81.0% (395/468 files)
-- **Matched Files:** 379
-- **Average Similarity:** 0.60
-- **Critical Issues:** 150 files with <0.60 similarity
+- **Current Progress:** 0.0% (495/468 files)
+- **Matched Files:** 0
+- **Average Similarity:** 0.00
+- **Critical Issues:** 0 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
-### 1. int.inline_int
-- **Similarity:** 0.61 (needs 24% improvement)
-- **Dependencies:** 11
-- **Priority Score:** 199.4
-- **Symbol Deficit:** 13 (functions: 10, types: 3)
-- **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
-- **Action:** Review and complete missing sections
-
-### 2. coerce
-- **Similarity:** 0.61 (needs 24% improvement)
-- **Dependencies:** 34
-- **Priority Score:** 195.1
-- **Symbol Deficit:** 11 (functions: 4, types: 7)
-- **Missing Tests:** 4 of 4 `#[test]` functions have no Kotlin counterpart
-- **Action:** Review and complete missing sections
-
-### 3. values.value_of_unchecked
-- **Similarity:** 0.77 (needs 8% improvement)
-- **Dependencies:** 20
-- **Priority Score:** 164.4
-- **Symbol Deficit:** 10 (functions: 6, types: 4)
-- **Missing Tests:** 6 of 6 `#[test]` functions have no Kotlin counterpart
-- **Action:** Minor refinements needed
-
-### 4. typing.starlark_value
-- **Similarity:** 0.72 (needs 13% improvement)
-- **Dependencies:** 76
-- **Priority Score:** 118.1
-- **Symbol Deficit:** 6 (functions: 6, types: 0)
-- **Action:** Review and complete missing sections
-
-### 5. environment.globals
-- **Similarity:** 0.80 (needs 5% improvement)
-- **Dependencies:** 20
-- **Priority Score:** 115.6
-- **Symbol Deficit:** 7 (functions: 6, types: 1)
-- **Missing Tests:** 5 of 5 `#[test]` functions have no Kotlin counterpart
-- **Action:** Minor refinements needed
-
-### 6. values.frozen_ref
-- **Similarity:** 0.70 (needs 15% improvement)
-- **Dependencies:** 27
-- **Priority Score:** 88.4
-- **Symbol Deficit:** 5 (functions: 3, types: 2)
-- **Action:** Review and complete missing sections
-
-### 7. layout.const_frozen_string
-- **Similarity:** 0.70 (needs 15% improvement)
-- **Dependencies:** 12
-- **Priority Score:** 34.1
-- **Symbol Deficit:** 2 (functions: 2, types: 0)
-- **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
-- **Action:** Review and complete missing sections
-
-### 8. util.refcell
-- **Similarity:** 0.52 (needs 33% improvement)
-- **Dependencies:** 20
-- **Priority Score:** 23.3
-- **Symbol Deficit:** 1 (functions: 1, types: 0)
-- **Missing Tests:** 1 of 1 `#[test]` functions have no Kotlin counterpart
-- **Action:** Deep review - likely missing major functionality
-
-### 9. runtime.frame_span
-- **Similarity:** 0.60 (needs 25% improvement)
-- **Dependencies:** 26
-- **Priority Score:** 23.1
-- **Symbol Deficit:** 1 (functions: 1, types: 0)
-- **Action:** Review and complete missing sections
-
-### 10. values.error
-- **Similarity:** 0.50 (needs 35% improvement)
-- **Dependencies:** 17
-- **Priority Score:** 23.0
-- **Symbol Deficit:** 1 (functions: 1, types: 0)
-- **Action:** Deep review - likely missing major functionality
+No incomplete high-dependency files detected.
 
 ## Priority 2: Port Missing High-Value Files
 
 Critical missing files (>10 dependencies):
 
-1. **assert** (84 deps)
+1. **layout.value** (178 deps)
+   - Path: `values/layout/value.rs`
+   - Essential for 178 other files
+
+2. **typing.ty** (109 deps)
+   - Path: `typing/ty.rs`
+   - Essential for 109 other files
+
+3. **assert** (84 deps)
    - Path: `assert.rs`
    - Essential for 84 other files
 
-2. **debug** (53 deps)
+4. **typing.starlark_value** (76 deps)
+   - Path: `typing/starlark_value.rs`
+   - Essential for 76 other files
+
+5. **params.display** (76 deps)
+   - Path: `eval/runtime/params/display.rs`
+   - Essential for 76 other files
+
+6. **runtime.evaluator** (55 deps)
+   - Path: `eval/runtime/evaluator.rs`
+   - Essential for 55 other files
+
+7. **debug** (53 deps)
    - Path: `debug.rs`
    - Essential for 53 other files
 
-3. **derive.unpack_value** (51 deps)
+8. **values.trace** (52 deps)
+   - Path: `values/trace.rs`
+   - Essential for 52 other files
+
+9. **derive.unpack_value** (51 deps)
    - Path: `tests/derive/unpack_value.rs`
    - Essential for 51 other files
 
-4. **types.dict** (12 deps)
+10. **values.freeze** (42 deps)
+   - Path: `values/freeze.rs`
+   - Essential for 42 other files
+
+11. **values.alloc_value** (42 deps)
+   - Path: `values/alloc_value.rs`
+   - Essential for 42 other files
+
+12. **layout.freezer** (36 deps)
+   - Path: `values/layout/freezer.rs`
+   - Essential for 36 other files
+
+13. **coerce** (34 deps)
+   - Path: `coerce.rs`
+   - Essential for 34 other files
+
+14. **compiler.span** (29 deps)
+   - Path: `eval/compiler/span.rs`
+   - Essential for 29 other files
+
+15. **values.frozen_ref** (27 deps)
+   - Path: `values/frozen_ref.rs`
+   - Essential for 27 other files
+
+16. **none.none_type** (27 deps)
+   - Path: `values/types/none/none_type.rs`
+   - Essential for 27 other files
+
+17. **runtime.frame_span** (26 deps)
+   - Path: `eval/runtime/frame_span.rs`
+   - Essential for 26 other files
+
+18. **runtime.arguments** (25 deps)
+   - Path: `eval/runtime/arguments.rs`
+   - Essential for 25 other files
+
+19. **typing.type_compiled** (22 deps)
+   - Path: `values/typing/type_compiled.rs`
+   - Essential for 22 other files
+
+20. **util.arc_str** (21 deps)
+   - Path: `util/arc_str.rs`
+   - Essential for 21 other files
+
+21. **derive.module** (20 deps)
+   - Path: `tests/derive/module.rs`
+   - Essential for 20 other files
+
+22. **environment.globals** (20 deps)
+   - Path: `environment/globals.rs`
+   - Essential for 20 other files
+
+23. **util.refcell** (20 deps)
+   - Path: `util/refcell.rs`
+   - Essential for 20 other files
+
+24. **__derive_refs.param_spec** (20 deps)
+   - Path: `__derive_refs/param_spec.rs`
+   - Essential for 20 other files
+
+25. **values.value_of_unchecked** (20 deps)
+   - Path: `values/value_of_unchecked.rs`
+   - Essential for 20 other files
+
+26. **values.error** (17 deps)
+   - Path: `values/error.rs`
+   - Essential for 17 other files
+
+27. **environment.methods** (17 deps)
+   - Path: `environment/methods.rs`
+   - Essential for 17 other files
+
+28. **values.iter** (17 deps)
+   - Path: `values/iter.rs`
+   - Essential for 17 other files
+
+29. **collections.symbol** (15 deps)
+   - Path: `collections/symbol.rs`
+   - Essential for 15 other files
+
+30. **private** (15 deps)
+   - Path: `private.rs`
+   - Essential for 15 other files
+
+31. **layout.avalue** (14 deps)
+   - Path: `values/layout/avalue.rs`
+   - Essential for 14 other files
+
+32. **typing.tuple** (12 deps)
+   - Path: `typing/tuple.rs`
+   - Essential for 12 other files
+
+33. **layout.value_lifetimeless** (12 deps)
+   - Path: `values/layout/value_lifetimeless.rs`
+   - Essential for 12 other files
+
+34. **layout.const_frozen_string** (12 deps)
+   - Path: `values/layout/const_frozen_string.rs`
+   - Essential for 12 other files
+
+35. **types.dict** (12 deps)
    - Path: `values/types/dict.rs`
    - Essential for 12 other files
+
+36. **int.inline_int** (11 deps)
+   - Path: `values/types/int/inline_int.rs`
+   - Essential for 11 other files
+
+## Detailed Work Items
+
+Every matched file is listed below with function and type symbol parity.
 
 ## Success Criteria
 
@@ -128,15 +186,15 @@ cd tools/ast_distance
 ```
 ## Reexport / Wiring Modules
 
-These files match patterns in `ast_distance.config.json` (`reexport_modules`) and are excluded from the priority and
-missing ladders above. They are typically declarations-only
-(`pub mod foo; pub use bar::*;`) and should NOT be transliterated
-directly. **Consult them when porting** — they tell you which
-submodule a caller actually resolves to in the Rust source.
+These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
+normal priority and missing-file ladders because they are wiring
+modules, not direct logic ports. Consult them for call-site routing;
+do not treat them as the next implementation target by default.
 
-### Untracked (no matching Kotlin file)
+### Missing
 
 | Source | Deps | Path |
 |--------|------|------|
 | `layout.heap` | 109 | `values/layout/heap.rs` |
+| `lib` | 0 | `lib.rs` |
 

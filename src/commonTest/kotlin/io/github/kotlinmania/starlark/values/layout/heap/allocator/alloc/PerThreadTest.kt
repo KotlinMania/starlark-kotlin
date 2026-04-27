@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/per_thread.rs
+// port-lint: source src/values/layout/heap/allocator/alloc/perThread.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 
 class PerThreadTest {
 
-    /// AValueHeader::ALIGN = 8 in Rust
+    /** AValueHeader::ALIGN = 8 in Rust */
     private val ALIGN = 8
 
     @Test

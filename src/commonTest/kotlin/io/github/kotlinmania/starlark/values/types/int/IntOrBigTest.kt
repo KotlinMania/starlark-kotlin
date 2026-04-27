@@ -1,5 +1,4 @@
-// port-lint: source src/values/types/int/int_or_big.rs (tests)
-package io.github.kotlinmania.starlark.values.types.int
+// port-lint: source tests:src/values/types/int/intOrBig.rspackage io.github.kotlinmania.starlark.values.types.int
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values.types.int
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,16 +21,12 @@ package io.github.kotlinmania.starlark.values.types.int
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// #[cfg(test)]
-// mod tests
 class IntOrBigTest {
 
-    // fn int(s: &str) -> StarlarkInt
     private fun int(s: String): StarlarkInt {
         return StarlarkInt.fromStrRadix(s, 10).getOrThrow()
     }
 
-    // fn floor_div(a: &str, b: &str) -> String
     private fun floorDiv(a: String, b: String): String {
         return int(a)
             .asRef()
@@ -40,7 +35,6 @@ class IntOrBigTest {
             .toString()
     }
 
-    // fn percent(a: &str, b: &str) -> String
     private fun percent(a: String, b: String): String {
         return int(a)
             .asRef()
@@ -49,8 +43,6 @@ class IntOrBigTest {
             .toString()
     }
 
-    // #[test]
-    // fn test_floor_div_big()
     @Test
     fun testFloorDivBig() {
         assertEquals(
@@ -71,8 +63,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
-    // fn test_floor_div_big_small()
     @Test
     fun testFloorDivBigSmall() {
         assertEquals(
@@ -93,8 +83,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
-    // fn test_floor_div_small_big()
     @Test
     fun testFloorDivSmallBig() {
         assertEquals("0", floorDiv("3", "600000000000000000000"))
@@ -103,8 +91,6 @@ class IntOrBigTest {
         assertEquals("-1", floorDiv("-3", "600000000000000000000"))
     }
 
-    // #[test]
-    // fn test_floor_div_small()
     @Test
     fun testFloorDivSmall() {
         assertEquals("4", floorDiv("13", "3"))
@@ -113,8 +99,6 @@ class IntOrBigTest {
         assertEquals("4", floorDiv("-13", "-3"))
     }
 
-    // #[test]
-    // fn test_percent_big()
     @Test
     fun testPercentBig() {
         assertEquals(
@@ -135,8 +119,6 @@ class IntOrBigTest {
         )
     }
 
-    // #[test]
-    // fn test_percent_big_small()
     @Test
     fun testPercentBigSmall() {
         assertEquals("7", percent("600000000000000000007", "20"))
@@ -145,8 +127,6 @@ class IntOrBigTest {
         assertEquals("-7", percent("-600000000000000000007", "-20"))
     }
 
-    // #[test]
-    // fn test_percent_small_big()
     @Test
     fun testPercentSmallBig() {
         assertEquals("3", percent("3", "600000000000000000001"))
@@ -161,8 +141,6 @@ class IntOrBigTest {
         assertEquals("-3", percent("-3", "-600000000000000000001"))
     }
 
-    // #[test]
-    // fn test_percent_small()
     @Test
     fun testPercentSmall() {
         assertEquals("2", percent("5", "3"))

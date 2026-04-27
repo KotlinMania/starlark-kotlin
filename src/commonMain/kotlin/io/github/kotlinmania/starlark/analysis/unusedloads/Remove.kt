@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/unused_loads/remove.rs
+// port-lint: source src/analysis/unusedLoads/remove.rs
 package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis.unusedloads
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.codemap.Span
 /**
  * Helper for building the output string with span-based skipping.
  *
- * struct Out<'a> { codemap: &'a CodeMap, out: String, pos: Pos }
  */
 private class Out(
     val codemap: CodeMap,
@@ -34,7 +33,6 @@ private class Out(
     var pos: Pos = Pos(0),
 ) {
     /**
-     * fn append_to(&mut self, pos: Pos)
      *
      * Append source text from current position up to [pos], then advance.
      */
@@ -46,7 +44,6 @@ private class Out(
     }
 
     /**
-     * fn skip_to(&mut self, pos: Pos)
      *
      * Advance the current position to [pos] without appending.
      */
@@ -59,7 +56,6 @@ private class Out(
     /**
      * Append to the beginning of the span, and set the position to the end of the span.
      *
-     * fn skip_span(&mut self, span: Span)
      */
     fun skipSpan(span: Span) {
         appendTo(span.begin)
@@ -70,7 +66,6 @@ private class Out(
 /**
  * Return `null` if there are no unused loads.
  *
- * pub fn remove_unused_loads(name: &str, program: &str) -> crate::Result<Option<String>>
  */
 fun removeUnusedLoads(name: String, program: String): Result<String?> {
     val (codemap, unusedLoads) = findUnusedLoads(name, program).getOrElse {

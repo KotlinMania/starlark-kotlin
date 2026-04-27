@@ -1,4 +1,4 @@
-// port-lint: source src/values/alloc_value.rs
+// port-lint: source src/values/allocValue.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -79,13 +79,10 @@ interface AllocStringValue : AllocValue {
     fun allocStringValue(heap: Heap): StringValue
 }
 
-// impl AllocValue for FrozenValue
 fun FrozenValue.allocValue(heap: Heap): Value = toValue()
 
-// impl AllocValue for Value
 fun Value.allocValue(heap: Heap): Value = this
 
-// impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
 fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
     when (this) {
         is Either.Left -> value.allocValue(heap)
@@ -117,10 +114,8 @@ interface AllocFrozenStringValue : AllocFrozenValue {
     fun allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue
 }
 
-// impl AllocFrozenValue for FrozenValue
 fun FrozenValue.allocFrozenValue(heap: FrozenHeap): FrozenValue = this
 
-// impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
 fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is Either.Left -> value.allocFrozenValue(heap)

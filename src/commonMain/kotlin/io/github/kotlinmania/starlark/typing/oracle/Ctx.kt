@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.values.types.list.ListType
 //   - MutableDict (crate::values::dict::value::MutableDict)
 //   - Tuple (crate::values::tuple::value::Tuple)
 //   - MutableSet (crate::values::set::value::MutableSet)
-// These are used in Rust as type parameters to TyStarlarkValue::new::<T>().
 // In the Kotlin port, TyStarlarkValue provides named factory methods instead:
 //   TyStarlarkValue.list(), .dict(), .tuple(), .set()
 
@@ -40,7 +39,7 @@ import io.github.kotlinmania.starlark.values.types.list.ListType
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0

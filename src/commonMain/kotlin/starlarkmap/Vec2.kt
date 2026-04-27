@@ -7,7 +7,7 @@ package starlarkmap.vec2
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,6 @@ package starlarkmap.vec2
 /**
  * A `List<Pair<A, B>>`-like object which stores `A` and `B` separately.
  *
- * The Rust implementation uses a single allocation to store both arrays to reduce padding.
  * Kotlin commonMain does not provide low-level allocation APIs, so this port preserves the
  * same observable behaviour using two parallel [ArrayList]s.
  */

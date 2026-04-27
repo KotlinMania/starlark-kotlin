@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,8 +33,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 
 /** A value or an unbound method or unbound attribute. */
-// #[derive(Clone)]
-// pub(crate) enum UnboundValue
 internal sealed class UnboundValue {
     /** A method with `this` unbound. */
     // Method(FrozenValueTyped<'static, NativeMethod>)
@@ -44,10 +42,8 @@ internal sealed class UnboundValue {
     // Attr(FrozenValueTyped<'static, NativeAttribute>)
     class Attr(val attr: FrozenValueTyped<NativeAttribute>) : UnboundValue()
 
-    // impl Debug for UnboundValue
     override fun toString(): String = "MaybeUnboundValue(..)"
 
-    // pub(crate) fn to_frozen_value(&self) -> FrozenValue
     fun toFrozenValue(): FrozenValue {
         return when (this) {
             is Method -> method.toFrozenValue()
@@ -56,7 +52,6 @@ internal sealed class UnboundValue {
     }
 
     /** Bind this object to given `this` value. */
-    // pub(crate) fn bind<'v>(&self, this: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bind(thisValue: Value, heap: Heap): Result<Value> {
         return when (this) {
             is Method -> Result.success(heap.allocComplex(BoundMethodGen(method, thisValue.toValue())))
@@ -64,7 +59,6 @@ internal sealed class UnboundValue {
         }
     }
 
-    // pub(crate) fn invoke_method<'v>(...)
     fun invokeMethod(
         thisValue: Value,
         span: FrozenRef<FrameSpan>,

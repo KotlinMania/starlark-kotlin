@@ -1,4 +1,4 @@
-// port-lint: source src/errors/did_you_mean.rs
+// port-lint: source src/errors/didYouMean.rs
 package io.github.kotlinmania.starlark.errors
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.errors
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,10 +19,8 @@ package io.github.kotlinmania.starlark.errors
  * limitations under the License.
  */
 
-//! Spelling suggestions.
+/** Spelling suggestions. */
 
-// use strsim::levenshtein;
-// Kotlin: inline Levenshtein distance (replaces strsim crate).
 private fun levenshtein(a: String, b: String): Int {
     val m = a.length
     val n = b.length
@@ -45,70 +43,21 @@ private fun levenshtein(a: String, b: String): Int {
     return dp[m][n]
 }
 
-/// Find a suggestion for a typo.
-// pub(crate) fn did_you_mean<'a>(
-//     value: &str,
-//     variants: impl IntoIterator<Item = &'a str>,
-// ) -> Option<&'a str>
+/** Find a suggestion for a typo. */
 internal fun didYouMean(value: String, variants: Iterable<String>): String? {
     if (value.isEmpty()) {
         return null
     }
 
     val maxDist = if (value.length <= 2) {
-        // we don't want to suggest "cd" for "a"
         1
     } else {
         2
     }
 
-    // variants
-    //     .into_iter()
-    //     .map(|v| (v, levenshtein(value, v)))
-    //     .filter(|(_, dist)| *dist <= max_dist)
-    //     .min_by_key(|(_v, sim)| *sim)
-    //     .map(|(v, _)| v)
     return variants
         .map { v -> Pair(v, levenshtein(value, v)) }
         .filter { (_, dist) -> dist <= maxDist }
         .minByOrNull { (_, dist) -> dist }
         ?.first
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use crate::errors::did_you_mean::did_you_mean;
-//
-//     #[test]
-//     fn prefixes() {
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_librar", vec!["cxx_library"]));
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_libra", vec!["cxx_library"]));
-//         assert_eq!(None, did_you_mean("cxx_libr", vec!["cxx_library"]));
-//     }
-//
-//     #[test]
-//     fn typos() {
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_librarx", vec!["cxx_library"]));
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_libraxx", vec!["cxx_library"]));
-//         assert_eq!(None, did_you_mean("cxx_librxxx", vec!["cxx_library"]));
-//     }
-//
-//     #[test]
-//     fn best() {
-//         assert_eq!(Some("abc"), did_you_mean("abx", vec!["abc", "abcd"]));
-//     }
-//
-//     #[test]
-//     fn very_short() {
-//         assert_eq!(Some("a"), did_you_mean("b", vec!["a"]));
-//         assert_eq!(Some("ab"), did_you_mean("b", vec!["ab"]));
-//         assert_eq!(None, did_you_mean("b", vec!["cd"]));
-//         assert_eq!(None, did_you_mean("bc", vec!["de"]));
-//     }
-//
-//     #[test]
-//     fn earlier_variants_are_more_important() {
-//         assert_eq!(Some("aaaay"), did_you_mean("aaaax", vec!["aaaay", "aaaaz"]));
-//         assert_eq!(Some("aaaaz"), did_you_mean("aaaax", vec!["aaaaz", "aaaay"]));
-//     }
-// }

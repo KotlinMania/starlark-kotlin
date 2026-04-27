@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -39,42 +39,31 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.types.allocAny
 
-// fn array_avalue<'v>(cap: u32) -> AValueImpl<...>
 private fun arrayAvalue(cap: UInt): AValueImpl<AValueArray> {
     return AValueImpl.new(Array.new(0, cap.toInt()))
 }
 
-// fn any_array_avalue<T: Debug + 'static>(cap: usize) -> AValueImpl<...>
 private fun <T> anyArrayAvalue(cap: Int): AValueImpl<AValueAnyArray<T>> {
     return AValueImpl.new(AnyArray.new<T>(cap))
 }
 
 /** AValue implementation for Array (mutable, variable-length content backed by capacity). */
-// struct AValueArray;
-// impl<'v> AValue<'v> for AValueArray
 internal object AValueArray : AValue {
-    // type StarlarkValue = Array<'v>;
-    // type ExtraElem = Value<'v>;
 
-    // fn extra_len(value: &Array<'v>) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         // Note we return capacity, not length here.
         return (value as Array).capacity()
     }
 
-    // fn offset_of_extra() -> usize
     // Kotlin: no C repr layout, not applicable.
     override fun offsetOfExtra(): Int = 0
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
     override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("arrays should not be frozen")
     }
 
-    // unsafe fn heap_copy(me: *mut AValueRepr<Self::StarlarkValue>, tracer: &Tracer<'v>) -> Value<'v>
     override fun heapCopy(tracer: Tracer): Value {
         val array = unpack() as Array
         check(array.capacity() != 0) { "empty array is allocated statically" }
@@ -103,30 +92,21 @@ internal object AValueArray : AValue {
 }
 
 /** AValue implementation for AnyArray (typed frozen-heap-only array). */
-// pub(crate) struct AValueAnyArray<T>(PhantomData<T>);
-// impl<'v, T: Debug + 'static> AValue<'v> for AValueAnyArray<T>
 internal class AValueAnyArray<T> : AValue {
-    // type StarlarkValue = AnyArray<T>;
-    // type ExtraElem = T;
 
-    // fn extra_len(value: &AnyArray<T>) -> usize
     override fun extraLen(value: StarlarkValue): Int {
         return (value as AnyArray<*>).len
     }
 
-    // fn offset_of_extra() -> usize
     // Kotlin: no C repr layout, not applicable.
     override fun offsetOfExtra(): Int = 0
 
-    // fn alloc_size_for_extra_len(extra_len: usize) -> ValueAllocSize
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
-    // unsafe fn heap_freeze(...) -> Result<FrozenValue>
     override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
-    // unsafe fn heap_copy(...) -> Value<'v>
     override fun heapCopy(_tracer: Tracer): Value {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
@@ -134,9 +114,6 @@ internal class AValueAnyArray<T> : AValue {
     override fun unpack(): StarlarkValue = AnyArray.new<Any>(0)
 }
 
-// impl FrozenHeap
-
-// fn do_alloc_any_slice<T: Debug + Send + Sync + Clone>(&self, values: &[T]) -> FrozenRef<'static, [T]>
 private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> {
     val anyArray = AnyArray.new<T>(values.size)
     for (v in values) {
@@ -146,7 +123,6 @@ private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> 
 }
 
 /** Allocate a slice in the frozen heap. */
-// pub(crate) fn alloc_any_slice<T: Debug + Send + Sync + Clone>(&self, values: &[T]) -> FrozenRef<'static, [T]>
 fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
     if (values.isEmpty()) {
         return FrozenRef(emptyList())
@@ -158,9 +134,6 @@ fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
     }
 }
 
-// impl<'v> Heap<'v>
-
-// pub(crate) fn alloc_array(self, cap: usize) -> ValueTyped<'v, Array<'v>>
 internal fun Heap.allocArray(cap: Int): ValueTyped<Array> {
     if (cap == 0) {
         return ValueEmptyArray.unpack().toValueTyped()

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -48,7 +48,6 @@ import io.github.kotlinmania.starlark.eval.bc.compiler.def.markDefinitelyAssigne
 import io.github.kotlinmania.starlark.eval.bc.compiler.def.writeBc as defWriteBc
 
 /** Try extract consecutive definitely initialized locals from expressions. */
-// fn try_slot_range(exprs, bc) -> Option<BcSlotInRange>
 private fun trySlotRange(
     exprs: Iterable<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -65,7 +64,6 @@ private fun trySlotRange(
 }
 
 /** Compile several expressions into consecutive registers. */
-// pub(crate) fn write_exprs(exprs, bc, k)
 internal fun writeExprs(
     exprs: Iterable<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -85,7 +83,6 @@ internal fun writeExprs(
     }
 }
 
-// pub(crate) fn write_expr_opt(expr, bc, k)
 internal fun writeExprOpt(
     expr: IrSpanned<ExprCompiled>?,
     bc: BcWriter,
@@ -98,7 +95,6 @@ internal fun writeExprOpt(
     }
 }
 
-// pub(crate) fn write_n_exprs<const N: usize>(exprs, bc, k)
 internal fun writeNExprs(
     exprs: List<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -125,7 +121,18 @@ internal fun writeNExprs(
     help(mutableListOf(), exprs, bc, k)
 }
 
-// impl ExprCompiled { pub(crate) fn mark_definitely_assigned_after(&self, bc) }
+/**
+ * Mark variables which are definitely assigned after execution of this expression.
+ *
+ * For example, when this expression if executed:
+ *
+ * ```python
+ * t if c else f
+ * ```
+ *
+ * `c` is definitely assigned (because if it is not, then execution fails),
+ * but we don't know about `t` or `f` because one of them was not executed.
+ */
 internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is ExprCompiled.ValueExpr -> {}
@@ -150,7 +157,7 @@ internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
         }
         is ExprCompiled.Compr -> compr.markDefinitelyAssignedAfterCompr(bc)
         is ExprCompiled.If -> {
-            // Condition is executed unconditionally, so we use it to mark definitely assigned.
+            // Condition is executed unconditionally, so we import it to mark definitely assigned.
             // But we don't know which of the branches will be executed.
             cond.node.markDefinitelyAssignedAfter(bc)
         }
@@ -186,12 +193,11 @@ internal fun ExprCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     }
 }
 
-// Helper: IrSpanned<ExprCompiled>::mark_definitely_assigned_after
+// Helper: IrSpanned<ExprCompiled>::markDefinitelyAssignedAfter
 internal fun IrSpanned<ExprCompiled>.markDefinitelyAssignedAfter(bc: BcWriter) {
     this.node.markDefinitelyAssignedAfter(bc)
 }
 
-// fn try_dict_of_consts(xs) -> Option<SmallMap<FrozenValue, FrozenValue>>
 private fun tryDictOfConsts(
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
 ): SmallMap<FrozenValue, FrozenValue>? {
@@ -211,7 +217,6 @@ private fun tryDictOfConsts(
     return res
 }
 
-// fn try_dict_const_keys(xs) -> Option<Box<[Hashed<FrozenValue>]>>
 private fun tryDictConstKeys(
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
 ): List<Hashed<FrozenValue>>? {
@@ -231,7 +236,6 @@ private fun tryDictConstKeys(
     return keys
 }
 
-// fn write_dict(span, xs, target, bc)
 private fun writeDict(
     span: FrameSpan,
     xs: List<Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>>,
@@ -270,7 +274,6 @@ private fun writeDict(
     }
 }
 
-// fn write_not(expr, target, bc)
 private fun writeNot(
     expr: IrSpanned<ExprCompiled>,
     target: BcSlotOut,
@@ -281,7 +284,6 @@ private fun writeNot(
     }
 }
 
-// fn write_equals_const(span, a, b, target, bc)
 private fun writeEqualsConst(
     span: FrameSpan,
     a: IrSpanned<ExprCompiled>,
@@ -311,7 +313,6 @@ private fun writeEqualsConst(
     }
 }
 
-// fn write_equals(span, a, b, target, bc)
 private fun writeEquals(
     span: FrameSpan,
     a: IrSpanned<ExprCompiled>,
@@ -332,7 +333,6 @@ private fun writeEquals(
     }
 }
 
-// impl IrSpanned<ExprCompiled> { pub(crate) fn write_bc(&self, target, bc) }
 internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
     val span = this.span
     when (val expr = this.node) {
@@ -491,7 +491,6 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
  * Allocate temporary slot, write expression into it,
  * and then consume the slot with the callback.
  */
-// pub(crate) fn write_bc_cb(&self, bc, k) -> R
 internal fun <R> IrSpanned<ExprCompiled>.writeBcCb(
     bc: BcWriter,
     k: (BcSlotIn, BcWriter) -> R,
@@ -512,7 +511,6 @@ internal fun <R> IrSpanned<ExprCompiled>.writeBcCb(
     }
 }
 
-// pub(crate) fn write_bc_for_effect(&self, bc)
 internal fun IrSpanned<ExprCompiled>.writeBcForEffect(bc: BcWriter) {
     this.writeBcCb(bc) { _, _ -> }
 }

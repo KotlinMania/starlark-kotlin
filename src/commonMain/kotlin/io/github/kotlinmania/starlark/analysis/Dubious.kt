@@ -19,7 +19,7 @@ import io.github.kotlinmania.starlark.syntax.AstModule
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -92,7 +92,6 @@ private fun toKey(x: Spanned<ExprP<*>>): Pair<DubiousKey, Span>? {
                     // make an integer float always collide with other ints
                     DubiousKey.IntKey(StarlarkInt.from(asInt)) to lit.value.span
                 } else {
-                    // use bits representation of float to be able to always compare them for equality
                     // First normalise -0.0
                     val v = if (lit.value.node == 0.0) 0.0 else lit.value.node
                     DubiousKey.FloatKey(v.toBits()) to lit.value.span

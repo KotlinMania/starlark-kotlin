@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -18,31 +18,6 @@ package io.github.kotlinmania.starlark.analysis
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// use std::collections::HashMap;
-// use std::collections::HashSet;
-
-// use maplit::hashmap;
-// use once_cell::sync::Lazy;
-// use starlark_syntax::syntax::ast::AssignTargetP<AstNoPayload>;
-// use starlark_syntax::syntax::ast::Spanned<AssignIdentP<AstNoPayload, Unit>>;
-// use starlark_syntax::syntax::ast::Spanned<ExprP<AstNoPayload>>;
-// use starlark_syntax::syntax::ast::Spanned<StmtP<AstNoPayload>>;
-// use starlark_syntax::syntax::ast::BinOp;
-// use starlark_syntax::syntax::ast::DefP;
-// use starlark_syntax::syntax::ast::ExprP<AstNoPayload>;
-// use starlark_syntax::syntax::ast::LoadArgP;
-// use starlark_syntax::syntax::ast::StmtP<AstNoPayload>;
-// use starlark_syntax::syntax::module::AstModuleFields;
-// use thiserror::Error;
-
-// use crate::analysis::EvalSeverity;
-// use crate::analysis::types::LintT;
-// use crate::analysis::types::LintWarning;
-// use crate::codemap::CodeMap;
-// use crate::codemap::FileSpan;
-// use crate::codemap::Span;
-// use crate::syntax::AstModule;
 
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.FileSpan
@@ -57,13 +32,6 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
-// #[derive(Error, Debug)]
-// pub(crate) enum Incompatibility {
-//     #[error("Type check `{0}` should be written `{1}`")]
-//     IncompatibleTypeCheck(String, String),
-//     #[error("Duplicate top-level assignment of `{0}`, first defined at {1}")]
-//     DuplicateTopLevelAssign(String, FileSpan),
-// }
 sealed class Incompatibility : LintWarning {
     /** Type check should be written differently. */
     data class IncompatibleTypeCheck(
@@ -83,17 +51,10 @@ sealed class Incompatibility : LintWarning {
             "Duplicate top-level assignment of `$name`, first defined at $firstDefined"
     }
 
-    // impl LintWarning for Incompatibility {
-    //     fn severity(&self) -> EvalSeverity {
-    //         EvalSeverity::Warning
-    //     }
     override fun severity(): EvalSeverity {
         return EvalSeverity.Warning
     }
 
-    //     fn short_name(&self) -> &'static str {
-    //         match self { ... }
-    //     }
     override fun shortName(): String {
         return when (this) {
             is IncompatibleTypeCheck -> "incompatible-type-check"
@@ -102,7 +63,6 @@ sealed class Incompatibility : LintWarning {
     }
 }
 
-// static TYPES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| { ... });
 private val TYPES: Map<String, String> = mapOf(
     "bool" to "True",
     "tuple" to "()",
@@ -112,11 +72,7 @@ private val TYPES: Map<String, String> = mapOf(
 )
 
 // --- Visitor helpers ---
-// Rust has visit_stmt / visit_expr / visit_lvalue as methods on the AST types
-// in starlark_syntax. In Kotlin, these are not on the types, so we implement
-// them as local extension functions.
-
-// visit_stmt helper: visit immediate child statements
+// visitStmt helper: visit immediate child statements
 private fun Spanned<StmtP<AstNoPayload>>.visitStmt(visitor: (Spanned<StmtP<AstNoPayload>>) -> Unit) {
     when (val s = this.node) {
         is StmtP.Statements -> s.stmts.forEach(visitor)
@@ -125,7 +81,7 @@ private fun Spanned<StmtP<AstNoPayload>>.visitStmt(visitor: (Spanned<StmtP<AstNo
     }
 }
 
-// visit_expr helper: visit immediate child expressions in a statement
+// visitExpr helper: visit immediate child expressions in a statement
 private fun Spanned<StmtP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (val s = this.node) {
         is StmtP.Expression -> visitor(s.expr)
@@ -137,7 +93,7 @@ private fun Spanned<StmtP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNo
     }
 }
 
-// visit_expr helper for expressions: visit immediate child expressions
+// visitExpr helper for expressions: visit immediate child expressions
 private fun Spanned<ExprP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (val e = this.node) {
         is ExprP.Call -> {
@@ -154,7 +110,7 @@ private fun Spanned<ExprP<AstNoPayload>>.visitExpr(visitor: (Spanned<ExprP<AstNo
     }
 }
 
-// visit_lvalue helper: visit all identifier lvalues in an assignment target
+// visitLvalue helper: visit all identifier lvalues in an assignment target
 private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, *>>) -> Unit) {
     when (val t = this.node) {
         is AssignTargetP.Identifier<AstNoPayload, *> -> visitor(t.ident)
@@ -163,7 +119,6 @@ private fun Spanned<AssignTargetP<AstNoPayload>>.visitLvalue(visitor: (Spanned<A
     }
 }
 
-// fn lookup_type<'a>(x: &Spanned<ExprP<AstNoPayload>>, types: &HashMap<&str, &'a str>) -> Option<&'a str>
 private fun lookupType(x: Spanned<ExprP<AstNoPayload>>, types: Map<String, String>): String? {
     return when (val e = x.node) {
         is ExprP.Identifier<AstNoPayload, *> -> types[e.ident.node.ident]
@@ -172,7 +127,6 @@ private fun lookupType(x: Spanned<ExprP<AstNoPayload>>, types: Map<String, Strin
 }
 
 // Return true if this expression matches `type($x)`
-// fn is_type_call(x: &Spanned<ExprP<AstNoPayload>>) -> bool
 private fun isTypeCall(x: Spanned<ExprP<AstNoPayload>>): Boolean {
     return when (val e = x.node) {
         is ExprP.Call<AstNoPayload> -> {
@@ -187,7 +141,6 @@ private fun isTypeCall(x: Spanned<ExprP<AstNoPayload>>): Boolean {
     }
 }
 
-// fn match_bad_type_equality(...)
 private fun matchBadTypeEquality(
     codemap: CodeMap,
     x: Spanned<ExprP<AstNoPayload>>,
@@ -217,7 +170,6 @@ private fun matchBadTypeEquality(
     }
 }
 
-// fn bad_type_equality(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
 private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
     fun check(
@@ -235,10 +187,9 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-// fn duplicate_top_level_assignment(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
 private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
-    val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, is_load))
-    val exported = HashSet<String>() // name's already exported by is_load
+    val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, isLoad))
+    val exported = HashSet<String>() // name's already exported by isLoad
 
     fun ident(
         x: Spanned<AssignIdentP<AstNoPayload, *>>,
@@ -290,11 +241,9 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
                 s.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
             }
             is StmtP.Def<AstNoPayload, *> -> {
-                // StmtP<AstNoPayload>::Def(DefP { name, .. }) => ident(name, false, codemap, defined, res),
                 ident(s.def.name, false, codemap, defined, res)
             }
             is StmtP.Load<AstNoPayload, *> -> {
-                // for LoadArgP { local, .. } in &load.args { ident(local, true, ...) }
                 for (arg in s.loadStmt.args) {
                     ident(arg.local, true, codemap, defined, res)
                 }
@@ -314,7 +263,6 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
 }
 
 /** Lint an AST module for incompatibilities. */
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Incompatibility>>
 internal fun incompatibleLint(module: AstModule): List<LintT<Incompatibility>> {
     val res = mutableListOf<LintT<Incompatibility>>()
     badTypeEquality(module, res)

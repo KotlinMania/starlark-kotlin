@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.string
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.types.string
 /**
  * Fixed length byte vector API.
  *
- * Note: In Rust this trait requires `Copy`, which allows passing by value.
  * In Kotlin, we model this as a value-like interface. Implementations should
  * be lightweight and efficiently copyable.
  */
@@ -82,7 +81,7 @@ internal interface SwitchHaveSimd<R> {
      * Call either [simd] or [noSimd] function.
      */
     fun switch(): R {
-        // Any x86_64 supports SSE2.
+        // Any x8664 supports SSE2.
         // In Kotlin Multiplatform, we don't currently have SIMD support,
         // so this always falls back to noSimd().
         // Platform-specific implementations can override this via expect/actual.
@@ -93,8 +92,7 @@ internal interface SwitchHaveSimd<R> {
 /**
  * Implementation of [SwitchHaveSimd.switch].
  *
- * The Rust version checks for SSE2 support at compile time and dispatches
- * to the appropriate implementation. In Kotlin, we always use the non-SIMD path.
+ * to the appropriate implementation. In Kotlin, we always import the non-SIMD path.
  */
 internal fun <R> SwitchHaveSimd<R>.switchImpl(): R {
     return noSimd()

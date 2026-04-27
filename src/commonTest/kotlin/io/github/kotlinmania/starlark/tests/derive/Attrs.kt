@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,88 +30,84 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import kotlin.test.Test
 
-// #[test]
-// fn test_derive_attrs()
-internal fun testDeriveAttrs() {
-    // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
-    // struct Nested { foo: String }
-    class Nested(val foo: String) : StarlarkValue, AllocFrozenValue {
-        // #[starlark_value(type = "nested")]
-        override val TYPE: String get() = "nested"
-        override fun toString(): String = foo
+class AttrsTests {
+    @Test
+    fun testDeriveAttrs() {
+        class Nested(val foo: String) : StarlarkValue, AllocFrozenValue {
+            override val TYPE: String get() = "nested"
+            override fun toString(): String = foo
 
-        override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
-            "foo" -> heap.allocStr(foo).toValue()
-            else -> null
+            override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
+                "foo" -> heap.allocStr(foo).toValue()
+                else -> null
+            }
+
+            override fun dirAttr(): List<String> = listOf("foo")
+
+            override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+            override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
         }
 
-        override fun dirAttr(): List<String> = listOf("foo")
+        class Example(
+            val hello: String,
+            @Suppress("unused") val answer: Long, // (starlark(skip))
+            val nested: Nested, // (starlark(clone))
+            val type_: Long, // r#type
+            val escaped: String, // r#escaped
+        ) : StarlarkValue, AllocFrozenValue {
+            override val TYPE: String get() = "example"
+            override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, type_=$type_, escaped=$escaped)"
 
-        override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
-        override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
-    }
+            // starlarkAttrs()
+            override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
+                "hello" -> heap.allocStr(hello).toValue()
+                "nested" -> heap.allocSimple(nested)
+                "type" -> type_.allocValue(heap)
+                "escaped" -> heap.allocStr(escaped).toValue()
+                else -> null
+            }
 
-    // #[derive(Debug, StarlarkAttrs, Display, ProvidesStaticType, NoSerialize, Allocative)]
-    // struct Example { hello: String, answer: i64, nested: Nested, type: i64, escaped: String }
-    class Example(
-        val hello: String,
-        @Suppress("unused") val answer: Long, // #[starlark(skip)]
-        val nested: Nested, // #[starlark(clone)]
-        val type_: Long, // r#type
-        val escaped: String, // r#escaped
-    ) : StarlarkValue, AllocFrozenValue {
-        // #[starlark_value(type = "example")]
-        override val TYPE: String get() = "example"
-        override fun toString(): String = "Example(hello=$hello, answer=$answer, nested=$nested, type_=$type_, escaped=$escaped)"
+            override fun dirAttr(): List<String> = listOf("escaped", "hello", "nested", "type")
 
-        // starlark_attrs!()
-        override fun getAttr(attribute: String, heap: Heap): Value? = when (attribute) {
-            "hello" -> heap.allocStr(hello).toValue()
-            "nested" -> heap.allocSimple(nested)
-            "type" -> type_.allocValue(heap)
-            "escaped" -> heap.allocStr(escaped).toValue()
-            else -> null
+            override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+            override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
         }
 
-        override fun dirAttr(): List<String> = listOf("escaped", "hello", "nested", "type")
+        val a = Assert()
+        a.globalsAdd { gb ->
+            gb.set(
+                "example",
+                Example(
+                    hello = "world",
+                    answer = 42,
+                    nested = Nested(foo = "bar"),
+                    type_ = 1,
+                    escaped = "baz",
+                ),
+            )
+        }
 
-        override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
-        override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
-    }
-
-    val a = Assert()
-    a.globalsAdd { gb ->
-        gb.set(
-            "example",
-            Example(
-                hello = "world",
-                answer = 42,
-                nested = Nested(foo = "bar"),
-                type_ = 1,
-                escaped = "baz",
-            ),
+        // dir
+        a.eq(
+            "dir(example)",
+            """["escaped", "hello", "nested", "type"]""",
         )
+
+        // getattr
+        a.eq("example.hello", "\"world\"")
+        a.eq("example.nested.foo", "\"bar\"")
+        a.eq("example.type", "1")
+        a.eq("example.escaped", "\"baz\"")
+
+        // hasattr
+        a.isTrue("not hasattr(example, \"answer\")")
+        a.isTrue("hasattr(example, \"hello\")")
+        a.isTrue("hasattr(example, \"nested\")")
+        a.isTrue("hasattr(example, \"type\")")
+        a.isTrue("not hasattr(example, \"r#type\")")
+        a.isTrue("hasattr(example, \"escaped\")")
+        a.isTrue("not hasattr(example, \"r#escaped\")")
     }
-
-    // dir
-    a.eq(
-        "dir(example)",
-        """["escaped", "hello", "nested", "type"]""",
-    )
-
-    // getattr
-    a.eq("example.hello", "\"world\"")
-    a.eq("example.nested.foo", "\"bar\"")
-    a.eq("example.type", "1")
-    a.eq("example.escaped", "\"baz\"")
-
-    // hasattr
-    a.isTrue("not hasattr(example, \"answer\")")
-    a.isTrue("hasattr(example, \"hello\")")
-    a.isTrue("hasattr(example, \"nested\")")
-    a.isTrue("hasattr(example, \"type\")")
-    a.isTrue("not hasattr(example, \"r#type\")")
-    a.isTrue("hasattr(example, \"escaped\")")
-    a.isTrue("not hasattr(example, \"r#escaped\")")
 }

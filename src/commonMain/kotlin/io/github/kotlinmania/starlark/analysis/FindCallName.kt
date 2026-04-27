@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/find_call_name.rs
+// port-lint: source src/analysis/findCallName.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -31,12 +31,12 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 /**
- * Find the location of a top level function call that has a kwarg `name`, and a string value
+ * Find the location of a top level function call that has a kwarg "name", and a string value
  * matching [name].
  */
 interface AstModuleFindCallName {
     /**
-     * Find the location of a top level function call that has a kwarg `name`, and a string value
+     * Find the location of a top level function call that has a kwarg "name", and a string value
      * matching [name].
      *
      * NOTE: If the AST is exposed in the future, this function may be removed and implemented
@@ -46,7 +46,7 @@ interface AstModuleFindCallName {
 }
 
 /**
- * Find the location of a top level function call that has a kwarg `name`, and a string value
+ * Find the location of a top level function call that has a kwarg "name", and a string value
  * matching [name].
  *
  * @see AstModuleFindCallName.findFunctionCallWithName
@@ -95,11 +95,10 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
     return ret
 }
 
-// --- Visitor helpers (internal for use by other analysis files) ---
+// --- Visitor helpers (internal for import by other analysis files) ---
 
 /**
  * Visit immediate child expressions in an [ExprP] node.
- * Mirrors `ExprP::visit_expr` from Rust's `uniplate.rs`.
  */
 internal fun ExprP<AstNoPayload>.visitChildExprs(f: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (this) {
@@ -206,9 +205,8 @@ internal fun visitAssignTargetExprs(target: AssignTargetP<AstNoPayload>, f: (Spa
 }
 
 /**
- * Visit all expressions within an [Spanned<StmtP<AstNoPayload>>] by recursing into child statements and
+ * Visit all expressions within a statement by recursing into child statements and
  * calling [f] on each expression found.
- * Mirrors `StmtP::visit_expr` from Rust's `uniplate.rs`.
  */
 internal fun Spanned<StmtP<AstNoPayload>>.visitExprs(f: (Spanned<ExprP<AstNoPayload>>) -> Unit) {
     when (val s = node) {
@@ -267,8 +265,7 @@ internal fun Spanned<StmtP<AstNoPayload>>.visitExprs(f: (Spanned<ExprP<AstNoPayl
 }
 
 /**
- * Visit immediate child statements in an [Spanned<StmtP<AstNoPayload>>] node.
- * Mirrors `StmtP::visit_stmt` from Rust's `uniplate.rs`.
+ * Visit immediate child statements within a statement node.
  */
 internal fun Spanned<StmtP<AstNoPayload>>.visitStmtChildren(f: (Spanned<StmtP<AstNoPayload>>) -> Unit) {
     when (val s = node) {

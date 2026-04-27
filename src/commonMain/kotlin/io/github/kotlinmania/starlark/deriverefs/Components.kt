@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.deriverefs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,17 +30,14 @@ import io.github.kotlinmania.starlark.docs.DocType
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
 
-/** A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method` */
-// pub struct NativeCallableComponents
+/** A wrapper for the parameters to `GlobalsBuilder::setFunction` and `MethodBuilder::setMethod` */
 class NativeCallableComponents(
     val speculativeExecSafe: Boolean,
     val rustDocstring: String?,
     val paramSpec: NativeCallableParamSpec,
     val returnType: Ty,
 ) {
-    // fn doc_params(&self) -> DocParams
     private fun docParams(): DocParams {
-        // fn doc_param(p: &NativeCallableParam) -> DocParam
         fun docParam(p: NativeCallableParam): DocParam {
             return DocParam(
                 name = p.name,
@@ -63,7 +60,6 @@ class NativeCallableComponents(
         )
     }
 
-    // pub(crate) fn into_docs(self, as_type: Option<(Ty, DocType)>) -> DocItem
     internal fun intoDocs(asType: Pair<Ty, DocType>?): DocItem {
         val funcDocs = DocFunction.fromDocstring(
             DocStringKind.Rust,

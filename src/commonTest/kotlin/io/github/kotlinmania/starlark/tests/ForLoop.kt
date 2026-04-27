@@ -1,4 +1,4 @@
-// port-lint: source src/tests/for_loop.rs
+// port-lint: source src/tests/forLoop.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,20 +20,22 @@ package io.github.kotlinmania.starlark.tests
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import kotlin.test.Test
 
-// #[test]
-// fn test_for_loop_bug_1()
-internal fun testForLoopBug1() {
-    Assert.pass(
-        """
-def test(x):
-    for i in x:
-        # This should release mutation lock on `x`.
-        return i
+class ForLoopTests {
+    @Test
+    fun testForLoopBug1() {
+        Assert.pass(
+            """
+    def test(x):
+        for i in x:
+            # This should release mutation lock on `x`.
+            return i
 
-l = [1]
-test(l)
-l.append(1)
-""",
-    )
+    l = [1]
+    test(l)
+    l.append(1)
+    """,
+        )
+    }
 }

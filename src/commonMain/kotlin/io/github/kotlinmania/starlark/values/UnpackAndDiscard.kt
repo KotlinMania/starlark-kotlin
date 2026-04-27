@@ -1,4 +1,4 @@
-// port-lint: source src/values/unpack_and_discard.rs
+// port-lint: source src/values/unpackAndDiscard.rs
 package io.github.kotlinmania.starlark.values.unpackanddiscard
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.unpackanddiscard
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,28 +25,19 @@ import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /**
- * Unpack the value of type [T], but do not store result.
+ * Unpack the value of type [T], but do not store the result.
  *
- * This can be used when type needs to be checked, but the unpacked value is not needed.
+ * This can be used when the type needs to be checked, but the unpacked value is not needed.
  */
 class UnpackAndDiscard<T : Any> internal constructor(
-    // Kotlin: stored Ty replaces Rust's static trait dispatch on PhantomData.
     private val ty: Ty,
 ) : StarlarkTypeRepr {
 
-    // impl StarlarkTypeRepr for UnpackAndDiscard
-    // fn starlark_type_repr() -> Ty
     override fun starlarkTypeRepr(): Ty {
         return ty
     }
 
     companion object {
-        // impl UnpackValue for UnpackAndDiscard
-        // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
-        //
-        // In Rust, `T::unpack_value_impl(value)` calls the trait statically.
-        // In Kotlin, we require the UnpackValue<T> instance to be passed in,
-        // since Kotlin cannot dispatch interface methods via KClass.
         internal fun <T : Any> unpackValueImpl(
             value: Value,
             unpacker: UnpackValue<T>,

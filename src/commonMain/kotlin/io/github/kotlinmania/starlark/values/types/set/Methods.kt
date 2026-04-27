@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -86,7 +86,6 @@ private sealed class SetFromValue {
 /**
  * Register set methods.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
 internal fun setMethods(builder: MethodsBuilder) {
     // Methods are registered through the MethodsBuilder
@@ -102,7 +101,7 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  * Return a new set with elements from the set and all others.
  * Unlike Python does not support variable number of arguments.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [3, 4, 5]
  * x.union(y) == set([1, 2, 3, 4, 5])
@@ -135,7 +134,7 @@ internal fun union(
  * Return a new set with elements common to the set and all others.
  * Unlike Python does not support variable number of arguments.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [3, 4, 5]
  * x.intersection(y) == set([3])
@@ -164,10 +163,10 @@ internal fun intersection(
 /**
  * Returns a new set with elements in either the set or the specified iterable but not both.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [3, 4, 5]
- * x.symmetric_difference(y) == set([1, 2, 4, 5])
+ * x.symmetricDifference(y) == set([1, 2, 4, 5])
  * # "#);
  * ```
  */
@@ -186,7 +185,7 @@ internal fun symmetricDifference(
         return Result.success(clone)
     }
 
-    // NOTE(romanp) add symmetric_difference to small set and use it here and in xor
+    // NOTE(romanp) add symmetricDifference to small set and import it here and in xor
     if (thisSet.content.isEmpty()) {
         val result = SetData()
         result.content.addAll(otherSet.intoSet().iterHashed().asIterable())
@@ -212,7 +211,7 @@ internal fun symmetricDifference(
 /**
  * Add an item to the set.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * x.add(4)
  * x == set([1, 2, 3, 4])
@@ -232,7 +231,7 @@ internal fun add(
 /**
  * Update the set by adding items from an iterable.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 3, 2])
  * x.update([4, 3])
  * list(x) == [1, 3, 2, 4]
@@ -273,7 +272,7 @@ internal fun update(
  * Time complexity of this operation is *O(N)* where *N* is the number of entries in the set.
  *
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * x.remove(2)
  * x == set([1, 3])
@@ -310,7 +309,7 @@ internal fun remove(
  * Time complexity of this operation is *O(N)* where *N* is the number of entries in the set.
  *
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * x.discard(2)
  * x == set([1, 3])
@@ -318,7 +317,7 @@ internal fun remove(
  * ```
  * A subsequent call to `x.discard(2)` would do nothing.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * x.discard(2)
  * x.discard(2)
@@ -345,7 +344,7 @@ internal fun discard(
  * Time complexity of this operation is *O(1)*.
  *
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * # (
  * x.pop() == 3
@@ -372,7 +371,7 @@ internal fun pop(thisValue: Value): Result<Value> {
 /**
  * Returns a new set with elements unique the set when compared to the specified iterable.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [3, 4, 5]
  * x.difference(y) == set([1, 2])
@@ -411,7 +410,7 @@ internal fun difference(
 /**
  * Test whether every element other iterable is in the set.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [1, 3]
  * x.issuperset(y) == True
@@ -448,7 +447,7 @@ internal fun issuperset(
 /**
  * Test whether every element in the set is in other iterable.
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * x = set([1, 2, 3])
  * y = [3, 1, 2]
  * x.issubset(y)

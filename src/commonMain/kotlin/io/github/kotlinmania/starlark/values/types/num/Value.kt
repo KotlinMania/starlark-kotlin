@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.num
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -96,7 +96,7 @@ sealed class NumRef {
                 is StarlarkIntRef.Big -> {
                     // Not perfect, but OK: `1000000000000000000000003` and `1000000000000000000000005`
                     // flush to the same float, and neither is exact float,
-                    // so we could use better hash for such numbers.
+                    // so we could import better hash for such numbers.
                     floatHash(value.toF64())
                 }
             }
@@ -149,7 +149,7 @@ sealed class NumRef {
 
     override fun hashCode(): kotlin.Int = getHash64().hashCode()
 
-    /** Ord impl: total ordering for Starlark values. */
+    /** Ord implementation: total ordering for Starlark values. */
     operator fun compareTo(other: NumRef): kotlin.Int = if (this is Int && other is Int) {
         value.compareTo(other.value)
     } else {

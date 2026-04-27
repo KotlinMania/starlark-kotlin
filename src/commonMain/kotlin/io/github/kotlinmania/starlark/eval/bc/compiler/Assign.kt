@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler.assign
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,8 +32,6 @@ import io.github.kotlinmania.starlark.eval.compiler.AssignCompiledValue
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.asLocalNonCaptured
 import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
-
-// impl AssignCompiledValue
 
 /**
  * After evaluation of `(x, y[z]) = ...`, variables `x`, `y` and `z` are definitely assigned.
@@ -65,8 +63,6 @@ internal fun AssignCompiledValue.markDefinitelyAssignedAfter(bc: BcWriter) {
         }
     }
 }
-
-// impl IrSpanned<AssignCompiledValue>
 
 /**
  * Compile an assignment target to bytecode.

@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/alloc_counts.rs
+// port-lint: source src/values/layout/heap/profile/allocCounts.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,43 +19,22 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
  * limitations under the License.
  */
 
-// use std::iter::Sum;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-
-/// Allocations counters.
-// #[derive(Default, Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) struct AllocCounts {
-//     pub(crate) bytes: usize,
-//     pub(crate) count: usize,
-// }
+/** Allocations counters. */
 data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
 ) {
 
-    // impl AllocCounts
-
-    // #[cfg(test)]
-    // pub(crate) fn normalize_for_golden_tests(&mut self)
     internal fun normalizeForGoldenTests() {
         // Value sizes depend on compiler version, so normalize them.
         bytes = count.toLong() * 8
     }
 
-    // impl AddAssign for AllocCounts
-    // fn add_assign(&mut self, other: AllocCounts)
     operator fun plusAssign(other: AllocCounts) {
         bytes += other.bytes
         count += other.count
     }
 
-    // impl Add for AllocCounts
-    // type Output = AllocCounts;
-    // fn add(self, other: AllocCounts) -> AllocCounts
     operator fun plus(other: AllocCounts): AllocCounts {
         return AllocCounts(
             bytes = bytes + other.bytes,
@@ -68,9 +47,6 @@ data class AllocCounts(
     }
 }
 
-// impl<'a> Sum<&'a AllocCounts> for AllocCounts
-// fn sum<I>(iter: I) -> AllocCounts
-// where I: Iterator<Item = &'a AllocCounts>
 fun Iterable<AllocCounts>.sum(): AllocCounts {
     return fold(AllocCounts.default()) { acc, x -> acc + x }
 }

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.record
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -61,7 +61,6 @@ private fun <K, V> fmtKeyedContainer(
 }
 
 /** Helper: compare two lists element-wise. */
-// crate::values::comparison::equals_slice
 private fun equalsSlice(
     a: List<Value>,
     b: List<Value>,
@@ -77,13 +76,6 @@ private fun equalsSlice(
 }
 
 /** An actual record. */
-// #[derive(Clone, Debug, Trace, Coerce, Freeze, ProvidesStaticType, Allocative)]
-// #[repr(C)]
-// pub struct RecordGen<V: ValueLifetimeless> {
-//     pub(crate) typ: V, // Must be RecordType
-//     pub(crate) values: Box<[V]>,
-// }
-// starlark_complex_value!(pub Record);
 class RecordGen internal constructor(
     internal val typ: Value, // Must be RecordType
     internal val values: List<Value>,
@@ -91,24 +83,19 @@ class RecordGen internal constructor(
 
     companion object {
         /** `type(x)` for records. */
-        // pub const TYPE: &'static str = "record";
         const val TYPE: String = "record"
 
         /** Attempt to extract a Record from a Value. */
-        // From starlark_complex_value!(pub Record) macro expansion.
         fun fromValue(value: Value): RecordGen? {
             return value.downcastRef()
         }
     }
 
-    // impl Display for RecordGen
     override fun toString(): String {
         val name = recordTypeName() ?: "anon"
         return fmtKeyedContainer("record[$name](", ")", "=", iter())
     }
 
-    // impl Freeze for RecordGen
-    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
     override fun freeze(freezer: Freezer): Result<RecordGen> {
         val frozenTyp = typ.freeze(freezer).getOrElse { return Result.failure(it) }
         val frozenValues: List<FrozenValue> = values.freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
@@ -121,41 +108,30 @@ class RecordGen internal constructor(
         )
     }
 
-    // impl RecordGen
-
-    // fn get_record_type(&self) -> Either<&'v RecordType<'v>, &'v FrozenRecordType>
     private fun getRecordType(): RecordTypeGen {
         // Safe to unwrap because we always ensure typ is RecordType
         return typ.downcastRef<RecordTypeGen>()!!
     }
 
-    // fn record_type_name(&self) -> Option<&'v str>
     private fun recordTypeName(): String? {
         return getRecordType().tyRecordData()?.name
     }
 
-    // pub(crate) fn record_type_id(&self) -> TypeInstanceId
     internal fun recordTypeId(): TypeInstanceId {
         return getRecordType().id
     }
 
-    // fn get_record_fields(&self) -> &'v SmallMap<String, FieldGen<Value<'v>>>
     private fun getRecordFields(): SmallMap<String, Field> {
         @Suppress("UNCHECKED_CAST")
         return recordFields(getRecordType())
     }
 
     /** Iterate over the elements in the record. */
-    // pub fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'v str, V)> + 'a
     fun iter(): Sequence<Pair<String, Value>> {
         return getRecordFields().keys()
             .zip(values.asSequence())
     }
 
-    // #[starlark_value(type = Record::TYPE)]
-    // impl StarlarkValue for RecordGen
-
-    // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
         val otherRecord = fromValue(other) ?: return Result.success(false)
         val typEquals = typ.equals(otherRecord.typ).getOrElse { return Result.failure(it) }
@@ -163,19 +139,16 @@ class RecordGen internal constructor(
         return equalsSlice(values, otherRecord.values) { x, y -> x.equals(y) }
     }
 
-    // fn get_attr(&self, attribute: &str, heap: Heap<'v>) -> Option<Value<'v>>
     override fun getAttr(attribute: String, heap: Heap): Value? {
         return getAttrHashed(Hashed.new(attribute), heap)
     }
 
-    // fn get_attr_hashed(&self, attribute: Hashed<&str>, _heap: Heap<'v>) -> Option<Value<'v>>
     override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val fields = getRecordFields()
         val i = fields.getIndexOf(attribute.key()) ?: return null
         return values[i]
     }
 
-    // fn write_hash(&self, hasher: &mut StarlarkHasher) -> crate::Result<()>
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         typ.writeHash(hasher).getOrElse { return Result.failure(it) }
         for (v in values) {
@@ -184,24 +157,17 @@ class RecordGen internal constructor(
         return Result.success(Unit)
     }
 
-    // fn dir_attr(&self) -> Vec<String>
     override fun dirAttr(): List<String> {
         return getRecordFields().keys().toList()
     }
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? {
         return getRecordType().instanceTy()
     }
 
-    // impl Serialize for RecordGen
-    // fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     fun serialize(): Map<String, Value> {
         return iter().toMap()
     }
 }
 
-// Rust type aliases:
-// pub type Record<'v> = RecordGen<Value<'v>>;
-// pub type FrozenRecord = RecordGen<FrozenValue>;
-// Kotlin: Use RecordGen directly; frozen flag distinguishes.
+// Frozen and unfrozen records share `RecordGen`; the inner value type distinguishes them.

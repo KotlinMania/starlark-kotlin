@@ -1,4 +1,4 @@
-// port-lint: source src/values/thin_box_slice_frozen_value/packed_impl.rs
+// port-lint: source src/values/thinBoxSliceFrozenValue/packedImpl.rs
 package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,52 +19,86 @@ package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.types.int.InlineInt
-import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 
 /**
  * Wrapper to handle the packing and most of the unsafety.
  *
- * In Kotlin, this is simplified to a wrapper around a list since there is no
- * need for low-level bit packing. The Rust version uses pointer tricks to
- * store a single FrozenValue inline vs. a heap-allocated slice.
+ * The representation is as follows:
+ *  - In the case of a length 1 slice, the `FrozenValue` is stored in the `NonNull` pointer.
+ *  - In all other cases, the `NonNull` is a `AllocatedThinBoxSlice<FrozenValue>` with the bottom
+ *    bit set to 1.
  */
-// struct PackedImpl(NonNull<()>)
-private class PackedImpl(
-    private val items: List<FrozenValue>,
+internal class PackedImpl private constructor(
+    private val inline: FrozenValue?,
+    private val allocated: AllocatedThinBoxSlice<FrozenValue>?,
 ) {
     companion object {
+        fun newAllocated(allocated: AllocatedThinBoxSlice<FrozenValue>): PackedImpl {
+            return PackedImpl(null, allocated)
+        }
+
         fun new(iter: Iterable<FrozenValue>): PackedImpl {
-            return PackedImpl(iter.toList())
+            val it = iter.iterator()
+            if (!it.hasNext()) {
+                return newAllocated(AllocatedThinBoxSlice.empty())
+            }
+            val first = it.next()
+            if (!it.hasNext()) {
+                return PackedImpl(first, null)
+            }
+            val second = it.next()
+            val rest = mutableListOf(first, second)
+            while (it.hasNext()) rest.add(it.next())
+            return newAllocated(AllocatedThinBoxSlice.fromIter(rest))
         }
     }
 
-    fun asSlice(): List<FrozenValue> = items
+    fun unpack(): Either<FrozenValue, AllocatedThinBoxSlice<FrozenValue>> {
+        return if (allocated != null) {
+            Either.Right(allocated)
+        } else {
+            Either.Left(inline!!)
+        }
+    }
+
+    fun asSlice(): List<FrozenValue> {
+        return when (val u = unpack()) {
+            is Either.Left -> listOf(u.value)
+            is Either.Right -> u.value.toList()
+        }
+    }
+
+    fun drop() {
+        when (val u = unpack()) {
+            is Either.Left -> {}
+            is Either.Right -> u.value.runDrop()
+        }
+    }
 }
 
 /**
  * Optimized version of a `Box<[FrozenValue]>`.
  *
- * In Kotlin, this is simplified to a wrapper around a List<FrozenValue>.
- * The Rust version uses bit packing and other tricks so that it is only
- * 8 bytes in size, while being allocation free for lengths zero and one.
+ * Specifically, this type uses bit packing and other tricks so that it is only
+ * 8 bytes in size, while being allocation free for lengths zero and one. It
+ * depends on the lower bit of a FrozenPointer always being unset.
  */
-// pub struct ThinBoxSliceFrozenValue<'v>(PackedImpl, PhantomData<&'v ()>)
 class ThinBoxSliceFrozenValue private constructor(
     private val packed: PackedImpl,
 ) : AbstractList<FrozenValue>() {
 
     companion object {
         /** Produces an empty list */
-        // pub const fn empty() -> Self
-        fun empty(): ThinBoxSliceFrozenValue = ThinBoxSliceFrozenValue(PackedImpl(emptyList()))
+        fun empty(): ThinBoxSliceFrozenValue =
+            ThinBoxSliceFrozenValue(PackedImpl.newAllocated(AllocatedThinBoxSlice.empty()))
 
-        // impl FromIterator<FrozenValue> for ThinBoxSliceFrozenValue
         fun fromIter(iter: Iterable<FrozenValue>): ThinBoxSliceFrozenValue {
             return ThinBoxSliceFrozenValue(PackedImpl.new(iter))
         }
+
+        fun default(): ThinBoxSliceFrozenValue = fromIter(emptyList())
     }
 
     override val size: Int get() = packed.asSlice().size
@@ -80,60 +114,4 @@ class ThinBoxSliceFrozenValue private constructor(
     override fun hashCode(): Int = packed.asSlice().hashCode()
 
     override fun toString(): String = packed.asSlice().toString()
-}
-
-// #[cfg(test)]
-// mod tests
-
-private fun acrossLengths(a: List<FrozenValue>) {
-    for (len in 0..a.size) {
-        val value = ThinBoxSliceFrozenValue.fromIter(a.take(len))
-        check(value.size == len)
-        check(value.toList() == a.take(len))
-    }
-}
-
-// #[test]
-// fn test_strings()
-internal fun testStrings() {
-    val h = FrozenHeap()
-    val strs = listOf("", "abc", "def", "ghijkl")
-    val s = (strs + strs + strs + strs).map { s -> h.allocStr(s).toFrozenValue() }
-    acrossLengths(s)
-}
-
-// #[test]
-// fn test_ints()
-internal fun testInts() {
-    val ints = listOf(0, 1, 2, 3, 4, 5, 1000, 1 shl 20)
-    val i = (ints + ints).map { i -> FrozenValue.newInt(InlineInt.testingNew(i)) }
-    acrossLengths(i)
-}
-
-// #[test]
-// fn test_mixed_types()
-internal fun testMixedTypes() {
-    val items = listOf(
-        FrozenValue.newNone(),
-        FrozenValue.newInt(InlineInt.testingNew(0)),
-        FrozenValue.newEmptyList(),
-        FrozenValue.newBool(true),
-    )
-    val a = items + items + items + items
-    acrossLengths(a)
-}
-
-// #[test]
-// fn test_default()
-internal fun testDefault() {
-    val value = ThinBoxSliceFrozenValue.fromIter(emptyList())
-    check(value.size == 0)
-}
-
-// #[test]
-// fn test_empty()
-internal fun testEmptyPacked() {
-    val valA = ThinBoxSliceFrozenValue.empty()
-    val valB = ThinBoxSliceFrozenValue.empty()
-    check(valA == valB)
 }

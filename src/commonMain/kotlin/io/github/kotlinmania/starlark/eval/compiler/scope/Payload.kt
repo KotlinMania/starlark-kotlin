@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler.scope
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -46,13 +46,8 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Spanned
 
 /** Compiler-specific AST payload. */
-// #[derive(Debug, Clone)]
-// pub(crate) struct CstPayload
-// impl AstPayload for CstPayload
 object CstPayload : AstPayload
 
-// #[derive(Default, Debug, Clone)]
-// pub(crate) struct CstTypeExprPayload
 internal data class CstTypeExprPayload(
     /** Populated before evaluation of top level statements in normal evaluation. */
     var compilerTy: Ty? = null,
@@ -64,33 +59,27 @@ private class CompilerAstMap(
     private val scopeData: ModuleScopeData,
     private val loads: Map<String, Interface>,
 ) {
-    // fn map_load(&mut self, import_path: &str, (): ()) -> Interface
     fun mapLoad(importPath: String, @Suppress("UNUSED_PARAMETER") unit: Unit): Interface {
         return loads[importPath] ?: Interface.empty()
     }
 
-    // fn map_ident(&mut self, (): ()) -> Option<ResolvedIdent>
     fun mapIdent(@Suppress("UNUSED_PARAMETER") unit: Unit): ResolvedIdent? {
         return null
     }
 
-    // fn map_ident_assign(&mut self, (): ()) -> Option<BindingId>
     fun mapIdentAssign(@Suppress("UNUSED_PARAMETER") unit: Unit): BindingId? {
         return null
     }
 
-    // fn map_def(&mut self, (): ()) -> ScopeId
     fun mapDef(@Suppress("UNUSED_PARAMETER") unit: Unit): ScopeId {
         return scopeData.newScope().first
     }
 
-    // fn map_type_expr(&mut self, (): ()) -> CstTypeExprPayload
     fun mapTypeExpr(@Suppress("UNUSED_PARAMETER") unit: Unit): CstTypeExprPayload {
         return CstTypeExprPayload()
     }
 }
 
-// pub(crate) trait CstStmtFromAst
 internal fun cstStmtFromAst(
     stmt: Spanned<StmtP<AstNoPayload>>,
     scopeData: ModuleScopeData,
@@ -104,7 +93,6 @@ internal fun cstStmtFromAst(
     return cst
 }
 
-// pub(crate) trait CstAssignIdentExt
 internal fun Spanned<AssignIdentP<CstPayload, *>>.resolvedBindingId(codemap: CodeMap): BindingId {
     val bindingId = this.node.payload as? BindingId
     return bindingId
@@ -315,3 +303,11 @@ private fun mapPayloadsClause(
         is ClauseP.If -> mapPayloadsExpr(clause.cond, mapper)
     }
 }
+
+internal typealias CstExpr = Spanned<ExprP<CstPayload>>
+internal typealias CstTypeExpr = Spanned<TypeExprP<CstPayload, *>>
+internal typealias CstAssignTarget = Spanned<AssignTargetP<CstPayload>>
+internal typealias CstAssignIdent = Spanned<AssignIdentP<CstPayload, *>>
+internal typealias CstIdent = Spanned<IdentP<CstPayload, *>>
+internal typealias CstParameter = ParameterP<CstPayload>
+internal typealias CstStmt = Spanned<StmtP<CstPayload>>

@@ -1,4 +1,4 @@
-// port-lint: source src/unordered_map.rs
+// port-lint: source src/unorderedMap.rs
 package starlarkmap.unorderedmap
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.unorderedmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,8 +27,7 @@ import starlarkmap.StarlarkHashValue
  * Hash map which does not expose any insertion order-specific behavior
  * (except [toString]).
  *
- * Corresponds to Rust `UnorderedMap<K, V>` backed by `hashbrown::HashTable`.
- * In Kotlin, we use a [HashMap] which provides the same semantics.
+ * In Kotlin, we import a [HashMap] which provides the same semantics.
  */
 class UnorderedMap<K, V> internal constructor(
     internal val table: HashMap<K, V>,
@@ -41,12 +40,10 @@ class UnorderedMap<K, V> internal constructor(
         /** Create a new empty map with the specified capacity. */
         fun <K, V> withCapacity(n: Int): UnorderedMap<K, V> = UnorderedMap(HashMap(n))
 
-        /** Create a default (empty) [UnorderedMap]. Corresponds to Rust `Default` impl. */
         fun <K, V> default(): UnorderedMap<K, V> = new()
 
         /**
          * Create an [UnorderedMap] from an iterable of key-value pairs.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <K, V> fromIterator(iter: Iterable<Pair<K, V>>): UnorderedMap<K, V> {
             val map = HashMap<K, V>()
@@ -65,7 +62,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Get a reference to the value associated with the given key.
-     * Corresponds to Rust `get<Q>(&self, k: &Q) -> Option<&V>`.
      */
     fun get(key: K): V? = table[key]
 
@@ -82,7 +78,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Does the map contain the specified key?
-     * Corresponds to Rust `contains_key<Q>(&self, k: &Q) -> bool`.
      */
     fun containsKey(key: K): Boolean = table.containsKey(key)
 
@@ -91,7 +86,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Insert an entry into the map.
-     * Corresponds to Rust `insert(&mut self, k: K, v: V) -> Option<V>`.
      */
     fun insert(key: K, value: V): V? {
         val old = table[key]
@@ -101,7 +95,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Remove an entry from the map.
-     * Corresponds to Rust `remove<Q>(&mut self, k: &Q) -> Option<V>`.
      */
     fun remove(key: K): V? = table.remove(key)
 
@@ -113,7 +106,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Preserve only the elements specified by the predicate.
-     * Corresponds to Rust `retain<F>(&mut self, f: F)`.
      */
     fun retain(predicate: (K, V) -> Boolean) {
         val iter = table.entries.iterator()
@@ -127,7 +119,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Get an entry in the map for in-place manipulation.
-     * Corresponds to Rust `entry(&mut self, k: K) -> Entry<'_, K, V>`.
      */
     fun entry(key: K): Entry<K, V> {
         return if (table.containsKey(key)) {
@@ -139,44 +130,37 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Lower-level access to the entry API.
-     * Corresponds to Rust `raw_entry_mut(&mut self) -> RawEntryBuilderMut<'_, K, V>`.
      */
     fun rawEntryMut(): RawEntryBuilderMut<K, V> = RawEntryBuilderMut(this)
 
     /**
      * Does the map contain the specified key (pre-hashed)?
-     * Corresponds to Rust `contains_key_hashed<Q>(&self, key: Hashed<&Q>) -> bool`.
      */
     fun containsKeyHashed(key: K): Boolean = table.containsKey(key)
 
     /**
      * Clear the map, removing all entries.
-     * Corresponds to Rust `clear(&mut self)`.
      */
     fun clear() = table.clear()
 
     /**
      * Entries in the map, in arbitrary order.
-     * Corresponds to Rust `entries_unordered(&self)`.
      */
     fun entriesUnordered(): Sequence<Pair<K, V>> =
         table.entries.asSequence().map { Pair(it.key, it.value) }
 
     /**
      * Keys in the map, in arbitrary order.
-     * Corresponds to Rust `keys_unordered(&self)`.
      */
     fun keysUnordered(): Sequence<K> = table.keys.asSequence()
 
     /**
      * Values in the map, in arbitrary order.
-     * Corresponds to Rust `values_unordered(&self)`.
      */
     fun valuesUnordered(): Sequence<V> = table.values.asSequence()
 
     /**
      * Get the entries in the map, sorted by key.
-     * Corresponds to Rust `entries_sorted(&self) -> Vec<(&K, &V)>`.
      */
     @Suppress("UNCHECKED_CAST")
     fun entriesSorted(): List<Pair<K, V>> =
@@ -184,13 +168,11 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Convert into a [HashMap].
-     * Corresponds to Rust `into_hash_map(self) -> HashMap<K, V>`.
      */
     fun intoHashMap(): HashMap<K, V> = HashMap(table)
 
     /**
      * Apply the function to each value.
-     * Corresponds to Rust `map_values(self, f: impl FnMut(V) -> W) -> UnorderedMap<K, W>`.
      */
     fun <W> mapValues(f: (V) -> W): UnorderedMap<K, W> {
         val map = HashMap<K, W>(table.size)
@@ -202,7 +184,6 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Index by key. Throws if key is not found.
-     * Corresponds to Rust `Index<&Q>` impl.
      */
     operator fun get(key: K, default: Nothing? = null): V =
         table[key] ?: throw NoSuchElementException("key not found: $key")
@@ -210,7 +191,6 @@ class UnorderedMap<K, V> internal constructor(
     /**
      * Unordered equality: two maps are equal iff they have the same entries,
      * regardless of iteration order.
-     * Corresponds to Rust `PartialEq` impl.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -220,9 +200,8 @@ class UnorderedMap<K, V> internal constructor(
 
     /**
      * Order-independent hash.
-     * Corresponds to Rust `Hash` impl that uses commutative combination of per-entry hashes.
      *
-     * We use XOR-of-hashes (commutative) so that insertion order does not affect the hash.
+     * We import XOR-of-hashes (commutative) so that insertion order does not affect the hash.
      */
     override fun hashCode(): Int {
         var sum = 0
@@ -239,7 +218,6 @@ class UnorderedMap<K, V> internal constructor(
 
 /**
  * Reference to an entry in a [UnorderedMap].
- * Corresponds to Rust `Entry<'a, K, V>`.
  */
 sealed class Entry<K, V> {
     /** Occupied entry. */
@@ -274,7 +252,6 @@ sealed class Entry<K, V> {
 
 /**
  * Reference to an occupied entry in a [UnorderedMap].
- * Corresponds to Rust `OccupiedEntry<'a, K, V>`.
  */
 class OccupiedEntry<K, V>(
     private val map: UnorderedMap<K, V>,
@@ -296,7 +273,6 @@ class OccupiedEntry<K, V>(
 
 /**
  * Reference to a vacant entry in a [UnorderedMap].
- * Corresponds to Rust `VacantEntry<'a, K, V>`.
  */
 class VacantEntry<K, V>(
     private val map: UnorderedMap<K, V>,
@@ -310,14 +286,12 @@ class VacantEntry<K, V>(
 
 /**
  * Builder for [RawEntryMut].
- * Corresponds to Rust `RawEntryBuilderMut<'a, K, V>`.
  */
 class RawEntryBuilderMut<K, V>(
     private val map: UnorderedMap<K, V>,
 ) {
     /**
      * Find an entry by key.
-     * Corresponds to Rust `from_key<Q>(&self, k: &Q) -> RawEntryMut<'a, K, V>`.
      */
     fun fromKey(key: K): RawEntryMut<K, V> {
         return if (map.table.containsKey(key)) {
@@ -329,13 +303,11 @@ class RawEntryBuilderMut<K, V>(
 
     /**
      * Find an entry by hashed key.
-     * Corresponds to Rust `from_key_hashed<Q>(&self, k: Hashed<&Q>) -> RawEntryMut<'a, K, V>`.
      */
     fun fromKeyHashed(key: Hashed<K>): RawEntryMut<K, V> = fromKey(key.key())
 
     /**
      * Find an entry by hash and equality function.
-     * Corresponds to Rust `from_hash<F>(&self, hash: StarlarkHashValue, is_match: F) -> RawEntryMut<'a, K, V>`.
      *
      * Since Kotlin's [HashMap] does not expose hash-level access, this performs a linear scan.
      */
@@ -351,7 +323,6 @@ class RawEntryBuilderMut<K, V>(
 
 /**
  * Raw entry in a [UnorderedMap].
- * Corresponds to Rust `RawEntryMut<'a, K, V>`.
  */
 sealed class RawEntryMut<K, V> {
     /** Occupied entry. */
@@ -362,7 +333,6 @@ sealed class RawEntryMut<K, V> {
 
 /**
  * Reference to an occupied raw entry in a [UnorderedMap].
- * Corresponds to Rust `RawOccupiedEntryMut<'a, K, V>`.
  */
 class RawOccupiedEntryMut<K, V>(
     private val map: UnorderedMap<K, V>,
@@ -399,7 +369,6 @@ class RawOccupiedEntryMut<K, V>(
 
 /**
  * Reference to a vacant raw entry in a [UnorderedMap].
- * Corresponds to Rust `RawVacantEntryMut<'a, K, V>`.
  */
 class RawVacantEntryMut<K, V>(
     private val map: UnorderedMap<K, V>,

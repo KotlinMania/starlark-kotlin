@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/enumeration/ty_enum_type.rs
+// port-lint: source src/values/types/enumeration/tyEnumType.rs
 package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,20 +34,17 @@ class TyEnumData(
     internal val tyEnumType: Ty,
 ) : Comparable<TyEnumData> {
 
-    // impl PartialEq for TyEnumData
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyEnumData) return false
         return id == other.id
     }
 
-    // impl Hash for TyEnumData
     override fun hashCode(): Int {
         // Do not hash `id` because hashing should be deterministic.
         return name.hashCode()
     }
 
-    // impl Ord for TyEnumData
     override fun compareTo(other: TyEnumData): Int {
         val nameCmp = name.compareTo(other.name)
         if (nameCmp != 0) return nameCmp

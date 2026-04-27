@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/expr_bool.rs
+// port-lint: source src/eval/compiler/exprBool.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
 /** Boolean expression. */
-// pub(crate) enum ExprCompiledBool
 internal sealed class ExprCompiledBool {
     // Const(bool)
     data class Const(val b: Boolean) : ExprCompiledBool()
@@ -35,7 +34,6 @@ internal sealed class ExprCompiledBool {
 
     companion object {
         /** `bool(x)` and do trivial optimizations. */
-        // pub(crate) fn new(expr: IrSpanned<ExprCompiled>) -> IrSpanned<ExprCompiledBool>
         fun new(expr: IrSpanned<ExprCompiled>): IrSpanned<ExprCompiledBool> {
             fun newBool(span: FrameSpan, b: Boolean): IrSpanned<ExprCompiledBool> =
                 IrSpanned(node = Const(b), span = span)
@@ -124,19 +122,16 @@ internal sealed class ExprCompiledBool {
     }
 }
 
-// fn into_expr(self) -> ExprCompiled
 internal fun ExprCompiledBool.intoExpr(): ExprCompiled = when (this) {
     is ExprCompiledBool.Const -> ExprCompiled.ValueExpr(FrozenValue.newBool(b))
     is ExprCompiledBool.Expr -> expr
 }
 
-// fn const_value(&self) -> Option<bool>
 internal fun ExprCompiledBool.constValue(): Boolean? = when (this) {
     is ExprCompiledBool.Const -> b
     is ExprCompiledBool.Expr -> null
 }
 
 /** Extension to convert IrSpanned<ExprCompiledBool> to IrSpanned<ExprCompiled>. */
-// impl IrSpanned<ExprCompiledBool>
 internal fun IrSpanned<ExprCompiledBool>.intoExpr(): IrSpanned<ExprCompiled> =
     IrSpanned(span = span, node = node.intoExpr())

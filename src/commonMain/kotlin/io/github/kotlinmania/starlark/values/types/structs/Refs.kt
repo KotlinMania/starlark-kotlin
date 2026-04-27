@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,7 +45,6 @@ data class StructRef internal constructor(
         }
 
         internal fun isInstance(value: Value): Boolean {
-            // debug_assert in Rust: StarlarkTypeId::of::<Struct>() == StarlarkTypeId::of::<FrozenStruct>()
             return value.starlarkTypeId() == StarlarkTypeId.of(StructGen::class)
         }
     }
@@ -83,14 +82,12 @@ data class FrozenStructRef internal constructor(
     }
 }
 
-// impl StarlarkTypeRepr for StructRef
 object StructRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
         return Ty.anyStruct()
     }
 }
 
-// impl UnpackValue for StructRef
 object StructRefUnpackValue : UnpackValue<StructRef> {
     override fun starlarkTypeRepr(): Ty {
         return StructRefStarlarkTypeRepr.starlarkTypeRepr()

@@ -1,4 +1,4 @@
-// port-lint: source src/ordered_set.rs
+// port-lint: source src/orderedSet.rs
 package starlarkmap.orderedset
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.orderedset
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -41,19 +41,16 @@ class OrderedSet<T> internal constructor(
         fun <T> withCapacity(capacity: Int): OrderedSet<T> =
             OrderedSet(SmallSet.withCapacity(capacity))
 
-        /** Create a default (empty) [OrderedSet]. Corresponds to Rust `Default` impl. */
         fun <T> default(): OrderedSet<T> = new()
 
         /**
          * Create an [OrderedSet] from an iterable.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <T> fromIterator(iter: Iterable<T>): OrderedSet<T> =
             OrderedSet(SmallSet.fromIterator(iter))
 
         /**
          * Create an [OrderedSet] from a [SmallSet].
-         * Corresponds to Rust `From<SmallSet<T>>` impl.
          */
         fun <T> from(set: SmallSet<T>): OrderedSet<T> = OrderedSet(set)
     }
@@ -66,7 +63,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Get an element from the set.
-     * Corresponds to Rust `get<Q>(&self, value: &Q) -> Option<&T>`.
      */
     fun get(value: T): T? = inner.get(value)
 
@@ -75,7 +71,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Check if the set contains an element.
-     * Corresponds to Rust `contains<Q>(&self, value: &Q) -> bool`.
      */
     fun contains(value: T): Boolean = inner.contains(value)
 
@@ -87,7 +82,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Get the index of an element in the set.
-     * Corresponds to Rust `get_index_of<Q>(&self, value: &Q) -> Option<usize>`.
      */
     fun getIndexOf(value: T): Int? = inner.getIndexOf(value)
 
@@ -96,7 +90,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Remove an element from the set and return it.
-     * Corresponds to Rust `take<Q>(&mut self, value: &Q) -> Option<T>`.
      */
     fun take(value: T): T? = inner.take(value)
 
@@ -115,13 +108,11 @@ class OrderedSet<T> internal constructor(
     /**
      * Insert an element into the set.
      * Returns `true` iff the element was inserted (was not already present).
-     * Corresponds to Rust `insert(&mut self, value: T) -> bool`.
      */
     fun insert(value: T): Boolean = inner.insert(value)
 
     /**
      * Insert an element into the set assuming it is not already present.
-     * Corresponds to Rust `insert_unique_unchecked(&mut self, value: T)`.
      */
     fun insertUniqueUnchecked(value: T) = inner.insertUniqueUnchecked(value)
 
@@ -129,7 +120,6 @@ class OrderedSet<T> internal constructor(
      * Insert an element if it is not already present in the set.
      * Returns `null` if inserted successfully, or an [OccupiedError]
      * containing the value that was not inserted and the existing element.
-     * Corresponds to Rust `try_insert` which returns `Result<(), OccupiedError<T>>`.
      */
     fun tryInsert(value: T): OccupiedError<T>? {
         val hashed = Hashed.new(value)
@@ -150,36 +140,30 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Sort the set.
-     * Corresponds to Rust `sort(&mut self) where T: Ord`.
      */
     fun sort() = inner.sort()
 
     /**
      * Iterate over the union of two sets.
-     * Corresponds to Rust `union<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a T>`.
      */
     fun union(other: OrderedSet<T>): Sequence<T> =
         inner.union(other.inner)
 
     /**
      * Reverse the iteration order of the set.
-     * Corresponds to Rust `reverse(&mut self)`.
      */
     fun reverse() = inner.reverse()
 
     /**
      * Extend the set with elements from an iterable.
-     * Corresponds to Rust `Extend<T>` impl.
      */
     fun extend(iter: Iterable<T>) = inner.extend(iter)
 
-    /** Corresponds to Rust `IntoIterator` impl. */
     override fun iterator(): Iterator<T> = inner.iterator()
 
     /**
      * Ordered equality: two [OrderedSet]s are equal iff they contain the same elements
      * in the same iteration order.
-     * Corresponds to Rust `PartialEq` impl using `eq_ordered`.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -189,7 +173,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Hash based on ordered iteration of elements.
-     * Corresponds to Rust `Hash` impl using `hash_ordered`.
      */
     override fun hashCode(): Int {
         var result = 1
@@ -201,7 +184,6 @@ class OrderedSet<T> internal constructor(
 
     /**
      * Compare two [OrderedSet]s lexicographically by their iteration order.
-     * Corresponds to Rust `PartialOrd` / `Ord` impls.
      */
     override fun compareTo(other: OrderedSet<T>): Int {
         val thisIter = iter().iterator()
@@ -227,7 +209,6 @@ class OrderedSet<T> internal constructor(
 
 /**
  * Error returned by [OrderedSet.tryInsert] when the element is already present.
- * Corresponds to Rust `OccupiedError` (a plain struct in Rust, not an error type).
  */
 class OccupiedError<T>(
     /** The value that was not inserted. */

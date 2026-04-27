@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.bool
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,12 +26,10 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// impl AllocValue for Boolean
 internal fun Boolean.allocValue(heap: Heap): Value {
     return Value.newBool(this)
 }
 
-// impl AllocFrozenValue for Boolean
 internal fun Boolean.allocFrozenValue(heap: FrozenHeap): FrozenValue {
     return FrozenValue.newBool(this)
 }

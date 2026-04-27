@@ -1,4 +1,4 @@
-// port-lint: source src/tests/before_stmt.rs
+// port-lint: source src/tests/beforeStmt.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,8 +28,6 @@ import io.github.kotlinmania.starlark.eval.runtime.beforeStmtFn
 import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.syntax.AstModule
 
-// #[test]
-// fn before_stmt()
 internal fun beforeStmt() {
     Module.withTempHeap { module ->
         val globals = Globals.new()
@@ -41,7 +39,7 @@ internal fun beforeStmt() {
         val evaluator = Evaluator(module)
         evaluator.beforeStmtFn(beforeStmt)
 
-        // For a top-level statement, we get an additional before_stmt call for the possible gc, and one after each call instruction
+        // For a top-level statement, we get an additional beforeStmt call for the possible gc, and one after each call instruction
         val program = "" +
             "x = 1          # 0 + 1\n" +
             "def f():       # 1 + 1\n" +

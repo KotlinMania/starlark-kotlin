@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.trace
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Trace)]
-// struct TraceWithStatic<'v>
 @Suppress("unused")
 private class TraceWithStatic(
     val actualValue: Value,
@@ -33,10 +31,8 @@ private class TraceWithStatic(
     val ignoredBecauseStatic: StaticType<String>,
     val ignoredBecauseStaticInDyn: Any,
     val ignoredBecauseStaticInDynWithStaticBound: Any,
-    // #[trace(static)] // This is no-op, because it is inferred automatically.
     val explicitStatic: String,
 )
 
-// struct StaticType<'a, T>
 @Suppress("unused")
 private class StaticType<T>(val inner: T)

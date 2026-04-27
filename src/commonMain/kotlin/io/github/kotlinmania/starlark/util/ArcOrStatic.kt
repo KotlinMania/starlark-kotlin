@@ -1,4 +1,4 @@
-// port-lint: source src/util/arc_or_static.rs
+// port-lint: source src/util/arcOrStatic.rs
 package io.github.kotlinmania.starlark.util.arcorstatic
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.util.arcorstatic
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,45 +19,16 @@ package io.github.kotlinmania.starlark.util.arcorstatic
  * limitations under the License.
  */
 
-// #[derive(Debug, Allocative)]
-// enum Inner<T: ?Sized + 'static> {
-//     Arc(Arc<T>),
-//     Static(&'static T),
-// }
 internal sealed interface Inner<T : Any> {
-    data class Arc<T : Any>(
-        val value: T,
-    ) : Inner<T>
+    data class Arc<T : Any>(val value: T) : Inner<T>
 
-    data class Static<T : Any>(
-        val value: T,
-    ) : Inner<T>
+    data class Static<T : Any>(val value: T) : Inner<T>
 }
 
-// #[derive(Debug, Allocative)]
-// pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>);
 internal class ArcOrStatic<T> private constructor(
     private val inner: Inner<T>,
 ) : Comparable<ArcOrStatic<T>> where T : Any, T : Comparable<T> {
-    companion object {
-        // pub(crate) fn new_static(a: &'static T) -> Self
-        fun <T> newStatic(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
-            return ArcOrStatic(Inner.Static(a))
-        }
 
-        // pub(crate) fn new_arc(a: Arc<T>) -> Self
-        fun <T> newArc(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
-            return ArcOrStatic(Inner.Arc(a))
-        }
-
-        // pub(crate) fn new(a: T) -> Self
-        fun <T> new(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
-            return newArc(a)
-        }
-    }
-
-    // impl Deref for ArcOrStatic
-    // fn deref(&self) -> &T
     fun deref(): T {
         return when (val inner = inner) {
             is Inner.Arc -> inner.value
@@ -65,7 +36,6 @@ internal class ArcOrStatic<T> private constructor(
         }
     }
 
-    // impl Clone for ArcOrStatic<T>
     fun clone(): ArcOrStatic<T> {
         return when (val inner = inner) {
             is Inner.Arc -> ArcOrStatic(Inner.Arc(inner.value))
@@ -73,21 +43,33 @@ internal class ArcOrStatic<T> private constructor(
         }
     }
 
-    // impl Display for ArcOrStatic
+    fun dupe(): ArcOrStatic<T> = clone()
+
     override fun toString(): String = deref().toString()
 
-    // impl PartialEq for ArcOrStatic
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ArcOrStatic<*>) return false
         return deref() == other.deref()
     }
 
-    // impl Hash for ArcOrStatic
     override fun hashCode(): Int = deref().hashCode()
 
-    // impl Ord for ArcOrStatic
     override fun compareTo(other: ArcOrStatic<T>): Int {
         return deref().compareTo(other.deref())
+    }
+
+    companion object {
+        fun <T> newStatic(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+            return ArcOrStatic(Inner.Static(a))
+        }
+
+        fun <T> newArc(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+            return ArcOrStatic(Inner.Arc(a))
+        }
+
+        fun <T> new(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+            return newArc(a)
+        }
     }
 }

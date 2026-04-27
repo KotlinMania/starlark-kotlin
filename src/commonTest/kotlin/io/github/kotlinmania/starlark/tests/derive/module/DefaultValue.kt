@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/default_value.rs
+// port-lint: source src/tests/derive/module/defaultValue.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,22 +24,21 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
+import kotlin.test.Test
 
-// #[starlark_module]
-// fn default_value_functions(globals: &mut GlobalsBuilder)
 private fun defaultValueFunctions(globals: GlobalsBuilder) {
-    // fn foo(#[starlark(default = 75)] x: i32) -> anyhow::Result<i32>
     globals.setFunction("foo") { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Int>(0)
         Result.success(x ?: 75)
     }
 }
 
-// #[test]
-// fn test_default_value()
-internal fun testDefaultValue() {
-    val a = Assert()
-    a.globalsAdd(::defaultValueFunctions)
-    a.eq("74", "foo(74)")
-    a.eq("75", "foo()")
+class DefaultValueTests {
+    @Test
+    fun testDefaultValue() {
+        val a = Assert()
+        a.globalsAdd(::defaultValueFunctions)
+        a.eq("74", "foo(74)")
+        a.eq("75", "foo()")
+    }
 }

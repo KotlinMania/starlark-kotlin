@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.params
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -39,7 +39,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
  *
  * This is created with [`ParametersSpec.parser`].
  */
-// pub struct ParametersParser<'v, 'a>
 class ParametersParser(
     // Invariant: `slots` and `names` are the same length.
     private val slots: List<Value?>,
@@ -49,15 +48,13 @@ class ParametersParser(
 
     companion object {
         /** Create a parameter parser, which stored parameters into provided slots reference. */
-        // pub(crate) fn new(slots: &'a [Option<Value<'v>>], names: &'a [String]) -> Self
         fun new(slots: List<Value?>, names: List<String>): ParametersParser {
-            // This assertion is important because we get unchecked in `get_next`.
+            // This assertion is important because we get unchecked in `getNext`.
             check(slots.size == names.size)
             return ParametersParser(slots, names)
         }
     }
 
-    // fn get_next(&mut self) -> anyhow::Result<(Option<Value<'v>>, &'a str)>
     private fun getNext(): Pair<Value?, String> {
         check(index < slots.size) { "Requesting more parameters than were specified" }
         val v = slots[index]
@@ -67,27 +64,23 @@ class ParametersParser(
     }
 
     /** Obtain the next optional parameter (without a default value). */
-    // pub fn next_opt<T: UnpackValue<'v>>(&mut self) -> crate::Result<Option<T>>
     fun <T> nextOpt(unpack: UnpackValue<T>): T? {
         val (v, name) = getNext()
         return if (v == null) null else unpack.unpackNamedParam(v, name)
     }
 
     /** Obtain the next parameter. Fail if the parameter is optional and not provided. */
-    // pub fn next<T: UnpackValue<'v>>(&mut self) -> crate::Result<T>
     fun <T> next(unpack: UnpackValue<T>): T {
         val (v, name) = getNext()
         checkNotNull(v) { "Requested non-optional param $name which was declared optional in signature" }
         return unpack.unpackNamedParam(v, name)
     }
 
-    // pub(crate) fn is_eof(&self) -> bool
     internal fun isEof(): Boolean = index >= slots.size
 }
 
 // --- Tests ---
 
-// #[test] fn test_documentation()
 internal fun testDocumentation() {
     // Make sure that documentation for some odder parameter specs works properly.
     val p = ParametersSpec.newParts<FrozenValue>(
@@ -137,7 +130,6 @@ internal fun testDocumentation() {
     check(expected == params)
 }
 
-// #[test] fn test_parameters_str()
 internal fun testParametersStr() {
     fun test(sig: String) {
         val a = Assert()
@@ -161,7 +153,6 @@ internal fun testParametersStr() {
     test("a, **kwargs")
 }
 
-// #[test] fn test_can_fill_with_args()
 internal fun testCanFillWithArgs() {
     fun test(sig: String, pos: Int, names: List<String>, expected: Boolean) {
         val a = Assert()

@@ -1,5 +1,4 @@
-// port-lint: source src/stdlib/call_stack.rs (tests)
-package io.github.kotlinmania.starlark.stdlib
+// port-lint: source tests:src/stdlib/callStack.rspackage io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,9 +21,9 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-/** Tests for the call_stack module. */
+/** Tests for the callStack module. */
 class CallStackTests {
-    /** Test basic call_stack. */
+    /** Test basic callStack. */
     @Test
     fun testSimple() {
         val a = Assert()
@@ -47,7 +46,7 @@ foo()
         )
     }
 
-    /** Test strip_frames=1. */
+    /** Test stripFrames=1. */
     @Test
     fun testStripOne() {
         val a = Assert()
@@ -70,7 +69,7 @@ foo()
         )
     }
 
-    /** Test strip_frames removes all. */
+    /** Test stripFrames removes all. */
     @Test
     fun testStripAll() {
         val a = Assert()
@@ -89,7 +88,7 @@ foo()
         )
     }
 
-    /** Test call_stack_frame returns correct frame data. */
+    /** Test callStackFrame returns correct frame data. */
     @Test
     fun testCallStackFrame() {
         val a = Assert()

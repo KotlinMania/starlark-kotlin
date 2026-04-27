@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.syntax
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -46,9 +46,6 @@ class AstLoad(
     val symbols: Map<String, String>
 )
 
-// pub trait AstModuleFields: Sized {
-//     fn into_parts(self) -> (CodeMap, Spanned<StmtP<AstNoPayload>>, Dialect, bool);
-// }
 data class AstModuleParts(
     val codemap: CodeMap,
     val statement: Spanned<StmtP<AstNoPayload>>,
@@ -56,16 +53,34 @@ data class AstModuleParts(
     val typecheck: Boolean,
 )
 
+/**
+ * A representation of a Starlark module abstract syntax tree.
+ *
+ * Created with [AstModule.parse], and evaluated with `Evaluator.evalModule`.
+ *
+ * The internal details (statements/expressions) are deliberately omitted, as they change
+ * more regularly. A few methods to obtain information about the AST are provided.
+ */
 class AstModule(
     val codemap: CodeMap,
     var statement: Spanned<StmtP<AstNoPayload>>,
     val dialect: Dialect,
+    /**
+     * Opt-in typecheck.
+     * Specified with `@starlark-rust: typecheck`.
+     */
     val typecheck: Boolean
 ) {
-    // fn into_parts(self) -> (CodeMap, Spanned<StmtP<AstNoPayload>>, Dialect, bool)
     fun intoParts(): AstModuleParts =
         AstModuleParts(codemap, statement, dialect, typecheck)
     companion object {
+        /**
+         * Parse a Starlark module to produce an [AstModule], or an error if there are syntax errors.
+         * The [filename] is for error messages only, and does not have to be a valid file.
+         * The [Dialect] selects which Starlark constructs are valid.
+         *
+         * The returned error may contain diagnostic information.
+         */
         fun parse(filename: String, content: String, dialect: Dialect): Result<AstModule> {
             val codemap = CodeMap(filename, content)
             val lexer = Lexer(content, dialect, codemap)
@@ -83,6 +98,10 @@ class AstModule(
         }
     }
 
+    /**
+     * Return the file names of all the `load` statements in the module.
+     * If the [Dialect] had `enableLoad` set to `false` this will be an empty list.
+     */
     fun loads(): List<AstLoad> {
         val loads = mutableListOf<AstLoad>()
         fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
@@ -110,13 +129,21 @@ class AstModule(
         return loads
     }
 
-    // pub fn replace_binary_operators(&mut self, replace: &HashMap<String, String>)
+    /**
+     * Function to help people who want to write deeper AST transformations in Starlark.
+     * Likely to break type checking and LSP support to some extent.
+     *
+     * Replacement must be a map from operator name (e.g. `+` or `==`) to a function name
+     * (e.g. `myPlus` or `myEquals`).
+     */
     fun replaceBinaryOperators(replace: Map<String, String>) {
         statement = rewriteStmt(statement, replace)
     }
 
+    /** Look up a [Span] contained in this module to a [FileSpan]. */
     fun fileSpan(span: Span): FileSpan = codemap.fileSpan(span)
 
+    /** Locations where statements occur. */
     fun stmtLocations(): List<FileSpan> {
         val res = mutableListOf<FileSpan>()
         fun walk(ast: Spanned<StmtP<AstNoPayload>>) {
@@ -134,8 +161,7 @@ class AstModule(
 // --- replaceBinaryOperators helpers ---
 
 /**
- * Convert a [BinOp] to its operator symbol string (trimmed).
- * Mirrors Rust's `Display for BinOp`, but trimmed (the Rust Display includes surrounding spaces).
+ * Convert a [BinOp] to its operator symbol string (trimmed, no surrounding spaces).
  */
 private fun BinOp.toSymbol(): String = when (this) {
     BinOp.Or -> "or"

@@ -1,5 +1,4 @@
-// port-lint: source src/stdlib/funcs/other.rs (tests)
-package io.github.kotlinmania.starlark.stdlib.funcs
+// port-lint: source tests:src/stdlib/funcs/other.rspackage io.github.kotlinmania.starlark.stdlib.funcs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.stdlib.funcs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,12 +25,8 @@ import io.github.kotlinmania.starlark.assert.fail
 import io.github.kotlinmania.starlark.assert.isTrue
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class OtherTest {
 
-    // #[test]
-    // fn test_abs()
     @Test
     fun testAbs() {
         eq("1", "abs(1)")
@@ -45,8 +40,6 @@ class OtherTest {
         isTrue("isinstance(abs(1), int)")
     }
 
-    // #[test]
-    // fn test_constants()
     @Test
     fun testConstants() {
         isTrue("not None")
@@ -54,16 +47,12 @@ class OtherTest {
         isTrue("True")
     }
 
-    // #[test]
-    // fn test_chr()
     @Test
     fun testChr() {
         fail("chr(0x110000)", "not a valid UTF-8")
         fail("chr(-1)", "negative")
     }
 
-    // #[test]
-    // fn test_hash()
     @Test
     fun testHash() {
         eq("0", "hash('')")
@@ -97,8 +86,6 @@ noop(hash)(foo)
         )
     }
 
-    // #[test]
-    // fn test_int()
     @Test
     fun testInt() {
         eq("2147483647", "int('2147483647')")
@@ -113,8 +100,6 @@ noop(hash)(foo)
         eq("-2147483649", "int('-2147483649')")
     }
 
-    // #[test]
-    // fn test_tuple()
     @Test
     fun testTuple() {
         val a = Assert()

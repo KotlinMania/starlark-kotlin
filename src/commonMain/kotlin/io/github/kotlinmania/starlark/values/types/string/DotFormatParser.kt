@@ -1,4 +1,4 @@
-// port-lint: source src/dot_format_parser.rs
+// port-lint: source src/dotFormatParser.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.string
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,52 +19,35 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
-// use std::mem;
-// use std::ops::Deref;
-
-// use dupe::Dupe;
-
-/// Output the capture as `str` or `repr`.
-// #[derive(Debug, PartialEq, Copy, Clone, Dupe)]
-// pub enum FormatConv {
+/** Output the capture as `str` or `repr`. */
 enum class FormatConv {
     Str,
     Repr,
 }
 
-/// Token in the format string.
-// #[derive(Debug, PartialEq)]
-// pub enum FormatToken<'a> {
+/** Token in the format string. */
 sealed class FormatToken {
-    /// Text to copy verbatim to the output.
-    // Text(&'a str),
+    /** Text to copy verbatim to the output. */
     data class Text(val text: String) : FormatToken()
     // Capture {
     data class Capture(
-        /// Format part inside curly braces before the conversion.
-        // capture: &'a str,
+        /** Format part inside curly braces before the conversion. */
         val capture: String,
-        /// The position of this capture. This does not include the curly braces.
-        // pos: usize,
+        /** The position of this capture. This does not include the curly braces. */
         val pos: Int,
-        /// The conversion to apply to this capture.
-        // conv: FormatConv,
+        /** The conversion to apply to this capture. */
         val conv: FormatConv
     ) : FormatToken()
     // Escape(EscapeCurlyBrace),
     data class Escape(val escape: EscapeCurlyBrace) : FormatToken()
 }
 
-/// Emitted when processing an escape (`{{` or `}}`).
-// #[derive(Debug, PartialEq)]
-// pub enum EscapeCurlyBrace {
+/** Emitted when processing an escape (`{{` or `}}`). */
 enum class EscapeCurlyBrace {
     Open,
     Close;
 
-    // impl EscapeCurlyBrace
-    /// Get what this represents.
-    // pub fn as_str(&self) -> &'static str
+    /** Get what this represents. */
     fun asStr(): String {
         return when (this) {
             Open -> "{"
@@ -72,8 +55,7 @@ enum class EscapeCurlyBrace {
         }
     }
 
-    /// Get back the escaped form for this.
-    // pub fn back_to_escape(&self) -> &'static str
+    /** Get back the escaped form for this. */
     fun backToEscape(): String {
         return when (this) {
             Open -> "{{"
@@ -82,17 +64,11 @@ enum class EscapeCurlyBrace {
     }
 }
 
-/// Parser for `.format()` arguments.
-// pub struct FormatParser<'a> {
-//     view: StringView<'a>,
-// }
+/** Parser for `.format()` arguments. */
 class FormatParser(private val view: String) {
     private var i: Int = 0
 
-    // impl<'a> FormatParser<'a>
-
-    /// Parse the next token from the format string.
-    // pub fn next(&mut self) -> anyhow::Result<Option<FormatToken<'a>>>
+    /** Parse the next token from the format string. */
     fun next(): Result<FormatToken?> {
         var start = i
 

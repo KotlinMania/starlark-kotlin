@@ -17,7 +17,7 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocValue
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,7 +33,6 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 /**
  * Register string-related global functions.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  * The macro in Rust generates code to register these globals; in Kotlin, we
  * implement this explicitly as a regular function.
  */
@@ -84,7 +83,7 @@ internal fun registerStr(globals: GlobalsBuilder) {
  * unless `0 ≤ i ≤ 0x10FFFF`.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * chr(65) == 'A'
  * chr(1049) == 'Й'
  * chr(0x1F63F) == '😿'
@@ -134,7 +133,7 @@ internal fun chr(i: Int): Result<Char> {
  * Example:
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * ord("A")                                == 65
  * ord("Й")                                == 1049
  * ord("😿")                               == 0x1F63F
@@ -171,7 +170,7 @@ internal fun ord(a: StringValue): Result<Int> {
  * All strings in the result are double-quoted.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * repr(1)                 == '1'
  * repr("x")               == "\"x\""
  * repr([1, "x"])          == "[1, \"x\"]"
@@ -197,7 +196,7 @@ internal fun repr(a: Value, eval: Evaluator): Result<StringValue> {
  * double-quoted.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * str(1)                          == '1'
  * str("x")                        == 'x'
  * str([1, "x"])                   == "[1, \"x\"]"

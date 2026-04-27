@@ -1,4 +1,4 @@
-// port-lint: source ../starlark_syntax/src/call_stack.rs
+// port-lint: source ../starlarkSyntax/src/callStack.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,35 +22,27 @@ package io.github.kotlinmania.starlark
 const val CALL_STACK_TRACEBACK_PREFIX: String = "Traceback (most recent call last):"
 
 /** Owned call stack. */
-// #[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
-// pub struct CallStack {
-//     pub frames: Vec<Frame>,
-// }
 data class CallStack(
     val frames: List<Frame> = emptyList(),
 ) {
     /** Is the call stack empty? */
-    // pub fn is_empty(&self) -> bool
     fun isEmpty(): Boolean = frames.isEmpty()
 
     /** Take the contained frames. */
-    // pub fn into_frames(self) -> Vec<Frame>
     fun intoFrames(): List<Frame> = frames
 
-    // impl Display for CallStack
     override fun toString(): String {
-        if (frames.isEmpty()) return ""
         val sb = StringBuilder()
-        sb.appendLine(CALL_STACK_TRACEBACK_PREFIX)
-        var prev = "<module>"
-        for (x in frames) {
-            // Simplified rendering; full write_two_lines port pending codemap methods.
-            if (x.location != null) {
-                sb.appendLine("  * ${x.location}, in $prev")
-            } else {
-                sb.appendLine("  File <builtin>, in $prev")
+        if (frames.isNotEmpty()) {
+            // Match Python output.
+            sb.append(CALL_STACK_TRACEBACK_PREFIX)
+            sb.append('\n')
+            // Use real module name when available.
+            var prev = "<module>"
+            for (x in frames) {
+                x.writeTwoLines("  ", prev, sb)
+                prev = x.name
             }
-            prev = x.name
         }
         return sb.toString()
     }

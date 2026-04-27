@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -37,7 +37,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * Can represent either a fixed-element tuple (`tuple[T0, T1, T2]`)
  * or a variable-element tuple (`tuple[T, ...]`).
  */
-// pub enum TyTuple { Elems(Arc<[Ty]>), Of(ArcTy) }
 sealed class TyTuple : Comparable<TyTuple> {
 
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
@@ -48,21 +47,18 @@ sealed class TyTuple : Comparable<TyTuple> {
     // Of(ArcTy)
     data class Of(val item: ArcTy) : TyTuple()
 
-    // pub(crate) fn get(&self, i: usize) -> Option<&Ty>
     /** Get the type at index [i], or `null` for `Of` (any index valid). */
     fun get(i: Int): Ty? = when (this) {
         is Elems -> elems.getOrNull(i)
         is Of -> item.toTy()
     }
 
-    // pub(crate) fn item_ty(&self) -> Ty
     /** Union of all element types (identity for [Of]). */
     fun itemTy(): Ty = when (this) {
         is Elems -> Ty.unions(elems)
         is Of -> item.toTy()
     }
 
-    // pub(crate) fn intersects(this, other, ctx) -> Result<bool, InternalError>
     /**
      * Check if this tuple type could intersect with [other].
      *
@@ -89,13 +85,12 @@ sealed class TyTuple : Comparable<TyTuple> {
         else -> false
     }
 
-    // pub(crate) fn matcher<T: TypeMatcherAlloc>(&self, type_compiled_factory: T) -> T::Result
     /** Allocate a runtime type matcher for this tuple type. */
     fun <R> matcher(factory: TypeMatcherAlloc<R>): R = when (this) {
         is Elems -> when (elems.size) {
-            // [] => type_compiled_factory.alloc(IsTupleElems0)
+            // [] => typeCompiledFactory.alloc(IsTupleElems0)
             0 -> factory.alloc(IsTupleElems0)
-            // [x0] => type_compiled_factory.alloc(IsTupleElems1(...))
+            // [x0] => typeCompiledFactory.alloc(IsTupleElems1(...))
             1 -> factory.alloc(IsTupleElems1(TypeMatcherBoxAlloc.ty(elems[0])))
             // [x0, x1] => optimised 2-element path
             2 -> {
@@ -147,7 +142,6 @@ sealed class TyTuple : Comparable<TyTuple> {
         }
     }
 
-    // pub(crate) fn fmt_with_config(&self, f, config) -> fmt::Result
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String = when (this) {
         is Elems -> when {
@@ -164,7 +158,6 @@ sealed class TyTuple : Comparable<TyTuple> {
         }
     }
 
-    // impl Display for TyTuple
     override fun toString(): String = when (this) {
         is Elems -> when {
             elems.size == 1 -> "(${elems[0]},)"

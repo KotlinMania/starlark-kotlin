@@ -1,4 +1,4 @@
-// port-lint: source ../starlark_syntax/src/golden_test_template.rs
+// port-lint: source ../starlarkSyntax/src/goldenTestTemplate.rs
 package io.github.kotlinmania.starlark.goldentesttemplate
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.goldentesttemplate
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,9 +36,6 @@ private fun makeGolden(output: String): String {
 /**
  * Common code for golden tests.
  *
- * Rust: `pub fn golden_test_template(golden_rel_path: &str, output: &str)`
- *
- * In the Rust version, this reads/writes golden files using the filesystem.
  * In the Kotlin port, the actual file I/O needs platform-specific implementation.
  * For now, this validates the output format and stores it for comparison.
  */
@@ -50,6 +47,5 @@ fun goldenTestTemplate(goldenRelPath: String, output: String) {
     val outputWithPrefix = makeGolden(output)
 
     // File I/O will be implemented when the test runner is set up.
-    // The Rust version reads CARGO_MANIFEST_DIR and compares/writes golden files.
-    // In Kotlin/Native, this will use platform.posix file operations.
+    // In Kotlin/Native, this will import platform.posix file operations.
 }

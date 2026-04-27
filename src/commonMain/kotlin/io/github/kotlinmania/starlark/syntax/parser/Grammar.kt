@@ -256,8 +256,7 @@ object Grammar {
         return 0
     }
 
-    fun __expected_tokens(__state: Int): List<String> {
-        
+    fun __expectedTokens(__state: Int): List<String> {
         return emptyList()
     }
 }

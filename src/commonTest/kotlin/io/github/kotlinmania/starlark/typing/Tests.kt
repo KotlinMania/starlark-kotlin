@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-// Test-only transliterations from Rust `src/typing/tests.rs` live in `commonTest`.
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.FrozenModule
@@ -37,40 +36,29 @@ import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
 import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
+import kotlin.test.Test
 
 // Submodules:
-// mod call           -> typing.tests.call (Call.kt)
-// mod callable       -> typing.tests.callable (Callable.kt)
-// mod list           -> typing.tests.list (List.kt)
-// mod special_function -> typing.tests.special_function (SpecialFunction.kt)
-// mod tuple          -> typing.tests.tuple (Tuple.kt)
-// mod types          -> typing.tests.types (Types.kt)
 
-// #[derive(Default)]
-// struct TypeCheck
 internal class TypeCheck(
     private val expectTypes: MutableList<String> = mutableListOf(),
     private val loads: MutableMap<String, Pair<Interface, FrozenModule>> = mutableMapOf(),
 ) {
-    // fn ty(mut self, name: &str) -> Self
     fun ty(name: String): TypeCheck {
         expectTypes.add(name)
         return this
     }
 
-    // fn load(mut self, file: &str, interface: Interface, module: FrozenModule) -> Self
     fun load(file: String, interface_: Interface, module: FrozenModule): TypeCheck {
         loads[file] = Pair(interface_, module)
         return this
     }
 
-    // fn mk_file_loader(&self) -> ReturnOwnedFileLoader
     private fun mkFileLoader(): ReturnOwnedFileLoader {
         val modules = loads.map { (name, pair) -> Pair(name, pair.second) }.toMap()
         return ReturnOwnedFileLoader(modules)
     }
 
-    // fn check(&self, test_name: &str, code: &str) -> (Interface, FrozenModule)
     fun check(testName: String, code: String): Pair<Interface, FrozenModule> {
         val globals = GlobalsBuilder.extended()
             .with(::registerTypecheckGlobals)
@@ -154,10 +142,7 @@ internal class TypeCheck(
     }
 }
 
-// struct NamedXy
-// impl StarlarkCallableParamSpec for NamedXy
 private object NamedXy : StarlarkCallableParamSpec {
-    // fn params() -> ParamSpec
     override fun params(): ParamSpec {
         return ParamSpec.newParts(
             namedOnly = listOf(
@@ -168,305 +153,284 @@ private object NamedXy : StarlarkCallableParamSpec {
     }
 }
 
-// #[starlark_module]
-// fn register_typecheck_globals(globals: &mut GlobalsBuilder)
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
-    // fn accepts_iterable<'v>(xs: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_iterable") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 
-    // fn accepts_typed_kwargs(x: SmallMap<String, u32>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_typed_kwargs") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 
-    // fn accepts_callable_named_xy<'v>(f: StarlarkCallable<'v, NamedXy, NoneType>) -> anyhow::Result<NoneType>
     globals.setFunction("accepts_callable_named_xy") { args: Arguments, eval: Evaluator ->
         NoneType
     }
 }
 
-// #[test]
-// fn test_success()
-internal fun testSuccess() {
-    TypeCheck().ty("y").check(
-        "success",
-        """
-def foo(x: str) -> str:
-    return x.removeprefix("test")
-
-def bar():
-    y = hash(foo("magic"))
-""",
-    )
-}
-
-// #[test]
-// fn test_failure()
-internal fun testFailure() {
-    TypeCheck().check(
-        "failure",
-        """
-def test():
-    hash(1)
-""",
-    )
-}
-
-// #[test]
-// fn test_load()
-internal fun testLoad() {
-    val (interface_, module) = TypeCheck().check(
-        "load_0",
-        """
-def foo(x: list[bool]) -> str:
-    return "test"
-   """,
-    )
-    TypeCheck()
-        .load("foo.bzl", interface_, module)
-        .ty("res")
-        .check(
-            "load_1",
+class TypingTests {
+    @Test
+    fun testSuccess() {
+        TypeCheck().ty("y").check(
+            "success",
             """
-load("foo.bzl", "foo")
-def test():
-    res = [foo([])]
-""",
+    def foo(x: str) -> str:
+        return x.removeprefix("test")
+
+    def bar():
+        y = hash(foo("magic"))
+    """,
         )
-}
+    }
 
-/** Test things that have previous claimed incorrectly they were type errors */
-// #[test]
-// fn test_false_negative()
-internal fun testFalseNegative() {
-    TypeCheck().check(
-        "false_negative",
-        """
-def test():
-    fail("Expected variable expansion in string: `{}`".format("x"))
-""",
-    )
-}
+    @Test
+    fun testFailure() {
+        TypeCheck().check(
+            "failure",
+            """
+    def test():
+        hash(1)
+    """,
+        )
+    }
 
-// #[test]
-// fn test_dot_type()
-internal fun testDotType() {
-    TypeCheck().check(
-        "dot_type_0",
-        """
-def foo(x: list) -> bool:
-    return type(x) == type(list)
+    @Test
+    fun testLoad() {
+        val (interface_, module) = TypeCheck().check(
+            "load_0",
+            """
+    def foo(x: list[bool]) -> str:
+        return "test"
+       """,
+        )
+        TypeCheck()
+            .load("foo.bzl", interface_, module)
+            .ty("res")
+            .check(
+                "load_1",
+                """
+    load("foo.bzl", "foo")
+    def test():
+        res = [foo([])]
+    """,
+            )
+    }
 
-def bar():
-    foo([1,2,3])
-""",
-    )
-    TypeCheck().check(
-        "dot_type_1",
-        """
-def foo(x: list) -> bool:
-    return type(x) == []
+    /** Test things that have previous claimed incorrectly they were type errors */
+    @Test
+    fun testFalseNegative() {
+        TypeCheck().check(
+            "false_negative",
+            """
+    def test():
+        fail("Expected variable expansion in string: `{}`".format("x"))
+    """,
+        )
+    }
 
-def bar():
-    foo(True)
-""",
-    )
-}
+    @Test
+    fun testDotType() {
+        TypeCheck().check(
+            "dot_type_0",
+            """
+    def foo(x: list) -> bool:
+        return type(x) == type(list)
 
-// #[test]
-// fn test_accepts_iterable()
-internal fun testAcceptsIterable() {
-    TypeCheck().check(
-        "accepts_iterable",
-        """
-def test():
-    accepts_iterable([1, ()])
-""",
-    )
+    def bar():
+        foo([1,2,3])
+    """,
+        )
+        TypeCheck().check(
+            "dot_type_1",
+            """
+    def foo(x: list) -> bool:
+        return type(x) == []
 
-    val a = Assert()
-    a.globalsAdd(::registerTypecheckGlobals)
-    a.pass("accepts_iterable([1, ()])")
-}
+    def bar():
+        foo(True)
+    """,
+        )
+    }
 
-// #[test]
-// fn test_dict_bug()
-internal fun testDictBug() {
-    // NOTE(nga): figure out how to fix it.
-    //   Type of `y` should be inferred to `str`.
-    TypeCheck().ty("y").check(
-        "dict_bug",
-        """
-def test():
-    x = {}
-    x.setdefault(33, "x")
-    y = x[44]
-""",
-    )
-}
+    @Test
+    fun testAcceptsIterable() {
+        TypeCheck().check(
+            "accepts_iterable",
+            """
+    def test():
+        accepts_iterable([1, ()])
+    """,
+        )
 
-// #[test]
-// fn test_dict_lookup_by_never()
-internal fun testDictLookupByNever() {
-    TypeCheck().check(
-        "dict_never_key",
-        """
-# We use `typing.Never` when expression is an error,
-# or it is a type parameter of empty list for example.
-# Dict lookup by never should not be an error.
-def test(d: dict[typing.Any, str], x: typing.Never):
-    y = d[x]
-""",
-    )
-}
+        val a = Assert()
+        a.globalsAdd(::registerTypecheckGlobals)
+        a.pass("accepts_iterable([1, ()])")
+    }
 
-// #[test]
-// fn test_new_list_dict_syntax()
-internal fun testNewListDictSyntax() {
-    TypeCheck().ty("x").check(
-        "new_list_dict_syntax",
-        """
-def new_list_dict_syntax(d: dict[str, int]) -> list[str]:
-    return list(d.keys())
+    @Test
+    fun testDictBug() {
+        // NOTE(nga): figure out how to fix it.
+        //   Type of `y` should be inferred to `str`.
+        TypeCheck().ty("y").check(
+            "dict_bug",
+            """
+    def test():
+        x = {}
+        x.setdefault(33, "x")
+        y = x[44]
+    """,
+        )
+    }
 
-def test():
-    # Check type is properly parsed from the function return type.
-    x = new_list_dict_syntax({"a": 1, "b": 2})
-""",
-    )
-}
+    @Test
+    fun testDictLookupByNever() {
+        TypeCheck().check(
+            "dict_never_key",
+            """
+    # We use `typing.Never` when expression is an error,
+    # or it is a type parameter of empty list for example.
+    # Dict lookup by never should not be an error.
+    def test(d: dict[typing.Any, str], x: typing.Never):
+        y = d[x]
+    """,
+        )
+    }
 
-// #[test]
-// fn test_new_list_dict_syntax_as_value()
-internal fun testNewListDictSyntaxAsValue() {
-    // NOTE(nga): fix.
-    TypeCheck().ty("x").ty("y").check(
-        "new_list_dict_syntax_as_value",
-        """
-def test():
-    x = list[str]
-    y = dict[int, bool]
-""",
-    )
-}
+    @Test
+    fun testNewListDictSyntax() {
+        TypeCheck().ty("x").check(
+            "new_list_dict_syntax",
+            """
+    def new_list_dict_syntax(d: dict[str, int]) -> list[str]:
+        return list(d.keys())
 
-// #[test]
-// fn test_int_plus_float()
-internal fun testIntPlusFloat() {
-    TypeCheck().ty("x").check(
-        "int_plus_float",
-        """
-def test():
-    x = 1 + 1.0
-""",
-    )
-}
+    def test():
+        # Check type is properly parsed from the function return type.
+        x = new_list_dict_syntax({"a": 1, "b": 2})
+    """,
+        )
+    }
 
-// #[test]
-// fn test_int_bitor_float()
-internal fun testIntBitorFloat() {
-    TypeCheck().ty("x").check(
-        "int_bitor_float",
-        """
-def test():
-    x = 0x60000000000000000000000 | 1.0
-""",
-    )
-}
+    @Test
+    fun testNewListDictSyntaxAsValue() {
+        // NOTE(nga): fix.
+        TypeCheck().ty("x").ty("y").check(
+            "new_list_dict_syntax_as_value",
+            """
+    def test():
+        x = list[str]
+        y = dict[int, bool]
+    """,
+        )
+    }
 
-// #[test]
-// fn test_un_op()
-internal fun testUnOp() {
-    TypeCheck().ty("x").ty("y").ty("z").check(
-        "un_op",
-        """
-def test():
-    # Good.
-    x = -1
-    # Bad.
-    y = ~True
-    # Union good and bad.
-    z = -(1 if True else "")
-""",
-    )
-}
+    @Test
+    fun testIntPlusFloat() {
+        TypeCheck().ty("x").check(
+            "int_plus_float",
+            """
+    def test():
+        x = 1 + 1.0
+    """,
+        )
+    }
 
-// #[test]
-// fn test_union()
-internal fun testUnion() {
-    TypeCheck().check(
-        "union",
-        """
-def func_which_returns_union(p) -> str | int:
-    if p == 56:
-        return "a"
-    elif p == 57:
-        return 1
-    else:
-        return []
-""",
-    )
-}
+    @Test
+    fun testIntBitorFloat() {
+        TypeCheck().ty("x").check(
+            "int_bitor_float",
+            """
+    def test():
+        x = 0x60000000000000000000000 | 1.0
+    """,
+        )
+    }
 
-// #[test]
-// fn test_methods_work_for_ty_starlark_value()
-internal fun testMethodsWorkForTyStarlarkValue() {
-    TypeCheck().ty("x").check(
-        "methods_work_for_ty_starlark_value",
-        """
-def test(s: str):
-    x = s.startswith("a")
-""",
-    )
-}
+    @Test
+    fun testUnOp() {
+        TypeCheck().ty("x").ty("y").ty("z").check(
+            "un_op",
+            """
+    def test():
+        # Good.
+        x = -1
+        # Bad.
+        y = ~True
+        # Union good and bad.
+        z = -(1 if True else "")
+    """,
+        )
+    }
 
-// #[test]
-// fn test_bit_or_return_int()
-internal fun testBitOrReturnInt() {
-    TypeCheck().check(
-        "bit_or_return_int",
-        """
-test = int | 3
+    @Test
+    fun testUnion() {
+        TypeCheck().check(
+            "union",
+            """
+    def func_which_returns_union(p) -> str | int:
+        if p == 56:
+            return "a"
+        elif p == 57:
+            return 1
+        else:
+            return []
+    """,
+        )
+    }
 
-def foo() -> test:
-    pass
-""",
-    )
-}
+    @Test
+    fun testMethodsWorkForTyStarlarkValue() {
+        TypeCheck().ty("x").check(
+            "methods_work_for_ty_starlark_value",
+            """
+    def test(s: str):
+        x = s.startswith("a")
+    """,
+        )
+    }
 
-// #[test]
-// fn test_bit_or_return_list()
-internal fun testBitOrReturnList() {
-    TypeCheck().check(
-        "bit_or_return_list",
-        """
-test = int | list[3]
+    @Test
+    fun testBitOrReturnInt() {
+        TypeCheck().check(
+            "bit_or_return_int",
+            """
+    test = int | 3
 
-def foo() -> test:
-    pass
-""",
-    )
-}
+    def foo() -> test:
+        pass
+    """,
+        )
+    }
 
-// #[test]
-// fn test_bit_or_with_load()
-internal fun testBitOrWithLoad() {
-    val (interface_, module) = TypeCheck().check(
-        "test_bit_or_with_load_foo",
-        """
-def foo() -> str:
-    return "test"
-""",
-    )
-    TypeCheck().load("foo.bzl", interface_, module).check(
-        "test_bit_or_with_load",
-        """
-load("foo.bzl", "foo")
-test = int | foo()
-def test() -> test:
-    pass
-""",
-    )
+    @Test
+    fun testBitOrReturnList() {
+        TypeCheck().check(
+            "bit_or_return_list",
+            """
+    test = int | list[3]
+
+    def foo() -> test:
+        pass
+    """,
+        )
+    }
+
+    @Test
+    fun testBitOrWithLoad() {
+        val (interface_, module) = TypeCheck().check(
+            "test_bit_or_with_load_foo",
+            """
+    def foo() -> str:
+        return "test"
+    """,
+        )
+        TypeCheck().load("foo.bzl", interface_, module).check(
+            "test_bit_or_with_load",
+            """
+    load("foo.bzl", "foo")
+    test = int | foo()
+    def test() -> test:
+        pass
+    """,
+        )
+    }
 }

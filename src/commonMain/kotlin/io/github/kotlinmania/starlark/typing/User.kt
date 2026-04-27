@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,20 +26,15 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAllo
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
 
-// #[derive(Debug, thiserror::Error)]
-// enum TyUserError
 private sealed class TyUserError(override val message: String) : Exception(message) {
-    // #[error("Type `{0}` specifies custom callable, but underlying `StarlarkValue` is not callable")]
     class CallableNotCallable(name: String) : TyUserError(
         "Type `$name` specifies custom callable, but underlying `StarlarkValue` is not callable"
     )
 
-    // #[error("Type `{0}` specifies custom indexable, but underlying `StarlarkValue` is not indexable")]
     class IndexableNotIndexable(name: String) : TyUserError(
         "Type `$name` specifies custom indexable, but underlying `StarlarkValue` is not indexable"
     )
 
-    // #[error("Type `{0}` specifies custom iterable, but underlying `StarlarkValue` is not iterable")]
     class IterableNotIterable(name: String) : TyUserError(
         "Type `$name` specifies custom iterable, but underlying `StarlarkValue` is not iterable"
     )
@@ -48,8 +43,6 @@ private sealed class TyUserError(override val message: String) : Exception(messa
 /**
  * Types of `[]` operator.
  */
-// #[derive(Allocative, Debug)]
-// pub struct TyUserIndex
 class TyUserIndex(
     /** Type of index argument. */
     internal val index: Ty,
@@ -60,8 +53,6 @@ class TyUserIndex(
 /**
  * Fields of the struct.
  */
-// #[derive(Allocative, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
-// pub struct TyUserFields
 data class TyUserFields(
     /** Known fields. */
     val known: Map<String, Ty>,
@@ -87,11 +78,9 @@ data class TyUserFields(
             unknown = true,
         )
 
-        // impl Default for TyUserFields
         fun default(): TyUserFields = noFields()
     }
 
-    // impl Ord for TyUserFields
     override fun compareTo(other: TyUserFields): Int {
         // Compare known fields lexicographically by entries.
         val thisEntries = known.entries.sortedBy { it.key }
@@ -112,8 +101,6 @@ data class TyUserFields(
 /**
  * Optional parameters to [TyUser.new].
  */
-// #[derive(Default)]
-// pub struct TyUserParams
 class TyUserParams(
     /** Super types for this type (`base` is included in this list implicitly). */
     val supertypes: List<TyBasic> = emptyList(),
@@ -136,9 +123,6 @@ class TyUserParams(
 /**
  * Type description for arbitrary type.
  */
-// #[derive(Allocative, Debug, derive_more::Display)]
-// #[display("{}", name)]
-// pub struct TyUser
 class TyUser private constructor(
     private val name: String,
     /** Base type for this custom type, e.g. generic record for record with known fields. */
@@ -158,7 +142,6 @@ class TyUser private constructor(
 
     companion object {
         /** Constructor. */
-        // pub fn new(name, base, id, params) -> crate::Result<TyUser>
         fun new(
             name: String,
             base: TyStarlarkValue,
@@ -197,29 +180,23 @@ class TyUser private constructor(
             )
         }
 
-        // fn intersects(x: &Self, y: &Self) -> bool
         fun intersects(x: TyUser, y: TyUser): Boolean = x == y
     }
 
-    // impl Display for TyUser
-    // #[display("{}", name)]
     override fun toString(): String = name
 
-    // impl PartialEq for TyUser: compare by id only.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyUser) return false
         return id == other.id
     }
 
-    // impl Hash for TyUser: by name and fields.
     override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + fields.hashCode()
         return result
     }
 
-    // impl Ord for TyUser: by (name, fields, id).
     override fun compareTo(other: TyCustomImpl): Int {
         if (other !is TyUser) {
             return this::class.simpleName.orEmpty().compareTo(other::class.simpleName.orEmpty())
@@ -233,10 +210,8 @@ class TyUser private constructor(
 
     // --- TyCustomImpl implementation ---
 
-    // fn as_name(&self) -> Option<&str>
     override fun asName(): String = name
 
-    // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
     override fun attribute(attr: String): Result<Ty> {
         // First try base methods.
         val methodResult = base.attrFromMethods(attr)
@@ -254,7 +229,6 @@ class TyUser private constructor(
         }
     }
 
-    // fn index(&self, item: &TyBasic, ctx: &TypingOracleCtx) -> Result<Ty, TypingNoContextOrInternalError>
     override fun index(item: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         val idx = index
         if (idx != null) {
@@ -267,7 +241,6 @@ class TyUser private constructor(
         return base.index(item)
     }
 
-    // fn iter_item(&self) -> Result<Ty, TypingNoContextError>
     override fun iterItem(): Result<Ty> {
         val iter = iterItem
         if (iter != null) {
@@ -276,7 +249,6 @@ class TyUser private constructor(
         return base.iterItem()
     }
 
-    // fn as_callable(&self) -> Option<TyCallable>
     override fun asCallable(): TyCallable? {
         return if (base.isCallable()) {
             TyCallable.any()
@@ -285,7 +257,6 @@ class TyUser private constructor(
         }
     }
 
-    // fn validate_call(&self, span, args, oracle) -> Result<Ty, TypingOrInternalError>
     override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> {
         val c = callable
         if (c != null) {
@@ -298,7 +269,6 @@ class TyUser private constructor(
         }
     }
 
-    // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
         val m = matcher
         if (m != null) {
@@ -307,7 +277,6 @@ class TyUser private constructor(
         return base.matcher(factory)
     }
 
-    // fn intersects_with(&self, other: &TyBasic) -> bool
     override fun intersectsWith(other: TyBasic): Boolean {
         if (other is TyBasic.StarlarkValue) {
             if (base == other.value) {

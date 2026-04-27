@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -53,13 +53,10 @@ import io.github.kotlinmania.starlark.eval.bc.compiler.assign.markDefinitelyAssi
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.eval.compiler.DefGen
 
-// impl ArgsCompiledValue
-
 /**
  * After evaluation of function arguments like `foo(a, b=c[d], **e)`,
  * variables `a`, `b`, `c`, `d`, and `e` are definitely assigned.
  */
-// fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun ArgsCompiledValue.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     for (n in posNamed) {
         n.markDefinitelyAssignedAfter(bc)
@@ -70,7 +67,6 @@ internal fun ArgsCompiledValue.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     kwargs?.markDefinitelyAssignedAfter(bc)
 }
 
-// fn write_bc(&self, bc: &mut BcWriter, k: impl FnOnce(BcCallArgsFull<Symbol>, &mut BcWriter))
 private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, BcWriter) -> Unit) {
     writeExprs(posNamed, bc) { posNamed, bc2 ->
         writeExprOpt(args, bc2) { argsSlot, bc3 ->
@@ -87,23 +83,16 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
     }
 }
 
-// impl CallCompiled
-
 /**
  * After evaluation of call like `a[b](c.d)`,
  * variables `a`, `b`, and `c` are definitely assigned.
  */
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun CallCompiled.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     fun_.markDefinitelyAssignedAfter(bc)
     args.markDefinitelyAssignedAfterCall(bc)
 }
 
-/**
- * Wrap raw call args into the [BcCallArgs] interface expected by instruction impls.
- * In Rust, `BcCallArgsPos` directly implements `BcCallArgs<S>`.  In Kotlin, separate
- * wrapper classes are used.
- */
+/** Wrap raw call args into the call-args wrapper expected by instruction implementations. */
 private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any {
     return when (this) {
         is Either.Left -> BcCallArgsPosCallArgs<Symbol>(value)
@@ -111,9 +100,6 @@ private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any {
     }
 }
 
-// impl IrSpanned<CallCompiled>
-
-// fn write_args(args, bc, k)
 private fun writeArgs(
     args: ArgsCompiledValue,
     bc: BcWriter,
@@ -133,7 +119,6 @@ private fun writeArgs(
     }
 }
 
-// fn write_call_frozen(span, fun, args, target, bc)
 private fun writeCallFrozen(
     span: FrameSpan,
     fun_: FrozenValue,
@@ -184,7 +169,6 @@ private fun writeCallFrozen(
     }
 }
 
-// fn write_call_method(target, span, this, symbol, args, bc)
 private fun writeCallMethod(
     target: BcSlotOut,
     span: FrameSpan,
@@ -236,7 +220,6 @@ private fun writeCallMethod(
 }
 
 /** Compile a call expression to bytecode. */
-// pub(crate) fn write_bc(&self, target: BcSlotOut, bc: &mut BcWriter)
 internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter) {
     val call = this.node
 
@@ -302,8 +285,7 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     }
 }
 
-/** Simple Either type to match Rust's `either::Either`. */
-// use either::Either;
+/** Simple two-variant `Either` discriminated union. */
 internal sealed class Either<out L, out R> {
     data class Left<L>(val value: L) : Either<L, Nothing>()
     data class Right<R>(val value: R) : Either<Nothing, R>()

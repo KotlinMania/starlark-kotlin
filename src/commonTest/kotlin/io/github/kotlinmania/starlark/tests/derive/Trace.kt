@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,16 +19,4 @@ package io.github.kotlinmania.starlark.tests.derive
  * limitations under the License.
  */
 
-/**
- * Tests for the Trace derive macro.
- *
- * This module mirrors `src/tests/derive/trace.rs` which declares test submodules.
- *
- * ## Submodules
- *
- * | Rust submodule | Kotlin package                  |
- * |----------------|---------------------------------|
- * | `bounds`       | `tests.derive.trace.bounds`     |
- * | `enums`        | `tests.derive.trace.enums`      |
- * | `statics`      | `tests.derive.trace.statics`    |
- */
+/** Tests for the Trace derive macro. */

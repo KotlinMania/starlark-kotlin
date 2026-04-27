@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/type_annotation.rs
+// port-lint: source src/tests/derive/module/typeAnnotation.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,31 +25,25 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import kotlin.test.Test
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("foo")]
-// struct Foo;
 private class Foo : StarlarkValue {
-    // #[starlark_value(type = "Foo")]
     override val TYPE: String get() = "Foo"
     override fun toString(): String = "foo"
 }
 
-// #[starlark_module]
-// fn type_annotation_functions(globals: &mut GlobalsBuilder)
 private fun typeAnnotationFunctions(globals: GlobalsBuilder) {
-    // #[starlark(as_type = Foo)]
-    // fn foo(x: i32) -> Result<i32>
     globals.setFunction("foo", asType = Ty.starlarkValue(TyStarlarkValue.new("Foo"))) { args, _ ->
         val x = args.positional<Int>(0)
         Result.success(x)
     }
 }
 
-// #[test]
-// fn test_type_annotation()
-internal fun testTypeAnnotation() {
-    val a = Assert()
-    a.globalsAdd(::typeAnnotationFunctions)
-    a.eq("'Foo'", "foo.type")
+class TypeAnnotationTests {
+    @Test
+    fun testTypeAnnotation() {
+        val a = Assert()
+        a.globalsAdd(::typeAnnotationFunctions)
+        a.eq("'Foo'", "foo.type")
+    }
 }

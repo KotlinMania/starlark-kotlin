@@ -1,5 +1,4 @@
-// port-lint: source src/eval/runtime/arguments.rs (tests)
-package io.github.kotlinmania.starlark.eval.runtime
+// port-lint: source tests:src/eval/runtime/arguments.rspackage io.github.kotlinmania.starlark.eval.runtime
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0

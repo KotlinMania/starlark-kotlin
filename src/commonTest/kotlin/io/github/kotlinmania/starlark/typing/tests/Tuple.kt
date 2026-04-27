@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck
+import kotlin.test.Test
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,35 +22,34 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// Test-only transliterations from Rust `src/typing/tests/*` live in `commonTest`.
 
-// #[test]
-// fn test_tuple()
-internal fun testTuple() {
-    TypeCheck().check(
-        "tuple",
-        """
-def empty_tuple_fixed_name() -> (): return tuple()
-def empty_tuple_name_fixed() -> tuple: return ()
-""",
-    )
-}
+class TupleTests {
+    @Test
+    fun testTuple() {
+        TypeCheck().check(
+            "tuple",
+            """
+    def empty_tuple_fixed_name() -> (): return tuple()
+    def empty_tuple_name_fixed() -> tuple: return ()
+    """,
+        )
+    }
 
-// #[test]
-// fn test_tuple_ellipsis()
-internal fun testTupleEllipsis() {
-    TypeCheck().check(
-        "tuple_ellipsis",
-        """
-def f(t: tuple[int, ...]) -> int:
-    return t[0]
+    @Test
+    fun testTupleEllipsis() {
+        TypeCheck().check(
+            "tuple_ellipsis",
+            """
+    def f(t: tuple[int, ...]) -> int:
+        return t[0]
 
-def g():
-    # Good.
-    f((1, 2, 3))
+    def g():
+        # Good.
+        f((1, 2, 3))
 
-    # Bad.
-    f((1, "x"))
-""",
-    )
+        # Bad.
+        f((1, "x"))
+    """,
+        )
+    }
 }

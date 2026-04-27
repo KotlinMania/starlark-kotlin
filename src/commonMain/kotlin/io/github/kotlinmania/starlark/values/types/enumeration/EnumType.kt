@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/enumeration/enum_type.rs
+// port-lint: source src/values/types/enumeration/enumType.rs
 package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -191,7 +191,6 @@ class EnumTypeGen internal constructor(
             )
 
             // The unwrap here is safe because the new() method requires the elements be
-            // of type StringValue<'v>
             val fieldsMap = linkedMapOf<String, Ty>().apply {
                 for (key in elements().keys()) {
                     put(key.unpackStr()!!, tyEnumValue)
@@ -268,10 +267,7 @@ class EnumTypeGen internal constructor(
     }
 }
 
-// Rust type aliases:
-// pub type EnumType<'v> = EnumTypeGen<Value<'v>>;
-// pub type FrozenEnumType = EnumTypeGen<FrozenValue>;
-// Kotlin: Use EnumTypeGen directly; frozen flag distinguishes.
+// Frozen and unfrozen enum types share `EnumTypeGen`; the `frozen` flag distinguishes them.
 
 private val enumTypeMethodsStatic = MethodsStatic()
 

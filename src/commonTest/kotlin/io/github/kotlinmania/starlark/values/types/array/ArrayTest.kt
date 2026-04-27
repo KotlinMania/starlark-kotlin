@@ -1,5 +1,4 @@
-// port-lint: source src/values/types/array.rs (tests)
-package io.github.kotlinmania.starlark.values.types.array
+// port-lint: source tests:src/values/types/array.rspackage io.github.kotlinmania.starlark.values.types.array
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values.types.array
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,8 +28,6 @@ import kotlin.test.assertEquals
 
 class ArrayTest {
 
-    // #[test]
-    // fn debug()
     @Test
     fun debug() {
         Heap.temp { heap ->
@@ -41,8 +38,6 @@ class ArrayTest {
         }
     }
 
-    // #[test]
-    // fn display()
     @Test
     fun display() {
         Heap.temp { heap ->
@@ -53,8 +48,6 @@ class ArrayTest {
         }
     }
 
-    // #[test]
-    // fn push()
     @Test
     fun push() {
         Heap.temp { heap ->

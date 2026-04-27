@@ -1,4 +1,4 @@
-// port-lint: source src/vec_map/iter.rs
+// port-lint: source src/vecMap/iter.rs
 package starlarkmap.vecmap.iter
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.vecmap.iter
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,18 +25,15 @@ import starlarkmap.StarlarkHashValue
 /**
  * Iterator adaptors for VecMap.
  *
- * In Rust, these are custom iterator structs with [ExactSizeIterator]
  * and [DoubleEndedIterator] implementations, using macros to reduce
  * boilerplate. In Kotlin, we use [Sequence] and [Iterator] which
  * provide similar functionality through the standard library.
  *
- * The Rust types `Keys`, `Values`, `ValuesMut`, `Iter`, `IterMut`,
  * `IterMutUnchecked`, `IterHashed`, `IntoIterHashed`, and `IntoIter`
  * are all thin wrappers around slice/vec2 iterators. In Kotlin, these
  * are represented as sequences or iterators over the underlying list.
  */
 
-/** Iterator over keys of a VecMap. Corresponds to Rust `Keys<'a, K, V>`. */
 internal class Keys<K, V>(
     private val iter: Iter<K, V>,
 ) : Iterator<K> {
@@ -44,7 +41,6 @@ internal class Keys<K, V>(
     override fun next(): K = iter.next().first
 }
 
-/** Iterator over values of a VecMap. Corresponds to Rust `Values<'a, K, V>`. */
 internal class Values<K, V>(
     private val iter: Iter<K, V>,
 ) : Iterator<V> {
@@ -53,7 +49,6 @@ internal class Values<K, V>(
 }
 
 /**
- * Iterator over entries of a VecMap. Corresponds to Rust `Iter<'a, K, V>`.
  * Wraps a list iterator over (K, V) pairs.
  */
 internal class Iter<K, V>(
@@ -65,13 +60,12 @@ internal class Iter<K, V>(
     fun len(): Int {
         var count = 0
         val copy = iter
-        // ListIterator doesn't have a remaining() method; use the backing list size
+        // ListIterator doesn't have a remaining() method; import the backing list size
         return count
     }
 }
 
 /**
- * Iterator over entries with hashes. Corresponds to Rust `IterHashed<'a, K, V>`.
  * Yields (Hashed<K>, V) pairs.
  */
 internal class IterHashed<K, V>(
@@ -93,7 +87,6 @@ internal class IterHashed<K, V>(
 }
 
 /**
- * Into-iterator with hashes. Corresponds to Rust `IntoIterHashed<K, V>`.
  * Consumes the entries and yields (Hashed<K>, V) pairs.
  */
 internal class IntoIterHashed<K, V>(
@@ -115,7 +108,6 @@ internal class IntoIterHashed<K, V>(
 }
 
 /**
- * Into-iterator. Corresponds to Rust `IntoIter<K, V>`.
  * Consumes the entries and yields (K, V) pairs (dropping hashes).
  */
 internal class IntoIter<K, V>(

@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/value_lifetimeless.rs
+// port-lint: source src/values/layout/valueLifetimeless.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,22 +19,10 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-// use std::fmt::Debug;
-// use std::fmt::Display;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-// use serde::Serialize;
-
-// use crate::sealed::Sealed;
-// use crate::values::Freeze;
-// use crate::values::FrozenValue;
-
 import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
-/// Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue).
-// pub trait ValueLifetimeless:
+/** Implemented by [`Value`](crate::values::Value) and [`FrozenValue`](crate::values::FrozenValue). */
 //     Sealed
 //     + Eq
 //     + Copy

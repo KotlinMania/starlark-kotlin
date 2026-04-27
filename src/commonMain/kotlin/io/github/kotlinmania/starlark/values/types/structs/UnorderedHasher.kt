@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/structs/unordered_hasher.rs
+// port-lint: source src/values/types/structs/unorderedHasher.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -35,8 +35,8 @@ internal class UnorderedHasher {
     }
 
     fun writeHash(value: ULong) {
-        state = state + value  // wrapping_add in Rust
-        count = count + 1uL    // wrapping_add in Rust
+        state = state + value  // wrappingAdd in Rust
+        count = count + 1uL    // wrappingAdd in Rust
     }
 
     fun finish(): ULong {

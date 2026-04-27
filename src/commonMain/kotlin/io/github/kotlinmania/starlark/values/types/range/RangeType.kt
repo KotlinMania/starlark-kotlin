@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/range/range_type.rs
+// port-lint: source src/values/types/range/rangeType.rs
 package io.github.kotlinmania.starlark.values.types.range
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.range
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -95,7 +95,7 @@ data class Range(
         val index = index.toLong()
         val step = this.step.get().toLong()
 
-        // saturating_mul then saturating_add
+        // saturatingMul then saturatingAdd
         var product = index * step
         if (index != 0L && product / index != step) {
             product = if ((index xor step) >= 0) Long.MAX_VALUE else Long.MIN_VALUE

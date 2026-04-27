@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.syntax.ast
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,7 @@ import io.github.kotlinmania.starlark.codemap.Span
 /** Payload types attached to AST nodes. */
 interface AstPayload {
     // We don't really need `Clone` for any payload in Kotlin.
-    // In Kotlin we use generics directly or expect the implementation to provide the correct types.
+    // In Kotlin we import generics directly or expect the implementation to provide the correct types.
     // Since Kotlin doesn't have associated types, we'll parameterize or just use `Any?` for now,
     // or properly type the nodes using generic type parameters.
 }

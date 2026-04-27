@@ -1,5 +1,7 @@
-// port-lint: source src/tests/bc/for_stmt.rs
+// port-lint: source src/tests/bc/forStmt.rs
 package io.github.kotlinmania.starlark.tests.bc
+
+import kotlin.test.Test
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -7,7 +9,7 @@ package io.github.kotlinmania.starlark.tests.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,26 +21,25 @@ package io.github.kotlinmania.starlark.tests.bc
  * limitations under the License.
  */
 
-// #[test]
-// fn test_for()
-internal fun testFor() {
-    bcGoldenTest("for", "def test(x):\n  for i in x:\n    noop(i)")
-}
+class ForStmtTests {
+    @Test
+    fun testFor() {
+        bcGoldenTest("for", "def test(x):\n  for i in x:\n    noop(i)")
+    }
 
-// #[test]
-// fn test_for_break()
-internal fun testForBreak() {
-    bcGoldenTest(
-        "for_break",
-        "def test(x):\n  for i in x:\n    if i: break\n    noop(i)",
-    )
-}
+    @Test
+    fun testForBreak() {
+        bcGoldenTest(
+            "for_break",
+            "def test(x):\n  for i in x:\n    if i: break\n    noop(i)",
+        )
+    }
 
-// #[test]
-// fn test_for_continue()
-internal fun testForContinue() {
-    bcGoldenTest(
-        "for_continue",
-        "def test(x):\n  for i in x:\n    if i: continue\n    noop(i)",
-    )
+    @Test
+    fun testForContinue() {
+        bcGoldenTest(
+            "for_continue",
+            "def test(x):\n  for i in x:\n    if i: continue\n    noop(i)",
+        )
+    }
 }

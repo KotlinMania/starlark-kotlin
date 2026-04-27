@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,22 +27,16 @@ import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
-// #[derive(Error, Debug)]
-// pub(crate) enum UnderscoreWarning
 internal sealed class UnderscoreWarning : LintWarning {
     /** Underscore definitions should be simple. */
-    // #[error("Underscore definitions should be simple `{0}`")]
     data class UnderscoreDefinition(val name: String) : UnderscoreWarning() {
         override fun toString(): String = "Underscore definitions should be simple `$name`"
     }
 
     /** Used ignored variable. */
-    // #[error("Used ignored variable `{0}`")]
     data class UsingIgnored(val name: String) : UnderscoreWarning() {
         override fun toString(): String = "Used ignored variable `$name`"
     }
-
-    // impl LintWarning for UnderscoreWarning
 
     override fun severity(): EvalSeverity = EvalSeverity.Disabled
 
@@ -58,7 +52,6 @@ internal sealed class UnderscoreWarning : LintWarning {
     }
 }
 
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<UnderscoreWarning>>
 internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
     val res = mutableListOf<LintT<UnderscoreWarning>>()
     inappropriateUnderscore(module.codemap, module.statement, true, res)
@@ -131,7 +124,6 @@ private fun Spanned<StmtP<AstNoPayload>>.visitStmtExprU(visitor: (Spanned<ExprP<
 }
 
 /** There's no reason to make a def or lambda and give it an underscore name not at the top level. */
-// fn inappropriate_underscore(codemap: &CodeMap, x: &Spanned<StmtP<AstNoPayload>>, top: bool, res: &mut Vec<LintT<UnderscoreWarning>>)
 internal fun inappropriateUnderscore(
     codemap: CodeMap,
     x: Spanned<StmtP<AstNoPayload>>,
@@ -139,7 +131,6 @@ internal fun inappropriateUnderscore(
     res: MutableList<LintT<UnderscoreWarning>>,
 ) {
     // Is this value allowed as an assignment to a boring identifier - just tuple of vars and var.
-    // fn is_allowed(x: &Spanned<ExprP<AstNoPayload>>) -> bool
     fun isAllowed(x: Spanned<ExprP<AstNoPayload>>): Boolean {
         return when (val e = x.node) {
             is ExprP.Tuple -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<AstNoPayload, *> }
@@ -188,15 +179,13 @@ internal fun inappropriateUnderscore(
     }
 }
 
-/** Don't want to use a variable that has been defined to be ignored. */
-// fn use_ignored(codemap: &CodeMap, x: &Spanned<StmtP<AstNoPayload>>, res: &mut Vec<LintT<UnderscoreWarning>>)
+/** Don't want to import a variable that has been defined to be ignored. */
 internal fun useIgnored(
     codemap: CodeMap,
     x: Spanned<StmtP<AstNoPayload>>,
     res: MutableList<LintT<UnderscoreWarning>>,
 ) {
     // We are ok with using things that were defined at the top level, but not nested.
-    // fn root_definitions<'a>(x: &'a Spanned<StmtP<AstNoPayload>>, res: &mut HashSet<&'a str>)
     fun visitLvalue(target: AssignTargetP<AstNoPayload>, defs: MutableSet<String>) {
         when (target) {
             is AssignTargetP.Tuple -> target.elements.forEach { visitLvalue(it.node, defs) }
@@ -219,13 +208,11 @@ internal fun useIgnored(
         }
     }
 
-    // fn is_ignored(x: &str) -> bool
     fun isIgnored(name: String): Boolean {
         // we want things like __internal__ for builtin things to expose themselves quietly
         return name.startsWith('_') && !(name.startsWith("__") && name.endsWith("__"))
     }
 
-    // fn check_expr(codemap: &CodeMap, x: &Spanned<ExprP<AstNoPayload>>, roots: &HashSet<&str>, res: &mut Vec<LintT<UnderscoreWarning>>)
     fun checkExpr(
         codemap: CodeMap,
         x: Spanned<ExprP<AstNoPayload>>,
@@ -255,5 +242,4 @@ internal fun useIgnored(
     x.visitStmtExprU { child -> checkExpr(codemap, child, roots, res) }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

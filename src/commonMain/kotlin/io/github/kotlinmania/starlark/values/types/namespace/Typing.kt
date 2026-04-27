@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.namespace
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,14 +34,11 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 
-// #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
 internal object NamespaceMatcher : TypeMatcher {
-    // #[type_matcher]
     override fun matches(value: Value): Boolean =
         value.starlarkTypeId() == StarlarkTypeId.of(NamespaceGen::class)
 }
 
-// #[derive(Allocative, Clone, Copy, Dupe, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 internal object TyNamespaceFunction : TyCustomFunctionImpl {
 
     override fun asCallable(): TyCallable =
@@ -75,7 +72,6 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
     }
 }
 
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Allocative)]
 data class TyNamespace(
     val fields: Map<ArcStr, Ty>,
     /** `true` if there might be additional fields not captured above,
@@ -117,7 +113,6 @@ data class TyNamespace(
         return 0
     }
 
-    // impl Display for TyNamespace
     override fun toString(): String {
         val items = buildList {
             for ((k, v) in fields) {

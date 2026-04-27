@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.data
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -39,21 +39,15 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfilerType
 import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfilerType
 
-// #[derive(Debug, thiserror::Error)]
-// enum ProfileDataError
 sealed class ProfileDataError : Exception() {
-    // #[error("Empty profile list cannot be merged")]
     data object EmptyProfileList : ProfileDataError() {
         override val message: String get() = "Empty profile list cannot be merged"
     }
-    // #[error("Different profile modes in profile")]
     data object DifferentProfileModes : ProfileDataError() {
         override val message: String get() = "Different profile modes in profile"
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum ProfileDataImpl
 internal sealed class ProfileDataImpl {
     // Bc(Box<BcProfileData>)
     data class Bc(val data: BcProfileData) : ProfileDataImpl()
@@ -83,7 +77,6 @@ internal sealed class ProfileDataImpl {
     // None
     data object None : ProfileDataImpl()
 
-    // pub(crate) fn profile_mode(&self) -> ProfileMode
     fun profileMode(): ProfileMode = when (this) {
         is Bc -> ProfileMode.Bytecode
         is BcPairs -> ProfileMode.BytecodePairs
@@ -102,18 +95,14 @@ internal sealed class ProfileDataImpl {
 }
 
 /** Collected profiling data. */
-// #[derive(Clone, Debug)]
-// pub struct ProfileData
 @ConsistentCopyVisibility
 data class ProfileData internal constructor(
     internal val profile: ProfileDataImpl,
 ) {
     /** Profile mode used to collect this data. */
-    // pub fn profile_mode(&self) -> ProfileMode
     fun profileMode(): ProfileMode = profile.profileMode()
 
     /** Generate a string with flamegraph profile data, depending on profile type. */
-    // pub fn gen_flame_data(&self) -> crate::Result<String>
     fun genFlameData(): String = when (val p = profile) {
         is ProfileDataImpl.TimeFlameProfile -> p.data.write()
         is ProfileDataImpl.HeapRetained -> p.data.genFlameGraphData()
@@ -124,7 +113,6 @@ data class ProfileData internal constructor(
     }
 
     /** Generate a string with csv profile data, depending on profile type. */
-    // pub fn gen_csv(&self) -> crate::Result<String>
     fun genCsv(): String = when (val p = profile) {
         is ProfileDataImpl.Bc -> p.data.genCsv()
         is ProfileDataImpl.BcPairs -> p.data.genCsv()
@@ -141,7 +129,6 @@ data class ProfileData internal constructor(
 
     companion object {
         /** Merge profiles (aggregate). */
-        // pub fn merge(profiles: impl IntoIterator<Item = &'a ProfileData>) -> crate::Result<ProfileData>
         fun merge(profiles: Iterable<ProfileData>): ProfileData {
             val list = profiles.toList()
 

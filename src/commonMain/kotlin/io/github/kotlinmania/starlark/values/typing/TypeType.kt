@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_type.rs
+// port-lint: source src/values/typing/typeType.rs
 package io.github.kotlinmania.starlark.values.typing
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,13 +27,11 @@ import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 
 /** Represent a type of type. (For example, an expression `int` is valid for this type.) */
 class TypeType private constructor() : StarlarkTypeRepr, UnpackValue<TypeType> {
-    // impl StarlarkTypeRepr for TypeType
 
     override fun starlarkTypeRepr(): Ty {
         return AbstractType.starlarkTypeRepr()
     }
 
-    // impl UnpackValue for TypeType
     override fun unpackValueImpl(value: Value): Result<TypeType?> {
         return if (value.vtable().hasEvalType) {
             Result.success(TypeType())
@@ -54,5 +52,4 @@ class TypeType private constructor() : StarlarkTypeRepr, UnpackValue<TypeType> {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

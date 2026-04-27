@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Ready to execute bytecode. */
-// #[derive(Default)]
-// pub(crate) struct Bc
 internal class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /** Number of local variable slots. */
@@ -43,7 +41,6 @@ internal class Bc(
 ) {
     companion object {
         /** Find span for instruction. */
-        // pub(crate) fn slow_arg_at_ptr(addr_ptr: BcPtrAddr<'_>) -> &BcInstrSlowArg
         fun slowArgAtPtr(addrPtr: BcPtrAddr, bcInstrs: BcInstrs): BcInstrSlowArg {
             var ptr = addrPtr
             while (true) {
@@ -65,7 +62,6 @@ internal class Bc(
             }
         }
 
-        // pub(crate) fn wrap_error_for_instr_ptr(ptr: BcPtrAddr, e: crate::Error, eval: &Evaluator) -> EvalException
         fun wrapErrorForInstrPtr(
             ptr: BcPtrAddr,
             e: StarlarkError,
@@ -82,12 +78,10 @@ internal class Bc(
      *
      * Frame must be allocated properly, otherwise it will likely result in memory corruption.
      */
-    // pub(crate) fn run<'v, EC: EvaluationCallbacks>(&self, eval: &mut Evaluator, ec: &mut EC) -> Result<Value, EvalException>
     fun run(eval: Evaluator, ec: EvaluationCallbacks): Result<Value> {
         return runBlock(eval, ec, instrs.startPtr(), instrs)
     }
 
-    // pub(crate) fn dump_debug(&self) -> String
     fun dumpDebug(): String {
         return buildString {
             appendLine("Max stack size: $maxStackSize")
@@ -102,11 +96,9 @@ internal class Bc(
 /**
  * Execute one instruction by dispatching on the opcode.
  *
- * In Rust, this uses generic dispatch via BcOpcodeHandler trait and proc-macro
  * generated code. In Kotlin, we dispatch using the opcode to look up the
  * instruction argument from the buffer and call the appropriate handler.
  */
-// fn step<'v, 'b, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, frame: BcFramePtr, ip: BcPtrAddr) -> InstrControl
 private fun step(
     eval: Evaluator,
     ec: EvaluationCallbacks,
@@ -251,7 +243,6 @@ private fun dispatchInstruction(
 }
 
 /** Execute the code block, either a module or a function body. */
-// pub(crate) fn run_block<'v, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, mut ip: BcPtrAddr) -> Result<Value, EvalException>
 internal fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,

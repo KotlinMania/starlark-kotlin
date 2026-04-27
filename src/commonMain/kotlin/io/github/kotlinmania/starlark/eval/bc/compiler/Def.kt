@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler.def
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,9 +33,6 @@ import io.github.kotlinmania.starlark.eval.bc.compiler.writeBc
 import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
 import io.github.kotlinmania.starlark.eval.compiler.mapExpr
 
-// impl DefCompiled
-
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     // ArgumentP<AstNoPayload> default values and types can be used
     // to mark variables definitely assigned.
@@ -43,7 +40,6 @@ internal fun DefCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
     val unused = bc
 }
 
-// pub(crate) fn write_bc(&self, span: FrameSpan, target: BcSlotOut, bc: &mut BcWriter)
 internal fun DefCompiled.writeBc(span: FrameSpan, target: BcSlotOut, bc: BcWriter) {
     val functionName = this.functionName
     val paramList = this.params.params

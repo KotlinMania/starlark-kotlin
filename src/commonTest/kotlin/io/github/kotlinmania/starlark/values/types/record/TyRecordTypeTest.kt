@@ -1,5 +1,4 @@
-// port-lint: source src/values/types/record/ty_record_type.rs (tests)
-package io.github.kotlinmania.starlark.values.types.record
+// port-lint: source tests:src/values/types/record/tyRecordType.rspackage io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values.types.record
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,8 +23,6 @@ import kotlin.test.Test
 
 class TyRecordTypeTest {
 
-    // #[test]
-    // fn test_good()
     @Test
     fun testGood() {
         Assert.pass(
@@ -39,8 +36,6 @@ foo(MyRec(x = 1))
         )
     }
 
-    // #[test]
-    // fn test_fail_compile_time()
     @Test
     fun testFailCompileTime() {
         Assert.failGolden(
@@ -57,8 +52,6 @@ def bar():
         )
     }
 
-    // #[test]
-    // fn test_fail_runtime_time()
     @Test
     fun testFailRuntimeTime() {
         Assert.failGolden(
@@ -74,8 +67,6 @@ noop(foo)(WrongRec(x = 1))
         )
     }
 
-    // #[test]
-    // fn test_record_instance_typechecker_ty()
     @Test
     fun testRecordInstanceTypecheckerTy() {
         Assert.pass(
@@ -90,8 +81,6 @@ def foo() -> MyRec:
         )
     }
 
-    // #[test]
-    // fn test_typecheck_field_pass()
     @Test
     fun testTypecheckFieldPass() {
         Assert.pass(
@@ -106,8 +95,6 @@ assert_eq(f(MyRec(x = 1, y = 2)), 3)
         )
     }
 
-    // #[test]
-    // fn test_typecheck_field_fail()
     @Test
     fun testTypecheckFieldFail() {
         Assert.failGolden(
@@ -121,8 +108,6 @@ def f(rec: MyRec) -> int:
         )
     }
 
-    // #[test]
-    // fn test_typecheck_record_type_call()
     @Test
     fun testTypecheckRecordTypeCall() {
         Assert.failGolden(

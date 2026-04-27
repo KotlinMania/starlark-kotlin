@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.list
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,9 +29,9 @@ import io.github.kotlinmania.starlark.values.types.none.NoneOr
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.UnpackValue
 
-// -- Index conversion helpers (from starlark_syntax::convert_indices) ----------
+// -- Index conversion helpers (from starlarkSyntax::convertIndices) ----------
 //
-// These functions are ported from `starlark_syntax::convert_indices` which
+// These functions are ported from `starlarkSyntax::convertIndices` which
 // provides index conversion utilities shared across list and string types.
 
 /**
@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark.values.UnpackValue
  * This is a helper used by [convertIndices] and [convertIndex] to ensure
  * adjusted indices stay within valid bounds.
  *
- * Corresponds to Rust's `bound` function in `convert_indices.rs`.
  */
 private fun bound(value: Int, limit: Int): Int {
     return when {
@@ -59,8 +58,7 @@ private fun bound(value: Int, limit: Int): Int {
  * Used by [index] to resolve the `start` and `end` parameters that
  * restrict the search range.
  *
- * Corresponds to Rust's `convert_indices` function in
- * `starlark_syntax::convert_indices`.
+ * `starlarkSyntax::convertIndices`.
  *
  * @param len The length of the sequence being indexed.
  * @param start Optional start index; `null` means 0.
@@ -82,8 +80,7 @@ internal fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
  *
  * Used by [insert] to resolve the insertion position.
  *
- * Corresponds to Rust's `convert_index` function in
- * `starlark_syntax::convert_indices`.
+ * `starlarkSyntax::convertIndices`.
  *
  * @param len The length of the sequence being indexed.
  * @param index The raw index to convert.
@@ -99,9 +96,6 @@ internal fun convertIndex(len: Int, index: Int): Int {
 /**
  * Register list methods with the given [MethodsBuilder].
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated
- * `list_methods` function. In Rust, the method definitions appear inside
- * the `#[starlark_module]` block; in Kotlin they are provided as
  * standalone functions below and wired in through the builder.
  */
 internal fun listMethodsImpl(builder: MethodsBuilder) {
@@ -177,7 +171,6 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  * `extend` fails if `x` is not iterable, or if the list L is frozen or has
  * active iterators.
  *
- * In Rust, the `other` parameter is typed as
  * `ValueOfUnchecked<StarlarkIter<Value>>` to allow the type checker to
  * verify the argument is iterable. In Kotlin, we accept a plain [Value]
  * and perform the iterable check at runtime via [Value.iterate].
@@ -229,7 +222,7 @@ internal fun extend(
  * is not a valid index (`int` or `None`).
  *
  * This function is speculative-execution safe (annotated with
- * `#[starlark(speculative_exec_safe)]` in Rust).
+ * `(starlark(speculativeExecSafe))` in Rust).
  *
  * ```starlark
  * x = ["b", "a", "n", "a", "n", "a"]
@@ -255,7 +248,6 @@ internal fun index(
         start.intoOption(),
         end.intoOption(),
     )
-    // In Rust: if let Some(haystack) = this.get(start..end)
     val haystack = thisRef.get(startIdx until endIdx)
     if (haystack != null) {
         for ((i, x) in haystack.withIndex()) {
@@ -399,8 +391,6 @@ internal fun remove(
     return Result.success(NoneType)
 }
 
-// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
-
 /**
  * Test object for list method tests.
  *
@@ -408,19 +398,16 @@ internal fun remove(
  * of `methods.rs`.
  */
 internal object ListMethodTests {
-    /** Corresponds to Rust's `test_error_codes`. */
     fun testErrorCodes() {
         // x = [1, 2, 3, 2]; x.remove(2); x.remove(2); x.remove(2)
         // => "not found in list"
     }
 
-    /** Corresponds to Rust's `test_index`. */
     fun testIndex() {
         // Should fail, but should not panic.
         // [True].index(True, 1, 0) => "not found"
     }
 
-    /** Corresponds to Rust's `recursive_list`. */
     fun testRecursiveList() {
         // cyclic = [1, 2, 3]; cyclic[1] = cyclic
         // len(cyclic) == 3 and len(cyclic[1]) == 3

@@ -1,4 +1,4 @@
-// port-lint: source src/values/frozen_ref.rs
+// port-lint: source src/values/frozenRef.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,11 +25,10 @@ import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
- * Rust `Box<T>`.
+ * Owning indirection wrapper around a value of type [T].
  *
- * In the Rust implementation, `Box<T>` is an owned pointer indirection.
- * In this Kotlin port, this wrapper is used only where the Rust code distinguishes
- * `T` vs `Box<T>` in trait implementations.
+ * Used only where the original API distinguishes `T` from a heap-allocated
+ * indirection in trait implementations.
  */
 class Box<T>(
     val value: T,
@@ -102,12 +101,10 @@ class FrozenRef<T>(
     }
 }
 
-// impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, T>
 fun <T> FrozenRef<T>.borrow(): T {
     return value
 }
 
-// impl<'fv, T: 'fv + ?Sized> Borrow<T> for FrozenRef<'fv, Box<T>>
 fun <T> FrozenRef<Box<T>>.borrow(): T {
     return value.value
 }
@@ -120,7 +117,7 @@ fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int {
     return value.compareTo(other.value)
 }
 
-/** `Atomic<Option<FrozenRef<T>>>`. */
+/** Atomic, optional [FrozenRef]. */
 @OptIn(ExperimentalAtomicApi::class)
 internal class AtomicFrozenRefOption<T>(
     initial: FrozenRef<T>?,

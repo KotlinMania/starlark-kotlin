@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,31 +32,24 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 
-// #[derive(Trace, Freeze, Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
-// #[display("TestComplexValue<{}>", _0)]
-// pub(crate) struct TestComplexValue<V: ValueLifetimeless>(pub(crate) V)
 internal class TestComplexValue(
     val inner: Value,
 ) : ComplexValue, Trace, AllocValue, AllocFrozenValue {
 
-    // #[starlark_value(type = "TestComplexValue")]
     override val TYPE: String get() = "TestComplexValue"
 
     override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
 
     override fun toString(): String = "TestComplexValue<$inner>"
 
-    // #[derive(Trace)]
     override fun trace(tracer: Tracer) {
         // inner is a Value, traced by the GC
     }
 
-    // impl AllocValue for TestComplexValue<Value>
     override fun allocValue(heap: Heap): Value {
         return heap.allocComplex(this)
     }
 
-    // impl AllocFrozenValue for TestComplexValue<FrozenValue>
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return heap.allocSimple(this)
     }
@@ -66,7 +59,6 @@ internal class TestComplexValue(
  * There's no anyhow API to print error without rust backtrace
  * ([issue](https://github.com/dtolnay/anyhow/issues/300)).
  */
-// pub(crate) fn trim_rust_backtrace(error: &str) -> &str
 internal fun trimRustBacktrace(error: String): String {
     val pos = error.indexOf("\nStack backtrace:")
     return if (pos >= 0) {

@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
+import kotlin.test.Test
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,95 +24,89 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
 
 /** Test for `a == b` optimizations. */
 
+class EqTests {
+    @Test
+    fun testEqInt() {
+        bcGoldenTest(
+            "eq_int",
+            """
+    def test(x):
+        return x == 10
+    """,
+        )
+    }
 
-// #[test]
-// fn test_eq_int()
-internal fun testEqInt() {
-    bcGoldenTest(
-        "eq_int",
-        """
-def test(x):
-    return x == 10
-""",
-    )
-}
+    @Test
+    fun testEqStr() {
+        bcGoldenTest(
+            "eq_str",
+            """
+    def test(x):
+        return x == "hello"
+    """,
+        )
+    }
 
-// #[test]
-// fn test_eq_str()
-internal fun testEqStr() {
-    bcGoldenTest(
-        "eq_str",
-        """
-def test(x):
-    return x == "hello"
-""",
-    )
-}
+    @Test
+    fun testEqShortStrIsPtrEq() {
+        bcGoldenTest(
+            "eq_short_str",
+            """
+    def test(x):
+        return x == "a"
+    """,
+        )
+    }
 
-// #[test]
-// fn test_eq_short_str_is_ptr_eq()
-internal fun testEqShortStrIsPtrEq() {
-    bcGoldenTest(
-        "eq_short_str",
-        """
-def test(x):
-    return x == "a"
-""",
-    )
-}
+    @Test
+    fun testEqBoolIsPtrEq() {
+        bcGoldenTest(
+            "eq_bool",
+            """
+    def test(x):
+        return x == True
+    """,
+        )
+    }
 
-// #[test]
-// fn test_eq_bool_is_ptr_eq()
-internal fun testEqBoolIsPtrEq() {
-    bcGoldenTest(
-        "eq_bool",
-        """
-def test(x):
-    return x == True
-""",
-    )
-}
+    /** Enum values do not override `equals` method, so we can import pointer equality. */
+    @Test
+    fun testEqEnumIsPtrEq() {
+        bcGoldenTest(
+            "eq_enum",
+            """
+    Color = enum("RED", "GREEN", "BLUE")
 
-/** Enum values do not override `equals` method, so we can use pointer equality. */
-// #[test]
-// fn test_eq_enum_is_ptr_eq()
-internal fun testEqEnumIsPtrEq() {
-    bcGoldenTest(
-        "eq_enum",
-        """
-Color = enum("RED", "GREEN", "BLUE")
+    def test(x):
+        return x == Color("RED")
+    """,
+        )
+    }
 
-def test(x):
-    return x == Color("RED")
-""",
-    )
-}
+    /** Enum values do not override `equals` method, so we can import pointer equality. */
+    @Test
+    fun testEqEnumAttrIsPtrEq() {
+        bcGoldenTest(
+            "eq_enum_attr",
+            """
+    Color = enum("RED", "GREEN", "BLUE")
 
-/** Enum values do not override `equals` method, so we can use pointer equality. */
-// #[test]
-// fn test_eq_enum_attr_is_ptr_eq()
-internal fun testEqEnumAttrIsPtrEq() {
-    bcGoldenTest(
-        "eq_enum_attr",
-        """
-Color = enum("RED", "GREEN", "BLUE")
+    def test(x):
+        return x == Color.RED
+    """,
+        )
+    }
 
-def test(x):
-    return x == Color.RED
-""",
-    )
-}
+    @Test
+    fun testEqConst() {
+        bcGoldenTest(
+            "eq_const",
+            """
+    S = struct(a = 2)
 
-// #[test]
-// fn test_eq_const()
-internal fun testEqConst() {
-    bcGoldenTest(
-        "eq_const",
-        """
-S = struct(a = 2)
-
-def test(x):
-    return x == S
-""",
-    )
+    def test(x):
+        return x == S
+    """,
+        )
+    }
 }

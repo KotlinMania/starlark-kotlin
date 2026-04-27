@@ -1,4 +1,4 @@
-// port-lint: source starlark_syntax/src/error.rs
+// port-lint: source starlarkSyntax/src/error.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.codemap.Span
  * This error is composed of an error kind, together with some diagnostic information indicating
  * where it occurred.
  *
- * Port of `starlark_syntax::Error` (re-exported as `starlark::Error`).
+ * Port of `starlarkSyntax::Error` (re-exported as `starlark::Error`).
  */
 class Error private constructor(
     private val kind: ErrorKind,
@@ -118,20 +118,6 @@ class Error private constructor(
         } else {
             kind.toString()
         }
-    }
-}
-
-/** A frame in a call stack. */
-data class Frame(
-    val name: String,
-    val location: FileSpan?,
-) {
-    override fun toString(): String {
-        val sb = StringBuilder(name)
-        if (location != null) {
-            sb.append(" (called from $location)")
-        }
-        return sb.toString()
     }
 }
 

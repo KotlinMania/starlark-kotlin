@@ -1,4 +1,4 @@
-// port-lint: source src/typing/arc_ty.rs
+// port-lint: source src/typing/arcTy.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,20 +19,6 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-// use std::fmt;
-// use std::fmt::Display;
-// use std::fmt::Formatter;
-// use std::ops::Deref;
-// use std::sync::Arc;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-
-// use crate::typing::Ty;
-// use crate::typing::ty::TypeRenderConfig;
-
-// #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Allocative)]
-// enum ArcTyInner {
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
     data object Any : ArcTyInner()
@@ -41,7 +27,7 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object Int : ArcTyInner()
     data object Bool : ArcTyInner()
     data object None : ArcTyInner()
-    /// Default implementation.
+    /** Default implementation. */
     // Arc(Arc<Ty>),
     data class Arc(val ty: Ty) : ArcTyInner()
 
@@ -86,9 +72,7 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     }
 }
 
-/// Wrapper for `Ty` which is smaller than `Ty`.
-// #[derive(Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, derive_more::Display, Debug, Allocative)]
-// pub struct ArcTy(ArcTyInner);
+/** Wrapper for `Ty` which is smaller than `Ty`. */
 class ArcTy private constructor(
     private val inner: ArcTyInner,
 ) : Comparable<ArcTy> {
@@ -107,7 +91,6 @@ class ArcTy private constructor(
 
     override fun toString(): String = inner.toString()
 
-    // impl ArcTy
     companion object {
         private val ANY: Ty = Ty.any()
         private val NEVER: Ty = Ty.never()
@@ -116,12 +99,10 @@ class ArcTy private constructor(
         private val BOOL: Ty = Ty.bool()
         private val NONE: Ty = Ty.none()
 
-        // pub(crate) fn any() -> ArcTy
         internal fun any(): ArcTy {
             return ArcTy(ArcTyInner.Any)
         }
 
-        // pub(crate) fn new(ty: Ty) -> ArcTy
         internal fun new(ty: Ty): ArcTy {
             return if (ty.isAny()) {
                 any()
@@ -140,7 +121,6 @@ class ArcTy private constructor(
             }
         }
 
-        // pub(crate) fn union2(a: ArcTy, b: ArcTy) -> ArcTy
         internal fun union2(a: ArcTy, b: ArcTy): ArcTy {
             return if (a == b) {
                 a
@@ -150,17 +130,14 @@ class ArcTy private constructor(
         }
     }
 
-    // pub(crate) fn to_ty(&self) -> Ty
     internal fun toTy(): Ty {
         return deref()
     }
 
-    // pub(crate) fn display_with<'a>(&'a self, config: &'a TypeRenderConfig) -> ArcTyDisplay<'a>
     internal fun displayWith(config: TypeRenderConfig): ArcTyDisplay {
         return ArcTyDisplay(this, config)
     }
 
-    // impl Deref for ArcTy { type Target = Ty; fn deref(&self) -> &Ty }
     fun deref(): Ty {
         return when (val i = inner) {
             is ArcTyInner.Any -> ANY
@@ -174,10 +151,6 @@ class ArcTy private constructor(
     }
 }
 
-// pub(crate) struct ArcTyDisplay<'a> {
-//     ty: &'a ArcTy,
-//     config: &'a TypeRenderConfig,
-// }
 internal class ArcTyDisplay(
     private val ty: ArcTy,
     private val config: TypeRenderConfig,

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -41,13 +41,9 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * Generic set wrapper.
  *
  * Transparent wrapper around the inner set implementation.
- * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
  */
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
-// pub(crate) struct SetGen<T>(pub(crate) T);
 data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
-    // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val innerVal = inner
@@ -73,14 +69,9 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
 
     private fun setLike(): SetLike = inner as SetLike
 
-    // #[starlark_value(type = "set")]
-    // impl StarlarkValue for SetGen<T>
-
-    // fn length(&self) -> crate::Result<i32>
     override fun length(): Result<Int> =
         Result.success(setLike().content().len())
 
-    // fn is_in(&self, other: Value<'v>) -> crate::Result<bool>
     override fun isIn(other: Value): Result<Boolean> {
         return try {
             val hashed = other.getHashed().getOrThrow()
@@ -90,44 +81,36 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         }
     }
 
-    // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
         val otherSet = SetRef.unpackValueOpt(other)
             ?: return Result.success(false)
         return Result.success(equalsSmallSet(setLike().content(), otherSet.content))
     }
 
-    // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods? = setMethods()
 
-    // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun iterate(me: Value, _heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }
 
-    // unsafe fn iter_size_hint(&self, index: usize) -> (usize, Option<usize>)
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         check(index <= setLike().content().len())
         val rem = setLike().content().len() - index
         return Pair(rem, rem)
     }
 
-    // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
     override fun iterNext(index: Int, heap: Heap): Value? {
         return setLike().contentUnchecked().iter().drop(index).firstOrNull()
     }
 
-    // unsafe fn iter_stop(&self)
     override fun iterStop() {
         setLike().iterStop()
     }
 
-    // fn to_bool(&self) -> bool
     override fun toBool(): Boolean =
         !setLike().content().isEmpty()
 
-    // fn bit_or(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
             // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
@@ -148,7 +131,6 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         }
     }
 
-    // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return try {
             val otherSet = SetRef.unpackValueOpt(other)
@@ -171,7 +153,6 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         }
     }
 
-    // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun bitXor(other: Value, heap: Heap): Result<Value> {
         return try {
             val otherSet = SetRef.unpackValueOpt(other)
@@ -199,7 +180,6 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         }
     }
 
-    // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
             val otherSet = SetRef.unpackValueOpt(other)
@@ -226,13 +206,10 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         }
     }
 
-    // fn typechecker_ty(&self) -> Option<Ty>
     override fun typecheckerTy(): Ty? = Ty.anySet()
 
-    // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
 
-    // impl Display for SetGen<T>
     override fun toString(): String {
         return fmtContainer("set([", "])", setLike().content().iter())
     }
@@ -243,7 +220,6 @@ private const val SET_TYPE: String = "set"
 /**
  * Define the mutable set type.
  *
- * Corresponds to Rust's `SetData`.
  */
 class SetData internal constructor(
     /** The data stored by the set. */
@@ -292,7 +268,6 @@ class SetData internal constructor(
 /**
  * Define the frozen set type.
  *
- * Corresponds to Rust's `FrozenSetData`.
  */
 class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
@@ -313,7 +288,6 @@ fun SetData.starlarkTypeRepr(): Ty {
     return Ty.anySet()
 }
 
-
 /**
  * Get set methods.
  */
@@ -331,7 +305,6 @@ private fun setMethodsImpl(builder: io.github.kotlinmania.starlark.environment.M
 /**
  * Trait for set-like operations.
  *
- * Corresponds to Rust's `SetLike` trait.
  */
 interface SetLike {
     fun content(): SmallSet<Value>
@@ -352,7 +325,6 @@ class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     }
 
     override fun iterStart() {
-        // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
         // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
         cell.borrow()
     }
@@ -389,15 +361,12 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
     }
 }
 
-// impl Serialize for SetGen<T>
 fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
-// Register vtable for frozen set (special type not handled by #[starlark_value] macro, because V is not ValueLike).
-// Note: registerAvalueSimpleFrozen!(SetGen<FrozenSetData>) - to be implemented in registration system
+// Note: registerAvalueSimpleFrozen(SetGen<FrozenSetData>) - to be implemented in registration system
 
 /**
  * Format a container with start/end delimiters and comma-separated items.
- * Corresponds to Rust's `display_container::fmt_container`.
  */
 private fun <T> fmtContainer(
     start: String,
@@ -418,7 +387,6 @@ private fun <T> fmtContainer(
 
 /**
  * Compare two SmallSets for equality by checking containment in both directions.
- * Corresponds to Rust's `equals_small_set`.
  */
 private fun <K> equalsSmallSet(xs: SmallSet<K>, ys: SmallSet<K>): Boolean {
     if (xs.len() != ys.len()) {

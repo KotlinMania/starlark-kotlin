@@ -1,4 +1,4 @@
-// port-lint: source src/typing/starlark_value.rs
+// port-lint: source src/typing/starlarkValue.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -38,20 +38,18 @@ private sealed class TyStarlarkValueError : Exception() {
 /**
  * VTable holding type-level information for a [TyStarlarkValue].
  *
- * In Rust this stores a static reference to type name, the `StarlarkValueVTable`,
- * and `StarlarkTypeId` fields for canonical type checking.
- * In Kotlin we store the type name, capability flags, and function references
- * for type-level dispatch.
+ * Stores the type name, canonical type id, capability flags, and function
+ * references for type-level dispatch.
  */
 private class TyStarlarkValueVTable(
     val typeName: String,
     val starlarkTypeId: String = typeName,
     /**
-     * `starlark_type_id` is the canonical type id.
-     * `starlark_type_id_check` is the canonical-of-canonical check.
+     * `starlarkTypeId` is the canonical type id.
+     * `starlarkTypeIdCheck` is the canonical-of-canonical check.
      */
     val starlarkTypeIdCheck: String = typeName,
-    // Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
+    // Capability flags.
     val hasPlus: Boolean = false,
     val hasMinus: Boolean = false,
     val hasBitNot: Boolean = false,
@@ -61,7 +59,7 @@ private class TyStarlarkValueVTable(
     val hasIterate: Boolean = false,
     val hasIterateCollect: Boolean = false,
     val hasEvalType: Boolean = false,
-    // Function references for type-level dispatch (mirrors Rust vtable function pointers).
+    // Function references for type-level dispatch.
     val binOpTy: (TypingBinOp, TyBasic) -> Ty? = { _, _ -> null },
     val rbinOpTy: (TyBasic, TypingBinOp) -> Ty? = { _, _ -> null },
     val getMethods: () -> Methods? = { null },
@@ -69,11 +67,7 @@ private class TyStarlarkValueVTable(
 )
 
 /**
- * Pre-built vtables for known Starlark types.
- *
- * In Rust this is `TyStarlarkValueVTableGet<'v, T: StarlarkValue<'v>>` which uses
- * const generics to extract vtable data at compile time. In Kotlin we pre-build
- * vtables for all known types and provide a lookup mechanism.
+ * Pre-built vtables for known Starlark types, looked up by type name.
  */
 private object TyStarlarkValueVTableGet {
     val INT_VTABLE = TyStarlarkValueVTable(
@@ -133,44 +127,39 @@ private object TyStarlarkValueVTableGet {
 }
 
 /**
- * Type implementation where typing is handled by the [StarlarkValue] trait implementation.
+ * Type implementation where typing is handled by the `StarlarkValue` interface
+ * implementation.
  *
- * Wraps a vtable that captures type metadata and behavior flags from a `StarlarkValue`
- * implementation, then exposes query methods the type checker uses to determine what
- * operations a type supports.
+ * Wraps a vtable that captures type metadata and behaviour flags, then exposes
+ * query methods the type checker uses to determine what operations a type supports.
  */
 class TyStarlarkValue private constructor(
     private val vtable: TyStarlarkValueVTable,
 ) : Comparable<TyStarlarkValue> {
 
     // -- Debug --
-    // Rust: impl Debug for TyStarlarkValue
     internal fun debugString(): String {
         return "TyStarlarkValue { type_name: \"${vtable.typeName}\", .. }"
     }
 
     // -- Display --
-    // Rust: impl Display for TyStarlarkValue { fn fmt ... }
     override fun toString(): String {
         return fmtWithConfig(TypeRenderConfig.Default)
     }
 
-    // -- PartialEq / Eq --
-    // Rust: compares starlark_type_id
+    // -- PartialEq / Eq -- compares starlarkTypeId
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyStarlarkValue) return false
         return vtable.starlarkTypeId == other.vtable.starlarkTypeId
     }
 
-    // -- Hash --
-    // Rust: hashes type_name because type id is not stable
+    // -- Hash -- hashes typeName because type id is not stable
     override fun hashCode(): Int {
         return vtable.typeName.hashCode()
     }
 
-    // -- Ord --
-    // Rust: compares type_name lexicographically
+    // -- Ord -- compares typeName lexicographically
     override fun compareTo(other: TyStarlarkValue): Int {
         return vtable.typeName.compareTo(other.vtable.typeName)
     }
@@ -302,7 +291,6 @@ class TyStarlarkValue private constructor(
     /**
      * Validate that this type is callable.
      *
-     * In Rust: `fn validate_call(self, span: Span, oracle: TypingOracleCtx) -> Result<Ty, TypingError>`
      * Returns [Ty.any] if callable, throws if not.
      */
     internal fun validateCall(
@@ -364,10 +352,6 @@ class TyStarlarkValue private constructor(
     companion object {
         /**
          * Create a type instance from a type name.
-         *
-         * In Rust: `pub const fn new<'v, T: StarlarkValue<'v>>() -> TyStarlarkValue`
-         * In Kotlin, since `StarlarkValue.TYPE` is an instance property and we cannot
-         * extract it from a KClass alone, callers pass the type name string directly.
          */
         fun new(typeName: String): TyStarlarkValue {
             return TyStarlarkValue(TyStarlarkValueVTableGet.forType(typeName))

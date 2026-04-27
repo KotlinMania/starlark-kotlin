@@ -1,5 +1,4 @@
-// port-lint: source src/pagable/vtable_registry.rs (tests)
-package io.github.kotlinmania.starlark.pagable
+// port-lint: source tests:src/pagable/vtableRegistry.rspackage io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.pagable
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,12 +23,12 @@ import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 import kotlin.test.assertEquals
 
-/// Tests for the vtable registry.
-///
-/// The Rust tests use `inventory::collect!` and derive macros
-/// (`starlark_simple_value!`, `#[starlark_value]`, `#[derive(Trace, Freeze, Coerce)]`)
-/// to register test types at compile time. In Kotlin, we register entries
-/// manually to test the same registry lookup behavior.
+/**
+ * Tests for the vtable registry.
+ *
+ * to register test types at compile time. In Kotlin, we register entries
+ * manually to test the same registry lookup behavior.
+ */
 class VtableRegistryTest {
 
     @Test
@@ -92,13 +91,14 @@ class VtableRegistryTest {
     }
 }
 
-/// Test types used for registry tests.
+/** Test types used for registry tests. */
 private class TestRegistryType
 private class NonExistentType
 private class AnotherTestType
 
-/// Factory to create test vtables.
-/// In Rust, vtables are created by proc macros. Here we create minimal test instances.
+/**
+ * Factory to create test vtables.
+ */
 private object TestVTableFactory {
     fun createTestVTable(typeName: String): io.github.kotlinmania.starlark.values.layout.AValueVTable {
         return io.github.kotlinmania.starlark.values.layout.AValueVTable(

@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck
+import kotlin.test.Test
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,59 +22,58 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// Test-only transliterations from Rust `src/typing/tests/*` live in `commonTest`.
 
 /** Test for callables, but not calls. */
 
-// #[test]
-// fn test_callable_with_args()
-internal fun testCallableWithArgs() {
-    TypeCheck().check(
-        "callable_with_args",
-        """
-def accept_f(x: typing.Callable[[int, str], str]):
-    pass
+class CallableTests {
+    @Test
+    fun testCallableWithArgs() {
+        TypeCheck().check(
+            "callable_with_args",
+            """
+    def accept_f(x: typing.Callable[[int, str], str]):
+        pass
 
-def good_function(x: int, y: str) -> str:
-    return ""
+    def good_function(x: int, y: str) -> str:
+        return ""
 
-def bad_function(x: int, y: bool) -> str:
-    return ""
+    def bad_function(x: int, y: bool) -> str:
+        return ""
 
-def test():
-    accept_f(good_function)
-    accept_f(bad_function)
-""",
-    )
-}
+    def test():
+        accept_f(good_function)
+        accept_f(bad_function)
+    """,
+        )
+    }
 
-// #[test]
-// fn test_callable_named()
-internal fun testCallableNamed() {
-    TypeCheck().check(
-        "callable_named",
-        """
-def good_function_pos_or_named(x: str, y: int) -> None:
-    pass
+    @Test
+    fun testCallableNamed() {
+        TypeCheck().check(
+            "callable_named",
+            """
+    def good_function_pos_or_named(x: str, y: int) -> None:
+        pass
 
-def good_function_named_only(*, x: str, y: int) -> None:
-    pass
+    def good_function_named_only(*, x: str, y: int) -> None:
+        pass
 
-def bad_function_wrong_types(x: bool, y: list) -> None:
-    pass
+    def bad_function_wrong_types(x: bool, y: list) -> None:
+        pass
 
-def bad_function_missing_params(x: str) -> None:
-    pass
+    def bad_function_missing_params(x: str) -> None:
+        pass
 
-def bad_function_extra_params(x: str, y: int, z: int) -> None:
-    pass
+    def bad_function_extra_params(x: str, y: int, z: int) -> None:
+        pass
 
-def test():
-    accepts_callable_named_xy(good_function_pos_or_named)
-    accepts_callable_named_xy(good_function_named_only)
-    accepts_callable_named_xy(bad_function_wrong_types)
-    accepts_callable_named_xy(bad_function_missing_params)
-    accepts_callable_named_xy(bad_function_extra_params)
-""",
-    )
+    def test():
+        accepts_callable_named_xy(good_function_pos_or_named)
+        accepts_callable_named_xy(good_function_named_only)
+        accepts_callable_named_xy(bad_function_wrong_types)
+        accepts_callable_named_xy(bad_function_missing_params)
+        accepts_callable_named_xy(bad_function_extra_params)
+    """,
+        )
+    }
 }

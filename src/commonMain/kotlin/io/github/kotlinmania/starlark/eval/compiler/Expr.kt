@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -293,7 +293,7 @@ internal sealed class ExprCompiled {
 
     /**
      * Expression equivalent to `(x, y)[1]`: evaluate `x`, discard the result,
-     * then evaluate `y` and use its result.
+     * then evaluate `y` and import its result.
      */
     data class Seq(
         val first: IrSpanned<ExprCompiled>,
@@ -1387,8 +1387,8 @@ internal fun getAttrHashedBind(
     }
     val attrResult = aref.getAttrHashed(attribute.asStrHashed(), heap)
     return if (attrResult != null) {
-        // Only `get_methods` is allowed to return unbound methods or attributes.
-        // Both types are crate private, so we assume `get_attr` never returns them.
+        // Only `getMethods` is allowed to return unbound methods or attributes.
+        // Both types are crate private, so we assume `getAttr` never returns them.
         Result.success(attrResult)
     } else {
         Result.failure(getAttrNoAttrError(x, attribute))

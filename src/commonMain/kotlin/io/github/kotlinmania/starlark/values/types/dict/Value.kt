@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,11 +45,8 @@ import io.github.kotlinmania.starlark.values.toValue
 import starlarkmap.Equivalent
 import kotlin.reflect.KClass
 
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
-// pub(crate) struct DictGen<T>(pub(crate) T);
 data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
-    // impl Freeze for DictGen<RefCell<Dict<'v>>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as DictGen<AtomicRef<Dict>>
@@ -70,8 +67,6 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         is DictLike -> fmtKeyedContainer("{", "}", ": ", innerVal.content().iter())
         else -> super<ComplexValue>.toString()
     }
-
-    // --- StarlarkValue implementation (mirrors Rust's #[starlark_value] impl) ---
 
     override fun getMethods(): Methods? = getDictMethods()
 
@@ -212,12 +207,10 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
     }
 }
 
-// impl Display for Dict
 fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
-// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 class Dict(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<Value, Value>
@@ -316,7 +309,6 @@ class Dict(
 fun Dict.allocValue(heap: Heap): Value =
     heap.allocComplex(DictGen(AtomicRef(this)))
 
-// #[derive(Clone, Default, Debug, ProvidesStaticType, Allocative)]
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<FrozenValue, FrozenValue>
@@ -384,11 +376,9 @@ class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
     override fun content(): SmallMap<Value, Value> = cell.value.content
 
     override fun iterStart() {
-        // In Rust: mem::forget(self.borrow())
     }
 
     override fun iterStop() {
-        // In Rust: unleak_borrow(self)
     }
 
     override fun contentUnchecked(): SmallMap<Value, Value> = cell.value.content

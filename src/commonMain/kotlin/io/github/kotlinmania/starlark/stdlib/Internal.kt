@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.stdlib.internal
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,17 +29,13 @@ import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
-// fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
 private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
-    // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
     globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: Value = args.full.pos.firstOrNull() ?: Value.newNone()
         eval.heap().allocStr(Ty.ofValue(value).toString())
     }
 }
 
-// pub(crate) fn register_internal(globals: &mut GlobalsBuilder)
 fun registerInternal(globals: GlobalsBuilder) {
     globals.namespaceNoDocs("starlark_rust_internal") { s ->
         starlarkRustInternalMembers(s)

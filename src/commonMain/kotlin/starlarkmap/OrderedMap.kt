@@ -1,4 +1,4 @@
-// port-lint: source src/ordered_map.rs
+// port-lint: source src/orderedMap.rs
 package starlarkmap.orderedmap
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.orderedmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -41,12 +41,10 @@ class OrderedMap<K, V> internal constructor(
         fun <K, V> withCapacity(capacity: Int): OrderedMap<K, V> =
             OrderedMap(SmallMap.withCapacity(capacity))
 
-        /** Create a default (empty) [OrderedMap]. Corresponds to Rust `Default` impl. */
         fun <K, V> default(): OrderedMap<K, V> = OrderedMap(SmallMap.new())
 
         /**
          * Create an [OrderedMap] from an iterable of key-value pairs.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <K, V> fromIterator(iter: Iterable<Pair<K, V>>): OrderedMap<K, V> {
             val map = SmallMap.new<K, V>()
@@ -58,7 +56,6 @@ class OrderedMap<K, V> internal constructor(
 
         /**
          * Create an [OrderedMap] from a [SmallMap].
-         * Corresponds to Rust `From<SmallMap<K, V>>` impl.
          */
         fun <K, V> from(map: SmallMap<K, V>): OrderedMap<K, V> = OrderedMap(map)
     }
@@ -83,13 +80,11 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Get a reference to the value associated with the given key.
-     * Corresponds to Rust `get<Q>(&self, k: &Q) -> Option<&V>`.
      */
     fun get(key: K): V? = inner.get(key)
 
     /**
      * Get a reference to the value associated with the given key using [Equivalent].
-     * Corresponds to Rust `get<Q>(&self, k: &Q) -> Option<&V>` with `Q: Equivalent<K>`.
      */
     fun <Q> get(key: Q): V? where Q : Equivalent<K> = inner.get(key)
 
@@ -98,7 +93,6 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Find an entry index for a given key.
-     * Corresponds to Rust `get_index_of<Q>(&self, key: &Q) -> Option<usize>`.
      */
     fun getIndexOf(key: K): Int? = inner.getIndexOf(key)
 
@@ -107,7 +101,6 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Check if the map contains the given key.
-     * Corresponds to Rust `contains_key<Q>(&self, k: &Q) -> bool`.
      */
     fun containsKey(key: K): Boolean = inner.getIndexOf(key) != null
 
@@ -116,13 +109,11 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Insert an entry into the map. Returns the previous value if the key existed.
-     * Corresponds to Rust `insert(&mut self, k: K, v: V) -> Option<V>`.
      */
     fun insert(key: K, value: V): V? = inner.insert(key, value)
 
     /**
      * Remove an entry by key. Uses shift-remove to preserve iteration order.
-     * Corresponds to Rust `remove<Q>(&mut self, k: &Q) -> Option<V>`.
      */
     fun remove(key: K): V? = inner.shiftRemove(key)
 
@@ -134,7 +125,6 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Sort the map by keys.
-     * Corresponds to Rust `sort_keys(&mut self) where K: Ord`.
      */
     @Suppress("UNCHECKED_CAST")
     fun sortKeys() {
@@ -143,7 +133,6 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Extend the map with entries from an iterable.
-     * Corresponds to Rust `Extend<(K, V)>` impl.
      */
     fun extend(iter: Iterable<Pair<K, V>>) {
         for ((k, v) in iter) {
@@ -151,13 +140,11 @@ class OrderedMap<K, V> internal constructor(
         }
     }
 
-    /** Corresponds to Rust `IntoIterator` impl. */
     override fun iterator(): Iterator<Pair<K, V>> = inner.iterator()
 
     /**
      * Ordered equality: two [OrderedMap]s are equal iff they contain the same entries
      * in the same iteration order.
-     * Corresponds to Rust `PartialEq` impl using `eq_ordered`.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -176,9 +163,7 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Hash based on ordered iteration of entries.
-     * Corresponds to Rust `Hash` impl using `hash_ordered`.
      *
-     * In Rust, `hash_ordered` hashes only the values (the keys are already
      * incorporated via the Hashed wrapper's hash). In Kotlin we hash both
      * key and value in iteration order to remain consistent with [equals].
      */
@@ -193,7 +178,6 @@ class OrderedMap<K, V> internal constructor(
 
     /**
      * Compare two [OrderedMap]s lexicographically by their iteration order.
-     * Corresponds to Rust `PartialOrd` / `Ord` impls.
      */
     override fun compareTo(other: OrderedMap<K, V>): Int {
         val thisIter = iter().iterator()

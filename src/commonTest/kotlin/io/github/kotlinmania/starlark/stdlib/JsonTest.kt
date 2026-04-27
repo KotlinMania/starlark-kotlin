@@ -1,5 +1,4 @@
-// port-lint: source src/stdlib/json.rs (tests)
-package io.github.kotlinmania.starlark.stdlib
+// port-lint: source tests:src/stdlib/json.rspackage io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,12 +21,8 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class JsonTest {
 
-    // #[test]
-    // fn test_json_encode()
     @Test
     fun testJsonEncode() {
         val a = Assert()
@@ -40,8 +35,6 @@ class JsonTest {
         a.eq("'9223372036854775807'", "json.encode(9223372036854775807)")
     }
 
-    // #[test]
-    // fn test_json_decode()
     @Test
     fun testJsonDecode() {
         val a = Assert()
@@ -57,8 +50,6 @@ class JsonTest {
         )
     }
 
-    // #[test]
-    // fn test_json_very_large_int()
     @Test
     fun testJsonVeryLargeInt() {
         val a = Assert()
@@ -96,8 +87,6 @@ class JsonTest {
         )
     }
 
-    // #[test]
-    // fn test_json_128bit_and_beyond()
     @Test
     fun testJson128bitAndBeyond() {
         val a = Assert()
@@ -206,7 +195,7 @@ class JsonTest {
             "json.decode(json.encode(-115792089237316195423570985008687907853269984665640564039457584007913129639936))",
         )
 
-        // Test extremely large numbers beyond typical use cases
+        // Test extremely large numbers beyond typical import cases
 
         // 2^512 - cryptocurrency/cryptographic scale number
         val large512bit = "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096"

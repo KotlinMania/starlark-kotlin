@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_compiled/compiled.rs
+// port-lint: source src/values/typing/typeCompiled/compiled.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 import io.github.kotlinmania.starlark.typing.Ty
@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -106,7 +106,6 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     }
 
     override fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
-        // Hash::hash(&self.ty, hasher)
         return kotlin.Result.success(Unit)
     }
 
@@ -170,7 +169,7 @@ fun typeCompiledCheckMatches(thisValue: Value, value: Value): NoneType {
 /** Methods for compiled type values. */
 fun typeCompiledMethods(methods: MethodsBuilder) {
     // methods.addMethod("matches", ::typeCompiledMatches)
-    // methods.addMethod("check_matches", ::typeCompiledCheckMatches)
+    // methods.addMethod("checkMatches", ::typeCompiledCheckMatches)
 }
 
 /** Wrapper for a [Value] that acts like a runtime type matcher. */
@@ -338,7 +337,7 @@ class TypeCompiled(
                 return fromList(list, heap)
             }
             if (ty.requestValue<TypeCompiledDyn>() != null) {
-                // This branch is optimization: TypeCompiledAsStarlarkValue implements eval_type,
+                // This branch is optimization: TypeCompiledAsStarlarkValue implements evalType,
                 // but this branch avoids copying the type.
                 return TypeCompiled(ty)
             }

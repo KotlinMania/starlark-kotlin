@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -72,8 +72,6 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
  * ```
  */
 internal fun registerDict(globals: GlobalsBuilder) {
-    // Rust: #[starlark(as_type = FrozenDict, speculative_exec_safe, special_builtin_function = SpecialBuiltinFunction::Dict)]
-    // fn dict<'v>(args: &Arguments<'v, '_>, heap: Heap<'v>) -> starlark::Result<Dict<'v>>
     globals.setFunction("dict", asType = Ty.starlarkValue(TyStarlarkValue.dict())) { args: Arguments, eval: Evaluator ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.

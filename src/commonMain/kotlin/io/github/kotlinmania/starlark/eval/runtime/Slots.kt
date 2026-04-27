@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.eval.runtime
 import io.github.kotlinmania.starlark.eval.bc.BcSlot
 
 /** Not captured. */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, Freeze, VisitSpanMut, Allocative)]
-// pub(crate) struct LocalSlotId(pub(crate) u32)
 internal data class LocalSlotId(val index: UInt) {
     /**
      * Each local slot is a valid BC slot.
@@ -32,10 +30,8 @@ internal data class LocalSlotId(val index: UInt) {
      * * or used for writing
      * * but not captured
      */
-    // pub(crate) fn to_bc_slot(self) -> BcSlot
     fun toBcSlot(): BcSlot = BcSlot(index)
 
-    // pub(crate) fn to_captured_or_not(self) -> LocalSlotIdCapturedOrNot
     fun toCapturedOrNot(): LocalSlotIdCapturedOrNot = LocalSlotIdCapturedOrNot(index)
 }
 
@@ -52,10 +48,7 @@ internal data class LocalSlotId(val index: UInt) {
  *
  * `x` slots (in both `f` and `lambda`) are captured.
  */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace, VisitSpanMut)]
-// pub(crate) struct LocalCapturedSlotId(pub(crate) u32)
 internal data class LocalCapturedSlotId(val index: UInt) {
-    // pub(crate) fn to_bc_slot(self) -> BcSlot
     fun toBcSlot(): BcSlot = BcSlot(index)
 }
 
@@ -64,6 +57,4 @@ internal data class LocalCapturedSlotId(val index: UInt) {
  *
  * This is used only during AST analysis.
  */
-// #[derive(Clone, Copy, Dupe, Debug, PartialEq, Eq, Trace)]
-// pub(crate) struct LocalSlotIdCapturedOrNot(pub(crate) u32)
 data class LocalSlotIdCapturedOrNot(val index: UInt)

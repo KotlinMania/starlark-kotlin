@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/lint_message.rs
+// port-lint: source src/analysis/lintMessage.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,8 +28,6 @@ import kotlinx.serialization.Transient
  *
  * [Linter JSON format](https://www.internalfb.com/intern/wiki/Linting/adding-linters/).
  */
-// #[derive(Debug, Clone, Serialize)]
-// pub struct LintMessage
 @Serializable
 data class LintMessage(
     val path: String,
@@ -41,12 +39,10 @@ data class LintMessage(
     val description: String?,
     val original: String?,
 ) {
-    // impl LintMessage
     companion object {
         /**
          * Construct from an [EvalMessage].
          */
-        // pub fn new(x: EvalMessage) -> Self
         fun new(x: EvalMessage): LintMessage {
             return LintMessage(
                 path = x.path,

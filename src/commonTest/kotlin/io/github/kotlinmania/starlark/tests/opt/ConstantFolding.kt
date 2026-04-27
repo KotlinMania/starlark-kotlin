@@ -1,4 +1,4 @@
-// port-lint: source src/tests/opt/constant_folding.rs
+// port-lint: source src/tests/opt/constantFolding.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.opt
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,27 +21,28 @@ package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
+import kotlin.test.Test
 
-// #[test]
-// fn test_fold_list_add()
-internal fun testFoldListAdd() {
-    bcGoldenTest("constant_folding_list_add", "def test(): return [1] + [2]")
-}
+class ConstantFoldingTests {
+    @Test
+    fun testFoldListAdd() {
+        bcGoldenTest("constant_folding_list_add", "def test(): return [1] + [2]")
+    }
 
-// #[test]
-// fn test_fold_list_add_too_large()
-internal fun testFoldListAddTooLarge() {
-    val a = Assert()
-    a.module("a0.bzl", "def a0(): return [1]")
-    for (i in 1 until 100) {
-        // `a_17()` is inlined into `a_18()`.
-        // If inlining is not limited, this test will run for very long time
-        // and eat up all the memory.
-        val i1 = i - 1
-        a.module(
-            "a$i.bzl",
-            "load('a$i1.bzl', 'a$i1')\n" +
-                "def a$i(): return a$i1() + a$i1() + a$i1() + a$i1() + a$i1()",
-        )
+    @Test
+    fun testFoldListAddTooLarge() {
+        val a = Assert()
+        a.module("a0.bzl", "def a0(): return [1]")
+        for (i in 1 until 100) {
+            // `a17()` is inlined into `a18()`.
+            // If inlining is not limited, this test will run for very long time
+            // and eat up all the memory.
+            val i1 = i - 1
+            a.module(
+                "a$i.bzl",
+                "load('a$i1.bzl', 'a$i1')\n" +
+                    "def a$i(): return a$i1() + a$i1() + a$i1() + a$i1() + a$i1()",
+            )
+        }
     }
 }

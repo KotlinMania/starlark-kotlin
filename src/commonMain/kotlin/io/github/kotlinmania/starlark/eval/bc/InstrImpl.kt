@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/instr_impl.rs
+// port-lint: source src/eval/bc/instrImpl.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 import io.github.kotlinmania.starlark.eval.bc.InstrControl
@@ -70,7 +70,7 @@ import kotlin.reflect.KClass
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0

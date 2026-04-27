@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.docs.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -55,7 +55,6 @@ import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkV
 import io.github.kotlinmania.starlark.values.types.tuple.UnpackTuple
 import starlarkmap.smallmap.SmallMap
 
-// fn docs_golden_test(test_file_name: &str, doc: DocItem) -> String
 private fun docsGoldenTest(testFileName: String, doc: DocItem): String {
     check(testFileName.endsWith(".golden.md"))
     check(!testFileName.contains('/'))
@@ -67,7 +66,6 @@ private fun docsGoldenTest(testFileName: String, doc: DocItem): String {
     return output
 }
 
-// const STARLARK_CODE: &str = r#"..."#
 private val STARLARK_CODE = """
 ${"\"\"\""}
 This is the summary of the module's docs
@@ -113,16 +111,12 @@ def _do_not_export():
     pass
 """
 
-// #[derive(Debug, Display, ProvidesStaticType, Allocative, NoSerialize)]
-// struct Magic;
 private class Magic : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "magic"
     override fun toString(): String = "magic"
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
-// #[derive(ProvidesStaticType, Debug, Display, Allocative, Serialize)]
-// struct Obj;
 private class Obj : StarlarkValue, StarlarkTypeRepr {
     override val TYPE: String get() = "obj"
     override fun toString(): String = "obj"
@@ -138,16 +132,11 @@ private class Obj : StarlarkValue, StarlarkTypeRepr {
 }
 
 /** These are where the module docs go */
-// #[starlark_module]
-// fn module(builder: &mut GlobalsBuilder)
 private fun moduleFunctions(builder: GlobalsBuilder) {
-    // const MAGIC: i32 = 42
     builder.setConst("MAGIC", 42)
 
-    // const Obj: StarlarkValueAsType<Obj> = StarlarkValueAsType::new()
     builder.set("Obj", StarlarkValueAsType.new(Obj()))
 
-    // fn func1(foo: String) -> anyhow::Result<String>
     /**
      * Docs for func1
      *
@@ -200,7 +189,6 @@ The string 'func1'
         },
     )
 
-    // fn func2() -> anyhow::Result<String>
     fun func2(): Result<String> {
         return Result.success("func2")
     }
@@ -235,14 +223,11 @@ The string 'func1'
         },
     )
 
-    // #[starlark(as_type = Magic)]
-    // fn Magic(a1: i32, a2: Option<i32>, step: i32) -> anyhow::Result<String>
     fun Magic(a1: Int, a2: Int?, step: Int): Result<String> {
         val _unused = Triple(a1, a2, step)
         return Result.success("func3")
     }
 
-    // fn with_defaults(...)
     fun withDefaults(
         explicitDefault: UnpackList<String>,
         hiddenDefault: UnpackList<String>?,
@@ -252,7 +237,6 @@ The string 'func1'
         return Result.success(NoneType)
     }
 
-    // fn pos_either_named(a: i32, b: i32, c: i32) -> anyhow::Result<Magic>
     fun posEitherNamed(a: Int, b: Int, c: Int): Result<Magic> {
         val _unused = Triple(a, b, c)
         return Result.success(Magic())
@@ -402,27 +386,21 @@ And some assertions:
     )
 }
 
-// #[starlark_module]
-// fn submodule(builder: &mut GlobalsBuilder)
 private fun submoduleFunctions(builder: GlobalsBuilder) {
-    // fn notypes(a: Value) -> anyhow::Result<Value>
     fun notypes(a: Value): Result<Value> {
         return Result.success(a)
     }
 
-    // fn starlark_args(#[starlark(args)] args: UnpackTuple<String>) -> anyhow::Result<NoneType>
     fun starlarkArgs(args: UnpackTuple<String>): Result<NoneType> {
         val _ignore = args
         return Result.success(NoneType)
     }
 
-    // fn starlark_kwargs(#[starlark(kwargs)] kwargs: SmallMap<String, u32>) -> anyhow::Result<NoneType>
     fun starlarkKwargs(kwargs: SmallMap<String, UInt>): Result<NoneType> {
         val _ignore = kwargs
         return Result.success(NoneType)
     }
 
-    // fn new_obj() -> anyhow::Result<Obj>
     fun newObj(): Result<Obj> {
         return Result.success(Obj())
     }
@@ -548,7 +526,6 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
     )
 }
 
-// fn get_globals() -> Globals
 private fun getGlobals(): Globals {
     return GlobalsBuilder.new()
         .with(::moduleFunctions)
@@ -557,19 +534,13 @@ private fun getGlobals(): Globals {
 }
 
 /** These are where the module docs go */
-// #[starlark_module]
-// fn object(builder: &mut MethodsBuilder)
 private fun objectMethods(builder: MethodsBuilder) {
     /** Docs for attr1 */
-    // #[starlark(attribute)]
-    // fn attr1(this: Value) -> starlark::Result<String>
     fun attr1(thisValue: Value): Result<String> {
         val _unused = thisValue
         return Result.success("attr1")
     }
 
-    // #[starlark(attribute)]
-    // fn attr2(this: Value) -> starlark::Result<String>
     fun attr2(thisValue: Value): Result<String> {
         val _unused = thisValue
         return Result.success("attr2")
@@ -598,20 +569,17 @@ private fun objectMethods(builder: MethodsBuilder) {
     )
 
     /** Docs for func1 */
-    // fn func1(this: Value, foo: String) -> anyhow::Result<String>
     fun func1(thisValue: Value, foo: String): Result<String> {
         val _ignore = Pair(thisValue, foo)
         return Result.success("func1")
     }
 
-    // fn func2(this: Value) -> anyhow::Result<String>
     fun func2(thisValue: Value): Result<String> {
         val _unused = thisValue
         return Result.success("func2")
     }
 
     /** Needs to be escaped when rendered in markdown. */
-    // fn __exported__(this: Value) -> anyhow::Result<NoneType>
     fun __exported__(thisValue: Value): Result<NoneType> {
         val _unused = thisValue
         return Result.success(NoneType)
@@ -706,7 +674,6 @@ The string 'func1'
     )
 }
 
-// fn test_globals_docs_render(with_linked_type: bool, render_signature_at_bottom: bool)
 private fun testGlobalsDocsRender(withLinkedType: Boolean, renderSignatureAtBottom: Boolean) {
     val global = getGlobals().documentation()
     val modulesInfo = DocModuleInfo(
@@ -741,8 +708,6 @@ private fun testGlobalsDocsRender(withLinkedType: Boolean, renderSignatureAtBott
     }
 }
 
-// #[test]
-// fn golden_docs_starlark()
 internal fun goldenDocsStarlark() {
     val res = docsGoldenTest(
         "starlark.golden.md",
@@ -751,8 +716,6 @@ internal fun goldenDocsStarlark() {
     check(!res.contains("_do_not_export"))
 }
 
-// #[test]
-// fn native_docs_module()
 internal fun nativeDocsModule() {
     val res = docsGoldenTest(
         "native.golden.md",
@@ -762,32 +725,22 @@ internal fun nativeDocsModule() {
     check(res.contains("string_default: str = \"my_default\""))
 }
 
-// #[test]
-// fn globals_render_default()
 internal fun globalsRenderDefault() {
     testGlobalsDocsRender(false, false)
 }
 
-// #[test]
-// fn globals_render_default_with_linked_type()
 internal fun globalsRenderDefaultWithLinkedType() {
     testGlobalsDocsRender(true, false)
 }
 
-// #[test]
-// fn globals_render_signature_at_bottom()
 internal fun globalsRenderSignatureAtBottom() {
     testGlobalsDocsRender(false, true)
 }
 
-// #[test]
-// fn globals_render_signature_at_bottom_with_linked_type()
 internal fun globalsRenderSignatureAtBottomWithLinkedType() {
     testGlobalsDocsRender(true, true)
 }
 
-// #[test]
-// fn golden_docs_object()
 internal fun goldenDocsObject() {
     val docs = DocType.fromStarlarkValue(Obj())
     val res = docsGoldenTest("object.golden.md", DocItem.Type(docs))

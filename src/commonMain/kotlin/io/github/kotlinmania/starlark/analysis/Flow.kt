@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -47,7 +47,6 @@ private fun CodeMap.resolvePos(pos: Pos): ResolvedPos {
     return ResolvedPos(line, column)
 }
 
-
 /** The filename associated with this [FileSpan]. */
 internal val FileSpan.description: String
     get() = file.filename
@@ -68,7 +67,6 @@ class LintT<T>(
     val location: FileSpan,
     val problem: T,
 ) {
-    // impl<T: LintWarning> Display for LintT<T>
     override fun toString(): String = "$location: $problem"
 
     companion object {

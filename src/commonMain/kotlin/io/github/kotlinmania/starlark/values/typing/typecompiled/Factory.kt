@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_compiled/factory.rs
+// port-lint: source src/values/typing/typeCompiled/factory.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -13,7 +13,7 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledImp
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0

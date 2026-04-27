@@ -1,4 +1,4 @@
-// port-lint: source src/sorted_vec.rs
+// port-lint: source src/sortedVec.rs
 package starlarkmap.sortedvec
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.sortedvec
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,6 @@ package starlarkmap.sortedvec
 /**
  * Type which enforces that its elements are sorted. That's it.
  *
- * Corresponds to Rust `SortedVec<T>`.
  */
 class SortedVec<T> private constructor(
     private val vec: MutableList<T>,
@@ -44,12 +43,10 @@ class SortedVec<T> private constructor(
             return SortedVec(vec.toMutableList())
         }
 
-        /** Create a default (empty) [SortedVec]. Corresponds to Rust `Default` impl. */
         fun <T> default(): SortedVec<T> = new()
 
         /**
          * Create a [SortedVec] from a list, sorting it first.
-         * Corresponds to Rust `From<Vec<T>>` impl.
          */
         fun <T : Comparable<T>> from(vec: List<T>): SortedVec<T> {
             val sorted = vec.toMutableList()
@@ -59,7 +56,6 @@ class SortedVec<T> private constructor(
 
         /**
          * Create a [SortedVec] from an iterable, sorting the collected elements.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <T : Comparable<T>> fromIterator(iter: Iterable<T>): SortedVec<T> {
             val vec = iter.toMutableList()
@@ -71,13 +67,11 @@ class SortedVec<T> private constructor(
     /** Iterate over the elements. */
     fun iter(): Sequence<T> = vec.asSequence()
 
-    /** Corresponds to Rust `IntoIterator` impl. */
     override fun iterator(): Iterator<T> = vec.iterator()
 
     /**
      * Ordered equality: two [SortedVec]s are equal iff they contain the same elements
      * in the same order.
-     * Corresponds to Rust `PartialEq` / `Eq` derives.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -87,13 +81,11 @@ class SortedVec<T> private constructor(
 
     /**
      * Hash based on the sorted elements.
-     * Corresponds to Rust `Hash` derive.
      */
     override fun hashCode(): Int = vec.hashCode()
 
     /**
      * Lexicographic comparison.
-     * Corresponds to Rust `PartialOrd` / `Ord` derives.
      */
     override fun compareTo(other: SortedVec<T>): Int {
         val thisIter = vec.iterator()

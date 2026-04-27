@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_compiled/globals.rs
+// port-lint: source src/values/typing/typeCompiled/globals.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,11 +24,8 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
-// pub(crate) fn register_eval_type(globals: &mut GlobalsBuilder)
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /** Create a runtime type object which can be used to check if a value matches the given type. */
-    // fn eval_type<'v>(#[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<TypeCompiled<Value<'v>>>
     globals.setFunction("eval_type") { args: Arguments, eval: Evaluator ->
         val ty = args.positional1(eval.heap()).getOrThrow()
         TypeCompiled.new(ty, eval.heap()).toInner()
@@ -49,10 +46,9 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      * `isinstance()` first converts `list` to a type in a loop, which is slow.
      *
      * But last operation can be optimized like this:
-     * `L = eval_type(list); [isinstance(x, L) for x in y]`:
-     * `eval_type()` converts `list` value into prepared type matcher.
+     * `L = evalType(list); [isinstance(x, L) for x in y]`:
+     * `evalType()` converts `list` value into prepared type matcher.
      */
-    // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
     globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
         val positional = args.positionalN(2, eval.heap()).getOrThrow()
         val value = positional[0]
@@ -63,5 +59,4 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

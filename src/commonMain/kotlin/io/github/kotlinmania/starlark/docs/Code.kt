@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.docs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.typing.TypeRenderConfig
  * There have been bugs around line endings in the textwrap crate. Just join
  * into a single string, and trim the line endings.
  */
-// fn wrap_trimmed(s: &str, width: usize) -> String
 private fun wrapTrimmed(s: String, width: Int): String {
     // Simple word-wrap implementation (textwrap equivalent).
     val words = s.split(' ')
@@ -48,17 +47,13 @@ private fun wrapTrimmed(s: String, width: Int): String {
 }
 
 /** There have been bugs around line endings in the textwrap crate. Just trim the line endings. */
-// fn indent_trimmed(s: &str, prefix: &str) -> String
 private fun indentTrimmed(s: String, prefix: String): String {
     return s.lines().joinToString("\n") { line ->
         if (line.isBlank()) line else "$prefix$line"
     }.trimEnd()
 }
 
-// impl DocString { fn render_as_code }
-
 /** Render this docstring as a "starlark" docstring. */
-// fn render_as_code(&self) -> String
 fun DocString.renderAsCode(): String {
     val s = when (val d = this.details) {
         null -> this.summary
@@ -68,17 +63,13 @@ fun DocString.renderAsCode(): String {
 }
 
 /**
- * Render the docstring as in `render_as_code`, but surround it in triple quotes,
+ * Render the docstring as in `renderAsCode`, but surround it in triple quotes,
  * a common convention in starlark docstrings.
  */
-// fn render_as_quoted_code(&self) -> String
 fun DocString.renderAsQuotedCode(): String {
     return "\"\"\"\n${renderAsCode()}\n\"\"\""
 }
 
-// impl DocModule { pub fn render_as_code }
-
-// pub fn render_as_code(&self) -> String
 fun DocModule.renderAsCode(): String {
     var res = docs?.renderAsQuotedCode() ?: ""
     for ((k, v) in members) {
@@ -93,9 +84,6 @@ fun DocModule.renderAsCode(): String {
     return res
 }
 
-// impl DocFunction
-
-// fn starlark_docstring(&self) -> Option<String>
 private fun DocFunction.starlarkDocstring(): String? {
     var docs = ""
     val mainDocs = this.docs?.renderAsCode()
@@ -132,7 +120,6 @@ private fun DocFunction.starlarkDocstring(): String? {
     }
 }
 
-// pub fn render_as_code(&self, name: &str) -> String
 fun DocFunction.renderAsCode(name: String): String {
     val paramsOneLine = this.params.renderCode(null, TypeRenderConfig.Default)
 
@@ -151,9 +138,6 @@ fun DocFunction.renderAsCode(name: String): String {
     return "def $name$params$ret:\n${docstring}    pass"
 }
 
-// impl DocParam
-
-// fn starlark_docstring(&self, max_indentation: &str) -> Option<String>
 private fun DocParam.starlarkDocstring(maxIndentation: String): String? {
     val renderedDocs = this.docs?.renderAsCode() ?: return null
     val indented = indentTrimmed(renderedDocs, maxIndentation)
@@ -166,13 +150,9 @@ private fun DocParam.starlarkDocstring(maxIndentation: String): String? {
     }
 }
 
-// fn fmt_param (DocParam)
 // Rendered via DocParams.renderCode which uses ParamFmt.
 
-// impl DocParams
-
 /** Render multiline if `indent` is `Some`. */
-// pub(crate) fn render_code(&self, indent: Option<&str>, render_config: &TypeRenderConfig) -> String
 fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): String {
     val parts = mutableListOf<String>()
 
@@ -220,16 +200,10 @@ private fun fmtParam(p: DocParam, renderConfig: TypeRenderConfig): String {
     return "${p.name}$ty$default"
 }
 
-// impl DocReturn
-
-// fn starlark_docstring(&self) -> Option<String>
 private fun DocReturn.starlarkDocstring(): String? {
     return this.docs?.renderAsCode()
 }
 
-// impl DocProperty
-
-// pub fn render_as_code(&self, name: &str) -> String
 fun DocProperty.renderAsCode(name: String): String {
     val ds = this.docs?.renderAsQuotedCode()
     val t = this.typ
@@ -241,9 +215,6 @@ fun DocProperty.renderAsCode(name: String): String {
     }
 }
 
-// impl DocType
-
-// fn render_as_code(&self, name: &str) -> String
 fun DocType.renderAsCode(name: String): String {
     val summary = this.docs?.let {
         var s = it.renderAsQuotedCode()
@@ -272,9 +243,6 @@ fun DocType.renderAsCode(name: String): String {
     return "$memberDocs\n\n$exportedStruct".trim()
 }
 
-// impl DocItem
-
-// pub fn render_as_code(&self, name: &str) -> String
 fun DocItem.renderAsCode(name: String): String {
     return when (this) {
         is DocItem.Module -> this.module.renderAsCode()

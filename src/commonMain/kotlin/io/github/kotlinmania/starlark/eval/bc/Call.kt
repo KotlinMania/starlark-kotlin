@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,40 +34,31 @@ import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
 
 /** Call arguments. */
-// pub(crate) trait BcCallArgs<S: ArgSymbol>: BcInstrArg
 internal interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
-    // fn pop_from_stack<'a, 'v>(&'a self, frame: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>;
     fun popFromStack(frame: BcFramePtr): ArgumentsFull<S>
 }
 
 /** Call arguments for `def` call. */
-// pub(crate) trait BcCallArgsForDef: BcInstrArg
 internal interface BcCallArgsForDef : BcInstrArg {
     // type Args<'v, 'a>: ArgumentsImpl<'v, 'a, ArgSymbol = ResolvedArgName>
-    // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> Self::Args<'v, 'a>;
     fun popFromStack(stack: BcFramePtr): ArgumentsImpl<ResolvedArgName>
 }
 
 /** Full call arguments: positional, named, star and star-star. All taken from the stack. */
-// #[derive(Debug)]
-// pub(crate) struct BcCallArgsFull<S: ArgSymbol>
 internal class BcCallArgsFull<S : ArgSymbol>(
     val posNamed: BcSlotInRange,
     val names: List<Pair<S, FrozenStringValue>>,
     val args: BcSlotIn?,
     val kwargs: BcSlotIn?,
 ) {
-    // impl<S: ArgSymbol> BcCallArgsFull<S>
 
     /** Number of positional arguments. */
-    // fn pos(&self) -> u32
     private fun pos(): UInt {
         check(posNamed.len() >= names.size.toUInt())
         return posNamed.len() - names.size.toUInt()
     }
 
     /** Display for BcCallArgsFull. */
-    // impl<S: ArgSymbol> Display for BcCallArgsFull<S>
     override fun toString(): String {
         return buildString {
             append(posNamed)
@@ -92,16 +83,12 @@ internal class BcCallArgsFull<S : ArgSymbol>(
 }
 
 /** Positional-only call arguments, from stack. */
-// #[derive(Debug)]
-// pub(crate) struct BcCallArgsPos
 internal class BcCallArgsPos(
     /** Range of positional arguments. */
     val pos: BcSlotInRange,
 )
 
-// impl BcCallArgsFull<Symbol>
 /** Resolve symbol-based call args to resolved arg names for a specific def. */
-// pub(crate) fn resolve(self, def: &FrozenDef) -> BcCallArgsFull<ResolvedArgName>
 internal fun BcCallArgsFull<Symbol>.resolve(def: DefGen<FrozenValue>): BcCallArgsFull<ResolvedArgName> {
     return BcCallArgsFull(
         posNamed = posNamed,
@@ -113,12 +100,10 @@ internal fun BcCallArgsFull<Symbol>.resolve(def: DefGen<FrozenValue>): BcCallArg
     )
 }
 
-// impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsFull<S>
 /** Pop full call arguments from the stack frame. */
 internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
     private val full: BcCallArgsFull<S>,
 ) : BcCallArgs<S> {
-    // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
     override fun popFromStack(frame: BcFramePtr): ArgumentsFull<S> {
         val posNamed = frame.getBcSlotRange(full.posNamed)
         val posCount = posNamed.size - full.names.size
@@ -135,7 +120,6 @@ internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
         )
     }
 
-    // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
@@ -145,12 +129,10 @@ internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
     }
 }
 
-// impl<S: ArgSymbol> BcCallArgs<S> for BcCallArgsPos
 /** Pop positional-only call arguments from the stack frame. */
 internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgs<S> {
-    // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, S>
     override fun popFromStack(frame: BcFramePtr): ArgumentsFull<S> {
         val pos = frame.getBcSlotRange(posArgs.pos)
         return ArgumentsFull(
@@ -162,7 +144,6 @@ internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
         )
     }
 
-    // impl BcInstrArg for BcCallArgsPos
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }
@@ -172,12 +153,10 @@ internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
     }
 }
 
-// impl BcCallArgsForDef for BcCallArgsFull<ResolvedArgName>
 /** Full call arguments for def calls, popping from the stack frame. */
 internal class BcCallArgsFullForDef(
     private val full: BcCallArgsFull<ResolvedArgName>,
 ) : BcCallArgsForDef {
-    // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsFull<'v, 'a, ResolvedArgName>
     override fun popFromStack(stack: BcFramePtr): ArgumentsFull<ResolvedArgName> {
         val posNamed = stack.getBcSlotRange(full.posNamed)
         val posCount = posNamed.size - full.names.size
@@ -194,7 +173,6 @@ internal class BcCallArgsFullForDef(
         )
     }
 
-    // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" {$full}")
     }
@@ -204,18 +182,15 @@ internal class BcCallArgsFullForDef(
     }
 }
 
-// impl BcCallArgsForDef for BcCallArgsPos
 /** Positional-only call arguments for def calls, popping from the stack frame. */
 internal class BcCallArgsPosForDef(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgsForDef {
-    // fn pop_from_stack<'a, 'v>(&'a self, stack: BcFramePtr<'v>) -> ArgumentsPos<'v, 'a, ResolvedArgName>
     override fun popFromStack(stack: BcFramePtr): ArgumentsPos<ResolvedArgName> {
         val pos = stack.getBcSlotRange(posArgs.pos)
         return ArgumentsPos(pos = pos)
     }
 
-    // impl BcInstrArg for BcCallArgsPos
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" ${posArgs.pos}")
     }

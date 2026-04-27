@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,9 +30,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.withLock
 
-// #[derive(Clone)]
-// #[repr(C)]
-// pub(crate) struct AValueHeader(pub(crate) &'static AValueVTable);
 class AValueHeader(
     var vtable: AValueVTable,
 ) {
@@ -49,28 +46,16 @@ class AValueHeader(
         headerRegistry[index] = this
     }
 
-    // impl Hash for AValueHeader
-    // fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-    //     ptr::hash(self.0, state);
-    // }
     override fun hashCode(): Int = index.hashCode()
 
-    // impl PartialEq for AValueHeader
-    // fn eq(&self, other: &Self) -> bool {
-    //     ptr::eq(self.0, other.0)
-    // }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AValueHeader) return false
         return index == other.index
     }
 
-    // impl Eq for AValueHeader {}
-    // impl Dupe for AValueHeader {}
-
     companion object {
         /** Alignment of objects in Starlark heap (8 bytes for tag bits). */
-        // pub(crate) const ALIGN: usize = 8;
         const val ALIGN: Int = 8
 
         /** Global counter for assigning aligned indices. */
@@ -95,7 +80,6 @@ class AValueHeader(
                 ?: throw IllegalArgumentException("No AValueHeader registered for index $index")
         }
 
-        // pub(crate) fn new<'v, T: AValue<'v>>() -> AValueHeader
         fun new(vtable: AValueVTable): AValueHeader {
             val header = newConst(vtable)
 
@@ -106,15 +90,11 @@ class AValueHeader(
             return header
         }
 
-        // pub(crate) const fn new_const<'v, T: AValue<'v>>() -> AValueHeader
         fun newConst(vtable: AValueVTable): AValueHeader {
             return AValueHeader(vtable)
         }
 
-        // pub unsafe fn overwrite_with_forward<'v, T: StarlarkValue<'v>>(
         //     me: *mut AValueRepr<T>,
-        //     forward_ptr: ForwardPtr,
-        // ) -> T
         internal fun <T> overwriteWithForward(
             me: AValueRepr<T>,
             forwardPtr: ForwardPtr,
@@ -126,22 +106,17 @@ class AValueHeader(
         }
     }
 
-    // #[inline]
-    // pub(crate) fn payload_ptr(&self) -> StarlarkValueRawPtr
     fun payloadPtr(): StarlarkValueRawPtr {
-        // In Rust, this does pointer arithmetic from the header to the payload
         // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
         // in the vtable since there's no raw memory layout.
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
-    // pub(crate) unsafe fn payload<'v, T: StarlarkValue<'v>>(&self) -> &T
     @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue> payload(): T {
         return payloadPtr().valueRef()
     }
 
-    // pub(crate) unsafe fn unpack_value<'v>(&'v self, heap_kind: HeapKind) -> Value<'v>
     internal fun unpackValue(heapKind: HeapKind): Value {
         return when (heapKind) {
             HeapKind.Unfrozen -> Value.newPtrQueryIsStr(this)
@@ -149,15 +124,12 @@ class AValueHeader(
         }
     }
 
-    // pub(crate) fn unpack<'v>(&'v self) -> AValueDyn<'v>
     internal fun unpack(): AValueDyn {
         return AValueDyn(payloadPtr(), vtable)
     }
 
-    // pub(crate) unsafe fn as_repr<'v, T: StarlarkValue<'v>>(&self) -> &AValueRepr<T>
     @Suppress("UNCHECKED_CAST")
     internal fun <T> asRepr(): AValueRepr<T> {
-        // In Rust, this casts the header pointer to an AValueRepr pointer.
         // In Kotlin, the AValueRepr that owns this header is looked up
         // through the repr registry using the header's index.
         val repr = reprRegistry[index]
@@ -165,12 +137,10 @@ class AValueHeader(
         return repr as AValueRepr<T>
     }
 
-    // fn as_avalue_or_header(&self) -> &AValueOrForward
     private fun asAvalueOrForward(): AValueOrForward {
         return AValueOrForward.Header(this)
     }
 
-    // pub(crate) fn alloc_size(&self) -> ValueAllocSize
     fun allocSize(): ValueAllocSize {
         return asAvalueOrForward().allocSize()
     }
@@ -179,12 +149,7 @@ class AValueHeader(
 /** Registry mapping header index to its owning AValueRepr, for asRepr() lookups. */
 internal val reprRegistry: MutableMap<Long, AValueRepr<*>> = mutableMapOf()
 
-/// How object is represented in arena.
-// #[repr(C, align(8))]
-// pub(crate) struct AValueRepr<T> {
-//     pub(crate) header: AValueHeader,
-//     pub(crate) payload: T,
-// }
+/** How object is represented in arena. */
 class AValueRepr<T>(
     val header: AValueHeader,
     /** Payload of the object, i.e. the StarlarkValue. */
@@ -192,7 +157,6 @@ class AValueRepr<T>(
 ) {
     /**
      * When this repr is overwritten during GC, the forward information is stored here.
-     * In Rust this is done by overwriting memory in-place via a union.
      */
     internal var overwritten: AValueForward? = null
 
@@ -202,15 +166,8 @@ class AValueRepr<T>(
     }
 
     companion object {
-        // const _ASSERTIONS: () = {
-        //     assert!(mem::align_of::<Self>() == AValueHeader::ALIGN);
-        // };
         // (Alignment is managed by the JVM; no assertion needed.)
 
-        // pub(crate) const fn with_metadata(
-        //     metadata: &'static AValueVTable,
-        //     payload: T,
-        // ) -> AValueRepr<T>
         fun <T> withMetadata(
             metadata: AValueVTable,
             payload: T,
@@ -222,70 +179,58 @@ class AValueRepr<T>(
         }
     }
 
-    // pub(crate) fn offset_of_payload() -> usize
     fun offsetOfPayload(): Int {
-        // In Rust, this is the byte offset of payload within the repr struct.
         // In Kotlin, we simulate with the header's conceptual size.
         return AValueHeader.ALIGN
     }
 
-    // pub(crate) fn padding_after_header() -> usize
     fun paddingAfterHeader(): Int {
         return offsetOfPayload() - AValueHeader.ALIGN
     }
 
-    // pub(crate) fn offset_of_extra<'v>() -> usize
-    // where T: AValue<'v>
     fun offsetOfExtra(avalue: AValue): Int {
         return offsetOfPayload() + avalue.offsetOfExtra()
     }
 
-    // pub(crate) fn from_payload_ptr_mut(payload_ptr: *mut T) -> *mut AValueRepr<T>
     // Pointer arithmetic for payload-to-repr conversion is handled by the registry.
 }
 
-/// "Forward" pointer (pointer to another heap during GC).
-///
-/// This pointer has `TAG_STR` bit set if it points to a string.
-///
-/// Lower bit (which is the same bit as `TAG_UNFROZEN`) is always unset
-/// regardless of whether it points to frozen or unfrozen value.
-/// User of this struct must set this bit explicitly if needed.
-// #[derive(Copy, Clone, Dupe)]
-// pub(crate) struct ForwardPtr(usize);
+/**
+ * "Forward" pointer (pointer to another heap during GC).
+ *
+ * This pointer has `TAG_STR` bit set if it points to a string.
+ *
+ * Lower bit (which is the same bit as `TAG_UNFROZEN`) is always unset
+ * regardless of whether it points to frozen or unfrozen value.
+ * User of this struct must set this bit explicitly if needed.
+ */
 internal class ForwardPtr private constructor(
     private val rawValue: Long,
 ) {
     companion object {
-        // fn new(ptr: usize) -> ForwardPtr
         private fun new(ptr: Long): ForwardPtr {
             check(ptr and 1L == 0L)
             return ForwardPtr(ptr)
         }
 
-        // pub(crate) fn new_frozen(value: FrozenValue) -> ForwardPtr
         fun newFrozen(value: FrozenValue): ForwardPtr {
             return new(value.ptr.raw().ptrValue())
         }
 
-        // pub(crate) fn new_unfrozen(value: Value) -> ForwardPtr
         fun newUnfrozen(value: Value): ForwardPtr {
             check(value.unpackFrozen() == null)
             return new(value.ptr.raw().ptrValue() and 1L.inv())
         }
     }
 
-    // pub(crate) unsafe fn unpack_frozen_value(self) -> FrozenValue
     fun unpackFrozenValue(): FrozenValue {
         return FrozenValue.newPtrUsizeWithStrTag(rawValue)
     }
 
-    // pub(crate) unsafe fn unpack_unfrozen_value<'v>(self) -> Value<'v>
     fun unpackUnfrozenValue(): Value {
         return Value.newPtrUsizeWithStrTag(rawValue)
     }
 
-    // pub(crate) unsafe fn unpack_value<'v>(self, heap_kind: HeapKind) -> Value<'v>
     fun unpackValue(heapKind: HeapKind): Value {
         return when (heapKind) {
             HeapKind.Unfrozen -> unpackUnfrozenValue()
@@ -294,13 +239,7 @@ internal class ForwardPtr private constructor(
     }
 }
 
-/// This is object written over [`AValueRepr`] during GC.
-// #[repr(C)]
-// #[derive(Debug)]
-// pub(crate) struct AValueForward {
-//     forward_ptr: usize,
-//     object_size: ValueAllocSize,
-// }
+/** This is object written over [`AValueRepr`] during GC. */
 internal class AValueForward(
     /** The forward pointer to the moved object. */
     private val forward: ForwardPtr,
@@ -308,18 +247,14 @@ internal class AValueForward(
     val objectSize: ValueAllocSize,
 ) {
     companion object {
-        // pub(crate) fn new(forward_ptr: ForwardPtr, object_size: ValueAllocSize) -> AValueForward
         fun new(forwardPtr: ForwardPtr, objectSize: ValueAllocSize): AValueForward {
             return AValueForward(forwardPtr, objectSize)
         }
     }
 
-    // pub(crate) fn forward_ptr(&self) -> ForwardPtr
     fun forwardPtr(): ForwardPtr = forward
 
-    // pub(crate) fn assert_does_not_overwrite_extra<'v, T: AValue<'v>>()
     fun assertDoesNotOverwriteExtra(reprOffsetOfExtra: Int) {
-        // In Rust: assert!(mem::size_of::<AValueForward>() <= AValueRepr::<T>::offset_of_extra())
         // AValueForward conceptual size is 2 words (forward ptr + size).
         val forwardSize = 2 * AValueHeader.ALIGN
         check(forwardSize <= reprOffsetOfExtra)
@@ -328,22 +263,13 @@ internal class AValueForward(
     override fun toString(): String = "AValueForward(objectSize=$objectSize)"
 }
 
-/// Object on the heap, either a real object or a forward.
-// #[repr(C)]
-// pub(crate) union AValueOrForward {
-//     header: ManuallyDrop<AValueHeader>,
-//     forward: ManuallyDrop<AValueForward>,
-//     flags: usize,
-// }
+/** Object on the heap, either a real object or a forward. */
 internal sealed class AValueOrForward {
     class Header(val header: AValueHeader) : AValueOrForward()
     class Forward(val forward: AValueForward) : AValueOrForward()
 
-    // #[inline]
-    // fn is_forward(&self) -> bool
     private fun isForward(): Boolean = this is Forward
 
-    // pub(crate) fn unpack(&self) -> AValueOrForwardUnpack<'_>
     fun unpack(): AValueOrForwardUnpack {
         return when (this) {
             is Header -> {
@@ -358,14 +284,11 @@ internal sealed class AValueOrForward {
         }
     }
 
-    // #[inline]
-    // pub(crate) unsafe fn unpack_header_unchecked(&self) -> &AValueHeader
     fun unpackHeaderUnchecked(): AValueHeader {
         check(!isForward())
         return (this as Header).header
     }
 
-    // pub(crate) fn unpack_header(&self) -> Option<&AValueHeader>
     fun unpackHeader(): AValueHeader? {
         return when (this) {
             is Header -> header
@@ -373,7 +296,6 @@ internal sealed class AValueOrForward {
         }
     }
 
-    // pub(crate) fn unpack_forward(&self) -> Option<&AValueForward>
     fun unpackForward(): AValueForward? {
         return when (this) {
             is Header -> null
@@ -381,9 +303,10 @@ internal sealed class AValueOrForward {
         }
     }
 
-    /// Size of allocation for this object:
-    /// following object is allocated at `self + alloc_size + align up`.
-    // pub(crate) fn alloc_size(&self) -> ValueAllocSize
+    /**
+     * Size of allocation for this object:
+     * following object is allocated at `self + allocSize + align up`.
+     */
     fun allocSize(): ValueAllocSize {
         return when (val u = unpack()) {
             is AValueOrForwardUnpack.Header -> u.header.unpack().memorySize()
@@ -395,11 +318,7 @@ internal sealed class AValueOrForward {
     }
 }
 
-/// `AValueOrForward` as enum.
-// pub(crate) enum AValueOrForwardUnpack<'a> {
-//     Header(&'a AValueHeader),
-//     Forward(&'a AValueForward),
-// }
+/** `AValueOrForward` as enum. */
 internal sealed class AValueOrForwardUnpack {
     class Header(val header: AValueHeader) : AValueOrForwardUnpack()
     class Forward(val forward: AValueForward) : AValueOrForwardUnpack()

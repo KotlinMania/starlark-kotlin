@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,51 +19,33 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-// use std::fmt::Debug;
-
-// use crate::values::Heap;
-// use crate::values::Value;
-
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-/// Iterator of starlark values.
-// #[derive(Debug)]
-// pub struct StarlarkIterator<'v> {
-//     /// Iterator implementation. Typically an iterable itself.
-//     value: Value<'v>,
-//     /// Current index.
-//     index: usize,
-//     /// Heap to allocate values on.
-//     heap: Heap<'v>,
-// }
+/** Iterator of starlark values. */
 class StarlarkIterator private constructor(
-    /// Iterator implementation. Typically an iterable itself.
+    /** Iterator implementation. Typically an iterable itself. */
     private var value: Value,
-    /// Current index.
+    /** Current index. */
     private var index: Int,
-    /// Heap to allocate values on.
+    /** Heap to allocate values on. */
     private val heap: Heap,
 ) : Iterator<Value> {
 
     private var stopped: Boolean = false
     private var nextValue: Value? = null
 
-    // impl<'v> Iterator for StarlarkIterator<'v> {
-    //     type Item = Value<'v>;
-    //     fn next(&mut self) -> Option<Value<'v>>
     override fun hasNext(): Boolean {
         if (stopped) return false
-        // let r = self.value.get_ref().iter_next(self.index, self.heap);
         val r = value.getRef().iterNext(index, heap)
         if (r != null) {
             nextValue = r
             return true
         } else {
             value.getRef().iterStop()
-            // We must call `iter_stop` exactly once, regardless of whether
+            // We must call `iterStop` exactly once, regardless of whether
             // iterator is exhausted or not, even if `next` is called after `None`.
-            // So we replace `value` with empty tuple, for which we know that `iter_stop` is no-op.
+            // So we replace `value` with empty tuple, for which we know that `iterStop` is no-op.
             value = Value.newEmptyTuple()
             index = 0
             stopped = true
@@ -81,15 +63,11 @@ class StarlarkIterator private constructor(
         throw NoSuchElementException()
     }
 
-    // #[inline]
-    // fn size_hint(&self) -> (usize, Option<usize>)
     fun sizeHint(): Pair<Int, Int?> {
         return value.getRef().iterSizeHint(index)
     }
 
-    // impl<'v> Drop for StarlarkIterator<'v>
-    //     fn drop(&mut self)
-    // `iter_stop` is no-op for empty tuple, this saves us from virtual call
+    // `iterStop` is no-op for empty tuple, this saves us from virtual call
     // after iterator is exhausted.
     fun close() {
         if (!value.ptrEq(Value.newEmptyTuple())) {
@@ -97,11 +75,8 @@ class StarlarkIterator private constructor(
         }
     }
 
-    // impl<'v> StarlarkIterator<'v>
     companion object {
-        /// Construct iterator from the given value.
-        // #[inline]
-        // pub(crate) fn new(value: Value<'v>, heap: Heap<'v>) -> StarlarkIterator<'v>
+        /** Construct iterator from the given value. */
         internal fun new(value: Value, heap: Heap): StarlarkIterator {
             return StarlarkIterator(
                 value = value,
@@ -110,9 +85,7 @@ class StarlarkIterator private constructor(
             )
         }
 
-        /// Iterator yielding no values.
-        // #[inline]
-        // pub fn empty(heap: Heap<'v>) -> StarlarkIterator<'v>
+        /** Iterator yielding no values. */
         fun empty(heap: Heap): StarlarkIterator {
             return new(Value.newEmptyTuple(), heap)
         }

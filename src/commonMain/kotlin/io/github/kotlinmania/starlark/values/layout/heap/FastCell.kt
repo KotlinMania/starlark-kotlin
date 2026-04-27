@@ -1,13 +1,12 @@
-// port-lint: source src/values/layout/heap/fast_cell.rs
+// port-lint: source src/values/layout/heap/fastCell.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
- * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,103 +18,82 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// use std::cell::Cell;
-// use std::cell::UnsafeCell;
-// use std::mem;
-// use std::mem::MaybeUninit;
+/**
+ * Faster but less safe alternative to a borrow-checked cell: all operations
+ * except [borrow] are unchecked and may lead to undefined behaviour if used
+ * incorrectly.
+ */
+internal class FastCell<T>(initialValue: T? = null) {
+    /**
+     * The value.
+     *
+     * The idea is this: when we take the value out of the cell,
+     * we clear the [value] field. Accessing it afterwards will fail loudly,
+     * which is worse than a proper panic but carries no per-borrow runtime cost.
+     */
+    private var value: T? = initialValue
 
-/// Faster but less safe alternative to `RefCell<T>`:
-/// all operations except `borrow` are `unsafe` and may lead to undefined behavior.
-// #[derive(Debug)]
-// pub(crate) struct FastCell<T> {
-//     value: UnsafeCell<MaybeUninit<T>>,
-//     init: Cell<bool>,
-// }
-internal class FastCell<T>(
-    /// The value.
-    private var value: T?,
-) {
-    /// Whether the cell contains a value or zeros.
-    // init: Cell<bool>,
-    private var init: Boolean = value != null
+    /** Whether the cell currently contains a value. */
+    private var init: Boolean = initialValue != null
 
-    // impl Drop for FastCell<T>
-    //     fn drop(&mut self) { ... }
-    // Kotlin: GC handles drop. No explicit destructor needed.
-
-    // impl Default for FastCell<T>
-    companion object {
-        // fn default() -> Self
-        fun <T> default(defaultValue: T): FastCell<T> {
-            return FastCell(defaultValue)
+    /** Releases the held value. */
+    fun drop() {
+        if (init) {
+            value = null
+            init = false
         }
     }
 
-    // impl FastCell<T>
-
-    /// Get a reference to the value.
-    ///
-    /// This operation is safe under assumption that other `unsafe` operations
-    /// do not leave self in invalid state.
-    // pub(crate) fn borrow(&self) -> &T
+    /**
+     * Get a reference to the value.
+     *
+     * This operation is safe under the assumption that other unchecked operations
+     * do not leave [this] in an invalid state.
+     */
     fun borrow(): T {
-        // debug_assert!(self.init.get());
-        check(init) { "FastCell: borrow on uninitialized cell" }
-        @Suppress("UNCHECKED_CAST")
+        check(init)
         return value as T
     }
 
-    // pub(crate) fn try_borrow(&self) -> Option<&T>
     fun tryBorrow(): T? {
         return if (init) {
-            // Some(self.borrow())
             borrow()
         } else {
             null
         }
     }
 
-    /// Get a mutable reference to the value.
-    ///
-    /// This function is unsafe because it's caller responsibility to guarantee
-    /// there are no other references to the value, and nobody is going
-    /// to obtain references to value while mutable reference exists.
-    // pub(crate) unsafe fn get_mut(&self) -> *mut T
+    /**
+     * Get a mutable reference to the value.
+     *
+     * It is the caller's responsibility to guarantee there are no other references
+     * to the value, and that nobody will obtain a reference while the mutable
+     * reference is alive.
+     */
     fun getMut(): T {
-        // debug_assert!(self.init.get());
-        check(init) { "FastCell: getMut on uninitialized cell" }
-        @Suppress("UNCHECKED_CAST")
+        check(init)
         return value as T
     }
 
-    /// Take the value out of the cell.
-    // pub(crate) unsafe fn take(&self) -> T
+    /** Take the value out of the cell. */
     fun take(): T {
-        // assert!(self.init.get());
-        check(init) { "FastCell: take on uninitialized cell" }
-        // self.init.set(false);
+        check(init)
         init = false
-        @Suppress("UNCHECKED_CAST")
         val v = value as T
-        // Replace the `value` field with zeros so that accessing it will crash.
-        // mem::replace(&mut *self.value.get(), MaybeUninit::zeroed()).assume_init()
+        // Clear the [value] field so that accessing it will crash.
         value = null
         return v
     }
 
-    /// Put the value into the cell.
-    // pub(crate) unsafe fn set(&self, value: T)
+    /** Put the value into the cell. */
     fun set(value: T) {
-        // assert!(!self.init.get());
-        check(!init) { "FastCell: set on already initialized cell" }
-        // self.init.set(true);
+        check(!init)
         init = true
-        // *self.value.get() = MaybeUninit::new(value);
         this.value = value
     }
 
-    // #[derive(Debug)]
-    override fun toString(): String {
-        return "FastCell(init=$init, value=$value)"
+    companion object {
+        /** Constructs a [FastCell] holding [value]. */
+        fun <T> default(value: T): FastCell<T> = FastCell(value)
     }
 }

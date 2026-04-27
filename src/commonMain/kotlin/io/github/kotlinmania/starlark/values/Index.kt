@@ -4,14 +4,13 @@ package io.github.kotlinmania.starlark.values
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.bigint.unpackInt
 
-
 /*
  * Copyright 2018 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,10 +22,9 @@ import io.github.kotlinmania.starlark.values.types.bigint.unpackInt
  * limitations under the License.
  */
 
-/** Index conversion utilities for Starlark at/set_at and slicing operations. */
+/** Index conversion utilities for Starlark at/setAt and slicing operations. */
 
 /** Unpack an Int from a Value, raising an error if it is not an integer. */
-// i32::unpack_value_err(v)
 private fun unpackIntErr(v: Value): Result<Int> {
     val result = v.unpackInt()
     val i = result.getOrElse { return Result.failure(it) }
@@ -39,8 +37,7 @@ private fun unpackIntErr(v: Value): Result<Int> {
     }
 }
 
-// Helper for convert_slice_indices
-// fn convert_index_aux(len: i32, v1: Option<Value>, default: i32, min: i32, max: i32) -> crate::Result<i32>
+// Helper for convertSliceIndices
 private fun convertIndexAux(
     len: Int,
     v1: Value?,
@@ -68,13 +65,12 @@ private fun convertIndexAux(
 }
 
 /**
- * Function to parse the index for at/set_at methods.
+ * Function to parse the index for at/setAt methods.
  *
  * Return an `Int` from the value corresponding to the index recentered between 0
  * and len. Raise the correct errors if the value is not numeric or the
  * index is out of bound.
  */
-// pub(crate) fn convert_index(v: Value, len: i32) -> crate::Result<i32>
 internal fun convertIndex(v: Value, len: Int): Result<Int> {
     val x = unpackIntErr(v).getOrElse { return Result.failure(it) }
     val i = if (x < 0) {
@@ -100,7 +96,6 @@ internal fun convertIndex(v: Value, len: Int): Result<Int> {
  * with those index correctly converted in range of length.
  * Return the correct errors if the values are not numeric or the stride is 0.
  */
-// pub(crate) fn convert_slice_indices(len: i32, start: Option<Value>, stop: Option<Value>, stride: Option<Value>) -> crate::Result<(i32, i32, i32)>
 internal fun convertSliceIndices(
     len: Int,
     start: Value?,
@@ -127,7 +122,6 @@ internal fun convertSliceIndices(
     }
 }
 
-// pub(crate) fn apply_slice<T: Copy>(xs: &[T], start: Option<Value>, stop: Option<Value>, stride: Option<Value>) -> crate::Result<Vec<T>>
 internal fun <T> applySlice(
     xs: List<T>,
     start: Value?,
@@ -167,5 +161,4 @@ internal fun <T> applySlice(
     return Result.success(res)
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

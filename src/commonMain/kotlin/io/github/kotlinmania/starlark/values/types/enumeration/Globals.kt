@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumType
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
-// pub fn register_enum(builder: &mut GlobalsBuilder)
 fun registerEnum(builder: GlobalsBuilder) {
     /**
      * The `enum` type represents one value picked from a set of values.
@@ -61,7 +59,6 @@ fun registerEnum(builder: GlobalsBuilder) {
      * Enumeration types store each value once, which are then efficiently referenced by
      * enumeration values.
      */
-    // fn r#enum<'v>(#[starlark(args)] args: UnpackTuple<StringValue<'v>>, heap: Heap<'v>) -> starlark::Result<Value<'v>>
     builder.setFunction("enum") { args: Arguments, eval: Evaluator ->
         val heap = eval.heap()
         val positionalArgs = args.positionalAll()
@@ -73,5 +70,4 @@ fun registerEnum(builder: GlobalsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

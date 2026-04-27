@@ -9,7 +9,7 @@ import io.github.kotlinmania.starlark.unlikely
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,16 +28,9 @@ import io.github.kotlinmania.starlark.unlikely
 
 /**
  * Check if any byte in the buffer is non-ASCII or need escape.
- *
- * Note: This function is currently unused in the Kotlin port because SIMD
- * optimizations are not yet implemented. It's kept for future use when
- * platform-specific SIMD support is added.
  */
 @Suppress("UNUSED")
 private fun <V : Vector> chunkNonAsciiOrNeedEscape(chunk: V): Boolean {
-    /**
-     * Combine four vectors with OR operation.
-     */
     // Note `cmplt` is signed comparison.
     val anyControlOrNonAscii = chunk.cmplt(chunk.splat(32))
     val any7f = chunk.cmpeq(chunk.splat(0x7f.toByte()))
@@ -60,7 +53,7 @@ private fun pushEscape(toEscape: Char, buffer: StringBuilder) {
  */
 private fun pushEscapeCodePoint(codePoint: Int, buffer: StringBuilder) {
     // Starlark behavior of `repr` is underspecified,
-    // so use mix of Starlark spec and PEP-3138.
+    // so import mix of Starlark spec and PEP-3138.
 
     when (codePoint) {
         '\n'.code -> buffer.append("\\n")
@@ -102,10 +95,10 @@ private fun needEscapeCodePoint(codePoint: Int): Boolean {
         // Kotlin Multiplatform doesn't have codepoint-level isLetterOrDigit,
         // so we conservatively escape all supplementary characters.
         codePoint > 0xFFFF -> true
-        // Rust does not expose `is_printable`.
+        // No portable `isPrintable` is available.
         // PEP-3138 goes long way defining precisely the Unicode groups which need escaping.
         // We could pick more character groups here,
-        // but `is_alphanumeric` is practically enough for now.
+        // but `isLetterOrDigit` is practically enough for now.
         else -> !Char(codePoint).isLetterOrDigit()
     }
 }
@@ -166,32 +159,19 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
         }
     }
 
-    /**
-     * SIMD-optimized ASCII loop.
-     *
-     * Note: This function is currently not used because the Kotlin port
-     * doesn't have SIMD support yet. The SIMD path in the switch below
-     * is not enabled, so this function exists for future use.
-     */
+    /** SIMD-optimized ASCII loop. */
     @Suppress("UNUSED")
     fun <V : Vector> loopAsciiSimd(value: String, buffer: StringBuilder) {
-        // In the Rust version, this function uses SIMD operations to process
-        // chunks of bytes at a time. Since Kotlin doesn't have portable SIMD
-        // support, we would fall back to loopAscii here.
+        // No portable SIMD support is available; fall back to the byte-at-a-time loop.
         //
-        // The Rust implementation:
         // - Requires buffer to have enough capacity for value + 1 (trailing quote)
         // - Processes full SIMD chunks first
         // - Handles the tail with overlapping reads
         // - Bails out to loopAscii if any character needs escaping
-        //
-        // For now, we just delegate to the non-SIMD version.
         loopAscii(value, buffer)
     }
 
-    /**
-     * Switch implementation that chooses between SIMD and non-SIMD paths.
-     */
+    /** Dispatch between SIMD and non-SIMD paths. */
     class Switch(
         private val s: String,
         private val buffer: StringBuilder

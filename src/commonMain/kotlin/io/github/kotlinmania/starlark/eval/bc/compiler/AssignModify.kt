@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/compiler/assign_modify.rs
+// port-lint: source src/eval/bc/compiler/assignModify.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,8 +32,6 @@ import io.github.kotlinmania.starlark.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 
-// trait AssignOnWriteBc
-// impl AssignOnWriteBc for AssignOp
 // Extension function on AssignOp
 private fun AssignOp.writeBc(
     v0: BcSlotIn,
@@ -58,10 +56,7 @@ private fun AssignOp.writeBc(
     }
 }
 
-// impl AssignModifyLhs
-
 /** After evaluation of `x[y] += ...`, variables `x` and `y` are definitely assigned. */
-// pub(crate) fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun AssignModifyLhs.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is AssignModifyLhs.Dot -> {
@@ -77,7 +72,6 @@ internal fun AssignModifyLhs.markDefinitelyAssignedAfter(bc: BcWriter) {
     }
 }
 
-// pub(crate) fn write_bc(&self, span: FrameSpan, op: AssignOp, rhs: &IrSpanned<ExprCompiled>, bc: &mut BcWriter)
 internal fun AssignModifyLhs.writeBc(
     span: FrameSpan,
     op: AssignOp,

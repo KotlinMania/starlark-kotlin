@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-/** ParameterP<AstNoPayload> conversion utilities for `starlark_module` macros. */
+/** Parameter conversion utilities for `starlarkModule` macros. */
 
 import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.Error
@@ -27,29 +27,23 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Error that can be returned by [UnpackValue]. */
-// pub trait UnpackValueError: Debug + Send + Sync + 'static
 interface UnpackValueError {
     /** Convert into a crate error. */
-    // fn into_error(this: Self) -> crate::Error
     fun intoError(): Error
 }
 
-/** [UnpackValueError] impl for [Error]. */
-// impl UnpackValueError for crate::Error
+/** [UnpackValueError] implementation for [Error]. */
 fun Error.asUnpackValueError(): UnpackValueError = object : UnpackValueError {
     override fun intoError(): Error = this@asUnpackValueError
 }
 
 /** Never error. */
-// pub trait UnpackValueErrorInfallible: UnpackValueError
 interface UnpackValueErrorInfallible : UnpackValueError {
     /** Convert into a never type. */
-    // fn into_infallible(this: Self) -> !
     fun intoInfallible(): Nothing
 }
 
-/** [UnpackValueError] impl for [Either]. */
-// impl<A: UnpackValueError, B: UnpackValueError> UnpackValueError for Either<A, B>
+/** [UnpackValueError] implementation for [Either]. */
 class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     private val either: Either<A, B>,
 ) : UnpackValueError {
@@ -59,8 +53,7 @@ class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     }
 }
 
-/** [UnpackValueErrorInfallible] impl for [Either]. */
-// impl<A: UnpackValueErrorInfallible, B: UnpackValueErrorInfallible> UnpackValueErrorInfallible for Either<A, B>
+/** [UnpackValueErrorInfallible] implementation for [Either]. */
 class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
     private val either: Either<A, B>,
 ) : UnpackValueErrorInfallible {
@@ -77,12 +70,11 @@ class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : Unpac
 
 /**
  * How to convert a [Value] to a Kotlin type. Required for all arguments in
- * a starlark_module definition.
+ * a starlarkModule definition.
  *
  * Given a [Value], try and unpack it into the given type,
  * which may involve some element of conversion.
  */
-// pub trait UnpackValue<'v>: Sized + StarlarkTypeRepr
 interface UnpackValue<T> : StarlarkTypeRepr {
     /**
      * Given a [Value], try and unpack it into the given type,
@@ -91,7 +83,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
      * Return `null` if the value is not of expected type (as described by [StarlarkTypeRepr]),
      * and throw if the value is of expected type, but conversion cannot be performed.
      */
-    // fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error>
     fun unpackValueImpl(value: Value): Result<T?>
 
     /**
@@ -101,15 +92,12 @@ interface UnpackValue<T> : StarlarkTypeRepr {
      * Return `null` if the value is not of expected type,
      * and throw if conversion cannot be performed.
      */
-    // fn unpack_value(value: Value<'v>) -> Result<Option<Self>, crate::Error>
     fun unpackValue(value: Value): Result<T?> = unpackValueImpl(value)
 
     /** Unpack a value if unpacking is infallible. */
-    // fn unpack_value_opt(value: Value<'v>) -> Option<Self>
     fun unpackValueOpt(value: Value): T? = unpackValueImpl(value).getOrThrow()
 
     /** Unpack a value, but return error instead of `null` if unpacking fails. */
-    // fn unpack_value_err(value: Value<'v>) -> crate::Result<Self>
     fun unpackValueErr(value: Value): T {
         val result = unpackValue(value).getOrThrow()
         if (result != null) return result
@@ -121,7 +109,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
     }
 
     /** Unpack value, but instead of `null` return error about incorrect argument type. */
-    // fn unpack_param(value: Value<'v>) -> crate::Result<Self>
     fun unpackParam(value: Value): T {
         val result = unpackValue(value).getOrThrow()
         if (result != null) return result
@@ -133,7 +120,6 @@ interface UnpackValue<T> : StarlarkTypeRepr {
     }
 
     /** Unpack value, but instead of `null` return error about incorrect named argument type. */
-    // fn unpack_named_param(value: Value<'v>, param_name: &str) -> crate::Result<Self>
     fun unpackNamedParam(value: Value, paramName: String): T {
         val unpacked = try {
             unpackValue(value).getOrThrow()
@@ -154,37 +140,14 @@ interface UnpackValue<T> : StarlarkTypeRepr {
     }
 }
 
-/** [UnpackValue] impl for [Value] (identity). */
-// impl<'v> UnpackValue<'v> for Value<'v>
+/** [UnpackValue] implementation for [Value] (identity). */
 object ValueUnpackValue : UnpackValue<Value> {
     override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
 
     override fun starlarkTypeRepr(): Ty = Ty.any()
 }
 
-/** [UnpackValue] impl for Kotlin [Int] (Starlark `i32` in tests). */
-object IntUnpackValue : UnpackValue<Int> {
-    override fun unpackValueImpl(value: Value): Result<Int?> = Result.success(value.unpackI32())
-
-    override fun starlarkTypeRepr(): Ty = Ty.int()
-}
-
-/** [UnpackValue] impl for Kotlin [Boolean] (Starlark `bool`). */
-object BoolUnpackValue : UnpackValue<Boolean> {
-    override fun unpackValueImpl(value: Value): Result<Boolean?> = Result.success(value.unpackBool())
-
-    override fun starlarkTypeRepr(): Ty = Ty.bool()
-}
-
-/** [UnpackValue] impl for Kotlin [String] (Starlark `&str`). */
-object StringUnpackValue : UnpackValue<String> {
-    override fun unpackValueImpl(value: Value): Result<String?> = Result.success(value.unpackStr())
-
-    override fun starlarkTypeRepr(): Ty = Ty.string()
-}
-
-/** [UnpackValue] impl for [Either]. */
-// impl<'v, TLeft: UnpackValue<'v>, TRight: UnpackValue<'v>> UnpackValue<'v> for Either<TLeft, TRight>
+/** [UnpackValue] implementation for [Either]. */
 class EitherUnpackValue<TLeft, TRight>(
     private val left: UnpackValue<TLeft>,
     private val right: UnpackValue<TRight>,

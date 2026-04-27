@@ -1,4 +1,4 @@
-// port-lint: source src/values/value_of_unchecked.rs
+// port-lint: source src/values/valueOfUnchecked.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,7 +32,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 /**
  * Store value annotated with type, but do not check the type.
  *
- * In Rust this is a generic struct parameterized by `V: ValueLifetimeless` and `T: StarlarkTypeRepr`,
  * where `T` is tracked via `PhantomData<fn() -> T>` (type-level only, no runtime storage).
  *
  * In Kotlin, `T` is a phantom type parameter used only for type-level annotation.
@@ -58,12 +57,11 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
     /**
      * Unpack the value.
      *
-     * In Rust, this uses `V: ValueLike<'v>` and `T: UnpackValue<'v>` bounds.
      * In Kotlin, due to type erasure, an explicit [UnpackValue] instance is required.
      */
     fun <R> unpack(unpacker: UnpackValue<R>): Result<R> {
-        val v = value as? ValueLike
-            ?: return Result.failure(IllegalStateException("ValueOfUncheckedGeneric.unpack requires ValueLike"))
+        val v = value as? ValueLike<*>
+            ?: return Result.failure(IllegalStateException("ValueOfUncheckedGeneric.unpack requires ValueLike<*>"))
         return runCatching { unpacker.unpackValueErr(v.toValue()) }
     }
 
@@ -79,7 +77,6 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
     /**
      * The representation of the starlark type.
      *
-     * In Rust, this delegates to `T::Canonical::starlark_type_repr()`.
      * In Kotlin, due to type erasure, the concrete [StarlarkTypeRepr] for `T`
      * must be provided externally.
      */
@@ -94,7 +91,7 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
      * this simply extracts the [Value] from the wrapper.
      */
     fun allocValue(_heap: Heap): Value {
-        val v = value as? ValueLike ?: error("ValueOfUncheckedGeneric.allocValue requires ValueLike")
+        val v = value as? ValueLike<*> ?: error("ValueOfUncheckedGeneric.allocValue requires ValueLike<*>")
         return v.toValue()
     }
 
@@ -125,7 +122,7 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
 
     /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
     open fun toValue(): ValueOfUncheckedGeneric<Value, T> {
-        val v = value as? ValueLike ?: error("ValueOfUncheckedGeneric.toValue requires ValueLike")
+        val v = value as? ValueLike<*> ?: error("ValueOfUncheckedGeneric.toValue requires ValueLike<*>")
         return new(v.toValue())
     }
 
@@ -201,7 +198,7 @@ fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecke
     return ValueOfUnchecked.new(value)
 }
 
-/** [UnpackValue] impl for [ValueOfUnchecked]. */
+/** [UnpackValue] implementation for [ValueOfUnchecked]. */
 class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
     private val typeRepr: StarlarkTypeRepr,
 ) : UnpackValue<ValueOfUnchecked<T>> {

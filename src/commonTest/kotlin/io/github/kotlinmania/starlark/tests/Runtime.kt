@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -56,8 +56,6 @@ assert_eq(y, str(x))
         // Check that we really do deallocate values we create
         val count = AtomicInt(0)
 
-        // #[derive(Default, Debug, Display)]
-        // struct Dealloc
         class Dealloc : AutoCloseable {
             override fun close() {
                 count.fetchAndAdd(1)
@@ -66,8 +64,6 @@ assert_eq(y, str(x))
             override fun toString(): String = "Dealloc"
         }
 
-        // #[starlark_module]
-        // fn globals(builder: &mut GlobalsBuilder)
         fun globalsFunctions(builder: GlobalsBuilder) {
             builder.setFunction("mk") { _, _ ->
                 Result.success(StarlarkAny.new(Dealloc()))
@@ -89,20 +85,18 @@ r = [y(), mk()]
         )
         // The three that were run in pass should have gone
         assertEquals(3, count.load(), "Expected 3 deallocations")
-        // Now the frozen ones should have gone too (after drop)
-        // Note: In Kotlin/JVM, explicit cleanup may differ from Rust's Drop
+        // Now the frozen ones should have gone too (after the assert harness is dropped).
+        // Note: explicit cleanup behaviour depends on the JVM/Native target.
     }
 
     @Test
     fun testStackDepth() {
-        // #[starlark_module]
-        // fn measure_stack(builder: &mut GlobalsBuilder)
         val depthCounter = AtomicInt(0)
         fun measureStackFunctions(builder: GlobalsBuilder) {
             builder.setFunction("stack_depth") { _, _ ->
-                // In Kotlin multiplatform we don't have direct stack pointer access.
-                // We use a monotonic counter as a proxy to verify that the evaluator
-                // does not grow stack unboundedly across loop iterations.
+                // We don't have direct stack-pointer access here, so we import a
+                // monotonic counter as a proxy to verify that the evaluator
+                // does not grow the stack unboundedly across loop iterations.
                 val depth = depthCounter.fetchAndAdd(1)
                 Result.success(depth.toString())
             }
@@ -140,8 +134,6 @@ v1 + " " + v100 + " " + v1000
     @Test
     fun testGarbageCollectHappens() {
         // GC is meant to be "not observable", but if we break it, we want this test to fail
-        // #[starlark_module]
-        // fn helpers(builder: &mut GlobalsBuilder)
         fun helpersFunctions(builder: GlobalsBuilder) {
             builder.setFunction("current_usage") { _, eval ->
                 Result.success(eval.heap().allocatedBytes())

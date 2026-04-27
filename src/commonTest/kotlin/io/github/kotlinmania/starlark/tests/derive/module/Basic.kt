@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,60 +29,51 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.test.Test
 
-// The examples from the starlark_module documentation.
-// #[test]
-// fn test_starlark_module()
-internal fun testStarlarkModule() {
-    // #[starlark_module]
-    // fn global(builder: &mut GlobalsBuilder)
-    fun global(builder: GlobalsBuilder) {
-        // fn cc_binary(name: &str, srcs: UnpackListOrTuple<&str>) -> anyhow::Result<String>
-        builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
-            val name = args.positional<String>(0)
-            val srcs = args.positional<Value>(1)
-            // real implementation may write it to a global variable
-            eval.heap().allocStr("\"$name\" $srcs")
+// The examples from the starlarkModule documentation.
+class BasicTests {
+    @Test
+    fun testStarlarkModule() {
+        fun global(builder: GlobalsBuilder) {
+            builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
+                val name = args.positional<String>(0)
+                val srcs = args.positional<Value>(1)
+                // real implementation may write it to a global variable
+                eval.heap().allocStr("\"$name\" $srcs")
+            }
         }
+
+        val a = Assert()
+        a.globalsAdd(::global)
+        val v = a.pass("cc_binary(name='star', srcs=['a.cc', 'b.cc'])")
+        check(
+            v.value().unpackStr()!!
+                == "\"star\" [\"a.cc\", \"b.cc\"]"
+        )
     }
 
-    val a = Assert()
-    a.globalsAdd(::global)
-    val v = a.pass("cc_binary(name='star', srcs=['a.cc', 'b.cc'])")
-    check(
-        v.value().unpackStr()!!
-            == "\"star\" [\"a.cc\", \"b.cc\"]"
-    )
-}
-
-// #[test]
-// fn test_starlark_methods()
-internal fun testStarlarkMethods() {
-    // #[starlark_module]
-    // fn methods(builder: &mut MethodsBuilder)
-    fun methods(builder: MethodsBuilder) {
-        // fn enum(this: Value, #[starlark(require = named, default = 3)] index: i32, heap: Heap) -> anyhow::Result<StringValue>
-        builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
-            val index = args.optionalNamed<Int>("index") ?: 3
-            val sv = eval.heap().allocStr("$thisVal $index")
-            Result.success(sv.toValue())
+    @Test
+    fun testStarlarkMethods() {
+        fun methods(builder: MethodsBuilder) {
+            builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
+                val index = args.optionalNamed<Int>("index") ?: 3
+                val sv = eval.heap().allocStr("$thisVal $index")
+                Result.success(sv.toValue())
+            }
         }
+
+        MethodsBuilder.new().with(::methods).build()
     }
 
-    MethodsBuilder.new().with(::methods).build()
-}
-
-// #[test]
-// fn test_static_allowed()
-internal fun testStaticAllowed() {
-    // #[starlark_module]
-    // fn globals(globals: &mut GlobalsBuilder)
-    fun globals(globals: GlobalsBuilder) {
-        // fn test() -> anyhow::Result<ValueOfUnchecked<&'static str>>
-        globals.setFunction("test") { _: Arguments, _: Evaluator ->
-            throw AssertionError("should not be called")
+    @Test
+    fun testStaticAllowed() {
+        fun globals(globals: GlobalsBuilder) {
+            globals.setFunction("test") { _: Arguments, _: Evaluator ->
+                throw AssertionError("should not be called")
+            }
         }
-    }
 
-    GlobalsBuilder.standard().with(::globals).build()
+        GlobalsBuilder.standard().with(::globals).build()
+    }
 }

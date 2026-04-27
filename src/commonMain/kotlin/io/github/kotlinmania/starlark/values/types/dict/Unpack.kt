@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -35,23 +35,20 @@ class UnpackDictEntries<K, V>(
     val entries: MutableList<Pair<K, V>> = mutableListOf()
 ) {
     companion object {
-        /** Default constructor matching Rust's `Default` trait. */
+        /** Default empty entries. */
         fun <K, V> default(): UnpackDictEntries<K, V> {
             return UnpackDictEntries(mutableListOf())
         }
 
-        /**
-         * StarlarkTypeRepr implementation for UnpackDictEntries<K, V>.
-         */
+        /** Starlark type representation for `UnpackDictEntries<K, V>`. */
         inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty {
             return DictType.starlarkTypeRepr<K, V>()
         }
 
         /**
-         * UnpackValue implementation for UnpackDictEntries<K, V> where K: UnpackValue, V: UnpackValue.
+         * Unpack a value into [UnpackDictEntries].
          *
-         * Returns null if the value is not a dict. Returns the [UnpackDictEntries] with
-         * all key/value pairs unpacked, or null if any key or value fails type checking.
+         * Returns `null` if the value is not a dict, or if any key or value fails type checking.
          */
         fun <K : Any, V : Any> unpackValue(value: Value): Result<UnpackDictEntries<K, V>?>? {
             val dict = dictRefFromValue(value) ?: return Result.success(null)
@@ -68,7 +65,7 @@ class UnpackDictEntries<K, V>(
     }
 }
 
-/** [UnpackValue] impl for [UnpackDictEntries]. */
+/** [UnpackValue] implementation for [UnpackDictEntries]. */
 class UnpackDictEntriesUnpackValue<K, V>(
     private val keyUnpacker: UnpackValue<K>,
     private val valueUnpacker: UnpackValue<V>,

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/unpack_value_attr.rs
+// port-lint: source src/tests/derive/unpackValueAttr.rs
 package io.github.kotlinmania.starlark.tests.derive
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,20 +24,12 @@ package io.github.kotlinmania.starlark.tests.derive
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("ValueWithLifetimeParam")]
-// struct ValueWithLifetimeParam<'v>(Value<'v>);
 private class ValueWithLifetimeParam(val value: Value) : StarlarkValue {
-    // #[starlark_value(type = "ValueWithLifetimeParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithLifetimeParam"
     override fun toString(): String = "ValueWithLifetimeParam"
 }
 
-// #[derive(Debug, Display, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("ValueWithoutParam")]
-// struct ValueWithoutParam(String);
 private class ValueWithoutParam(val value: String) : StarlarkValue {
-    // #[starlark_value(type = "ValueWithoutParam", StarlarkTypeRepr, UnpackValue)]
     override val TYPE: String get() = "ValueWithoutParam"
     override fun toString(): String = "ValueWithoutParam"
 }

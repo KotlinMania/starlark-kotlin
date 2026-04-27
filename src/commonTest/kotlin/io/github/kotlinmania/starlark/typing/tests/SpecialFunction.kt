@@ -1,7 +1,8 @@
-// port-lint: source src/typing/tests/special_function.rs
+// port-lint: source src/typing/tests/specialFunction.rs
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck
+import kotlin.test.Test
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,28 +22,27 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// Test-only transliterations from Rust `src/typing/tests/*` live in `commonTest`.
 
-// #[test]
-// fn test_special_function_struct()
-internal fun testSpecialFunctionStruct() {
-    TypeCheck().ty("x").check(
-        "struct",
-        """
-def test():
-    x = struct(a = 1, b = "test")
-""",
-    )
-}
+class SpecialFunctionTests {
+    @Test
+    fun testSpecialFunctionStruct() {
+        TypeCheck().ty("x").check(
+            "struct",
+            """
+    def test():
+        x = struct(a = 1, b = "test")
+    """,
+        )
+    }
 
-// #[test]
-// fn test_special_function_zip()
-internal fun testSpecialFunctionZip() {
-    TypeCheck().ty("x").check(
-        "zip",
-        """
-def test():
-    x = zip([1,2], [True, False], ["a", "b"])
-""",
-    )
+    @Test
+    fun testSpecialFunctionZip() {
+        TypeCheck().ty("x").check(
+            "zip",
+            """
+    def test():
+        x = zip([1,2], [True, False], ["a", "b"])
+    """,
+        )
+    }
 }

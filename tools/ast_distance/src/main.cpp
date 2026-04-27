@@ -336,6 +336,227 @@ static std::string expected_target_function_name(
     return source_name;
 }
 
+static void print_cheat_detection_failure(
+        std::ostream& out,
+        const std::string& subject,
+        const std::vector<std::string>& reasons,
+        const std::string& consequence,
+        const std::string& remediation = "") {
+    out << "\n*** CHEAT DETECTION FAILED ***\n";
+    if (!subject.empty()) {
+        out << subject << "\n";
+    }
+    if (!consequence.empty()) {
+        out << consequence << "\n";
+    }
+    out << "Why:\n";
+    for (const auto& reason : reasons) {
+        out << "  - " << reason << "\n";
+    }
+    if (!remediation.empty()) {
+        out << remediation << "\n";
+    }
+}
+
+struct RustModReexportHint {
+    std::string exported_name;
+    std::string expected_target_name;
+    std::string actual_rust_path;
+    std::string likely_source;
+};
+
+static std::vector<std::string> split_rust_path(const std::string& path) {
+    std::vector<std::string> parts;
+    size_t start = 0;
+    while (start <= path.size()) {
+        size_t pos = path.find("::", start);
+        std::string part = trim_copy(pos == std::string::npos
+            ? path.substr(start)
+            : path.substr(start, pos - start));
+        if (!part.empty()) {
+            parts.push_back(part);
+        }
+        if (pos == std::string::npos) break;
+        start = pos + 2;
+    }
+    return parts;
+}
+
+static std::vector<std::string> split_reexport_items(const std::string& items) {
+    std::vector<std::string> out;
+    std::string current;
+    int brace_depth = 0;
+    for (char c : items) {
+        if (c == '{') ++brace_depth;
+        if (c == '}') --brace_depth;
+        if (c == ',' && brace_depth == 0) {
+            std::string item = trim_copy(current);
+            if (!item.empty()) out.push_back(item);
+            current.clear();
+            continue;
+        }
+        current.push_back(c);
+    }
+    std::string item = trim_copy(current);
+    if (!item.empty()) out.push_back(item);
+    return out;
+}
+
+static std::pair<std::string, std::string> parse_reexport_item_name(std::string item) {
+    item = trim_copy(std::move(item));
+    static const std::regex alias_re(R"(^(.+?)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)$)");
+    std::smatch match;
+    if (std::regex_match(item, match, alias_re)) {
+        std::string actual = trim_copy(match[1].str());
+        std::string alias = trim_copy(match[2].str());
+        return {actual, alias};
+    }
+    return {item, ""};
+}
+
+static std::string last_rust_path_component(const std::string& path) {
+    auto parts = split_rust_path(path);
+    if (parts.empty()) return "";
+    return parts.back();
+}
+
+static std::string module_path_for_reexport(const std::string& actual_path) {
+    auto parts = split_rust_path(actual_path);
+    if (parts.size() <= 1) return "";
+    std::ostringstream out;
+    for (size_t i = 0; i + 1 < parts.size(); ++i) {
+        if (i > 0) out << "::";
+        out << parts[i];
+    }
+    return out.str();
+}
+
+static std::string display_relative_to(const std::filesystem::path& path,
+                                       const std::filesystem::path& base) {
+    std::error_code ec;
+    auto rel = std::filesystem::relative(path, base, ec);
+    if (!ec && !rel.empty()) {
+        return rel.generic_string();
+    }
+    return path.lexically_normal().generic_string();
+}
+
+static std::string likely_rust_reexport_source_file(
+        const std::filesystem::path& mod_rs_path,
+        const std::string& module_path) {
+    auto modules = split_rust_path(module_path);
+    if (modules.empty()) return "";
+
+    std::error_code ec;
+    std::filesystem::path mod_abs = std::filesystem::absolute(mod_rs_path, ec);
+    if (ec) mod_abs = mod_rs_path;
+    std::filesystem::path base = mod_abs.parent_path();
+    std::filesystem::path display_base = base;
+    std::vector<std::string> relative_modules;
+
+    for (const auto& raw : modules) {
+        std::string part = raw;
+        if (part == "self") {
+            continue;
+        }
+        if (part == "super") {
+            base = base.parent_path();
+            display_base = display_base.parent_path();
+            continue;
+        }
+        if (part == "crate") {
+            // Without a crate root map, crate-relative reexports are still useful
+            // as Rust paths, but a local file guess would be misleading.
+            return "";
+        }
+        relative_modules.push_back(part);
+    }
+
+    if (relative_modules.empty()) return "";
+
+    std::filesystem::path file_candidate = base;
+    for (size_t i = 0; i + 1 < relative_modules.size(); ++i) {
+        file_candidate /= relative_modules[i];
+    }
+    file_candidate /= relative_modules.back() + ".rs";
+
+    std::filesystem::path mod_candidate = base;
+    for (const auto& part : relative_modules) {
+        mod_candidate /= part;
+    }
+    mod_candidate /= "mod.rs";
+
+    if (std::filesystem::exists(file_candidate, ec)) {
+        return display_relative_to(file_candidate, display_base);
+    }
+    if (std::filesystem::exists(mod_candidate, ec)) {
+        return display_relative_to(mod_candidate, display_base);
+    }
+    return display_relative_to(file_candidate, display_base);
+}
+
+static void add_rust_mod_reexport_hint(
+        std::vector<RustModReexportHint>& hints,
+        const std::filesystem::path& mod_rs_path,
+        const std::string& actual_path,
+        const std::string& exported_name,
+        Language source_lang,
+        Language target_lang) {
+    if (actual_path.empty() || exported_name.empty() || exported_name == "self" || exported_name == "*") {
+        return;
+    }
+    RustModReexportHint hint;
+    hint.exported_name = exported_name;
+    hint.expected_target_name = expected_target_function_name(exported_name, source_lang, target_lang);
+    hint.actual_rust_path = actual_path;
+    hint.likely_source = likely_rust_reexport_source_file(
+        mod_rs_path, module_path_for_reexport(actual_path));
+    hints.push_back(std::move(hint));
+}
+
+static std::vector<RustModReexportHint> rust_mod_reexport_hints(
+        const std::string& file_path,
+        const std::string& source_text,
+        Language source_lang,
+        Language target_lang) {
+    std::vector<RustModReexportHint> hints;
+    if (source_lang != Language::RUST) return hints;
+    if (std::filesystem::path(file_path).filename() != "mod.rs") return hints;
+
+    std::filesystem::path mod_rs_path(file_path);
+    static const std::regex use_line_re(R"(^\s*pub(\([^)]*\))?\s+use\s+(.+)\s*;\s*$)");
+    static const std::regex brace_re(R"(^(.+)::\{(.+)\}$)");
+
+    for (const auto& line : rust_significant_lines(source_text)) {
+        std::smatch match;
+        if (!std::regex_match(line, match, use_line_re)) continue;
+        std::string spec = trim_copy(match[2].str());
+        if (spec.empty() || spec.find('*') != std::string::npos) continue;
+
+        std::smatch brace_match;
+        if (std::regex_match(spec, brace_match, brace_re)) {
+            std::string prefix = trim_copy(brace_match[1].str());
+            for (const auto& item : split_reexport_items(brace_match[2].str())) {
+                auto [actual_item, alias] = parse_reexport_item_name(item);
+                if (actual_item == "self" || actual_item == "super" || actual_item == "crate") continue;
+                std::string exported = alias.empty() ? last_rust_path_component(actual_item) : alias;
+                std::string actual_path = prefix + "::" + actual_item;
+                add_rust_mod_reexport_hint(
+                    hints, mod_rs_path, actual_path, exported, source_lang, target_lang);
+            }
+            continue;
+        }
+
+        auto [actual_path, alias] = parse_reexport_item_name(spec);
+        std::string actual_name = last_rust_path_component(actual_path);
+        std::string exported = alias.empty() ? actual_name : alias;
+        add_rust_mod_reexport_hint(
+            hints, mod_rs_path, actual_path, exported, source_lang, target_lang);
+    }
+
+    return hints;
+}
+
 static void warn_kotlin_suspicious_constructs(
     const std::filesystem::path& source_path,
     Language source_lang,
@@ -1459,6 +1680,22 @@ void generate_reports(const Codebase& source, const Codebase& target,
     
     // 1. Generate port_status_report.md
     {
+        auto status_order = ranked;
+        std::sort(status_order.begin(), status_order.end(),
+            [](const CodebaseComparator::Match& a, const CodebaseComparator::Match& b) {
+                if (a.similarity != b.similarity) return a.similarity < b.similarity;
+                if (a.zero_reasons.empty() != b.zero_reasons.empty()) {
+                    return !a.zero_reasons.empty();
+                }
+                if (a.source_dependents != b.source_dependents) {
+                    return a.source_dependents > b.source_dependents;
+                }
+                if (a.symbol_deficit() != b.symbol_deficit()) {
+                    return a.symbol_deficit() > b.symbol_deficit();
+                }
+                return a.source_qualified < b.source_qualified;
+            });
+
         std::ofstream report("port_status_report.md");
         report << "# Code Port - Progress Report\n\n";
         report << "**Generated:** " << date_buf << "\n";
@@ -1483,21 +1720,23 @@ void generate_reports(const Codebase& source, const Codebase& target,
         report << "\n";
         
         report << "## Port Quality Analysis\n\n";
-        report << "**Average Similarity:** " << std::fixed << std::setprecision(2) << avg_similarity << "\n\n";
-        report << "**Quality Distribution:**\n";
-        report << "- Excellent (≥0.85): " << excellent << " files (" 
-               << std::fixed << std::setprecision(1) << (static_cast<float>(excellent) / matched_denominator * 100.0f) << "% of matched)\n";
-        report << "- Good (0.60-0.84): " << good << " files ("
-               << std::fixed << std::setprecision(1) << (static_cast<float>(good) / matched_denominator * 100.0f) << "% of matched)\n";
+        report << "**Average Function Similarity:** " << std::fixed << std::setprecision(2) << avg_similarity << "\n\n";
+        report << "Similarity in this report is the required function-by-function body/parameter score. "
+                  "Class/type parity and symbol deficits are reported beside it; whole-file shape is diagnostic only.\n\n";
+        report << "**Work Distribution:**\n";
         report << "- Critical (<0.60): " << critical << " files ("
-               << std::fixed << std::setprecision(1) << (static_cast<float>(critical) / matched_denominator * 100.0f) << "% of matched)\n\n";
+               << std::fixed << std::setprecision(1) << (static_cast<float>(critical) / matched_denominator * 100.0f) << "% of matched)\n";
+        report << "- Needs review (0.60-0.84): " << good << " files ("
+               << std::fixed << std::setprecision(1) << (static_cast<float>(good) / matched_denominator * 100.0f) << "% of matched)\n";
+        report << "\n";
 
-        report << "## Function and Symbol Details\n\n";
-        report << "Every matched file is listed with function and type parity. Missing symbol names are not capped.\n\n";
-        report << "| Rank | Source | Target | Similarity | Functions | Missing functions | Types | Missing types | Tests | Symbol deficit | Priority |\n";
-        report << "|------|--------|--------|------------|-----------|-------------------|-------|---------------|-------|----------------|----------|\n";
+        report << "## Worst Function Scores First\n\n";
+        report << "Every matched file is listed from lowest function body/parameter similarity upward. "
+                  "Missing symbol names are not capped.\n\n";
+        report << "| Rank | Source | Target | Function similarity | Functions | Missing functions | Types | Missing types | Tests | Symbol deficit | Priority |\n";
+        report << "|------|--------|--------|---------------------|-----------|-------------------|-------|---------------|-------|----------------|----------|\n";
         int detail_rank = 1;
-        for (const auto& m : ranked) {
+        for (const auto& m : status_order) {
             std::string tests = "-";
             if (m.source_test_function_count > 0) {
                 tests = std::to_string(m.matched_test_function_count) + "/" +
@@ -1514,24 +1753,24 @@ void generate_reports(const Codebase& source, const Codebase& target,
                    << std::fixed << std::setprecision(1) << m.priority_score() << " |\n";
         }
         report << "\n";
-        
-        report << "### Excellent Ports (Similarity ≥ 0.85)\n\n";
-        report << "These files are well-ported and likely complete. This section is complete, not capped.\n\n";
-        int shown = 0;
-        for (const auto& m : ranked) {
-            if (!m.is_stub && m.similarity >= 0.85) {
-                shown++;
-                report << "- `" << m.target_qualified << "` (" << std::fixed << std::setprecision(2)
-                       << m.similarity << ", " << m.source_dependents << " deps, "
-                       << m.symbol_deficit() << " missing symbols)\n";
-            }
+
+        report << "## Cheat Detection / Scoring Failures\n\n";
+        bool wrote_failures = false;
+        for (const auto& m : status_order) {
+            if (m.zero_reasons.empty()) continue;
+            wrote_failures = true;
+            report << "- `" << m.source_qualified << "` -> `" << m.target_qualified
+                   << "`: function-by-function score forced to 0. "
+                   << CodebaseComparator::join_reasons(m.zero_reasons) << "\n";
         }
-        if (shown == 0) report << "_None detected._\n";
+        if (!wrote_failures) {
+            report << "_None detected._\n";
+        }
         report << "\n";
         
-        report << "### Critical Ports (Similarity < 0.60)\n\n";
+        report << "### Critical Ports (Similarity < 0.60, Worst First)\n\n";
         report << "These files need significant work:\n\n";
-        for (const auto& m : ranked) {
+        for (const auto& m : status_order) {
             if (m.similarity < 0.60) {
                 report << "- `" << m.source_qualified << "` → `" << m.target_qualified 
                        << "` (" << std::fixed << std::setprecision(2) << m.similarity;
@@ -1627,7 +1866,8 @@ void generate_reports(const Codebase& source, const Codebase& target,
                   " + SrcSymbols * 100 + (1 - function similarity) * 10\n\n";
         report << "Dependency fanout is ranked first so the ladder favors ports that clear"
                   " downstream compilation failures fastest.\n\n";
-        report << "This list is complete and includes function/type detail for every matched file.\n\n";
+        report << "This list is complete and includes function/type detail for every matched file. "
+                  "Function similarity is the required body/parameter comparison; file-level shape does not rescue a port.\n\n";
         report << "| Rank | Source | Target | Function similarity | Deps | Functions | Missing functions | Types | Missing types | SymDeficit | SrcSymbols | Priority |\n";
         report << "|------|--------|--------|------------|------|-----------|-------------------|-------|---------------|-----------|------------|----------|\n";
 
@@ -1646,6 +1886,20 @@ void generate_reports(const Codebase& source, const Codebase& target,
                    << " | " << markdown_symbol_list(m.missing_types) << " | "
                    << m.symbol_deficit() << " | " << m.source_symbol_surface() << " | "
                    << std::fixed << std::setprecision(1) << priority << " |\n";
+        }
+        report << "\n";
+
+        report << "## Cheat Detection / Scoring Failures\n\n";
+        bool wrote_priority_failures = false;
+        for (const auto& m : ranked) {
+            if (m.zero_reasons.empty()) continue;
+            wrote_priority_failures = true;
+            report << "- `" << m.source_qualified << "` -> `" << m.target_qualified
+                   << "`: function-by-function score forced to 0. "
+                   << CodebaseComparator::join_reasons(m.zero_reasons) << "\n";
+        }
+        if (!wrote_priority_failures) {
+            report << "_None detected._\n";
         }
         report << "\n";
         
@@ -1668,6 +1922,10 @@ void generate_reports(const Codebase& source, const Codebase& target,
                        << parity_cell(m.matched_type_count, m.source_type_count, m.target_type_count)
                        << "\n";
                 report << "  - Missing types: " << markdown_symbol_list(m.missing_types) << "\n";
+                if (!m.zero_reasons.empty()) {
+                    report << "  - Scoring failure: "
+                           << CodebaseComparator::join_reasons(m.zero_reasons) << "\n";
+                }
                 if (m.todo_count > 0) report << "  - TODOs: " << m.todo_count << "\n";
                 if (m.lint_count > 0) report << "  - Lint issues: " << m.lint_count << "\n";
                 report << "\n";
@@ -3238,9 +3496,13 @@ void cmd_complete(const std::string& task_file, const std::string& source_qualif
             auto contamination =
                 CodebaseComparator::kotlin_contamination_reasons_for_files({resolved_target_path.string()});
             if (!contamination.empty() && !override_mode) {
-                std::cerr << "Error: Cannot complete task - Kotlin target score is forced to 0\n";
-                std::cerr << "Reason: " << CodebaseComparator::join_reasons(contamination) << "\n";
-                std::cerr << "Remove Rust syntax and snake_case identifiers before marking complete.\n";
+                std::cerr << "Error: Cannot complete task - Kotlin target failed cheat detection\n";
+                print_cheat_detection_failure(
+                    std::cerr,
+                    "Target file score forced to 0.0000.",
+                    contamination,
+                    "The task cannot be marked complete because function-by-function scoring is invalidated.",
+                    "Remove Rust syntax, snake_case identifiers, score-padding suppressions, and translator-note residue before marking complete.");
                 return;
             }
         }
@@ -3600,9 +3862,13 @@ void cmd_release(const std::string& task_file, const std::string& source_qualifi
             auto contamination =
                 CodebaseComparator::kotlin_contamination_reasons_for_files({target_path.string()});
             if (!contamination.empty()) {
-                std::cerr << "Error: Cannot release task - Kotlin target score is forced to 0\n";
-                std::cerr << "Reason: " << CodebaseComparator::join_reasons(contamination) << "\n";
-                std::cerr << "Remove Rust syntax and snake_case identifiers or delete the file.\n";
+                std::cerr << "Error: Cannot release task - Kotlin target failed cheat detection\n";
+                print_cheat_detection_failure(
+                    std::cerr,
+                    "Target file score forced to 0.0000.",
+                    contamination,
+                    "The task cannot be released while the existing target invalidates function-by-function scoring.",
+                    "Remove Rust syntax, snake_case identifiers, score-padding suppressions, translator-note residue, or delete the file.");
                 return;
             }
         }
@@ -3937,7 +4203,9 @@ int main(int argc, char* argv[]) {
             std::ifstream stream1(file1);
             std::stringstream buffer1;
             buffer1 << stream1.rdbuf();
-            auto funcs1 = parser.extract_function_infos(buffer1.str(), lang1);
+            std::string file1_text = buffer1.str();
+            auto funcs1 = parser.extract_function_infos(file1_text, lang1);
+            auto reexport_hints = rust_mod_reexport_hints(file1, file1_text, lang1, lang2);
 
             std::cout << "Found " << funcs1.size() << " " << language_name(lang1) << " functions\n";
 
@@ -4129,14 +4397,14 @@ int main(int argc, char* argv[]) {
 
             const float source_total = static_cast<float>(funcs1.size());
             const float matched_total = static_cast<float>(reports.size());
-            const float coverage = source_total > 0.0f ? matched_total / source_total : 1.0f;
+            const float coverage = source_total > 0.0f ? matched_total / source_total : 0.0f;
             const float overall_score = source_total > 0.0f ? total_combined / source_total : 0.0f;
             const float matched_avg = matched_total > 0.0f ? total_combined / matched_total : 0.0f;
             const float ast_avg = matched_total > 0.0f ? total_ast_cosine / matched_total : 0.0f;
             const float id_avg = matched_total > 0.0f ? total_id_cosine / matched_total : 0.0f;
             const float line_balance_avg = matched_total > 0.0f ? total_line_balance / matched_total : 0.0f;
 
-            std::cout << "\n=== Function Name Parity ===\n";
+            std::cout << "\n=== Function-by-Function Comparison (required score) ===\n";
             if (lang1 == Language::RUST && lang2 == Language::KOTLIN) {
                 std::cout << "Rule: Rust snake_case/private generated names must match legal Kotlin lowerCamelCase names.\n";
                 std::cout << "Examples: `foo_bar` -> `fooBar`, `___action42` -> `action42`, "
@@ -4153,13 +4421,41 @@ int main(int argc, char* argv[]) {
             std::cout << "Name coverage: " << std::fixed << std::setprecision(3) << coverage << "\n";
             std::cout << "Function body score (missing source functions count as 0): "
                       << std::fixed << std::setprecision(3) << overall_score << "\n";
+            if (funcs1.empty()) {
+                std::cout << "Function comparison failed: no source function bodies were extracted.\n";
+            } else if (funcs2.empty()) {
+                std::cout << "Function comparison failed: no target function bodies were extracted.\n";
+            } else if (unmatched_source > 0) {
+                std::cout << "Function comparison incomplete: " << unmatched_source
+                          << " source functions were not matched by strict parity.\n";
+            }
             std::cout << "Matched average combined: " << std::fixed << std::setprecision(3) << matched_avg
                       << " | AST cosine avg: " << ast_avg
                       << " | identifier cosine avg: " << id_avg
                       << " | line-balance avg: " << line_balance_avg << "\n";
             if (!target_zero_reasons.empty()) {
-                std::cout << "Target file score forced to 0: "
-                          << CodebaseComparator::join_reasons(target_zero_reasons) << "\n";
+                print_cheat_detection_failure(
+                    std::cout,
+                    "Target file score forced to 0.0000.",
+                    target_zero_reasons,
+                    "All function-by-function similarity scores are zero because the Kotlin target contains cheating or untranslated Rust residue.");
+            }
+
+            if (!reexport_hints.empty()) {
+                std::cout << "\nRust mod.rs reexports detected:\n";
+                if (funcs1.empty()) {
+                    std::cout << "  No local Rust function bodies were extracted from this mod.rs; "
+                              << "compare the actual reexported source files for body similarity.\n";
+                }
+                for (const auto& hint : reexport_hints) {
+                    std::cout << "  - " << hint.exported_name
+                              << " -> expected " << hint.expected_target_name
+                              << " (actual: " << hint.actual_rust_path;
+                    if (!hint.likely_source.empty()) {
+                        std::cout << ", likely source: " << hint.likely_source;
+                    }
+                    std::cout << ")\n";
+                }
             }
 
             if (unmatched_source > 0) {
@@ -4338,17 +4634,20 @@ int main(int argc, char* argv[]) {
 
             bool function_scored = false;
             CodebaseComparator::FunctionComparisonResult function_result;
+            std::vector<FunctionInfo> src_funcs_for_report;
+            std::vector<FunctionInfo> tgt_funcs_for_report;
             std::vector<std::string> target_zero_reasons;
             if (lang2 == Language::KOTLIN) {
                 target_zero_reasons =
                     CodebaseComparator::kotlin_contamination_reasons_for_files({file2});
             }
             try {
-                auto src_funcs = file1_source ? parser.extract_function_infos(*file1_source, lang1)
-                                              : parser.extract_function_infos_from_file(file1, lang1);
-                auto tgt_funcs = file2_source ? parser.extract_function_infos(*file2_source, lang2)
-                                              : parser.extract_function_infos_from_file(file2, lang2);
-                function_result = CodebaseComparator::compare_function_sets(src_funcs, tgt_funcs);
+                src_funcs_for_report = file1_source ? parser.extract_function_infos(*file1_source, lang1)
+                                                    : parser.extract_function_infos_from_file(file1, lang1);
+                tgt_funcs_for_report = file2_source ? parser.extract_function_infos(*file2_source, lang2)
+                                                    : parser.extract_function_infos_from_file(file2, lang2);
+                function_result = CodebaseComparator::compare_function_sets(
+                    src_funcs_for_report, tgt_funcs_for_report);
                 function_scored = (function_result.score >= 0.0f);
                 if (!target_zero_reasons.empty()) {
                     content_score = 0.0f;
@@ -4387,10 +4686,20 @@ int main(int argc, char* argv[]) {
             }
 
             if (function_scored) {
+                std::cout << "\n=== Function-by-Function Comparison (required score) ===\n";
                 std::cout << "Scored by function bodies: "
                           << function_result.source_total << " vs "
                           << function_result.target_total << " functions, matched "
                           << function_result.matched_pairs << "\n";
+                if (function_result.source_total == 0) {
+                    std::cout << "Function comparison failed: no source function bodies were extracted.\n";
+                } else if (function_result.target_total == 0) {
+                    std::cout << "Function comparison failed: no target function bodies were extracted.\n";
+                } else if (function_result.unmatched_source > 0) {
+                    std::cout << "Function comparison incomplete: "
+                              << function_result.unmatched_source
+                              << " source functions were not matched by name/parity.\n";
+                }
                 if (function_result.has_source_stub || function_result.has_target_stub) {
                     std::cout << "Function-level TODO/stub markers found; affected matches scored as 0.\n";
                 }
@@ -4408,10 +4717,11 @@ int main(int argc, char* argv[]) {
                 std::cout << "  Function-by-function score forced to 0.0000\n";
             } else if (!target_zero_reasons.empty()) {
                 content_score = 0.0f;
-                std::cout << "\n*** KOTLIN TARGET REJECTED ***\n";
-                std::cout << "  " << file2 << " score forced to 0: "
-                          << CodebaseComparator::join_reasons(target_zero_reasons)
-                          << "\n";
+                print_cheat_detection_failure(
+                    std::cout,
+                    file2 + " score forced to 0.0000.",
+                    target_zero_reasons,
+                    "The required function-by-function score is invalidated.");
             } else {
                 if (file1_stubs) {
                     std::cout << "\nNote: " << file1

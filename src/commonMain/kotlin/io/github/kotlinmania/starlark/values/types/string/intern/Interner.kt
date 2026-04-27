@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.string.intern
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,13 +21,6 @@ package io.github.kotlinmania.starlark.values.types.string.intern
 
 // Generic interner for starlark strings.
 
-// use hashbrown::HashTable;
-// use crate as starlark;
-// use crate::collections::Hashed;
-// use crate::values::FrozenStringValue;
-// use crate::values::StringValue;
-// use crate::values::Trace;
-
 import starlarkmap.Hashed
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -39,16 +32,11 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
  *
  * Caches frozen string allocations so that identical strings share the same value.
  */
-// #[derive(Default)]
-// pub(crate) struct FrozenStringValueInterner {
-//     map: HashTable<FrozenStringValue>,
-// }
 internal class FrozenStringValueInterner {
     // HashTable<FrozenStringValue> in Rust.
-    // In Kotlin, we use a HashMap keyed by hash+content for O(1) lookup.
+    // In Kotlin, we import a HashMap keyed by hash+content for O(1) lookup.
     private val map: HashMap<ULong, MutableList<FrozenStringValue>> = HashMap()
 
-    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> FrozenStringValue) -> FrozenStringValue
     fun intern(
         s: Hashed<String>,
         alloc: () -> FrozenStringValue,
@@ -79,16 +67,11 @@ internal class FrozenStringValueInterner {
  *
  * Caches string allocations so that identical strings share the same value.
  */
-// #[derive(Default, Trace)]
-// pub(crate) struct StringValueInterner<'v> {
-//     map: HashTable<StringValue<'v>>,
-// }
 internal class StringValueInterner : Trace {
     // HashTable<StringValue> in Rust.
-    // In Kotlin, we use a HashMap keyed by hash for O(1) lookup.
+    // In Kotlin, we import a HashMap keyed by hash for O(1) lookup.
     private val map: HashMap<ULong, MutableList<StringValue>> = HashMap()
 
-    // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> StringValue<'v>) -> StringValue<'v>
     fun intern(
         s: Hashed<String>,
         alloc: () -> StringValue,
@@ -109,8 +92,6 @@ internal class StringValueInterner : Trace {
         return stringValue
     }
 
-    // #[derive(Trace)] generates trace for the HashTable field.
-    // In Rust, this walks the HashTable and traces each StringValue's inner Value.
     // In Kotlin, the GC handles reference tracking, so this is effectively a no-op.
     // We keep the method for structural parity with the Rust Trace derive.
     override fun trace(@Suppress("unused") tracer: Tracer) {

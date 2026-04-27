@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/static_string.rs
+// port-lint: source src/values/layout/staticString.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,8 +30,7 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 
 /**
  * Internal string representation with packed body bytes.
- * In Rust, this is `StarlarkStrN<const N: usize>` with const generics for the body size.
- * In Kotlin, we use a dynamic LongArray.
+ * In Kotlin, we import a dynamic LongArray.
  */
 internal class StarlarkStrN(
     val len: Int,
@@ -42,7 +41,6 @@ internal class StarlarkStrN(
 /**
  * A constant string that can be converted to a [FrozenValue].
  *
- * In the Rust original, `N` is the length in words and `#[repr(C)]` ensures
  * the struct layout matches the heap representation. In Kotlin, we hold the
  * `AValueRepr<StarlarkStrN>` directly and rely on the runtime representation.
  */
@@ -71,7 +69,6 @@ class StarlarkStrNRepr internal constructor(
                     ((s[i].code.toLong() and 0xFF) shl shift)
             }
 
-            // In Rust, VALUE_STR_A_VALUE_PTR is a static vtable; the StarlarkStr lives
             // in the arena bytes after the header.  In Kotlin there is no raw memory so
             // we need the AValueHeader's vtable to carry the actual StarlarkStr so that
             // `Value.unpackStarlarkStr()` can find it via `getRef().downcastRef<StarlarkStr>()`.

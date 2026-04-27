@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.stdlib.funcs.other
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark.values.types.list.allocList
  * @param args Positional arguments to be formatted into the error message.
  * @return Never returns successfully; always returns a failure [Result].
  */
-// fn fail(#[starlark(args)] args: UnpackTuple<Value>) -> starlark::Result<StarlarkNever>
 private fun fail(args: List<Value>): Nothing {
     val s = StringBuilder()
     for (x in args) {
@@ -69,7 +68,6 @@ private fun fail(args: List<Value>): Nothing {
 /**
  * Error thrown by the `fail()` builtin function.
  *
- * Corresponds to Rust's `ErrorKind::Fail(anyhow::Error::msg(s))`.
  */
 class StarlarkFailError(message: String) : RuntimeException(message)
 
@@ -89,7 +87,6 @@ class StarlarkFailError(message: String) : RuntimeException(message)
  * @param heap The active heap.
  * @return `true` if any element is truthy, `false` otherwise.
  */
-// fn any<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
 private fun any(x: Value, heap: Heap): Boolean {
     val iter = x.iterate(heap).getOrThrow()
     for (i in iter) {
@@ -119,7 +116,6 @@ private fun any(x: Value, heap: Heap): Boolean {
  * @param heap The active heap.
  * @return `true` if all elements are truthy, `false` otherwise.
  */
-// fn all<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
 private fun all(x: Value, heap: Heap): Boolean {
     val iter = x.iterate(heap).getOrThrow()
     for (i in iter) {
@@ -145,7 +141,6 @@ private fun all(x: Value, heap: Heap): Boolean {
  * @param x The value to inspect.
  * @return A list of attribute names.
  */
-// fn dir(x: Value) -> anyhow::Result<Vec<String>>
 private fun dir(x: Value): List<String> {
     return x.dirAttr()
 }
@@ -171,8 +166,6 @@ private fun dir(x: Value): List<String> {
  * @param heap The active heap for allocating tuples.
  * @return A list of (index, value) tuples.
  */
-// fn enumerate<'v>(it: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, start: i32, heap: Heap<'v>)
-//     -> starlark::Result<impl AllocValue<'v>>
 private fun enumerate(it: Value, start: Int, heap: Heap): Value {
     val iter = it.iterate(heap).getOrThrow()
     val result = mutableListOf<Value>()
@@ -205,8 +198,6 @@ private fun enumerate(it: Value, start: Int, heap: Heap): Value {
  * @param heap The active heap.
  * @return The value of the attribute, or [default] if provided and the attribute is missing.
  */
-// fn getattr<'v>(a: Value<'v>, attr: &str, default: Option<Value<'v>>, heap: Heap<'v>)
-//     -> starlark::Result<Value<'v>>
 private fun getattr(a: Value, attr: String, default: Value?, heap: Heap): Value {
     val v = a.getAttr(attr, heap).getOrThrow()
     if (v != null) {
@@ -231,7 +222,6 @@ private fun getattr(a: Value, attr: String, default: Value?, heap: Heap): Value 
  * @param heap The active heap.
  * @return `true` if the attribute exists, `false` otherwise.
  */
-// fn hasattr<'v>(a: Value<'v>, attr: &str, heap: Heap<'v>) -> anyhow::Result<bool>
 private fun hasattr(a: Value, attr: String, heap: Heap): Boolean {
     return a.hasAttr(attr, heap)
 }
@@ -254,7 +244,6 @@ private fun hasattr(a: Value, attr: String, heap: Heap): Boolean {
  * @return The hash value as an [Int], using the java.lang.String.hashCode algorithm
  *   over the UTF-16 transcoding of the string as specified by the Starlark spec.
  */
-// fn hash(a: &str) -> anyhow::Result<i32>
 private fun hash(a: String): Int {
     // From the starlark spec:
     // > the hash function for strings is the same as that implemented by java.lang.String.hashCode,
@@ -307,7 +296,6 @@ private fun hash(a: String): Int {
  * @param a The value whose length to compute.
  * @return The number of elements.
  */
-// fn len(a: Value) -> starlark::Result<i32>
 private fun len(a: Value): Int {
     return a.length().getOrThrow()
 }
@@ -330,8 +318,6 @@ private fun len(a: Value): Int {
  * @param heap The active heap.
  * @return A new list with elements in reverse order.
  */
-// fn reversed<'v>(a: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>)
-//     -> starlark::Result<Vec<Value<'v>>>
 private fun reversed(a: Value, heap: Heap): Value {
     val iter = a.iterate(heap).getOrThrow()
     val v = iter.asSequence().toMutableList()
@@ -368,7 +354,6 @@ private fun reversed(a: Value, heap: Heap): Value {
  */
 // This function is not spec-safe, because it may call `key` function
 // which might be not spec-safe.
-// fn sorted<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, key: Option<Value<'v>>,
 //     reverse: bool, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<AllocList<...>>
 private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Value {
     val heap = eval.heap()
@@ -418,55 +403,41 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
  * @param a The value to inspect.
  * @return A frozen string value containing the type name.
  */
-// fn r#type<'v>(a: Value) -> anyhow::Result<FrozenStringValue>
 private fun type(a: Value): FrozenStringValue {
     return a.getTypeValue()
 }
 
-// #[starlark_module]
-// pub(crate) fn register_other(builder: &mut GlobalsBuilder)
 /**
  * Register the standard functions (`fail`, `any`, `all`, `dir`, `enumerate`,
  * `getattr`, `hasattr`, `hash`, `len`, `reversed`, `sorted`, `type`) with
  * the given [GlobalsBuilder].
  */
 internal fun registerOther(globals: GlobalsBuilder) {
-    // fn fail(#[starlark(args)] args: UnpackTuple<Value>) -> starlark::Result<StarlarkNever>
     globals.setFunction("fail") { callArgs, _ ->
         fail(callArgs.positionalAll())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn any<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
     globals.setFunction("any", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         any(x, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn all<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>) -> starlark::Result<bool>
     globals.setFunction("all", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         all(x, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn dir(x: Value) -> anyhow::Result<Vec<String>>
     globals.setFunction("dir", speculativeExecSafe = true) { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         eval.heap().allocList(dir(x).map { eval.heap().allocStr(it).toValue() })
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn enumerate<'v>(it: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, start: i32, heap: Heap<'v>)
     globals.setFunction("enumerate", speculativeExecSafe = true) { callArgs, eval ->
         val it = callArgs.positional<Value>(0)
         val start = callArgs.optionalPositional<Int>(1) ?: 0
         enumerate(it, start, eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn getattr<'v>(a: Value<'v>, attr: &str, default: Option<Value<'v>>, heap: Heap<'v>)
     globals.setFunction("getattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
@@ -474,30 +445,22 @@ internal fun registerOther(globals: GlobalsBuilder) {
         getattr(a, attr, default, eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn hasattr<'v>(a: Value<'v>, attr: &str, heap: Heap<'v>) -> anyhow::Result<bool>
     globals.setFunction("hasattr", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         val attr = callArgs.positional<String>(1)
         hasattr(a, attr, eval.heap()).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn hash(a: &str) -> anyhow::Result<i32>
     globals.setFunction("hash", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<String>(0)
         hash(a).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn len(a: Value) -> starlark::Result<i32>
     globals.setFunction("len", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         len(a).allocValue(eval.heap())
     }
 
-    // #[starlark(speculative_exec_safe)]
-    // fn reversed<'v>(a: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, heap: Heap<'v>)
     globals.setFunction("reversed", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         reversed(a, eval.heap())
@@ -505,7 +468,6 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // This function is not spec-safe, because it may call `key` function
     // which might be not spec-safe.
-    // fn sorted<'v>(x: ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>, key: Option<Value<'v>>,
     //     reverse: bool, eval: &mut Evaluator<'v, '_, '_>)
     globals.setFunction("sorted") { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
@@ -514,8 +476,6 @@ internal fun registerOther(globals: GlobalsBuilder) {
         sorted(x, key, reverse, eval)
     }
 
-    // #[starlark(speculative_exec_safe, as_type = AbstractType)]
-    // fn r#type<'v>(a: Value) -> anyhow::Result<FrozenStringValue>
     globals.setFunction("type", speculativeExecSafe = true) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         type(a).toValue()

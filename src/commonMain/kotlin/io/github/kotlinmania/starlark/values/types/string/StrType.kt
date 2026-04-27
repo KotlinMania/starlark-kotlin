@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/string/str_type.rs
+// port-lint: source src/values/types/string/strType.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.string
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -44,7 +44,6 @@ const val STRING_TYPE: String = "string"
 /**
  * A pointer to this type represents a Starlark string.
  *
- * Rust: `values/types/string/str_type.rs` defines an unsized, heap-allocated string type with a
  * cached hash and a byte length field. Kotlin cannot model the unsized layout directly in common
  * code, so this is a value wrapper with equivalent semantics exposed through [StarlarkValue].
  */
@@ -55,16 +54,12 @@ class StarlarkStr(
     @OptIn(ExperimentalAtomicApi::class)
     private val cachedHash: AtomicInt = AtomicInt(0)
 
-    /** Rust: `pub fn as_str(&self) -> &str`. */
     fun asStr(): String = s
 
-    /** Rust: `pub fn len(&self) -> usize` (bytes). */
     fun len(): Int = s.encodeToByteArray().size
 
-    /** Rust: `pub fn is_empty(&self) -> bool`. */
     fun isEmpty(): Boolean = s.isEmpty()
 
-    /** Rust: `pub(crate) fn as_aligned_padded_str(&self) -> AlignedPaddedStr<'_>`. */
     internal fun asAlignedPaddedStr(): AlignedPaddedStr {
         val bytes = s.encodeToByteArray()
         val lenBytes = bytes.size
@@ -89,7 +84,6 @@ class StarlarkStr(
     }
 
     /**
-     * Rust: `pub fn get_hash(&self) -> StarlarkHashValue`.
      *
      * Kotlin: this is an internal, non-`Result` accessor used to implement [StarlarkValue] hashing.
      */
@@ -107,7 +101,6 @@ class StarlarkStr(
         return hash
     }
 
-    /** Rust: `pub fn as_str_hashed(&self) -> Hashed<&str>`. */
     fun asStrHashed(): Hashed<String> {
         return Hashed.newUnchecked(getHashValue(), s)
     }
@@ -166,16 +159,12 @@ class StarlarkStr(
     override fun toString(): String = starlarkStrRepr(s)
 
     companion object {
-        /** Rust: `UNINIT_HASH`. */
         val UNINIT_HASH: StarlarkHashValue get() = StarlarkHashValue.newUnchecked(0u)
 
-        /** Rust: `payload_len_for_len`. */
         fun payloadLenForLen(len: Int): Int = (len + 7) / 8
 
-        /** Rust: `offset_of_content`. */
         fun offsetOfContent(): Int = 8
 
-        /** Rust: `repr`. */
         fun repr(s: String): String = starlarkStrRepr(s)
     }
 }
@@ -197,7 +186,6 @@ private val STR_METHODS_STATIC = MethodsStatic()
  * StarlarkValue-like operations on StarlarkStr.
  *
  * These are the implementations of Starlark operations for string values,
- * mirroring the `#[starlark_value]` impl block in the Rust source.
  */
 
 internal fun starlarkStrCollectRepr(self: StarlarkStr, buffer: StringBuilder) {
@@ -238,7 +226,7 @@ internal fun starlarkStrCompare(self: StarlarkStr, other: Value): Result<Int> {
 }
 
 internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<Value> {
-    // This method is disturbingly hot. Use the logic from `convert_index`,
+    // This method is disturbingly hot. Use the logic from `convertIndex`,
     // but modified to be UTF8 string friendly.
     val i = index.unpackI32() ?: return Result.failure(
         ValueError.IncorrectParameterType

@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -46,26 +46,19 @@ import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.toValue
 
-// #[derive(Debug, thiserror::Error)]
-// enum ModuleError
 internal sealed class ModuleError(override val message: String) : Exception(message) {
-    // #[error("No imports are available, you tried `{0}` (no call to `Evaluator.set_loader`)")]
     data class NoImportsAvailable(val name: String) :
         ModuleError("No imports are available, you tried `$name` (no call to `Evaluator.set_loader`)")
 
-    // #[error("Unexpected statement (internal error)")]
     data object UnexpectedStatement :
         ModuleError("Unexpected statement (internal error)")
 
-    // #[error("Top level stmt count mismatch (internal error)")]
     data object TopLevelStmtCountMismatch :
         ModuleError("Top level stmt count mismatch (internal error)")
 }
 
-// impl<'v> Compiler<'v, '_, '_, '_>
 // Extension functions on Compiler for module evaluation.
 
-// fn eval_load(&mut self, load: Spanned<&LoadP<CstPayload>>) -> Result<(), EvalException>
 internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit> {
     val name = load.node.module.node
 
@@ -117,7 +110,6 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
  * Compile and evaluate regular statement.
  * Regular statement is a statement which is not `load` or a sequence of statements.
  */
-// fn eval_regular_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalRegularTopLevelStmt(
     stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,
@@ -152,7 +144,6 @@ internal fun Compiler.evalRegularTopLevelStmt(
     ) { evaluator -> evaluator.evalBc(constFrozenString("module").toValue(), bc) }
 }
 
-// fn eval_top_level_stmt(&mut self, stmt: &mut CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalTopLevelStmt(
     stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,
@@ -193,7 +184,6 @@ internal fun Compiler.evalTopLevelStmt(
     return Result.success(last)
 }
 
-// fn typecheck(&mut self, stmts: &mut [&mut CstStmt]) -> Result<(), EvalException>
 internal fun Compiler.typecheck(stmts: List<Spanned<StmtP<CstPayload>>>): Result<Unit> {
     val doTypecheck = eval.staticTypechecking || this.typecheck
     if (!doTypecheck) {
@@ -237,7 +227,6 @@ internal fun Compiler.typecheck(stmts: List<Spanned<StmtP<CstPayload>>>): Result
     return Result.success(Unit)
 }
 
-// fn mk_module_var_types(&self) -> ModuleVarTypes
 internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
     val types = eval.moduleEnv.valuesBySlotId()
         .associate { (moduleSlotId, value) ->
@@ -247,7 +236,6 @@ internal fun Compiler.mkModuleVarTypes(): ModuleVarTypes {
     return ModuleVarTypes(types = types)
 }
 
-// pub(crate) fn eval_module(&mut self, mut stmt: CstStmt, local_names: FrozenRef<'static, [FrozenStringValue]>) -> Result<Value<'v>, EvalException>
 internal fun Compiler.evalModule(
     stmt: Spanned<StmtP<CstPayload>>,
     localNames: FrozenRef<List<FrozenStringValue>>,

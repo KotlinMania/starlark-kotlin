@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -37,12 +37,7 @@ class CoerceTest {
 
     @Test
     fun testCoerceTypeAndLifetimeParams() {
-        // Rust:
-        //   #[repr(C)] struct Aaa<'a>(&'a u32);
-        //   #[repr(C)] struct Bbb<'a>(&'a u32);
-        //   unsafe impl<'a> Coerce<Bbb<'a>> for Aaa<'a> {}
         //
-        // Kotlin cannot express Rust `repr` layout guarantees. We approximate the "same representation" idea by
         // storing a value that can be viewed through both Aaa and Bbb interfaces.
         val ten = IntRef(10)
         val old = StructWithLifetimeAndTypeParams<Aaa>(
@@ -56,9 +51,6 @@ class CoerceTest {
 
     @Test
     fun testCoerceIsUnsound() {
-        // Rust:
-        //   let s: &Struct<u8> = &Struct(());
-        //   let _c: &Struct<Newtype> = coerce(s);
         //
         // Kotlin cannot express the Rust associated-type soundness issue, but this preserves the intent:
         // a coercion that "type-checks" yet would be unsound under stronger guarantees.

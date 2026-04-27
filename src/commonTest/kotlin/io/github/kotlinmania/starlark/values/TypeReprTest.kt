@@ -1,5 +1,4 @@
-// port-lint: source src/values/type_repr.rs (tests)
-package io.github.kotlinmania.starlark.values
+// port-lint: source tests:src/values/typeRepr.rspackage io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,7 +26,6 @@ import kotlin.test.assertEquals
 
 /**
  * A test complex value with a type parameter.
- * In Rust, `TestComplexValue<Value>` and `TestComplexValue<FrozenValue>` have
  * different StarlarkTypeRepr::Canonical due to monomorphization. In Kotlin,
  * generics are erased, so they produce the same type repr.
  */

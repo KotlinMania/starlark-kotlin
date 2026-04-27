@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.eval.compiler
 /**
  * Evaluation environment, provide converters from Ast* element to value.
  *
- * # <a name="build_file"></a>Starlark and BUILD dialect
+ * # <a name="buildFile"></a>Starlark and BUILD dialect
  *
  * All evaluation function can evaluate the full Starlark language (i.e.
  * Bazel's .bzl files) or the BUILD file dialect (i.e. used to interpret
@@ -62,14 +62,11 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum AssignModifyLhs {
 //     Dot(IrSpanned<ExprCompiled>, String),
 //     Array(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
 //     Local(IrSpanned<LocalSlotId>),
 //     LocalCaptured(IrSpanned<LocalCapturedSlotId>),
 //     Module(IrSpanned<ModuleSlotId>),
-// }
 internal sealed class AssignModifyLhs {
     data class Dot(val expr: IrSpanned<ExprCompiled>, val name: String) : AssignModifyLhs()
     data class Array(val expr: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignModifyLhs()
@@ -78,8 +75,6 @@ internal sealed class AssignModifyLhs {
     data class Module(val slot: IrSpanned<ModuleSlotId>) : AssignModifyLhs()
 }
 
-// impl AssignModifyLhs
-// fn optimize(&self, ctx: &mut OptCtx) -> AssignModifyLhs
 internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs {
     return when (this) {
         is AssignModifyLhs.Dot -> AssignModifyLhs.Dot(expr.optimize(ctx), name)
@@ -90,8 +85,6 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs {
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum StmtCompiled {
 //     PossibleGc,
 //     Return(IrSpanned<ExprCompiled>),
 //     Expr(IrSpanned<ExprCompiled>),
@@ -101,7 +94,6 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs {
 //     For(Box<(IrSpanned<AssignCompiledValue>, IrSpanned<ExprCompiled>, StmtsCompiled)>),
 //     Break,
 //     Continue,
-// }
 internal sealed class StmtCompiled {
     data object PossibleGc : StmtCompiled()
     data class Return(val expr: IrSpanned<ExprCompiled>) : StmtCompiled()
@@ -130,8 +122,6 @@ internal sealed class StmtCompiled {
     data object Continue : StmtCompiled()
 }
 
-// impl IrSpanned<StmtCompiled>
-// fn optimize(&self, ctx: &mut OptCtx) -> StmtsCompiled
 internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     val span = this.span
     return when (val s = this.node) {
@@ -175,20 +165,11 @@ internal fun IrSpanned<StmtCompiled>.optimize(ctx: OptCtx): StmtsCompiled {
     }
 }
 
-// #[derive(Debug, Default)]
-// pub(crate) struct StmtCompileContext {
-//     pub(crate) has_return_type: bool,
-// }
 internal data class StmtCompileContext(
     /** Current function has return type. */
     val hasReturnType: Boolean = false,
 )
 
-// pub(crate) struct OptimizeOnFreezeContext<'v, 'a> {
-//     pub(crate) module: &'a FrozenModuleData,
-//     pub(crate) heap: Heap<'v>,
-//     pub(crate) frozen_heap: &'a FrozenHeap,
-// }
 internal class OptimizeOnFreezeContext(
     internal val module: FrozenModuleData,
     /**
@@ -200,24 +181,19 @@ internal class OptimizeOnFreezeContext(
     internal val frozenHeap: FrozenHeap,
 )
 
-// #[derive(Clone, Debug)]
-// pub(crate) struct StmtsCompiled(SmallVec1<IrSpanned<StmtCompiled>>)
 internal class StmtsCompiled(
     private var stmts: SmallVec1<IrSpanned<StmtCompiled>>,
 ) {
 
     companion object {
-        // pub(crate) fn empty() -> StmtsCompiled
         fun empty(): StmtsCompiled {
             return StmtsCompiled(SmallVec1.Vec(mutableListOf()))
         }
 
-        // pub(crate) fn one(stmt: IrSpanned<StmtCompiled>) -> StmtsCompiled
         fun one(stmt: IrSpanned<StmtCompiled>): StmtsCompiled {
             return StmtsCompiled(SmallVec1.One(stmt))
         }
 
-        // fn expr(expr: IrSpanned<ExprCompiled>) -> StmtsCompiled
         fun expr(expr: IrSpanned<ExprCompiled>): StmtsCompiled {
             val span = expr.span
             return when {
@@ -263,7 +239,6 @@ internal class StmtsCompiled(
             }
         }
 
-        // fn if_stmt(span, cond, t, f) -> StmtsCompiled
         fun ifStmt(
             span: FrameSpan,
             cond: IrSpanned<ExprCompiled>,
@@ -302,7 +277,6 @@ internal class StmtsCompiled(
             }
         }
 
-        // fn for_stmt(span, var, over, body) -> StmtsCompiled
         fun forStmt(
             span: FrameSpan,
             variable: IrSpanned<AssignCompiledValue>,
@@ -319,7 +293,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn is_empty(&self) -> bool
     fun isEmpty(): Boolean {
         val s = stmts
         return when (s) {
@@ -328,13 +301,11 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn stmts(&self) -> &[IrSpanned<StmtCompiled>]
     fun stmts(): List<IrSpanned<StmtCompiled>> {
         return stmts.asSlice()
     }
 
     /** Last statement in this block is `break`, `continue` or `return`. */
-    // fn is_terminal(&self) -> bool
     internal fun isTerminal(): Boolean {
         val last = last() ?: return false
         return when (last.node) {
@@ -345,7 +316,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn extend(&mut self, right: StmtsCompiled)
     fun extend(right: StmtsCompiled) {
         // Do not add any code after `break`, `continue` or `return`.
         if (isTerminal()) {
@@ -354,7 +324,6 @@ internal class StmtsCompiled(
         stmts = stmts.extend(right.stmts)
     }
 
-    // pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> StmtsCompiled
     fun optimize(ctx: OptCtx): StmtsCompiled {
         val result = empty()
         val s = stmts
@@ -372,7 +341,6 @@ internal class StmtsCompiled(
         return result
     }
 
-    // pub(crate) fn first(&self) -> Option<&IrSpanned<StmtCompiled>>
     fun first(): IrSpanned<StmtCompiled>? {
         val s = stmts
         return when (s) {
@@ -381,7 +349,6 @@ internal class StmtsCompiled(
         }
     }
 
-    // pub(crate) fn last(&self) -> Option<&IrSpanned<StmtCompiled>>
     fun last(): IrSpanned<StmtCompiled>? {
         val s = stmts
         return when (s) {
@@ -391,25 +358,18 @@ internal class StmtsCompiled(
     }
 }
 
-// #[derive(Debug, Error)]
-// pub(crate) enum AssignError {
-//     #[error("Unpacked {1} values but expected {0}")]
 //     IncorrectNumberOfValueToUnpack(i32, i32),
-// }
 internal class AssignError {
     class IncorrectNumberOfValueToUnpack(expected: Int, got: Int) :
         Exception("Unpacked $got values but expected $expected")
 }
 
-// #[derive(Clone, Debug, VisitSpanMut)]
-// pub(crate) enum AssignCompiledValue {
 //     Dot(IrSpanned<ExprCompiled>, String),
 //     Index(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
 //     Tuple(Vec<IrSpanned<AssignCompiledValue>>),
 //     Local(LocalSlotId),
 //     LocalCaptured(LocalCapturedSlotId),
 //     Module(ModuleSlotId, String),
-// }
 internal sealed class AssignCompiledValue {
     data class Dot(val obj: IrSpanned<ExprCompiled>, val field: String) : AssignCompiledValue()
     data class Index(val array: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignCompiledValue()
@@ -419,8 +379,6 @@ internal sealed class AssignCompiledValue {
     data class Module(val slot: ModuleSlotId, val name: String) : AssignCompiledValue()
 }
 
-// impl AssignCompiledValue
-// fn as_local_non_captured(&self) -> Option<LocalSlotId>
 /** Assignment to a local non-captured variable. */
 internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? {
     return when (this) {
@@ -429,8 +387,6 @@ internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? {
     }
 }
 
-// impl IrSpanned<AssignCompiledValue>
-// pub(crate) fn optimize(&self, ctx: &mut OptCtx) -> IrSpanned<AssignCompiledValue>
 internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<AssignCompiledValue> {
     val span = this.span
     val assign = when (val n = this.node) {
@@ -453,7 +409,7 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 // There are two requirements to perform a GC:
 //
 // 1. We can't be profiling, since profiling relies on the redundant heap
-//    entries. When profiling we set disable_gc.
+//    entries. When profiling we set disableGc.
 // 2. We must be able to access all roots.
 //
 // We track as many roots as possible, and eventually aim to track them all, but
@@ -477,10 +433,9 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 // For the moment we only GC when executing a statement at the root of the
 // module, which we know is safe with respect to all three conditions.
 //
-// We also require that `extra_v` is None, since otherwise the user might have
+// We also require that `extraV` is None, since otherwise the user might have
 // additional values stashed somewhere.
 
-// pub(crate) fn possible_gc(eval: &mut Evaluator)
 internal fun possibleGc(eval: Evaluator) {
     if (!eval.disableGc && eval.heap().allocatedBytes() >= eval.nextGcLevel.toLong()) {
         eval.garbageCollect()
@@ -492,7 +447,6 @@ internal fun possibleGc(eval: Evaluator) {
  * Implement lhs |= rhs, which is special in Starlark, because dicts are mutated,
  * while all other types are not.
  */
-// pub(crate) fn bit_or_assign<'v>(lhs: Value<'v>, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
 internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     // The Starlark spec says dict |= mutates, while nothing else does.
     // When mutating, be careful if they alias, so we don't have `lhs`
@@ -532,7 +486,6 @@ internal fun bitOrAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
  * Implement lhs += rhs, which is special in Starlark, because lists are mutated,
  * while all other types are not.
  */
-// pub(crate) fn add_assign<'v>(lhs: Value<'v>, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
 internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     // Checking whether a value is an integer or a string is cheap (no virtual call),
     // and `Value::add` has optimizations for these types, so check them first
@@ -569,14 +522,10 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     }
 }
 
-// impl Compiler
-
-// pub(crate) fn compile_context(&self, has_return_type: bool) -> StmtCompileContext
 internal fun Compiler.compileContext(hasReturnType: Boolean): StmtCompileContext {
     return StmtCompileContext(hasReturnType = hasReturnType)
 }
 
-// pub fn assign_target(&mut self, expr: &CstAssignTarget) -> Result<IrSpanned<AssignCompiledValue>, CompilerInternalError>
 internal fun Compiler.assignTarget(
     expr: Spanned<AssignTargetP<CstPayload>>,
 ): Result<IrSpanned<AssignCompiledValue>> {
@@ -617,7 +566,6 @@ internal fun Compiler.assignTarget(
     return Result.success(IrSpanned(span, assign))
 }
 
-// fn assign_modify(&mut self, span_stmt: Span, lhs: &CstAssignTarget, rhs: IrSpanned<ExprCompiled>, op: AssignOp) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.assignModify(
     spanStmt: Span,
     lhs: Spanned<AssignTargetP<CstPayload>>,
@@ -680,7 +628,6 @@ private fun Compiler.assignModify(
     }
 }
 
-// pub(crate) fn stmt(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.stmt(
     stmt: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,
@@ -690,8 +637,8 @@ internal fun Compiler.stmt(
     val res = stmtDirect(stmt, allowGc).getOrElse { return Result.failure(it) }
     // No point inserting a GC point around statements, since they will contain inner statements we can do
     return if (allowGc && !isStatements) {
-        // We could do this more efficiently by fusing the possible_gc
-        // into the inner closure, but no real need - we insert allow_gc fairly rarely
+        // We could do this more efficiently by fusing the possibleGc
+        // into the inner closure, but no real need - we insert allowGc fairly rarely
         val withGc = StmtsCompiled.one(IrSpanned(
             span,
             StmtCompiled.PossibleGc,
@@ -703,7 +650,6 @@ internal fun Compiler.stmt(
     }
 }
 
-// pub(crate) fn module_top_level_stmt(&mut self, stmt: &CstStmt) -> Result<StmtsCompiled, CompilerInternalError>
 internal fun Compiler.moduleTopLevelStmt(
     stmt: Spanned<StmtP<CstPayload>>,
 ): Result<StmtsCompiled> {
@@ -725,7 +671,6 @@ internal fun Compiler.moduleTopLevelStmt(
     }
 }
 
-// fn stmt_if(&mut self, span, cond, then_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIf(
     span: FrameSpan,
     cond: Spanned<ExprP<CstPayload>>,
@@ -742,7 +687,6 @@ private fun Compiler.stmtIf(
     ))
 }
 
-// fn stmt_if_else(&mut self, span, cond, then_block, else_block, allow_gc) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtIfElse(
     span: FrameSpan,
     cond: Spanned<ExprP<CstPayload>>,
@@ -756,13 +700,11 @@ private fun Compiler.stmtIfElse(
     return Result.success(StmtsCompiled.ifStmt(span, condCompiled, thenCompiled, elseCompiled))
 }
 
-// fn stmt_expr(&mut self, expr: &CstExpr) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtExpr(expr: Spanned<ExprP<CstPayload>>): Result<StmtsCompiled> {
     val compiled = this.expr(expr).getOrElse { return Result.failure(it) }
     return Result.success(StmtsCompiled.expr(compiled))
 }
 
-// fn stmt_direct(&mut self, stmt: &CstStmt, allow_gc: bool) -> Result<StmtsCompiled, CompilerInternalError>
 private fun Compiler.stmtDirect(
     stmt: Spanned<StmtP<CstPayload>>,
     allowGc: Boolean,

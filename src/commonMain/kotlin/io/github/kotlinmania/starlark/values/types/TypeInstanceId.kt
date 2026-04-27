@@ -1,4 +1,6 @@
-// port-lint: source src/values/types/type_instance_id.rs
+// port-lint: source src/values/types/typeInstanceId.rs
+@file:OptIn(ExperimentalAtomicApi::class)
+
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -7,7 +9,7 @@ package io.github.kotlinmania.starlark.values.types
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,20 +25,14 @@ import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /** Globally unique identifier for a type, like record type or enum type. */
-data class TypeInstanceId(
-    private val id: Long,
-) : Comparable<TypeInstanceId> {
+data class TypeInstanceId(private val id: Long) : Comparable<TypeInstanceId> {
+    override fun compareTo(other: TypeInstanceId): Int = id.compareTo(other.id)
 
     companion object {
-        @OptIn(ExperimentalAtomicApi::class)
         private val LAST_ID = AtomicLong(0L)
 
         /** Generate a new unique identifier. */
-        @OptIn(ExperimentalAtomicApi::class)
-        fun gen(): TypeInstanceId {
-            return TypeInstanceId(LAST_ID.fetchAndAdd(1L) + 1L)
-        }
+        fun gen(): TypeInstanceId =
+            TypeInstanceId(LAST_ID.fetchAndAdd(1L) + 1L)
     }
-
-    override fun compareTo(other: TypeInstanceId): Int = id.compareTo(other.id)
 }

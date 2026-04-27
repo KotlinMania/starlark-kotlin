@@ -4,10 +4,11 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.int.InlineInt
 
 /**
- * Extension functions to mimic Rust's ToValue trait.
- * Provides conversions from raw Kotlin primitives into Starlark values.
+ * Extension functions providing `toValue()` conversions from raw Kotlin
+ * primitives into Starlark values.
  *
- * Note: String -> Value requires a Heap (use Heap.allocStr instead).
+ * Note: `String -> Value` requires a [io.github.kotlinmania.starlark.values.layout.heap.Heap]
+ * (use `Heap.allocStr` instead).
  */
 
 fun Int.toValue(): Value = Value.newInt(InlineInt(this))

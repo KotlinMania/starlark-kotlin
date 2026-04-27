@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -83,8 +83,6 @@ internal object StructType : TyCustomFunctionImpl {
 /**
  * Register `struct` builtin.
  *
- * This function is the Kotlin equivalent of the Rust `#[starlark_module]` annotated function.
- * In Rust, the macro generates the necessary registration code; in Kotlin, we implement
  * this explicitly.
  */
 internal fun registerStruct(builder: GlobalsBuilder) {

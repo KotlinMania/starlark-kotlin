@@ -1,4 +1,4 @@
-// port-lint: source src/values/type_repr.rs
+// port-lint: source src/values/typeRepr.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -49,7 +49,7 @@ import io.github.kotlinmania.starlark.values.types.list.ListType
  * This interface is useful in combination with `UnpackValue`.
  */
 interface StarlarkTypeRepr {
-    /** The representation of a type that a user would use verbatim in starlark type annotations. */
+    /** The representation of a type that a user would import verbatim in starlark type annotations. */
     fun starlarkTypeRepr(): Ty
 }
 
@@ -109,7 +109,7 @@ class EitherTypeRepr<TLeft : StarlarkTypeRepr, TRight : StarlarkTypeRepr>(
 }
 
 /**
- * Derive macros generate a reference to this method to be able to get the `type_repr` of types
+ * Derive macros generate a reference to this method to be able to get the `typeRepr` of types
  * they can't name.
  */
 fun <T : StarlarkTypeRepr> typeReprFromAttrImpl(

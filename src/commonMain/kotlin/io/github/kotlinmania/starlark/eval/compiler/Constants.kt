@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler.constants
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,79 +23,53 @@ import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 
-/**
- * A wrapper around [FrozenValue] representing a built-in function.
- *
- * Equality is based on pointer identity, which works because the `starlark_module` macro
- * generates a singleton that allocates the function only once even if the builder function
- * is called multiple times.
- */
-// #[derive(Copy, Clone, Dupe, Debug)]
-// pub(crate) struct BuiltinFn(pub(crate) FrozenValue);
-internal class BuiltinFn(val value: FrozenValue) {
+internal data class BuiltinFn(val value: FrozenValue) {
 
-    // impl PartialEq<FrozenValue> for BuiltinFn
-    // Pointer equality works because #[starlark_module] proc macro
-    // generates a singleton which allocates the function only once
-    // even if builder function is called multiple times.
-    fun ptrEq(other: FrozenValue): Boolean {
+    fun eq(other: FrozenValue): Boolean {
+        // generates a singleton which allocates the function only once
+        // even if builder function is called multiple times.
         return value.toValue().ptrEq(other.toValue())
     }
 
-    // impl PartialEq<FrozenValue> for BuiltinFn
-    // impl PartialEq<BuiltinFn> for FrozenValue (symmetric)
     override fun equals(other: Any?): Boolean {
-        if (other is FrozenValue) return ptrEq(other)
-        if (other is BuiltinFn) return ptrEq(other.value)
+        if (other is FrozenValue) return eq(other)
+        if (other is BuiltinFn) return other.eq(value)
         return false
     }
 
     override fun hashCode(): Int = value.hashCode()
 }
 
-/**
- * Lazily-initialized collection of well-known built-in function references.
- *
- * These are looked up once from [Globals.extendedInternal] and cached for the
- * lifetime of the process. The compiler uses them to recognise calls to
- * built-ins such as `len`, `type`, `list`, etc. and emit optimised bytecode.
- */
-// pub(crate) struct Constants { ... }
 internal class Constants(
-    val fnLen: BuiltinFn?,
-    val fnType: BuiltinFn?,
-    val fnList: BuiltinFn?,
-    val fnDict: BuiltinFn?,
-    val fnTuple: BuiltinFn?,
-    val fnIsinstance: BuiltinFn?,
-    val fnSet: BuiltinFn?,
-    /** Technically, this is not a function. */
-    val typingCallable: BuiltinFn?,
+    val fnLen: BuiltinFn,
+    val fnType: BuiltinFn,
+    val fnList: BuiltinFn,
+    val fnDict: BuiltinFn,
+    val fnTuple: BuiltinFn,
+    val fnIsinstance: BuiltinFn,
+    val fnSet: BuiltinFn,
+    // Technically, this is not a function.
+    val typingCallable: BuiltinFn,
 ) {
     companion object {
-        // pub fn get() -> &'static Constants
-        // static RES: Lazy<Constants> = Lazy::new(|| { ... });
-        private val instance: Constants by lazy {
+        private val RES: Constants by lazy {
             val g = Globals.extendedInternal()
             Constants(
-                fnLen = g.getFrozen("len")?.let { BuiltinFn(it) },
-                fnType = g.getFrozen("type")?.let { BuiltinFn(it) },
-                fnList = g.getFrozen("list")?.let { BuiltinFn(it) },
-                fnDict = g.getFrozen("dict")?.let { BuiltinFn(it) },
-                fnTuple = g.getFrozen("tuple")?.let { BuiltinFn(it) },
-                fnIsinstance = g.getFrozen("isinstance")?.let { BuiltinFn(it) },
-                fnSet = g.getFrozen("set")?.let { BuiltinFn(it) },
+                fnLen = BuiltinFn(g.getFrozen("len")!!),
+                fnType = BuiltinFn(g.getFrozen("type")!!),
+                fnList = BuiltinFn(g.getFrozen("list")!!),
+                fnDict = BuiltinFn(g.getFrozen("dict")!!),
+                fnTuple = BuiltinFn(g.getFrozen("tuple")!!),
+                fnIsinstance = BuiltinFn(g.getFrozen("isinstance")!!),
+                fnSet = BuiltinFn(g.getFrozen("set")!!),
                 typingCallable = run {
-                    val typing = g.getFrozen("typing")
-                        ?.downcastFrozenRef<NamespaceGen<FrozenValue>>()
-                    typing?.value?.get("Callable")?.let { BuiltinFn(it) }
+                    val typing = g.getFrozen("typing")!!
+                        .downcastFrozenRef<NamespaceGen<FrozenValue>>()!!
+                    BuiltinFn(typing.value.get("Callable")!!)
                 },
             )
         }
 
-        /**
-         * Returns the singleton [Constants] instance, initializing it on first access.
-         */
-        fun get(): Constants = instance
+        fun get(): Constants = RES
     }
 }

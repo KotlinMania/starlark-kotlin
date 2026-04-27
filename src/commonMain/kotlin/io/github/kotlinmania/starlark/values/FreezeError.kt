@@ -1,4 +1,4 @@
-// port-lint: source src/values/freeze_error.rs
+// port-lint: source src/values/freezeError.rs
 package io.github.kotlinmania.starlark.values.freezeerror
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.freezeerror
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -43,7 +43,7 @@ class FreezeError(
         return Exception(sb.toString(), this)
     }
 
-    /** Convert to a starlark [io.github.kotlinmania.starlark.Error] (mirrors `From<FreezeError> for starlark_syntax::Error`). */
+    /** Convert to a starlark [io.github.kotlinmania.starlark.Error] (mirrors `From<FreezeError> for starlarkSyntax::Error`). */
     fun toStarlarkError(): io.github.kotlinmania.starlark.Error {
         return io.github.kotlinmania.starlark.Error.newKind(ErrorKind.Freeze(this.toException()))
     }

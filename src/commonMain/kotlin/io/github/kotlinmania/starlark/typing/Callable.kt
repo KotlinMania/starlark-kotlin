@@ -1,21 +1,6 @@
 // port-lint: source src/typing/callable.rs
 package io.github.kotlinmania.starlark.typing
 
-// use std::fmt::Display;
-// use std::sync::OnceLock;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-// use starlark_syntax::codemap::Span;
-
-// use crate::typing::ParamSpec;
-// use crate::typing::Ty;
-// use crate::typing::TypingOracleCtx;
-// use crate::typing::call_args::TyCallArgs;
-// use crate::typing::error::TypingOrInternalError;
-// use crate::typing::ty::TypeRenderConfig;
-// use crate::util::arc_or_static::ArcOrStatic;
-
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
@@ -25,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -37,25 +22,18 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
  * limitations under the License.
  */
 
-/// `typing.Callable`.
-// #[derive(Debug, Dupe, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative)]
-// pub struct TyCallable {
-//     inner: ArcOrStatic<TyCallableInner>,
-// }
+/** `typing.Callable`. */
 class TyCallable private constructor(
     private val params: ParamSpec,
     private val result: Ty,
 ) : Comparable<TyCallable> {
     companion object {
-        // impl TyCallable
 
-        /// Create a new callable type.
-        // pub fn new(params: ParamSpec, result: Ty) -> TyCallable
+        /** Create a new callable type. */
         fun new(params: ParamSpec, result: Ty): TyCallable {
             return TyCallable(params, result)
         }
 
-        // pub(crate) fn any() -> TyCallable
         private val ANY: TyCallable by lazy {
             TyCallable(ParamSpec.any(), Ty.any())
         }
@@ -63,8 +41,6 @@ class TyCallable private constructor(
         internal fun any(): TyCallable = ANY
     }
 
-    // pub(crate) fn validate_call(&self, span: Span, args: &TyCallArgs, oracle: TypingOracleCtx)
-    //     -> Result<Ty, TypingOrInternalError>
     internal fun validateCall(
         span: Span,
         args: TyCallArgs,
@@ -73,13 +49,10 @@ class TyCallable private constructor(
         return oracle.validateFnCall(span, this, args)
     }
 
-    // pub(crate) fn params(&self) -> &ParamSpec
     internal fun params(): ParamSpec = params
 
-    // pub(crate) fn result(&self) -> &Ty
     internal fun result(): Ty = result
 
-    // pub(crate) fn fmt_with_config(&self, f: &mut Formatter, config: &TypeRenderConfig) -> fmt::Result
     internal fun fmtWithConfig(sb: StringBuilder, config: TypeRenderConfig) {
         if (params() == ParamSpec.any() && result() == Ty.any()) {
             sb.append("typing.Callable")
@@ -110,8 +83,6 @@ class TyCallable private constructor(
         }
     }
 
-    // impl Display for TyCallable
-    // fn fmt(&self, f: &mut Formatter) -> fmt::Result
     override fun toString(): String {
         val sb = StringBuilder()
         fmtWithConfig(sb, TypeRenderConfig.Default)

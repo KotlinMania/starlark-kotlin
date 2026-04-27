@@ -1,5 +1,4 @@
-// port-lint: source src/stdlib/partial.rs (tests)
-package io.github.kotlinmania.starlark.stdlib
+// port-lint: source tests:src/stdlib/partial.rspackage io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,11 +21,8 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
-// #[cfg(test)]
-// mod tests
 class PartialTest {
 
-    // fn eq(expected: &str, expr: &str)
     private fun eq(expected: String, expr: String) {
         val sum = """
 def sum(a, b, *args, **kwargs):
@@ -40,8 +36,6 @@ def sum(a, b, *args, **kwargs):
         a.eq(expected, "$sum$expr")
     }
 
-    // #[test]
-    // fn test_simple()
     @Test
     fun testSimple() {
         eq(
@@ -50,8 +44,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
-    // fn test_star_to_partial()
     @Test
     fun testStarToPartial() {
         eq(
@@ -60,8 +52,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
-    // fn test_start_to_returned_func()
     @Test
     fun testStartToReturnedFunc() {
         eq(
@@ -70,8 +60,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
-    // fn test_no_args_to_partial()
     @Test
     fun testNoArgsToPartial() {
         eq(
@@ -80,8 +68,6 @@ def sum(a, b, *args, **kwargs):
         )
     }
 
-    // #[test]
-    // fn test_typecheck_bug()
     @Test
     fun testTypecheckBug() {
         Assert.pass(

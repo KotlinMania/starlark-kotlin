@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.collections.symbol.map
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,9 +23,9 @@ package io.github.kotlinmania.starlark.collections.symbol.map
  * An optimised string HashMap which goes even faster when the keys can
  * be pre-hashed or otherwise precomputed.
  *
- * The two bottlenecks in our use of these hash tables are computing the hashes and comparing
- * the resulting keys for equality. We precompute the hashes. We also use word-aligned comparison
- * when possible. We use the Starlark SmallHash hashes, promoted by IdHasher,
+ * The two bottlenecks in our import of these hash tables are computing the hashes and comparing
+ * the resulting keys for equality. We precompute the hashes. We also import word-aligned comparison
+ * when possible. We import the Starlark SmallHash hashes, promoted by IdHasher,
  * so we can reuse a SmallMap hash.
  *
  * Benchmarks on which the word-aligned choice was made (mac/linux, all in ns):
@@ -46,7 +46,7 @@ import starlarkmap.Hashed
 /**
  * A symbol map backed by a hash table of [Symbol] keys.
  *
- * We use a flat hash table so we can look up efficiently and easily
+ * We import a flat hash table so we can look up efficiently and easily
  * by [Symbol] and string, without being limited by Kotlin's standard
  * map key constraints.
  */

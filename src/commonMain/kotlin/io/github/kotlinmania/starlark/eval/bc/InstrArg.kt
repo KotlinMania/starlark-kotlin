@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/instr_arg.rs
+// port-lint: source src/eval/bc/instrArg.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -82,9 +82,6 @@ internal interface BcInstrArg {
 
 // ---- BcInstrArg for Unit (empty argument) ----
 
-/**
- * [BcInstrArg] implementation for empty arguments (Rust `()`).
- */
 internal object UnitInstrArg : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, _f: StringBuilder) {
         // Nothing to append for empty argument.
@@ -97,9 +94,6 @@ internal object UnitInstrArg : BcInstrArg {
 
 // ---- BcInstrArg for u32 ----
 
-/**
- * [BcInstrArg] implementation for [UInt] (Rust `u32`).
- */
 internal class UIntInstrArg(val value: UInt) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $value")
@@ -110,9 +104,6 @@ internal class UIntInstrArg(val value: UInt) : BcInstrArg {
 
 // ---- BcInstrArg for i32 ----
 
-/**
- * [BcInstrArg] implementation for [Int] (Rust `i32`).
- */
 internal class IntInstrArg(val value: Int) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" $value")
@@ -123,9 +114,6 @@ internal class IntInstrArg(val value: Int) : BcInstrArg {
 
 // ---- BcInstrArg for (A, B) ----
 
-/**
- * [BcInstrArg] implementation for a pair of arguments (Rust `(A, B)`).
- */
 internal class PairInstrArg(
     val a: BcInstrArg,
     val b: BcInstrArg,
@@ -143,9 +131,6 @@ internal class PairInstrArg(
 
 // ---- BcInstrArg for (A, B, C) ----
 
-/**
- * [BcInstrArg] implementation for a triple of arguments (Rust `(A, B, C)`).
- */
 internal class TripleInstrArg(
     val a: BcInstrArg,
     val b: BcInstrArg,
@@ -166,9 +151,6 @@ internal class TripleInstrArg(
 
 // ---- BcInstrArg for (A, B, C, D) ----
 
-/**
- * [BcInstrArg] implementation for a quad of arguments (Rust `(A, B, C, D)`).
- */
 internal class QuadInstrArg(
     val a: BcInstrArg,
     val b: BcInstrArg,
@@ -192,9 +174,6 @@ internal class QuadInstrArg(
 
 // ---- BcInstrArg for (A, B, C, D, E) ----
 
-/**
- * [BcInstrArg] implementation for a 5-tuple of arguments (Rust `(A, B, C, D, E)`).
- */
 internal class QuintInstrArg(
     val a: BcInstrArg,
     val b: BcInstrArg,
@@ -221,9 +200,6 @@ internal class QuintInstrArg(
 
 // ---- BcInstrArg for (A, B, C, D, E, F) ----
 
-/**
- * [BcInstrArg] implementation for a 6-tuple of arguments (Rust `(A, B, C, D, E, F)`).
- */
 internal class SextInstrArg(
     val a: BcInstrArg,
     val b: BcInstrArg,
@@ -253,9 +229,6 @@ internal class SextInstrArg(
 
 // ---- BcInstrArg for [A; N] (fixed-size array) ----
 
-/**
- * [BcInstrArg] implementation for a list of arguments (Rust `[A; N]`).
- */
 internal class ArrayInstrArg(val items: List<BcInstrArg>) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         for (item in items) {
@@ -341,9 +314,6 @@ internal class TypeCompiledInstrArg(val value: TypeCompiled) : BcInstrArg {
 
 // ---- BcInstrArg for Option<T> ----
 
-/**
- * [BcInstrArg] implementation for optional arguments (Rust `Option<T>`).
- */
 internal class OptionalInstrArg(val inner: BcInstrArg?) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         if (inner == null) {
@@ -365,7 +335,6 @@ internal class OptionalInstrArg(val inner: BcInstrArg?) : BcInstrArg {
  */
 internal class StringInstrArg(val value: String) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
-        // Rust: write!(f, "{param:?}") -- debug format, which quotes the string
         f.append(" \"$value\"")
     }
 
@@ -387,9 +356,6 @@ internal class FrozenRefInstrArg<T>(val ref: FrozenRef<T>) : BcInstrArg {
 
 // ---- BcInstrArg for FrozenRef<List<T>> (slice) ----
 
-/**
- * [BcInstrArg] implementation for [FrozenRef] of a list (Rust `FrozenRef<[T]>`).
- */
 internal class FrozenRefListInstrArg<T>(val ref: FrozenRef<List<T>>) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" [${ref.asRef().joinToString(", ")}]")
@@ -606,9 +572,6 @@ internal class SymbolInstrArg(val symbol: Symbol) : BcInstrArg {
 
 // ---- BcInstrArg for Box<[FrozenValue]> ----
 
-/**
- * [BcInstrArg] implementation for a list of [FrozenValue] (Rust `Box<[FrozenValue]>`).
- */
 internal class FrozenValueListInstrArg(val values: List<FrozenValue>) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
         f.append(" [")
@@ -628,7 +591,6 @@ internal class FrozenValueListInstrArg(val values: List<FrozenValue>) : BcInstrA
 
 /**
  * [BcInstrArg] implementation for a list of [Hashed]<[FrozenValue]>
- * (Rust `Box<[Hashed<FrozenValue>]>`).
  */
 internal class HashedFrozenValueListInstrArg(
     val values: List<Hashed<FrozenValue>>,
@@ -728,7 +690,6 @@ internal class BcInstrEndArgInstrArg(val endArgValue: BcInstrEndArg) : BcInstrAr
 /**
  * Format instruction argument via opcode dispatch.
  *
- * In Rust, this uses a generic handler with `I::Arg::fmt_append`. In Kotlin,
  * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
  * [BcInstrArg] and call [BcInstrArg.fmtAppend].
  */
@@ -754,7 +715,6 @@ internal fun BcOpcode.fmtAppendArg(
 /**
  * Visit jump addresses via opcode dispatch.
  *
- * In Rust, this uses a generic handler with `I::Arg::visit_jump_addr`. In Kotlin,
  * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
  * [BcInstrArg] and call [BcInstrArg.visitJumpAddr].
  */

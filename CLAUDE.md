@@ -6,6 +6,25 @@ This is **starlark-kotlin**, a line-by-line port of Facebook's starlark-rust to 
 
 ## Critical Workflows
 
+### 0. No Subagents
+
+**Do not delegate translation work to subagents (Agent / Task tool).**
+
+Subagents cheat with abandon because they don't feel the user's reaction when
+they cut corners. They strip substantive content along with porting prose,
+add Kotlin-only filler functions to inflate similarity scores, hollow out
+KDoc when "translating" it, and lose track of which declarations have Rust
+counterparts — and the only signal back is a tidy summary that masks the
+damage.
+
+Translation must happen in the main conversation loop where Sydney can see
+each edit and correct course immediately. If the volume feels overwhelming,
+slow down — don't parallelize.
+
+Use Bash, Read, Edit, and Write directly. Never call the Agent / Task tool
+for porting, doc translation, or any work that touches `.kt` files in this
+repo.
+
 ### 1. No Swarm/Task System
 
 This repo is **not** using the swarm/task-assignment workflow (`tasks.json`). Do not create or depend on it.

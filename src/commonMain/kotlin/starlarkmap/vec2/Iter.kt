@@ -7,7 +7,7 @@ package starlarkmap.vec2.iter
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,13 +22,11 @@ package starlarkmap.vec2.iter
 /**
  * Iterator over [Vec2] elements.
  *
- * In Rust, this uses raw pointer arithmetic over a single allocation containing
  * both `A` and `B` arrays. In Kotlin, [Vec2] uses two parallel lists, so this
  * iterator simply tracks an index into both lists.
  *
  * Implements [Iterator], [ExactSizeIterator], and [DoubleEndedIterator] semantics.
  *
- * Corresponds to Rust `Iter<'a, A, B>`.
  */
 internal class Iter<A, B>(
     private val aaa: List<A>,
@@ -67,13 +65,11 @@ internal class Iter<A, B>(
 /**
  * Iterator which consumes the [Vec2].
  *
- * In Rust, this owns the allocation and uses raw pointer reads to yield
  * owned `(A, B)` pairs, deallocating on drop. In Kotlin, there is no
  * ownership transfer — this iterator simply iterates over the lists.
  *
  * Implements [Iterator], [ExactSizeIterator], and [DoubleEndedIterator] semantics.
  *
- * Corresponds to Rust `IntoIter<A, B>`.
  */
 internal class IntoIter<A, B>(
     private val aaa: List<A>,

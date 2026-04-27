@@ -1,4 +1,4 @@
-// port-lint: source src/vec_map.rs
+// port-lint: source src/vecMap.rs
 package starlarkmap.vecmap
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.vecmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,6 @@ import starlarkmap.StarlarkHashValue
 /**
  * Vec-backed map implementation used by [starlarkmap.smallmap.SmallMap].
  *
- * The Rust implementation uses `Vec2` + SIMD probing on hashes. This Kotlin port preserves
  * deterministic iteration order and API behaviour with a straightforward linear search.
  */
 internal class VecMap<K, V> private constructor(

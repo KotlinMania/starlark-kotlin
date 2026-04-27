@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -46,10 +46,10 @@ import kotlinx.serialization.json.booleanOrNull
 import starlarkmap.Hashed
 import starlarkmap.smallmap.SmallMap
 
-// ---- JsonNumber: analogous to serde_json::Number ----
+// ---- JsonNumber: analogous to serdeJson::Number ----
 
 /**
- * JSON number representation, analogous to `serde_json::Number`.
+ * JSON number representation, analogous to `serdeJson::Number`.
  *
  * Represents a JSON number that can be an integer (i64/u64) or floating point (f64),
  * or an arbitrarily large integer stored as its string representation.
@@ -89,7 +89,6 @@ class JsonNumber(private val raw: String) {
 
 // ---- StarlarkTypeRepr for JsonNumber ----
 
-// impl StarlarkTypeRepr for serde_json::Number
 // Canonical = Either<i32, f64>
 // In Kotlin, we represent this as returning int | float type.
 
@@ -99,9 +98,6 @@ object JsonNumberTypeRepr : StarlarkTypeRepr {
 }
 
 // ---- AllocValue for JsonNumber ----
-
-// impl<'v, 'a> AllocValue<'v> for &'a serde_json::Number
-// impl<'v> AllocValue<'v> for serde_json::Number
 
 /**
  * Allocate a [StarlarkInt] as a Starlark [Value] on the heap.
@@ -147,9 +143,6 @@ fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
 
 // ---- AllocFrozenValue for JsonNumber ----
 
-// impl<'a> AllocFrozenValue for &'a serde_json::Number
-// impl AllocFrozenValue for serde_json::Number
-
 /**
  * Allocate a [JsonNumber] as a frozen Starlark value.
  *
@@ -165,10 +158,10 @@ fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
     error("Unrepresentable number: $number")
 }
 
-// ---- JsonValue: analogous to serde_json::Value ----
+// ---- JsonValue: analogous to serdeJson::Value ----
 
 /**
- * JSON value representation, analogous to `serde_json::Value`.
+ * JSON value representation, analogous to `serdeJson::Value`.
  *
  * A sealed class hierarchy representing the possible JSON value types:
  * null, boolean, number, string, array, and object.
@@ -184,8 +177,7 @@ sealed class JsonValue {
 
 // ---- StarlarkTypeRepr for JsonValue ----
 
-// impl StarlarkTypeRepr for serde_json::Value
-// Canonical is any — Value::starlark_type_repr()
+// Canonical is any — Value::starlarkTypeRepr()
 
 /** [StarlarkTypeRepr] implementation for [JsonValue]. */
 object JsonValueTypeRepr : StarlarkTypeRepr {
@@ -193,9 +185,6 @@ object JsonValueTypeRepr : StarlarkTypeRepr {
 }
 
 // ---- AllocValue for JsonValue ----
-
-// impl<'v, 'a> AllocValue<'v> for &'a serde_json::Value
-// impl<'v> AllocValue<'v> for serde_json::Value
 
 /**
  * Allocate a [JsonValue] as a Starlark [Value] on the heap.
@@ -224,9 +213,6 @@ fun allocJsonValue(json: JsonValue, heap: Heap): Value {
 
 // ---- AllocFrozenValue for JsonValue ----
 
-// impl<'a> AllocFrozenValue for &'a serde_json::Value
-// impl AllocFrozenValue for serde_json::Value
-
 /**
  * Allocate a [JsonValue] as a frozen Starlark value.
  *
@@ -248,17 +234,12 @@ fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue {
 
 // ---- StarlarkTypeRepr for JSON Map ----
 
-// impl<K: StarlarkTypeRepr, V: StarlarkTypeRepr> StarlarkTypeRepr for serde_json::Map<K, V>
-
 /** [StarlarkTypeRepr] implementation for JSON maps (dict type). */
 object JsonMapTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.dict(Ty.string(), Ty.any())
 }
 
 // ---- AllocValue for JSON Map ----
-
-// impl<'a, 'v> AllocValue<'v> for &'a serde_json::Map<String, serde_json::Value>
-// impl<'v> AllocValue<'v> for serde_json::Map<String, serde_json::Value>
 
 /** Allocate a JSON map as a Starlark dict value. */
 fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
@@ -267,9 +248,6 @@ fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
 }
 
 // ---- AllocFrozenValue for JSON Map ----
-
-// impl<'a> AllocFrozenValue for &'a serde_json::Map<String, serde_json::Value>
-// impl AllocFrozenValue for serde_json::Map<String, serde_json::Value>
 
 /** Allocate a JSON map as a frozen Starlark dict value. */
 fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
@@ -333,7 +311,7 @@ private fun jsonElementToJsonValue(element: JsonElement): JsonValue {
                 // Boolean check
                 element.booleanOrNull?.let { return JsonValue.Bool(it) }
                 // Number: preserve the raw string content for precise big integer handling.
-                // We use element.content which gives us the raw text representation.
+                // We import element.content which gives us the raw text representation.
                 JsonValue.Number(JsonNumber(element.content))
             }
         }
@@ -381,16 +359,12 @@ fun jsonDecode(x: String, heap: Heap): Result<Value> {
 
 // ---- Module registration ----
 
-// #[starlark_module]
-// fn json_members(globals: &mut GlobalsBuilder)
 private fun jsonMembers(globals: GlobalsBuilder) {
-    // fn encode(#[starlark(require = pos)] x: Value) -> anyhow::Result<String>
     globals.setFunction("encode") { args, eval ->
         val x = args.positional<Value>(0)
         eval.heap().allocStr(jsonEncode(x).getOrThrow())
     }
 
-    // fn decode<'v>(#[starlark(require = pos)] x: &str, heap: Heap<'v>) -> anyhow::Result<Value<'v>>
     globals.setFunction("decode") { args, eval ->
         val x = args.positional<String>(0)
         jsonDecode(x, eval.heap()).getOrThrow()

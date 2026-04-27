@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -558,7 +558,6 @@ internal fun Compiler.function(
 
 /**
  * Unpack CST parameters into DefParam list + DefParamIndices for the compiler.
- * This replaces the Rust `DefParams::unpack` which is not ported as a separate class.
  */
 private fun unpackDefParamsForCompiler(
     params: List<Spanned<ParameterP<CstPayload>>>,
@@ -678,7 +677,6 @@ internal class DefGen<V>(
     override fun toString(): String = parameters.signature()
 
     // Trace implementation: trace all captured Value references.
-    // impl Trace for DefGen<Value>
     override fun trace(tracer: Tracer) {
         // In the unfrozen case, we need to trace captured values.
         // The parameters also contain Values that need tracing.
@@ -693,7 +691,6 @@ internal class DefGen<V>(
     }
 
     // Freeze implementation: freeze into DefGen<FrozenValue>.
-    // impl Freeze for Def
     override fun freeze(freezer: Freezer): Result<DefGen<FrozenValue>> {
         @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
@@ -834,7 +831,7 @@ internal class DefGen<V>(
                 val capValue = when (cap) {
                     is Value -> cap
                     is FrozenValue -> cap.toValue()
-                    else -> (cap as ValueLike).toValue()
+                    else -> (cap as ValueLike<*>).toValue()
                 }
                 eval.currentFrame.setSlot(copy.child, capValue)
             }
@@ -867,7 +864,6 @@ internal class DefGen<V>(
 
     // StarlarkValue implementation
 
-    // #[starlark_value(type = FUNCTION_TYPE)]
     override val TYPE: String get() = FUNCTION_TYPE
 
     /**

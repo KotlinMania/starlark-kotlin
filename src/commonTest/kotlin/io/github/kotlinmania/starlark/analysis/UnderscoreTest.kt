@@ -1,5 +1,4 @@
-// port-lint: source src/analysis/underscore.rs (tests)
-package io.github.kotlinmania.starlark.analysis
+// port-lint: source tests:src/analysis/underscore.rspackage io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.analysis
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,13 +25,10 @@ import kotlin.test.assertEquals
 
 class UnderscoreTest {
 
-    // fn module(x: &str) -> AstModule
     private fun module(x: String): AstModule {
         return AstModule.parse("X", x, Dialect.AllOptionsInternal).getOrThrow()
     }
 
-    // #[test]
-    // fn test_lint_inappropriate_underscore()
     @Test
     fun testLintInappropriateUnderscore() {
         val m = module(
@@ -50,8 +46,6 @@ def _ok():
         assertEquals(listOf("_no1", "_no2", "_no3"), names)
     }
 
-    // #[test]
-    // fn test_lint_use_ignored()
     @Test
     fun testLintUseIgnored() {
         val m = module(

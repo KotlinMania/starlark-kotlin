@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.bigint
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.types.bigint
 /**
  * Conversion adapters for Kotlin numeric types to/from Starlark values.
  *
- * In Rust, these are trait impls on primitive types (u32, u64, i64, usize, isize, BigInt)
  * for StarlarkTypeRepr, AllocValue, AllocFrozenValue, and UnpackValue.
  * In Kotlin, we cannot implement interfaces on primitives, so we provide
  * extension functions and converter objects.
@@ -54,12 +53,10 @@ internal object IntTypeReprCanonical : StarlarkTypeRepr {
 
 // --- UInt (u32) conversions ---
 
-/** impl StarlarkTypeRepr for u32 */
 object UIntTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
-/** impl AllocValue for u32 */
 object UIntAllocValue : AllocValue {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
     override fun allocValue(heap: Heap): Value = StarlarkInt.from(0u).allocValue(heap)
@@ -73,7 +70,6 @@ fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this
 
 // --- ULong (u64) conversions ---
 
-/** impl StarlarkTypeRepr for u64 */
 object ULongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
@@ -86,7 +82,6 @@ fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(thi
 
 // --- Long (i64) conversions ---
 
-/** impl StarlarkTypeRepr for i64 */
 object LongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
@@ -107,7 +102,6 @@ fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this)
 
 // --- BigInteger (BigInt) conversions ---
 
-/** impl StarlarkTypeRepr for BigInt */
 object BigIntegerTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
@@ -122,31 +116,26 @@ fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.fro
 
 /**
  * Unpack a UInt from a Starlark Value.
- * impl UnpackValue for u32
  */
 fun Value.unpackUInt(): Result<UInt?> = unpackInteger().map { it?.toUInt() }
 
 /**
  * Unpack a ULong from a Starlark Value.
- * impl UnpackValue for u64
  */
 fun Value.unpackULong(): Result<ULong?> = unpackInteger().map { it?.toULong() }
 
 /**
  * Unpack a Long from a Starlark Value.
- * impl UnpackValue for i64
  */
 fun Value.unpackLong(): Result<Long?> = unpackInteger()
 
 /**
  * Unpack an Int from a Starlark Value.
- * impl UnpackValue for isize / usize
  */
 fun Value.unpackInt(): Result<Int?> = unpackInteger().map { it?.toInt() }
 
 /**
  * Unpack a BigInteger from a Starlark Value.
- * impl UnpackValue for BigInt
  */
 fun Value.unpackBigInteger(): Result<BigInteger?> {
     val intRef = StarlarkIntRef.unpackValueOpt(this) ?: return Result.success(null)

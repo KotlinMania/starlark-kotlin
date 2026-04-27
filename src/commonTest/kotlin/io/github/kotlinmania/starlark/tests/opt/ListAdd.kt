@@ -1,7 +1,8 @@
-// port-lint: source src/tests/opt/list_add.rs
+// port-lint: source src/tests/opt/listAdd.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
+import kotlin.test.Test
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,27 +22,26 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  * limitations under the License.
  */
 
+class ListAddTests {
+    @Test
+    fun testListOfConstAddOpt() {
+        bcGoldenTest(
+            "opt_list_of_const_add",
+            """
+    def test():
+        return [1, 2] + [3, 4, 5]
+    """,
+        )
+    }
 
-// #[test]
-// fn test_list_of_const_add_opt()
-internal fun testListOfConstAddOpt() {
-    bcGoldenTest(
-        "opt_list_of_const_add",
-        """
-def test():
-    return [1, 2] + [3, 4, 5]
-""",
-    )
-}
-
-// #[test]
-// fn test_list_of_expr_add()
-internal fun testListOfExprAdd() {
-    bcGoldenTest(
-        "opt_list_of_expr_add",
-        """
-def test():
-    return [noop(), noop()] + [noop(), noop(), noop()]
-""",
-    )
+    @Test
+    fun testListOfExprAdd() {
+        bcGoldenTest(
+            "opt_list_of_expr_add",
+            """
+    def test():
+        return [noop(), noop()] + [noop(), noop(), noop()]
+    """,
+        )
+    }
 }

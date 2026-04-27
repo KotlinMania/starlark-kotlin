@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -43,7 +43,6 @@ private fun formatF3(value: Double): String {
     else "$intPart.${fracPart.toString().padStart(3, '0')}"
 }
 
-// pub(crate) struct BcProfilerType
 internal object BcProfilerType : ProfilerType<BcProfileData> {
     override val profileMode: ProfileMode = ProfileMode.Bytecode
 
@@ -60,7 +59,6 @@ internal object BcProfilerType : ProfilerType<BcProfileData> {
         Result.success(BcProfileData.merge(profiles))
 }
 
-// pub(crate) struct BcPairsProfilerType
 internal object BcPairsProfilerType : ProfilerType<BcPairsProfileData> {
     override val profileMode: ProfileMode = ProfileMode.BytecodePairs
 
@@ -77,18 +75,13 @@ internal object BcPairsProfilerType : ProfilerType<BcPairsProfileData> {
         Result.success(BcPairsProfileData.merge(profiles))
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum BcProfileError
 internal sealed class BcProfileError : Exception() {
-    // #[error("Can't call `write_bc_profile` unless you first call `enable_bc_profile`.")]
     data object BcProfilingNotEnabled : BcProfileError() {
         override val message: String get() =
             "Can't call `write_bc_profile` unless you first call `enable_bc_profile`."
     }
 }
 
-// #[derive(Default, Clone, Dupe, Copy, Debug)]
-// struct BcInstrStat
 internal data class BcInstrStat(
     var count: ULong = 0u,
 ) {
@@ -97,8 +90,6 @@ internal data class BcInstrStat(
     }
 }
 
-// #[derive(Default, Clone, Copy, Dupe, Debug)]
-// struct BcInstrPairsStat
 internal data class BcInstrPairsStat(
     var count: ULong = 0u,
 ) {
@@ -107,17 +98,13 @@ internal data class BcInstrPairsStat(
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub(crate) struct BcProfileData
 internal class BcProfileData(
     val byInstr: Array<BcInstrStat> = Array(BcOpcode.COUNT) { BcInstrStat() },
 ) {
-    // fn before_instr(&mut self, opcode: BcOpcode)
     fun beforeInstr(opcode: BcOpcode) {
         byInstr[opcode.ordinal].count++
     }
 
-    // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
         val sorted = byInstr.mapIndexed { i, st ->
             Pair(BcOpcode.byNumber(i.toUInt())!!, st)
@@ -150,7 +137,6 @@ internal class BcProfileData(
     }
 
     companion object {
-        // fn merge(iter: impl IntoIterator<Item = &'a BcProfileData>) -> BcProfileData
         fun merge(iter: Iterable<BcProfileData>): BcProfileData {
             val sum = BcProfileData()
             for (profile in iter) {
@@ -161,13 +147,10 @@ internal class BcProfileData(
     }
 }
 
-// #[derive(Default, Clone, Debug)]
-// pub(crate) struct BcPairsProfileData
 internal class BcPairsProfileData(
     var last: BcOpcode? = null,
     val byInstr: MutableMap<Pair<BcOpcode, BcOpcode>, BcInstrPairsStat> = mutableMapOf(),
 ) {
-    // fn before_instr(&mut self, opcode: BcOpcode)
     fun beforeInstr(opcode: BcOpcode) {
         last?.let { lastOpcode ->
             val key = Pair(lastOpcode, opcode)
@@ -177,7 +160,6 @@ internal class BcPairsProfileData(
         last = opcode
     }
 
-    // pub(crate) fn gen_csv(&self) -> String
     fun genCsv(): String {
         val sorted = byInstr.entries
             .map { (opcodes, stat) -> Pair(opcodes, stat) }
@@ -211,7 +193,6 @@ internal class BcPairsProfileData(
     }
 
     companion object {
-        // fn merge(iter: impl IntoIterator<Item = &'a BcPairsProfileData>) -> BcPairsProfileData
         fun merge(iter: Iterable<BcPairsProfileData>): BcPairsProfileData {
             val sum = BcPairsProfileData()
             for (profile in iter) {
@@ -222,40 +203,33 @@ internal class BcPairsProfileData(
     }
 }
 
-// enum BcProfileDataMode
 internal sealed class BcProfileDataMode {
     data class Bc(val data: BcProfileData) : BcProfileDataMode()
     data class BcPairs(val data: BcPairsProfileData) : BcProfileDataMode()
     data object Disabled : BcProfileDataMode()
 }
 
-// pub(crate) struct BcProfile
 internal class BcProfile(
     private var data: BcProfileDataMode = BcProfileDataMode.Disabled,
 ) {
     companion object {
-        // pub(crate) fn new() -> BcProfile
         fun new(): BcProfile = BcProfile()
     }
 
-    // pub(crate) fn enable_1(&mut self)
     fun enable1() {
         data = BcProfileDataMode.Bc(BcProfileData())
     }
 
-    // pub(crate) fn enable_2(&mut self)
     fun enable2() {
         data = BcProfileDataMode.BcPairs(BcPairsProfileData())
     }
 
-    // pub(crate) fn enabled(&self) -> bool
     fun enabled(): Boolean = when (data) {
         is BcProfileDataMode.Bc -> true
         is BcProfileDataMode.BcPairs -> true
         is BcProfileDataMode.Disabled -> false
     }
 
-    // pub(crate) fn gen_bc_profile(&mut self) -> crate::Result<ProfileData>
     fun genBcProfile(): ProfileData {
         val prev = data
         data = BcProfileDataMode.Disabled
@@ -267,7 +241,6 @@ internal class BcProfile(
         }
     }
 
-    // pub(crate) fn gen_bc_pairs_profile(&mut self) -> crate::Result<ProfileData>
     fun genBcPairsProfile(): ProfileData {
         val prev = data
         data = BcProfileDataMode.Disabled
@@ -280,7 +253,6 @@ internal class BcProfile(
     }
 
     /** Called from bytecode. */
-    // pub(crate) fn before_instr(&mut self, opcode: BcOpcode)
     fun beforeInstr(opcode: BcOpcode) {
         when (val d = data) {
             is BcProfileDataMode.Bc -> d.data.beforeInstr(opcode)
@@ -292,7 +264,6 @@ internal class BcProfile(
 
 // --- Tests ---
 
-// #[test] fn test_smoke()
 internal fun testSmoke() {
     Module.withTempHeap { module ->
         val globals = Globals.standard()
@@ -307,7 +278,6 @@ internal fun testSmoke() {
     }
 }
 
-// #[test] fn test_smoke_2()
 internal fun testSmoke2() {
     Module.withTempHeap { module ->
         val globals = Globals.standard()
@@ -322,14 +292,12 @@ internal fun testSmoke2() {
     }
 }
 
-// #[test] fn test_bc_profile_data_merge()
 internal fun testBcProfileDataMerge() {
     val bc = BcProfileData()
     // Smoke test.
     BcProfileData.merge(listOf(bc, bc, bc))
 }
 
-// #[test] fn test_bc_pairs_profile_data_merge()
 internal fun testBcPairsProfileDataMerge() {
     val bc = BcPairsProfileData()
     // Smoke test.

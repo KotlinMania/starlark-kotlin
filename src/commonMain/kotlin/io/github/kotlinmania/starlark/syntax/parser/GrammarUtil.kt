@@ -1,4 +1,4 @@
-// port-lint: source ../starlark_syntax/src/syntax/grammar_util.rs
+// port-lint: source ../starlarkSyntax/src/syntax/grammarUtil.rs
 package io.github.kotlinmania.starlark.syntax.parser
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.syntax.parser
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,8 +36,6 @@ import io.github.kotlinmania.starlark.values.types.string.FormatConv
 import io.github.kotlinmania.starlark.values.types.string.FormatParser
 import io.github.kotlinmania.starlark.values.types.string.FormatToken
 
-// #[derive(Debug, thiserror::Error)]
-// enum GrammarUtilError
 private enum class GrammarUtilError(val message: String) {
     InvalidLhs("left-hand-side of assignment must take the form `a`, `a.b` or `a[b]`"),
     InvalidModifyLhs("left-hand-side of modifying assignment cannot be a list or tuple"),
@@ -46,15 +44,12 @@ private enum class GrammarUtilError(val message: String) {
     LoadRequiresAtLeastTwoArguments("`load` statement requires at least two arguments"),
 }
 
-// #[derive(thiserror::Error, Debug)]
-// enum DialectError
 private enum class DialectError(val message: String) {
     Types("type annotations are not allowed in this dialect"),
 }
 
 object GrammarUtil {
     /** Ensure we produce normalised Statements, rather than singleton Statements. */
-    // pub fn statements(mut xs: Vec<Spanned<StmtP<AstNoPayload>>>, begin: usize, end: usize) -> Spanned<StmtP<AstNoPayload>>
     fun statements(xs: List<Spanned<StmtP<AstNoPayload>>>, begin: Int, end: Int): Spanned<StmtP<AstNoPayload>> {
         return if (xs.size == 1) {
             xs[0]
@@ -63,14 +58,13 @@ object GrammarUtil {
         }
     }
 
-    // pub fn check_assign(codemap: &CodeMap, x: Spanned<ExprP<AstNoPayload>>) -> Result<Spanned<AssignTargetP<AstNoPayload>>, EvalException>
-    fun check_assign(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>): Spanned<AssignTargetP<AstNoPayload>> {
+    fun checkAssign(codemap: CodeMap, x: Spanned<ExprP<AstNoPayload>>): Spanned<AssignTargetP<AstNoPayload>> {
         val node: AssignTargetP<AstNoPayload> = when (val expr = x.node) {
             is ExprP.Tuple -> AssignTargetP.Tuple(
-                expr.elements.map { check_assign(codemap, it) }
+                expr.elements.map { checkAssign(codemap, it) }
             )
             is ExprP.ListExpr -> AssignTargetP.Tuple(
-                expr.elements.map { check_assign(codemap, it) }
+                expr.elements.map { checkAssign(codemap, it) }
             )
             is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
             is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
@@ -93,8 +87,7 @@ object GrammarUtil {
         return Spanned(node, x.span)
     }
 
-    // pub fn check_assignment(...)
-    fun check_assignment(
+    fun checkAssignment(
         codemap: CodeMap,
         lhs: Spanned<ExprP<AstNoPayload>>,
         ty: Spanned<TypeExprP<AstNoPayload, Unit>>?,
@@ -112,7 +105,7 @@ object GrammarUtil {
                 else -> {}
             }
         }
-        val assignTarget = check_assign(codemap, lhs)
+        val assignTarget = checkAssign(codemap, lhs)
         if (ty != null) {
             val err = if (op != null) {
                 GrammarUtilError.TypeAnnotationOnAssignOp
@@ -139,13 +132,12 @@ object GrammarUtil {
         }
     }
 
-    // pub(crate) fn check_load_0(module: Spanned<String>, parser_state: &mut ParserState) -> StmtP<AstNoPayload>
-    fun check_load_0(module: Spanned<String>, parser_state: ParserState): StmtP<AstNoPayload> {
-        parser_state.errors.add(
+    fun checkLoad0(module: Spanned<String>, parserState: ParserState): StmtP<AstNoPayload> {
+        parserState.errors.add(
             EvalException.newAnyhow(
                 IllegalArgumentException(GrammarUtilError.LoadRequiresAtLeastTwoArguments.message),
                 module.span,
-                parser_state.codemap
+                parserState.codemap
             )
         )
         return StmtP.Load(LoadP(
@@ -155,15 +147,14 @@ object GrammarUtil {
         ))
     }
 
-    // pub(crate) fn check_load(...)
-    fun check_load(
+    fun checkLoad(
         module: Spanned<String>,
         args: List<Pair<Pair<Spanned<AssignIdentP<AstNoPayload, Unit>>, Spanned<String>>, Spanned<Comma>>>,
         last: Pair<Spanned<AssignIdentP<AstNoPayload, Unit>>, Spanned<String>>?,
-        parser_state: ParserState
+        parserState: ParserState
     ): StmtP<AstNoPayload> {
         if (args.isEmpty() && last == null) {
-            return check_load_0(module, parser_state)
+            return checkLoad0(module, parserState)
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -191,15 +182,14 @@ object GrammarUtil {
         ))
     }
 
-    // pub(crate) fn fstring(...)
     fun fstring(
         fstring: TokenFString,
         begin: Int,
         end: Int,
-        parser_state: ParserState
+        parserState: ParserState
     ): Spanned<FStringP<AstNoPayload>> {
-        if (!parser_state.dialect.enableFStrings) {
-            parser_state.error(
+        if (!parserState.dialect.enableFStrings) {
+            parserState.error(
                 Span(Pos(begin), Pos(end)),
                 "Your Starlark dialect must enable f-strings to use them"
             )
@@ -215,7 +205,7 @@ object GrammarUtil {
         while (true) {
             val res = parser.next()
             val token = res.getOrElse { e ->
-                parser_state.error(
+                parserState.error(
                     Span(Pos(begin), Pos(end)),
                     "Invalid format: ${e.message}"
                 )
@@ -234,7 +224,7 @@ object GrammarUtil {
 
                     val ident = lexExactlyOneIdentifier(token.capture)
                     if (ident == null) {
-                        parser_state.error(
+                        parserState.error(
                             Span(Pos(captureBegin), Pos(captureEnd)),
                             "Not a valid identifier: `${token.capture}`"
                         )
@@ -262,8 +252,7 @@ object GrammarUtil {
         ).ast(begin, end)
     }
 
-    // pub(crate) fn dialect_check_type(...)
-    fun dialect_check_type(
+    fun dialectCheckType(
         state: ParserState,
         x: Spanned<ExprP<AstNoPayload>>
     ): Spanned<TypeExprP<AstNoPayload, Unit>> {
@@ -286,8 +275,7 @@ object GrammarUtil {
         }
     }
 
-    // pub(crate) fn check_call(...) from validate.rs
-    fun check_call(
+    fun checkCall(
         e: Spanned<ExprP<AstNoPayload>>,
         a: List<Spanned<ArgumentP<AstNoPayload>>>,
         state: ParserState
@@ -306,7 +294,7 @@ object GrammarUtil {
 
 /**
  * Check if the string is exactly one identifier and return it.
- * Port of starlark_syntax::lexer::lex_exactly_one_identifier.
+ * Port of starlarkSyntax::lexer::lexExactlyOneIdentifier.
  */
 private fun lexExactlyOneIdentifier(s: String): String? {
     if (s.isEmpty()) return null

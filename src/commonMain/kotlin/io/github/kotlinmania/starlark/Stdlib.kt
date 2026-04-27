@@ -28,7 +28,7 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,16 +45,7 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * dialect of Starlark
  */
 
-// pub(crate) mod breakpoint;
-// pub(crate) mod call_stack;
-// pub(crate) mod extra;
-// mod funcs;
-// pub(crate) mod internal;
-// pub(crate) mod json;
-// pub(crate) mod partial;
-// Submodules: breakpoint, call_stack, extra, funcs, internal, json, partial
-
-// pub use extra::PrintHandler;
+// Submodules: breakpoint, callStack, extra, funcs, internal, json, partial
 
 /**
  * Return the default global environment, it is not yet frozen so that a caller
@@ -63,14 +54,11 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * For example `standardEnvironment().freeze().child("test")` create a
  * child environment of this global environment that have been frozen.
  */
-// pub(crate) fn standard_environment() -> GlobalsBuilder
 internal fun standardEnvironment(): GlobalsBuilder {
     return GlobalsBuilder.new().with { builder -> registerGlobals(builder) }
 }
 
 /** The extra library definitions available in this Starlark implementation, but not in the standard. */
-// #[derive(PartialEq, Eq, Copy, Clone, Dupe)]
-// pub enum LibraryExtension
 enum class LibraryExtension {
     /** Definitions to support the `struct` type, the `struct()` constructor. */
     StructType,
@@ -80,7 +68,7 @@ enum class LibraryExtension {
     EnumType,
     /**
      * Add a function `namespace()` which acts much like `struct()` but is clear about its
-     * intended use and stricter
+     * intended import and stricter
      */
     NamespaceType,
     /** A function `map(f, xs)` which applies `f` to each element of `xs` and returns the result. */
@@ -123,7 +111,7 @@ enum class LibraryExtension {
      */
     Internal,
     /**
-     * Add a function `call_stack()` which returns a string representation of
+     * Add a function `callStack()` which returns a string representation of
      * the current call stack.
      */
     CallStack,
@@ -131,12 +119,10 @@ enum class LibraryExtension {
     SetType;
 
     companion object {
-        // pub(crate) fn all() -> &'static [Self]
         /** A list of all extensions that will be updated as new methods are added. */
         fun all(): List<LibraryExtension> = entries
     }
 
-    // pub fn add(self, builder: &mut GlobalsBuilder)
     /** Add a specific extension to a `GlobalsBuilder`. */
     fun add(builder: GlobalsBuilder) {
         when (this) {
@@ -162,5 +148,4 @@ enum class LibraryExtension {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

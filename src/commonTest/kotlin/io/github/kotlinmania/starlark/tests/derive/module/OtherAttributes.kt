@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/other_attributes.rs
+// port-lint: source src/tests/derive/module/otherAttributes.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,11 +30,8 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
-// #[starlark_module]
-// fn test_other_attributes_in_globals(globals: &mut GlobalsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
-    // fn test_global(#[allow(unused_variables)] foo: u32) -> Result<NoneType>
     globals.setFunction("test_global") { args, _ ->
         @Suppress("UNUSED_VARIABLE")
         val foo = args.positional<Int>(0)
@@ -42,22 +39,15 @@ private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
     }
 }
 
-// #[starlark_module]
-// fn test_other_attributes_in_methods(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
-    // fn test_method(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setMethod("test_method") { _, _, _, _ ->
         Result.success(Value.newNone())
     }
 }
 
-// #[starlark_module]
-// fn test_other_attributes_in_atributes(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
-    // fn test_attribute(#[allow(unused_variables)] this: u32) -> Result<NoneType>
     methods.setAttribute("test_attribute") { _, _ ->
         // NOTE(nga): this marker is no-op.
         Result.success(Value.newNone())

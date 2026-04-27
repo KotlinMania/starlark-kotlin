@@ -7,7 +7,7 @@ package starlarkmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,8 +21,6 @@ package starlarkmap
 
 /**
  * A key and its hash.
- *
- * This corresponds to Rust `Hashed<K> { hash: StarlarkHashValue, key: K }`.
  *
  * Note: in Rust, `Hash` for `Hashed<K>` hashes only the hash field (not the key).
  * Kotlin uses [hashCode] for hashed collections, so we mirror that behaviour by

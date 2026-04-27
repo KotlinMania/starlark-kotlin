@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -46,11 +46,8 @@ import io.github.kotlinmania.starlark.values.types.dict.iter
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
 
-// #[starlark_module]
-// pub fn partial(builder: &mut GlobalsBuilder)
-/** Construct a partial application. In almost all cases it is simpler to use a `lambda`. */
+/** Construct a partial application. In almost all cases it is simpler to import a `lambda`. */
 fun partialStdlib(builder: GlobalsBuilder) {
-    // fn partial(func: Value, #[starlark(args)] args: Value, #[starlark(kwargs)] kwargs: DictRef)
     builder.setFunction("partial") { callArgs, eval ->
         val func = callArgs.positional<Value>(0)
         // Remaining positional args are collected as *args into a tuple
@@ -90,9 +87,6 @@ fun partialStdlib(builder: GlobalsBuilder) {
     }
 }
 
-// #[derive(Debug, Coerce, Trace, NoSerialize, ProvidesStaticType, Allocative)]
-// #[repr(C)]
-// struct PartialGen<V, S>
 /** Generic partial application value. */
 open class PartialGen<V : Any, S : Any>(
     val func: V,
@@ -104,8 +98,6 @@ open class PartialGen<V : Any, S : Any>(
 ) : StarlarkValue, Trace {
     override val TYPE: String get() = FUNCTION_TYPE
 
-    // impl<'v, V: ValueLike<'v>, S> PartialGen<V, S>
-    // fn pos_content(&self) -> &'v [Value<'v>]
     fun posContent(): List<Value> {
         val posValue = when (val p = pos) {
             is Value -> p
@@ -115,8 +107,6 @@ open class PartialGen<V : Any, S : Any>(
         return TupleGen.fromValue(posValue)?.content() ?: emptyList()
     }
 
-    // impl Display for PartialGen<V, S>
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("partial(")
@@ -143,13 +133,8 @@ open class PartialGen<V : Any, S : Any>(
         return sb.toString()
     }
 
-    // #[starlark_value(type = FUNCTION_TYPE)]
-    // impl StarlarkValue for PartialGen<V, S>
-
-    // fn name_for_call_stack(&self, _me: Value<'v>) -> String
     override fun nameForCallStack(me: Value): String = "partial"
 
-    // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
     override fun invoke(
         _me: Value,
         args: Arguments,
@@ -189,7 +174,6 @@ open class PartialGen<V : Any, S : Any>(
         }
 
         // Concatenate partial args with call args
-        // In Rust this uses eval.alloca_concat for stack allocation;
         // in Kotlin we simply concatenate lists.
         val pos = selfPos + args.full.pos
         val namedConcat = selfNamed + args.full.named
@@ -221,7 +205,6 @@ open class PartialGen<V : Any, S : Any>(
 
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
-// type Partial<'v> = PartialGen<Value<'v>, StringValue<'v>>;
 /** Partial application with live values. */
 class Partial(
     func: Value,
@@ -233,8 +216,6 @@ class Partial(
     ComplexValue,
     Freeze<FrozenPartial> {
 
-    // impl Freeze for Partial
-    // fn freeze(self, freezer: &Freezer) -> Result<Self::Frozen>
     override fun freeze(freezer: Freezer): Result<FrozenPartial> {
         val frozenFunc = freezer.freeze(func)
         if (frozenFunc.isFailure) return Result.failure(frozenFunc.exceptionOrNull()!!)
@@ -262,7 +243,6 @@ class Partial(
     }
 }
 
-// type FrozenPartial = PartialGen<FrozenValue, FrozenStringValue>;
 /** Partial application with frozen values. */
 class FrozenPartial(
     func: io.github.kotlinmania.starlark.values.layout.FrozenValue,

@@ -1,4 +1,4 @@
-// port-lint: source src/unordered_set.rs
+// port-lint: source src/unorderedSet.rs
 package starlarkmap.unorderedset
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.unorderedset
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,7 +27,6 @@ import starlarkmap.unorderedmap.UnorderedMap
 /**
  * `HashSet` that does not expose insertion order.
  *
- * Corresponds to Rust `UnorderedSet<T>` which wraps `UnorderedMap<T, ()>`.
  * In Kotlin, we wrap [UnorderedMap]<T, [Unit]> to maintain the same structure.
  */
 class UnorderedSet<T> internal constructor(
@@ -40,12 +39,10 @@ class UnorderedSet<T> internal constructor(
         /** Create a new empty set with the specified capacity. */
         fun <T> withCapacity(n: Int): UnorderedSet<T> = UnorderedSet(UnorderedMap.withCapacity(n))
 
-        /** Create a default (empty) [UnorderedSet]. Corresponds to Rust `Default` impl. */
         fun <T> default(): UnorderedSet<T> = new()
 
         /**
          * Create an [UnorderedSet] from an iterable.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <T> fromIterator(iter: Iterable<T>): UnorderedSet<T> {
             val set = new<T>()
@@ -70,7 +67,6 @@ class UnorderedSet<T> internal constructor(
 
     /**
      * Does the set contain the specified value?
-     * Corresponds to Rust `contains<Q>(&self, value: &Q) -> bool`.
      */
     fun contains(value: T): Boolean = map.containsKey(value)
 
@@ -81,13 +77,11 @@ class UnorderedSet<T> internal constructor(
 
     /**
      * Does the set contain the specified value (pre-hashed)?
-     * Corresponds to Rust `contains_hashed<Q>(&self, value: Hashed<&Q>) -> bool`.
      */
     fun containsHashed(value: T): Boolean = map.containsKeyHashed(value)
 
     /**
      * Lower-level access to the underlying map.
-     * Corresponds to Rust `raw_entry_mut(&mut self) -> RawEntryBuilderMut<'_, T>`.
      */
     fun rawEntryMut(): RawEntryBuilderMut<T> = RawEntryBuilderMut(map.rawEntryMut())
 
@@ -96,7 +90,6 @@ class UnorderedSet<T> internal constructor(
 
     /**
      * Get the entries in the set, sorted.
-     * Corresponds to Rust `entries_sorted(&self) -> Vec<&T>`.
      */
     @Suppress("UNCHECKED_CAST")
     fun entriesSorted(): List<T> =
@@ -105,7 +98,6 @@ class UnorderedSet<T> internal constructor(
     /**
      * Unordered equality: two sets are equal iff they have the same elements,
      * regardless of iteration order.
-     * Corresponds to Rust `PartialEq` impl.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -120,14 +112,12 @@ class UnorderedSet<T> internal constructor(
 
 /**
  * Builder for [RawEntryMut].
- * Corresponds to Rust `RawEntryBuilderMut<'a, T>`.
  */
 class RawEntryBuilderMut<T>(
     private val entry: starlarkmap.unorderedmap.RawEntryBuilderMut<T, Unit>,
 ) {
     /**
      * Find the entry for a key.
-     * Corresponds to Rust `from_entry<Q>(&self, entry: &Q) -> RawEntryMut<'a, T>`.
      */
     fun fromEntry(value: T): RawEntryMut<T> {
         return when (val raw = entry.fromKey(value)) {
@@ -140,13 +130,11 @@ class RawEntryBuilderMut<T>(
 
     /**
      * Find the entry for a pre-hashed key.
-     * Corresponds to Rust `from_entry_hashed<Q>(&self, entry: Hashed<&Q>) -> RawEntryMut<'a, T>`.
      */
     fun fromEntryHashed(value: Hashed<T>): RawEntryMut<T> = fromEntry(value.key())
 
     /**
      * Find the entry by hash and equality function.
-     * Corresponds to Rust `from_hash<F>(&self, hash: StarlarkHashValue, is_match: F) -> RawEntryMut<'a, T>`.
      */
     fun fromHash(hash: StarlarkHashValue, isMatch: (T) -> Boolean): RawEntryMut<T> {
         return when (val raw = entry.fromHash(hash, isMatch)) {
@@ -160,7 +148,6 @@ class RawEntryBuilderMut<T>(
 
 /**
  * Reference to an entry in a [UnorderedSet].
- * Corresponds to Rust `RawEntryMut<'a, T>`.
  */
 sealed class RawEntryMut<T> {
     /** Occupied entry. */
@@ -171,7 +158,6 @@ sealed class RawEntryMut<T> {
 
 /**
  * Reference to an occupied entry in a [UnorderedSet].
- * Corresponds to Rust `RawOccupiedEntryMut<'a, T>`.
  */
 class RawOccupiedEntryMut<T>(
     private val entry: starlarkmap.unorderedmap.RawOccupiedEntryMut<T, Unit>,
@@ -185,7 +171,6 @@ class RawOccupiedEntryMut<T>(
 
 /**
  * Reference to a vacant entry in a [UnorderedSet].
- * Corresponds to Rust `RawVacantEntryMut<'a, T>`.
  */
 class RawVacantEntryMut<T>(
     private val entry: starlarkmap.unorderedmap.RawVacantEntryMut<T, Unit>,

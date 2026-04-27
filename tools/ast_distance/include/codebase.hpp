@@ -832,6 +832,91 @@ public:
         return out;
     }
 
+    static std::string extract_kotlin_comments(const std::string& source) {
+        std::string out;
+        enum class State { Normal, LineComment, BlockComment, String, RawString, CharLiteral };
+        State state = State::Normal;
+        int block_depth = 0;
+
+        for (size_t i = 0; i < source.size(); ++i) {
+            char c = source[i];
+            char next = (i + 1 < source.size()) ? source[i + 1] : '\0';
+            char next2 = (i + 2 < source.size()) ? source[i + 2] : '\0';
+
+            switch (state) {
+                case State::Normal:
+                    if (c == '/' && next == '/') {
+                        state = State::LineComment;
+                        ++i;
+                    } else if (c == '/' && next == '*') {
+                        state = State::BlockComment;
+                        block_depth = 1;
+                        ++i;
+                    } else if (c == '"' && next == '"' && next2 == '"') {
+                        state = State::RawString;
+                        i += 2;
+                    } else if (c == '"') {
+                        state = State::String;
+                    } else if (c == '\'') {
+                        state = State::CharLiteral;
+                    }
+                    break;
+
+                case State::LineComment:
+                    if (c == '\n') {
+                        state = State::Normal;
+                        out += '\n';
+                    } else {
+                        out += c;
+                    }
+                    break;
+
+                case State::BlockComment:
+                    if (c == '/' && next == '*') {
+                        block_depth++;
+                        out += ' ';
+                        ++i;
+                    } else if (c == '*' && next == '/') {
+                        block_depth--;
+                        out += ' ';
+                        ++i;
+                        if (block_depth <= 0) {
+                            state = State::Normal;
+                            out += '\n';
+                        }
+                    } else {
+                        out += c;
+                    }
+                    break;
+
+                case State::String:
+                    if (c == '\\') {
+                        ++i;
+                    } else if (c == '"') {
+                        state = State::Normal;
+                    }
+                    break;
+
+                case State::RawString:
+                    if (c == '"' && next == '"' && next2 == '"') {
+                        state = State::Normal;
+                        i += 2;
+                    }
+                    break;
+
+                case State::CharLiteral:
+                    if (c == '\\') {
+                        ++i;
+                    } else if (c == '\'') {
+                        state = State::Normal;
+                    }
+                    break;
+            }
+        }
+
+        return out;
+    }
+
     static bool looks_like_lower_snake_identifier(const std::string& token) {
         if (token.empty() || token == "_") return false;
         if (token.find('_') == std::string::npos) return false;
@@ -852,6 +937,7 @@ public:
     static std::vector<std::string> kotlin_contamination_reasons_for_text(const std::string& source) {
         std::vector<std::string> reasons;
         std::string code = strip_kotlin_comments_and_strings(source);
+        std::string comments = extract_kotlin_comments(source);
 
         auto add_reason = [&](const std::string& reason) {
             if (std::find(reasons.begin(), reasons.end(), reason) == reasons.end()) {
@@ -859,35 +945,75 @@ public:
             }
         };
 
-        static const std::regex snake_re(R"(\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*\b)");
-        for (std::sregex_iterator it(code.begin(), code.end(), snake_re), end; it != end; ++it) {
-            std::string token = it->str();
-            if (looks_like_lower_snake_identifier(token)) {
-                add_reason("snake_case identifier `" + token + "` in Kotlin target");
-                break;
+        auto scan_text = [&](const std::string& text, const std::string& where) {
+            static const std::regex snake_re(R"(\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*\b)");
+            for (std::sregex_iterator it(text.begin(), text.end(), snake_re), end; it != end; ++it) {
+                std::string token = it->str();
+                if (looks_like_lower_snake_identifier(token)) {
+                    add_reason("snake_case identifier `" + token + "` in Kotlin " + where);
+                    break;
+                }
             }
+
+            struct RustPattern {
+                std::regex pattern;
+                std::string reason;
+            };
+            static const std::vector<RustPattern> rust_patterns = {
+                {std::regex(R"(\bfn\s+[A-Za-z_][A-Za-z0-9_]*\s*\()"), "Rust `fn` declaration"},
+                {std::regex(R"(\blet\s+(mut\s+)?[A-Za-z_][A-Za-z0-9_]*)"), "Rust `let` binding"},
+                {std::regex(R"(\bpub(\([^)]*\))?\s+(fn|struct|enum|trait|mod|use)\b)"), "Rust `pub` item"},
+                {std::regex(R"(\bimpl(\s*<[^>{;]*>)?\s+[A-Za-z_][A-Za-z0-9_:<>,\s]*(\s+for\s+[A-Za-z_][A-Za-z0-9_:<>,\s]*)?\s*\{)"), "Rust `impl` block"},
+                {std::regex(R"(\bmacro_rules\s*!)"), "Rust `macro_rules!`"},
+                {std::regex(R"(#\s*\[[^\]]+\])"), "Rust attribute syntax"},
+                {std::regex(R"(\b(assert_eq|assert_ne|debug_assert|format|println|vec|todo|unimplemented)!\s*[\(\{\[])"), "Rust macro invocation"},
+                {std::regex(R"(\bmatch\s+[^{;]+\{)"), "Rust `match` expression"},
+                {std::regex(R"(\buse\s+[A-Za-z_][A-Za-z0-9_:]*(::|\{))"), "Rust `use` path"},
+            };
+
+            for (const auto& rp : rust_patterns) {
+                if (std::regex_search(text, rp.pattern)) {
+                    add_reason(rp.reason + " in Kotlin " + where);
+                    if (reasons.size() >= 4) break;
+                }
+            }
+        };
+
+        scan_text(code, "code");
+        scan_text(comments, "comments");
+
+        static const std::regex suppress_padding_re(
+            R"(@(?:file:)?Suppress\s*\([^)]*(UNUSED_VARIABLE|unused|FunctionName)[^)]*\))",
+            std::regex_constants::icase);
+        if (std::regex_search(source, suppress_padding_re)) {
+            add_reason("score-padding suppression annotation `@Suppress` in Kotlin code");
         }
 
-        struct RustPattern {
+        if (source.find("UNCHECKED_CAST") != std::string::npos &&
+            (source.find(" as Self") != std::string::npos ||
+             source.find(" as ParametersSpec") != std::string::npos)) {
+            add_reason("unchecked cast suppression hiding transliteration work in Kotlin code");
+        }
+
+        struct CommentCheatPattern {
             std::regex pattern;
             std::string reason;
         };
-        static const std::vector<RustPattern> rust_patterns = {
-            {std::regex(R"(\bfn\s+[A-Za-z_][A-Za-z0-9_]*\s*\()"), "Rust `fn` declaration in Kotlin target"},
-            {std::regex(R"(\blet\s+(mut\s+)?[A-Za-z_][A-Za-z0-9_]*)"), "Rust `let` binding in Kotlin target"},
-            {std::regex(R"(\bpub(\([^)]*\))?\s+(fn|struct|enum|trait|mod|use)\b)"), "Rust `pub` item in Kotlin target"},
-            {std::regex(R"(\bimpl(\s*<[^>{;]*>)?\s+[A-Za-z_][A-Za-z0-9_:<>,\s]*(\s+for\s+[A-Za-z_][A-Za-z0-9_:<>,\s]*)?\s*\{)"), "Rust `impl` block in Kotlin target"},
-            {std::regex(R"(\bmacro_rules\s*!)"), "Rust `macro_rules!` in Kotlin target"},
-            {std::regex(R"(#\s*\[[^\]]+\])"), "Rust attribute syntax in Kotlin target"},
-            {std::regex(R"(\b(assert_eq|assert_ne|debug_assert|format|println|vec|todo|unimplemented)!\s*[\(\{\[])"), "Rust macro invocation in Kotlin target"},
-            {std::regex(R"(\bmatch\s+[^{;]+\{)"), "Rust `match` expression in Kotlin target"},
-            {std::regex(R"(\buse\s+[A-Za-z_][A-Za-z0-9_:]*(::|\{))"), "Rust `use` path in Kotlin target"},
+        static const std::vector<CommentCheatPattern> comment_cheat_patterns = {
+            {std::regex(R"((^|\n)\s*(//+|\*)?\s*Kotlin\s*:)", std::regex_constants::icase),
+             "translator-note comment (`Kotlin:`) in Kotlin comments"},
+            {std::regex(R"(\(\s*from\s+impl\b[^)]*\))", std::regex_constants::icase),
+             "Rust impl provenance note in Kotlin comments"},
+            {std::regex(R"(\b(lifetime|lifetimes|'[A-Za-z_][A-Za-z0-9_]*)\b)", std::regex_constants::icase),
+             "Rust lifetime explanation in Kotlin comments"},
+            {std::regex(R"(\b(dyn|usize|Box|transmute|unsafe)\b)"),
+             "Rust-only type/unsafe terminology in Kotlin comments"},
+            {std::regex(R"(Send\s*\+\s*Sync)"),
+             "Rust auto-trait terminology in Kotlin comments"},
         };
-
-        for (const auto& rp : rust_patterns) {
-            if (std::regex_search(code, rp.pattern)) {
-                add_reason(rp.reason);
-                if (reasons.size() >= 4) break;
+        for (const auto& cp : comment_cheat_patterns) {
+            if (std::regex_search(comments, cp.pattern)) {
+                add_reason(cp.reason);
             }
         }
 
@@ -1770,6 +1896,8 @@ public:
 
         std::cout << "Source: " << source.root_path << " (" << source.files.size() << " files)\n";
         std::cout << "Target: " << target.root_path << " (" << target.files.size() << " files)\n";
+        std::cout << "Scoring invariant: FnSim is required function body/parameter similarity. "
+                  << "Class/type and symbol parity are reported beside it; whole-file shape is diagnostic only.\n";
         std::cout << "\n";
 
         std::cout << "Matched:   " << matches.size() << " files\n";
@@ -1833,14 +1961,18 @@ public:
                           << ", dependents: " << m.source_dependents << "\n";
                 std::cout << "  functions: " << m.matched_function_count << "/"
                           << m.source_function_count << " matched"
-                          << " (target total: " << m.target_function_count << ")\n";
+                          << " (target total: " << m.target_function_count
+                          << ", required body score: " << std::fixed << std::setprecision(2)
+                          << m.similarity << ")\n";
                 std::cout << "  missing functions: " << join_names(m.missing_functions) << "\n";
                 std::cout << "  types: " << m.matched_type_count << "/"
                           << m.source_type_count << " matched"
                           << " (target total: " << m.target_type_count << ")\n";
                 std::cout << "  missing types: " << join_names(m.missing_types) << "\n";
                 if (!m.zero_reasons.empty()) {
-                    std::cout << "  score forced to 0: " << join_reasons(m.zero_reasons) << "\n";
+                    std::cout << "  *** CHEAT DETECTION / SCORING FAILURE ***\n";
+                    std::cout << "  function-by-function score forced to 0: "
+                              << join_reasons(m.zero_reasons) << "\n";
                 }
                 if (m.source_test_function_count > 0) {
                     std::cout << "  tests: " << m.matched_test_function_count << "/"

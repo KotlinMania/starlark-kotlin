@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -284,9 +284,6 @@ xs[1] += 1
         // We want select append to always produce a select, much like the
         // Bazel/Buck `select` function.
 
-        // #[derive(Debug, Display, Clone, ProvidesStaticType, NoSerialize, Allocative)]
-        // #[display("${:?}", _0)]
-        // struct Select(Vec<i32>)
         class Select(val items: MutableList<Int>) : StarlarkValue, AllocValue {
             override val TYPE: String get() = "select"
 
@@ -323,8 +320,6 @@ xs[1] += 1
             }
         }
 
-        // #[starlark_module]
-        // fn module(build: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("select") { args, eval ->
                 val arg = args.positionalAll().firstOrNull()
@@ -429,8 +424,6 @@ assert_eq(names[str], "str")
             }
         }
 
-        // #[starlark_module]
-        // fn module(builder: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("rust_failure") { _, _ ->
                 fail3().onFailure {
@@ -542,7 +535,7 @@ add3(8)""",
 
     @Test
     fun testModuleVisibilityPreservedByEvaluator() {
-        // Make sure that when we use a module in the evaluator, the entering / exiting the
+        // Make sure that when we import a module in the evaluator, the entering / exiting the
         // module with ScopeData preserves the visibility of symbols.
 
         val globals = Globals.standard()
@@ -600,7 +593,7 @@ add3(8)""",
 
     @Test
     fun testCancellation() {
-        // Make sure that when we use a module in the evaluator, the entering / exiting the
+        // Make sure that when we import a module in the evaluator, the entering / exiting the
         // module with ScopeData preserves the visibility of symbols.
 
         val globals = Globals.standard()
@@ -762,8 +755,6 @@ bar(["a","b","c"])
         // Test the a.b = c construct.
         // No builtin Starlark types support it, so we have to define a custom type (wrapping a dictionary)
 
-        // #[derive(Debug, Trace, ProvidesStaticType, Display, NoSerialize, Allocative)]
-        // struct Wrapper<'v>(RefCell<SmallMap<String, Value<'v>>>)
         class Wrapper(val map: MutableMap<String, Value> = mutableMapOf()) : ComplexValue, AllocValue, Trace {
             override val TYPE: String get() = "wrapper"
 
@@ -789,8 +780,6 @@ bar(["a","b","c"])
             }
         }
 
-        // #[starlark_module]
-        // fn module(builder: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("wrapper") { _, eval ->
                 Result.success(eval.heap().allocComplex(Wrapper()))

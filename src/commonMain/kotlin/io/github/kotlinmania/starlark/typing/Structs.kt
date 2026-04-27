@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,20 +26,13 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.types.structs.StructRef
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
-// #[derive(Allocative, Eq, PartialEq, Hash, Debug, Clone, Copy, Dupe)]
-// struct StructMatcher;
-// #[type_matcher]
-// impl TypeMatcher for StructMatcher
 private object StructMatcher : TypeMatcher {
-    // fn matches(&self, value: Value) -> bool
     override fun matches(value: Value): Boolean {
         return StructRef.isInstance(value)
     }
 }
 
 /** Struct type. */
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Allocative)]
-// pub struct TyStruct
 data class TyStruct(
     /** The fields that are definitely present in the struct, with their types. */
     internal val fields: Map<String, Ty>,
@@ -57,7 +50,6 @@ data class TyStruct(
 
     override fun asName(): String = "struct"
 
-    // fn bin_op(&self, bin_op, rhs, ctx) -> Result<Ty, TypingNoContextOrInternalError>
     override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> {
         return when (binOp) {
             TypingBinOp.Less -> {
@@ -73,7 +65,6 @@ data class TyStruct(
         }
     }
 
-    // fn attribute(&self, attr: &str) -> Result<Ty, TypingNoContextError>
     override fun attribute(attr: String): Result<Ty> {
         val ty = fields[attr]
         return when {
@@ -97,7 +88,6 @@ data class TyStruct(
         return TyStruct(fields = mergedFields, extra = extra)
     }
 
-    // fn matcher<T: TypeMatcherAlloc>(&self, factory: T) -> T::Result
     override fun <R> matcher(factory: TypeMatcherAlloc<R>): R {
         return factory.alloc(StructMatcher)
     }

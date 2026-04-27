@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/freeze/validator_order.rs
+// port-lint: source src/tests/derive/freeze/validatorOrder.rs
 package io.github.kotlinmania.starlark.tests.derive.freeze
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,35 +22,29 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
 import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import kotlin.test.Test
 
-// struct FreezeSentinel { frozen: bool }
 private class FreezeSentinel(
     val frozen: Boolean,
 ) : Freeze<FreezeSentinel> {
-    // impl Freeze for FreezeSentinel
-    // fn freeze(self, _: &Freezer) -> Result<Self>
     override fun freeze(freezer: Freezer): Result<FreezeSentinel> {
         check(!frozen)
         return Result.success(FreezeSentinel(frozen = true))
     }
 }
 
-// #[derive(Freeze)]
-// #[freeze(validator = check_froze_before_validating)]
-// struct ValidatorOrderTest { sentinel: FreezeSentinel }
 private class ValidatorOrderTest(
     val sentinel: FreezeSentinel,
 ) : Freeze<ValidatorOrderTest> {
     override fun freeze(freezer: Freezer): Result<ValidatorOrderTest> {
         val frozenSentinel = sentinel.freeze(freezer).getOrElse { return Result.failure(it) }
         val result = ValidatorOrderTest(frozenSentinel)
-        // validator: check_froze_before_validating
+        // validator: checkFrozeBeforeValidating
         checkFrozeBeforeValidating(result).getOrElse { return Result.failure(it) }
         return Result.success(result)
     }
 }
 
-// fn check_froze_before_validating(test: &ValidatorOrderTest) -> anyhow::Result<()>
 private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
     // Accessing fields on a Starlark value before we call freeze() on it may fail (because we
     // read the forward not what it points to), so we check that validators receive frozen data.
@@ -58,13 +52,14 @@ private fun checkFrozeBeforeValidating(test: ValidatorOrderTest): Result<Unit> {
     return Result.success(Unit)
 }
 
-// #[test]
-// fn test() -> anyhow::Result<()>
-internal fun testValidatorOrder() {
-    val t = ValidatorOrderTest(
-        sentinel = FreezeSentinel(frozen = false),
-    )
-    val frozenHeap = FrozenHeap()
-    val freezer = Freezer(frozenHeap)
-    t.freeze(freezer).getOrThrow()
+class ValidatorOrderTests {
+    @Test
+    fun testValidatorOrder() {
+        val t = ValidatorOrderTest(
+            sentinel = FreezeSentinel(frozen = false),
+        )
+        val frozenHeap = FrozenHeap()
+        val freezer = Freezer(frozenHeap)
+        t.freeze(freezer).getOrThrow()
+    }
 }

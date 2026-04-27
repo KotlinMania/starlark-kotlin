@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.trace
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,12 +23,9 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Trace)]
-// enum TestEnumForTrace<'v>
 @Suppress("unused")
 private sealed class TestEnumForTrace {
     // Foo(String)
     class Foo(val value: String) : TestEnumForTrace()
-    // Bar(i32, Value<'v>)
     class Bar(val intValue: Int, val value: Value) : TestEnumForTrace()
 }

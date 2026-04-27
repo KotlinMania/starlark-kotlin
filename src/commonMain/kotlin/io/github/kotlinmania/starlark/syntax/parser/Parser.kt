@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.syntax.parser
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,7 +33,7 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
  * LR(1) parser driven by pre-computed ACTION/GOTO tables from GrammarState.
  *
  * Table encoding:
- *  - ACTION[state * 66 + token_index]: positive = shift, negative = reduce, 0 = error
+ *  - ACTION[state * 66 + tokenIndex]: positive = shift, negative = reduce, 0 = error
  *  - EOF_ACTION[state]: action when at end-of-file
  *  - Reduce rule: ruleId = -(action) - 1
  *  - Accept: ruleId 296 or 297 (augmented start rules, not in GrammarReducers)

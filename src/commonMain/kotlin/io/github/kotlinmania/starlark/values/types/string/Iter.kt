@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,29 +34,19 @@ import kotlin.reflect.KClass
 
 // Implementation of iterators for string type.
 
-/** An opaque iterator over a string, produced by elems/codepoints */
-// #[derive(Debug, Trace, Coerce, Display, Freeze, NoSerialize, ProvidesStaticType, Allocative)]
-// #[display("iterator")]
-// #[repr(C)]
-// struct StringIterableGen<'v, V: ValueLike<'v>> {
-//     string: V::String,
-//     produce_char: bool,
-// }
+/** An opaque iterator over a string, produced by elems/codepoints. */
 internal class StringIterableGen(
     val string: StringValue,
     val produceChar: Boolean // if not char, then int
 ) : ComplexValue, Trace, ProvidesStaticType {
 
-    // #[display("iterator")]
     override fun toString(): String = "iterator"
 
-    // #[starlark_value(type = "iterator")]
     override val TYPE: String get() = "iterator"
-    override val HAS_iterate: Boolean get() = true
+    override val hasIterate: Boolean get() = true
 
     override val staticType: KClass<*> get() = StringIterableGen::class
 
-    // unsafe fn iterate(&self, _me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun iterate(_me: Value, heap: Heap): Result<Value> {
         // Lazy implementation: we allocate a tuple and then iterate over it.
         val iter = if (this.produceChar) {
@@ -69,41 +59,25 @@ internal class StringIterableGen(
         return Result.success(iter)
     }
 
-    // unsafe impl Trace for StringIterableGen
     override fun trace(@Suppress("unused") tracer: Tracer) {
-        // In Rust, Trace is derived. The StringValue's inner Value
-        // would be traced. Since Kotlin's GC handles memory, this is a no-op.
+        // Kotlin's GC handles memory; tracing is a no-op.
     }
 }
 
-// pub(crate) fn iterate_chars<'v>(
-//     string: StringValue<'v>,
-//     heap: Heap<'v>,
-// ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateChars(
     string: StringValue,
     heap: Heap
 ): Value {
-    // Rust returns ValueOfUnchecked<StarlarkIter<String>> but the Kotlin port
-    // cannot represent this phantom type annotation because StarlarkIter does not
-    // implement StarlarkTypeRepr yet. Callers only use .get() on the result anyway.
     return heap.allocComplex(StringIterableGen(
         string,
         true
     ))
 }
 
-// pub(crate) fn iterate_codepoints<'v>(
-//     string: StringValue<'v>,
-//     heap: Heap<'v>,
-// ) -> ValueOfUnchecked<'v, StarlarkIter<String>>
 internal fun iterateCodepoints(
     string: StringValue,
     heap: Heap
 ): Value {
-    // Rust returns ValueOfUnchecked<StarlarkIter<String>> but the Kotlin port
-    // cannot represent this phantom type annotation because StarlarkIter does not
-    // implement StarlarkTypeRepr yet. Callers only use .get() on the result anyway.
     return heap.allocComplex(StringIterableGen(
         string,
         false

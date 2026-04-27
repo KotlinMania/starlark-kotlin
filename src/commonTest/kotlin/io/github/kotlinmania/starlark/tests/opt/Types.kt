@@ -2,7 +2,7 @@
 package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
-
+import kotlin.test.Test
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -10,7 +10,7 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,22 +22,21 @@ import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest
  * limitations under the License.
  */
 
+class TypesTests {
+    @Test
+    fun testReturnTypeErased() {
+        // Return type is checked in bytecode.
+        // In this example, return type is anything.
+        // Check it is not present in bytecode.
+        bcGoldenTest(
+            "opt_return_type_erased",
+            "def test() -> typing.Any: return 1",
+        )
+    }
 
-// #[test]
-// fn test_return_type_erased()
-internal fun testReturnTypeErased() {
-    // Return type is checked in bytecode.
-    // In this example, return type is anything.
-    // Check it is not present in bytecode.
-    bcGoldenTest(
-        "opt_return_type_erased",
-        "def test() -> typing.Any: return 1",
-    )
-}
-
-// #[test]
-// fn test_return_type_present()
-internal fun testReturnTypePresent() {
-    // Self-check for previous test.
-    bcGoldenTest("opt_return_type_present", "def test() -> str: return 'x'")
+    @Test
+    fun testReturnTypePresent() {
+        // Self-check for previous test.
+        bcGoldenTest("opt_return_type_present", "def test() -> str: return 'x'")
+    }
 }

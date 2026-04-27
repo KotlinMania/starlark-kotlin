@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingUnOp
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -120,7 +120,7 @@ internal class CallArgsUnpack<P : AstPayload>(
 internal class TypingContext(
     val oracle: TypingOracleCtx,
     // We'd prefer this to be mutable directly,
-    // but that makes writing the code more fiddly, so just use a mutable list
+    // but that makes writing the code more fiddly, so just import a mutable list
     val errors: MutableList<TypingError> = mutableListOf(),
     val approximations: MutableList<Approximation> = mutableListOf(),
     val types: MutableMap<BindingId, Ty> = mutableMapOf(),

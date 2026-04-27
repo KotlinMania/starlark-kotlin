@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -39,7 +39,6 @@ class SetRef internal constructor(
     companion object {
         /**
          * Unpack a [Value] into a [SetRef], or return null if not a set.
-         * Matches the Rust `UnpackValue::unpack_value_opt` trait method.
          */
         fun unpackValueOpt(value: Value): SetRef? =
             SetRefUnpackValue.unpackValueImpl(value).getOrThrow()
@@ -48,7 +47,6 @@ class SetRef internal constructor(
 
 /**
  * Clone implementation for SetRef.
- * Corresponds to Rust's Clone impl which uses Ref::clone for Left case.
  */
 fun SetRef.clone(): SetRef {
     return when (val ref = this.aref) {
@@ -57,29 +55,20 @@ fun SetRef.clone(): SetRef {
     }
 }
 
-/**
- * Access the underlying content (SmallSet).
- * Extension property that mimics Rust's Deref to access `aref.content`.
- */
+/** Access the underlying content of the borrowed set. */
 val SetRef.content: SmallSet<Value>
     get() = when (val ref = aref) {
         is Either.Left -> ref.value.data.content
         is Either.Right -> ref.value.content
     }
 
-/**
- * Iterate through the values in the set, retaining their hashes.
- * Corresponds to accessing methods through Deref in Rust.
- */
+/** Iterate through the values in the set, retaining their hashes. */
 fun SetRef.iterHashed(): Sequence<Hashed<Value>> = when (val ref = aref) {
     is Either.Left -> ref.value.data.iterHashed()
     is Either.Right -> ref.value.iterHashed()
 }
 
-/**
- * Check if the set contains a hashed element.
- * Corresponds to accessing methods through Deref in Rust.
- */
+/** Check if the set contains a hashed element. */
 fun SetRef.containsHashed(key: Hashed<Value>): Boolean = when (val ref = aref) {
     is Either.Left -> ref.value.data.containsHashed(key)
     is Either.Right -> ref.value.containsHashed(key)
@@ -159,7 +148,6 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
 
 /**
  * Coerce a [FrozenSetData] to a [SetData] view.
- * Corresponds to Rust's `coerce(&x.0)` which zero-cost converts FrozenSetData to SetData
  * because FrozenValue can be treated as Value.
  */
 @Suppress("UNCHECKED_CAST")
@@ -168,7 +156,6 @@ private fun coerceSetData(data: FrozenSetData): SetData =
 
 /**
  * Either type for representing one of two possible values.
- * Corresponds to Rust's `either::Either`.
  */
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()
@@ -177,7 +164,6 @@ sealed class Either<out L, out R> {
 
 /**
  * RefCell type for interior mutability.
- * Corresponds to Rust's `RefCell<T>`.
  */
 class RefCell<T>(private var value: T) {
     private var borrowCount = 0
@@ -194,7 +180,6 @@ class RefCell<T>(private var value: T) {
 
     /**
      * Release (unleak) a previously leaked borrow.
-     * Corresponds to Rust's `unleak_borrow` which undoes `mem::forget(self.borrow())`.
      */
     fun releaseBorrow() {
         check(borrowCount > 0) { "No borrow to release" }
@@ -213,7 +198,6 @@ class RefCell<T>(private var value: T) {
 
 /**
  * Borrowed reference to SetData (immutable).
- * Corresponds to Rust's `Ref<SetData>`.
  */
 class BorrowedSetData(val data: SetData) {
     fun clone(): BorrowedSetData = BorrowedSetData(data)
@@ -221,6 +205,5 @@ class BorrowedSetData(val data: SetData) {
 
 /**
  * Mutably borrowed reference to SetData.
- * Corresponds to Rust's `RefMut<SetData>`.
  */
 class BorrowedMutSetData(val data: SetData)

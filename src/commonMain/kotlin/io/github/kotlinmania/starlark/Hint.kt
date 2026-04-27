@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,22 +19,11 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-// #[cfg(rust_nightly)]
-// pub(crate) use std::intrinsics::likely;
-// #[cfg(rust_nightly)]
-// pub(crate) use std::intrinsics::unlikely;
-
-// #[cfg(not(rust_nightly))]
-// #[inline]
-// pub(crate) fn likely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun likely(b: Boolean): Boolean {
     return b
 }
 
-// #[cfg(not(rust_nightly))]
-// #[inline]
-// pub(crate) fn unlikely(b: bool) -> bool
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun unlikely(b: Boolean): Boolean {
     return b

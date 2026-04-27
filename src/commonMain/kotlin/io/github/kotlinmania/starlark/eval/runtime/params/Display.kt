@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.params
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.runtime.params
  * limitations under the License.
  */
 
-/** ParameterP<AstNoPayload> or `*` or `/` separator, but only if needed for formatting. */
+/** Parameter or `*` or `/` separator, but only if needed for formatting. */
 sealed class FmtParam<out T> {
     /** Positional-only, positional-or-named, or named-only parameter. */
     data class Regular<T>(val value: T) : FmtParam<T>()
@@ -82,9 +82,9 @@ internal fun <T> iterFmtParamSpec(
 internal const val PARAM_FMT_OPTIONAL: String = "..."
 
 internal data class ParamFmt<T, D>(
-    /** ParameterP<AstNoPayload> name. */
+    /** Parameter name. */
     val name: String,
-    /** ParameterP<AstNoPayload> type. If `null`, it will be omitted. */
+    /** Parameter type. If `None`, it will be omitted. */
     val ty: T?,
     val default: D?,
 )

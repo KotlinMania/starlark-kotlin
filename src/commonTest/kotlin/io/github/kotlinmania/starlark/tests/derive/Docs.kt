@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,38 +30,28 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import kotlin.test.Test
 
 /** Main module docs */
-// #[starlark_module]
-// fn object_docs_1(_: &mut MethodsBuilder)
 private fun objectDocs1(builder: MethodsBuilder) {
     builder.setDocstring("Main module docs")
     /** Returns the string "foo" */
-    // #[starlark(attribute)]
-    // fn foo(this: &TestExample) -> Result<String>
     builder.setAttribute("foo", "Returns the string \"foo\"") { _: Value, heap: Heap ->
         Result.success(heap.allocStr("foo").toValue())
     }
 }
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// struct TestExample {}
 private class TestExample : StarlarkValue {
-    // #[starlark_value(type = "TestExample")]
     override val TYPE: String get() = "TestExample"
     override fun toString(): String = "TestExample"
 
-    // fn get_methods() -> Option<&'static Methods>
     companion object {
         private val METHODS = MethodsStatic()
         fun getMethods(): Methods = METHODS.methods(::objectDocs1)
     }
 }
 
-// #[derive(Clone, Debug, Coerce, Display, Trace, Freeze, ProvidesStaticType, Allocative)]
-// struct ComplexTestExampleGen<V>(V)
 private class ComplexTestExampleGen<V>(val value: V) : StarlarkValue {
-    // #[starlark_value(type = "ComplexTestExample")]
     override val TYPE: String get() = "ComplexTestExample"
     override fun toString(): String = value.toString()
 
@@ -71,40 +61,40 @@ private class ComplexTestExampleGen<V>(val value: V) : StarlarkValue {
     }
 }
 
-// #[test]
-// fn test_derive_docs()
-internal fun testDeriveDocs() {
-    val obj = DocType.fromStarlarkValue(TestExample())
+class DocsTests {
+    @Test
+    fun testDeriveDocs() {
+        val obj = DocType.fromStarlarkValue(TestExample())
 
-    check(
-        DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == obj.docs
-    )
-    check(
-        DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
-            obj.members.iter().firstNotNullOfOrNull { (name, m) ->
-                when {
-                    m is DocMember.Property && name == "foo" -> m.property.docs
-                    else -> null
+        check(
+            DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == obj.docs
+        )
+        check(
+            DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
+                obj.members.iter().firstNotNullOfOrNull { (name, m) ->
+                    when {
+                        m is DocMember.Property && name == "foo" -> m.property.docs
+                        else -> null
+                    }
                 }
-            }
-    )
-}
+        )
+    }
 
-// #[test]
-// fn test_derive_docs_on_complex_values()
-internal fun testDeriveDocsOnComplexValues() {
-    val complexObj = DocType.fromStarlarkValue(ComplexTestExampleGen<Any>(Unit))
+    @Test
+    fun testDeriveDocsOnComplexValues() {
+        val complexObj = DocType.fromStarlarkValue(ComplexTestExampleGen<Any>(Unit))
 
-    check(
-        DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == complexObj.docs
-    )
-    check(
-        DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
-            complexObj.members.iter().firstNotNullOfOrNull { (name, m) ->
-                when {
-                    m is DocMember.Property && name == "foo" -> m.property.docs
-                    else -> null
+        check(
+            DocString.fromDocstring(DocStringKind.Rust, "Main module docs") == complexObj.docs
+        )
+        check(
+            DocString.fromDocstring(DocStringKind.Rust, "Returns the string \"foo\"") ==
+                complexObj.members.iter().firstNotNullOfOrNull { (name, m) ->
+                    when {
+                        m is DocMember.Property && name == "foo" -> m.property.docs
+                        else -> null
+                    }
                 }
-            }
-    )
+        )
+    }
 }

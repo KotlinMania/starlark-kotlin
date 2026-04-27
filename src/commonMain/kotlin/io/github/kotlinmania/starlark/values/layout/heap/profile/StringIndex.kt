@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/string_index.rs
+// port-lint: source src/values/layout/heap/profile/stringIndex.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,8 +23,6 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
 internal class StringIndex {
     // Kotlin: LinkedHashSet preserves insertion order, equivalent to SmallSet.
     private val strings: LinkedHashSet<String> = linkedSetOf()
-
-    // impl StringIndex
 
     fun index(s: String): StringId {
         val list = strings.toList()

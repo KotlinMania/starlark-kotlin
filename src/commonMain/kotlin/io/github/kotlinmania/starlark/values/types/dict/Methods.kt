@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,7 +30,6 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 
 internal fun dictMethods(registry: MethodsBuilder) {
     // Methods are registered through the MethodsBuilder.
-    // In Rust, the #[starlark_module] macro generates the registration code.
     // The actual method implementations are below.
 }
 

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/small_vec_1.rs
+// port-lint: source src/eval/compiler/smallVec1.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,88 +20,23 @@ package io.github.kotlinmania.starlark.eval.compiler
  */
 
 /** Small `Vec`. */
-
-/** A small vector. */
-// #[derive(Clone, Allocative)]
-// pub(crate) enum SmallVec1<T> {
-//     One(T),
-//     Vec(Vec<T>),
-// }
 internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
     class One<T>(val value: T) : SmallVec1<T>()
     class Vec<T>(val values: MutableList<T>) : SmallVec1<T>()
 
-    companion object {
-        // pub(crate) const fn new() -> SmallVec1<T>
-        fun <T> new(): SmallVec1<T> = Vec(mutableListOf())
+    fun asSlice(): List<T> = when (this) {
+        is One -> listOf(value)
+        is Vec -> values
     }
 
-    // pub(crate) fn as_slice(&self) -> &[T]
-    fun asSlice(): List<T> {
-        return when (this) {
-            is One -> listOf(value)
-            is Vec -> values
-        }
-    }
+    fun fmt(): String = asSlice().toString()
 
-    // impl Deref for SmallVec1
-    // fn deref(&self) -> &[T]
-    // Kotlin: access via asSlice()
+    fun eq(other: SmallVec1<T>): Boolean = asSlice() == other.asSlice()
 
-    // impl IntoIterator for SmallVec1
-    // fn into_iter(self) -> Self::IntoIter
-    override fun iterator(): Iterator<T> {
-        return when (this) {
-            is One -> iterator { yield(value) }
-            is Vec -> values.iterator()
-        }
-    }
+    fun hash(): Int = asSlice().hashCode()
 
-    // pub(crate) fn extend(&mut self, that: SmallVec1<T>)
-    // Note: returns a new SmallVec1 since sealed classes are immutable references.
-    // Caller must reassign: `self = self.extend(that)`
-    fun extend(that: SmallVec1<T>): SmallVec1<T> {
-        return when {
-            this is Vec && this.values.isEmpty() -> that
-            that is Vec && that.values.isEmpty() -> this
-            this is One && that is One -> Vec(mutableListOf(this.value, that.value))
-            this is One && that is Vec -> {
-                that.values.add(0, this.value)
-                Vec(that.values)
-            }
-            this is Vec && that is One -> {
-                this.values.add(that.value)
-                Vec(this.values)
-            }
-            this is Vec && that is Vec -> {
-                this.values.addAll(that.values)
-                Vec(this.values)
-            }
-            else -> error("unreachable")
-        }
-    }
-
-    // pub(crate) fn push(&mut self, value: T)
-    fun push(value: T): SmallVec1<T> {
-        return extend(One(value))
-    }
-
-    // impl Debug for SmallVec1
-    override fun toString(): String = asSlice().toString()
-
-    // impl PartialEq for SmallVec1
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SmallVec1<*>) return false
-        return asSlice() == other.asSlice()
-    }
-
-    // impl Hash for SmallVec1
-    override fun hashCode(): Int = asSlice().hashCode()
-
-    // impl PartialOrd + Ord for SmallVec1
     @Suppress("UNCHECKED_CAST")
-    override fun compareTo(other: SmallVec1<T>): Int {
+    fun partialCmp(other: SmallVec1<T>): Int {
         val left = asSlice()
         val right = other.asSlice()
         val minLen = minOf(left.size, right.size)
@@ -110,5 +45,58 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
             if (cmp != 0) return cmp
         }
         return left.size.compareTo(right.size)
+    }
+
+    fun cmp(other: SmallVec1<T>): Int = partialCmp(other)
+
+    fun deref(): List<T> = asSlice()
+
+    fun intoIter(): Iterator<T> = when (this) {
+        is One -> iterator { yield(value) }
+        is Vec -> values.iterator()
+    }
+
+    override fun iterator(): Iterator<T> = intoIter()
+
+    fun extend(that: SmallVec1<T>): SmallVec1<T> {
+        val left = this
+        val right = that
+        return when {
+            left is Vec && left.values.isEmpty() -> right
+            right is Vec && right.values.isEmpty() -> left
+            left is One && right is One -> Vec(mutableListOf(left.value, right.value))
+            left is One && right is Vec -> {
+                right.values.add(0, left.value)
+                Vec(right.values)
+            }
+            left is Vec && right is One -> {
+                left.values.add(right.value)
+                Vec(left.values)
+            }
+            left is Vec && right is Vec -> {
+                left.values.addAll(right.values)
+                Vec(left.values)
+            }
+            else -> error("unreachable")
+        }
+    }
+
+    fun push(value: T): SmallVec1<T> = extend(One(value))
+
+    override fun toString(): String = fmt()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SmallVec1<*>) return false
+        @Suppress("UNCHECKED_CAST")
+        return eq(other as SmallVec1<T>)
+    }
+
+    override fun hashCode(): Int = hash()
+
+    override fun compareTo(other: SmallVec1<T>): Int = cmp(other)
+
+    companion object {
+        fun <T> new(): SmallVec1<T> = Vec(mutableListOf())
     }
 }

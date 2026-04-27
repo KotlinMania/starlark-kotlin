@@ -1,4 +1,4 @@
-// port-lint: source src/values/stack_guard.rs
+// port-lint: source src/values/stackGuard.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,7 +36,7 @@ private const val MAX_RECURSION: Int = 3000
 //   `Display.toString` where passing a stack depth parameter is hard
 // * We need to guarantee that stack depth is not lost in complex invocation
 //   chains like function calls compare which calls native function which calls
-//   starlark function which calls to_str. We could change all evaluation stack
+//   starlark function which calls toStr. We could change all evaluation stack
 //   signatures to accept some "context" parameters, but passing it as
 //   thread-local is easier.
 @OptIn(ExperimentalAtomicApi::class)
@@ -51,7 +51,6 @@ private val STACK_DEPTH: AtomicInt = AtomicInt(0)
 class StackGuard internal constructor(
     private val prevDepth: Int,
 ) : AutoCloseable {
-    // impl Drop for StackGuard
     override fun close() {
         STACK_DEPTH.store(prevDepth)
     }

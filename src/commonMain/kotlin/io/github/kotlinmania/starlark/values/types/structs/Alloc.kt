@@ -8,7 +8,7 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,12 +45,11 @@ import starlarkmap.smallmap.SmallMap
  * ## Example
  *
  * ```
- * use starlark::values::structs::AllocStruct;
+ * import starlark::values::structs::AllocStruct;
  *
- * # use starlark::values::{FrozenHeap, Heap};
- * # fn alloc(heap: Heap<'_>, frozen_heap: &FrozenHeap) {
+ * # import starlark::values::{FrozenHeap, Heap};
  * let s = heap.alloc(AllocStruct([("a", 1), ("b", 2)]));
- * let fs = frozen_heap.alloc(AllocStruct([("a", 1), ("b", 2)]));
+ * let fs = frozenHeap.alloc(AllocStruct([("a", 1), ("b", 2)]));
  * # }
  * ```
  */
@@ -67,7 +66,6 @@ data class AllocStruct<S>(val value: S) {
  * Implementation of StarlarkTypeRepr for AllocStruct<S>
  * where S: IntoIterator, S::Item = (K, V), V: StarlarkTypeRepr.
  *
- * Rust: impl<K, V, S> StarlarkTypeRepr for AllocStruct<S> where ... { fn starlark_type_repr() -> Ty { Struct::starlark_type_repr() } }
  */
 inline fun <reified K, reified V, reified S> starlarkTypeRepr(): Ty
     where S : Iterable<Pair<K, V>>,
@@ -85,7 +83,7 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
           K : AllocStringValue,
           V : AllocValue {
     val iter = value.iterator()
-    // size_hint().0 in Rust returns the lower bound of the iterator's size hint
+    // sizeHint().0 in Rust returns the lower bound of the iterator's size hint
     val sizeHint = if (value is Collection<*>) value.size else 0
     val fields = SmallMap.withCapacity<String, Value>(sizeHint)
 
@@ -108,7 +106,7 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
           K : AllocFrozenStringValue,
           V : AllocFrozenValue {
     val iter = value.iterator()
-    // size_hint().0 in Rust returns the lower bound of the iterator's size hint
+    // sizeHint().0 in Rust returns the lower bound of the iterator's size hint
     val sizeHint = if (value is Collection<*>) value.size else 0
     val fields = SmallMap.withCapacity<String, FrozenValue>(sizeHint)
 

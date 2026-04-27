@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.assert
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,8 +45,6 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 
 /**
  * Print error diagnostic to stderr (or stdout as multiplatform fallback).
- *
- * Mirrors `Error::eprint` in the Rust implementation.
  */
 private fun io.github.kotlinmania.starlark.Error.eprint() {
     if (hasDiagnostic()) {
@@ -139,7 +137,8 @@ private fun assertsStar(builder: GlobalsBuilder) {
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
     fun freeze(x: Value): Result<Value> = Result.success(x)
 
-    fun fails(f: Value, @Suppress("UNUSED_PARAMETER") msg: String, eval: Evaluator): Result<NoneType> {
+    fun fails(f: Value, msg: String, eval: Evaluator): Result<NoneType> {
+        val _unused = msg
         return when (val result = f.invokePos(emptyList(), eval)) {
             else -> if (result.isFailure) {
                 Result.success(NoneType) // We don't actually check the message
@@ -214,7 +213,8 @@ internal fun testFunctions(builder: GlobalsBuilder) {
      *
      * This function is unknown to optimizer, so it can be used in optimizer tests.
      */
-    fun noop(args: List<Value>, @Suppress("UNUSED_PARAMETER") kwargs: Value): Result<Value> {
+    fun noop(args: List<Value>, kwargs: Value): Result<Value> {
+        val _unused = kwargs
         return Result.success(args.firstOrNull() ?: Value.newNone())
     }
 
@@ -246,7 +246,7 @@ class Assert(
     /**
      * Create a new assert object, which will by default use
      * extended dialect and all library extensions,
-     * plus some additional global functions like `assert_eq`.
+     * plus some additional global functions like `assertEq`.
      * The usual pattern is to create an `Assert`, modify some properties
      * and then execute some tests.
      */
@@ -286,7 +286,7 @@ class Assert(
     private fun <A> withGc(f: (GcStrategy) -> A): A {
         return when (val gc = gcStrategy) {
             null -> {
-                // We want to run with Auto first, and use that as the result, because that's the default
+                // We want to run with Auto first, and import that as the result, because that's the default
                 val res = f(GcStrategy.Auto)
                 f(GcStrategy.Never)
                 f(GcStrategy.Always)
@@ -503,10 +503,10 @@ class Assert(
 
     /**
      * A program that must execute successfully without an exception. Often uses
-     * assert_eq. Returns the resulting value.
+     * assertEq. Returns the resulting value.
      *
      * ```
-     * Assert().pass("assert_eq(1, 1)")
+     * Assert().pass("assertEq(1, 1)")
      * ```
      */
     fun pass(program: String): OwnedFrozenValue {
@@ -608,8 +608,7 @@ class Assert(
 
     /**
      * Companion object providing static convenience methods that delegate
-     * to the top-level free functions. These correspond to the Rust module-level
-     * `pub fn` declarations that are re-exported via `pub use assert::*`.
+     * to the top-level free functions.
      */
     companion object {
         /** See [Assert.eq]. */
@@ -619,11 +618,9 @@ class Assert(
         fun fail(program: String, msg: String): io.github.kotlinmania.starlark.Error =
             io.github.kotlinmania.starlark.assert.fail(program, msg)
 
-        // #[cfg(test)]
         internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark.Error =
             io.github.kotlinmania.starlark.assert.failGolden(path, program)
 
-        // #[cfg(test)]
         internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark.Error =
             io.github.kotlinmania.starlark.assert.failSkipTypecheck(program, msg)
 
@@ -631,7 +628,6 @@ class Assert(
         fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark.Error =
             io.github.kotlinmania.starlark.assert.fails(program, msgs)
 
-        // #[cfg(test)]
         internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark.Error =
             io.github.kotlinmania.starlark.assert.failsSkipTypecheck(program, msgs)
 
@@ -641,7 +637,6 @@ class Assert(
         /** See [Assert.isFalse]. */
         fun isFalse(program: String) = io.github.kotlinmania.starlark.assert.isFalse(program)
 
-        // #[cfg(test)]
         internal fun isTrueSkipTypecheck(program: String) =
             io.github.kotlinmania.starlark.assert.isTrueSkipTypecheck(program)
 
@@ -656,8 +651,6 @@ class Assert(
     }
 }
 
-// Rust module-level free functions, re-exported via `pub use assert::*`
-
 /** See [Assert.eq]. */
 fun eq(lhs: String, rhs: String) {
     Assert().eq(lhs, rhs)
@@ -668,7 +661,6 @@ fun fail(program: String, msg: String): io.github.kotlinmania.starlark.Error {
     return Assert().fail(program, msg)
 }
 
-// #[cfg(test)]
 internal fun failGolden(path: String, program: String): io.github.kotlinmania.starlark.Error {
     val trimmed = program.trim()
     val e = fails(trimmed, emptyList())
@@ -677,7 +669,6 @@ internal fun failGolden(path: String, program: String): io.github.kotlinmania.st
     return e
 }
 
-// #[cfg(test)]
 internal fun failSkipTypecheck(program: String, msg: String): io.github.kotlinmania.starlark.Error {
     val a = Assert()
     a.disableStaticTypechecking()
@@ -689,7 +680,6 @@ fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark.E
     return Assert().fails(program, msgs)
 }
 
-// #[cfg(test)]
 internal fun failsSkipTypecheck(program: String, msgs: List<String>): io.github.kotlinmania.starlark.Error {
     val a = Assert()
     a.disableStaticTypechecking()
@@ -706,7 +696,6 @@ fun isFalse(program: String) {
     Assert().isFalse(program)
 }
 
-// #[cfg(test)]
 internal fun isTrueSkipTypecheck(program: String) {
     val a = Assert()
     a.disableStaticTypechecking()

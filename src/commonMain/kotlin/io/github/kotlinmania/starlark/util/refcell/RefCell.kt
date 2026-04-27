@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.util.refcell
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.util.refcell
  * limitations under the License.
  */
 
-/** A shared borrow guard for [RefCell], equivalent to Rust's `std::cell::Ref`. */
+/** A shared borrow guard for [RefCell]. */
 internal class Ref<T> internal constructor(
     private val refCell: RefCell<T>,
     val value: T,
@@ -38,13 +38,13 @@ internal class Ref<T> internal constructor(
         }
     }
 
-    /** Equivalent of `mem::forget` on a `Ref`. */
+    /** Forget this borrow without releasing it; the borrow count is not decremented. */
     fun leak() {
         active = false
     }
 }
 
-/** A mutable borrow guard for [RefCell], equivalent to Rust's `std::cell::RefMut`. */
+/** A mutable borrow guard for [RefCell]. */
 internal class RefMut<T> internal constructor(
     private val refCell: RefCell<T>,
     val value: T,
@@ -64,7 +64,7 @@ internal class RefMut<T> internal constructor(
     }
 }
 
-/** Interior mutability with runtime borrow checking, equivalent to Rust's `std::cell::RefCell`. */
+/** Interior mutability with runtime borrow checking. */
 internal class RefCell<T>(
     private val value: T,
 ) {
@@ -96,7 +96,7 @@ internal class RefCell<T>(
     }
 }
 
-/** "Unleak" a previously leaked [RefCell] borrow (decrement the borrow count by one). */
+/** "Unleak" previously leaked [RefCell] borrow (which is [Ref]). */
 internal fun <T> unleakBorrow(refCell: RefCell<T>) {
     val r = refCell.borrow()
     refCell.releaseBorrow()

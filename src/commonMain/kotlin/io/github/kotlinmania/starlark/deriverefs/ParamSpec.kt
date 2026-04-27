@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/param_spec.rs
+// port-lint: source src/__derive_refs/paramSpec.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.deriverefs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,14 +27,12 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.typing.unpackKwargsValueTy
 import io.github.kotlinmania.starlark.typing.unpackArgsItemTy
 
-// pub enum NativeCallableParamDefaultValue
 sealed class NativeCallableParamDefaultValue {
     /** Value is used for documentation only, not when the function is called. */
     data class Value(val value: FrozenValue) : NativeCallableParamDefaultValue()
     data object Optional : NativeCallableParamDefaultValue()
 }
 
-// pub struct NativeCallableParam
 // Type of `ty`:
 // for `*args` is the type of the element, and for `**kwargs` is the type of the value.
 // `required == null` means the parameter is required.
@@ -46,12 +44,6 @@ class NativeCallableParam(
     val name: String = name
     val ty: Ty = ty
     val required: NativeCallableParamDefaultValue? = required
-
-    // impl NativeCallableParam
-
-    // pub fn args(name: &'static str, param_ty: Ty) -> NativeCallableParam
-    // pub fn kwargs(name: &'static str, param_ty: Ty) -> NativeCallableParam
-    // fn is_required(&self) -> ParamIsRequired
 
     internal fun isRequired(): ParamIsRequired {
         return when (required) {
@@ -79,7 +71,6 @@ class NativeCallableParam(
     }
 }
 
-// pub struct NativeCallableParamSpec
 class NativeCallableParamSpec(
     val posOnly: List<NativeCallableParam>,
     val posOrNamed: List<NativeCallableParam>,
@@ -87,10 +78,8 @@ class NativeCallableParamSpec(
     val namedOnly: List<NativeCallableParam>,
     val kwargs: NativeCallableParam?,
 ) {
-    // impl NativeCallableParamSpec
 
     /** For a function accepting raw `&Arguments`. */
-    // pub fn for_arguments() -> NativeCallableParamSpec
     companion object {
         fun forArguments(): NativeCallableParamSpec {
             return NativeCallableParamSpec(
@@ -103,7 +92,6 @@ class NativeCallableParamSpec(
         }
     }
 
-    // pub(crate) fn param_spec(&self) -> ParamSpec
     internal fun paramSpec(): ParamSpec {
         return ParamSpec.newParts(
             posOnly = posOnly.map { p -> Pair(p.isRequired(), p.ty) },

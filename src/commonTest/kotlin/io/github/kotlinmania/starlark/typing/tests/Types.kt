@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck
+import kotlin.test.Test
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -9,7 +10,7 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,45 +22,43 @@ import io.github.kotlinmania.starlark.typing.TypeCheck
  * limitations under the License.
  */
 
-// Test-only transliterations from Rust `src/typing/tests/*` live in `commonTest`.
 
 /** Type-related operations. */
 
-// #[test]
-// fn test_type_alias()
-internal fun testTypeAlias() {
-    TypeCheck().ty("x").check(
-        "type_alias",
-        """
-MyList = list[int]
+class TypesTests {
+    @Test
+    fun testTypeAlias() {
+        TypeCheck().ty("x").check(
+            "type_alias",
+            """
+    MyList = list[int]
 
-def f(x: MyList):
-    pass
-""",
-    )
-}
+    def f(x: MyList):
+        pass
+    """,
+        )
+    }
 
-// #[test]
-// fn test_incorrect_type_dot()
-internal fun testIncorrectTypeDot() {
-    TypeCheck().check(
-        "incorrect_type_dot",
-        """
-def foo(x: list.foo.bar):
-    pass
-""",
-    )
-}
+    @Test
+    fun testIncorrectTypeDot() {
+        TypeCheck().check(
+            "incorrect_type_dot",
+            """
+    def foo(x: list.foo.bar):
+        pass
+    """,
+        )
+    }
 
-// #[test]
-// fn test_function_as_type_bit_or()
-internal fun testFunctionAsTypeBitOr() {
-    TypeCheck().ty("t").check(
-        "function_as_type_bit_or",
-        """
-def test():
-    # This test should work even if `t` is global. There's a bug in test framework somewhere.
-    t = int | str
-""",
-    )
+    @Test
+    fun testFunctionAsTypeBitOr() {
+        TypeCheck().ty("t").check(
+            "function_as_type_bit_or",
+            """
+    def test():
+        # This test should work even if `t` is global. There's a bug in test framework somewhere.
+        t = int | str
+    """,
+        )
+    }
 }

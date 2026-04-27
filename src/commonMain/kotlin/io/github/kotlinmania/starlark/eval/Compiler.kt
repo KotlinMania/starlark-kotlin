@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,39 +28,10 @@ import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.values.FrozenRef
 
 /**
- * Compiler module.
- *
- * This module mirrors `src/eval/compiler.rs` which declares submodules, error
- * helpers, and the [Compiler] struct.
- *
- * ## Submodules
- *
- * | Rust submodule    | Kotlin package                          |
- * |-------------------|-----------------------------------------|
- * | `args`            | `eval.compiler.args`                    |
- * | `call`            | `eval.compiler.call`                    |
- * | `compr`           | `eval.compiler.compr`                   |
- * | `constants`       | `eval.compiler.constants`               |
- * | `def`             | `eval.compiler.def`                     |
- * | `def_inline`      | `eval.compiler.definline`              |
- * | `error`           | `eval.compiler.error`                   |
- * | `expr`            | `eval.compiler.expr`                    |
- * | `expr_bool`       | `eval.compiler.expr_bool`               |
- * | `known`           | `eval.compiler.known`                   |
- * | `module`          | `eval.compiler.module`                  |
- * | `opt_ctx`         | `eval.compiler.optctx`                 |
- * | `scope`           | `eval.compiler.scope`                   |
- * | `small_vec_1`     | `eval.compiler.small_vec_1`             |
- * | `span`            | `eval.compiler.span`                    |
- * | `stmt`            | `eval.compiler.stmt`                    |
- * | `types`           | `eval.compiler.types`                   |
+ * Error helpers and the [Compiler] type used during compilation from AST to
+ * bytecode or IR.
  */
 
-// #[cold]
-// #[inline(never)]
-// pub(crate) fn add_span_to_expr_error(
-//     e: crate::Error, span: FrameSpan, eval: &Evaluator,
-// ) -> EvalException
 /**
  * Attach span information to an error, converting it to an [EvalException].
  */
@@ -74,8 +45,6 @@ internal fun addSpanToExprError(
     }
 }
 
-// #[inline(always)]
-// pub(crate) fn expr_throw<'v, T>(...) -> Result<T, EvalException>
 /**
  * Convert a [Result] error to a spanned evaluation exception.
  */
@@ -87,8 +56,6 @@ internal fun <T> exprThrow(
     return r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 }
 
-// #[inline(always)]
-// pub(crate) fn expr_throw_starlark_result<'v, T>(...) -> Result<T, EvalException>
 /**
  * Convert a Starlark [Result] error to a spanned evaluation exception.
  */
@@ -100,7 +67,6 @@ internal fun <T> exprThrowStarlarkResult(
     return r.getOrElse { e -> throw addSpanToExprError(e, span, eval) }
 }
 
-// pub(crate) struct Compiler<'v, 'a, 'e, 'x> { ... }
 /**
  * The expression/statement compiler.
  *
@@ -118,17 +84,14 @@ internal class Compiler(
     /** Set with `@starlark-rust: typecheck`. */
     var typecheck: Boolean,
 ) {
-    // pub(crate) fn enter_scope(&mut self, scope_id: ScopeId)
     fun enterScope(scopeId: ScopeId) {
         locals.add(scopeId)
     }
 
-    // pub(crate) fn exit_scope(&mut self) -> ScopeId
     fun exitScope(): ScopeId {
         return locals.removeLast()
     }
 
-    // pub(crate) fn current_scope(&self) -> &ScopeNames<'_>
     fun currentScope(): ScopeNames {
         return scopeData.getScope(locals.last())
     }

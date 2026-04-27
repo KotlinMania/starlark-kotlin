@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.typing
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -30,8 +30,6 @@ import io.github.kotlinmania.starlark.values.typing.TypingNever
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
  */
-// #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-// pub struct Approximation
 data class Approximation(
     /** The category of the approximation, e.g. `"Unknown type"`. */
     val category: String,
@@ -40,7 +38,6 @@ data class Approximation(
 ) : Comparable<Approximation> {
     companion object {
         /** Create a new [Approximation]. */
-        // pub fn new(category: &'static str, message: impl Debug) -> Self
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
@@ -49,7 +46,6 @@ data class Approximation(
         }
     }
 
-    // impl Display for Approximation
     override fun toString(): String {
         return "Approximation: $category = \"$message\""
     }
@@ -69,7 +65,6 @@ data class Approximation(
  * This is different handling of union types than in TypeScript for example;
  * TypeScript would consider such expression to be an error.
  *
- * Corresponds to Rust's `Ty` struct.
  */
 class Ty private constructor(
     /**
@@ -177,7 +172,6 @@ class Ty private constructor(
             basic(TyBasic.StarlarkValue(value))
 
         /** Typechecker type of value. */
-        // pub fn of_value(value: Value) -> Ty
         fun ofValue(value: io.github.kotlinmania.starlark.values.layout.Value): Ty {
             return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
         }
@@ -185,9 +179,7 @@ class Ty private constructor(
         /**
          * Create a type from native callable components.
          *
-         * Corresponds to Rust's `Ty::from_native_callable_components`.
          */
-        // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
         internal fun fromNativeCallableComponents(
             comp: io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents,
             asType: Ty?,
@@ -460,7 +452,6 @@ class Ty private constructor(
 /**
  * Configuration for rendering types.
  *
- * Corresponds to Rust's `TypeRenderConfig` enum.
  */
 sealed class TypeRenderConfig {
     /** Uses the default rendering configuration. */
@@ -476,7 +467,6 @@ sealed class TypeRenderConfig {
 /**
  * Helper for displaying a [Ty] with a specific render configuration.
  *
- * Corresponds to Rust's `TyDisplay<'a>`.
  */
 class TyDisplay(
     private val ty: Ty,
@@ -488,7 +478,6 @@ class TyDisplay(
 /**
  * Try to merge adjacent elements in a list.
  *
- * Corresponds to Rust's `merge_adjacent` function.
  */
 private fun <T> mergeAdjacent(
     xs: List<T>,

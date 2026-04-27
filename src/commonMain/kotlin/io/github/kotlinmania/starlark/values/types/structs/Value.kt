@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.structs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -37,9 +37,7 @@ import io.github.kotlinmania.starlark.values.equalsSmallMap
 /**
  * The result of calling `struct()`.
  *
- * This is a generic struct implementation parametrized over V which represents
- * either Value or FrozenValue in the Rust implementation. The lifetime parameter
- * 'v from Rust is handled through Kotlin's type system.
+ * Generic over `V`, which is either `Value` or `FrozenValue`.
  */
 data class StructGen<V>(
     /** The fields in a struct. */
@@ -52,25 +50,17 @@ data class StructGen<V>(
         const val TYPE: String = "struct"
     }
 
-    /**
-     * Create a new [Struct].
-     */
+    /** Create a new [Struct]. */
     fun new(fields: SmallMap<String, V>): StructGen<V> {
         return StructGen(fields)
     }
 
-    /**
-     * Iterate over the elements in the struct.
-     *
-     * In Rust, this returns (StringValue, V) pairs. Since the Kotlin port uses
-     * plain String keys in SmallMap, this returns (String, V) pairs instead.
-     */
+    /** Iterate over the elements in the struct. */
     fun iter(): Sequence<Pair<String, V>> {
         return fields.iter()
     }
 
     private fun selfTy(): Ty {
-        // Rust: Ty::of_value(value.to_value()) for each field value.
         return Ty.custom(TyStruct(
             fields = fields.iter().associate { (k, v) ->
                 val asValue = when (v) {
@@ -137,7 +127,7 @@ data class StructGen<V>(
     }
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        // Must use unordered hash because equality is unordered,
+        // Must import unordered hash because equality is unordered,
         // and `a = b  =>  hash(a) = hash(b)`.
         val unorderedHasher = UnorderedHasher.new()
 
@@ -180,9 +170,7 @@ data class StructGen<V>(
         return selfTy()
     }
 
-    /**
-     * Serialize to map format matching Rust serde implementation.
-     */
+    /** Serialize the struct's fields to a map. */
     fun serialize(): Map<String, V> {
         return iter().associate { (k, v) -> k to v }
     }
@@ -195,9 +183,6 @@ fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<String, FrozenValue>> {
     return fields.iter()
 }
 
-/**
- * Unsafe coercion for frozen structs - corresponds to Rust's unsafe impl for Coerce.
- */
 @Suppress("UNCHECKED_CAST")
 fun coerceStruct(frozen: StructGen<FrozenValue>): StructGen<Value> {
     return frozen as StructGen<Value>

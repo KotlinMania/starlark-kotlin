@@ -23,7 +23,7 @@ import kotlin.math.truncate
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -152,7 +152,7 @@ private class PercentFormatParser(
 }
 
 fun percent(format: String, value: Value): Result<String> {
-    // NOTE(nga): user could reuse `Evaluator::string_pool` here, but
+    // NOTE(nga): user could reuse `Evaluator::stringPool` here, but
     //   * we don't have access to `Evaluator` in `StarlarkValue::percent`
     //   * after single %s made intrinsic, this code is not that hot now
 

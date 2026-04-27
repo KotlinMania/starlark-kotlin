@@ -1,4 +1,4 @@
-// port-lint: source src/vec_map/hint.rs
+// port-lint: source src/vecMap/hint.rs
 package starlarkmap.vecmap.hint
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.vecmap.hint
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,11 +22,9 @@ package starlarkmap.vecmap.hint
 /**
  * Branch prediction hint.
  *
- * In Rust nightly, this maps to `std::intrinsics::likely` which provides
  * a branch prediction hint to the compiler. On stable Rust and in Kotlin,
  * this is a no-op identity function.
  *
- * Corresponds to Rust `likely(x: bool) -> bool`.
  */
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun likely(x: Boolean): Boolean = x

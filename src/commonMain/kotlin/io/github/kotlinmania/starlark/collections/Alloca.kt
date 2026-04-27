@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.collections
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,14 +27,9 @@ internal class Align(
 )
 
 /**
- * A reusable arena-style allocator for temporary slices.
- *
- * Transliterated from the Rust implementation which uses a continuous buffer and bump-pointer
- * allocation, doubling the buffer when capacity is exceeded. The Kotlin port models "words"
- * of size [ALIGN] and keeps old buffers around after growth, matching the Rust behavior.
- *
- * Note that Kotlin does not expose raw uninitialized memory in `commonMain`, so the returned
- * "uninitialized" slices are represented as `MutableList<T?>` backed by an `Array<Any?>`.
+ * We'd love to import the real `alloca`, but don't want to blow through the stack space,
+ * so define our own wrapper. We import a single continuous buffer. When it needs upgrading,
+ * we double it and keep the old one around.
  */
 internal class Alloca {
 
@@ -59,6 +54,7 @@ internal class Alloca {
         }
     }
 
+    /** Holds the allocation. */
     private class Buffer(
         private val data: ULongArray,
         private val layout: Layout,
@@ -83,7 +79,6 @@ internal class Alloca {
         }
 
         fun drop() {
-            // In Rust this deallocates the backing buffer. In Kotlin, GC owns memory.
         }
     }
 
@@ -122,6 +117,7 @@ internal class Alloca {
         this.end = end
     }
 
+    /** Convert remaining capacity in words to remaining capacity in `T`. */
     internal fun <T> remInWordsToRemInT(remInWords: Int): Int {
         return remInWords
     }
@@ -131,8 +127,8 @@ internal class Alloca {
     }
 
     /**
-     * Note that the finalizer for the `T` will not be called. That's safe if there is no finalizer,
-     * or you call it yourself.
+     * Note that the finalizer for the elements will not be called. That's safe if there is no
+     * finalizer, or you call it yourself.
      */
     fun <T, R> allocaUninit(len: Int, k: (MutableList<T?>) -> R): R {
         assertState()
@@ -145,9 +141,8 @@ internal class Alloca {
             allocateMore(len, Layout(ALIGN, ALIGN))
             start = alloc
         }
-        // Capture the active buffer AFTER any growth so the rollback check below
-        // mirrors Rust's `ptr::eq(self.alloc.get(), stop)` — we only need to know
-        // whether the callback added another buffer beyond the one we just sat in.
+        // Capture the active buffer AFTER any growth so the rollback check below only needs
+        // to know whether the callback added another buffer beyond the one we just sat in.
         val startBufferIndex = buffers.lastIndex
 
         val sizeWords = lenInTToLenInWords<T>(len)
@@ -158,8 +153,9 @@ internal class Alloca {
         val data = MutableList<T?>(len) { null }
         val res = k(data)
 
-        // If the pointer changed, it means a callback called alloca again, which allocated a new buffer.
-        // So we are abandoning the current allocation here.
+        // If the pointer changed, it means a callback called alloca again,
+        // which allocated a new buffer. So we are abandoning the current allocation here,
+        // and new allocations will import the new buffer even if the current buffer has space.
         if (buffers.lastIndex == startBufferIndex && alloc == stop) {
             alloc = old
         }
@@ -173,9 +169,6 @@ internal class Alloca {
      *
      * Each element is initialized by calling [init]. The resulting mutable list
      * is passed to the callback.
-     *
-     * In Rust, this calls `alloca_uninit` internally and writes each element
-     * using `MaybeUninit::write`, then transmutes to an initialized slice.
      *
      * @param len Number of elements to allocate.
      * @param init Factory function called once per element to produce its initial value.
@@ -268,6 +261,11 @@ internal class Alloca {
         }
     }
 
+    /**
+     * Concat two slices and invoke the callback with the result.
+     * Use either slice as is if the other is empty,
+     * otherwise clone the elements into a temporary slice.
+     */
     fun <T, R> allocaConcat(x: List<T>, y: List<T>, k: (List<T>) -> R): R {
         return if (x.isEmpty()) {
             k(y)

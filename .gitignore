@@ -34,3 +34,6 @@ tools/ast_distance/build/
 # JVM heap dumps
 *.hprof
 java_pid*.hprof
+
+# macOS Finder metadata
+.DS_Store

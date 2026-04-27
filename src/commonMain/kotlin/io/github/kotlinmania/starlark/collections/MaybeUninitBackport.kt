@@ -1,4 +1,4 @@
-// port-lint: source src/collections/maybe_uninit_backport.rs
+// port-lint: source src/collections/maybeUninitBackport.rs
 package io.github.kotlinmania.starlark.collections
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.collections
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,16 +19,11 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
-// In Rust, MaybeUninit<T> is used to work with uninitialized memory safely.
-// Kotlin has no equivalent concept — all values are initialized by construction.
-// These functions translate Rust's MaybeUninit slice write operations
-// to simple Kotlin array copy/clone operations.
+// All values are initialized by construction in Kotlin, so these helpers reduce to
+// simple array copies that mirror the slice semantics of the original backport.
 
 /**
- * Write a cloned copy of each element from [src] into the destination array [dest].
- *
- * Analogous to `MaybeUninit::write_slice_cloned` (unstable in std).
- * In Kotlin, this is a simple array copy since all values are always initialized.
+ * Copy-paste of the slice-cloned write helper. Replace back when stabilized.
  */
 fun <T> maybeUninitWriteSliceCloned(dest: Array<T?>, src: List<T>): Array<T?> {
     require(dest.size == src.size) {
@@ -42,10 +37,7 @@ fun <T> maybeUninitWriteSliceCloned(dest: Array<T?>, src: List<T>): Array<T?> {
 }
 
 /**
- * Write a copy of each element from [src] into the destination array [dest].
- *
- * Analogous to `MaybeUninit::write_slice` (unstable in std).
- * In Kotlin, this is a simple array copy since all values are always initialized.
+ * Copy-paste of the slice write helper. Replace back when stabilized.
  */
 fun <T> maybeUninitWriteSlice(dest: Array<T?>, src: List<T>): Array<T?> {
     require(dest.size == src.size) {

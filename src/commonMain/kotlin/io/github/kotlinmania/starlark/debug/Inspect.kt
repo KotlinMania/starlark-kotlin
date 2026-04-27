@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.debug
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -45,14 +45,14 @@ internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
  * Obtain the local variables currently in scope. When at top-level these will be
  * [Module][io.github.kotlinmania.starlark.environment.Module] variables, otherwise local
  * definitions. The precise number of variables may change over time due to optimisation. The only
- * legitimate use of this function is for debugging.
+ * legitimate import of this function is for debugging.
  */
 fun Evaluator.localVariables(): SmallMap<String, Value> {
     return inspectLocalVariables(this) ?: inspectModuleVariables(this)
 }
 
 private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
-    // First we find the first entry on the call_stack which contains a Def (and thus has locals)
+    // First we find the first entry on the callStack which contains a Def (and thus has locals)
     val xs = eval.callStack.toFunctionValues()
     val names = xs.reversed().firstNotNullOfOrNull { toScopeNamesByLocalSlotId(it) }
         ?: return null

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/unpack_value.rs
+// port-lint: source src/tests/derive/unpackValue.rs
 package io.github.kotlinmania.starlark.tests.derive
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -25,9 +25,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.toValue
 import io.github.kotlinmania.starlark.values.typing.StarlarkNever
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 sealed interface EmptyEnum {
     companion object : UnpackValue<EmptyEnum> {
         override fun starlarkTypeRepr(): Ty = StarlarkNever.starlarkTypeRepr()
@@ -36,7 +36,6 @@ sealed interface EmptyEnum {
     }
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 sealed interface JustInt {
     companion object : UnpackValue<JustInt> {
         override fun starlarkTypeRepr(): Ty = Ty.int()
@@ -48,7 +47,6 @@ sealed interface JustInt {
     data class Int(val value: kotlin.Int) : JustInt
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 sealed interface IntOrStr {
     companion object : UnpackValue<IntOrStr> {
         override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
@@ -62,7 +60,6 @@ sealed interface IntOrStr {
     data class Str(val value: String) : IntOrStr
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 sealed interface WithLifetime {
     companion object : UnpackValue<WithLifetime> {
         override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.string())
@@ -76,7 +73,6 @@ sealed interface WithLifetime {
     data class Str(val value: String) : WithLifetime
 }
 
-// #[derive(StarlarkTypeRepr, UnpackValue, Eq, PartialEq, Debug)]
 data class TransparentIntOrStr(
     val inner: IntOrStr,
 ) {
@@ -88,64 +84,65 @@ data class TransparentIntOrStr(
     }
 }
 
-// #[test]
-internal fun testStarlarkTypeRepr() {
-    assertEquals(
-        StarlarkNever.starlarkTypeRepr(),
-        EmptyEnum.starlarkTypeRepr(),
-    )
+class UnpackValueTests {
+    @Test
+    fun testStarlarkTypeRepr() {
+        assertEquals(
+            StarlarkNever.starlarkTypeRepr(),
+            EmptyEnum.starlarkTypeRepr(),
+        )
 
-    assertEquals(
-        Ty.int(),
-        JustInt.starlarkTypeRepr(),
-    )
+        assertEquals(
+            Ty.int(),
+            JustInt.starlarkTypeRepr(),
+        )
 
-    val either = Ty.union2(Ty.int(), Ty.string())
-    assertEquals(
-        either,
-        IntOrStr.starlarkTypeRepr(),
-    )
+        val either = Ty.union2(Ty.int(), Ty.string())
+        assertEquals(
+            either,
+            IntOrStr.starlarkTypeRepr(),
+        )
 
-    assertEquals(
-        either,
-        WithLifetime.starlarkTypeRepr(),
-    )
+        assertEquals(
+            either,
+            WithLifetime.starlarkTypeRepr(),
+        )
 
-    assertEquals(
-        IntOrStr.starlarkTypeRepr(),
-        TransparentIntOrStr.starlarkTypeRepr(),
-    )
+        assertEquals(
+            IntOrStr.starlarkTypeRepr(),
+            TransparentIntOrStr.starlarkTypeRepr(),
+        )
+    }
+
+    @Test
+    fun testUnpackValue() {
+        assertEquals(
+            JustInt.Int(17),
+            JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow(),
+        )
+
+        assertEquals(
+            IntOrStr.Int(19),
+            IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+        )
+        assertEquals(
+            IntOrStr.Str("abc"),
+            IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow(),
+        )
+
+        assertEquals(
+            WithLifetime.Int(23),
+            WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow(),
+        )
+
+        assertEquals(
+            WithLifetime.Str("def"),
+            WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow(),
+        )
+
+        assertEquals(
+            TransparentIntOrStr(IntOrStr.Int(19)),
+            TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
+        )
+    }
 }
-
-// #[test]
-internal fun testUnpackValue() {
-    assertEquals(
-        JustInt.Int(17),
-        JustInt.unpackValue(Value.testingNewInt(17)).getOrThrow(),
-    )
-
-    assertEquals(
-        IntOrStr.Int(19),
-        IntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
-    )
-    assertEquals(
-        IntOrStr.Str("abc"),
-        IntOrStr.unpackValue(constFrozenString("abc").toValue()).getOrThrow(),
-    )
-
-    assertEquals(
-        WithLifetime.Int(23),
-        WithLifetime.unpackValue(Value.testingNewInt(23)).getOrThrow(),
-    )
-
-    assertEquals(
-        WithLifetime.Str("def"),
-        WithLifetime.unpackValue(constFrozenString("def").toValue()).getOrThrow(),
-    )
-
-    assertEquals(
-        TransparentIntOrStr(IntOrStr.Int(19)),
-        TransparentIntOrStr.unpackValue(Value.testingNewInt(19)).getOrThrow(),
-    )
-}
-

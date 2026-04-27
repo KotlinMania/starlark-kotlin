@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.debug.adapter
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -129,7 +129,7 @@ private fun <T> channel(): Pair<Sender<T>, Receiver<T>> {
     return Pair(Sender(channel), Receiver(channel))
 }
 
-/** The DapAdapter allows controlling a running evaluator from a different thread. */
+/** The DapAdapter allows. */
 private class DapAdapterImpl(
     private val state: SharedAdapterState,
     private val sender: Sender<ToEvalMessage>,
@@ -257,7 +257,6 @@ private class DapAdapterImpl(
     }
 }
 
-/** The evaluation-side hook implementation. */
 private class DapAdapterEvalHookImpl private constructor(
     private val state: SharedAdapterState,
     private val receiver: Receiver<ToEvalMessage>,
@@ -350,7 +349,6 @@ private class DapAdapterEvalHookImpl private constructor(
     override fun toString(): String = "DapAdapterEvaluationWrapper"
 }
 
-/** Breakpoint configuration: maps source filenames to breakpoint spans. */
 private class BreakpointConfig {
     // maps a source filename to the breakpoint spans for the file
     private val breakpoints: MutableMap<String, Map<Span, Breakpoint>> = mutableMapOf()
@@ -374,19 +372,17 @@ private class BreakpointConfig {
     }
 }
 
-/** Shared state between the adapter and eval hook. */
 private class SharedAdapterState(
     val client: DapAdapterClient,
-    // These breakpoints must all match statements as per before_stmt.
+    // These breakpoints must all match statements as per beforeStmt.
     // Those values for which we abort the execution.
     val breakpoints: BreakpointConfig,
-    // Lock protecting access to breakpoints (replaces Rust's Mutex)
+    // Lock protecting access to breakpoints.
     val breakpointsLock: ReentrantLock = ReentrantLock(),
     // Set while we are doing evaluate calls (>= 1 means disable)
     val disableBreakpoints: AtomicInt,
 )
 
-/** The next action after a breakpoint pause. */
 private sealed class Next {
     data object Continue : Next()
     data object RemainPaused : Next()
@@ -401,12 +397,12 @@ private fun evaluateExpr(
     // We don't want to trigger breakpoints during an evaluate,
     // not least because we currently don't allow reentrant evaluate
     state.disableBreakpoints.fetchAndAdd(1)
-    // Don't use getOrThrow, we need to reset disableBreakpoints.
+    // Don't import getOrThrow, we need to reset disableBreakpoints.
     val ast = AstModule.parse("interactive", expr, Dialect.AllOptionsInternal)
     // This technically loses structured access to the diagnostic information. However, it's
     // completely unused, so there's not much point in converting all of this code to using
-    // starlark::Error, only for buck2 to then go and blindly turn it into an anyhow::Error
-    // anyway.
+    // a richer error type, only for callers to then go and blindly turn it into a generic
+    // error anyway.
     val res = ast.mapCatching { module -> eval.evalStatements(module).getOrThrow() }
     state.disableBreakpoints.fetchAndAdd(-1)
     return res

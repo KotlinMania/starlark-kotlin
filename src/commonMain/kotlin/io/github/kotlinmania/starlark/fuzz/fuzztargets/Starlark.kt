@@ -1,4 +1,4 @@
-// port-lint: source fuzz/fuzz_targets/starlark.rs
+// port-lint: source fuzz/fuzzTargets/starlark.rs
 package io.github.kotlinmania.starlark.fuzz.fuzztargets
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.fuzz.fuzztargets
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.syntax.AstModule
 
-// fn run_arbitrary_starlark_err(content: &str) -> starlark::Result<String>
 private fun runArbitraryStarlarkErr(content: String): Result<String> {
     val ast = AstModule.parse("hello_world.star", content, Dialect.Standard)
         .getOrElse { return Result.failure(it) }
@@ -39,7 +38,6 @@ private fun runArbitraryStarlarkErr(content: String): Result<String> {
     }
 }
 
-// fn run_arbitrary_starlark(content: &str) -> String
 private fun runArbitraryStarlark(content: String): String {
     return when (val result = runArbitraryStarlarkErr(content)) {
         else -> {
@@ -61,7 +59,6 @@ private fun runArbitraryStarlark(content: String): String {
     }
 }
 
-// fuzz_target!(|content: &str| { ... });
 /** Entry point for fuzz testing. Call with arbitrary string content. */
 fun fuzzTarget(content: String) {
     @Suppress("UNUSED_VARIABLE")

@@ -1,4 +1,4 @@
-// port-lint: source src/sorted_set.rs
+// port-lint: source src/sortedSet.rs
 package starlarkmap.sortedset
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.sortedset
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,7 +27,6 @@ import starlarkmap.sortedvec.SortedVec
 /**
  * An immutable [SmallSet] with values guaranteed to be sorted.
  *
- * Corresponds to Rust `SortedSet<T>`.
  */
 class SortedSet<T> internal constructor(
     private val inner: OrderedSet<T>,
@@ -41,12 +40,10 @@ class SortedSet<T> internal constructor(
         /** Construct without checking that the elements are sorted. */
         fun <T> newUnchecked(inner: OrderedSet<T>): SortedSet<T> = SortedSet(inner)
 
-        /** Create a default (empty) [SortedSet]. Corresponds to Rust `Default` impl. */
         fun <T> default(): SortedSet<T> where T : Comparable<T> = new()
 
         /**
          * Create a [SortedSet] from an iterable.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <T> fromIterator(iter: Iterable<T>): SortedSet<T> where T : Comparable<T> {
             val inner = OrderedSet.fromIterator(iter)
@@ -54,17 +51,14 @@ class SortedSet<T> internal constructor(
             return SortedSet(inner)
         }
 
-        /** Create a [SortedSet] from an [OrderedSet]. Corresponds to Rust `From<OrderedSet<T>>`. */
         fun <T> from(inner: OrderedSet<T>): SortedSet<T> where T : Comparable<T> {
             inner.sort()
             return SortedSet(inner)
         }
 
-        /** Create a [SortedSet] from a [SmallSet]. Corresponds to Rust `From<SmallSet<T>>`. */
         fun <T> from(inner: SmallSet<T>): SortedSet<T> where T : Comparable<T> =
             from(OrderedSet.from(inner))
 
-        /** Create a [SortedSet] from a [SortedVec]. Corresponds to Rust `From<SortedVec<T>>`. */
         fun <T> from(inner: SortedVec<T>): SortedSet<T> where T : Comparable<T> =
             SortedSet(OrderedSet.fromIterator(inner))
     }

@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/aligned_size.rs
+// port-lint: source src/values/layout/alignedSize.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,46 +19,54 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-// use std::alloc::Layout;
-// use std::mem;
-// use std::ops::Add;
-// use std::ops::Mul;
-// use std::ops::Sub;
-// use std::ptr::NonNull;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 
-/// Allocations in Starlark are word-aligned, and this type represents the size of an allocation.
-// #[derive(Copy, Clone, Dupe, Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Allocative, derive_more::Display)]
-// #[repr(transparent)]
+/** Allocations in Starlark are word-aligned, and this type represents the size of an allocation. */
 data class AlignedSize(
-    /// Starlark only supports objects smaller than 1<<32.
-    // bytes: u32
+    /** Starlark only supports objects smaller than 1<<32. */
     val bytes: UInt,
 ) : Comparable<AlignedSize> {
 
-    override fun compareTo(other: AlignedSize): Int {
-        return bytes.compareTo(other.bytes)
-    }
+    override fun compareTo(other: AlignedSize): Int = bytes.compareTo(other.bytes)
 
     override fun toString(): String = bytes.toString()
 
-    // impl AlignedSize
+    fun bytes(): UInt = bytes
+
+    fun checkedNextPowerOfTwo(): AlignedSize? {
+        val nextBytes = bytes.checkedNextPowerOfTwo() ?: return null
+        return newBytes(nextBytes.toInt())
+    }
+
+    fun uncheckedSub(rhs: AlignedSize): AlignedSize {
+        check(bytes >= rhs.bytes) { "$this - $rhs" }
+        return AlignedSize(bytes - rhs.bytes)
+    }
+
+    operator fun plus(rhs: AlignedSize): AlignedSize {
+        val bytes = this.bytes.checkedAdd(rhs.bytes)
+        checkNotNull(bytes) { "AlignedSize overflow" }
+        return AlignedSize(bytes)
+    }
+
+    operator fun minus(rhs: AlignedSize): AlignedSize {
+        val bytes = this.bytes.checkedSub(rhs.bytes)
+        checkNotNull(bytes) { "AlignedSize underflow" }
+        return AlignedSize(bytes)
+    }
+
+    operator fun times(rhs: UInt): AlignedSize {
+        val bytes = this.bytes.checkedMul(rhs)
+        checkNotNull(bytes) { "AlignedSize overflow" }
+        return AlignedSize(bytes)
+    }
 
     companion object {
-        // pub(crate) const ZERO: AlignedSize = AlignedSize::new_bytes(0);
-        val ZERO: AlignedSize = AlignedSize(0u)
+        val ZERO: AlignedSize = newBytes(0)
 
-        // const MAX_SIZE: AlignedSize = AlignedSize::new_bytes(u32::MAX as usize - AValueHeader::ALIGN + 1);
         private val MAX_SIZE: AlignedSize =
-            AlignedSize((UInt.MAX_VALUE - AValueHeader.ALIGN.toUInt() + 1u))
+            AlignedSize(UInt.MAX_VALUE - AValueHeader.ALIGN.toUInt() + 1u)
 
-        // #[track_caller]
-        // #[inline]
-        // pub(crate) const fn new_bytes(bytes: usize) -> AlignedSize
         fun newBytes(bytes: Int): AlignedSize {
             val ubytes = bytes.toUInt()
             require(ubytes % AValueHeader.ALIGN.toUInt() == 0u) {
@@ -70,87 +78,19 @@ data class AlignedSize(
             return AlignedSize(ubytes)
         }
 
-        // #[track_caller]
-        // #[inline]
-        // pub(crate) const fn align_up(bytes: usize) -> AlignedSize
         fun alignUp(bytes: Int): AlignedSize {
             require(bytes.toUInt() <= MAX_SIZE.bytes) {
                 "AlignedSize must not exceed u32::MAX"
             }
-            val aligned = (bytes.toUInt() + AValueHeader.ALIGN.toUInt() - 1u) and (AValueHeader.ALIGN.toUInt() - 1u).inv()
+            val align = AValueHeader.ALIGN.toUInt()
+            val aligned = (bytes.toUInt() + align - 1u) and (align - 1u).inv()
             return AlignedSize(aligned)
         }
 
-        // #[inline]
-        // pub(crate) const fn of<T>() -> AlignedSize
-        // AlignedSize::align_up(mem::size_of::<T>())
-        // Kotlin: No mem::size_of::<T>(). Callers must provide explicit sizes.
         fun of(sizeOfT: Int): AlignedSize = alignUp(sizeOfT)
-    }
-
-    // #[inline]
-    // pub(crate) const fn bytes(self) -> u32
-    fun bytes(): UInt = bytes
-
-    // #[inline]
-    // pub(crate) const fn layout(self) -> Layout
-    // Layout::from_size_align(self.bytes as usize, AValueHeader::ALIGN)
-    // Kotlin: No std::alloc::Layout equivalent.
-
-    // #[inline]
-    // pub(crate) fn checked_next_power_of_two(self) -> Option<AlignedSize>
-    fun checkedNextPowerOfTwo(): AlignedSize? {
-        val nextBytes = bytes.checkedNextPowerOfTwo() ?: return null
-        return AlignedSize(nextBytes)
-    }
-
-    // #[inline]
-    // pub(crate) fn unchecked_sub(self, rhs: AlignedSize) -> AlignedSize
-    fun uncheckedSub(rhs: AlignedSize): AlignedSize {
-        check(bytes >= rhs.bytes) { "$this - $rhs" }
-        return AlignedSize(bytes - rhs.bytes)
-    }
-
-    // #[inline]
-    // pub(crate) fn ptr_diff(begin: NonNull<usize>, end: NonNull<usize>) -> AlignedSize
-    // unsafe { AlignedSize::new_bytes(end.as_ptr().byte_offset_from(begin.as_ptr()) as usize) }
-    // Kotlin: No raw pointer arithmetic. Not transliterable.
-
-    // impl Add for AlignedSize
-    // type Output = AlignedSize;
-    // #[track_caller]
-    // #[inline]
-    // fn add(self, rhs: AlignedSize) -> AlignedSize
-    operator fun plus(rhs: AlignedSize): AlignedSize {
-        val result = bytes.checkedAdd(rhs.bytes)
-        checkNotNull(result) { "AlignedSize overflow" }
-        return AlignedSize(result)
-    }
-
-    // impl Sub for AlignedSize
-    // type Output = AlignedSize;
-    // #[track_caller]
-    // #[inline]
-    // fn sub(self, rhs: AlignedSize) -> AlignedSize
-    operator fun minus(rhs: AlignedSize): AlignedSize {
-        val result = bytes.checkedSub(rhs.bytes)
-        checkNotNull(result) { "AlignedSize underflow" }
-        return AlignedSize(result)
-    }
-
-    // impl Mul<u32> for AlignedSize
-    // type Output = AlignedSize;
-    // #[track_caller]
-    // #[inline]
-    // fn mul(self, rhs: u32) -> Self::Output
-    operator fun times(rhs: UInt): AlignedSize {
-        val result = bytes.checkedMul(rhs)
-        checkNotNull(result) { "AlignedSize overflow" }
-        return AlignedSize(result)
     }
 }
 
-// u32 checked arithmetic helpers
 private fun UInt.checkedAdd(other: UInt): UInt? {
     val result = this + other
     return if (result < this) null else result
@@ -177,46 +117,3 @@ private fun UInt.checkedNextPowerOfTwo(): UInt? {
     val result = next5 + 1u
     return if (result == 0u) null else result
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use crate::values::layout::aligned_size::AlignedSize;
-//     use crate::values::layout::heap::repr::AValueHeader;
-//
-//     #[test]
-//     fn test_checked_next_power_of_two() {
-//         assert_eq!(
-//             AlignedSize::new_bytes(AValueHeader::ALIGN),
-//             AlignedSize::new_bytes(AValueHeader::ALIGN)
-//                 .checked_next_power_of_two()
-//                 .unwrap()
-//         );
-//         assert_eq!(
-//             AlignedSize::new_bytes(2 * AValueHeader::ALIGN),
-//             AlignedSize::new_bytes(2 * AValueHeader::ALIGN)
-//                 .checked_next_power_of_two()
-//                 .unwrap()
-//         );
-//         assert_eq!(
-//             AlignedSize::new_bytes(4 * AValueHeader::ALIGN),
-//             AlignedSize::new_bytes(3 * AValueHeader::ALIGN)
-//                 .checked_next_power_of_two()
-//                 .unwrap()
-//         );
-//         assert_eq!(
-//             AlignedSize::new_bytes(8 * AValueHeader::ALIGN),
-//             AlignedSize::new_bytes(5 * AValueHeader::ALIGN)
-//                 .checked_next_power_of_two()
-//                 .unwrap()
-//         );
-//     }
-//
-//     #[test]
-//     fn test_sub() {
-//         assert_eq!(
-//             AlignedSize::new_bytes(2 * AValueHeader::ALIGN),
-//             AlignedSize::new_bytes(5 * AValueHeader::ALIGN)
-//                 - AlignedSize::new_bytes(3 * AValueHeader::ALIGN)
-//         );
-//     }
-// }

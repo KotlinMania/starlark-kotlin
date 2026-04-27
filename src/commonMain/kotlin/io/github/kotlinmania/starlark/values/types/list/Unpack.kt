@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.list
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,8 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 /**
  * Unpack a value of type `list<T>` into a list of items.
  *
- * Corresponds to Rust's `UnpackList<T>` struct with `#[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]`.
- *
  * @param T The expected element type, which must implement [StarlarkTypeRepr].
  * @property items The unpacked list items.
  */
@@ -37,20 +35,17 @@ data class UnpackList<T>(
     val items: MutableList<T>,
 ) : Iterable<T> {
 
-    /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
     constructor() : this(mutableListOf())
 
     /**
      * Returns an iterator over the items.
      *
-     * Corresponds to Rust's `impl IntoIterator for UnpackList<T>`.
      */
     override fun iterator(): Iterator<T> = items.iterator()
 
     /**
      * Returns a mutable iterator over the items.
      *
-     * Corresponds to Rust's `impl IntoIterator for &mut UnpackList<T>`.
      */
     fun iterMut(): MutableIterator<T> = items.iterator()
 
@@ -65,8 +60,6 @@ data class UnpackList<T>(
  *
  * Attempts to unpack a [Value] as a list, then unpacks each element
  * using the provided element unpacker.
- *
- * Corresponds to Rust's `impl UnpackValue<'v> for UnpackList<T>`.
  *
  * The error type in Rust is `<T as UnpackValue>::Error`, i.e. the
  * element unpacker's error type is propagated. In Kotlin we use
@@ -84,14 +77,11 @@ class UnpackListUnpackValue<T>(
     }
 
     override fun unpackValueImpl(value: Value): Result<UnpackList<T>?> {
-        // In Rust: let Some(list) = <&ListRef>::unpack_value_opt(value) else { return Ok(None) };
         val listRef = ListRef.fromValue(value) ?: return Result.success(null)
         // Pre-allocate with capacity matching the list length.
-        // In Rust: Vec::with_capacity(list.len())
         val capacity = listRef.len()
         val items = ArrayList<T>(capacity)
         for (v in listRef.iter()) {
-            // In Rust: let Some(v) = T::unpack_value_impl(v)? else { return Ok(None) };
             val unpacked = elementUnpacker.unpackValueImpl(v).getOrElse {
                 return Result.failure(it)
             }
@@ -109,7 +99,6 @@ class UnpackListUnpackValue<T>(
  *
  * Delegates to [ListType]'s type representation.
  *
- * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>` where
  * `type Canonical = <ListType<T> as StarlarkTypeRepr>::Canonical`.
  */
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
@@ -123,7 +112,6 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
 /**
  * Extension for consuming an [UnpackList] into its underlying list.
  *
- * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
  * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
  */
 fun <T> UnpackList<T>.intoList(): MutableList<T> = items
@@ -131,12 +119,8 @@ fun <T> UnpackList<T>.intoList(): MutableList<T> = items
 /**
  * Extension for iterating an [UnpackList] by reference.
  *
- * Corresponds to Rust's `impl IntoIterator for &'a UnpackList<T>` where
- * `type Item = &'a T` and `type IntoIter = slice::Iter<'a, T>`.
  */
 fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
-
-// -- Tests (corresponds to Rust's #[cfg(test)] mod tests) ---------------------
 
 /**
  * Test object for unpack list tests.
@@ -145,13 +129,12 @@ fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
  */
 internal object UnpackListTests {
     /**
-     * Corresponds to Rust's `test_unpack`.
      *
      * ```
      * let v = heap.alloc(vec!["a", "b"]);
-     * assert_eq!(vec!["a", "b"], UnpackList::<&str>::unpack_value(v).unwrap().unwrap().items);
-     * assert!(UnpackList::<u32>::unpack_value(v).unwrap().is_none());
-     * assert!(UnpackList::<&str>::unpack_value(heap.alloc(1)).unwrap().is_none());
+     * assertEq(vec!["a", "b"], UnpackList::<&str>::unpackValue(v).unwrap().unwrap().items);
+     * assert(UnpackList::<u32>::unpackValue(v).unwrap().isNone());
+     * assert(UnpackList::<&str>::unpackValue(heap.alloc(1)).unwrap().isNone());
      * ```
      */
     fun testUnpack() {

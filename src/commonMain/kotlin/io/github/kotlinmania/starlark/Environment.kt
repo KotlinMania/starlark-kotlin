@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,31 +26,8 @@ package io.github.kotlinmania.starlark
  * built using [GlobalsBuilder].
  * User executions store their values in a [Module], which have to be converted to a
  * [FrozenModule] using [freeze][Module.freeze] before they can be `load()`'d as a dependency.
- *
- * This module mirrors `src/environment.rs`.
- *
- * ## Submodules
- *
- * | Rust submodule    | Kotlin package                      |
- * |-------------------|-------------------------------------|
- * | `globals`         | `environment.globals`               |
- * | `methods`         | `environment.methods`               |
- * | `module_dump`     | `environment.module_dump`           |
- * | `modules`         | `environment.modules`               |
- * | `names`           | `environment.names`                 |
- * | `slots`           | `environment.slots`                 |
- *
- * ## Public re-exports (`pub use`)
- *
- * ```rust
- * pub use globals::*;
- * pub use methods::*;
- * pub use modules::*;
- * ```
  */
 
-// #[derive(Debug, Error)]
-// enum EnvironmentError { ... }
 /**
  * Errors arising from module / environment operations.
  */

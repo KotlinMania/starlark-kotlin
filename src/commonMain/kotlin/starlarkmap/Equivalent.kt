@@ -7,7 +7,7 @@ package starlarkmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -20,18 +20,9 @@ package starlarkmap
  */
 
 /**
- * Port of the Rust `Equivalent` trait from the `equivalent` crate.
- *
- * This trait allows heterogeneous key lookups in hash maps and sets.
- * A type `Q` implementing `Equivalent<K>` can be used to look up entries
- * keyed by `K`, without requiring `Q` and `K` to be the same type.
- *
- * In Rust:
- * ```rust
- * pub trait Equivalent<K: ?Sized> {
- *     fn equivalent(&self, key: &K) -> bool;
- * }
- * ```
+ * Allows heterogeneous key lookups in hash maps and sets. A type `Q`
+ * implementing `Equivalent<K>` can be used to look up entries keyed by
+ * `K`, without requiring `Q` and `K` to be the same type.
  */
 fun interface Equivalent<in K> {
     /**

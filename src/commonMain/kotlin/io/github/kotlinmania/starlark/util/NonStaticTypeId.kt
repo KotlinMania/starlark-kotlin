@@ -1,4 +1,4 @@
-// port-lint: source src/util/non_static_type_id.rs
+// port-lint: source src/util/nonStaticTypeId.rs
 package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.util.nonstatictypeid
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -21,21 +21,14 @@ package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 import kotlin.reflect.KClass
 
-// #![cfg(test)]
-// Rust: This entire module is test-only.
-// In Kotlin, type erasure means there's no direct equivalent to Rust's TypeId for non-static lifetimes.
-// We provide a KClass-based approximation for test utilities.
+// This module is test-only. Kotlin uses [KClass] as the runtime type identifier;
+// type erasure removes generic parameter information at runtime.
 
-// pub(crate) fn non_static_type_id<T: ?Sized>() -> TypeId
 /**
  * Get the runtime type identifier for a type.
- *
- * In Rust, this uses unsafe transmute to get TypeId for types with non-'static lifetimes.
- * In Kotlin, KClass serves as the type identifier since there are no lifetime parameters.
  */
 internal inline fun <reified T : Any> nonStaticTypeId(): KClass<T> {
     return T::class
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

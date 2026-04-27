@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/time_flame.rs
+// port-lint: source src/eval/runtime/profile/timeFlame.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,49 +32,35 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
-// pub(crate) struct TimeFlameProfilerType
 internal object TimeFlameProfilerType : ProfilerType<FlameGraphData> {
-    // const PROFILE_MODE: ProfileMode = ProfileMode::TimeFlame
     override val profileMode: ProfileMode = ProfileMode.TimeFlame
 
-    // fn data_from_generic(profile_data: &ProfileDataImpl) -> Option<&Self::Data>
     override fun dataFromGeneric(profileData: ProfileDataImpl): FlameGraphData? =
         (profileData as? ProfileDataImpl.TimeFlameProfile)?.data
 
-    // fn data_to_generic(data: Self::Data) -> ProfileDataImpl
     override fun dataToGeneric(data: FlameGraphData): ProfileDataImpl =
         ProfileDataImpl.TimeFlameProfile(data)
 
-    // fn merge_profiles_impl(profiles: &[&Self::Data]) -> starlark_syntax::Result<Self::Data>
     override fun mergeProfilesImpl(profiles: List<FlameGraphData>): Result<FlameGraphData> =
         Result.success(FlameGraphData.merge(profiles))
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum FlameProfileError
 private sealed class FlameProfileError(message: String) : Exception(message) {
-    // #[error("Flame profile not enabled")]
     // NotEnabled
     class NotEnabled : FlameProfileError("Flame profile not enabled")
 }
 
-// #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
-// struct MutableValueId(usize)
 internal data class MutableValueId(val value: Int)
 
-// #[derive(Hash, PartialEq, Eq, Clone, Copy, Dupe)]
-// struct FrozenValueId(usize)
 internal data class FrozenValueId(val value: Int)
 
 /** Index into FlameData.values */
-// enum ValueId
 internal sealed class ValueId {
     // Mutable(MutableValueId)
     data class Mutable(val id: MutableValueId) : ValueId()
     // Frozen(FrozenValueId)
     data class Frozen(val id: FrozenValueId) : ValueId()
 
-    // fn lookup<'a, T>(self, mutable: &'a [T], frozen: &'a [T]) -> &'a T
     fun <T> lookup(mutable: List<T>, frozen: List<T>): T = when (this) {
         is Mutable -> mutable[id.value]
         is Frozen -> frozen[id.value]
@@ -87,23 +73,16 @@ internal sealed class ValueId {
  * dedupe the values, so store them in values, with a fast map to get them in map.
  * Whenever we GC, regenerate map.
  */
-// #[derive(Default)]
-// struct ValueIndex<'v>
 private class ValueIndex {
     /** Map from MutableValueId to Value. */
-    // mutable_values: Vec<Value<'v>>
     val mutableValues: MutableList<Value> = mutableListOf()
     /** Map from FrozenValueId to Value. */
-    // frozen_values: Vec<FrozenValue>
     val frozenValues: MutableList<FrozenValue> = mutableListOf()
     /** Map from Value to MutableValueId. */
-    // mutable_map: HashMap<RawPointer, MutableValueId, StarlarkHasherBuilder>
     val mutableMap: MutableMap<RawPointer, MutableValueId> = mutableMapOf()
     /** Map from Value to FrozenValueId. */
-    // frozen_map: HashMap<RawPointer, FrozenValueId, StarlarkHasherBuilder>
     val frozenMap: MutableMap<RawPointer, FrozenValueId> = mutableMapOf()
 
-    // unsafe impl Trace for ValueIndex
     // We only need to trace mutable values.
     fun trace(tracer: Tracer) {
         for (i in mutableValues.indices) {
@@ -119,7 +98,6 @@ private class ValueIndex {
     }
 
     /** Map Value to ValueId. */
-    // fn index(&mut self, value: Value<'v>) -> ValueId
     fun index(value: Value): ValueId {
         val frozen = value.unpackFrozen()
         if (frozen != null) {
@@ -142,7 +120,6 @@ private class ValueIndex {
     }
 }
 
-// enum Frame
 internal sealed class Frame {
     /** Entry recorded when we enter a function. */
     // Push(ValueId)
@@ -152,16 +129,13 @@ internal sealed class Frame {
     data object Pop : Frame()
 }
 
-// pub(crate) struct TimeFlameProfile<'v>(Option<Box<FlameData<'v>>>)
 internal class TimeFlameProfile {
     /** `non-null` means enabled. */
     private var data: FlameData? = null
 
     companion object {
-        // pub(crate) fn new() -> Self
         fun new(): TimeFlameProfile = TimeFlameProfile()
 
-        // fn gen_profile(x: &FlameData) -> ProfileData
         private fun genProfile(x: FlameData): ProfileData {
             val mutableNames = x.index.mutableValues.map { it.toRepr() }
             val frozenNames = x.index.frozenValues.map { it.toValue().toRepr() }
@@ -173,31 +147,26 @@ internal class TimeFlameProfile {
         }
     }
 
-    // pub(crate) fn enable(&mut self)
     fun enable() {
         data = FlameData()
     }
 
-    // pub(crate) fn record_call_enter(&mut self, function: Value<'v>)
     fun recordCallEnter(function: Value) {
         val x = data ?: return
         val ind = x.index.index(function)
         x.frames.add(Pair(Frame.Push(ind), ProfilerInstant.now()))
     }
 
-    // pub(crate) fn record_call_exit(&mut self)
     fun recordCallExit() {
         val x = data ?: return
         x.frames.add(Pair(Frame.Pop, ProfilerInstant.now()))
     }
 
-    // pub(crate) fn gen(&self) -> crate::Result<ProfileData>
     fun gen(): ProfileData {
         val x = data ?: throw io.github.kotlinmania.starlark.Error.newOther(FlameProfileError.NotEnabled())
         return genProfile(x)
     }
 
-    // #[derive(Trace)] on TimeFlameProfile traces its inner FlameData.
     // FlameData contains ValueIndex which holds mutable Value references
     // that must be updated during GC.
     fun trace(tracer: Tracer) {
@@ -206,30 +175,20 @@ internal class TimeFlameProfile {
     }
 }
 
-// #[derive(Default, Trace)]
-// struct FlameData<'v>
 private class FlameData {
     /** All events in the profile, i.e. function entry or exit with timestamp. */
-    // frames: Vec<(Frame, ProfilerInstant)>
     val frames: MutableList<Pair<Frame, ProfilerInstant>> = mutableListOf()
-    // index: ValueIndex<'v>
     val index: ValueIndex = ValueIndex()
 }
 
-// struct Stacks<'a>
 private class Stacks(
-    // name: &'a str
     val name: String,
-    // time: SmallDuration
     var time: SmallDuration = SmallDuration.default(),
-    // children: HashMap<ValueId, Stacks<'a>, StarlarkHasherBuilder>
     val children: MutableMap<ValueId, Stacks> = mutableMapOf(),
 ) {
     companion object {
-        // fn blank(name: &'a str) -> Self
         fun blank(name: String): Stacks = Stacks(name)
 
-        // fn new(mutable_names: &'a [String], frozen_names: &'a [String], frames: &[(Frame, ProfilerInstant)]) -> Self
         fun new(
             mutableNames: List<String>,
             frozenNames: List<String>,
@@ -244,7 +203,6 @@ private class Stacks(
         }
     }
 
-    // fn add(&mut self, mutable_names: &'a [String], frozen_names: &'a [String], frames: &mut slice::Iter<(Frame, ProfilerInstant)>, last_time: &mut ProfilerInstant)
     fun add(
         mutableNames: List<String>,
         frozenNames: List<String>,
@@ -267,7 +225,6 @@ private class Stacks(
         }
     }
 
-    // fn render_with_buffer(&self, node: &mut FlameGraphNode)
     fun renderWithBuffer(node: FlameGraphNode) {
         val childNode = node.child(ArcStr.from(name))
         val count = time.toDuration().inWholeMilliseconds
@@ -279,7 +236,6 @@ private class Stacks(
         }
     }
 
-    // fn render(&self) -> FlameGraphData
     fun render(): FlameGraphData {
         val data = FlameGraphData()
         renderWithBuffer(data.root())

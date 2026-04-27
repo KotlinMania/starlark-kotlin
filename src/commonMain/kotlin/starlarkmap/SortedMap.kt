@@ -1,4 +1,4 @@
-// port-lint: source src/sorted_map.rs
+// port-lint: source src/sortedMap.rs
 package starlarkmap.sortedmap
 
 /*
@@ -7,7 +7,7 @@ package starlarkmap.sortedmap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,6 @@ import starlarkmap.smallmap.SmallMap
 /**
  * [OrderedMap] but with keys sorted.
  *
- * Corresponds to Rust `SortedMap<K, V>`.
  */
 class SortedMap<K, V> internal constructor(
     private val map: OrderedMap<K, V>,
@@ -37,25 +36,21 @@ class SortedMap<K, V> internal constructor(
         fun <K, V> new(): SortedMap<K, V> where K : Comparable<K> =
             SortedMap(OrderedMap.new())
 
-        /** Create a default (empty) [SortedMap]. Corresponds to Rust `Default` impl. */
         fun <K, V> default(): SortedMap<K, V> where K : Comparable<K> = new()
 
         /**
          * Create a [SortedMap] from an iterable of key-value pairs.
-         * Corresponds to Rust `FromIterator` impl.
          */
         fun <K, V> fromIterator(iter: Iterable<Pair<K, V>>): SortedMap<K, V> where K : Comparable<K> {
             val map = OrderedMap.fromIterator(iter)
             return from(map)
         }
 
-        /** Create a [SortedMap] from an [OrderedMap]. Corresponds to Rust `From<OrderedMap<K, V>>`. */
         fun <K, V> from(map: OrderedMap<K, V>): SortedMap<K, V> where K : Comparable<K> {
             map.sortKeys()
             return SortedMap(map)
         }
 
-        /** Create a [SortedMap] from a [SmallMap]. Corresponds to Rust `From<SmallMap<K, V>>`. */
         fun <K, V> from(map: SmallMap<K, V>): SortedMap<K, V> where K : Comparable<K> =
             from(OrderedMap.from(map))
     }
@@ -77,7 +72,6 @@ class SortedMap<K, V> internal constructor(
 
     /**
      * Get a reference to the value associated with the given key.
-     * Corresponds to Rust `get<Q>(&self, key: &Q) -> Option<&V>`.
      */
     fun get(key: K): V? = map.get(key)
 
@@ -86,7 +80,6 @@ class SortedMap<K, V> internal constructor(
 
     /**
      * Check if the map contains the given key.
-     * Corresponds to Rust `contains_key<Q>(&self, k: &Q) -> bool`.
      */
     fun containsKey(key: K): Boolean = map.containsKey(key)
 

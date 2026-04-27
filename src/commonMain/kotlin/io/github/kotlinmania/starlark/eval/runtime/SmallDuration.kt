@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/small_duration.rs
+// port-lint: source src/eval/runtime/smallDuration.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,77 +19,55 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-// use std::iter::Sum;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-// use std::ops::Div;
-// use std::time::Duration;
-
-// use allocative::Allocative;
-// use dupe::Dupe;
-
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
 
-/// Slightly faster than `Duration`.
-// #[derive(Copy, Clone, Dupe, Default, Eq, PartialEq, Ord, PartialOrd, Debug, Allocative)]
+/** Slightly faster than `Duration`. */
 internal data class SmallDuration(
-    /// `u64::MAX` nanos is 500 years.
-    // pub(crate) nanos: u64,
+    /** `u64::MAX` nanos is 500 years. */
     internal var nanos: ULong = 0u,
 ) : Comparable<SmallDuration> {
 
-    // impl SmallDuration
-
-    companion object {
-        fun default(): SmallDuration = SmallDuration(0u)
-
-        // pub(crate) fn from_duration(duration: Duration) -> SmallDuration
-        fun fromDuration(duration: Duration): SmallDuration {
-            return SmallDuration(duration.inWholeNanoseconds.toULong())
-        }
-
-        // #[cfg(test)]
-        // pub(crate) fn from_millis(millis: u64) -> SmallDuration
-        internal fun fromMillis(millis: ULong): SmallDuration {
-            return fromDuration(millis.toLong().milliseconds)
-        }
-    }
-
-    // pub(crate) fn to_duration(self) -> Duration
     fun toDuration(): Duration {
         return nanos.toLong().nanoseconds
     }
 
-    // impl Add<Duration> for SmallDuration
-    // type Output = SmallDuration;
-    // fn add(self, other: Duration) -> Self::Output
     operator fun plus(other: Duration): SmallDuration {
         return SmallDuration(nanos + other.inWholeNanoseconds.toULong())
     }
 
-    // impl Add<SmallDuration> for SmallDuration
-    // type Output = SmallDuration;
-    // fn add(self, other: SmallDuration) -> SmallDuration
     operator fun plus(other: SmallDuration): SmallDuration {
         return SmallDuration(nanos + other.nanos)
     }
 
-    // impl Div<u64> for SmallDuration
-    // type Output = SmallDuration;
-    // fn div(self, other: u64) -> SmallDuration
+    operator fun plusAssign(other: SmallDuration) {
+        nanos += other.nanos
+    }
+
+    operator fun plusAssign(other: Duration) {
+        nanos += other.inWholeNanoseconds.toULong()
+    }
+
     operator fun div(other: ULong): SmallDuration {
         return SmallDuration(nanos / other)
     }
 
-    // #[derive(Ord, PartialOrd)] in Rust
     override fun compareTo(other: SmallDuration): Int = nanos.compareTo(other.nanos)
+
+    companion object {
+        fun default(): SmallDuration = SmallDuration(0u)
+
+        fun fromDuration(duration: Duration): SmallDuration {
+            return SmallDuration(duration.inWholeNanoseconds.toULong())
+        }
+
+        internal fun fromMillis(millis: ULong): SmallDuration {
+            return fromDuration(millis.toLong().milliseconds)
+        }
+    }
 }
 
-// impl<'a> Sum<&'a SmallDuration> for SmallDuration
-// fn sum<I>(iter: I) -> SmallDuration
-// where I: Iterator<Item = &'a SmallDuration>
 internal fun Iterable<SmallDuration>.sum(): SmallDuration {
     return fold(SmallDuration.default()) { acc, x -> acc + x }
 }

@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/known_methods.rs
+// port-lint: source src/values/types/knownMethods.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -32,8 +32,6 @@ import io.github.kotlinmania.starlark.values.types.string.strMethods
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 
 /** Method and a `Methods` container which declares it. */
-// #[derive(Clone, Copy, Dupe)]
-// pub(crate) struct KnownMethod
 internal class KnownMethod(
     /** An object where the method is defined. */
     val typeMethods: Methods,
@@ -42,28 +40,23 @@ internal class KnownMethod(
     /** Copied here from `method` to faster invocation (one fewer deref). */
     val imp: NativeMeth,
 ) {
-    // pub(crate) fn to_value<'v>(&self) -> Value<'v>
     fun toValue(): Value {
         return method.toValue()
     }
 
-    // pub(crate) fn invoke_method<'v>(&self, this: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
     fun invokeMethod(thisValue: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return imp.invoke(eval, thisValue, args)
     }
 }
 
 /** Some of stdlib methods. */
-// struct KnownMethods
 private class KnownMethods(
     val methods: Map<String, KnownMethod>,
 ) {
     companion object {
-        // fn build() -> KnownMethods
         fun build(): KnownMethods {
             val methods = mutableMapOf<String, KnownMethod>()
 
-            // fn add_methods(...)
             fun addMethods(
                 methods: MutableMap<String, KnownMethod>,
                 typeMethods: Methods?,
@@ -103,8 +96,6 @@ private class KnownMethods(
  * or method is not very common. Return arbitrary method if more than one
  * method is found (e. g. `list.clear` and `dict.clear`).
  */
-// pub(crate) fn get_known_method(name: &str) -> Option<KnownMethod>
-// static ANY_METHODS: Lazy<KnownMethods> = Lazy::new(KnownMethods::build)
 private val anyMethods: KnownMethods by lazy { KnownMethods.build() }
 
 internal fun getKnownMethod(name: String): KnownMethod? {

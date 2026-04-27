@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.codemap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,24 +19,11 @@ package io.github.kotlinmania.starlark.codemap
  * limitations under the License.
  */
 
-// use std::cmp;
-// use std::cmp::Ordering;
-// use std::fmt;
-// use std::fmt::Debug;
-// use std::fmt::Display;
-// use std::ops::Add;
-// use std::ops::AddAssign;
-// use std::ops::Sub;
-
 import kotlin.math.max
 import kotlin.math.min
 
-/// A small, `Copy`, value representing a position in a `CodeMap`'s file.
-// #[derive(Copy, Clone, Dupe, Hash, Eq, PartialEq, PartialOrd, Ord, Debug, Default, Allocative)]
-// pub struct Pos(u32);
+/** A small, `Copy`, value representing a position in a `CodeMap`'s file. */
 data class Pos(val value: Int) : Comparable<Pos> {
-    // impl Add<u32> for Pos
-    // impl Sub<u32> for Pos
     operator fun plus(other: Int): Pos = Pos(value + other)
     operator fun minus(other: Int): Pos = Pos(value - other)
     operator fun minus(other: Pos): Int = value - other.value
@@ -44,25 +31,18 @@ data class Pos(val value: Int) : Comparable<Pos> {
     override fun compareTo(other: Pos): Int = value.compareTo(other.value)
 }
 
-/// A range of text within a CodeMap.
-// #[derive(Copy, Dupe, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Allocative)]
-// pub struct Span {
+/** A range of text within a CodeMap. */
 data class Span(
-    /// The position in the codemap representing the first byte of the span.
-    // begin: Pos,
+    /** The position in the codemap representing the first byte of the span. */
     val begin: Pos,
-    /// The position after the last byte of the span.
-    // end: Pos,
+    /** The position after the last byte of the span. */
     val end: Pos
 ) : Comparable<Span> {
     init {
         require(begin <= end) { "Span end must be >= begin" }
     }
 
-    // impl Span
-
-    /// Create a span that encloses both `self` and `other`.
-    // pub fn merge(self, other: Span) -> Span
+    /** Create a span that encloses both `self` and `other`. */
     fun merge(other: Span): Span {
         return Span(
             begin = Pos(min(begin.value, other.begin.value)),
@@ -70,16 +50,13 @@ data class Span(
         )
     }
 
-    /// Empty span in the end of this span.
-    // pub fn end_span(self) -> Span
+    /** Empty span in the end of this span. */
     fun endSpan(): Span = Span(end, end)
 
-    /// Determines whether a `pos` is within this span.
-    // pub fn contains(self, pos: Pos) -> bool
+    /** Determines whether a `pos` is within this span. */
     fun contains(pos: Pos): Boolean = begin <= pos && pos <= end
 
-    /// Determines whether a `span` intersects with this span.
-    // pub fn intersects(self, span: Span) -> bool
+    /** Determines whether a `span` intersects with this span. */
     fun intersects(span: Span): Boolean =
         contains(span.begin) || contains(span.end) || span.contains(begin)
 
@@ -92,7 +69,6 @@ data class Span(
     companion object {
         val DEFAULT = Span(Pos(0), Pos(0))
 
-        // pub fn merge_all(spans: impl Iterator<Item = Span>) -> Span
         fun mergeAll(spans: Iterator<Span>): Span {
             if (!spans.hasNext()) return DEFAULT
             var result = spans.next()
@@ -104,22 +80,17 @@ data class Span(
     }
 }
 
-/// Associate a Span with a value of arbitrary type (e.g. an AST node).
-// #[derive(Clone, Copy, Dupe, PartialEq, Eq, Hash, Debug)]
-// pub struct Spanned<T> {
+/** Associate a Span with a value of arbitrary type (e.g. an AST node). */
 data class Spanned<out T>(
-    /// Data in the node.
+    /** Data in the node. */
     val node: T,
     val span: Span
 ) {
-    // impl<T> Spanned<T>
-    /// Apply the function to the node, keep the span.
-    // pub fn map<U>(self, f: impl FnOnce(T) -> U) -> Spanned<U>
+    /** Apply the function to the node, keep the span. */
     fun <U> map(f: (T) -> U): Spanned<U> {
         return Spanned(f(node), span)
     }
 }
-
 
 data class ResolvedPos(
     /** The line number within the file (0-indexed). */

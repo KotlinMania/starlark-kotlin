@@ -4,10 +4,9 @@ package io.github.kotlinmania.starlark.values.layout.heap
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
- * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,159 +18,111 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-// unsafe impl Send for FrozenValue {}
-// unsafe impl Sync for FrozenValue {}
-
-// unsafe impl Send for Value<'static> {}
-// unsafe impl Sync for Value<'static> {}
-
 /**
  * A trait for handling the unusual sendness requirements of starlark values.
  *
- * Semantically, the send and sync impls in starlark exist in support of the following goals, from
- * more obvious to less obvious:
+ * Semantically, the send and sync impls in starlark exist in support of the
+ * following goals, from more obvious to less obvious:
  *
- *  1. Frozen heaps and values should be fully thread safe - parallel starlark evaluations must be
- *     able to depend on the same frozen heap.
- *  2. Unfrozen values should support non-thread safe interior mutability such as `RefCell`; in
- *     other words, they must support being non-sync.
- *  3. Unfrozen heaps should be sendable. Concretely, it should be possible to hold them over an
- *     await point so as to interleave starlark evaluation with other async work.
+ *  1. Frozen heaps and values should be fully thread safe — parallel starlark
+ *     evaluations must be able to depend on the same frozen heap.
+ *  2. Unfrozen values should support non-thread-safe interior mutability such
+ *     as a borrow-checked cell; in other words, they must support being
+ *     non-sync.
+ *  3. Unfrozen heaps should be sendable. Concretely, it should be possible to
+ *     hold them across a suspension point so as to interleave starlark
+ *     evaluation with other async work.
  *
- * Since a `Value<'v>` is semantically a reference to an unfrozen value, an immediate consequence
- * of 2 is that `Value<'v>` cannot `Send`. Given that starlark values need to contain `Value<'v>`s,
- * this makes the third condition weird. However, we achieve soundness by requiring a combination
- * of two properties:
+ * Since a value is semantically a reference to an unfrozen value, an immediate
+ * consequence of (2) is that an unfrozen value reference cannot itself be
+ * sent. Given that starlark values need to contain other values, this makes
+ * the third condition weird. However, soundness is achieved by requiring a
+ * combination of two properties:
  *
- *  a. Unfrozen starlark values must be send up to any `Value<'v>` inside them. In other words,
- *     they can contain a `Vec<Value<'v>>` or whatever, but not a `Rc<u8>`.
+ *  a. Unfrozen starlark values must be send up to any value reference inside
+ *     them. In other words, they can contain a list of value references or
+ *     similar, but not arbitrary non-sendable interior state.
+ *  b. When a heap is sent to another thread, the heap is sent "in its
+ *     entirety", together with any references into it.
  *
- *  b. When we send a heap to another thread, we enforce that the heap is sent "in its entirety",
- *     ie together with any references into that heap.
+ * To be able to check these requirements, the heap allocation functions have
+ * a signature that conceptually looks like:
  *
- * To be able to check these requirements, our heap allocation functions have a signature that
- * looks (slightly simplified) like this:
- *
- * ```rust,ignore
- * impl<'v> Heap<'v> {
- *     fn alloc(self, x: T) -> Value<'v>
- *     where
- *         T: StarlarkValue<'v>,
- *         T: ProvidesStaticType<'v>,
- *         T::StaticType: Send;
- * }
+ * ```
+ * fun <T> Heap.alloc(value: T): Value
+ *     where T : StarlarkValue,
+ *           T : ProvidesStaticType,
+ *           T.StaticType : Send
  * ```
  *
- * The first trait bound is obvious.
- *
- * The `T: ProvidesStaticType<'v>` trait bound says that all lifetimes appearing on `T` must be
- * `'v`. Together with branding, this guarantees that any `Value`s that `T` holds are `Value<'v>`s
- * for the same `'v` that our heap has, ie that the contained values point back into the same heap.
- * This, together with branding on heap access, is how we achieve the second requirement above. It
- * prevents `Value<'v>`s from leaking either out of the heap access closure or into any heap other
- * than the one they're associated with.
- *
- * The third impl is how we achieve the first requirement above. As a reminder, we would like to
- * write `T: Send`, but that would prevent users from holding any `Value<'v>` in `T`. So instead,
- * we replace the `T: Send` bound with a combination of the following two things:
- *
- * ```rust,ignore
- * // Bound. `T::StaticType` is effectively "`T` with all lifetimes replaced with `'static`
- * T::StaticType: Send;
- * // impl
- * impl Send for Value<'static>;
- * ```
- *
- *  `T::StaticType`, while not quite equivalent, is *almost* as good as `T: Send`. On the other
- *  hand, the `'static` thing together with the impl on `Value` means that it is actually satisfied
- *  for a `T` that contains a `Value<'v>`, which is what we want.
+ * The first bound is obvious. The second says that all lifetimes appearing on
+ * `T` must match the heap's lifetime; together with branding, this guarantees
+ * that any value references that `T` holds point back into the same heap. The
+ * third bound replaces a direct `T : Send` requirement (which would prevent
+ * `T` from holding a value reference) with one on `T.StaticType` — `T` with
+ * its lifetime parameter replaced by a static lifetime. That is *almost* as
+ * good as `T : Send`, while remaining satisfied for a `T` that contains an
+ * unfrozen value reference, which is what we want.
  */
-// pub trait HeapSendable<'v>: sealed_send::Sealed {}
-interface HeapSendable
+interface HeapSendable : SealedSend
 
-// impl<'v, T: ProvidesStaticType<'v>> HeapSendable<'v> for T
-// where <T as ProvidesStaticType<'v>>::StaticType: Send {}
-
-// mod sealed_send {
-//     pub trait Sealed {}
-//     impl<'v, T: ProvidesStaticType<'v>> Sealed for T
-//     where <T as ProvidesStaticType<'v>>::StaticType: Send {}
-// }
+/** Sealing supertype: only types in this module may declare [HeapSendable]. */
+interface SealedSend
 
 /**
  * The sync analogue of [HeapSendable].
  *
- * Mostly see the docs on [HeapSendable], which is slightly more interesting - this one is just
- * needed on frozen heaps.
+ * Mostly see the docs on [HeapSendable], which are slightly more interesting —
+ * this one is just needed on frozen heaps.
  */
-// pub trait HeapSyncable<'v>: sealed_sync::Sealed {}
-interface HeapSyncable
+interface HeapSyncable : SealedSync
 
-// impl<'v, T: ProvidesStaticType<'v>> HeapSyncable<'v> for T
-// where <T as ProvidesStaticType<'v>>::StaticType: Sync {}
-
-// mod sealed_sync {
-//     pub trait Sealed {}
-//     impl<'v, T: ProvidesStaticType<'v>> Sealed for T
-//     where <T as ProvidesStaticType<'v>>::StaticType: Sync {}
-// }
+/** Sealing supertype: only types in this module may declare [HeapSyncable]. */
+interface SealedSync
 
 /**
- * A helper to pass the send-if-static property through `dyn Trait`.
+ * A helper to pass the send-if-static property through dynamic dispatch.
  *
- * Unfortunately, the property of starlark values that they are send for `'v = 'static` does not
- * cleanly pass through `dyn MyTrait<'v>`; concretely, it's not possible to make `dyn
- * MyTrait<'static>: Send` even if that is true of the underlying concrete type.
+ * Unfortunately, the property of starlark values that they are send when the
+ * heap lifetime is replaced by a static one does not cleanly pass through an
+ * open-interface field; concretely, it's not possible to make an arbitrary
+ * `MyTrait` reference sendable just because the underlying concrete type is.
  *
- * This type acts as a wrapper to recover the send impl; where previously you might've written
+ * This type acts as a wrapper to recover the send implementation; where previously you
+ * might have written
  *
- * ```rust,ignore
- * trait MyTrait<'v>: Trace {}
+ * ```
+ * interface MyTrait : Trace
  *
- * struct MyValue<'v> {
- *     field: Box<dyn MyTrait<'v>>,
+ * class MyValue {
+ *     val field: MyTrait
  * }
  * ```
  *
  * Now write instead:
  *
- * ```rust,ignore
- * trait MyTrait<'v>: Trace + HeapSendable<'v> {}
+ * ```
+ * interface MyTrait : Trace, HeapSendable
  *
- * struct MyValue<'v> {
- *     field: Box<DynStarlark<dyn MyTrait<'v>>>,
+ * class MyValue {
+ *     val field: DynStarlark<MyTrait>
  * }
  * ```
  */
-// #[derive(Trace, Allocative)]
-// pub struct DynStarlark<'v, T>(PhantomData<dyn HeapSendable<'v>>, T)
-// where T: ?Sized;
-class DynStarlark<T>(
-    private var inner: T,
-) {
+class DynStarlark<T>(private val value: T) {
     companion object {
-        // pub fn new(v: T) -> Self
+        /** Create a new [DynStarlark] containing the value. */
         fun <T> new(v: T): DynStarlark<T> = DynStarlark(v)
     }
 
-    // pub fn into_inner(self) -> T
-    fun intoInner(): T = inner
+    /** Extract the contained value. */
+    fun intoInner(): T = value
 
-    // impl Deref for DynStarlark
-    // fn deref(&self) -> &Self::Target
-    fun get(): T = inner
+    /** Borrow the contained value. */
+    fun deref(): T = value
 
-    // impl DerefMut for DynStarlark
-    // fn deref_mut(&mut self) -> &mut Self::Target
-    fun set(value: T) {
-        inner = value
-    }
+    /** Borrow the contained value mutably. */
+    fun derefMut(): T = value
 
-    // impl Debug for DynStarlark
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
-    fun debug(): String = inner.toString()
-
-    // impl Display for DynStarlark
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
-    override fun toString(): String = inner.toString()
+    override fun toString(): String = value.toString()
 }

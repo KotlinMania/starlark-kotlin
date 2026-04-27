@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/call_stack.rs
+// port-lint: source src/stdlib/callStack.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.stdlib
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.stdlib
  * limitations under the License.
  */
 
-/** Implementation of `call_stack` function. */
+/** Implementation of `callStack` function. */
 
 import io.github.kotlinmania.starlark.CallStack
 import io.github.kotlinmania.starlark.codemap.FileSpan
@@ -102,9 +102,9 @@ private fun stackFrameMethods(builder: MethodsBuilder) {
  * This is intended only for debugging purposes to display to a human and
  * should not be considered stable or parseable.
  *
- * strip_frames will pop N frames from the top of the call stack, which can
- * be useful to hide non-interesting lines - for example, strip_frames=1
- * will hide the call to and location of `call_stack()` itself.
+ * stripFrames will pop N frames from the top of the call stack, which can
+ * be useful to hide non-interesting lines - for example, stripFrames=1
+ * will hide the call to and location of `callStack()` itself.
  */
 private fun callStack(stripFrames: Int, eval: Evaluator): String {
     val stack = eval.callStack()
@@ -116,7 +116,7 @@ private fun callStack(stripFrames: Int, eval: Evaluator): String {
 /**
  * Get a structural representation of the n-th call stack frame.
  *
- * With `n=0` returns `call_stack_frame` itself.
+ * With `n=0` returns `callStackFrame` itself.
  * Returns `None` if `n` is greater than or equal to the stack size.
  */
 private fun callStackFrame(n: Int, eval: Evaluator): NoneOr<StackFrame> {
@@ -135,7 +135,7 @@ private fun callStackFrame(n: Int, eval: Evaluator): NoneOr<StackFrame> {
     }
 }
 
-/** Register call_stack and call_stack_frame globals. */
+/** Register callStack and callStackFrame globals. */
 internal fun callStackGlobal(builder: GlobalsBuilder) {
     builder.setFunction("call_stack") { args, eval ->
         eval.heap().allocStr(callStack(args.namedOptional("strip_frames") ?: 0, eval))

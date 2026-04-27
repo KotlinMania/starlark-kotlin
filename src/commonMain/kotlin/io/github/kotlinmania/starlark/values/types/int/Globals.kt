@@ -16,7 +16,7 @@ import kotlin.math.truncate
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -31,7 +31,6 @@ import kotlin.math.truncate
 /**
  * Register int-related global functions.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  * The macro in Rust generates code to register these globals; in Kotlin, we
  * implement this explicitly as a regular function.
  */
@@ -60,7 +59,7 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * `int()` with no arguments returns 0.
      *
      * ```
-     * # starlark::assert::all_true(r#"
+     * # starlark::assert::allTrue(r#"
      * int() == 0
      * int(1) == 1
      * int(False) == 0
@@ -86,12 +85,6 @@ internal fun registerInt(globals: GlobalsBuilder) {
      * # "#, "cannot be represented as exact integer");
      * ```
      */
-    // #[starlark(as_type = PointerI32, speculative_exec_safe)]
-    // fn int<'v>(
-    //     #[starlark(require = pos)] a: Option<ValueOf<'v, Either<Either<NumRef<'v>, bool>, &'v str>>>,
-    //     base: Option<i32>,
-    //     heap: Heap<'v>,
-    // ) -> starlark::Result<ValueOfUnchecked<'v, StarlarkInt>>
     globals.setFunction("int", speculativeExecSafe = true, asType = Ty.int()) { callArgs, eval ->
         val heap = eval.heap()
         val a: Value? = callArgs.optionalPositional(0)

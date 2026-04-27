@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.csv
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,12 +24,10 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.csv
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.values.types.string.format
 
-// fn quote_str_for_csv(s: &str) -> String
 internal fun quoteStrForCsv(s: String): String =
     "\"${s.replace("\"", "\"\"")}\""
 
 /** Writer for CSV files. */
-// pub(crate) struct CsvWriter
 internal class CsvWriter(
     columns: List<String>,
 ) {
@@ -51,7 +49,6 @@ internal class CsvWriter(
         buf.append('\n')
     }
 
-    // pub(crate) fn write_value(&mut self, value: impl CsvValue)
     fun writeValue(value: Any) {
         check(currentColumnIndex < columnCount)
         if (currentColumnIndex != 0) {
@@ -61,24 +58,20 @@ internal class CsvWriter(
         currentColumnIndex++
     }
 
-    // pub(crate) fn write_display(&mut self, value: impl Display)
     fun writeDisplay(value: Any) {
         writeValue(QuotedCsvValue(value.toString()))
     }
 
-    // pub(crate) fn write_debug(&mut self, value: impl Debug)
     fun writeDebug(value: Any) {
         writeValue(QuotedCsvValue(value.toString()))
     }
 
-    // pub(crate) fn finish_row(&mut self)
     fun finishRow() {
         check(currentColumnIndex == columnCount)
         currentColumnIndex = 0
         buf.append('\n')
     }
 
-    // pub(crate) fn finish(self) -> String
     fun finish(): String {
         check(currentColumnIndex == 0)
         return buf.toString()
@@ -88,7 +81,6 @@ internal class CsvWriter(
 // Helper to wrap pre-quoted values
 private class QuotedCsvValue(val quoted: String)
 
-// pub(crate) trait CsvValue + impl for various types
 private fun formatCsvValue(value: Any): String = when (value) {
     is SmallDuration -> run { val s = value.toDuration().inWholeMilliseconds / 1000.0; "${((s * 1000).toLong() / 1000.0)}" }
     is String -> quoteStrForCsv(value)
@@ -101,7 +93,6 @@ private fun formatCsvValue(value: Any): String = when (value) {
 
 // --- Tests ---
 
-// #[test] fn test_csv_writer()
 internal fun testCsvWriter() {
     val csv = CsvWriter(listOf("File", "Count", "Duration"))
     csv.writeValue("a.bzl")
@@ -117,7 +108,6 @@ internal fun testCsvWriter() {
     )
 }
 
-// #[test] fn test_quote_str_for_csv()
 internal fun testQuoteStrForCsv() {
     check("\"a\"" == quoteStrForCsv("a"))
     check("\"a\"\"\"" == quoteStrForCsv("a\""))

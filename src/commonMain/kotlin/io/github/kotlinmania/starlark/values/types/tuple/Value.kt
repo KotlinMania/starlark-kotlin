@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.tuple
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -65,7 +65,7 @@ class TupleGen<V>(
 
     /** Iterate over the elements of the tuple. */
     fun iter(): Iterator<Value> {
-        return content.map { (it as ValueLike).toValue() }.iterator()
+        return content.map { (it as ValueLike<*>).toValue() }.iterator()
     }
 
     override fun toString(): String {
@@ -77,42 +77,50 @@ class TupleGen<V>(
         }
     }
 
-    // --- StarlarkValue overrides ---
-    // These must be interface overrides, not extension functions, so that vtable
-    // dispatch through AValueDyn.starlarkValue() reaches them.
-
     override fun isSpecial(): Boolean = true
 
     override fun toBool(): Boolean = len() != 0
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         for (v in content()) {
-            (v as ValueLike).writeHash(hasher).getOrElse { return Result.failure(it) }
+            (v as ValueLike<*>).writeHash(hasher).getOrElse { return Result.failure(it) }
         }
         return Result.success(Unit)
     }
 
     override fun equals(other: Value): Result<Boolean> {
         val otherTuple = TupleGen.fromValue(other) ?: return Result.success(false)
-        return equalsSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).equals(y) }
+        // `fromValue` returns TupleGen<Value> via an unchecked cast, but the underlying tuple may
+        // hold FrozenValue elements (FrozenTuple). Read both lists through ValueLike<*> — the common
+        // supertype — so element access does not generate a checkcast to Value that would fail
+        // for FrozenValue instances.
+        @Suppress("UNCHECKED_CAST")
+        val xs = content() as List<ValueLike<*>>
+        @Suppress("UNCHECKED_CAST")
+        val ys = otherTuple.content() as List<ValueLike<*>>
+        return equalsSlice<Exception, ValueLike<*>, ValueLike<*>>(xs, ys) { x, y -> x.equals(y.toValue()) }
     }
 
     override fun compare(other: Value): Result<Int> {
         val otherTuple = TupleGen.fromValue(other)
             ?: return ValueError.unsupportedWith(TupleGen.TYPE, "cmp()", other)
-        return compareSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).compare(y) }
+        @Suppress("UNCHECKED_CAST")
+        val xs = content() as List<ValueLike<*>>
+        @Suppress("UNCHECKED_CAST")
+        val ys = otherTuple.content() as List<ValueLike<*>>
+        return compareSlice<Exception, ValueLike<*>, ValueLike<*>>(xs, ys) { x, y -> x.compare(y.toValue()) }
     }
 
     override fun at(index: Value, _heap: Heap): Result<Value> {
         val i = convertIndex(index, len()).getOrElse { return Result.failure(it) }
-        return Result.success((content()[i] as ValueLike).toValue())
+        return Result.success((content()[i] as ValueLike<*>).toValue())
     }
 
     override fun length(): Result<Int> = Result.success(len())
 
     override fun isIn(other: Value): Result<Boolean> {
         for (x in content()) {
-            if ((x as ValueLike).equals(other).getOrThrow()) {
+            if ((x as ValueLike<*>).equals(other).getOrThrow()) {
                 return Result.success(true)
             }
         }
@@ -123,7 +131,7 @@ class TupleGen<V>(
         val sliced = applySlice(content(), start, stop, stride).getOrElse {
             return Result.failure(it)
         }
-        return Result.success(heap.allocTuple(sliced.map { (it as ValueLike).toValue() }))
+        return Result.success(heap.allocTuple(sliced.map { (it as ValueLike<*>).toValue() }))
     }
 
     override fun iterate(me: Value, heap: Heap): Result<Value> = Result.success(me)
@@ -134,7 +142,7 @@ class TupleGen<V>(
     }
 
     override fun iterNext(index: Int, heap: Heap): Value? {
-        return content().getOrNull(index)?.let { (it as ValueLike).toValue() }
+        return content().getOrNull(index)?.let { (it as ValueLike<*>).toValue() }
     }
 
     override fun iterStop() {}
@@ -143,10 +151,14 @@ class TupleGen<V>(
         val otherTuple = TupleGen.fromValue(other) ?: return null
         val result = mutableListOf<Value>()
         for (x in content()) {
-            result.add((x as ValueLike).toValue())
+            result.add((x as ValueLike<*>).toValue())
         }
-        for (x in otherTuple.content()) {
-            result.add(x)
+        // `otherTuple` may actually be TupleGen<FrozenValue>; iterate via ValueLike<*> to avoid
+        // the implicit Value checkcast that would fail for FrozenValue.
+        @Suppress("UNCHECKED_CAST")
+        val ys = otherTuple.content() as List<ValueLike<*>>
+        for (x in ys) {
+            result.add(x.toValue())
         }
         return Result.success(heap.allocTuple(result))
     }
@@ -155,7 +167,7 @@ class TupleGen<V>(
         val l = other.unpackI32() ?: return null
         val result = mutableListOf<Value>()
         for (i in 0 until l) {
-            result.addAll(content().map { (it as ValueLike).toValue() })
+            result.addAll(content().map { (it as ValueLike<*>).toValue() })
         }
         return Result.success(heap.allocTuple(result))
     }
@@ -169,10 +181,7 @@ class TupleGen<V>(
     override fun getTypeStarlarkRepr(): Ty = Ty.anyTuple()
 }
 
-// Rust type aliases:
-// pub type Tuple<'v> = TupleGen<Value<'v>>;
-// pub type FrozenTuple = TupleGen<FrozenValue>;
-// Kotlin: Use TupleGen directly; frozen flag distinguishes.
+// Frozen and unfrozen tuples share `TupleGen`; the inner value type distinguishes them.
 
 /** The empty tuple, statically allocated. */
 val VALUE_EMPTY_TUPLE: AllocStaticSimple<TupleGen<FrozenValue>> =

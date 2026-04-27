@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list_or_tuple.rs
+// port-lint: source src/values/types/listOrTuple.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.types
 /**
  * Utility for unpacking a value of type `list[T]` or `tuple[T, ...]` into a list.
  *
- * Corresponds to Rust's `src/values/types/list_or_tuple.rs`.
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
@@ -37,21 +36,15 @@ import io.github.kotlinmania.starlark.values.types.tuple.UnpackTupleStarlarkType
 import io.github.kotlinmania.starlark.values.types.tuple.UnpackTupleUnpackValue
 
 /** Unpack a value of type `list[T]` or `tuple[T, ...]` into a list. */
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-// pub struct UnpackListOrTuple<T> { pub items: Vec<T> }
 data class UnpackListOrTuple<T>(
     /** Unpacked items of the list or tuple. */
     val items: MutableList<T>,
 ) : Iterable<T> {
 
-    // impl Default for UnpackListOrTuple<T>
     constructor() : this(mutableListOf())
 
-    // impl IntoIterator for UnpackListOrTuple<T>
-    // fn into_iter(self) -> Self::IntoIter
     override fun iterator(): Iterator<T> = items.iterator()
 
-    // impl IntoIterator for &'a mut UnpackListOrTuple<T>
     fun iterMut(): MutableIterator<T> = items.iterator()
 
     companion object {
@@ -62,11 +55,7 @@ data class UnpackListOrTuple<T>(
 /**
  * [UnpackValue] implementation for [UnpackListOrTuple].
  *
- * In Rust:
  * ```
- * impl<'v, T: UnpackValue<'v>> UnpackValue<'v> for UnpackListOrTuple<T> {
- *   type Error = <T as UnpackValue<'v>>::Error;
- *   fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> { ... }
  * }
  * ```
  *
@@ -85,7 +74,6 @@ class UnpackListOrTupleUnpackValue<T>(
     }
 
     override fun unpackValueImpl(value: Value): Result<UnpackListOrTuple<T>?> {
-        // Rust: Either::<UnpackList<T>, UnpackTuple<T>>::unpack_value_impl(value)
         val eitherUnpacker = EitherUnpackValue(
             left = UnpackListUnpackValue(elementUnpacker),
             right = UnpackTupleUnpackValue(elementUnpacker),
@@ -101,5 +89,4 @@ class UnpackListOrTupleUnpackValue<T>(
     }
 }
 
-// Rust: impl<'a, T> IntoIterator for &'a UnpackListOrTuple<T>
 fun <T> UnpackListOrTuple<T>.iterRef(): Iterator<T> = items.iterator()

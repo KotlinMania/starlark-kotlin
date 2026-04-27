@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,11 +28,9 @@ import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 /**
  * Chunk-based arena allocator.
  *
- * In Rust this uses UnsafeCell, Cell, and NonNull for interior mutability and raw pointer
- * manipulation. In Kotlin, we use simple mutable fields with offset-based addressing
+ * manipulation. In Kotlin, we import simple mutable fields with offset-based addressing
  * matching [ChunkChain]'s Int-based abstraction.
  *
- * pub(crate) struct ChunkAllocator
  */
 internal class ChunkAllocator : ArenaAllocator {
     /**
@@ -42,12 +40,10 @@ internal class ChunkAllocator : ArenaAllocator {
     private var chain: ChunkChain = ChunkChain.default()
     /**
      * Offset pointing to the currently filled part of the chunk.
-     * In Rust: Cell<NonNull<usize>>
      */
     private var currentPtr: Int = chain.begin()
     /**
      * Offset pointing to the end of the current chunk part.
-     * In Rust: Cell<NonNull<usize>>
      */
     private var endPtr: Int = chain.begin()
 
@@ -159,7 +155,6 @@ internal class ChunkAllocator : ArenaAllocator {
 
     /**
      * Release resources by returning chunks to thread-local pool.
-     * In Rust: impl Drop for ChunkAllocator
      */
     fun close() {
         chain.clearWith(::threadLocalRelease)
@@ -171,7 +166,6 @@ internal class ChunkAllocator : ArenaAllocator {
 /**
  * Iterator over allocated chunks in reverse order.
  *
- * pub(crate) struct ChunkRevIterator<'a>
  */
 internal class ChunkRevIterator(
     private var current: ByteArray?,

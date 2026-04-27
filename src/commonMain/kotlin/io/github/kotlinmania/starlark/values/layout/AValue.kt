@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -129,7 +129,7 @@ internal fun tryFreezeDirectly(
 }
 
 /**
- * `heap_freeze` implementation for simple [StarlarkValue] and `StarlarkFloat`
+ * `heapFreeze` implementation for simple [StarlarkValue] and `StarlarkFloat`
  * (`StarlarkFloat` is logically a simple type, but it is not considered simple type).
  */
 internal fun heapFreezeSimpleImpl(
@@ -142,7 +142,7 @@ internal fun heapFreezeSimpleImpl(
     return Result.success(fv)
 }
 
-/** Common `heap_copy` implementation for types without extra. */
+/** Common `heapCopy` implementation for types without extra. */
 internal fun heapCopyImpl(
     value: StarlarkValue,
     tracer: Tracer,
@@ -191,8 +191,8 @@ internal object AValueTests {
     }
 
     fun testTryFreezeDirectly() {
-        // `try_freeze_directly` is only implemented for `dict` at the moment of writing,
-        // so use it for the test.
+        // `tryFreezeDirectly` is only implemented for `dict` at the moment of writing,
+        // so import it for the test.
 
         Module.withTempHeap { module ->
             val d0 = Dict.new(SmallMap.new()).allocValue(module.heap())

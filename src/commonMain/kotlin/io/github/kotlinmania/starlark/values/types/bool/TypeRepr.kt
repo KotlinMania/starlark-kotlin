@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bool/type_repr.rs
+// port-lint: source src/values/types/bool/typeRepr.rs
 package io.github.kotlinmania.starlark.values.types.bool
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.bool
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -22,16 +22,9 @@ package io.github.kotlinmania.starlark.values.types.bool
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 
-// impl StarlarkTypeRepr for bool {
-//     type Canonical = <StarlarkBool as StarlarkTypeRepr>::Canonical;
-//     fn starlark_type_repr() -> Ty {
-//         StarlarkBool::get_type_starlark_repr()
-//     }
-// }
-/** StarlarkTypeRepr impl for Kotlin [Boolean] (Starlark `bool`). */
+/** StarlarkTypeRepr implementation for Kotlin [Boolean] (Starlark `bool`). */
 object BoolStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty {
-        // Rust: StarlarkBool::get_type_starlark_repr()
         return Ty.bool()
     }
 }

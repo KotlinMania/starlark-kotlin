@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/def_inline/local_as_value.rs
+// port-lint: source src/eval/compiler/defInline/localAsValue.rs
 package io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -35,35 +35,25 @@ import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTy
  * Local slot id as `FrozenValue`. This object is only used during compilation
  * and never appears in the executed program.
  */
-// #[derive(derive_more::Display, Debug, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("{:?}", self)]
-// pub(crate) struct LocalAsValue
 internal class LocalAsValue(
     val local: LocalSlotId,
 ) : StarlarkValue {
-    // #[starlark_value(type = "LocalAsValue")]
-    // impl<'v> StarlarkValue<'v> for LocalAsValue
 
     override val TYPE: String get() = "LocalAsValue"
 
     override fun toString(): String = "LocalAsValue(local=$local)"
 }
 
-// starlark_simple_value!(LocalAsValue);
-// Kotlin: LocalAsValue is a simple (non-freezable) value.
-
 /**
  * Create a value which represents a reference to local slot id during optimization.
  *
  * Pre-allocates up to 100 slots (practically enough for any function).
  */
-// pub(crate) fn local_as_value(local: LocalSlotId) -> Option<FrozenValueTyped<'static, LocalAsValue>>
 internal fun localAsValue(local: LocalSlotId): FrozenValueTyped<LocalAsValue>? {
     // 100 is practically enough.
     return LOCALS.getOrNull(local.index.toInt())
 }
 
-// static LOCALS: Lazy<(FrozenHeapRef, [FrozenValueTyped<'static, LocalAsValue>; 100])>
 private val LOCALS: List<FrozenValueTyped<LocalAsValue>> by lazy {
     val heap = FrozenHeap()
     List(100) { i ->

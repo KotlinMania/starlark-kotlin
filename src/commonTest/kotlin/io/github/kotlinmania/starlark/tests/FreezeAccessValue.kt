@@ -1,4 +1,4 @@
-// port-lint: source src/tests/freeze_access_value.rs
+// port-lint: source src/tests/freezeAccessValue.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,10 +29,9 @@ import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.test.Test
 
-// struct Test<V> { field: V }
 private class TestFreeze(var field: Value) : Freeze<TestFrozen> {
-    // impl<'v> Freeze for Test<Value<'v>>
     override fun freeze(freezer: Freezer): Result<TestFrozen> {
         val frozenField = field.freeze(freezer).getOrElse { return Result.failure(it) }
         val test = TestFrozen(frozenField)
@@ -45,24 +44,24 @@ private class TestFreeze(var field: Value) : Freeze<TestFrozen> {
 
 private class TestFrozen(val field: FrozenValue)
 
-// #[test]
-// fn test() -> anyhow::Result<()>
-internal fun testFreezeAccessValue() {
-    Heap.temp { heap ->
-        // Rust: heap.alloc(vec![1i32, 2i32])
-        // Kotlin: allocate each i32 as a Value, then allocate the list.
-        val list = heap.allocList(listOf(
-            StarlarkInt.from(1).allocValue(heap),
-            StarlarkInt.from(2).allocValue(heap),
-        ))
+class FreezeAccessValueTests {
+    @Test
+    fun testFreezeAccessValue() {
+        Heap.temp { heap ->
+            // Kotlin: allocate each i32 as a Value, then allocate the list.
+            val list = heap.allocList(listOf(
+                StarlarkInt.from(1).allocValue(heap),
+                StarlarkInt.from(2).allocValue(heap),
+            ))
 
-        val t = TestFreeze(list)
+            val t = TestFreeze(list)
 
-        val frozenHeap = FrozenHeap.new()
-        val freezer = Freezer(frozenHeap)
-        list.freeze(freezer).getOrThrow()
-        t.freeze(freezer).getOrThrow()
+            val frozenHeap = FrozenHeap.new()
+            val freezer = Freezer(frozenHeap)
+            list.freeze(freezer).getOrThrow()
+            t.freeze(freezer).getOrThrow()
 
-        Result.success(Unit)
-    }.getOrThrow()
+            Result.success(Unit)
+        }.getOrThrow()
+    }
 }

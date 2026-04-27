@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.set
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 /**
  * Register the `set` builtin function.
  *
- * This function is generated from the `#[starlark_module]` macro in Rust.
  * It registers the `set` constructor as a global builtin function.
  */
 internal fun registerSet(globals: GlobalsBuilder) {
@@ -43,17 +42,14 @@ internal fun registerSet(globals: GlobalsBuilder) {
      * With no argument, `set()` returns a new empty set.
      *
      * ```
-     * # starlark::assert::all_true(r#"
+     * # starlark::assert::allTrue(r#"
      * set()           == set([])
      * set([1, 2, 3])  == set([3, 2, 1])
      * set([1, 2, 1])  == set([1, 2])
      * # "#);
      * ```
      */
-    // #[starlark(as_type = FrozenSet, speculative_exec_safe,
-    //   special_builtin_function = SpecialBuiltinFunction::Set)]
-    // fn set<'v>(arg: Option<ValueOfUnchecked<'v, StarlarkIter<Value<'v>>>>, heap: Heap<'v>)
-    //   -> starlark::Result<SetData<'v>>
+    //   specialBuiltinFunction = SpecialBuiltinFunction::Set)]
     globals.setFunction(
         name = "set",
         asType = Ty.starlarkValue(TyStarlarkValue.set()),
@@ -92,52 +88,48 @@ internal fun registerSet(globals: GlobalsBuilder) {
 
 // Tests would be here when assert module is ported
 /*
-#[cfg(test)]
 mod tests {
-    use crate::assert;
+    import crate::assert;
 
-    #[test]
-    fn test_set_type_as_type_compile_time() {
+    (test)
         assert::fail(
             r"
-def f_fail_ct(x: set[int]):
+def fFailCt(x: set[int]):
     return x
 
-s = set(['not_int'])
+s = set(['notInt'])
 
-f_fail_ct(s)
+fFailCt(s)
 ",
             //Is it actually runtime or compile time error?
-            r#"Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for argument `x`"#,
+            r#"Value `set(["notInt"])` of type `set` does not match the type annotation `set[int]` for argument `x`"#,
         );
     }
 
-    #[test]
-    fn test_return_set_type_as_type_compile_time() {
+    (test)
         assert::fail(
             r"
-def f_fail_ct(x: str) -> set[int]:
+def fFailCt(x: str) -> set[int]:
     return set([x])
 
-f_fail_ct('not_int')
+fFailCt('notInt')
 ",
             //Is it actually runtime or compile time error?
-            r#"Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for return type"#,
+            r#"Value `set(["notInt"])` of type `set` does not match the type annotation `set[int]` for return type"#,
         );
     }
 
-    #[test]
-    fn test_set_type_as_type_run_time() {
+    (test)
         assert::fail(
             r"
-def f_fail_rt(x: set[int]):
+def fFailRt(x: set[int]):
     return x
 
-s = set(['not_int'])
+s = set(['notInt'])
 
-noop(f_fail_rt)(s)
+noop(fFailRt)(s)
 ",
-            r#"Value `set(["not_int"])` of type `set` does not match the type annotation `set[int]` for argument `x`"#,
+            r#"Value `set(["notInt"])` of type `set` does not match the type annotation `set[int]` for argument `x`"#,
         );
     }
 }

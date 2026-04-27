@@ -1,4 +1,4 @@
-// port-lint: source src/values/recursive_repr_or_json_guard.rs
+// port-lint: source src/values/recursiveReprOrJsonGuard.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,16 +19,14 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-/** Detect recursion when doing `repr` or `to_json`. */
+/** Detect recursion when doing `repr` or `toJson`. */
 
 import starlarkmap.smallset.SmallSet
 import io.github.kotlinmania.starlark.values.layout.RawPointer
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Pop the stack on drop. */
-// pub(crate) struct ReprStackGuard;
 internal class ReprStackGuard : AutoCloseable {
-    // impl Drop for ReprStackGuard
     override fun close() {
         val popped = reprStack.pop()
         check(popped != null)
@@ -36,9 +34,7 @@ internal class ReprStackGuard : AutoCloseable {
 }
 
 /** Pop the stack on drop. */
-// pub(crate) struct JsonStackGuard;
 internal class JsonStackGuard : AutoCloseable {
-    // impl Drop for JsonStackGuard
     override fun close() {
         val popped = jsonStack.pop()
         check(popped != null)
@@ -46,23 +42,20 @@ internal class JsonStackGuard : AutoCloseable {
 }
 
 /** Returned when `repr` is called recursively and a cycle is detected. */
-// pub(crate) struct ReprCycle;
 internal class ReprCycle
 
-/** Returned when `to_json` is called recursively and a cycle is detected. */
-// pub(crate) struct JsonCycle;
+/** Returned when `toJson` is called recursively and a cycle is detected. */
 internal class JsonCycle
 
-// thread_local! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
+// threadLocal! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
 // In Kotlin Multiplatform, Starlark evaluation is single-threaded per evaluator,
 // so a simple mutable set suffices.
 private val reprStack = SmallSet<RawPointer>()
 
-// thread_local! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
+// threadLocal! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
 private val jsonStack = SmallSet<RawPointer>()
 
 /** Push a value to the stack, return error if it is already on the stack. */
-// pub(crate) fn repr_stack_push(value: Value) -> Result<ReprStackGuard, ReprCycle>
 internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
     if (!reprStack.insert(value.ptrValue())) {
         return Result.failure(Exception(ReprCycle().toString()))
@@ -71,7 +64,6 @@ internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
 }
 
 /** Push a value to the stack, return error if it is already on the stack. */
-// pub(crate) fn json_stack_push(value: Value) -> Result<JsonStackGuard, JsonCycle>
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
     if (!jsonStack.insert(value.ptrValue())) {
         return Result.failure(Exception(JsonCycle().toString()))

@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/int_or_big.rs
+// port-lint: source src/values/types/int/intOrBig.rs
 package io.github.kotlinmania.starlark.values.types.int
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.int
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -80,7 +80,6 @@ sealed class StarlarkInt {
 
     companion object {
         fun fromStrRadix(s: String, base: Int): Result<StarlarkInt> = runCatching {
-            // Rust: TokenInt::from_str_radix(s, base)?
             // Try parsing as i32 first, fall back to BigInteger.
             val i32 = s.toIntOrNull(base)
             if (i32 != null) {
@@ -126,7 +125,6 @@ sealed class StarlarkInt {
             }
         }
 
-        // Rust: impl From<TokenInt> for StarlarkInt
         // TokenInt is not yet fully ported; parsing is handled by fromStrRadix.
 
         fun from(value: UInt): StarlarkInt = fromImpl(
@@ -147,7 +145,6 @@ sealed class StarlarkInt {
             { BigInteger.fromULong(it) }
         )
 
-        // Rust: impl From<TokenInt> for StarlarkInt
         fun from(value: io.github.kotlinmania.starlark.syntax.lexer.TokenInt): StarlarkInt = when (value) {
             is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.I32 -> from(value.value)
             is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> from(value.value)
@@ -155,13 +152,11 @@ sealed class StarlarkInt {
     }
 }
 
-// Rust: impl AllocValue for StarlarkInt
 fun StarlarkInt.allocValue(heap: Heap): Value = when (this) {
     is StarlarkInt.Small -> Value.newInt(value)
     is StarlarkInt.Big -> heap.allocSimple(value)
 }
 
-// Rust: impl AllocFrozenValue for StarlarkInt
 fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
     is StarlarkInt.Small -> FrozenValue.newInt(value)
     is StarlarkInt.Big -> heap.allocSimple(value)
@@ -252,9 +247,7 @@ sealed class StarlarkIntRef {
         StarlarkInt.from((a / b) - BigInteger.fromInt(offset))
     }
 
-    /**
-     * Floor division operator `//`.
-     */
+    /** `//`. */
     fun floorDiv(other: StarlarkIntRef): Result<StarlarkInt> = when (this) {
         is Small -> when (other) {
             is Small -> floorDivSmallSmall(value, other.value)
@@ -270,7 +263,6 @@ sealed class StarlarkIntRef {
         if (b == InlineInt.ZERO) {
             throw StarlarkIntError.ModuloByZero(StarlarkInt.Small(a), StarlarkInt.Small(b))
         }
-        // In Rust `i32::min_value() % -1` is overflow, but we should eval it to zero.
         if (a.toI32() == Int.MIN_VALUE && b.toI32() == -1) {
             return@runCatching InlineInt.ZERO
         }
@@ -294,7 +286,7 @@ sealed class StarlarkIntRef {
                 StarlarkInt.from(b)
             )
         }
-        // Compute truncated remainder (sign follows dividend), matching Rust's BigInt::rem.
+        // Compute truncated remainder (sign follows dividend).
         // kotlin-bignum's % operator uses a non-standard sign convention,
         // so we compute it from absolute values.
         val absR = a.abs() % b.abs()
@@ -317,9 +309,7 @@ sealed class StarlarkIntRef {
         }
     }
 
-    /**
-     * Modulo operator `%`.
-     */
+    /** `%`. */
     fun percent(other: StarlarkIntRef): Result<StarlarkInt> = when (this) {
         is Small -> when (other) {
             is Small -> percentSmall(value, other.value).map { StarlarkInt.Small(it) }
@@ -331,9 +321,7 @@ sealed class StarlarkIntRef {
         }
     }
 
-    /**
-     * Left shift operator `<<`.
-     */
+    /** `<<`. */
     fun leftShift(other: StarlarkIntRef): Result<StarlarkInt> = runCatching {
         // Handle the most common case first.
         if (this is Small && other is Small) {
@@ -352,7 +340,7 @@ sealed class StarlarkIntRef {
         }
         if (other > 100_000) {
             // Limit the size of the BigInt to avoid accidentally consuming
-            // too much memory. 100_000 is practically enough for most use cases.
+            // too much memory. 100_000 is practically enough for most import cases.
             throw StarlarkIntError.LeftShiftOverflow
         }
 
@@ -366,9 +354,7 @@ sealed class StarlarkIntRef {
         }
     }
 
-    /**
-     * Right shift operator `>>`.
-     */
+    /** `>>`. */
     fun rightShift(other: StarlarkIntRef): Result<StarlarkInt> = runCatching {
         // Handle the most common case first.
         if (this is Small && other is Small) {
@@ -456,7 +442,6 @@ sealed class StarlarkIntRef {
             return null
         }
 
-        /** Alias for [unpack] matching the Rust `UnpackValue::unpack_value_opt` trait method. */
         fun unpackValueOpt(value: Value): StarlarkIntRef? = unpack(value)
     }
 }

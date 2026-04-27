@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.record
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
-// pub(crate) fn register_record(builder: &mut GlobalsBuilder)
 internal fun registerRecord(builder: GlobalsBuilder) {
     /**
      * A `record` type represents a set of named values, each with their own type.
@@ -72,7 +70,6 @@ internal fun registerRecord(builder: GlobalsBuilder) {
      * Records are stored deduplicating their field names, making them more
      * memory efficient than dictionaries.
      */
-    // fn record<'v>(#[starlark(kwargs)] kwargs: SmallMap<String, Value<'v>>, eval: &mut Evaluator) -> anyhow::Result<RecordType<'v>>
     builder.setFunction("record") { args, eval ->
         val kwargs = args.namesMap().getOrElse { return@setFunction Result.failure<Value>(it) }
         // Every Value must either be a field or a value (the type)
@@ -94,13 +91,12 @@ internal fun registerRecord(builder: GlobalsBuilder) {
      * Creates a field record. Used as an argument to the `record` function.
      *
      * ```
-     * rec_type = record(host=field(str), port=field(int), mask=field(int, default=255))
-     * rec = rec_type(host="localhost", port=80)
+     * recType = record(host=field(str), port=field(int), mask=field(int, default=255))
+     * rec = recType(host="localhost", port=80)
      * rec.port == 80
      * rec.mask == 255
      * ```
      */
-    // fn field<'v>(#[starlark(require = pos)] typ: Value<'v>, default: Option<Value<'v>>, eval: &mut Evaluator) -> starlark::Result<Field<'v>>
     builder.setFunction("field") { args, eval ->
         val positionalArgs = args.positionalAll()
         val typ = positionalArgs[0]
@@ -116,5 +112,4 @@ internal fun registerRecord(builder: GlobalsBuilder) {
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

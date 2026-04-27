@@ -24,22 +24,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # NOTE: Kotlin compilation is currently not a reliable signal while the Rust->Kotlin
-      # port is in-progress (many files are intentionally stubs). Instead, CI focuses on
-      # porting-tool health + repo sanity checks, so PRs aren't blocked.
-      - name: Build ast_distance
-        run: |
-          cmake -S tools/ast_distance -B build/ast_distance -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/ast_distance --config Release --parallel
-
-      - name: Porting lint (non-blocking)
-        continue-on-error: true
-        run: ./build/ast_distance/ast_distance --agent 99 --lint src
-
-      - name: Task status
-        continue-on-error: true
-        run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
-
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache
 
@@ -59,19 +43,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
-      - name: Build ast_distance
-        run: |
-          cmake -S tools/ast_distance -B build/ast_distance -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/ast_distance --config Release --parallel
-
-      - name: Porting lint (non-blocking)
-        continue-on-error: true
-        run: ./build/ast_distance/ast_distance --agent 99 --lint src
-
-      - name: Task status
-        continue-on-error: true
-        run: ./build/ast_distance/ast_distance --agent 99 --tasks tasks.json
 
       - name: Gradle configuration check
         run: ./gradlew -q tasks --all --no-configuration-cache

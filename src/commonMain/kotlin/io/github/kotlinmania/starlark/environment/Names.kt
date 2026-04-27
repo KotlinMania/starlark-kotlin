@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.environment
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -33,37 +33,30 @@ import io.github.kotlinmania.starlark.syntax.ast.Visibility
  * for x in ... Importantly, the expression x can refer to either a global x,
  * or a local x that hasn't yet been defined, based on the future
  * presence/absence of a statement defining x. Therefore, we first capture all
- * the definitions with collect_defines_lvalue, allocate them slots,
+ * the definitions with collectDefinesLvalue, allocate them slots,
  * then replace variables with slot numbers when compiling.
  *
  * Comprehensions are a bit different. Given [x for x in y] that defines x, but
  * in a way that shadows any existing x, and the definition immediately binds
- * x. We do that with add_scoped()/unscope(). On an add_scope, we allocate
+ * x. We do that with addScoped()/unscope(). On an addScope, we allocate
  * fresh slots at the end, and bind them to the names in the comprehension.
  * On an unscope, we do the reverse, putting things back to how they were
  * before (apart from the total) number of slots required.
  */
-// #[derive(Debug)]
-// pub(crate) struct MutableNames(RefCell<SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>>);
 class MutableNames {
     // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
-    // impl MutableNames
-
     companion object {
-        // pub(crate) fn new() -> Self
         fun new(): MutableNames = MutableNames()
     }
 
-    // pub(crate) fn slot_count(&self) -> u32
     fun slotCount(): Int = map.len()
 
     /**
      * Try and go back from a slot to a name.
-     * Inefficient - only use in error paths.
+     * Inefficient - only import in error paths.
      */
-    // pub(crate) fn get_slot(&self, slot: ModuleSlotId) -> Option<FrozenStringValue>
     fun getSlot(slot: ModuleSlotId): FrozenStringValue? {
         for ((name, pair) in map.iter()) {
             val (id, _) = pair
@@ -74,9 +67,7 @@ class MutableNames {
         return null
     }
 
-    // pub(crate) fn get_name(&self, name: Hashed<&str>) -> Option<(ModuleSlotId, Visibility)>
     fun getName(name: Hashed<String>): Pair<ModuleSlotId, Visibility>? {
-        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.
         for ((k, v) in map.iter()) {
             if (k.asStr() == name.key()) return v
         }
@@ -84,7 +75,6 @@ class MutableNames {
     }
 
     /** Add a name with explicit visibility to the module. */
-    // pub(crate) fn add_name_visibility(&self, name: FrozenStringValue, vis: Visibility) -> ModuleSlotId
     fun addNameVisibility(name: FrozenStringValue, vis: Visibility): ModuleSlotId {
         val existing = map.getHashedByValue(name.getHashed())
         if (existing != null) {
@@ -102,52 +92,40 @@ class MutableNames {
     }
 
     /** Add an exported name, or if it's already there, return the existing name. */
-    // pub(crate) fn add_name(&self, name: FrozenStringValue) -> ModuleSlotId
     fun addName(name: FrozenStringValue): ModuleSlotId {
         return addNameVisibility(name, Visibility.Public)
     }
 
-    // pub(crate) fn hide_name(&self, name: &str)
     fun hideName(name: String) {
-        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we find the index by string content.
         val index = map.entries.indexOfFirst { it.key.key().asStr() == name }
         if (index >= 0) {
             map.entries.removeAt(index)
         }
     }
 
-    // pub(crate) fn all_names_and_slots(&self) -> Vec<(FrozenStringValue, ModuleSlotId)>
     fun allNamesAndSlots(): List<Pair<FrozenStringValue, ModuleSlotId>> {
         return map.iter().map { (name, pair) -> Pair(name, pair.first) }.toList()
     }
 
-    // pub(crate) fn all_names_and_visibilities(&self) -> Vec<(FrozenStringValue, Visibility)>
     fun allNamesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> {
         return map.iter().map { (name, pair) -> Pair(name, pair.second) }.toList()
     }
 
-    // pub(crate) fn all_names_slots_and_visibilities(&self) -> Vec<(FrozenStringValue, ModuleSlotId, Visibility)>
     fun allNamesSlotsAndVisibilities(): List<Triple<FrozenStringValue, ModuleSlotId, Visibility>> {
         return map.iter().map { (name, pair) -> Triple(name, pair.first, pair.second) }.toList()
     }
 
-    // pub(crate) fn freeze(self) -> FrozenNames
     fun freeze(): FrozenNames {
         return FrozenNames(map)
     }
 }
 
 /** Frozen (immutable) form of [MutableNames]. */
-// #[derive(Debug, Allocative)]
-// pub(crate) struct FrozenNames(SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>);
 class FrozenNames(
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>>,
 ) {
-    // impl FrozenNames
 
-    // pub(crate) fn get_name(&self, name: &str) -> Option<(ModuleSlotId, Visibility)>
     fun getName(name: String): Pair<ModuleSlotId, Visibility>? {
-        // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.
         for ((k, v) in map.iter()) {
             if (k.asStr() == name) return v
         }
@@ -155,13 +133,11 @@ class FrozenNames(
     }
 
     /** Symbols including private. */
-    // pub(crate) fn all_symbols(&self) -> impl Iterator<Item = (FrozenStringValue, ModuleSlotId)> + '_
     fun allSymbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> {
         return map.iter().asSequence().map { (name, pair) -> Pair(name, pair.first) }
     }
 
     /** Exported symbols. */
-    // pub(crate) fn symbols(&self) -> impl Iterator<Item = (FrozenStringValue, ModuleSlotId)> + '_
     fun symbols(): Sequence<Pair<FrozenStringValue, ModuleSlotId>> {
         return map.iter().asSequence().mapNotNull { (name, pair) ->
             val (slot, vis) = pair

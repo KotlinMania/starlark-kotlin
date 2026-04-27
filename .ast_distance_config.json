@@ -6,7 +6,7 @@
     "lang": "rust"
   },
   "target": {
-    "path": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
+    "path": "src/commonMain/kotlin/io/github/kotlinmania/starlark",
     "lang": "kotlin"
   },
   "checks": {
@@ -17,7 +17,6 @@
   },
   "reexport_modules": [
     "mod.rs",
-    "lib.rs",
-    "values/layout/heap.rs"
+    "lib.rs"
   ]
 }

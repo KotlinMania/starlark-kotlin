@@ -63,7 +63,7 @@ sealed class GrammarSymbol {
     data class Variant49(val value: Spanned<FStringP<AstNoPayload>>) : GrammarSymbol()
     data class Variant50(val value: Spanned<TokenInt>) : GrammarSymbol()
 
-    /** Extract the inner value from this wrapper for use in reducer action functions. */
+    /** Extract the inner value from this wrapper for import in reducer action functions. */
     fun unwrap(): Any? = when (this) {
         is Variant0 -> value
         is Variant1 -> value

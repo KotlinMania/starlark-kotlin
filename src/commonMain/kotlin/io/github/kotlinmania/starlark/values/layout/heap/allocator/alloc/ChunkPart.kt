@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/chunk_part.rs
+// port-lint: source src/values/layout/heap/allocator/alloc/chunkPart.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkp
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -23,12 +23,6 @@ import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
 
 /** Chunk is shared by multiple `ChunkPart`s. */
-// #[derive(Debug, Default, PartialEq)]
-// pub(crate) struct ChunkPart {
-//     allocation: Chunk,
-//     begin: AlignedSize,
-//     end: AlignedSize,
-// }
 internal class ChunkPart(
     internal val allocation: Chunk,
     /** Offset from the chunk data. */
@@ -37,7 +31,6 @@ internal class ChunkPart(
     private val end: AlignedSize,
 ) {
     companion object {
-        // impl Default for ChunkPart
         fun default(): ChunkPart = ChunkPart(
             allocation = Chunk.default(),
             begin = AlignedSize.ZERO,
@@ -45,13 +38,11 @@ internal class ChunkPart(
         )
 
         /** Create a chunk part from a whole chunk. */
-        // pub(crate) fn new(allocation: Chunk) -> ChunkPart
         fun new(allocation: Chunk): ChunkPart {
             val len = allocation.len()
             return newSubslice(allocation, AlignedSize.ZERO, len)
         }
 
-        // pub(crate) fn new_subslice(allocation, begin, end) -> ChunkPart
         fun newSubslice(
             allocation: Chunk,
             begin: AlignedSize,
@@ -63,33 +54,27 @@ internal class ChunkPart(
         }
 
         /** Allocate a chunk part to store at least `len`. */
-        // pub(crate) fn alloc_at_least(len: AlignedSize) -> ChunkPart
         fun allocAtLeast(len: AlignedSize): ChunkPart {
             return new(Chunk.allocAtLeast(len))
         }
     }
 
-    // pub(crate) fn len(&self) -> AlignedSize
     fun len(): AlignedSize {
         return end.uncheckedSub(begin)
     }
 
-    // pub(crate) fn begin(&self) -> NonNull<usize>
     fun begin(): Int {
         return allocation.ptrAtOffset(begin)
     }
 
-    // pub(crate) fn ptr_at_offset(&self, offset: AlignedSize) -> NonNull<usize>
     fun ptrAtOffset(offset: AlignedSize): Int {
         return allocation.ptrAtOffset(begin + offset)
     }
 
-    // pub(crate) fn end(&self) -> NonNull<usize>
     fun end(): Int {
         return allocation.ptrAtOffset(end)
     }
 
-    // pub(crate) fn allocated_bytes_with_metadata(&self) -> usize
     fun allocatedBytesWithMetadata(): Int {
         return if (chunkRefCount() == 1) {
             allocation.allocatedBytesWithMetadata()
@@ -100,12 +85,10 @@ internal class ChunkPart(
     }
 
     /** Does this chunk part occupy the whole chunk? */
-    // pub(crate) fn is_full(&self) -> bool
     fun isFull(): Boolean {
         return len() == allocation.len()
     }
 
-    // pub(crate) fn split_at_offset(self, offset: AlignedSize) -> (ChunkPart, ChunkPart)
     fun splitAtOffset(offset: AlignedSize): Pair<ChunkPart, ChunkPart> {
         return if (offset == AlignedSize.ZERO) {
             Pair(default(), this)
@@ -121,18 +104,14 @@ internal class ChunkPart(
         }
     }
 
-    // pub(crate) fn chunk_ref_count(&self) -> u32
     fun chunkRefCount(): Int {
         return allocation.refCount()
     }
 
-    // #[cfg(test)]
-    // pub(crate) fn chunk_ptr_eq(&self, other: &ChunkPart) -> bool
     fun chunkPtrEq(other: ChunkPart): Boolean {
         return allocation.ptrEq(other.allocation)
     }
 
-    // impl PartialEq for ChunkPart
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ChunkPart) return false
@@ -146,11 +125,9 @@ internal class ChunkPart(
         return result
     }
 
-    // impl Debug for ChunkPart
     override fun toString(): String {
         return "ChunkPart(begin=$begin, end=$end)"
     }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

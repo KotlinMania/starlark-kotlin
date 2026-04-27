@@ -2,8 +2,7 @@ package io.github.kotlinmania.starlark.eval.runtime
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// Convenience accessors for starlark_module-style argument extraction.
-// Not part of the Rust `arguments.rs` transliteration (kept separate for AST similarity hygiene).
+// Convenience accessors for starlarkModule-style argument extraction.
 
 /**
  * Get all positional arguments as a list.

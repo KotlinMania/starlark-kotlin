@@ -19,7 +19,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -100,7 +100,6 @@ sealed class StringOrTuple {
 /**
  * Register string methods.
  *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
  */
 internal fun stringMethods(builder: MethodsBuilder) {
     // The implementations below would be registered through the MethodsBuilder
@@ -119,7 +118,7 @@ internal fun stringMethods(builder: MethodsBuilder) {
  * result.
  *
  * ```
- * # starlark::assert::is_true(r#"
+ * # starlark::assert::isTrue(r#"
  * list("Hello, 世界".elems()) == ["H", "e", "l", "l", "o", ",", " ", "世", "界"]
  * # "#);
  * ```
@@ -138,7 +137,7 @@ internal fun elems(
  * all other characters are converted to lowercase.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "hello, world!".capitalize() == "Hello, world!"
  * "Hello, World!".capitalize() == "Hello, world!"
  * "".capitalize() == ""
@@ -172,7 +171,7 @@ internal fun capitalize(thisStr: kotlin.String): Result<kotlin.String> {
  * materialize the entire sequence.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * list("Hello, 世界".codepoints()) == [72, 101, 108, 108, 111, 44, 32, 19990, 30028]
  * # "#);
  * ```
@@ -202,7 +201,7 @@ internal fun codepoints(
  * (this is following Python behavior).
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "hello, world!".count("o") == 2
  * "abababa".count("aba") == 2
  * "hello, world!".count("o", 7, 12) == 1  # in "world"
@@ -232,7 +231,7 @@ internal fun count(
  * suffix.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "filename.sky".endswith(".sky") == True
  * # "#);
  * ```
@@ -263,7 +262,7 @@ internal fun endswith(
  * If no occurrence is found, `found` returns -1.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "bonbon".find("on") == 1
  * "bonbon".find("on", 2) == 4
  * "bonbon".find("on", 2, 5) == -1
@@ -303,7 +302,7 @@ internal fun find(
  * a literal open or close brace.
  * Each unpaired open brace must be matched by a close brace `}`.
  * The optional text between corresponding open and close braces
- * specifies which argument to use and how to format it, and consists of
+ * specifies which argument to import and how to format it, and consists of
  * three components, all optional:
  * a field name, a conversion preceded by '`!`', and a format specifier
  * preceded by '`:`'.
@@ -331,14 +330,12 @@ internal fun find(
  * alignment, padding, and numeric precision.
  * Currently it must be empty, but it is reserved for future use.
  *
- * ```rust
- * # starlark::assert::all_true(r#"
+ * ```
  * "a {} c".format(3) == "a 3 c"
  * "a{x}b{y}c{}".format(1, x=2, y=3) == "a2b3c1"
  * "a{}b{}c".format(1, 2) == "a1b2c"
  * "({1}, {0})".format("zero", "one") == "(one, zero)"
  * "Is {0!r} {0!s}?".format("heterological") == "Is \"heterological\" heterological?"
- * # "#);
  * ```
  */
 internal fun format(
@@ -367,7 +364,7 @@ internal fun format(
  * that if the substring is not found, the operation fails.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "bonbon".index("on") == 1
  * "bonbon".index("on", 2) == 4
  * # "#);
@@ -409,7 +406,7 @@ internal fun index(
  * only Unicode letters and digits.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "base64".isalnum() == True
  * "Catch-22".isalnum() == False
  * # "#);
@@ -436,7 +433,7 @@ internal fun isalnum(thisStr: kotlin.String): Result<Boolean> {
  * only of Unicode letters.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "ABC".isalpha() == True
  * "Catch-22".isalpha() == False
  * "".isalpha() == False
@@ -464,7 +461,7 @@ internal fun isalpha(thisStr: kotlin.String): Result<Boolean> {
  * only of Unicode digits.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "123".isdigit() == True
  * "Catch-22".isdigit() == False
  * "".isdigit() == False
@@ -492,7 +489,7 @@ internal fun isdigit(thisStr: kotlin.String): Result<Boolean> {
  * Unicode letter, and all such letters are lowercase.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "hello, world".islower() == True
  * "Catch-22".islower() == False
  * "123".islower() == False
@@ -520,7 +517,7 @@ internal fun islower(thisStr: kotlin.String): Result<Boolean> {
  * only of Unicode spaces.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "    ".isspace() == True
  * "\r\t\n".isspace() == True
  * "".isspace() == False
@@ -549,7 +546,7 @@ internal fun isspace(thisStr: kotlin.String): Result<Boolean> {
  * case.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "Hello, World!".istitle() == True
  * "Catch-22".istitle() == True
  * "HAL-9000".istitle() == False
@@ -590,7 +587,7 @@ internal fun istitle(thisStr: kotlin.String): Result<Boolean> {
  * Unicode letter, and all such letters are uppercase.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "HAL-9000".isupper() == True
  * "Catch-22".isupper() == False
  * "123".isupper() == False
@@ -618,7 +615,7 @@ internal fun isupper(thisStr: kotlin.String): Result<Boolean> {
  * lowercase.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "Hello, World!".lower() == "hello, world!"
  * # "#);
  * ```
@@ -638,7 +635,7 @@ internal fun lower(thisStr: kotlin.String): Result<kotlin.String> {
  * are strings.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * ", ".join([]) == ""
  * ", ".join(("x", )) == "x"
  * ", ".join(["one", "two", "three"]) == "one, two, three"
@@ -690,7 +687,7 @@ internal fun join(
  * In most cases instead of passing an argument you should use `removeprefix`.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "  hello  ".lstrip() == "hello  "
  * "x!hello  ".lstrip("!x ") == "hello  "
  * # "#);
@@ -727,7 +724,7 @@ internal fun lstrip(
  * `partition` fails if `x` is not a string, or is the empty string.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "one/two/three".partition("/") == ("one", "/", "two/three")
  * "one".partition("/") == ("one", "", "")
  * # "#);
@@ -772,7 +769,7 @@ internal fun partition(
  * specifies a maximum number of occurrences to replace.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "banana".replace("a", "o") == "bonono"
  * "banana".replace("a", "o", 2) == "bonona"
  * "banana".replace("z", "x") == "banana"
@@ -835,7 +832,7 @@ internal fun replace(
  * the substring's _last_ occurrence.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "bonbon".rfind("on") == 4
  * "bonbon".rfind("on", None, 5) == 1
  * "bonbon".rfind("on", 2, 5) == -1
@@ -872,7 +869,7 @@ internal fun rfind(
  * the substring's _last_ occurrence.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "bonbon".rindex("on") == 4
  * "bonbon".rindex("on", None, 5) == 1  # in "bonbo"
  * # "#);
@@ -914,7 +911,7 @@ internal fun rindex(
  * last occurrence of `x`.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "one/two/three".rpartition("/") == ("one/two", "/", "three")
  * "one".rpartition("/") == ("", "", "one")
  * # "#);
@@ -958,7 +955,7 @@ internal fun rpartition(
  * `rsplit` chooses the rightmost splits.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "banana".rsplit("n") == ["ba", "a", "a"]
  * "banana".rsplit("n", 1) == ["bana", "a"]
  * "one two  three".rsplit(None, 1) == ["one two", "three"]
@@ -999,7 +996,7 @@ internal fun rsplit(
  * In most cases instead of passing an argument you should use `removesuffix`.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "  hello  ".rstrip() == "  hello"
  * "  hello!x".rstrip(" x!") == "  hello"
  * # "#);
@@ -1048,7 +1045,7 @@ internal fun rstrip(
  * of splits.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "one two  three".split() == ["one", "two", "three"]
  * "one two  three".split(" ") == ["one", "two", "", "three"]
  * "one two  three".split(None, 1) == ["one", "two  three"]
@@ -1097,7 +1094,7 @@ internal fun split(
  * the final element does not necessarily end with a line terminator.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "one\n\ntwo".splitlines() == ["one", "", "two"]
  * "one\n\ntwo".splitlines(True) == ["one\n", "\n", "two"]
  * "a\nb".splitlines() == ["a", "b"]
@@ -1147,7 +1144,7 @@ internal fun splitlines(
  * prefix.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "filename.sky".startswith("filename") == True
  * "filename.sky".startswith("sky") == False
  * 'abc'.startswith(('a', A_')) == True
@@ -1175,7 +1172,7 @@ internal fun startswith(
  * whitespace removed.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "  hello  ".strip() == "hello"
  * "xxhello!!".strip("x!") == "hello"
  * # "#);
@@ -1211,7 +1208,7 @@ internal fun strip(
  * elsewhere.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "hElLo, WoRlD!".title() == "Hello, World!"
  * # "#);
  * ```
@@ -1244,7 +1241,7 @@ internal fun title(thisStr: kotlin.String): Result<kotlin.String> {
  * uppercase.
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "Hello, World!".upper() == "HELLO, WORLD!"
  * # "#);
  * ```
@@ -1262,7 +1259,7 @@ internal fun upper(thisStr: kotlin.String): Result<kotlin.String> {
  * Otherwise, return a copy of the original string:
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "Hello, World!".removeprefix("Hello") == ", World!"
  * "Hello, World!".removeprefix("Goodbye") == "Hello, World!"
  * "Hello".removeprefix("Hello") == ""
@@ -1291,7 +1288,7 @@ internal fun removeprefix(
  * Otherwise, return a copy of the original string:
  *
  * ```
- * # starlark::assert::all_true(r#"
+ * # starlark::assert::allTrue(r#"
  * "Hello, World!".removesuffix("World!") == "Hello, "
  * "Hello, World!".removesuffix("World") == "Hello, World!"
  * "Hello".removesuffix("Hello") == ""
@@ -1315,8 +1312,7 @@ internal fun removesuffix(
 
 private data class StrIndices(val start: Int, val haystack: kotlin.String)
 
-// Port of starlark_syntax::convert_indices::convert_indices
-// Clamps val to [0, limit].
+// Clamps value to [0, limit].
 private fun bound(value: Int, limit: Int): Int {
     return when {
         value <= 0 -> 0
@@ -1325,7 +1321,7 @@ private fun bound(value: Int, limit: Int): Int {
     }
 }
 
-// Port of starlark_syntax::convert_indices::convert_indices
+// Convert optional Python-style indices (which may be negative) into a clamped [start, end] pair.
 private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
     val s = start ?: 0
     val e = end ?: len
@@ -1334,9 +1330,8 @@ private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
     return Pair(bound(adjustedStart, len), bound(adjustedEnd, len))
 }
 
-// Port of starlark_syntax::fast_string::convert_str_indices
-// In Kotlin, strings are already character-indexed (unlike Rust's byte-indexed strings),
-// so the heavy byte-level optimization from fast_string.rs is not needed.
+// Slice a string by code-point indices, returning the sub-string and the absolute start index,
+// or null if the indices are invalid.
 private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIndices? {
     val len = str.codePointCount()
     return when {
@@ -1421,13 +1416,11 @@ private fun codePointOffsetClamped(str: kotlin.String, codePointIndex: Int): Int
     return i
 }
 
-// Port of starlark_syntax::fast_string::len
 // Find the length of the string in characters (code points).
 private fun strLen(str: kotlin.String): Int {
     return str.codePointCount()
 }
 
-// Port of starlark_syntax::fast_string::count_matches
 // Find the number of times a needle occurs within a string, non-overlapping.
 private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
     if (needle.isEmpty()) return strLen(haystack) + 1
@@ -1442,8 +1435,7 @@ private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
     return count
 }
 
-// Port of starlark_syntax::fast_string::count_matches_byte
-// Find the number of times a needle byte/char occurs within a string.
+// Find the number of times a needle char occurs within a string.
 private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int {
     return haystack.count { it == byte }
 }
@@ -1481,10 +1473,7 @@ private fun allocStringList(strings: List<kotlin.String>, heap: Heap): Value {
     return heap.allocListIter(values)
 }
 
-/**
- * Replace the first [count] occurrences of [old] with [new] in [s].
- * Equivalent to Rust's `str::replacen`.
- */
+/** Replace the first [count] occurrences of [old] with [new] in [s]. */
 private fun replacen(s: kotlin.String, old: kotlin.String, new: kotlin.String, count: Int): kotlin.String {
     if (count == 0) return s
     val result = StringBuilder()

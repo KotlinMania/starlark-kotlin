@@ -1,5 +1,4 @@
-// port-lint: source src/docs/parse.rs (tests)
-package io.github.kotlinmania.starlark.docs
+// port-lint: source tests:src/docs/parse.rspackage io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.docs
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -337,7 +336,7 @@ class ParseTest {
         val argBar = functionDocs.params.posOrNamed[0]
         assertNotNull(argBar.docs)
         assertEquals("arg_bar", argBar.name)
-        // from_docstring normalizes the summary by collapsing newlines into spaces
+        // fromDocstring normalizes the summary by collapsing newlines into spaces
         assertEquals(
             DocString.fromDocstring(
                 kind,
@@ -371,7 +370,7 @@ class ParseTest {
         Details here
 
         # Arguments
-        * `arg_foo`: The argument named foo
+        * `argFoo`: The argument named foo
         `arg_bar`: The argument named bar. It has
                    a longer doc string that spans
                    over three lines

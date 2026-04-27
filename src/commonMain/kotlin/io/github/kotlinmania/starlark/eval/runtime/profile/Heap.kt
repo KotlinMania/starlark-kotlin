@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile.heap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.eval.evalFunction
 import io.github.kotlinmania.starlark.syntax.AstModule
 
-// pub(crate) struct HeapAllocatedProfilerType
 internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapAllocated
 
@@ -51,7 +50,6 @@ internal object HeapAllocatedProfilerType : ProfilerType<AggregateHeapProfileInf
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// pub(crate) struct HeapRetainedProfilerType
 internal object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapRetained
 
@@ -68,7 +66,6 @@ internal object HeapRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// pub(crate) struct HeapSummaryAllocatedProfilerType
 internal object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapSummaryAllocated
 
@@ -85,7 +82,6 @@ internal object HeapSummaryAllocatedProfilerType : ProfilerType<AggregateHeapPro
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// pub(crate) struct HeapFlameAllocatedProfilerType
 internal object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapFlameAllocated
 
@@ -102,7 +98,6 @@ internal object HeapFlameAllocatedProfilerType : ProfilerType<AggregateHeapProfi
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// pub(crate) struct HeapSummaryRetainedProfilerType
 internal object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapSummaryRetained
 
@@ -119,7 +114,6 @@ internal object HeapSummaryRetainedProfilerType : ProfilerType<AggregateHeapProf
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// pub(crate) struct HeapFlameRetainedProfilerType
 internal object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfileInfo> {
     override val profileMode: ProfileMode = ProfileMode.HeapFlameRetained
 
@@ -136,55 +130,43 @@ internal object HeapFlameRetainedProfilerType : ProfilerType<AggregateHeapProfil
         Result.success(AggregateHeapProfileInfo.merge(profiles))
 }
 
-// #[derive(Copy, Clone, Dupe, Debug, Allocative)]
-// pub(crate) enum RetainedHeapProfileMode
 internal enum class RetainedHeapProfileMode {
     Flame,
     Summary,
     FlameAndSummary,
 }
 
-// #[derive(Debug, thiserror::Error)]
-// enum HeapProfileError
 private sealed class HeapProfileError : Exception() {
-    // #[error("heap profile not enabled")]
     data object NotEnabled : HeapProfileError() {
         override val message: String get() = "heap profile not enabled"
     }
 }
 
-// #[derive(Copy, Clone, Dupe, Debug)]
-// pub(crate) enum HeapProfileFormat
 internal enum class HeapProfileFormat {
     FlameGraph,
     Summary,
     FlameGraphAndSummary,
 }
 
-// pub(crate) struct HeapProfile
 internal class HeapProfile(
     private var enabled: Boolean = false,
 ) {
-    // pub(crate) fn enable(&mut self)
     fun enable() {
         enabled = true
     }
 
-    // pub(crate) fn record_call_enter<'v>(&self, function: Value<'v>, heap: Heap<'v>)
     fun recordCallEnter(function: Value, heap: Heap) {
         if (enabled) {
             heap.recordCallEnter(function)
         }
     }
 
-    // pub(crate) fn record_call_exit<'v>(&self, heap: Heap<'v>)
     fun recordCallExit(heap: Heap) {
         if (enabled) {
             heap.recordCallExit()
         }
     }
 
-    // pub(crate) fn gen(&self, heap: Heap<'_>, format: HeapProfileFormat) -> crate::Result<ProfileData>
     fun gen(heap: Heap, format: HeapProfileFormat): ProfileData {
         if (!enabled) {
             throw HeapProfileError.NotEnabled
@@ -193,10 +175,8 @@ internal class HeapProfile(
     }
 
     companion object {
-        // pub(crate) fn new() -> Self
         fun new(): HeapProfile = HeapProfile()
 
-        // pub(crate) fn gen_enabled(heap: Heap<'_>, format: HeapProfileFormat) -> ProfileData
         fun genEnabled(heap: Heap, format: HeapProfileFormat): ProfileData =
             when (format) {
                 HeapProfileFormat.FlameGraphAndSummary -> writeFlameAndSummarizedHeapProfile(heap)
@@ -204,19 +184,16 @@ internal class HeapProfile(
                 HeapProfileFormat.FlameGraph -> writeFlameHeapProfile(heap)
             }
 
-        // fn write_flame_heap_profile(heap: Heap<'_>) -> ProfileData
         fun writeFlameHeapProfile(heap: Heap): ProfileData {
             val stacks = AggregateHeapProfileInfo.collect(heap, null)
             return ProfileData(profile = ProfileDataImpl.HeapFlameAllocated(stacks))
         }
 
-        // fn write_summarized_heap_profile(heap: Heap<'_>) -> ProfileData
         fun writeSummarizedHeapProfile(heap: Heap): ProfileData {
             val stacks = AggregateHeapProfileInfo.collect(heap, null)
             return ProfileData(profile = ProfileDataImpl.HeapSummaryAllocated(stacks))
         }
 
-        // fn write_flame_and_summarized_heap_profile(heap: Heap<'_>) -> ProfileData
         fun writeFlameAndSummarizedHeapProfile(heap: Heap): ProfileData {
             val stacks = AggregateHeapProfileInfo.collect(heap, null)
             return ProfileData(profile = ProfileDataImpl.HeapAllocated(stacks))
@@ -226,7 +203,6 @@ internal class HeapProfile(
 
 // --- Tests ---
 
-// #[test] fn test_profiling()
 fun testProfiling() {
     val ast = AstModule.parse(
         "foo.bzl",

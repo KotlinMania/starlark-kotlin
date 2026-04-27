@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/return_impl.rs
+// port-lint: source src/tests/derive/module/returnImpl.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.tests.derive.module
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,23 +24,16 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[starlark_module]
-// fn _test_return_impl_alloc_value(globals: &mut GlobalsBuilder)
 @Suppress("unused")
 private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
-    // fn func(v: Value) -> Result<impl AllocValue>
     globals.setFunction("func") { args, _ ->
         val v = args.positional<Value>(0)
         Result.success(v)
     }
 }
 
-// #[starlark_module]
-// fn _test_return_impl_alloc_value_for_attr(methods: &mut MethodsBuilder)
 @Suppress("unused")
 private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
-    // #[starlark(attribute)]
-    // fn attr(this: Value) -> Result<impl AllocValue>
     methods.setAttribute("attr") { this_, _ ->
         Result.success(this_)
     }

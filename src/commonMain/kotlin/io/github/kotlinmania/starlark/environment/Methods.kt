@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.environment
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -178,7 +178,7 @@ class MethodsBuilder private constructor(
     }
 
     /**
-     * Set a constant value in the [MethodsBuilder] that will be suitable for use with
+     * Set a constant value in the [MethodsBuilder] that will be suitable for import with
      * `StarlarkValue.getMethods`.
      */
     fun setAttribute(name: String, value: AllocFrozenValue, docstring: String?) {
@@ -197,7 +197,7 @@ class MethodsBuilder private constructor(
         )
     }
 
-    /** Set an attribute. Only used by `starlark_module` macro. */
+    /** Set an attribute. Only used by `starlarkModule` macro. */
     fun setAttributeFn(
         name: String,
         speculativeExecSafe: Boolean,
@@ -218,7 +218,7 @@ class MethodsBuilder private constructor(
         )
     }
 
-    /** Set a method. Only used by `starlark_module` macro. */
+    /** Set a method. Only used by `starlarkModule` macro. */
     fun setMethod(
         name: String,
         components: NativeCallableComponents,
@@ -241,7 +241,6 @@ class MethodsBuilder private constructor(
 
     /**
      * Convenience overload: register a method by name with a lambda.
-     * The lambda receives (Evaluator, Value, ParametersSpec, Arguments) -> Result<Value>
      * and is wrapped into the full method registration.
      */
     fun setMethod(
@@ -267,7 +266,6 @@ class MethodsBuilder private constructor(
 
     /**
      * Convenience overload: register an attribute by name with a lambda.
-     * The lambda receives (Value, Heap) -> Result<Value>.
      */
     fun setAttribute(
         name: String,

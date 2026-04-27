@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.typing.callable
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,17 +26,13 @@ import io.github.kotlinmania.starlark.typing.Ty
  * Type parameter for [`StarlarkCallable`] or [`FrozenStarlarkCallable`]
  * describing the expected parameters of the callable.
  */
-// pub trait StarlarkCallableParamSpec
 interface StarlarkCallableParamSpec {
     /** Get the parameter specification for the callable. */
-    // fn params() -> ParamSpec
     fun params(): ParamSpec
 }
 
 /** Indicates that a callable accepts any number of positional and keyword arguments. */
-// pub struct StarlarkCallableParamAny
 /** `*args` and `**kwargs` parameters. */
-// impl StarlarkCallableParamSpec for StarlarkCallableParamAny
 object StarlarkCallableParamAny : StarlarkCallableParamSpec {
     override fun params(): ParamSpec {
         return ParamSpec.any()
@@ -44,7 +40,6 @@ object StarlarkCallableParamAny : StarlarkCallableParamSpec {
 }
 
 /** No parameters. */
-// impl StarlarkCallableParamSpec for ()
 object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
     override fun params(): ParamSpec {
         return ParamSpec.posOnly(emptyList(), emptyList())
@@ -52,7 +47,6 @@ object StarlarkCallableParamSpecNone : StarlarkCallableParamSpec {
 }
 
 /** Single positional-only parameter. */
-// impl<A: StarlarkTypeRepr> StarlarkCallableParamSpec for (A,)
 class StarlarkCallableParamSpec1(
     private val a: Ty,
 ) : StarlarkCallableParamSpec {
@@ -62,7 +56,6 @@ class StarlarkCallableParamSpec1(
 }
 
 /** Two positional-only parameters. */
-// impl<A: StarlarkTypeRepr, B: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B)
 class StarlarkCallableParamSpec2(
     private val a: Ty,
     private val b: Ty,
@@ -73,7 +66,6 @@ class StarlarkCallableParamSpec2(
 }
 
 /** Three positional-only parameters. */
-// impl<A, B, C: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B, C)
 class StarlarkCallableParamSpec3(
     private val a: Ty,
     private val b: Ty,
@@ -85,7 +77,6 @@ class StarlarkCallableParamSpec3(
 }
 
 /** Four positional-only parameters. */
-// impl<A, B, C, D: StarlarkTypeRepr> StarlarkCallableParamSpec for (A, B, C, D)
 class StarlarkCallableParamSpec4(
     private val a: Ty,
     private val b: Ty,

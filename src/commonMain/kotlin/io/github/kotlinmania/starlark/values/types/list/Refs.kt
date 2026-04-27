@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.list
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * Wraps a read-only view of the list elements as [Value] references.
  * Both mutable and frozen lists can be viewed through [ListRef].
  *
- * Corresponds to Rust's `ListRef<'v>`.
  */
 class ListRef private constructor(
     private val elements: List<Value>,
@@ -54,7 +53,6 @@ class ListRef private constructor(
          *
          * Returns `null` if the value is not a list.
          *
-         * Corresponds to Rust's `ListRef::from_value`.
          */
         fun fromValue(x: Value): ListRef? {
             if (x.unpackFrozen() != null) {
@@ -73,7 +71,6 @@ class ListRef private constructor(
          *
          * Returns `null` if the frozen value is not a list.
          *
-         * Corresponds to Rust's `ListRef::from_frozen_value`.
          */
         fun fromFrozenValue(x: FrozenValue): ListRef? {
             val gen = x.downcastRef<ListGen<*>>() ?: return null
@@ -97,7 +94,6 @@ class ListRef private constructor(
     /**
      * Get a sublist for the given range, or null if the range is invalid.
      *
-     * In Rust, this delegates to slice indexing: `this.get(start..end)`.
      * In Kotlin, we clamp and return a subList.
      */
     fun get(range: IntRange): List<Value>? {
@@ -110,15 +106,12 @@ class ListRef private constructor(
     /**
      * Returns a [List] view of this reference's content.
      *
-     * This is the Kotlin equivalent of Rust's `impl Deref for ListRef`
-     * where `type Target = [Value<'v>]`.
      */
     fun asList(): List<Value> = elements
 
     /**
      * Display implementation.
      *
-     * Corresponds to Rust's `impl Display for ListRef`.
      */
     override fun toString(): String = displayList(elements)
 }
@@ -128,7 +121,6 @@ class ListRef private constructor(
  *
  * Wraps a read-only view of the frozen list elements as [FrozenValue] references.
  *
- * Corresponds to Rust's `FrozenListRef`.
  */
 class FrozenListRef private constructor(
     private val elements: List<FrozenValue>,
@@ -145,7 +137,6 @@ class FrozenListRef private constructor(
          *
          * This function returns `null` if the value is not a list or the list is not frozen.
          *
-         * Corresponds to Rust's `FrozenListRef::from_value`.
          */
         fun fromValue(x: Value): FrozenListRef? {
             val frozen = x.unpackFrozen() ?: return null
@@ -158,7 +149,6 @@ class FrozenListRef private constructor(
          * This function returns `null` if the value is not a frozen list.
          * (Value cannot be a mutable list because value is frozen.)
          *
-         * Corresponds to Rust's `FrozenListRef::from_frozen_value`.
          */
         fun fromFrozenValue(x: FrozenValue): FrozenListRef? {
             val gen = x.downcastRef<ListGen<*>>() ?: return null
@@ -179,7 +169,6 @@ class FrozenListRef private constructor(
     /**
      * Returns a [List] view of this reference's content.
      *
-     * This is the Kotlin equivalent of Rust's `impl Deref for FrozenListRef`
      * where `type Target = [FrozenValue]`.
      */
     fun asList(): List<FrozenValue> = elements
@@ -187,7 +176,6 @@ class FrozenListRef private constructor(
     /**
      * Display implementation.
      *
-     * Corresponds to Rust's `impl Display for FrozenListRef`.
      */
     override fun toString(): String = displayList(elements.map { it.toValue() })
 }
@@ -195,9 +183,7 @@ class FrozenListRef private constructor(
 // -- Deref implementations (structural equivalents) ---------------------------
 
 /**
- * Represents the `impl Deref for ListRef` in Rust.
  *
- * In Rust, `ListRef` implements `Deref<Target = [Value]>` so it can
  * be used directly as a slice. In Kotlin, the equivalent is calling
  * [ListRef.asList] or [ListRef.content].
  */
@@ -206,11 +192,6 @@ object ListRefDeref {
     fun deref(ref: ListRef): List<Value> = ref.content()
 }
 
-/**
- * Represents the `impl Deref for FrozenListRef` in Rust.
- *
- * In Rust, `FrozenListRef` implements `Deref<Target = [FrozenValue]>`.
- */
 object FrozenListRefDeref {
     /** The target type is `List<FrozenValue>`. */
     fun deref(ref: FrozenListRef): List<FrozenValue> = ref.content()
@@ -219,7 +200,6 @@ object FrozenListRefDeref {
 // -- Display implementations (structural equivalents) -------------------------
 
 /**
- * Represents the `impl Display for ListRef` in Rust.
  *
  * Formats the list reference as a Starlark list literal `[a, b, c]`.
  */
@@ -228,7 +208,6 @@ object ListRefDisplay {
 }
 
 /**
- * Represents the `impl Display for FrozenListRef` in Rust.
  *
  * Formats the frozen list reference as a Starlark list literal.
  */
@@ -238,12 +217,10 @@ object FrozenListRefDisplay {
 
 // -- StarlarkTypeRepr implementations -----------------------------------------
 
-/** [StarlarkTypeRepr] for [ListRef]. Corresponds to Rust's `impl StarlarkTypeRepr for &'v ListRef<'v>`. */
 object ListRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 }
 
-/** [StarlarkTypeRepr] for [FrozenListRef]. Corresponds to Rust's `impl StarlarkTypeRepr for &'v FrozenListRef`. */
 object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 }
@@ -253,7 +230,6 @@ object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
 /**
  * [UnpackValue] for [ListRef].
  *
- * Corresponds to Rust's `impl UnpackValue<'v> for &'v ListRef<'v>`.
  */
 object ListRefUnpackValue : UnpackValue<ListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
@@ -266,7 +242,6 @@ object ListRefUnpackValue : UnpackValue<ListRef> {
 /**
  * [UnpackValue] for [FrozenListRef].
  *
- * Corresponds to Rust's `impl UnpackValue<'v> for &'v FrozenListRef`.
  */
 object FrozenListRefUnpackValue : UnpackValue<FrozenListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()

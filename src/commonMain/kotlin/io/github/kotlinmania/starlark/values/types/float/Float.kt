@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.types.float
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -92,7 +92,6 @@ internal fun writeScientific(
         // start with "-" for a negative number
         if (f.toBits() < 0L) output.append('-')
 
-        // use the whole integral part of normal (a single digit)
         output.append(floor(normal).toInt().toString())
 
         // calculate the fractional tail for given precision
@@ -130,7 +129,6 @@ internal fun writeCompact(output: Appendable, f: Double, exponentChar: Char) {
         val exponent = if (f == 0.0) 0 else floor(log10(abs)).toInt()
 
         if (abs(exponent) >= WRITE_PRECISION) {
-            // use scientific notation if exponent is outside of our precision (but strip 0s)
             writeScientific(output, f, exponentChar, true)
         } else if (f - floor(f) == 0.0) {
             // make sure there's a fractional part even if the number doesn't have it
@@ -182,8 +180,6 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
     }
 
     // --- StarlarkValue implementation ---
-    // Rust: #[starlark_value(type = StarlarkFloat::TYPE)]
-    // Rust: impl<'v> StarlarkValue<'v> for StarlarkFloat
 
     override fun equals(other: Value): Result<Boolean> =
         Result.success(NumRef.Float(StarlarkFloat(value)) == other.unpackNum())
@@ -243,17 +239,10 @@ data class StarlarkFloat(val value: Double) : StarlarkTypeRepr, StarlarkValue, A
     override fun typecheckerTy(): Ty? = Ty.float()
 }
 
-// impl AllocValue for StarlarkFloat -- implemented via AllocValue interface on StarlarkFloat
-
-// impl AllocFrozenValue for StarlarkFloat -- implemented via AllocFrozenValue interface on StarlarkFloat
-
-// impl StarlarkTypeRepr for f64
 fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-// impl AllocValue for f64
 fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-// impl AllocFrozenValue for f64
 fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
@@ -262,8 +251,6 @@ fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
 
 fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
     typecheckNumBinOp(NumTy.Float, op, rhs)
-
-// #[cfg(test)]
 
 private fun nonFinite(f: Double): String {
     val buf = StringBuilder()
@@ -329,26 +316,3 @@ internal fun testWriteCompact() {
     check(compact(1e300) == "1e+300")
 }
 
-internal fun testArithmeticOperators() {
-    // assert::all_true: +1.0 == 1.0, -1.0 == 0. - 1., 1.0 + 2.0 == 3.0,
-    // 1.0 - 2.0 == -1.0, 2.0 * 3.0 == 6.0, 5.0 / 2.0 == 2.5,
-    // 5.0 % 3.0 == 2.0, 5.0 // 2.0 == 2.0
-}
-
-internal fun testDictionaryKey() {
-    // assert::pass: x = {0: 123}, assert_eq(x[0], 123),
-    // assert_eq(x[noop(0.0)], 123), assert_eq(x[noop(-0.0)], 123),
-    // assert_eq(1 in x, False)
-}
-
-internal fun testComparisons() {
-    // a.all_true: +0.0 == -0.0, 0.0 == 0, 0 == 0.0, 0 < 1.0,
-    // 0.0 < 1, 1 > 0.0, 1.0 > 0, 0.0 < float("nan"),
-    // float("+inf") < float("nan")
-}
-
-internal fun testComparisonsBySorting() {
-    // assert::eq(sorted([float('inf'), float('-inf'), float('nan'), 1e300,
-    // -1e300, 1.0, -1.0, 1, -1, 1e-300, -1e-300, 0, 0.0, float('-0.0'),
-    // 1e-300, -1e-300]), [...])
-}

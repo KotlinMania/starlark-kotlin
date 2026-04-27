@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/call_enter_exit.rs
+// port-lint: source src/values/layout/heap/callEnterExit.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,49 +27,27 @@ import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.Value
 
-/// A type which is either drop or non-drop.
-// pub(crate) trait MaybeDrop: Debug + Sync + Send + Allocative + 'static {}
+/** A type which is either drop or non-drop. */
 internal interface MaybeDrop
 
-/// Type which has `Drop`.
-// #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
-// pub(crate) struct NeedsDrop;
+/** Type which has `Drop`. */
 internal class NeedsDrop : MaybeDrop, AutoCloseable {
-    // impl Drop for NeedsDrop
-    // fn drop(&mut self) {
     //     // Just make this type `Drop`.
-    //     // Note `mem::needs_drop()` would return `true` for this type,
+    //     // Note `mem::needsDrop()` would return `true` for this type,
     //     // even if `drop` is optimized away.
-    // }
     override fun close() {
         // Just make this type have a finalizer.
     }
 }
 
-/// Type which doesn't have `Drop`.
-// #[derive(ProvidesStaticType, Debug, Trace, Allocative)]
-// pub(crate) struct NoDrop;
+/** Type which doesn't have `Drop`. */
 internal class NoDrop : MaybeDrop
 
-// impl MaybeDrop for NeedsDrop {}
-// impl MaybeDrop for NoDrop {}
-
-// #[derive(Trace, Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("CallEnter")]
-// pub(crate) struct CallEnter<'v, D: MaybeDrop + 'static> {
-//     pub(crate) function: Value<'v>,
-//     pub(crate) time: ProfilerInstant,
-//     pub(crate) maybe_drop: D,
-// }
 internal class CallEnter<D : MaybeDrop>(
     var function: Value,
     val time: ProfilerInstant,
     val maybeDrop: D,
 ) : StarlarkValue, Trace {
-    // #[starlark_value(type = "call_enter")]
-    // impl<'v, D: MaybeDrop + Trace<'v> + 'v> StarlarkValue<'v> for CallEnter<'v, D> {
-    //     type Canonical = Self;
-    // }
     override val TYPE: String get() = "call_enter"
 
     override fun trace(tracer: Tracer) {
@@ -78,26 +56,14 @@ internal class CallEnter<D : MaybeDrop>(
         function = holder.value
     }
 
-    // #[display("CallEnter")]
     override fun toString(): String = "CallEnter"
 }
 
-// #[derive(Debug, Display, ProvidesStaticType, NoSerialize, Allocative)]
-// #[display("CallExit")]
-// pub(crate) struct CallExit<D: MaybeDrop + 'static> {
-//     pub(crate) time: ProfilerInstant,
-//     pub(crate) maybe_drop: D,
-// }
 internal class CallExit<D : MaybeDrop>(
     val time: ProfilerInstant,
     val maybeDrop: D,
 ) : StarlarkValue {
-    // #[starlark_value(type = "call_exit")]
-    // impl<'v, D: MaybeDrop> StarlarkValue<'v> for CallExit<D> {
-    //     type Canonical = Self;
-    // }
     override val TYPE: String get() = "call_exit"
 
-    // #[display("CallExit")]
     override fun toString(): String = "CallExit"
 }

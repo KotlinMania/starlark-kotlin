@@ -1,5 +1,4 @@
-// port-lint: source src/values/layout/pointer.rs (tests)
-package io.github.kotlinmania.starlark.values.layout
+// port-lint: source tests:src/values/layout/pointer.rspackage io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -7,7 +6,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -24,11 +23,8 @@ import kotlin.test.assertEquals
 
 class PointerTest {
 
-    // #[test]
-    // fn test_int_tag()
     @Test
     fun testIntTag() {
-        // Rust: fn check(x: InlineInt) { assert_eq!(x, RawPointer::new_int(x).unpack_int().unwrap()); }
         // Kotlin: RawPointer.newInt takes Int directly (drift from Rust which takes InlineInt).
         fun check(x: Int) {
             assertEquals(x, RawPointer.newInt(x).unpackInt())

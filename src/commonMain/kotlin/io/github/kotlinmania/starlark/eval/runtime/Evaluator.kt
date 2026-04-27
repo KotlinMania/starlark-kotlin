@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -105,14 +105,12 @@ private const val INFREQUENT_INSTRUCTION_CHECK_PERIOD: UInt = 1000u
 /** Default value for max starlark stack size */
 const val DEFAULT_STACK_SIZE: Int = 50
 
-// Kotlin/Multiplatform equivalent of Rust's `eprintln!` / `System.err.println`.
-// In commonMain there is no direct stderr access; we use println as a fallback.
+// In commonMain there is no direct stderr access; we import println as a fallback.
 private fun eprintln(msg: String) {
     println(msg)
 }
 
-// Rust uses `_check_variance`/`check_covariant_a` to validate lifetime variance on `Evaluator`.
-// Kotlin has no equivalent lifetime system, so these remain explicit no-op parity markers.
+// We import this to validate that the Evaluator lifetimes have the expected variance.
 @Suppress("unused")
 private fun checkVariance() {
     checkCovariantA()
@@ -130,7 +128,7 @@ internal class EvaluationInstrumentation {
     // Extra functions to run on each statement, usually empty
     var beforeStmt: BeforeStmt = BeforeStmt()
     var heapOrFlameProfile: Boolean = false
-    // Whether we need to instrument evaluation or not, should be set if before_stmt or bc_profile are enabled.
+    // Whether we need to instrument evaluation or not, should be set if beforeStmt or bcProfile are enabled.
     var enabled: Boolean = false
 
     companion object {
@@ -282,7 +280,7 @@ class Evaluator(
                 evalInstrumentation
                     .change { it.enableHeapOrFlameProfile() }
 
-                // Disable GC because otherwise why lose the profile records, as we use the heap
+                // Disable GC because otherwise why lose the profile records, as we import the heap
                 // to store a complete list of what happened in linear order.
                 disableGc = true
             }
@@ -379,7 +377,7 @@ class Evaluator(
         breakpointHandler = RealBreakpointConsole.factory()
     }
 
-    /** Obtain the current call-stack, suitable for use in diagnostics. */
+    /** Obtain the current call-stack, suitable for import in diagnostics. */
     fun callStack(): io.github.kotlinmania.starlark.CallStack {
         return callStack.toDiagnosticFrames(InlinedFrames())
     }
@@ -438,8 +436,8 @@ class Evaluator(
         isCancelled = isCanceled
     }
 
-    private fun addCallStackDiagnostics(e: io.github.kotlinmania.starlark.Error): io.github.kotlinmania.starlark.Error {
-        // Make sure we capture the call_stack before popping things off it
+    private fun addDiagnostics(e: io.github.kotlinmania.starlark.Error): io.github.kotlinmania.starlark.Error {
+        // Make sure we capture the callStack before popping things off it
         e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
         return e
     }
@@ -459,7 +457,7 @@ class Evaluator(
             within(this)
         } catch (e: io.github.kotlinmania.starlark.Error) {
             callStack.pop()
-            throw addCallStackDiagnostics(e)
+            throw addDiagnostics(e)
         }
         callStack.pop()
         return res
@@ -479,7 +477,7 @@ class Evaluator(
      * The frozen heap. It's possible to allocate [FrozenValue][io.github.kotlinmania.starlark.values.FrozenValue]s here,
      * but often not a great idea, as they will remain allocated as long
      * as the results of this execution are required.
-     * Suitable for use with [addReference][FrozenHeap.addReference]
+     * Suitable for import with [addReference][FrozenHeap.addReference]
      * and [OwnedFrozenValue.ownedFrozenValue][io.github.kotlinmania.starlark.values.OwnedFrozenValue.ownedFrozenValue].
      */
     fun frozenHeap(): FrozenHeap {
@@ -590,7 +588,7 @@ class Evaluator(
      * If those variables are _also_ existing top-level variables, then the program from that point on
      * will incorporate those values. If they aren't existing top-level variables, they will be ignored.
      * These details are subject to change.
-     * As such, use this API with a healthy dose of caution and in limited settings.
+     * As such, import this API with a healthy dose of caution and in limited settings.
      */
     fun setModuleVariableAtSomePoint(
         name: String,
@@ -670,13 +668,13 @@ class Evaluator(
     private fun topFrameMaybeForDebugger(forDebugger: Boolean): Value {
         val func = callStack.topNthFunction(0)
         if (forDebugger && func.downcastRef<NativeFunction>() != null) {
-            // If top frame is `breakpoint` or `debug_evaluate`, it will be skipped.
+            // If top frame is `breakpoint` or `debugEvaluate`, it will be skipped.
             return callStack.topNthFunction(1)
         }
         return func
     }
 
-    /** Gets the "top frame" for debugging. If the real top frame is `breakpoint` or `debug_evaluate`
+    /** Gets the "top frame" for debugging. If the real top frame is `breakpoint` or `debugEvaluate`
      * it will be skipped. This should only be used for the starlark debugger. */
     internal fun topFrameDefInfoForDebugger(): DefInfo {
         val func = topFrameMaybeForDebugger(true)
@@ -734,9 +732,8 @@ class Evaluator(
             trace(tracer)
 
             // See above, this enter begins right as our closure ends, and
-            // will catch the implicit drop of the old arena as the
-            // self.heap() lets it auto-drop on return from the
-            // .garbage_collect()
+            // will catch the implicit drop of the old arena as the heap is
+            // released on return from garbageCollect().
             timeFlameProfile.recordCallEnter(constFrozenString("cleanup").toValue())
         }
         // This exits the "cleanup" in the closure above
@@ -913,7 +910,7 @@ internal class EvalCallbacksEnabled(
 // This function should be called before every meaningful statement (continued==false), and after a call that returns into a previously entered statement (continued==true).
 // The purposes are GC, profiling and debugging.
 //
-// This function is called only if `before_stmt` is set before compilation start.
+// This function is called only if `beforeStmt` is set before compilation start.
 fun beforeStmtFn(
     span: FrameSpan,
     continued: Boolean,

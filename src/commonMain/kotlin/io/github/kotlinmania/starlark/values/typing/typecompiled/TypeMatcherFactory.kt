@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/type_compiled/type_matcher_factory.rs
+// port-lint: source src/values/typing/typeCompiled/typeMatcherFactory.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -26,21 +26,16 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.layout.Value
 
-// #[derive(Allocative, Debug)]
-// struct TypeMatcherFactoryImpl<M: TypeMatcher> { matcher: M }
 private class TypeMatcherFactoryImpl(
     private val matcher: TypeMatcher,
 ) : TypeMatcherFactoryDyn {
-    // impl<M: TypeMatcher> TypeMatcherFactoryDyn for TypeMatcherFactoryImpl<M>
 
-    // fn matcher_box(&self) -> TypeMatcherBox
     override fun matcherBox(): TypeMatcherBox {
         return TypeMatcherBox.new(object : TypeMatcherT {
             override fun matches(value: Value): Boolean = matcher.matches(value)
         })
     }
 
-    // fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>
     override fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled {
         return factory.alloc(matcher)
     }
@@ -48,10 +43,6 @@ private class TypeMatcherFactoryImpl(
     override fun toString(): String = "TypeMatcherFactoryImpl($matcher)"
 }
 
-// pub(crate) trait TypeMatcherFactoryDyn: Allocative + Debug + Send + Sync + 'static {
-//     fn matcher_box(&self) -> TypeMatcherBox;
-//     fn type_compiled<'v>(&self, factory: TypeCompiledFactory<'_, 'v>) -> TypeCompiled>;
-// }
 internal interface TypeMatcherFactoryDyn {
     fun matcherBox(): TypeMatcherBox
     fun typeCompiled(factory: TypeCompiledFactory): TypeCompiled
@@ -61,7 +52,6 @@ internal interface TypeMatcherFactoryDyn {
 class TypeMatcherFactory internal constructor(
     internal val factory: TypeMatcherFactoryDyn,
 ) {
-    // impl TypeMatcherFactory
 
     companion object {
         /** Create a new [TypeMatcherFactory] from a [TypeMatcher]. */

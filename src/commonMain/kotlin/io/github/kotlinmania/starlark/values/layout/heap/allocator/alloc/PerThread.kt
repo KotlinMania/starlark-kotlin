@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/per_thread.rs
+// port-lint: source src/values/layout/heap/allocator/alloc/perThread.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not import this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,8 +36,7 @@ internal val MIN_USABLE_ALLOC: AlignedSize = AlignedSize.newBytes(
  * Chunk cache for reuse across arena allocations.
  *
  * Frozen heap has two arenas: drop and non-drop. So we keep at least two chunks.
- * In Rust this uses `thread_local!` with `RefCell`. In Kotlin with coroutines,
- * we use a coroutine-safe shared cache.
+ * we import a coroutine-safe shared cache.
  */
 internal class PerThreadChunkCache {
     /** Keep a few last chunks. */
@@ -75,7 +74,6 @@ internal class PerThreadChunkCache {
 
 /**
  * Allocator chunk cache.
- * In Rust: `thread_local! { static PER_THREAD_ALLOCATOR: RefCell<PerThreadChunkCache> }`
  * In Kotlin with coroutines, this is a shared cache instance.
  */
 private val PER_THREAD_ALLOCATOR: PerThreadChunkCache = PerThreadChunkCache()
