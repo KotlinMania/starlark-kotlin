@@ -74,31 +74,31 @@ interface Freeze<Frozen> {
 }
 
 
-fun String.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<String> {
+fun String.freeze(freezer: Freezer): Result<String> {
     return Result.success(this)
 }
 
-fun Int.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Int> {
+fun Int.freeze(freezer: Freezer): Result<Int> {
     return Result.success(this)
 }
 
-fun UInt.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<UInt> {
+fun UInt.freeze(freezer: Freezer): Result<UInt> {
     return Result.success(this)
 }
 
-fun Long.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Long> {
+fun Long.freeze(freezer: Freezer): Result<Long> {
     return Result.success(this)
 }
 
-fun ULong.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<ULong> {
+fun ULong.freeze(freezer: Freezer): Result<ULong> {
     return Result.success(this)
 }
 
-fun Boolean.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Boolean> {
+fun Boolean.freeze(freezer: Freezer): Result<Boolean> {
     return Result.success(this)
 }
 
-fun <T> PhantomData<T>.freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<PhantomData<T>> {
+fun <T> PhantomData<T>.freeze(freezer: Freezer): Result<PhantomData<T>> {
     return Result.success(PhantomData.new())
 }
 
@@ -210,7 +210,7 @@ fun <T : Freeze<TFrozen>, TFrozen> SmallSet<T>.freeze(freezer: Freezer): Result<
     return Result.success(result)
 }
 
-fun freezeUnit(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<Unit> {
+fun freezeUnit(freezer: Freezer): Result<Unit> {
     return Result.success(Unit)
 }
 
