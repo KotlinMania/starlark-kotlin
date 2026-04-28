@@ -548,6 +548,11 @@ class Tracer internal constructor(
         value.value = adjust(value.value)
     }
 
+    /** Walk over a [Value] in place, updating its pointer if the value moved. */
+    fun trace(value: Value) {
+        value.ptr = adjust(value).ptr
+    }
+
     /**
      * Helper function to annotate that this field has been considered for tracing,
      * but is not relevant because it has a static lifetime containing no relevant values.

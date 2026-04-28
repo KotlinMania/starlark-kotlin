@@ -161,7 +161,7 @@ private fun debugValue(typ: String, v: Value): String {
  * The [toString] method is equivalent to the `repr()` function in Starlark.
  */
 class Value internal constructor(
-    internal val ptr: Pointer,
+    internal var ptr: Pointer,
 ) : ValueLike<Value> {
     companion object {
         /**
@@ -861,6 +861,7 @@ class Value internal constructor(
     }
 
     override fun trace(tracer: Tracer) {
+        tracer.trace(this)
     }
 
     override val staticType: KClass<*> get() = Value::class
