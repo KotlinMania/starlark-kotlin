@@ -69,7 +69,6 @@ private sealed class CallStackError(override val message: String) : Exception(me
 }
 
 /** Starlark call stack. */
-// Kotlin: no lifetime parameter.
 internal class CheapCallStack {
     private var count: Int = 0
     private var stack: Array<CheapFrame> = emptyArray()
