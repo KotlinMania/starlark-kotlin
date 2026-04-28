@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/avalue.rs
+// port-lint: source values/layout/avalue.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -39,15 +39,7 @@ import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.types.tuple.unpackTuple2
 
-/**
- * Extended vtable methods (those not covered by [StarlarkValue]).
- *
- * Sealed: the upstream `values/layout/avalues.rs` mod groups the closed set of
- * AValue implementations (array, complex, list, simple, static_, str_, tuple).
- * Sealing the contract here gives the Kotlin compiler the same closed-variant
- * guarantee that the Rust mod declaration provides; concrete implementations
- * live in the `avalues` subpackage.
- */
+/** Extended vtable methods (those not covered by [StarlarkValue]). */
 sealed interface AValue {
 
     /**
@@ -91,7 +83,7 @@ sealed interface AValue {
      *
      * Both the size of the value itself and anything it references.
      *
-     * This existing is a bit of a hack to let statically allocated values set this to zero.
+     * This existing is a bit of a hack so statically allocated values can set this to zero.
      */
     fun totalMemoryForProfile(value: StarlarkValue): Int {
         return allocSizeForExtraLen(extraLen(value)).bytes().toInt()
