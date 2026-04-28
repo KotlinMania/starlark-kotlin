@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/arguments.rs
+// port-lint: source eval/runtime/arguments.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -76,8 +76,6 @@ sealed class FunctionError(
     )
 }
 
-// Kotlin: FunctionError already extends Exception, convertible via standard mechanisms.
-
 /** An object accompanying argument name for faster argument resolution. */
 interface ArgSymbol {
     fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
@@ -104,8 +102,6 @@ data class ResolvedArgName(
         return hash
     }
 }
-
-// Kotlin: no Coerce equivalent needed.
 
 class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
@@ -509,8 +505,6 @@ class Arguments(
         }
     }
 }
-
-// Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
 
 private fun DictRef.dict(): Dict {
     return when (val ref = aref) {
