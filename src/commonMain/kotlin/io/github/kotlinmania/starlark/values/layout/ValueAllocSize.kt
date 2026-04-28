@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/valueAllocSize.rs
+// port-lint: source values/layout/value_alloc_size.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -48,8 +48,6 @@ data class ValueAllocSize(
                 ?: error("$size is too small for a value (minimum is $MIN_ALLOC)")
         }
     }
-
-    // Kotlin: No `std::alloc::Layout`. Not transliterable.
 
     fun size(): AlignedSize = size
 
