@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import kotlin.concurrent.atomics.AtomicInt
 
-//     data: [MaybeUninit<usize>; 0],
-// Kotlin: ChunkData manages a ByteArray instead of raw pointers.
 private class ChunkData(
     val len: AlignedSize,
 ) {
@@ -42,25 +40,14 @@ private class ChunkData(
         }
 
         // Approximate header size in bytes (for allocation math).
-        const val HEADER_SIZE_BYTES: Int = 8 // refCount (4) + len (4)
+        const val HEADER_SIZE_BYTES: Int = 8
     }
-
-    // Kotlin: offset 0 into data array.
 }
-
-/** Identical to `ChunkData`, but does not have `UnsafeCell`, so it is statically allocated. */
-// Kotlin: represented by null ChunkData in Chunk.
-
-// Kotlin: represented by Chunk with null data.
-
-// Kotlin: toString() on ChunkData
 
 /** Refcounted chunk of memory. */
 internal class Chunk private constructor(
     private val chunkData: ChunkData?,
 ) {
-    // Kotlin: import companion empty() factory.
-
     companion object {
         val HEADER_SIZE: AlignedSize = AlignedSize.newBytes(ChunkData.HEADER_SIZE_BYTES)
 
@@ -111,9 +98,6 @@ internal class Chunk private constructor(
 
     fun isEmpty(): Boolean = chunkData == null
 
-    // Kotlin: returns offset 0 — callers import ptrAtOffset.
-
-    // Kotlin: returns the byte offset into the data array.
     fun ptrAtOffset(offset: AlignedSize): Int {
         return offset.bytes().toInt()
     }
@@ -132,7 +116,6 @@ internal class Chunk private constructor(
         return Chunk(chunkData)
     }
 
-    // Kotlin: GC handles deallocation; decrement ref count for accounting.
     fun release() {
         if (isEmpty()) return
         chunkData!!.refCount.fetchAndAdd(-1)
