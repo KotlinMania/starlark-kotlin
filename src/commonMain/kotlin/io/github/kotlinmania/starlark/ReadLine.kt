@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark.readline
 
 // This is not public API, but it is used by Starlark command line utility.
 
-// Kotlin: simple stdin-based readline. No rustyline equivalent in KMP.
-
 /** Wrapper for the readline library, whichever we are using at the moment. */
 class ReadLine private constructor(
     private val histfileEnv: String?,
