@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/freezer.rs
+// port-lint: source values/layout/freezer.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -47,11 +47,12 @@ class Freezer internal constructor(
         return value.allocFrozenValue(heap)
     }
 
-    // where
-    //     T: AValue<'v2, ExtraElem = ()>,
-    internal fun <T : AValue> reserve(): Pair<FrozenValue, Reservation<T>> {
+    internal fun <T> reserve(): Pair<FrozenValue, Reservation<T>>
+        where T : AValue,
+              T : HeapSendable,
+              T : HeapSyncable {
         val (fv, r, extra) = heap.reserveWithExtra<T>(0)
-        check(extra == Unit) // debugAssert(extra.isEmpty())
+        check(extra == Unit)
         return Pair(fv, r)
     }
 
