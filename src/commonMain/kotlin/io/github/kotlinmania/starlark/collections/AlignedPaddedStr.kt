@@ -20,8 +20,6 @@ package io.github.kotlinmania.starlark.collections.alignedpaddedstr
  */
 
 /** String which is `Long`-aligned with zeros padding in the end. */
-//     data: *const usize,
-// Kotlin: uses LongArray as word-aligned storage. Index simulates pointer offset.
 internal class AlignedPaddedStr(
     /** In bytes. */
     private val len: Int,
