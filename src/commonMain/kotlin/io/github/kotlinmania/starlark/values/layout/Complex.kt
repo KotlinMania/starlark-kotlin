@@ -56,7 +56,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi inter
          * held by [value] is an instance of [mutableClass] or [frozenClass].
          */
         @PublishedApi
-        @Suppress("UNCHECKED_CAST")
         internal fun <T : ComplexValue, F : StarlarkValue> newImpl(
             value: Value,
             mutableClass: KClass<T>,
@@ -103,14 +102,12 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi inter
     fun toValue(): Value = value
 
     /** Downcast a Value to T using its stored KClass, via the AValueDyn raw pointer. */
-    @Suppress("UNCHECKED_CAST")
     private fun downcastMutable(): T? {
         val raw = value.getRef().value.ptr
         return if (mutableClass.isInstance(raw)) raw as T else null
     }
 
     /** Downcast a Value to F using its stored KClass, via the AValueDyn raw pointer. */
-    @Suppress("UNCHECKED_CAST")
     private fun downcastFrozen(): F? {
         val raw = value.getRef().value.ptr
         return if (frozenClass.isInstance(raw)) raw as F else null
@@ -144,9 +141,7 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi inter
         return Ty.any()
     }
 
-    fun allocValue(@Suppress("UNUSED_PARAMETER") heap: Heap): Value = value
-
-    // Kotlin: static unpack is handled via the `new` companion method.
+    fun allocValue(heap: Heap): Value = value
 
     override fun toString(): String = "ValueTypedComplex($value)"
 
