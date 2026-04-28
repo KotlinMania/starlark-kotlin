@@ -22,8 +22,6 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
  * limitations under the License.
  */
 
-// Kotlin: EvalException is defined in starlarkSyntax in Rust.
-// We define it here for now.
 class EvalException(override val message: String, cause: Throwable? = null) : Exception(message, cause) {
     companion object {
         fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException {
@@ -168,7 +166,7 @@ sealed class TypingNoContextOrInternalError : Exception() {
     class Internal(val error: InternalError) : TypingNoContextOrInternalError()
 
     companion object {
-        fun from(@Suppress("UNUSED_PARAMETER") e: TypingNoContextError): TypingNoContextOrInternalError = Typing
+        fun from(e: TypingNoContextError): TypingNoContextOrInternalError = Typing
         fun from(e: InternalError): TypingNoContextOrInternalError = Internal(e)
     }
 }
