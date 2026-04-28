@@ -35,10 +35,6 @@ package io.github.kotlinmania.starlark.eval.bc
  * * behavior of this object does not depend on `<T>`
  * * behavior does not depend on whether debugging assertions enabled or not
  */
-// In release build this structure is DST,
-// so gazebo suggests implementing `Dupe` for any `<T>`. T102920913.
-//     _marker: marker::PhantomData<T>,
-// Kotlin: no cfg-based conditional compilation; always store the value.
 internal class IfDebug<T> private constructor(
     private val value: T?,
 ) : Comparable<IfDebug<T>> {
