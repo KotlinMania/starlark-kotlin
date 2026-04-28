@@ -46,9 +46,12 @@ data class Approximation(
         }
     }
 
-    override fun toString(): String {
+    /** Format as `Approximation: <category> = "<message>"`. */
+    fun fmt(): String {
         return "Approximation: $category = \"$message\""
     }
+
+    override fun toString(): String = fmt()
 
     override fun compareTo(other: Approximation): Int {
         val cmp = category.compareTo(other.category)
@@ -444,7 +447,10 @@ class Ty private constructor(
 
     override fun hashCode(): Int = alternatives.hashCode()
 
-    override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
+    /** Default display format using [TypeRenderConfig.Default]. */
+    fun fmt(): String = fmtWithConfig(TypeRenderConfig.Default)
+
+    override fun toString(): String = fmt()
 
     override fun compareTo(other: Ty): Int = alternatives.compareTo(other.alternatives)
 }
@@ -472,7 +478,10 @@ class TyDisplay(
     private val ty: Ty,
     private val config: TypeRenderConfig,
 ) {
-    override fun toString(): String = ty.fmtWithConfig(config)
+    /** Display format using the configured [TypeRenderConfig]. */
+    fun fmt(): String = ty.fmtWithConfig(config)
+
+    override fun toString(): String = fmt()
 }
 
 /**
