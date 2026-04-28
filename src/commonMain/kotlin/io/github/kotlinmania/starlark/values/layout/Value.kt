@@ -48,6 +48,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
 import io.github.kotlinmania.starlark.values.layout.FrozenPointer
@@ -859,10 +860,10 @@ class Value internal constructor(
         return freezer.freeze(this)
     }
 
-    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+    override fun trace(tracer: Tracer) {
     }
 
-    override val staticType: kotlin.reflect.KClass<*> get() = Value::class
+    override val staticType: KClass<*> get() = Value::class
 
     // ValueLike implementation
 
@@ -1600,8 +1601,10 @@ class FrozenValue internal constructor(
         return Result.success(this)
     }
 
-    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+    override fun trace(tracer: Tracer) {
     }
+
+    override val staticType: KClass<*> get() = FrozenValue::class
 
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
