@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
  * as `&[MaybeUninit<u8>]` slices. In Kotlin, chunks are represented as
  * `ByteArray` for profiling/introspection purposes.
  */
-// Kotlin: not needed as a separate class; we import Sequence<ByteArray> directly.
 
 /**
  * Bump allocator implementation of [ArenaAllocator].
