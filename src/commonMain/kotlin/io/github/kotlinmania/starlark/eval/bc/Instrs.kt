@@ -341,15 +341,9 @@ internal class PatchAddr(
  * Raw instructions writer.
  *
  * Higher level wrapper is [BcWriter].
- *
- * The `Drop` implementation calls `dropInstrs`. In Kotlin, we import a [MutableList]
- * where each instruction is stored as a header/arg pair of objects, and the
- * garbage collector handles cleanup.
  */
 internal class BcInstrsWriter {
     internal val instrs: MutableList<Any> = mutableListOf()
-
-    // In Kotlin, GC handles cleanup.
 
     companion object {
         fun new(): BcInstrsWriter = BcInstrsWriter()
