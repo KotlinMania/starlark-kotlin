@@ -692,13 +692,11 @@ internal class DefGen<V>(
 
     // Freeze implementation: freeze into DefGen<FrozenValue>.
     override fun freeze(freezer: Freezer): Result<DefGen<FrozenValue>> {
-        @Suppress("UNCHECKED_CAST")
         val frozenParameters = parameters as ParametersSpec<FrozenValue>
         val frozenParameterTypes = parameterTypes.map { (slot, name, ty) ->
             Triple(slot, name, ty.toFrozen(freezer.heap))
         }
         val frozenReturnType = returnType?.toFrozen(freezer.heap)
-        @Suppress("UNCHECKED_CAST")
         val frozenCaptured = (captured as List<Value>).map { v ->
             freezer.freeze(v).getOrElse { return Result.failure(it) }
         }

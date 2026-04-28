@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/frozenFileSpan.rs
+// port-lint: source eval/runtime/frozen_file_span.rs
 package io.github.kotlinmania.starlark.eval.runtime.frozenfilespan
 
 /*

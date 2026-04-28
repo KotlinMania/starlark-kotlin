@@ -1465,7 +1465,6 @@ internal fun Compiler.expr(
                 exprIdent(node.ident)
             }
             is ExprP.Lambda<CstPayload, *> -> {
-                @Suppress("UNCHECKED_CAST")
                 val lambda = node.lambda as LambdaP<CstPayload, ScopeId>
                 val signatureSpan = lambda.signatureSpan()
                 val frozenSignatureSpan = FrozenFileSpan.new(this.codemap, signatureSpan)

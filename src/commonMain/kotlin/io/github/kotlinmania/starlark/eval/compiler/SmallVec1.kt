@@ -35,7 +35,6 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
 
     fun hash(): Int = asSlice().hashCode()
 
-    @Suppress("UNCHECKED_CAST")
     fun partialCmp(other: SmallVec1<T>): Int {
         val left = asSlice()
         val right = other.asSlice()
@@ -88,7 +87,6 @@ internal sealed class SmallVec1<T> : Iterable<T>, Comparable<SmallVec1<T>> {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SmallVec1<*>) return false
-        @Suppress("UNCHECKED_CAST")
         return eq(other as SmallVec1<T>)
     }
 

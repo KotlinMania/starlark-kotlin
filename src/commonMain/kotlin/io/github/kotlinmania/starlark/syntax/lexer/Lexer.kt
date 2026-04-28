@@ -41,7 +41,7 @@ sealed class LexemeError(val message: String) {
 
 class Lexer(
     input: String,
-    @Suppress("unused_parameter") dialect: Dialect,
+    dialect: Dialect,
     val codemap: CodeMap,
 ) : Iterator<Triple<Int, Token, Int>> {
     private val source: String = input

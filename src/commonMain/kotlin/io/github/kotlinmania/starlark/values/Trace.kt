@@ -1,4 +1,4 @@
-// port-lint: source src/values/trace.rs
+// port-lint: source values/trace.rs
 package io.github.kotlinmania.starlark.values
 
 /*

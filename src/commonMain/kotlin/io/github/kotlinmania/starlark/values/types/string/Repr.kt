@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.unlikely
 /**
  * Check if any byte in the buffer is non-ASCII or need escape.
  */
-@Suppress("UNUSED")
 private fun <V : Vector> chunkNonAsciiOrNeedEscape(chunk: V): Boolean {
     // Note `cmplt` is signed comparison.
     val anyControlOrNonAscii = chunk.cmplt(chunk.splat(32))
@@ -160,7 +159,6 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
     }
 
     /** SIMD-optimized ASCII loop. */
-    @Suppress("UNUSED")
     fun <V : Vector> loopAsciiSimd(value: String, buffer: StringBuilder) {
         // No portable SIMD support is available; fall back to the byte-at-a-time loop.
         //

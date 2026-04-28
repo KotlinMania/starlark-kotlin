@@ -47,7 +47,6 @@ import kotlin.reflect.KClass
 
 data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val mutableSelf = this as DictGen<AtomicRef<Dict>>
         return mutableSelf.freezeDict(freezer) as Result<StarlarkValue>
@@ -226,14 +225,13 @@ class Dict(
             x == DictGen::class
 
         fun fromValueUncheckedMut(x: Value): AtomicRef<Dict> {
-            @Suppress("UNCHECKED_CAST")
             val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict>>>()
             return dict.inner
         }
     }
 
     override fun trace(tracer: Tracer) {
-        // Trace all keys and values in the content map
+        content.trace(tracer)
     }
 
     fun starlarkTypeRepr(): Ty = Ty.dict(Ty.any(), Ty.any())
@@ -283,7 +281,6 @@ class Dict(
                 return null
             }
         }
-        @Suppress("UNCHECKED_CAST")
         return content as SmallMap<StringValue, Value>
     }
 
@@ -392,7 +389,6 @@ class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
 }
 
 class FrozenDictDataDictLike(private val data: FrozenDictData) : DictLike {
-    @Suppress("UNCHECKED_CAST")
     override fun content(): SmallMap<Value, Value> =
         data.content as SmallMap<Value, Value>
 
@@ -400,7 +396,6 @@ class FrozenDictDataDictLike(private val data: FrozenDictData) : DictLike {
 
     override fun iterStop() {}
 
-    @Suppress("UNCHECKED_CAST")
     override fun contentUnchecked(): SmallMap<Value, Value> =
         data.content as SmallMap<Value, Value>
 

@@ -63,7 +63,6 @@ internal class AValueComplex(
         }
 
         // r.fill(res);
-        @Suppress("UNCHECKED_CAST")
         val freezable = value as Freeze<StarlarkValue>
         val result = freezable.freeze(freezer)
         val frozen = result.getOrElse { return Result.failure(it) }
@@ -71,7 +70,6 @@ internal class AValueComplex(
         val (fv, r) = freezer.reserve<AValue>()
         r.fill(frozen)
 
-        @Suppress("UNCHECKED_CAST")
         if (frozen is DefGen<*>) {
             freezer.frozenDefs.add(FrozenRef(frozen as DefGen<FrozenValue>))
         }

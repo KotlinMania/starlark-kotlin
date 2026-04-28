@@ -75,7 +75,7 @@ object StringTypeRepr : StarlarkTypeRepr {
 }
 
 /**
- * StarlarkTypeRepr implementation for Option<T> (nullable T).
+ * StarlarkTypeRepr implementation for nullable [T].
  * Represents `None | T` in Starlark type annotations.
  */
 class OptionTypeRepr<T : StarlarkTypeRepr>(

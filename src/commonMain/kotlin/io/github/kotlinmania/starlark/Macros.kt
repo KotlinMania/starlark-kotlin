@@ -121,7 +121,6 @@ object ComplexValueRegistry {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue> get(type: KClass<T>): ComplexValueEntry<T>? =
         entries[type] as? ComplexValueEntry<T>
 }
@@ -154,7 +153,6 @@ object ComplexValuesRegistry {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue, F : StarlarkValue> get(type: KClass<T>): ComplexValuesEntry<T, F>? =
         entries[type] as? ComplexValuesEntry<T, F>
 }
@@ -185,7 +183,6 @@ object SimpleValueRegistry {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue> get(type: KClass<T>): SimpleValueEntry<T>? =
         entries[type] as? SimpleValueEntry<T>
 }

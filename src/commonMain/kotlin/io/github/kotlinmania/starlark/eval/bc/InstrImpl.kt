@@ -1331,7 +1331,6 @@ internal object InstrCallImpl : InstrNoFlowImpl<CallArg> {
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
         val f = frame.getBcSlot(a.funSlot)
-        @Suppress("UNCHECKED_CAST")
         val arguments = Arguments((a.args as BcCallArgs<Symbol>).popFromStack(frame))
         val r = f.invokeWithLoc(FrozenRef(a.span), arguments, eval)
         return if (r.isSuccess) {
@@ -1360,7 +1359,6 @@ internal object InstrCallFrozenGenericImpl : InstrNoFlowImpl<CallFrozenArg> {
         val a = arg
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
-        @Suppress("UNCHECKED_CAST")
         val arguments = Arguments((a.args as BcCallArgs<Symbol>).popFromStack(frame))
         val r = a.callable.bcInvoke(FrozenRef(a.span), arguments, eval)
         return if (r.isSuccess) {
@@ -1389,7 +1387,6 @@ internal object InstrCallFrozenDefImpl : InstrNoFlowImpl<CallFrozenDefArg> {
         val a = arg
         val progress = eval.reportForwardProgress()
         if (progress.isFailure) return kotlin.Result.failure(progress.exceptionOrNull()!!)
-        @Suppress("UNCHECKED_CAST")
         val arguments = a.args as ArgumentsImpl<Symbol>
         val r = eval.withCallStack(a.fun_.toValue(), FrozenRef(a.span)) { innerEval ->
             a.fun_.asRef().invokeWithArgs(a.fun_.toValue(), arguments, innerEval)
@@ -1488,7 +1485,6 @@ internal object InstrCallMethodImpl : InstrNoFlowImpl<CallMethodArg> {
     ): kotlin.Result<Unit> {
         val a = arg
         val thisValue = frame.getBcSlot(a.thisSlot)
-        @Suppress("UNCHECKED_CAST")
         val arguments = Arguments((a.args as BcCallArgs<Symbol>).popFromStack(frame))
         return callMethodCommon(eval, frame, thisValue, a.symbol, arguments, a.span, a.target)
     }
@@ -1503,7 +1499,6 @@ internal object InstrCallMaybeKnownMethodImpl : InstrNoFlowImpl<CallMaybeKnownMe
     ): kotlin.Result<Unit> {
         val a = arg
         val thisValue = frame.getBcSlot(a.thisSlot)
-        @Suppress("UNCHECKED_CAST")
         val arguments = Arguments((a.args as BcCallArgs<Symbol>).popFromStack(frame))
         return callMaybeKnownMethodCommon(
             eval, frame, thisValue, a.symbol, a.knownMethod, arguments, a.span, a.target,

@@ -59,23 +59,23 @@ private class CompilerAstMap(
     private val scopeData: ModuleScopeData,
     private val loads: Map<String, Interface>,
 ) {
-    fun mapLoad(importPath: String, @Suppress("UNUSED_PARAMETER") unit: Unit): Interface {
+    fun mapLoad(importPath: String, unit: Unit): Interface {
         return loads[importPath] ?: Interface.empty()
     }
 
-    fun mapIdent(@Suppress("UNUSED_PARAMETER") unit: Unit): ResolvedIdent? {
+    fun mapIdent(unit: Unit): ResolvedIdent? {
         return null
     }
 
-    fun mapIdentAssign(@Suppress("UNUSED_PARAMETER") unit: Unit): BindingId? {
+    fun mapIdentAssign(unit: Unit): BindingId? {
         return null
     }
 
-    fun mapDef(@Suppress("UNUSED_PARAMETER") unit: Unit): ScopeId {
+    fun mapDef(unit: Unit): ScopeId {
         return scopeData.newScope().first
     }
 
-    fun mapTypeExpr(@Suppress("UNUSED_PARAMETER") unit: Unit): CstTypeExprPayload {
+    fun mapTypeExpr(unit: Unit): CstTypeExprPayload {
         return CstTypeExprPayload()
     }
 }
@@ -87,7 +87,6 @@ internal fun cstStmtFromAst(
 ): Spanned<StmtP<CstPayload>> {
     // Reinterpret the AST under a different payload tag — the AST nodes are
     // structurally identical and CompilerAstMap fills in the new payload values below.
-    @Suppress("UNCHECKED_CAST")
     val cst = stmt as Spanned<StmtP<CstPayload>>
     mapPayloadsStmt(cst, CompilerAstMap(scopeData, loads))
     return cst
@@ -105,32 +104,26 @@ internal fun Spanned<AssignIdentP<CstPayload, *>>.resolvedBindingId(codemap: Cod
 
 // Payload writes go through star-projected nodes; centralize the cast so
 // each concrete write below stays a single typed assignment.
-@Suppress("UNCHECKED_CAST")
 private fun setIdentPayload(ident: IdentP<CstPayload, *>, value: ResolvedIdent?) {
     (ident as IdentP<CstPayload, ResolvedIdent?>).payload = value
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun setAssignIdentPayload(ident: AssignIdentP<CstPayload, *>, value: BindingId?) {
     (ident as AssignIdentP<CstPayload, BindingId?>).payload = value
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun setLambdaPayload(lambda: LambdaP<CstPayload, *>, value: ScopeId) {
     (lambda as LambdaP<CstPayload, ScopeId>).payload = value
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun setDefPayload(def: io.github.kotlinmania.starlark.syntax.ast.DefP<CstPayload, *>, value: ScopeId) {
     (def as io.github.kotlinmania.starlark.syntax.ast.DefP<CstPayload, ScopeId>).payload = value
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun setLoadPayload(load: LoadP<CstPayload, *>, value: Interface) {
     (load as LoadP<CstPayload, Interface>).payload = value
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun setTypeExprPayload(typeExpr: TypeExprP<CstPayload, *>, value: CstTypeExprPayload) {
     (typeExpr as TypeExprP<CstPayload, CstTypeExprPayload>).payload = value
 }

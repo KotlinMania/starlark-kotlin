@@ -1,4 +1,4 @@
-// port-lint: source src/typing/arcTy.rs
+// port-lint: source typing/arc_ty.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/frameSpan.rs
+// port-lint: source eval/runtime/frame_span.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

@@ -112,7 +112,6 @@ class AValueHeader(
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue> payload(): T {
         return payloadPtr().valueRef()
     }
@@ -128,7 +127,6 @@ class AValueHeader(
         return AValueDyn(payloadPtr(), vtable)
     }
 
-    @Suppress("UNCHECKED_CAST")
     internal fun <T> asRepr(): AValueRepr<T> {
         // In Kotlin, the AValueRepr that owns this header is looked up
         // through the repr registry using the header's index.

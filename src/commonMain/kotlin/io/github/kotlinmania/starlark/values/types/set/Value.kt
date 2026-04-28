@@ -44,7 +44,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  */
 data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val innerVal = inner
         if (innerVal is RefCell<*>) {
@@ -342,7 +341,6 @@ class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
  * SetLike implementation for FrozenSetData.
  */
 class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
-    @Suppress("UNCHECKED_CAST")
     override fun content(): SmallSet<Value> {
         return data.content as SmallSet<Value>
     }
@@ -355,7 +353,6 @@ class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
         // No-op for frozen data
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun contentUnchecked(): SmallSet<Value> {
         return data.content as SmallSet<Value>
     }

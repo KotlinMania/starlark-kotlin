@@ -1,4 +1,4 @@
-// port-lint: source src/values/valueOfUnchecked.rs
+// port-lint: source values/value_of_unchecked.rs
 package io.github.kotlinmania.starlark.values
 
 /*

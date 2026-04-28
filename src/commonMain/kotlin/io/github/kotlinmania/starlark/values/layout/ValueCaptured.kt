@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Special value which holds a reference to actual value.
  * This is used to implement variable capture by nested functions.
  *
- * [Value] holding [ValueCaptured] is equivalent to `Box<Option<Value>>`.
+ * [Value] holding [ValueCaptured] is equivalent to a mutable nullable [Value] cell.
  */
 
 import io.github.kotlinmania.starlark.values.ComplexValue

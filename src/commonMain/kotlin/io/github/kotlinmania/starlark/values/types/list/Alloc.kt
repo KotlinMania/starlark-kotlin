@@ -61,13 +61,7 @@ class AllocList<L>(val items: L) {
 }
 
 
-/**
- * [StarlarkTypeRepr] for [AllocList].
- *
- * The canonical type in Rust is `<Vec<L::Item> as StarlarkTypeRepr>::Canonical`.
- *
- * where L: IntoIterator, L::Item: StarlarkTypeRepr`.
- */
+/** [StarlarkTypeRepr] for [AllocList]. */
 fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
     where L : Iterable<Item> {
     return Ty.anyList()

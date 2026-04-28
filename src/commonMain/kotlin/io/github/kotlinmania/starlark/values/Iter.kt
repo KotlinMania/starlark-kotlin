@@ -1,4 +1,4 @@
-// port-lint: source src/values/iter.rs
+// port-lint: source values/iter.rs
 package io.github.kotlinmania.starlark.values
 
 /*

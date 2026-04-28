@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/optCtx.rs
+// port-lint: source eval/compiler/opt_ctx.rs
 package io.github.kotlinmania.starlark.eval.compiler.optctx
 
 /*

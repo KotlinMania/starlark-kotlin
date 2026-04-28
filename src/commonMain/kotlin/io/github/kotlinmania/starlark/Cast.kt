@@ -1,4 +1,4 @@
-// port-lint: source src/cast.rs
+// port-lint: source cast.rs
 package io.github.kotlinmania.starlark.cast
 
 /*
@@ -19,28 +19,20 @@ package io.github.kotlinmania.starlark.cast
  * limitations under the License.
  */
 
-/** Convert a reference to a usize-like integer (identity hash). */
-@Suppress("NOTHING_TO_INLINE")
 internal inline fun ptrToUsize(x: Any): Int {
     return x.hashCode() and Int.MAX_VALUE
 }
 
-/** Convert a usize-like integer back to a reference via lookup. */
-@Suppress("UNCHECKED_CAST")
+/**
+ * Undefined behaviour if the argument is zero, or does not satisfy the alignment
+ * of type [T].
+ */
 internal fun <T : Any> usizeToPtr(x: Int, lookup: (Int) -> Any): T {
     require(x != 0) { "Zero is not a valid pointer" }
     require(x > 0) { "Pointer is not aligned" }
     return lookup(x) as T
 }
 
-/** Lifetime re-interpretation (identity in Kotlin — no lifetime system). */
-@Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 internal inline fun <T> ptrLifetime(x: T): T {
     return (x as Any) as T
-}
-
-/** Transmute between types (unchecked cast in Kotlin). */
-@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
-internal inline fun <From, To> transmute(value: From): To {
-    return value as To
 }

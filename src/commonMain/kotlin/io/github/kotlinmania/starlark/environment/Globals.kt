@@ -1,4 +1,4 @@
-// port-lint: source src/environment/globals.rs
+// port-lint: source environment/globals.rs
 package io.github.kotlinmania.starlark.environment
 
 /*

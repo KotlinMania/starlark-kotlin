@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/inlineInt.rs
+// port-lint: source values/types/int/inline_int.rs
 package io.github.kotlinmania.starlark.values.types.int
 
 /*
@@ -240,7 +240,7 @@ data class InlineInt internal constructor(private val value: Int) :
 
     internal fun abs(): StarlarkInt {
         return if (value == Int.MIN_VALUE) {
-            // checkedAbs returns None for Int.MIN_VALUE
+            // abs(Int.MIN_VALUE) overflows; promote to BigInt.
             StarlarkInt.from(toBigInt().abs())
         } else {
             StarlarkInt.from(kotlin.math.abs(value))

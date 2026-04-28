@@ -1,4 +1,4 @@
-// port-lint: source src/values/demand.rs
+// port-lint: source values/demand.rs
 package io.github.kotlinmania.starlark.values.demand
 
 /*

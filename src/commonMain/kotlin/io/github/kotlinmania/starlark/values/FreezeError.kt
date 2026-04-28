@@ -1,4 +1,4 @@
-// port-lint: source src/values/freezeError.rs
+// port-lint: source values/freeze_error.rs
 package io.github.kotlinmania.starlark.values.freezeerror
 
 /*

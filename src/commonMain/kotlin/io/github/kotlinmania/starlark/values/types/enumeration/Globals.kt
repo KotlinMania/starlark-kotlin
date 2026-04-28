@@ -63,7 +63,6 @@ fun registerEnum(builder: GlobalsBuilder) {
         val heap = eval.heap()
         val positionalArgs = args.positionalAll()
         // Every Value must either be a field or a value (the type)
-        @Suppress("UNCHECKED_CAST")
         val stringArgs = positionalArgs as List<StringValue>
         val enumType = EnumTypeGen.new(stringArgs, heap)
         Result.success(enumType.toValue())

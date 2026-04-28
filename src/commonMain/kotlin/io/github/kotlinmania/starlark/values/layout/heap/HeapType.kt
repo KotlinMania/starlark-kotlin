@@ -265,7 +265,6 @@ class Heap internal constructor(
         // Must rewrite all Value's so they point at the new heap.
         // Take the arena out of the heap to make sure nobody allocates in it,
         // but hold the reference until the GC is done.
-        @Suppress("UNUSED_VARIABLE")
         val _arena = owned.arena.take()
 
         val tracer = Tracer(
@@ -554,7 +553,7 @@ class Tracer internal constructor(
      * but is not relevant because it has a static lifetime containing no relevant values.
      * Does nothing.
      */
-    fun <T> traceStatic(@Suppress("UNUSED_PARAMETER") value: T) {
+    fun <T> traceStatic(value: T) {
         // Nothing to do because T can't contain the relevant lifetime
     }
 

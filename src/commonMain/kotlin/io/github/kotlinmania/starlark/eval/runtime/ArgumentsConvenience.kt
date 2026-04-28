@@ -50,7 +50,6 @@ inline fun <reified T> Arguments.namedOptional(name: String): T? = optionalNamed
  * Handles [Value], [String], [Int], and [Boolean] directly.
  * For other types performs an unchecked cast of the underlying [Value].
  */
-@Suppress("UNCHECKED_CAST")
 @PublishedApi
 internal inline fun <reified T> unpackValueAs(v: Value): T {
     return when (T::class) {

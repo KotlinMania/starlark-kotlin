@@ -122,7 +122,6 @@ class RecordGen internal constructor(
     }
 
     private fun getRecordFields(): SmallMap<String, Field> {
-        @Suppress("UNCHECKED_CAST")
         return recordFields(getRecordType())
     }
 

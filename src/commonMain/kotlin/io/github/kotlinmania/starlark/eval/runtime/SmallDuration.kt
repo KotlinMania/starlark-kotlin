@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/smallDuration.rs
+// port-lint: source eval/runtime/small_duration.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

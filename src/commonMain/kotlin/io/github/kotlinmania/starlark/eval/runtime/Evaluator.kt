@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/evaluator.rs
+// port-lint: source eval/runtime/evaluator.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.any.AnyLifetime
+import io.github.kotlinmania.starlark.any.AnyLifetime as AnyLt
 import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.FileSpan
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
@@ -105,18 +105,10 @@ private const val INFREQUENT_INSTRUCTION_CHECK_PERIOD: UInt = 1000u
 /** Default value for max starlark stack size */
 const val DEFAULT_STACK_SIZE: Int = 50
 
-// In commonMain there is no direct stderr access; we import println as a fallback.
-private fun eprintln(msg: String) {
-    println(msg)
-}
-
-// We import this to validate that the Evaluator lifetimes have the expected variance.
-@Suppress("unused")
 private fun checkVariance() {
     checkCovariantA()
 }
 
-@Suppress("unused")
 private fun checkCovariantA() {
     // No-op.
 }
@@ -153,6 +145,17 @@ class Evaluator(
     // The module that is being used for this evaluation
     internal val moduleEnv: Module,
 ) {
+    companion object {
+        /**
+         * Create a new [Evaluator] specifying the [Module] used for module variables.
+         *
+         * If your program contains `load()` statements, also call [setLoader].
+         */
+        fun new(module: Module): Evaluator {
+            return Evaluator(moduleEnv = module)
+        }
+    }
+
     /** Current function (`def` or `lambda`) frame: locals and bytecode stack. */
     internal var currentFrame: BcFramePtr = BcFramePtr.nullPtr()
     /** Current bytecode instructions being executed. Set by runBlock. */
@@ -191,9 +194,9 @@ class Evaluator(
     internal val stringPool: StringPool = StringPool()
     /** Field that can be used for any purpose you want (can store types you define).
      * Typically accessed via native functions you also define. */
-    var extra: AnyLifetime? = null
+    var extra: AnyLt? = null
     /** Like `extra`, but mutable */
-    var extraMut: AnyLifetime? = null
+    var extraMut: AnyLt? = null
     /** Called to perform console IO each time `breakpoint` function is called. */
     internal var breakpointHandler: (() -> BreakpointConsole)? = null
     /** Use in implementation of `print` function. */
@@ -215,6 +218,10 @@ class Evaluator(
      * global variables or the [extra] field. */
     fun disableGc() {
         disableGc = true
+    }
+
+    fun drop() {
+        // No-op.
     }
 
     /** Enable GC logging. */
@@ -706,7 +713,7 @@ class Evaluator(
      */
     fun garbageCollect() {
         if (verboseGc) {
-            eprintln(
+            println(
                 "Starlark: allocated bytes: ${heap().allocatedBytes()}, starting GC..."
             )
         }
@@ -743,7 +750,7 @@ class Evaluator(
         timeFlameProfile.recordCallExit()
 
         if (verboseGc) {
-            eprintln(
+            println(
                 "Starlark: GC complete. Allocated bytes: ${heap().allocatedBytes()}."
             )
         }
@@ -890,7 +897,7 @@ internal class EvalCallbacksEnabled(
         val offset = ip.offsetFrom(bcStartPtr)
         val stmtAt = stmtLocs.stmtAt(offset) ?: return
         val (loc, continued) = stmtAt
-        beforeStmtFn(loc.span, continued, eval)
+        beforeStmt(loc.span, continued, eval)
     }
 
     override fun beforeInstr(
@@ -911,7 +918,7 @@ internal class EvalCallbacksEnabled(
 // The purposes are GC, profiling and debugging.
 //
 // This function is called only if `beforeStmt` is set before compilation start.
-fun beforeStmtFn(
+internal fun beforeStmt(
     span: FrameSpan,
     continued: Boolean,
     eval: Evaluator,

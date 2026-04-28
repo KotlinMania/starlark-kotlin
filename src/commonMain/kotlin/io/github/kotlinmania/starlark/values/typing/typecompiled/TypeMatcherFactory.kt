@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/typeCompiled/typeMatcherFactory.rs
+// port-lint: source values/typing/type_compiled/type_matcher_factory.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*

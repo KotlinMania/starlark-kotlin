@@ -24,8 +24,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.sum
 
 /**
  * Information about the data stored on a heap. Accessible through
- * the function `allocatedSummary` available on [`Heap`](crate::values::Heap)
- * and [`FrozenHeap`](crate::values::FrozenHeap)
+ * the function [allocatedSummary] available on [Heap] and [FrozenHeap].
  */
 class HeapSummary(
     /**

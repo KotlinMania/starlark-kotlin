@@ -28,12 +28,12 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 /**
- * Allocate arbitrary value on the starlark heap without implementing full [`StarlarkValue`].
+ * Allocate arbitrary value on the starlark heap without implementing full [StarlarkValue].
  *
  * This is useful for data not directly visible to starlark code.
  *
  * This type is for "complex" values (with tracing during GC). For no GC version check
- * [`StarlarkAny`](crate::values::types::any::StarlarkAny).
+ * [StarlarkAny].
  */
 class StarlarkAnyComplex<T : Any>(
     /** The value. */
@@ -62,14 +62,12 @@ class StarlarkAnyComplex<T : Any>(
         }
     }
 
-    // Proper `Debug` is hard to require from users because of `Freeze` and `ProvidesStaticType`.
     override fun toString(): String {
         return "${value::class.simpleName ?: "StarlarkAnyComplex"} { .. }"
     }
 
     override val TYPE: String get() = "any_complex"
 
-    // The value field may contain traceable content.
     override fun trace(tracer: Tracer) {
         if (value is Trace) {
             (value as Trace).trace(tracer)

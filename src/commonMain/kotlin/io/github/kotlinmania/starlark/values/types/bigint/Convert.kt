@@ -51,7 +51,7 @@ internal object IntTypeReprCanonical : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.int()
 }
 
-// --- UInt (u32) conversions ---
+// --- UInt conversions ---
 
 object UIntTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
@@ -68,7 +68,7 @@ fun UInt.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 /** Allocate a UInt on a frozen Starlark heap. */
 fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
-// --- ULong (u64) conversions ---
+// --- ULong conversions ---
 
 object ULongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
@@ -80,7 +80,7 @@ fun ULong.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap
 /** Allocate a ULong on a frozen Starlark heap. */
 fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
-// --- Long (i64) conversions ---
+// --- Long conversions ---
 
 object LongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
@@ -92,7 +92,7 @@ fun Long.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 /** Allocate a Long on a frozen Starlark heap. */
 fun Long.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
-// --- Int (i32 / isize) conversions ---
+// --- Int conversions ---
 
 /** Allocate an Int on a Starlark heap. */
 fun Int.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
@@ -100,7 +100,7 @@ fun Int.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 /** Allocate an Int on a frozen Starlark heap. */
 fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
-// --- BigInteger (BigInt) conversions ---
+// --- BigInteger conversions ---
 
 object BigIntegerTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()

@@ -79,8 +79,8 @@ class StarlarkValueRawPtr(
 /**
  * VTable for [AValue] operations.
  *
- * Holds type metadata and dispatch shims for all operations on a Starlark value,
- * supporting dynamic dispatch through the [StarlarkValue] interface.
+ * This struct contains function pointers for all operations on a Starlark value,
+ * allowing dynamic dispatch.
  */
 class AValueVTable(
     // Common AValue fields.
@@ -132,21 +132,18 @@ class AValueVTable(
         }
 
         /**
-         * Build an [AValueVTable] from a reified type parameter [T].
-         *
-         * Used by the vtable registry for deserialization support.
+         * Public for use by simple-frozen vtable registration in doctests.
+         * Hidden from docs and uses a private [AValue] bound to prevent direct external use.
          */
         inline fun <reified T : Any> new(): AValueVTable {
             return forType(T::class)
         }
 
         /**
-         * Build an [AValueVTable] for the given type class.
-         *
-         * Constructs a vtable with type metadata derived from the [KClass].
-         * The vtable uses stub implementations for heap operations since
-         * deserialization reconstructs values through the pagable subsystem
-         * rather than through these vtable functions.
+         * Kotlin-only extension: build an [AValueVTable] for a runtime [KClass].
+         * Has no Rust counterpart — Rust uses the const-generic `new<T>()` above.
+         * Used by the pagable vtable registry, which reconstructs vtables from
+         * a deserialized type id rather than a static type parameter.
          */
         fun forType(type: KClass<*>): AValueVTable {
             val typeId = ConstTypeId.of(type)
@@ -164,23 +161,6 @@ class AValueVTable(
                 },
             )
         }
-    }
-
-    /**
-     * Drop the value at the given pointer. the Kotlin GC supersedes explicit
-     * destruction, so this is a no-op kept for symbol parity with the upstream
-     * vtable layout.
-     */
-    fun dropInPlace(value: StarlarkValueRawPtr) {
-        // GC handles destruction.
-    }
-
-    /**
-     * Display formatter; the Kotlin equivalent of the upstream display dispatch
-     * is [toString] on the underlying value.
-     */
-    fun fmt(value: StarlarkValueRawPtr): String {
-        return value.ptr.toString()
     }
 
     fun typeValue(): FrozenStringValue {

@@ -78,7 +78,6 @@ class ValueTyped<T : StarlarkValue>(
     fun toValue(): Value = value
 
     /** Get the reference to the pointed value. */
-    @Suppress("UNCHECKED_CAST")
     fun asRef(): T = value.getRef().value.ptr as T
 
     /** Compute the hash value. */
@@ -149,7 +148,6 @@ class FrozenValueTyped<T : StarlarkValue>(
     fun toValueTyped(): ValueTyped<T> = ValueTyped.newUnchecked(frozenValue.toValue())
 
     /** Get the reference to the pointed value. */
-    @Suppress("UNCHECKED_CAST")
     fun asRef(): T = frozenValue.toValue().getRef().value.ptr as T
 
     internal fun asFrozenRef(): FrozenRef<T> = FrozenRef.new(asRef())
@@ -217,7 +215,7 @@ fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
  * [Trace] implementation for [FrozenValueTyped].
  * Frozen values do not need tracing.
  */
-fun <T : StarlarkValue> FrozenValueTyped<T>.trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+fun <T : StarlarkValue> FrozenValueTyped<T>.trace(tracer: Tracer) {
     // Nothing to do: frozen values are immutable and not subject to GC forwarding.
 }
 
@@ -226,7 +224,7 @@ fun <T : StarlarkValue> FrozenValueTyped<T>.trace(@Suppress("UNUSED_PARAMETER") 
  * Already frozen, returns self.
  */
 fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
-    @Suppress("UNUSED_PARAMETER") freezer: Freezer,
+    freezer: Freezer,
 ): Result<FrozenValueTyped<T>> = Result.success(this)
 
 /**
@@ -273,7 +271,6 @@ internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Va
  * Helper to create [ValueOfUncheckedGeneric] from a [Value] without requiring
  * the phantom type parameter to satisfy [StarlarkTypeRepr].
  */
-@Suppress("UNCHECKED_CAST")
 internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Value, *> {
     return ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<Value, *>
@@ -283,7 +280,6 @@ internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Va
  * Helper to create [ValueOfUncheckedGeneric] from a [FrozenValue] without requiring
  * the phantom type parameter to satisfy [StarlarkTypeRepr].
  */
-@Suppress("UNCHECKED_CAST")
 internal fun frozenValueOfUncheckedFromFrozenValue(value: FrozenValue): ValueOfUncheckedGeneric<FrozenValue, *> {
     return ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
         as ValueOfUncheckedGeneric<FrozenValue, *>

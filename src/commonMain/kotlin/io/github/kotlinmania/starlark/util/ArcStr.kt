@@ -1,4 +1,4 @@
-// port-lint: source src/util/arcStr.rs
+// port-lint: source util/arc_str.rs
 package io.github.kotlinmania.starlark.util
 
 /*
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.util
 
 import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
 
-/** Wrapper for `Arc<str>`. */
+/** Reference-counted immutable [String] wrapper. */
 class ArcStr private constructor(
     private val inner: ArcOrStatic<String>,
 ) : Comparable<ArcStr> {

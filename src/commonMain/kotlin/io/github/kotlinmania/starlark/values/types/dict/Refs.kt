@@ -119,6 +119,5 @@ class Ref<T>(val value: T) {
 
 class RefMut<T>(val value: T)
 
-@Suppress("UNCHECKED_CAST")
 private fun coerce(data: FrozenDictData): Dict =
     Dict(data.content as SmallMap<Value, Value>)

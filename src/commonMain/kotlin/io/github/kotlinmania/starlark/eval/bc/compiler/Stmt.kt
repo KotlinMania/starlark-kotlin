@@ -89,7 +89,6 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
         is StmtCompiled.Return -> {
             // `expr` is definitely assigned after `return` statement,
             // but no code is executed after `return`, so marking would be useless.
-            @Suppress("UNUSED_EXPRESSION")
             expr
         }
         is StmtCompiled.Expr -> expr.markDefinitelyAssignedAfter(bc)
@@ -97,7 +96,6 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
             lhs.node.markDefinitelyAssignedAfter(bc)
             rhs.markDefinitelyAssignedAfter(bc)
             // We might have evaluate types turned off
-            @Suppress("UNUSED_EXPRESSION")
             ty
         }
         is StmtCompiled.AssignModify -> {
@@ -114,9 +112,7 @@ internal fun StmtCompiled.markDefinitelyAssignedAfter(bc: BcWriter) {
             //   x = 2
             // ```
             // we could mark `x` as definitely assigned.
-            @Suppress("UNUSED_EXPRESSION")
             thenBlock
-            @Suppress("UNUSED_EXPRESSION")
             elseBlock
         }
         is StmtCompiled.For -> {

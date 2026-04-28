@@ -69,9 +69,7 @@ object SmallMapUnpackValue {
         val it = dict.deref().iter()
         val r = SmallMap.withCapacity<K, T>(dict.deref().len())
         for ((k, v) in it) {
-            @Suppress("UNCHECKED_CAST")
             val unpackedK = (k as? K) ?: return Result.success(null)
-            @Suppress("UNCHECKED_CAST")
             val unpackedV = (v as? T) ?: return Result.success(null)
             r.insert(unpackedK, unpackedV)
         }

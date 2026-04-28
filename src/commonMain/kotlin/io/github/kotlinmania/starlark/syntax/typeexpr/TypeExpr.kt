@@ -118,7 +118,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                             )
                         }
                     }
-                    @Suppress("UNREACHABLE_CODE")
                     throw IllegalStateException("unreachable")
                 }
                 else -> throw WithDiagnosticException(
@@ -256,7 +255,6 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
         // Centralized IP-cast helper. The IP type parameter is unconstrained at the
         // ExprP level (Identifier carries IdentP<P, *>); callers assert IP via this
         // narrow one-line helper rather than file/function-level suppressions.
-        @Suppress("UNCHECKED_CAST")
         private fun <P : AstPayload, IP> identAsIp(ident: Spanned<IdentP<P, *>>): Spanned<IdentP<P, IP>> =
             ident as Spanned<IdentP<P, IP>>
     }

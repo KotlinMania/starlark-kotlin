@@ -54,9 +54,7 @@ class UnpackDictEntries<K, V>(
             val dict = dictRefFromValue(value) ?: return Result.success(null)
             val entries = mutableListOf<Pair<K, V>>()
             for ((k, v) in dict.iter()) {
-                @Suppress("UNCHECKED_CAST")
                 val unpackedK = (k as? K) ?: return Result.success(null)
-                @Suppress("UNCHECKED_CAST")
                 val unpackedV = (v as? V) ?: return Result.success(null)
                 entries.add(Pair(unpackedK, unpackedV))
             }

@@ -159,7 +159,6 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
     override fun union2Dyn(other: TyCustomDyn): Result<TyCustomDyn> {
         val otherAny = other.asAny()
         if (inner::class == otherAny::class) {
-            @Suppress("UNCHECKED_CAST")
             val otherTyped = otherAny as T
             val merged = inner.union2(otherTyped)
             if (merged != null) {
@@ -172,7 +171,6 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
     override fun intersectsDyn(other: TyCustomDyn): Boolean {
         val otherAny = other.asAny()
         if (inner::class == otherAny::class) {
-            @Suppress("UNCHECKED_CAST")
             val otherTyped = otherAny as T
             return inner.intersects(otherTyped)
         }

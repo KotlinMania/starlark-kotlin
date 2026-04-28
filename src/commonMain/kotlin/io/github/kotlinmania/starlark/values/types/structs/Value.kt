@@ -96,7 +96,6 @@ data class StructGen<V>(
 
     override fun equals(other: Value): Result<Boolean> {
         val otherStruct = StructGen.fromValue(other) ?: return Result.success(false)
-        @Suppress("UNCHECKED_CAST")
         val thisFields = fields as SmallMap<String, Value>
         return equalsSmallMap<Exception, String, Value, Value>(
             thisFields,
@@ -107,7 +106,6 @@ data class StructGen<V>(
     override fun compare(other: Value): Result<Int> {
         val otherStruct = StructGen.fromValue(other)
             ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
-        @Suppress("UNCHECKED_CAST")
         val thisFields = fields as SmallMap<String, Value>
         return compareSmallMap<Exception, String, String, Value, Value>(
             thisFields,
@@ -121,7 +119,6 @@ data class StructGen<V>(
     }
 
     override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
-        @Suppress("UNCHECKED_CAST")
         val valueFields = fields as SmallMap<String, Value>
         return valueFields.getHashedByValue(attribute)
     }
@@ -183,7 +180,6 @@ fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<String, FrozenValue>> {
     return fields.iter()
 }
 
-@Suppress("UNCHECKED_CAST")
 fun coerceStruct(frozen: StructGen<FrozenValue>): StructGen<Value> {
     return frozen as StructGen<Value>
 }

@@ -45,10 +45,9 @@
  *
  * This code attempts to first allocate a string value in `heap1` and then allocate
  * a value in `heap2` that references that value. This is an example of the exact
- * kind of "cross-heap confusion" that we want to disallow. In Rust the upstream
- * crate enforces this at compile time through brand parameters; in Kotlin the same
- * invariant is enforced through the scope of [Heap.temp] together with values
- * that, by convention, do not escape the closure body.
+ * kind of "cross-heap confusion" that we want to disallow. The invariant is
+ * enforced through the scope of [Heap.temp] together with values that, by
+ * convention, do not escape the closure body.
  *
  * ### Implementation
  *

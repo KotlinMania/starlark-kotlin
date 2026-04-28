@@ -1,4 +1,4 @@
-// port-lint: source src/typing/starlarkValue.rs
+// port-lint: source typing/starlark_value.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -147,10 +147,18 @@ class TyStarlarkValue private constructor(
         return fmtWithConfig(TypeRenderConfig.Default)
     }
 
+    internal fun fmt(): String {
+        return fmtWithConfig(TypeRenderConfig.Default)
+    }
+
     // -- PartialEq / Eq -- compares starlarkTypeId
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyStarlarkValue) return false
+        return vtable.starlarkTypeId == other.vtable.starlarkTypeId
+    }
+
+    internal fun eq(other: TyStarlarkValue): Boolean {
         return vtable.starlarkTypeId == other.vtable.starlarkTypeId
     }
 
@@ -159,8 +167,20 @@ class TyStarlarkValue private constructor(
         return vtable.typeName.hashCode()
     }
 
+    internal fun hash(): Int {
+        return vtable.typeName.hashCode()
+    }
+
     // -- Ord -- compares typeName lexicographically
     override fun compareTo(other: TyStarlarkValue): Int {
+        return vtable.typeName.compareTo(other.vtable.typeName)
+    }
+
+    internal fun partialCmp(other: TyStarlarkValue): Int? {
+        return cmp(other)
+    }
+
+    internal fun cmp(other: TyStarlarkValue): Int {
         return vtable.typeName.compareTo(other.vtable.typeName)
     }
 
@@ -208,6 +228,11 @@ class TyStarlarkValue private constructor(
     fun isSet(): Boolean {
         selfCheck()
         return this == new("set")
+    }
+
+    internal fun isIterable(): Boolean {
+        selfCheck()
+        return isIterableFromVtable(vtable)
     }
 
     /** Result of applying unary operator to this type. */

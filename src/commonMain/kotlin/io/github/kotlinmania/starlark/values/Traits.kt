@@ -333,7 +333,7 @@ interface StarlarkValue {
     /**
      * Attribute type, for the typechecker.
      *
-     * If getAttr is implemented, this should return Some(Any).
+     * If [getAttr] is implemented, this should return [Ty.any].
      */
     fun attrTy(name: String): Ty? = Ty.any()
 

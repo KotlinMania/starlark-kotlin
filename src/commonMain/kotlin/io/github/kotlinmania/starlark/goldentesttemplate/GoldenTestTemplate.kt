@@ -43,7 +43,6 @@ fun goldenTestTemplate(goldenRelPath: String, output: String) {
     require(goldenRelPath.startsWith("src/")) { "Golden path must start with src/" }
     require(goldenRelPath.contains(".golden")) { "Golden path must contain .golden" }
 
-    @Suppress("UNUSED_VARIABLE")
     val outputWithPrefix = makeGolden(output)
 
     // File I/O will be implemented when the test runner is set up.

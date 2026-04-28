@@ -41,7 +41,7 @@ internal class TypingNever : StarlarkValue, AllocFrozenValue {
 
     override fun evalType(): Ty? = Ty.never()
 
-    override fun allocFrozenValue(@Suppress("unused") heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return NEVER.toFrozenValue()
     }
 
@@ -61,7 +61,7 @@ sealed class StarlarkNever : StarlarkTypeRepr, AllocValue {
 
     override fun starlarkTypeRepr(): Ty = Companion.starlarkTypeRepr()
 
-    override fun allocValue(@Suppress("unused") heap: Heap): Value {
+    override fun allocValue(heap: Heap): Value {
         error("StarlarkNever is uninhabited")
     }
 }

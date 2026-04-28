@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 
 internal object IsAny : TypeMatcher {
 
-    override fun matches(@Suppress("unused") value: Value): Boolean {
+    override fun matches(value: Value): Boolean {
         return true
     }
 
@@ -49,7 +49,7 @@ internal object IsAny : TypeMatcher {
 
 internal object IsNever : TypeMatcher {
 
-    override fun matches(@Suppress("unused") value: Value): Boolean {
+    override fun matches(value: Value): Boolean {
         return false
     }
 }

@@ -1335,26 +1335,26 @@ private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
 private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIndices? {
     val len = str.codePointCount()
     return when {
-        // (None, None) => full string
+        // (null, null) => full string
         start == null && end == null -> StrIndices(0, str)
-        // (Some(start), None) where start >= 0
+        // (start, null) where start >= 0
         start != null && end == null && start >= 0 -> {
             val byteStart = codePointOffset(str, start) ?: return null
             StrIndices(start, str.substring(byteStart))
         }
-        // (None, Some(end)) where end >= 0
+        // (null, end) where end >= 0
         start == null && end != null && end >= 0 -> {
             val byteEnd = codePointOffsetClamped(str, end)
             StrIndices(0, str.substring(0, byteEnd))
         }
-        // (Some(start), Some(end)) where start >= 0 && end >= start
+        // (start, end) where start >= 0 && end >= start
         start != null && end != null && start >= 0 && end >= start -> {
             val byteStart = codePointOffset(str, start) ?: return null
             val remaining = str.substring(byteStart)
             val byteEnd = codePointOffsetClamped(remaining, end - start)
             StrIndices(start, remaining.substring(0, byteEnd))
         }
-        // Both same sign and start > end => None
+        // Both same sign and start > end => null
         start != null && end != null
             && ((start >= 0) == (end >= 0)) && start > end -> null
         // Slow path: need full length for negative indices

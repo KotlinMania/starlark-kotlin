@@ -68,7 +68,6 @@ internal object AValueList : AValue {
 internal object AValueFrozenList : AValue {
 
     override fun extraLen(value: StarlarkValue): Int {
-        @Suppress("UNCHECKED_CAST")
         val list = value as ListGen<FrozenListData>
         return list.data.len()
     }

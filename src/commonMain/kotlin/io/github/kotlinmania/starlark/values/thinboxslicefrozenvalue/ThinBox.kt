@@ -110,7 +110,6 @@ internal class AllocatedThinBoxSlice<T> private constructor(
             var i = 0
             for (item in list) {
                 check(i < lower) { "iterator produced more than promised" }
-                @Suppress("UNCHECKED_CAST")
                 (thin as AllocatedThinBoxSlice<T?>).setUnchecked(i, item)
                 i += 1
             }
@@ -156,7 +155,6 @@ internal class AllocatedThinBoxSlice<T> private constructor(
         data[index] = value
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun assumeInit(): AllocatedThinBoxSlice<T> = this as AllocatedThinBoxSlice<T>
 
     fun intoInner(): Long = ptr

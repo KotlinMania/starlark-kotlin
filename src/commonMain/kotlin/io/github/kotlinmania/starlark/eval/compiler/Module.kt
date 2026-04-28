@@ -84,7 +84,6 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
     }
 
     for (loadArg in load.node.args) {
-        @Suppress("UNCHECKED_CAST")
         val local = loadArg.local
         val (slot, _captured) = scopeData.getAssignIdentSlot(local, codemap.deref())
         val moduleSlot = when (slot) {

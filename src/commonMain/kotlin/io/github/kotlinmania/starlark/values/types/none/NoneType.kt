@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/none/noneType.rs
+// port-lint: source values/types/none/none_type.rs
 package io.github.kotlinmania.starlark.values.types.none
 
 /*
@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 
-/** Define the None type, use [`NoneType`] in Rust. */
+/** Define the [NoneType], representing the Starlark `None` value. */
 object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
     /** The result of `type(None)`. */
     override val TYPE: String = "NoneType"
@@ -94,11 +94,3 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
 }
 
 internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
-
-fun getTypeStarlarkRepr(): Ty {
-    return NoneType.getTypeStarlarkRepr()
-}
-
-fun unpackValueImpl(value: Value): Result<NoneType?> {
-    return NoneType.unpackValueImpl(value)
-}

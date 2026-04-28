@@ -18,7 +18,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.ProvidesStaticType
+import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.SealedSend.Sealed
 import kotlin.reflect.KClass
@@ -136,6 +136,5 @@ where T : Any {
     /** Borrow the contained value mutably. */
     fun derefMut(): T = inner
 
-    /** Mirrors the upstream `Debug`/`Display` impls, both of which delegate to the inner value. */
     override fun toString(): String = inner.toString()
 }

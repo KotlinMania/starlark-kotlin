@@ -157,7 +157,6 @@ internal data class BcPtrAddr(
     }
 
     fun <I : BcInstr<*>> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
-        @Suppress("UNCHECKED_CAST")
         return instrs as BcInstrRepr<I>
     }
 

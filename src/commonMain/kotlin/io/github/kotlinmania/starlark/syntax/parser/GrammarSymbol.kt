@@ -6,8 +6,7 @@ import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
-/** Marker for nested Option<> handling where nullability flattening in Kotlin loses state. */
-
+/** Marker for nested optional handling where Kotlin nullability flattening loses state. */
 class Comma
 
 sealed class GrammarSymbol {

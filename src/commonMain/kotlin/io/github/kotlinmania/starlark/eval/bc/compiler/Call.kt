@@ -61,7 +61,6 @@ internal fun ArgsCompiledValue.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     for (n in posNamed) {
         n.markDefinitelyAssignedAfter(bc)
     }
-    @Suppress("UNUSED_VARIABLE")
     val unused = names
     args?.markDefinitelyAssignedAfter(bc)
     kwargs?.markDefinitelyAssignedAfter(bc)

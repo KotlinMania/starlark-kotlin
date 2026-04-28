@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/paramSpec.rs
+// port-lint: source __derive_refs/param_spec.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*

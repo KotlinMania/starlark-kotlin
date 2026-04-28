@@ -41,7 +41,6 @@ class ValueOf<T>(
 ) : StarlarkTypeRepr, AllocValue {
 
     /** Convert to `ValueOfUnchecked`. */
-    @Suppress("UNCHECKED_CAST")
     fun asUnchecked(): ValueOfUncheckedGeneric<Value, StarlarkTypeRepr> {
         return ValueOfUncheckedGeneric.new(value)
     }
@@ -60,7 +59,6 @@ class ValueOf<T>(
     override fun toString(): String = typed.toString()
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         @PublishedApi
         internal inline fun <reified T : Any> unpackValueImpl(value: Value): ValueOf<T>? {
             val typed: T = when (T::class) {

@@ -66,7 +66,6 @@ data class NamespaceGen<V>(
     override fun getAttr(attribute: String, heap: Heap): Value? =
         getAttrHashed(Hashed.new(attribute), heap)
 
-    @Suppress("UNCHECKED_CAST")
     override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val v = fields.getHashedByValue(attribute) ?: return null
         return when (val raw = v.value) {
@@ -79,7 +78,6 @@ data class NamespaceGen<V>(
     override fun dirAttr(): List<String> =
         fields.keys().map { x -> x }.toList()
 
-    @Suppress("UNCHECKED_CAST")
     override fun documentation(): DocItem {
         val members = SmallMap.new<String, DocItem>()
         for ((k, v) in fields.iter()) {
@@ -104,7 +102,6 @@ data class NamespaceGen<V>(
             extra = true,
         ))
 
-    @Suppress("UNCHECKED_CAST")
     override fun typecheckerTy(): Ty? {
         val result = mutableMapOf<ArcStr, Ty>()
         for ((name, mdv) in fields.iter()) {
@@ -125,7 +122,6 @@ data class NamespaceGen<V>(
         fields.iter().associate { (k, v) -> k to v.value }
 }
 
-@Suppress("UNCHECKED_CAST")
 fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
     frozen as NamespaceGen<Value>
 

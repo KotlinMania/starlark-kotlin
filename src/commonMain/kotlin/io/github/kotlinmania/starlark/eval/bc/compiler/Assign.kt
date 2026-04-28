@@ -44,7 +44,6 @@ internal fun AssignCompiledValue.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {
         is AssignCompiledValue.Dot -> {
             obj.node.markDefinitelyAssignedAfter(bc)
-            @Suppress("UNUSED_EXPRESSION")
             field
         }
         is AssignCompiledValue.Module -> {}

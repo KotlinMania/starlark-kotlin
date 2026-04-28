@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bigint.rs
+// port-lint: source values/types/bigint.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
@@ -120,7 +120,7 @@ class StarlarkBigInt private constructor(
     }
 
     fun serialize(): Any {
-        // Always serialize as a number, prefer i64 if it fits, otherwise u64
+        // Always serialize as a number, prefer signed Long if it fits, otherwise unsigned Long.
         val longVal = try {
             value.longValue(exactRequired = true)
         } catch (_: ArithmeticException) {

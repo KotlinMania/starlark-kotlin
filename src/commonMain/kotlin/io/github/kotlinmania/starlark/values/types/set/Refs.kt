@@ -150,7 +150,6 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
  * Coerce a [FrozenSetData] to a [SetData] view.
  * because FrozenValue can be treated as Value.
  */
-@Suppress("UNCHECKED_CAST")
 private fun coerceSetData(data: FrozenSetData): SetData =
     SetData(data.content as SmallSet<Value>)
 
@@ -174,7 +173,6 @@ class RefCell<T>(private var value: T) {
             throw IllegalStateException("Already mutably borrowed")
         }
         borrowCount++
-        @Suppress("UNCHECKED_CAST")
         return BorrowedSetData(value as SetData)
     }
 
@@ -191,7 +189,6 @@ class RefCell<T>(private var value: T) {
             return null
         }
         mutBorrowCount++
-        @Suppress("UNCHECKED_CAST")
         return BorrowedMutSetData(value as SetData)
     }
 }

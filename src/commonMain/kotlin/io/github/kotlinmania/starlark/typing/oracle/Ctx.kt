@@ -766,7 +766,6 @@ class TypingOracleCtx(
             }
             BinOp.Equal, BinOp.NotEqual -> {
                 // It's not an error to compare two different types, but it is pointless
-                @Suppress("UNCHECKED_CAST")
                 val vr = validateType(rhs, lhs.node)
                 if (vr.isFailure) return kotlin.Result.failure(vr.exceptionOrNull()!!)
                 kotlin.Result.success(boolRet)

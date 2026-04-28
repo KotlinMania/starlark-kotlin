@@ -500,7 +500,6 @@ internal class TypingContext(
                 node.step,
             )
             is ExprP.Identifier<CstPayload, *> -> {
-                @Suppress("UNCHECKED_CAST")
                 kotlin.Result.success(exprIdent(node.ident as Spanned<IdentP<CstPayload, ResolvedIdent?>>))
             }
             is ExprP.Lambda<CstPayload, *> -> {

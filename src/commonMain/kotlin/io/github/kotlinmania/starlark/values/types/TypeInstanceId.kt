@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/typeInstanceId.rs
+// port-lint: source values/types/type_instance_id.rs
 @file:OptIn(ExperimentalAtomicApi::class)
 
 package io.github.kotlinmania.starlark.values.types

@@ -299,7 +299,7 @@ internal class Arena {
 
     fun allocStrInit(
         len: Int,
-        @Suppress("UNUSED_PARAMETER") hash: StarlarkHashValue,
+        hash: StarlarkHashValue,
         init: (ByteArray) -> Unit,
     ): AValueHeader {
         require(len > 1)

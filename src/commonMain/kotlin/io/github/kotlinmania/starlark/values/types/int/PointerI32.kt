@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/pointerI32.rs
+// port-lint: source values/types/int/pointer_i32.rs
 package io.github.kotlinmania.starlark.values.types.int
 
 /*
@@ -138,7 +138,7 @@ internal class PointerI32 internal constructor(
         return Result.success(NumRef.Int(StarlarkIntRef.Small(get())).getHash())
     }
 
-    override fun plus(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
+    override fun plus(heap: Heap): Result<Value> {
         return Result.success(Value.newInt(get()))
     }
 
@@ -216,7 +216,7 @@ internal class PointerI32 internal constructor(
         }
     }
 
-    override fun bitNot(@Suppress("UNUSED_PARAMETER") heap: Heap): Result<Value> {
+    override fun bitNot(heap: Heap): Result<Value> {
         return Result.success(Value.newInt(!get()))
     }
 

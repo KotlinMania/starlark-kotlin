@@ -92,7 +92,7 @@ private class KnownMethods(
 }
 
 /**
- * Get stdlib method by name, or `None` if method is not found
+ * Get stdlib method by name, or `null` if method is not found
  * or method is not very common. Return arbitrary method if more than one
  * method is found (e. g. `list.clear` and `dict.clear`).
  */

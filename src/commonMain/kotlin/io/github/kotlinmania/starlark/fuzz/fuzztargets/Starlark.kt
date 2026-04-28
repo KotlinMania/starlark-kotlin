@@ -61,6 +61,5 @@ private fun runArbitraryStarlark(content: String): String {
 
 /** Entry point for fuzz testing. Call with arbitrary string content. */
 fun fuzzTarget(content: String) {
-    @Suppress("UNUSED_VARIABLE")
     val ignore = runArbitraryStarlark(content)
 }

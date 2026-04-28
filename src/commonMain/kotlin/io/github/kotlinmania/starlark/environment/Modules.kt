@@ -569,7 +569,6 @@ class Module internal constructor(
     }
 }
 
-@Suppress("unused", "FunctionName", "UNUSED_VARIABLE")
 private fun _testSendSync() {
     val v: FrozenModule? = null
 }

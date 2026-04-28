@@ -69,9 +69,9 @@ sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
     /**
      * When optional parameter is not supplied, there's no error,
-     * but the slot remains `None`.
+     * but the slot remains `null`.
      *
-     * This is used only in native code, parameters of type `Option<T>` become `Optional`.
+     * This is used only in native code, parameters of nullable type become `Optional`.
      */
     data object Optional : ParameterKind<Nothing>()
     data class Defaulted<V>(val value: V) : ParameterKind<V>()
@@ -640,7 +640,6 @@ class ParametersSpec<V>(
                     }
                 }
                 is ParameterKind.Defaulted -> {
-                    @Suppress("UNCHECKED_CAST")
                     slots[index] = (def.value as? Value)
                 }
                 else -> {}
@@ -723,7 +722,6 @@ class ParametersSpec<V>(
         parameterTypes,
         parameterDocs,
     ) { v ->
-        @Suppress("UNCHECKED_CAST")
         (v as? Value)?.toRepr() ?: v.toString()
     }
 
@@ -744,17 +742,6 @@ class ParametersSpec<V>(
     }
 }
 
-/**
- * Mirror of Rust's `ParametersSpec::asValue` (port-lint: spec.rs:543).
- * View a [ParametersSpec] over [FrozenValue] through the [Value] type.
- *
- * Rust does this with a `transmute!` because [Value] and [FrozenValue] share
- * `repr(C)` layout. Kotlin has no equivalent transmute, so we build a new
- * [ParametersSpec] over [Value] and convert each `Defaulted` payload via
- * [FrozenValue.toValue]. All other [ParameterKind] variants are V-less data
- * objects (`Required`, `Optional`, `Args`, `KWargs`) and pass through
- * unchanged because [ParameterKind] is covariant on V.
- */
 fun ParametersSpec<FrozenValue>.asValue(): ParametersSpec<Value> {
     val converted: List<ParameterKind<Value>> = paramKinds.map { kind ->
         when (kind) {

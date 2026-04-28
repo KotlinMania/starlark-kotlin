@@ -1,4 +1,4 @@
-// port-lint: source src/any.rs
+// port-lint: source any.rs
 package io.github.kotlinmania.starlark.any
 
 /*
@@ -87,7 +87,6 @@ inline fun <reified T> AnyLifetime.isType(): Boolean {
  */
 inline fun <reified T> AnyLifetime.downcastRef(): T? {
     if (this.isType<T>()) {
-        @Suppress("UNCHECKED_CAST")
         return this as T
     } else {
         return null
@@ -100,7 +99,6 @@ inline fun <reified T> AnyLifetime.downcastRef(): T? {
  */
 inline fun <reified T> AnyLifetime.downcastMut(): T? {
     if (this.isType<T>()) {
-        @Suppress("UNCHECKED_CAST")
         return this as T
     } else {
         return null

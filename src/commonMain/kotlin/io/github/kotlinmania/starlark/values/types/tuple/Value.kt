@@ -59,7 +59,6 @@ class TupleGen<V>(
 
     /** Mutable access to tuple elements (used during construction). */
     fun contentMut(): MutableList<V> {
-        @Suppress("UNCHECKED_CAST")
         return content as MutableList<V>
     }
 
@@ -94,9 +93,7 @@ class TupleGen<V>(
         // hold FrozenValue elements (FrozenTuple). Read both lists through ValueLike<*> — the common
         // supertype — so element access does not generate a checkcast to Value that would fail
         // for FrozenValue instances.
-        @Suppress("UNCHECKED_CAST")
         val xs = content() as List<ValueLike<*>>
-        @Suppress("UNCHECKED_CAST")
         val ys = otherTuple.content() as List<ValueLike<*>>
         return equalsSlice<Exception, ValueLike<*>, ValueLike<*>>(xs, ys) { x, y -> x.equals(y.toValue()) }
     }
@@ -104,9 +101,7 @@ class TupleGen<V>(
     override fun compare(other: Value): Result<Int> {
         val otherTuple = TupleGen.fromValue(other)
             ?: return ValueError.unsupportedWith(TupleGen.TYPE, "cmp()", other)
-        @Suppress("UNCHECKED_CAST")
         val xs = content() as List<ValueLike<*>>
-        @Suppress("UNCHECKED_CAST")
         val ys = otherTuple.content() as List<ValueLike<*>>
         return compareSlice<Exception, ValueLike<*>, ValueLike<*>>(xs, ys) { x, y -> x.compare(y.toValue()) }
     }
@@ -155,7 +150,6 @@ class TupleGen<V>(
         }
         // `otherTuple` may actually be TupleGen<FrozenValue>; iterate via ValueLike<*> to avoid
         // the implicit Value checkcast that would fail for FrozenValue.
-        @Suppress("UNCHECKED_CAST")
         val ys = otherTuple.content() as List<ValueLike<*>>
         for (x in ys) {
             result.add(x.toValue())

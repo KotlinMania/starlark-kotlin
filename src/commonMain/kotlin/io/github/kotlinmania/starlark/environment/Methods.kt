@@ -1,4 +1,4 @@
-// port-lint: source src/environment/methods.rs
+// port-lint: source environment/methods.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -56,7 +56,6 @@ import kotlin.concurrent.Volatile
  */
 class Methods internal constructor(
     /** This field holds the objects referenced in [members]. */
-    @Suppress("unused")
     private val heap: FrozenHeapRef,
     internal val members: SymbolMap<UnboundValue>,
     internal val docstring: String?,

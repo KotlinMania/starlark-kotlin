@@ -69,7 +69,6 @@ object GrammarUtil {
             is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
             is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
             is ExprP.Identifier<AstNoPayload, *> -> {
-                @Suppress("UNCHECKED_CAST")
                 val ident = expr.ident as Spanned<IdentP<AstNoPayload, Unit>>
                 AssignTargetP.Identifier(ident.map { s ->
                     AssignIdentP<AstNoPayload, Unit>(
@@ -157,7 +156,6 @@ object GrammarUtil {
             return checkLoad0(module, parserState)
         }
 
-        @Suppress("UNCHECKED_CAST")
         val loadArgs = args.map { (localTheir, comma) ->
             val (local, their) = localTheir
             LoadArgP(

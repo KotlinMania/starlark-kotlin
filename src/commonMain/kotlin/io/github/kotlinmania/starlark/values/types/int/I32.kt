@@ -63,13 +63,10 @@ object I32TypeRepr : StarlarkTypeRepr {
 }
 
 /**
- *
- * `type Error = crate::Error`.
- *
- * Note this does not use `Value::unpackInteger()` because unlike other call sites,
- * we know that `i32` is `InlineInt` on 64-bit platforms and never `BigInt`,
- * so this is faster. If the value isn't an inline `i32` but is some other
- * `StarlarkIntRef`, surface [IntegerTooBigError]; otherwise return `null`.
+ * Note this does not use [Value.unpackInteger] because unlike other call sites,
+ * we know that [Int] is [InlineInt] on 64-bit platforms and never [StarlarkBigInt],
+ * so this is faster. If the value isn't an inline [Int] but is some other
+ * [StarlarkIntRef], surface [IntegerTooBigError]; otherwise return `null`.
  */
 object I32Unpack : UnpackValue<Int> {
     override fun starlarkTypeRepr(): Ty = Ty.int()

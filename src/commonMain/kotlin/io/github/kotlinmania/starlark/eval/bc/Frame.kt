@@ -1,5 +1,5 @@
 
-// port-lint: source src/eval/bc/frame.rs
+// port-lint: source eval/bc/frame.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

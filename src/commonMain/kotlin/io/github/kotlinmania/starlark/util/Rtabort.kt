@@ -19,23 +19,20 @@ package io.github.kotlinmania.starlark.util
  */
 
 /**
- * Like `panic!`, but aborts the process instead of unwinding.
+ * Like [error], but aborts the process instead of unwinding.
  *
  * Although we compile buck2 with `panic=abort`, this is safer because
  * others may copy-paste code.
  */
-// Kotlin has no macros; callers invoke rtabortImplFixedString or
-// rtabortImpl directly with the file and line of the call site.
-
 internal fun rtabortImplFixedString(file: String, line: Int, message: String): Nothing {
     rtabortImpl(file, line, message)
 }
 
 internal fun rtabortImpl(file: String, line: Int, msg: String): Nothing {
-    // Make sure we abort even if formatting panics.
+    // Make sure we abort even if formatting throws.
     val abort = AbortOnDrop()
 
-    // `eprintln!` followed by `abort` does not print anything in tests.
+    // Stderr write followed by abort does not print anything in tests.
     try {
         println("$file:$line: abort: $msg")
     } catch (_: Throwable) {

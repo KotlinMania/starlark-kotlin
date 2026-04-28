@@ -1,4 +1,4 @@
-// port-lint: source src/values/error.rs
+// port-lint: source values/error.rs
 package io.github.kotlinmania.starlark.values
 
 /*

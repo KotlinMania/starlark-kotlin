@@ -95,7 +95,6 @@ private class PercentFormatParser(
         return rem.isNotEmpty()
     }
 
-    @Suppress("ReturnCount")
     override fun next(): Result<Item> {
         val indexOfPercent = rem.indexOfFirst { it == '%' }
         if (indexOfPercent >= 0) {

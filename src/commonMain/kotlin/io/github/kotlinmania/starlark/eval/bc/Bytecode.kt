@@ -132,7 +132,6 @@ private fun dispatchInstruction(
 ): InstrControl {
     // Helper for InstrNoFlowImpl-based instructions: execute and wrap result.
     fun <A> noFlow(impl: InstrNoFlowImpl<A>): InstrControl {
-        @Suppress("UNCHECKED_CAST")
         val typedArg = (arg ?: Unit) as A
         val result = impl.runWithArgs(eval, frame, ip, typedArg)
         return if (result.isSuccess) {
@@ -147,7 +146,6 @@ private fun dispatchInstruction(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     return when (opcode) {
         // --- No-flow instructions ---
         BcOpcode.Const -> noFlow(InstrConstImpl)

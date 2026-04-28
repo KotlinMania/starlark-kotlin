@@ -76,23 +76,19 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 // they're auditable instead of suppressing whole functions.
 // ---------------------------------------------------------------------------
 
-@Suppress("UNCHECKED_CAST")
 private fun assignIdentAsBinding(
     ident: Spanned<AssignIdentP<CstPayload, *>>,
 ): Spanned<AssignIdentP<CstPayload, BindingId?>> =
     ident as Spanned<AssignIdentP<CstPayload, BindingId?>>
 
-@Suppress("UNCHECKED_CAST")
 private fun identAsResolved(
     ident: Spanned<IdentP<CstPayload, *>>,
 ): Spanned<IdentP<CstPayload, ResolvedIdent?>> =
     ident as Spanned<IdentP<CstPayload, ResolvedIdent?>>
 
-@Suppress("UNCHECKED_CAST")
 private fun defAsScopeId(def: DefP<CstPayload, *>): DefP<CstPayload, ScopeId> =
     def as DefP<CstPayload, ScopeId>
 
-@Suppress("UNCHECKED_CAST")
 private fun lambdaAsScopeId(lambda: LambdaP<CstPayload, *>): LambdaP<CstPayload, ScopeId> =
     lambda as LambdaP<CstPayload, ScopeId>
 
@@ -494,7 +490,6 @@ internal class ModuleScopeBuilder(
                     Visibility.Public,
                     AssignCount.AtMostOnce,
                 )
-                @Suppress("UNCHECKED_CAST")
                 (p.node as AssignIdentP<CstPayload, BindingId?>).payload = bindingId
                 check(localBindings.put(name, bindingId) == null)
             }

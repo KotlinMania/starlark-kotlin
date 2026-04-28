@@ -1,4 +1,4 @@
-// port-lint: source src/private.rs
+// port-lint: source private.rs
 package io.github.kotlinmania.starlark
 
 /*

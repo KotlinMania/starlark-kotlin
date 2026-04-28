@@ -205,19 +205,7 @@ class StringValue(
     }
 }
 
-/**
- * Common type for [StringValue] and [FrozenStringValue].
- *
- * Sealed via [Sealed]: the upstream `pub trait StringValueLike` is closed
- * through the `Sealed` supertype pattern, with the only impls (`StringValue`
- * and `FrozenStringValue`) sitting in this same file. Marking the Kotlin
- * interface `sealed` gives the compiler the same closed-variant guarantee.
- *
- * Auto-traits dropped from the upstream supertype list because they have no
- * Kotlin analog or are universal in Kotlin: `Borrow<str>`, `Display`, `Debug`,
- * `Default`, `Eq`, `Ord`, `Copy`, `Clone`, `Dupe`, `Serialize`, `Allocative`,
- * and the `'v` lifetime bound.
- */
+/** Common type for [StringValue] and [FrozenStringValue]. */
 sealed interface StringValueLike :
     Sealed,
     Trace,
