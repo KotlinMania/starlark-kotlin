@@ -108,6 +108,3 @@ fun Heap.allocTupleIter(elems: Iterable<Value>): Value {
     val list = elems.toList()
     return allocTuple(list)
 }
-
-// registerSpecialAvalueFrozen(FrozenTuple, AValueFrozenTuple);
-// Kotlin: vtable registration is handled differently; no macro expansion needed.
