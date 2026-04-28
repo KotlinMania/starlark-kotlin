@@ -22,11 +22,16 @@ package io.github.kotlinmania.starlark.values.layout.typed
 import starlarkmap.Hashed
 import starlarkmap.StarlarkHashValue
 import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlark.CoerceKey
+import io.github.kotlinmania.starlark.Sealed
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
 
 // Hashed is defined in starlarkmap.Hashed
@@ -71,6 +76,12 @@ class FrozenStringValue(
     }
 
     override fun asStrValue(): String = asStr()
+
+    override fun freeze(freezer: Freezer): Result<FrozenStringValue> = Result.success(this)
+
+    override fun trace(tracer: Tracer) {
+        // Frozen values are immovable; nothing to trace.
+    }
 
     override fun compareTo(other: FrozenStringValue): Int {
         return asStr().compareTo(other.asStr())
@@ -127,9 +138,13 @@ class StringValue(
     fun getHash(): StarlarkHashValue = str.getHashValue()
 
     /** Convert a value to a FrozenStringValue using a supplied Freezer. */
-    fun freeze(freezer: Freezer): Result<FrozenStringValue> {
+    override fun freeze(freezer: Freezer): Result<FrozenStringValue> {
         val frozen = freezer.freeze(toValue()).getOrElse { return Result.failure(it) }
         return Result.success(FrozenStringValue.newUnchecked(frozen))
+    }
+
+    override fun trace(tracer: Tracer) {
+        value.trace(tracer)
     }
 
     /** Get self along with the hash. */
@@ -190,12 +205,28 @@ class StringValue(
     }
 }
 
-/** Common interface for StringValue and FrozenStringValue. */
-interface StringValueLike {
-    /** Convert to a StringValue. */
+/**
+ * Common type for [StringValue] and [FrozenStringValue].
+ *
+ * Sealed via [Sealed]: the upstream `pub trait StringValueLike` is closed
+ * through the `Sealed` supertype pattern, with the only impls (`StringValue`
+ * and `FrozenStringValue`) sitting in this same file. Marking the Kotlin
+ * interface `sealed` gives the compiler the same closed-variant guarantee.
+ *
+ * Auto-traits dropped from the upstream supertype list because they have no
+ * Kotlin analog or are universal in Kotlin: `Borrow<str>`, `Display`, `Debug`,
+ * `Default`, `Eq`, `Ord`, `Copy`, `Clone`, `Dupe`, `Serialize`, `Allocative`,
+ * and the `'v` lifetime bound.
+ */
+sealed interface StringValueLike :
+    Sealed,
+    Trace,
+    Freeze<FrozenStringValue>,
+    CoerceKey<StringValue> {
+    /** Convert to a [StringValue]. */
     fun toStringValue(): StringValue
 
-    /** Convert to a str. */
+    /** Convert to a [String]. */
     fun asStrValue(): String {
         return toStringValue().asStr()
     }

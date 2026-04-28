@@ -90,6 +90,7 @@ import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGe
 import io.github.kotlinmania.starlark.values.types.structs.StructGen
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
+import io.github.kotlinmania.starlark.CoerceKey
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.util.ArcStr
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
@@ -858,6 +859,11 @@ class Value internal constructor(
         return freezer.freeze(this)
     }
 
+    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+    }
+
+    override val staticType: kotlin.reflect.KClass<*> get() = Value::class
+
     // ValueLike implementation
 
     override fun fromFrozenValue(v: FrozenValue): Value = v.toValue()
@@ -1594,6 +1600,9 @@ class FrozenValue internal constructor(
         return Result.success(this)
     }
 
+    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+    }
+
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
         return toValue().downcastRef(clazz)
@@ -1628,7 +1637,11 @@ object FrozenValueStarlarkTypeRepr : StarlarkTypeRepr {
  * For details about each function, see the documentation for [Value],
  * which provides the same functions (and more).
  */
-interface ValueLike<Self : ValueLike<Self>> : ValueLifetimeless {
+interface ValueLike<Self : ValueLike<Self>> :
+    ValueLifetimeless,
+    Trace,
+    CoerceKey<Value>,
+    ProvidesStaticType {
     /**
      * Produce a [Value] regardless of the type you are starting with.
      */
