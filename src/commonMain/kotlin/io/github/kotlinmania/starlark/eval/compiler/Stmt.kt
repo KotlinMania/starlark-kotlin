@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/stmt.rs
+// port-lint: source eval/compiler/stmt.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -62,11 +62,6 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-//     Dot(IrSpanned<ExprCompiled>, String),
-//     Array(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
-//     Local(IrSpanned<LocalSlotId>),
-//     LocalCaptured(IrSpanned<LocalCapturedSlotId>),
-//     Module(IrSpanned<ModuleSlotId>),
 internal sealed class AssignModifyLhs {
     data class Dot(val expr: IrSpanned<ExprCompiled>, val name: String) : AssignModifyLhs()
     data class Array(val expr: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignModifyLhs()
@@ -85,15 +80,6 @@ internal fun AssignModifyLhs.optimize(ctx: OptCtx): AssignModifyLhs {
     }
 }
 
-//     PossibleGc,
-//     Return(IrSpanned<ExprCompiled>),
-//     Expr(IrSpanned<ExprCompiled>),
-//     Assign(IrSpanned<AssignCompiledValue>, Option<IrSpanned<TypeCompiled>>, IrSpanned<ExprCompiled>),
-//     AssignModify(AssignModifyLhs, AssignOp, IrSpanned<ExprCompiled>),
-//     If(Box<(IrSpanned<ExprCompiled>, StmtsCompiled, StmtsCompiled)>),
-//     For(Box<(IrSpanned<AssignCompiledValue>, IrSpanned<ExprCompiled>, StmtsCompiled)>),
-//     Break,
-//     Continue,
 internal sealed class StmtCompiled {
     data object PossibleGc : StmtCompiled()
     data class Return(val expr: IrSpanned<ExprCompiled>) : StmtCompiled()
@@ -358,18 +344,11 @@ internal class StmtsCompiled(
     }
 }
 
-//     IncorrectNumberOfValueToUnpack(i32, i32),
 internal class AssignError {
     class IncorrectNumberOfValueToUnpack(expected: Int, got: Int) :
         Exception("Unpacked $got values but expected $expected")
 }
 
-//     Dot(IrSpanned<ExprCompiled>, String),
-//     Index(IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>),
-//     Tuple(Vec<IrSpanned<AssignCompiledValue>>),
-//     Local(LocalSlotId),
-//     LocalCaptured(LocalCapturedSlotId),
-//     Module(ModuleSlotId, String),
 internal sealed class AssignCompiledValue {
     data class Dot(val obj: IrSpanned<ExprCompiled>, val field: String) : AssignCompiledValue()
     data class Index(val array: IrSpanned<ExprCompiled>, val index: IrSpanned<ExprCompiled>) : AssignCompiledValue()
@@ -427,7 +406,7 @@ internal fun IrSpanned<AssignCompiledValue>.optimize(ctx: OptCtx): IrSpanned<Ass
 // The first issue can be solved by moving to a bytecode interpreter and
 // evaluation stack. The second issue can be solved by disabling GC while in
 // such functions (it's probably rare). The third issue could be solved by
-// making the freeze for iteration a separate flag to the RefCell, at the cost
+// making the freeze for iteration a separate flag to the mutable cell, at the cost
 // of an extra word in ValueMem. Or we could disable GC while iterating.
 //
 // For the moment we only GC when executing a statement at the root of the
@@ -728,7 +707,6 @@ private fun Compiler.stmtDirect(
                     )
                 }.getOrElse { return Result.failure(it) },
             )
-            @Suppress("UNCHECKED_CAST")
             val defName = defP.name as Spanned<AssignIdentP<CstPayload, BindingId?>>
             val lhs = assignTarget(Spanned(
                 AssignTargetP.Identifier<CstPayload, BindingId?>(defName),
