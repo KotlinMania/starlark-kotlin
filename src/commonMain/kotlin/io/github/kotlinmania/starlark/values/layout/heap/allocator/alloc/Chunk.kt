@@ -51,7 +51,6 @@ internal class Chunk private constructor(
     companion object {
         val HEADER_SIZE: AlignedSize = AlignedSize.newBytes(ChunkData.HEADER_SIZE_BYTES)
 
-        // Equivalent to Default::default() — returns empty chunk.
         fun default(): Chunk = allocAtLeast(AlignedSize.ZERO)
 
         /** Allocate chunk which can hold at least `lenWords` words. */
