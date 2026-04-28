@@ -23,8 +23,8 @@ package io.github.kotlinmania.starlark.values.types.anyarray
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
-//     content: [T; 0],
-// Kotlin: GC handles memory layout. AnyArray is a simple wrapper around a list.
+// content holds the heap-allocated elements; the JVM manages layout, so
+// this is a plain mutable list rather than a fixed-size inline array.
 internal class AnyArray<T>(
     private val content: MutableList<T>,
 ) : StarlarkValue {
@@ -33,10 +33,8 @@ internal class AnyArray<T>(
 
     companion object {
         /**
-         * This function is unsafe in Rust because it does not initialize content array,
-         * but drops in destructor.
+         * Creates a new array with capacity for [len] elements.
          */
-        // Kotlin: creates an empty array with the given capacity.
         fun <T> new(len: Int): AnyArray<T> {
             return AnyArray(ArrayList(len))
         }
@@ -44,8 +42,11 @@ internal class AnyArray<T>(
 
     fun asSlice(): List<T> = content
 
-    // Kotlin: not applicable (no C repr layout). Kept for API parity.
-    @Suppress("UNUSED")
+    /**
+     * Returns the byte offset of the content array inside the host object.
+     * On the JVM there is no C-style memory layout, so this returns 0 — the
+     * runtime owns the object's representation.
+     */
     fun offsetOfContent(): Int = 0
 
     operator fun get(index: Int): T = content[index]
@@ -62,7 +63,8 @@ internal class AnyArray<T>(
         return "AnyArray(${asSlice()})"
     }
 
-    // Kotlin: GC handles cleanup. No explicit drop needed.
+    // No explicit drop needed; the runtime collects the array when
+    // the wrapper is no longer reachable.
 
     override val TYPE: String get() = "AnyArray"
 }
