@@ -82,7 +82,7 @@ class FrozenRef<T>(
         return value
     }
 
-    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+    override fun trace(tracer: Tracer) {
         // Do nothing, because `FrozenRef` can only point to frozen value.
     }
 
@@ -96,7 +96,7 @@ class FrozenRef<T>(
         return value.hashCode()
     }
 
-    override fun freeze(@Suppress("UNUSED_PARAMETER") freezer: Freezer): Result<FrozenRef<T>> {
+    override fun freeze(freezer: Freezer): Result<FrozenRef<T>> {
         return Result.success(this)
     }
 }
@@ -125,7 +125,7 @@ internal class AtomicFrozenRefOption<T>(
 
     private val ref_: AtomicReference<T?> = AtomicReference(initial?.asRef())
 
-    override fun trace(@Suppress("UNUSED_PARAMETER") tracer: Tracer) {
+    override fun trace(tracer: Tracer) {
         // Do nothing, because `AtomicFrozenRefOption` holds `FrozenRef`.
     }
 
