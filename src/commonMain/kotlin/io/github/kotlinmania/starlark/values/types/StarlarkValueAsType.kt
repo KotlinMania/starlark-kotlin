@@ -68,8 +68,6 @@ internal class StarlarkValueAsTypeStarlarkValue(
  * const Temperature: StarlarkValueAsType<Temperature> = StarlarkValueAsType::new();
  * ```
  */
-//     PhantomData<fn(&T)>,
-// );
 class StarlarkValueAsType<T : StarlarkTypeRepr> @PublishedApi internal constructor(
     @PublishedApi internal val inner: StarlarkValueAsTypeStarlarkValue,
     private val tyRepr: () -> Ty,
