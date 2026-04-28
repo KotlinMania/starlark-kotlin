@@ -34,6 +34,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
@@ -89,13 +90,14 @@ fun partialStdlib(builder: GlobalsBuilder) {
 
 /** Generic partial application value. */
 open class PartialGen<V : Any, S : Any>(
-    val func: V,
+    var func: V,
     // Always references a tuple.
-    val pos: V,
-    val named: List<V>,
+    var pos: V,
+    named: List<V>,
     val names: List<Pair<Symbol, S>>,
     val namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : StarlarkValue, Trace {
+    var named: MutableList<V> = named.toMutableList()
     override val TYPE: String get() = FUNCTION_TYPE
 
     fun posContent(): List<Value> {
@@ -197,9 +199,8 @@ open class PartialGen<V : Any, S : Any>(
         return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }
 
-    // Trace implementation
     override fun trace(tracer: Tracer) {
-        // In Kotlin, GC handles tracing. No-op.
+        // Default no-op for frozen values; live-value subclasses override.
     }
 }
 
@@ -215,6 +216,26 @@ class Partial(
 ) : PartialGen<Value, StringValue>(func, pos, named, names, namesIndex),
     ComplexValue,
     Freeze<FrozenPartial> {
+
+    override fun trace(tracer: Tracer) {
+        val funcHolder = ValueHolder(func)
+        tracer.trace(funcHolder)
+        func = funcHolder.value
+
+        val posHolder = ValueHolder(pos)
+        tracer.trace(posHolder)
+        pos = posHolder.value
+
+        for (i in named.indices) {
+            val h = ValueHolder(named[i])
+            tracer.trace(h)
+            named[i] = h.value
+        }
+
+        for ((_, sv) in names) {
+            sv.trace(tracer)
+        }
+    }
 
     override fun freeze(freezer: Freezer): Result<FrozenPartial> {
         val frozenFunc = freezer.freeze(func)
