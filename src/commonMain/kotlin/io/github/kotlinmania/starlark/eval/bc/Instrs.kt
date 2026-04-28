@@ -22,10 +22,6 @@ import io.github.kotlinmania.starlark.eval.bc.BcInstrHeader
 
 /**
  * Instructions serialized in a buffer.
- *
- * arithmetic with manual `Drop` for cleanup. In Kotlin, we import a list-of-objects representation
- * where each instruction is stored as a (`BcInstrHeader`, arg) pair. The garbage collector handles
- * cleanup, so `Drop` semantics become no-ops.
  */
 
 // --- Static empty instructions ---
@@ -37,8 +33,6 @@ import io.github.kotlinmania.starlark.eval.bc.BcInstrHeader
  * the instruction buffer.
  *
  * [BcInstrs] type needs to have a default constructor (it is convenient).
- *
- * we simply create a small list with the `End` instruction.
  */
 private fun emptyInstrs(): List<Any> {
     return listOf(
@@ -51,12 +45,6 @@ private fun emptyInstrs(): List<Any> {
 
 /**
  * Bytecode instructions container.
- *
- * calls `dropInstrs` on `Drop`. In Kotlin, we import a simple [List] since the
- * garbage collector manages allocation and deallocation.
- *
- * Instructions are stored as `(BcInstrHeader, arg)` pairs. Each header occupies
- * one list slot and its corresponding argument occupies the next slot.
  */
 internal class BcInstrs private constructor(
     private val instrs: List<Any>,
@@ -77,8 +65,6 @@ internal class BcInstrs private constructor(
 
     /**
      * Get the end address of the instruction buffer.
-     *
-     * In Kotlin, each element in the list represents one instruction slot.
      */
     fun end(): BcAddr = BcAddr(instrs.size.toUInt())
 
@@ -224,8 +210,6 @@ internal class BcInstrs private constructor(
 
     /**
      * Get the opcode at the given pointer address in the instruction buffer.
-     *
-     * In Kotlin, instructions are stored as header/arg pairs in a list.
      */
     internal fun getOpcodeAt(ptr: BcPtrAddr): BcOpcode {
         val idx = ptr.offset
@@ -354,22 +338,16 @@ internal class BcInstrsWriter {
 
     /**
      * Length of instructions buffer.
-     *
-     * In Kotlin, each list element is one instruction slot.
      */
     private fun instrsLenBytes(): Int = instrs.size
 
     /**
      * Current instruction pointer (address of next instruction to be written).
-     *
      */
     fun ip(): BcAddr = BcAddr(instrsLenBytes().toUInt())
 
     /**
      * Write an instruction with the given header and argument.
-     *
-     * `ptr::write`, and returns `(ip, &(*ptr).arg)`. In Kotlin, we add the header
-     * and arg to the list and return the instruction address.
      */
     fun write(header: BcInstrHeader, arg: Any): BcAddr {
         val instrIp = ip()
@@ -380,9 +358,6 @@ internal class BcInstrsWriter {
 
     /**
      * Create a [PatchAddr] for a forward jump that needs to be patched later.
-     *
-     * asserts that it currently holds [BcAddrOffset.FORWARD]. In Kotlin, we import the
-     * list index of the element to be patched.
      *
      * @param instrStart the start address of the instruction containing the jump offset.
      * @param argIndex the index in the instrs list of the offset to be patched.
@@ -397,16 +372,10 @@ internal class BcInstrsWriter {
     /**
      * Patch a previously written forward jump address with the current IP.
      *
-     * buffer at the address stored in `addr.arg` and asserts the old value was
-     * [BcAddrOffset.FORWARD] and the new offset is aligned to [BC_INSTR_ALIGN].
-     *
-     * In Kotlin, we update the list entry at the patch index.
+     * Asserts the old value was [BcAddrOffset.FORWARD] and the new offset is
+     * aligned to [BC_INSTR_ALIGN].
      */
     fun patchAddr(addr: PatchAddr) {
-        // address of the BcAddrOffset field inside the compound instruction arg.
-        // In Kotlin, instruction args are boxed objects (Pair, List, or bare
-        // BcAddrOffset). We reconstruct the containing object with the patched
-        // offset replacing the BcAddrOffset.FORWARD sentinel.
         val index = addr.arg.value.toInt()
         if (index >= instrs.size) return
         val newOffset = ip().offsetFrom(addr.instrStart)
@@ -438,7 +407,6 @@ internal class BcInstrsWriter {
      * slow args, statement locations, and local names, then returns the completed [BcInstrs].
      *
      * preventing direct field moves. The buffer is then boxed and verified to be aligned.
-     * In Kotlin, we just take a snapshot of the list.
      */
     fun finish(
         slowArgs: MutableList<Pair<BcAddr, BcInstrSlowArg>>,
