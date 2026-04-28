@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/array.rs
+// port-lint: source values/types/array.rs
 package io.github.kotlinmania.starlark.values.types.array
 
 /*
@@ -44,7 +44,6 @@ internal class Array(
     override val TYPE: String = "array"
 
     /** Current number of elements in the array. */
-    // Kotlin: using MutableList instead of raw pointer + len counter.
     private val content: MutableList<Value> = ArrayList(capacity)
 
     /** Number of active iterators: when iterator count is non-zero, we cannot modify the array. */
@@ -59,8 +58,6 @@ internal class Array(
     }
 
     companion object {
-        // Kotlin: No raw memory layout. Not transliterable.
-
         /** Create an array with specified length and capacity. */
         fun new(len: Int, capacity: Int): Array {
             require(len <= capacity)
@@ -164,8 +161,6 @@ internal class Array(
         require(index < len())
         return content.removeAt(index)
     }
-
-    // Kotlin: handled by StarlarkValue infrastructure.
 
     override fun length(): Result<Int> {
         return Result.success(len())
