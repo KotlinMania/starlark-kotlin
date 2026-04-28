@@ -203,30 +203,6 @@ class SliceStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType
     override val staticType: KClass<*> get() = List::class
 }
 
-class BoxStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class RcStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class ArcStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class CellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class UnsafeCellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class RefCellStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
 class OptionStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
