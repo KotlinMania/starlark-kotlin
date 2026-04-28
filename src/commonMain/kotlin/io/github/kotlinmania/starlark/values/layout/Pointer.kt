@@ -23,9 +23,6 @@ package io.github.kotlinmania.starlark.values.layout
 // ?01 => mutable pointer
 // ?10 => int (32 bit)
 // third bit is a tag set by the user (getUserTag)
-//
-// Kotlin: GC handles all memory. We simulate pointer tagging using
-// an enum for the tag and a backing array for identity-based indexing.
 
 private const val TAG_BITS: Int = 3
 private const val TAG_MASK: Int = 0b111
@@ -38,8 +35,7 @@ private const val TAG_UNFROZEN: Int = 0b001
 
 private const val TAG_NICHE: Int = 0b1
 
-// Kotlin: Long is 64 bits, InlineInt.BITS is 32
-private const val INT_SHIFT: Int = 64 - 32 // = 32
+private const val INT_SHIFT: Int = 64 - 32
 
 private const val INT_DATA_MASK: Long = ((1L shl 32) - 1L) shl INT_SHIFT
 
@@ -84,17 +80,8 @@ private enum class FrozenPointerTags(val bits: Int) {
     Other(0);
 }
 
-// Kotlin: We simulate raw tagged pointers using a Long for the tagged value.
-// The actual AValueHeader/AValueOrForward references are stored in a
-// side table (the heap's arena list), and the "pointer" is an index
-// combined with tag bits—following the user's recommendation to use
-// array indices as simulated pointers.
-
 /** Tagged pointer logically equivalent to `*mut AValueHeader`. */
 internal class RawPointer private constructor(
-    // Kotlin: stores the tagged value as a Long.
-    // For int tags: upper bits hold InlineInt, lower bits hold TAG_INT.
-    // For pointer tags: upper bits hold the index, lower bits hold tag.
     private val raw: Long,
 ) {
     init {
@@ -196,8 +183,6 @@ internal class Pointer private constructor(
 
     fun isUnfrozen(): Boolean = ptr.isUnfrozen()
 
-    // Kotlin: returns Pair<Long?, Int?> where first is ptr index, second is int value
-    // (exactly one is non-null)
     fun unpackIsInt(): Boolean = ptr.isInt()
 
     fun unpackPtr(): Long {
@@ -232,7 +217,6 @@ internal class Pointer private constructor(
 
     fun raw(): RawPointer = ptr
 
-    // Kotlin: no lifetimes, just return same pointer
     fun castLifetime(): Pointer = Pointer(ptr)
 
     fun toFrozenPointerUnchecked(): FrozenPointer = FrozenPointer.new(ptr)
