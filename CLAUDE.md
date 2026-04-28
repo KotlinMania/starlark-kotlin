@@ -134,6 +134,22 @@ Root-package `.kt` files that re-export types from subpackages via `typealias` c
 
 If a type doesn't exist yet, port the file that defines it. Don't create placeholder classes like `class Ty` or `class CodeMap` in random files — they conflict with real implementations when those files get ported.
 
+### Wrapper class policy
+
+Faithful ports use Kotlin idioms for Kotlin types and only wrap when Rust itself wraps. Specifically:
+
+- **If Rust uses a stdlib type directly** (`HashMap`, `Vec`, `BTreeSet`), Kotlin uses the Kotlin stdlib equivalent directly. Don't write a wrapper class to host Rust-named methods (`len()`, `iter()`, `insert()`) — those add no domain logic and exist only to inflate ast_distance scores. Use Kotlin's `size`, `iterator()`, `add()`.
+
+- **If Rust wraps a stdlib type in a domain struct** (`pub struct StringValueInterner { map: HashTable<...> }` with real methods like `intern()`), Kotlin wraps the same way. The class is the port; the underlying storage is plain Kotlin collections.
+
+- **Rust language primitives without Kotlin equivalents** (`Box<T>`, `Cell<T>`, `RefCell<T>`, `Arc<T>`, `Rc<T>`, `NonNull<T>`, `MaybeUninit<T>`, `dyn Trait`) are not ported as classes. They get inlined or replaced with the closest Kotlin idiom (plain reference, `var`, atomic ref where threaded). Kotlin-side `traceBox` / `traceCell` / `traceRefCell` / `traceUnsafeCell` style functions to mirror Rust's `impl Trace for Box<T>` etc. are shims, not port — those Rust impls have no Kotlin counterpart, so the corresponding Kotlin functions shouldn't exist.
+
+- **Rust `pub type X = Y`** becomes a Kotlin `typealias X = Y`. Add `// port-lint: typealias-of <rust-fqname>` so ast_distance credits it as parity instead of flagging "Kotlin-only typealias detected."
+
+- **Iterator types**: classes implementing `kotlin.collections.Iterator` are the faithful port of `impl Iterator for X` in Rust. The forced `hasNext()` is the documented Kotlin idiom collision; don't add Rust-named `nextBack()`/`len()`/`map()` shim methods alongside unless Rust actually has the corresponding struct. Pure forwarding shims like `class Keys(val inner: Iter): Iterator<K>` are rustification, not port.
+
+- **ast_distance score is a signal, not a target.** If a faithful port scores poorly, fix ast_distance — don't bend the code. If you find yourself adding Rust-named methods to a Kotlin built-in wrapper to push the score, you're rustifying.
+
 ## Progress Tracking
 
 ```bash
