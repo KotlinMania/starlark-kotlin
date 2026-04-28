@@ -29,7 +29,6 @@ import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.typing.Ty
 
 /** `StarlarkTypeRepr` for iterable types. */
-// PhantomData<T> + NonInstantiable → uninhabited generic marker type
 class StarlarkIter<T : StarlarkTypeRepr> private constructor() {
     companion object {
         fun starlarkTypeRepr(inner: Ty): Ty {
@@ -48,7 +47,7 @@ internal class TypingIterable : StarlarkValue, AllocFrozenValue {
 
     override fun starlarkTypeRepr(): Ty = Ty.iter(Ty.any())
 
-    override fun allocFrozenValue(@Suppress("unused") heap: FrozenHeap): FrozenValue {
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return ANY.toFrozenValue()
     }
 
