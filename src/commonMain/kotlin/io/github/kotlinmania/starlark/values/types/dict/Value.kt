@@ -361,8 +361,8 @@ fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<Frozen
 
 interface DictLike {
     fun content(): SmallMap<Value, Value>
-    // These functions are unsafe for the same reason
-    // StarlarkValue iterator functions are unsafe.
+    // These functions carry the same caller-upheld invariants as
+    // StarlarkValue's iterator functions.
     fun iterStart()
     fun contentUnchecked(): SmallMap<Value, Value>
     fun iterStop()
