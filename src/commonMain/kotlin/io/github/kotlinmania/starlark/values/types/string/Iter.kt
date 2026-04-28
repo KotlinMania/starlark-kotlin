@@ -59,8 +59,8 @@ internal class StringIterableGen(
         return Result.success(iter)
     }
 
-    override fun trace(@Suppress("unused") tracer: Tracer) {
-        // Kotlin's GC handles memory; tracing is a no-op.
+    override fun trace(tracer: Tracer) {
+        string.trace(tracer)
     }
 }
 

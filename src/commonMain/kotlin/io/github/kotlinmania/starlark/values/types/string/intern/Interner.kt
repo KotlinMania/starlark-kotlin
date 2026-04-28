@@ -68,8 +68,6 @@ internal class FrozenStringValueInterner {
  * Caches string allocations so that identical strings share the same value.
  */
 internal class StringValueInterner : Trace {
-    // HashTable<StringValue> in Rust.
-    // In Kotlin, we import a HashMap keyed by hash for O(1) lookup.
     private val map: HashMap<ULong, MutableList<StringValue>> = HashMap()
 
     fun intern(
@@ -92,11 +90,12 @@ internal class StringValueInterner : Trace {
         return stringValue
     }
 
-    // In Kotlin, the GC handles reference tracking, so this is effectively a no-op.
-    // We keep the method for structural parity with the Rust Trace derive.
-    override fun trace(@Suppress("unused") tracer: Tracer) {
-        // Kotlin's GC manages StringValue references automatically.
-        // No manual pointer adjustment needed.
+    override fun trace(tracer: Tracer) {
+        for (bucket in map.values) {
+            for (stringValue in bucket) {
+                stringValue.trace(tracer)
+            }
+        }
     }
 
     companion object {
