@@ -55,7 +55,6 @@ internal object AValueArray : AValue {
         return (value as Array).capacity()
     }
 
-    // Kotlin: no C repr layout, not applicable.
     override fun offsetOfExtra(): Int = 0
 
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
@@ -98,7 +97,6 @@ internal class AValueAnyArray<T> : AValue {
         return (value as AnyArray<*>).len
     }
 
-    // Kotlin: no C repr layout, not applicable.
     override fun offsetOfExtra(): Int = 0
 
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
@@ -141,6 +139,5 @@ internal fun Heap.allocArray(cap: Int): ValueTyped<Array> {
 
     val capU32: UInt = cap.toUInt()
 
-    @Suppress("UNCHECKED_CAST")
     return allocRawExtra(arrayAvalue(capU32)).first as ValueTyped<Array>
 }
