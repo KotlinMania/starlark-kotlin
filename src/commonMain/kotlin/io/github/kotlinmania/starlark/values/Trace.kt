@@ -93,29 +93,6 @@ fun <T : Trace> T?.trace(tracer: Tracer) {
     }
 }
 
-fun <T : Trace> traceRefCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
-}
-
-fun <T : Trace> traceCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
-}
-
-fun <T : Trace> traceOnceCell(self: T?, tracer: Tracer) {
-    self?.trace(tracer)
-}
-
-fun <T : Trace> traceUnsafeCell(self: T, tracer: Tracer) {
-    self.trace(tracer)
-}
-
-fun <T : Trace> traceBox(self: T, tracer: Tracer) {
-    self.trace(tracer)
-}
-
-fun traceUnit(tracer: Tracer) {
-}
-
 fun <T1 : Trace> Tuple1<T1>.trace(tracer: Tracer) {
     this.value0.trace(tracer)
 }
@@ -155,9 +132,6 @@ fun FrozenValue.trace(tracer: Tracer) {
 fun String.trace(tracer: Tracer) {
 }
 
-fun Int.traceUsize(tracer: Tracer) {
-}
-
 fun Int.trace(tracer: Tracer) {
 }
 
@@ -173,34 +147,10 @@ fun Boolean.trace(tracer: Tracer) {
 fun AtomicBoolean.trace(tracer: Tracer) {
 }
 
-fun AtomicInt.traceAtomicI8(tracer: Tracer) {
-}
-
-fun AtomicInt.traceAtomicU8(tracer: Tracer) {
-}
-
-fun AtomicInt.traceAtomicI16(tracer: Tracer) {
-}
-
-fun AtomicInt.traceAtomicU16(tracer: Tracer) {
-}
-
 fun AtomicInt.trace(tracer: Tracer) {
 }
 
-fun AtomicInt.traceAtomicU32(tracer: Tracer) {
-}
-
 fun AtomicLong.trace(tracer: Tracer) {
-}
-
-fun AtomicLong.traceAtomicU64(tracer: Tracer) {
-}
-
-fun AtomicLong.traceAtomicUsize(tracer: Tracer) {
-}
-
-fun AtomicLong.traceAtomicIsize(tracer: Tracer) {
 }
 
 fun Instant.trace(tracer: Tracer) {
@@ -209,15 +159,3 @@ fun Instant.trace(tracer: Tracer) {
 fun <T> PhantomData<T>.trace(tracer: Tracer) {
 }
 
-fun <T : Trace> traceArcMutex(value: T, tracer: Tracer) {
-    value.trace(tracer)
-}
-
-fun <A, R> traceFn1(value: (A) -> R, tracer: Tracer) {
-}
-
-fun <A, B, R> traceFn2(value: (A, B) -> R, tracer: Tracer) {
-}
-
-fun <A, B, C, R> traceFn3(value: (A, B, C) -> R, tracer: Tracer) {
-}
