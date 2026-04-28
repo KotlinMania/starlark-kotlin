@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.collections
 //! Reuse string allocation.
 
 /** Pool of strings. */
-// Kotlin: Since Kotlin strings are immutable, we pool StringBuilder instead.
 internal class StringPool {
     private val builders = mutableListOf<StringBuilder>()
 
