@@ -38,7 +38,6 @@ internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> {
 }
 
 /** AValue implementation for simple Starlark values. */
-// Kotlin: GC handles memory. AValueSimple is a marker class wrapping a StarlarkValue.
 class AValueSimple<T : StarlarkValue>(
     private val inner: T,
 ) : AValue {
@@ -61,13 +60,11 @@ class AValueSimple<T : StarlarkValue>(
 }
 
 /** Extension function on FrozenHeap for simple typed static allocation. */
-@Suppress("UNCHECKED_CAST")
 fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(val_: T): FrozenValueTyped<T> {
     return allocRaw(simple(val_)) as FrozenValueTyped<T>
 }
 
 /** Allocate a value on the heap. */
-@Suppress("UNCHECKED_CAST")
 fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(val_: T): FrozenValueTyped<T> {
     return allocRaw(simple(val_)) as FrozenValueTyped<T>
 }
