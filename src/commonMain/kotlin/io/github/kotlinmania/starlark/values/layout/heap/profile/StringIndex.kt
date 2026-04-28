@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
 
 /** Map strings to integers 0, 1, 2, ... */
 internal class StringIndex {
-    // Kotlin: LinkedHashSet preserves insertion order, equivalent to SmallSet.
     private val strings: LinkedHashSet<String> = linkedSetOf()
 
     fun index(s: String): StringId {
