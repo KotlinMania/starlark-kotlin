@@ -54,8 +54,6 @@ internal object AValueList : AValue {
     override fun offsetOfExtra(): Int = 0
 
     override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
-        // In the full implementation, this is called via vtable dispatch
-        // with the actual StarlarkValue. The object form uses unpack() as placeholder.
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
