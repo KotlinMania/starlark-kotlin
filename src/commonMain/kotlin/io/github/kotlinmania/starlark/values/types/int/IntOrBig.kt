@@ -175,7 +175,7 @@ sealed class StarlarkIntRef {
     }
 
     fun toBig(): BigInteger = when (this) {
-        is Small -> value.toBigInt()
+        is Small -> value.toBigint()
         is Big -> value.get()
     }
 
@@ -222,7 +222,7 @@ sealed class StarlarkIntRef {
         val sig = b.signum() * a.signum()
         val offset = if (sig < 0 && (a % b) != InlineInt.ZERO) 1 else 0
         when (val div = a.checkedDiv(b)) {
-            null -> floorDivBigBig(a.toBigInt(), b.toBigInt()).getOrThrow()
+            null -> floorDivBigBig(a.toBigint(), b.toBigint()).getOrThrow()
             else -> {
                 val result = div.checkedSubI32(offset)
                     ?: throw Exception("unreachable")
@@ -251,10 +251,10 @@ sealed class StarlarkIntRef {
     fun floorDiv(other: StarlarkIntRef): Result<StarlarkInt> = when (this) {
         is Small -> when (other) {
             is Small -> floorDivSmallSmall(value, other.value)
-            is Big -> floorDivBigBig(value.toBigInt(), other.value.get())
+            is Big -> floorDivBigBig(value.toBigint(), other.value.get())
         }
         is Big -> when (other) {
-            is Small -> floorDivBigBig(value.get(), other.value.toBigInt())
+            is Small -> floorDivBigBig(value.get(), other.value.toBigint())
             is Big -> floorDivBigBig(value.get(), other.value.get())
         }
     }
@@ -313,10 +313,10 @@ sealed class StarlarkIntRef {
     fun percent(other: StarlarkIntRef): Result<StarlarkInt> = when (this) {
         is Small -> when (other) {
             is Small -> percentSmall(value, other.value).map { StarlarkInt.Small(it) }
-            is Big -> percentBig(value.toBigInt(), other.value.get())
+            is Big -> percentBig(value.toBigint(), other.value.get())
         }
         is Big -> when (other) {
-            is Small -> percentBig(value.get(), other.value.toBigInt())
+            is Small -> percentBig(value.get(), other.value.toBigint())
             is Big -> percentBig(value.get(), other.value.get())
         }
     }
@@ -502,7 +502,7 @@ operator fun StarlarkIntRef.minus(other: StarlarkIntRef): StarlarkInt {
 operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt = when (this) {
     is StarlarkIntRef.Small -> {
         value.checkedMulI32(rhs)?.let { return StarlarkInt.Small(it) }
-        StarlarkInt.from(value.toBigInt() * BigInteger.fromInt(rhs))
+        StarlarkInt.from(value.toBigint() * BigInteger.fromInt(rhs))
     }
     is StarlarkIntRef.Big -> StarlarkInt.from(value.get() * BigInteger.fromInt(rhs))
 }
