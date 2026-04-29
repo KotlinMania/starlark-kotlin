@@ -234,14 +234,14 @@ data class InlineInt internal constructor(private val value: Int) :
 
     // --- BigInt / abs ---
 
-    internal fun toBigInt(): BigInteger {
+    internal fun toBigint(): BigInteger {
         return BigInteger.fromInt(value)
     }
 
     internal fun abs(): StarlarkInt {
         return if (value == Int.MIN_VALUE) {
             // abs(Int.MIN_VALUE) overflows; promote to BigInt.
-            StarlarkInt.from(toBigInt().abs())
+            StarlarkInt.from(toBigint().abs())
         } else {
             StarlarkInt.from(kotlin.math.abs(value))
         }
