@@ -102,8 +102,8 @@ internal class PointerI32 internal constructor(
     }
 
     /** This operation is expensive, import only if you have to. */
-    private fun toBigInt(): BigInteger {
-        return get().toBigInt()
+    private fun toBigint(): BigInteger {
+        return get().toBigint()
     }
 
     // --- PartialEq: pointer identity in Rust ---
@@ -191,7 +191,7 @@ internal class PointerI32 internal constructor(
             null -> ValueError.unsupportedWith(INT_TYPE, "&", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() and rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                Num.Int(StarlarkInt.from(toBigInt() and rhs.value.get())).allocValue(heap)
+                Num.Int(StarlarkInt.from(toBigint() and rhs.value.get())).allocValue(heap)
             )
         }
     }
@@ -201,7 +201,7 @@ internal class PointerI32 internal constructor(
             null -> ValueError.unsupportedWith(INT_TYPE, "|", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() or rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                Num.Int(StarlarkInt.from(toBigInt() or rhs.value.get())).allocValue(heap)
+                Num.Int(StarlarkInt.from(toBigint() or rhs.value.get())).allocValue(heap)
             )
         }
     }
@@ -211,7 +211,7 @@ internal class PointerI32 internal constructor(
             null -> ValueError.unsupportedWith(INT_TYPE, "^", other)
             is StarlarkIntRef.Small -> Result.success(Value.newInt(get() xor rhs.value))
             is StarlarkIntRef.Big -> Result.success(
-                Num.Int(StarlarkInt.from(toBigInt() xor rhs.value.get())).allocValue(heap)
+                Num.Int(StarlarkInt.from(toBigint() xor rhs.value.get())).allocValue(heap)
             )
         }
     }
