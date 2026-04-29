@@ -84,7 +84,7 @@ internal fun registerStr(globals: GlobalsBuilder) {
  *
  * ```
  * # starlark::assert::allTrue(r#"
- * chr(65) == 'A'
+ * chr(65) == "A"
  * chr(1049) == 'Й'
  * chr(0x1F63F) == '😿'
  * # "#);
@@ -198,7 +198,7 @@ internal fun repr(a: Value, eval: Evaluator): Result<StringValue> {
  * ```
  * # starlark::assert::allTrue(r#"
  * str(1)                          == '1'
- * str("x")                        == 'x'
+ * str("x")                        == "x"
  * str([1, "x"])                   == "[1, \"x\"]"
  * # "#);
  * ```

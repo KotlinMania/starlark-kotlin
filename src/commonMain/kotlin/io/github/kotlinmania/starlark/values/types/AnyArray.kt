@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/anyArray.rs
+// port-lint: source src/values/types/any_array.rs
 package io.github.kotlinmania.starlark.values.types.anyarray
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.anyarray
  * limitations under the License.
  */
 
-//! Utility to heap allocate arrays of values.
+/** Utility to heap allocate arrays of values. */
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
 
@@ -31,8 +31,8 @@ internal class AnyArray<T>(
 
     companion object {
         /**
-         * This function is unsafe because it does not initialize content array,
-         * but drops in in destructor.
+         * This function is risky because it does not initialize the content array,
+         * but drops elements in the destructor.
          */
         fun <T> new(len: Int): AnyArray<T> {
             return AnyArray(ArrayList(len))

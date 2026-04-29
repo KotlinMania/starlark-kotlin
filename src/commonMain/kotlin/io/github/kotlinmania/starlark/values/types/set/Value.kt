@@ -308,8 +308,8 @@ private fun setMethodsImpl(builder: io.github.kotlinmania.starlark.environment.M
 interface SetLike {
     fun content(): SmallSet<Value>
 
-    // These functions are unsafe for the same reason
-    // StarlarkValue iterator functions are unsafe.
+    // These functions are risky for the same reason
+    // StarlarkValue iterator functions are risky.
     fun iterStart()
     fun contentUnchecked(): SmallSet<Value>
     fun iterStop()

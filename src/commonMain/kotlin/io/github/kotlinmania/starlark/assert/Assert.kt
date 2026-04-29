@@ -416,8 +416,8 @@ class Assert(
      *
      * ```
      * val a = Assert()
-     * a.module("hello.star", "hello = 'world'")
-     * a.isTrue("load('hello.star', 'hello'); hello == 'world'")
+     * a.module("hello.star", "hello = \"world\"")
+     * a.isTrue("load(\"hello.star\", \"hello\"); hello == \"world\"")
      * ```
      */
     fun module(name: String, program: String): FrozenModule {
@@ -479,7 +479,7 @@ class Assert(
      * two words will be sufficient to ensure that.
      *
      * ```
-     * Assert().fail("fail('hello')", "ello")
+     * Assert().fail("fail(\"hello\")", "ello")
      * ```
      */
     fun fail(program: String, msg: String): io.github.kotlinmania.starlark.Error {
@@ -494,7 +494,7 @@ class Assert(
      * in order.
      *
      * ```
-     * Assert().fails("fail('hello')", listOf("fail", "ello"))
+     * Assert().fails("fail(\"hello\")", listOf("fail", "ello"))
      * ```
      */
     fun fails(program: String, msgs: List<String>): io.github.kotlinmania.starlark.Error {

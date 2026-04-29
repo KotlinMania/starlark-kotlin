@@ -222,7 +222,7 @@ internal data class StmtProfileData(
     }
 }
 
-// Box because when profiling is not enabled, we want this to be small and cheap
+// Boxed because when profiling is not enabled, we want this to be small and cheap
 internal class StmtProfile private constructor(
     private var state: StmtProfileState?,
 ) {

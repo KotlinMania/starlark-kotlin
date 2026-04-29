@@ -32,8 +32,8 @@ package io.github.kotlinmania.starlark.collections.symbol.map
  * ```
  *                            8 bytes       32 bytes      64 bytes
  *  slice equality (memcmp)   3.5/3.8       3.5/ 3.0      4.5/ 4.7
- *  usize equality loop       1.0/1.4       2.7/ 3.5      3.5/ 6.0
- *  u8 equality loop          3.4/5.7      13.7/19.7     22.6/44.8
+ *  word-size equality loop   1.0/1.4       2.7/ 3.5      3.5/ 6.0
+ *  byte equality loop        3.4/5.7      13.7/19.7     22.6/44.8
  * ```
  *
  * Measuring some sample strings, the P50 = 21 bytes, P75 = 27, P95 = 35,

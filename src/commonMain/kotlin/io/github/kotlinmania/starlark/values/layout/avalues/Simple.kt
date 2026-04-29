@@ -73,7 +73,7 @@ fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(val_: T): FrozenValueTyped<T
  * Allocate a simple [`StarlarkValue`] on this heap.
  *
  * Simple value is any starlark value which:
- * * bound by `'static` lifetime (in particular, it cannot contain references to other `Value`s)
+ * * bound to global scope (in particular, it cannot contain references to other `Value`s)
  * * is not special builtin (e.g. `None`)
  */
 fun <T : StarlarkValue> FrozenHeap.allocSimple(val_: T): FrozenValue {

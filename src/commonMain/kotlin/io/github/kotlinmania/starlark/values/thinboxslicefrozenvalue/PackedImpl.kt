@@ -79,7 +79,7 @@ internal class PackedImpl private constructor(
 }
 
 /**
- * Optimized version of a `Box<[FrozenValue]>`.
+ * Optimized version of a boxed FrozenValue slice.
  *
  * Specifically, this type uses bit packing and other tricks so that it is only
  * 8 bytes in size, while being allocation free for lengths zero and one. It

@@ -74,7 +74,7 @@ internal class OwnedHeap(
     }
 }
 
-/** A heap on which Values can be allocated. The values will be annotated with the heap lifetime. */
+/** A heap on which Values can be allocated. The values will be tied to the heap's scope. */
 class Heap internal constructor(
     private val owned: OwnedHeap,
 ) {
@@ -102,7 +102,7 @@ class Heap internal constructor(
     }
 
     internal fun stringInterner(): StringValueInterner {
-        // The lifetime of the interner is the lifetime of the heap.
+        // The interner is owned by the heap.
         return owned.strInterner
     }
 
@@ -555,11 +555,11 @@ class Tracer internal constructor(
 
     /**
      * Helper function to annotate that this field has been considered for tracing,
-     * but is not relevant because it has a static lifetime containing no relevant values.
+     * but is not relevant because it is bound to global scope and contains no relevant values.
      * Does nothing.
      */
     fun <T> traceStatic(value: T) {
-        // Nothing to do because T can't contain the relevant lifetime
+        // Nothing to do because T cannot contain the relevant scope
     }
 
     internal fun <T : AValue> reserve(): Pair<Value, Reservation<T>> {

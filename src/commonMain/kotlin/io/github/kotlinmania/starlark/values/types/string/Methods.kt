@@ -191,7 +191,7 @@ internal fun codepoints(
  * `S.count(sub[, start[, end]])` returns the number of occurrences of
  * `sub` within the string S, or, if the optional substring indices
  * `start` and `end` are provided, within the designated substring of S.
- * They are interpreted according to Skylark's [indexing conventions](
+ * They are interpreted according to the [indexing conventions](
  * https://github.com/bazelbuild/starlark/blob/master/spec.md#indexing).
  *
  * This implementation does not count occurrence of `sub` in the string `S`
@@ -256,7 +256,7 @@ internal fun endswith(
  *
  * If either or both of `start` or `end` are specified,
  * they specify a subrange of S to which the search should be restricted.
- * They are interpreted according to Skylark's [indexing
+ * They are interpreted according to the [indexing
  * conventions](#indexing).
  *
  * If no occurrence is found, `found` returns -1.

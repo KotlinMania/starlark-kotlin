@@ -45,12 +45,10 @@ import starlarkmap.smallmap.SmallMap
  * ## Example
  *
  * ```
- * import starlark::values::structs::AllocStruct;
+ * import io.github.kotlinmania.starlark.values.types.structs.AllocStruct
  *
- * # import starlark::values::{FrozenHeap, Heap};
- * let s = heap.alloc(AllocStruct([("a", 1), ("b", 2)]));
- * let fs = frozenHeap.alloc(AllocStruct([("a", 1), ("b", 2)]));
- * # }
+ * val s = heap.alloc(AllocStruct(listOf("a" to 1, "b" to 2)))
+ * val fs = frozenHeap.alloc(AllocStruct(listOf("a" to 1, "b" to 2)))
  * ```
  */
 data class AllocStruct<S>(val value: S) {

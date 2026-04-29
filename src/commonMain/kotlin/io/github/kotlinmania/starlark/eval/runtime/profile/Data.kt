@@ -49,28 +49,17 @@ sealed class ProfileDataError : Exception() {
 }
 
 internal sealed class ProfileDataImpl {
-    // Bc(Box<BcProfileData>)
     data class Bc(val data: BcProfileData) : ProfileDataImpl()
-    // BcPairs(BcPairsProfileData)
     data class BcPairs(val data: BcPairsProfileData) : ProfileDataImpl()
-    // HeapRetained(Box<AggregateHeapProfileInfo>)
     data class HeapRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
-    // HeapAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
-    // HeapFlameRetained(Box<AggregateHeapProfileInfo>)
     data class HeapFlameRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
-    // HeapFlameAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapFlameAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
-    // HeapSummaryRetained(Box<AggregateHeapProfileInfo>)
     data class HeapSummaryRetained(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
-    // HeapSummaryAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapSummaryAllocated(val data: AggregateHeapProfileInfo) : ProfileDataImpl()
     /** Flame graph data is in milliseconds. */
-    // TimeFlameProfile(FlameGraphData)
     data class TimeFlameProfile(val data: FlameGraphData) : ProfileDataImpl()
-    // Statement(StmtProfileData)
     data class Statement(val data: StmtProfileData) : ProfileDataImpl()
-    // Coverage(StmtProfileData)
     data class Coverage(val data: StmtProfileData) : ProfileDataImpl()
     // Typecheck(TypecheckProfileData)
     data class Typecheck(val data: TypecheckProfileData) : ProfileDataImpl()

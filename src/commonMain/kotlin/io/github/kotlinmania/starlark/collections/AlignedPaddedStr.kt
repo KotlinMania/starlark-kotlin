@@ -30,7 +30,7 @@ internal class AlignedPaddedStr(
 ) {
 
     companion object {
-        // sizeof<usize> equivalent for Long = 8 bytes
+        // pointer-width-word equivalent for Long = 8 bytes
         private const val WORD_SIZE: Int = Long.SIZE_BYTES
 
         fun new(len: Int, data: LongArray, offset: Int = 0): AlignedPaddedStr {

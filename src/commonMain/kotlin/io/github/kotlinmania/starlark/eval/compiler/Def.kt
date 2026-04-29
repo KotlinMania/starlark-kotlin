@@ -107,7 +107,7 @@ internal class StmtCompiledCell {
     }
 
     /**
-     * Set the bytecode. This function is unsafe if another thread is executing the stmt.
+     * Set the bytecode. This function is dangerous if another thread is executing the stmt.
      */
     fun set(value: Bc) {
         bc = value

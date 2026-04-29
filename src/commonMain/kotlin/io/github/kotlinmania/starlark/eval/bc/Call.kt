@@ -40,7 +40,6 @@ internal interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
 
 /** Call arguments for `def` call. */
 internal interface BcCallArgsForDef : BcInstrArg {
-    // type Args<'v, 'a>: ArgumentsImpl<'v, 'a, ArgSymbol = ResolvedArgName>
     fun popFromStack(stack: BcFramePtr): ArgumentsImpl<ResolvedArgName>
 }
 

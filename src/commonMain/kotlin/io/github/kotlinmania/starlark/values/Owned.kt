@@ -43,7 +43,7 @@ internal sealed class OwnedError(override val message: String) : Exception(messa
  * While it is possible to obtain the underlying [FrozenValue] with
  * [uncheckedFrozenValue], that approach is strongly discouraged.
  * See the other methods which unpack the code, access it as a
- * [Value] (which has a suitable lifetime) or add references to other heaps.
+ * [Value] (which is bound to the surrounding scope) or add references to other heaps.
  */
 class OwnedFrozenValue(
     @PublishedApi internal val owner: FrozenHeapRef,

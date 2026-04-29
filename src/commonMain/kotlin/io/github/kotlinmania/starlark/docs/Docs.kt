@@ -37,7 +37,7 @@ data class DocString(
      * This also has whitespace trimmed from it, and it is dedented.
      */
     val details: String? = null,
-    /** Examples provided as a part of the doc string. It's separated by a 'Examples:' string */
+    /** Examples provided as a part of the doc string. It is separated by an "Examples:" header */
     val examples: String? = null,
 ) {
     companion object

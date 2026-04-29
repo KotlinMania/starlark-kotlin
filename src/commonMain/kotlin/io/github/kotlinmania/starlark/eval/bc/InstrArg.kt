@@ -570,7 +570,7 @@ internal class SymbolInstrArg(val symbol: Symbol) : BcInstrArg {
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}
 }
 
-// ---- BcInstrArg for Box<[FrozenValue]> ----
+// ---- BcInstrArg for a boxed FrozenValue slice ----
 
 internal class FrozenValueListInstrArg(val values: List<FrozenValue>) : BcInstrArg {
     override fun fmtAppend(_ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
@@ -587,7 +587,7 @@ internal class FrozenValueListInstrArg(val values: List<FrozenValue>) : BcInstrA
     override fun visitJumpAddr(ip: BcAddr, consumer: (BcAddr) -> Unit) {}
 }
 
-// ---- BcInstrArg for Box<[Hashed<FrozenValue>]> ----
+// ---- BcInstrArg for a boxed Hashed FrozenValue slice ----
 
 /**
  * [BcInstrArg] implementation for a list of [Hashed]<[FrozenValue]>

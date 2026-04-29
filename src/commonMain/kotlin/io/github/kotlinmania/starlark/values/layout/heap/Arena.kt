@@ -113,7 +113,7 @@ private fun vtableForBlackHole(blackHole: BlackHole): AValueVTable {
 
 /**
  * Reservation is morally a parameterised reservation, but we treat it as an
- * existential. Tied to the lifetime of the heap.
+ * existential. Tied to the scope of the heap.
  */
 class Reservation<T : AValue> internal constructor(
     private val list: MutableList<AValueOrForward>,

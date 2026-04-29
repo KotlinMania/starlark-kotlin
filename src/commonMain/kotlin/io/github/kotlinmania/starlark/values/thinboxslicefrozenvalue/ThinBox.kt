@@ -37,7 +37,7 @@ internal class ThinBoxSliceLayout<T>(
 }
 
 /**
- * `Box<[T]>` but thin pointer to FrozenValue(s)
+ * Boxed slice of T, but as a thin pointer to FrozenValue(s)
  *
  * Similar to `ThinBoxSlice`, but it ignores the lowest bit, allowing
  * PackedImpl to import that to store a single FrozenValue in place of this
