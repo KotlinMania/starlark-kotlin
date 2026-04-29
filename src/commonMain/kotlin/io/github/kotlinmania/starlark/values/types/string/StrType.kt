@@ -83,10 +83,6 @@ class StarlarkStr(
         return AlignedPaddedStr.new(lenBytes, data)
     }
 
-    /**
-     *
-     * Kotlin: this is an internal, non-`Result` accessor used to implement [StarlarkValue] hashing.
-     */
     @OptIn(ExperimentalAtomicApi::class)
     fun getHashValue(): StarlarkHashValue {
         val h = cachedHash.load()
