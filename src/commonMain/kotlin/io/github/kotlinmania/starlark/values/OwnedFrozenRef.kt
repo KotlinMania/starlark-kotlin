@@ -41,7 +41,7 @@ class OwnedRefFrozenRef<T : Any>(
     /** Return a reference to the underlying value. */
     fun asRef(): T = value.asRef()
 
-    /** Add a reference to a new heap, and return the pointer with the lifetime of the new heap. */
+    /** Add a reference to a new heap, and return the pointer tied to the new heap. */
     fun addHeapRef(heap: FrozenHeap): T {
         heap.addReference(owner)
         return value.asRef()
@@ -121,5 +121,9 @@ class OwnedFrozenRef<T : Any>(
     /** Get a reference to the owning frozen heap. */
     fun owner(): FrozenHeapRef = owner
 
-    override fun toString(): String = value.toString()
+    fun fmt(): String = "$value"
+
+    fun deref(): T = asRef()
+
+    override fun toString(): String = fmt()
 }
