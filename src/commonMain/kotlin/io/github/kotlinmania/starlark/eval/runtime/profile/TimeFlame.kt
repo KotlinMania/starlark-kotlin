@@ -211,7 +211,7 @@ private class Stacks(
     ) {
         while (frames.hasNext()) {
             val (frame, time) = frames.next()
-            this.time += time.durationSince(lastTime[0])
+            this.time = this.time + time.durationSince(lastTime[0])
             lastTime[0] = time
             when (frame) {
                 is Frame.Pop -> return

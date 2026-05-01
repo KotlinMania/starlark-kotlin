@@ -47,7 +47,7 @@ class Freezer internal constructor(
         return val_.allocFrozenValue(this.heap)
     }
 
-    internal fun <T> reserve(): Pair<FrozenValue, Reservation<T>> {
+    internal fun <T : AValue> reserve(): Pair<FrozenValue, Reservation<T>> {
         val (fv, r, extra) = heap.reserveWithExtra<T>(0)
         check(extra == Unit)
         return Pair(fv, r)

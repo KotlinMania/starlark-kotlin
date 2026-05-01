@@ -40,7 +40,7 @@ import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.types.tuple.unpackTuple2
 
 /** Extended vtable methods (those not covered by [StarlarkValue]). */
-sealed interface AValue {
+interface AValue {
 
     /**
      * Certain types like `Tuple` or `StarlarkStr` have payload array

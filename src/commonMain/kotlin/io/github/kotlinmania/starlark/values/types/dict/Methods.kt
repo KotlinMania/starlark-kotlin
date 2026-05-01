@@ -193,7 +193,7 @@ internal fun popitem(thisValue: Value): Result<Pair<Value, Value>> {
         return Result.failure(IllegalArgumentException("Cannot .popitem() on an empty dictionary"))
     }
     val first = content.getIndex(0)!!
-    content.entries.removeAt(0)
+    content.shiftRemoveIndex(0)
     return Result.success(first)
 }
 

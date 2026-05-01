@@ -29,7 +29,7 @@ enum class ChunkAllocationDirection {
 }
 
 /** Fast memory allocator for the heap. */
-internal sealed interface ArenaAllocator {
+internal interface ArenaAllocator {
     /**
      * Number of bytes allocated by this allocator.
      *

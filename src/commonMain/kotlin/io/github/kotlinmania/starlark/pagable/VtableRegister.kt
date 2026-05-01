@@ -40,9 +40,9 @@ import io.github.kotlinmania.starlark.values.layout.AValueVTable
  * will fail.
  */
 fun registerAvalueSimpleFrozen(type: KClass<*>) {
-    registerVTableEntry(
+    submitVtable(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(type),
+            deserTypeId = DeserTypeId(type.qualifiedName ?: type.simpleName ?: type.toString()),
             vtable = AValueVTable.forType(type),
         )
     )
@@ -55,9 +55,9 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
  * that import custom AValue implementations instead of the simple wrapper.
  */
 internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClass<*>) {
-    registerVTableEntry(
+    submitVtable(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(starlarkValue),
+            deserTypeId = DeserTypeId(starlarkValue.qualifiedName ?: starlarkValue.simpleName ?: starlarkValue.toString()),
             vtable = AValueVTable.forType(avalue),
         )
     )

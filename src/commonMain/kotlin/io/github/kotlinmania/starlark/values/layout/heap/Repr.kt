@@ -113,7 +113,7 @@ class AValueHeader(
     }
 
     fun <T : StarlarkValue> payload(): T {
-        return payloadPtr().valueRef()
+        return payloadPtr().ptr as T
     }
 
     internal fun unpackValue(heapKind: HeapKind): Value {

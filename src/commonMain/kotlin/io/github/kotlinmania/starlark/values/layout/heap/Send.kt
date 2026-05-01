@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
 
 import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.SealedSend.Sealed
 import kotlin.reflect.KClass
 
 /**
@@ -65,12 +64,7 @@ import kotlin.reflect.KClass
  * That is *almost* as good as direct thread-shareability, while remaining satisfied for a
  * `T` that contains a value reference, which is what we want.
  */
-interface HeapSendable : Sealed
-
-/** The sealing supertype for [HeapSendable]; only types declared in this module may extend it. */
-internal object SealedSend {
-    interface Sealed : ProvidesStaticType
-}
+interface HeapSendable : ProvidesStaticType
 
 /**
  * The sync analogue of [HeapSendable].
@@ -78,10 +72,4 @@ internal object SealedSend {
  * Mostly see the docs on [HeapSendable], which is slightly more interesting — this one is
  * just needed on frozen heaps.
  */
-interface HeapSyncable : SealedSync.Sealed
-
-/** The sealing supertype for [HeapSyncable]; only types declared in this module may extend it. */
-internal object SealedSync {
-    interface Sealed : ProvidesStaticType
-}
-
+interface HeapSyncable : ProvidesStaticType

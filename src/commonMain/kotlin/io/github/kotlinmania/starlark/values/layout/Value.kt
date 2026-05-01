@@ -89,6 +89,7 @@ import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeG
 import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
 import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
 import io.github.kotlinmania.starlark.values.types.structs.StructGen
+import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
 import io.github.kotlinmania.starlark.CoerceKey
@@ -458,7 +459,7 @@ class Value internal constructor(
      * Downcast without checking the value type.
      */
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
-        assert(getRef().downcastRef<T>() != null)
+        check(getRef().downcastRef<T>() != null)
         if (PointerI32.typeIsPointerI32<T>()) {
             val pi32 = PointerI32(ptr.unpackIntValue())
             check(pi32 is T)
@@ -1724,7 +1725,7 @@ interface ValueLike<Self : ValueLike<Self>> :
      * Get hash value.
      */
     fun getHashed(): Result<Hashed<Self>> {
-        val hash = toValue().unpackStarlarkStr()?.getHash()
+        val hash = toValue().unpackStarlarkStr()?.getHashValue()
             ?: toValue().getHash().getOrElse { return Result.failure(it) }
         return Result.success(Hashed.newUnchecked(hash, this as Self))
     }

@@ -155,7 +155,7 @@ internal data class StmtProfileData(
             val (count, time) = value
             // EMPTY represents the first time special-case
             if (fileSpan.file.id() != CodeMapId.EMPTY) {
-                totalTime += time
+                totalTime = totalTime + time
                 totalCount += count
                 items.add(Item(span = fileSpan, time = time, count = count))
             }

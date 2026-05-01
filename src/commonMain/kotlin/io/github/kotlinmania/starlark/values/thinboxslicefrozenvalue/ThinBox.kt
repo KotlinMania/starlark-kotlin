@@ -106,15 +106,12 @@ internal class AllocatedThinBoxSlice<T> private constructor(
         fun <T> fromIter(iter: Iterable<T>): AllocatedThinBoxSlice<T> {
             val list = iter.toMutableList()
             val lower = list.size
-            val thin = newUninit<T>(lower)
-            var i = 0
-            for (item in list) {
-                check(i < lower) { "iterator produced more than promised" }
-                (thin as AllocatedThinBoxSlice<T?>).setUnchecked(i, item)
-                i += 1
+            if (lower == 0) {
+                return empty()
             }
-            check(i == lower) { "iterator produced less than promised" }
-            return thin.assumeInit()
+            val (isShort, _layout) = layoutForLen<T>(lower)
+            val tag = if (isShort) ((lower - 1).toLong() shl getReservedTagBitCount()) else 0L
+            return AllocatedThinBoxSlice(list, tag)
         }
 
         fun <T> default(): AllocatedThinBoxSlice<T> = empty()

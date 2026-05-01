@@ -116,12 +116,12 @@ fun FrozenHeap.allocStr(x: String): FrozenStringValue {
 
 /** Allocate prehashed string. */
 fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
-    val constant = constantString(s.key)
+    val constant = constantString(s.key())
     if (constant != null) {
         return constant
     }
-    val bytes = s.key.encodeToByteArray()
-    return allocStrInit(bytes.size, s.hash) { dst ->
+    val bytes = s.key().encodeToByteArray()
+    return allocStrInit(bytes.size, s.hash()) { dst ->
         bytes.copyInto(dst)
     }
 }

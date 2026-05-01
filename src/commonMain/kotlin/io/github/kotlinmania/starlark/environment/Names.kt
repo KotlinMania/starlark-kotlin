@@ -97,9 +97,11 @@ class MutableNames {
     }
 
     fun hideName(name: String) {
-        val index = map.entries.indexOfFirst { it.key.key().asStr() == name }
-        if (index >= 0) {
-            map.entries.removeAt(index)
+        val index = map.iterHashed().withIndex().firstOrNull { (_, entry) ->
+            entry.first.key().asStr() == name
+        }?.index
+        if (index != null) {
+            map.shiftRemoveIndex(index)
         }
     }
 

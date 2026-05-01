@@ -45,7 +45,7 @@ internal data class FuncInfo(
             val result = FuncInfo()
             for (x in xs) {
                 result.calls += x.calls
-                result.time += x.time
+                result.time = result.time + x.time
                 for ((k, v) in x.allocations) {
                     val entry = result.allocations.getOrPut(k) { AllocCounts() }
                     entry += v
@@ -91,7 +91,7 @@ internal class HeapSummaryByFunction(
     ): SmallDuration {
         var timeRec = SmallDuration()
         for ((func, child) in frame.callees) {
-            timeRec += initChild(func, child, name, strings)
+            timeRec = timeRec + initChild(func, child, name, strings)
         }
         return timeRec
     }
@@ -103,17 +103,18 @@ internal class HeapSummaryByFunction(
         strings: StringIndex,
     ): SmallDuration {
         val funcStr = strings.get(func)
-        info.getOrPut(funcStr) { FuncInfo() }.time += frame.timeX2
-        info.getOrPut(funcStr) { FuncInfo() }.calls += frame.callsX2
-        val callerEntry = info.getOrPut(funcStr) { FuncInfo() }.callers
+        val funcInfo = info.getOrPut(funcStr) { FuncInfo() }
+        funcInfo.time = funcInfo.time + frame.timeX2
+        funcInfo.calls += frame.callsX2
+        val callerEntry = funcInfo.callers
         callerEntry[caller] = (callerEntry[caller] ?: 0) + 1
         for ((t, allocs) in frame.allocs.summary) {
-            val entry = info.getOrPut(funcStr) { FuncInfo() }.allocations.getOrPut(t) { AllocCounts() }
+            val entry = funcInfo.allocations.getOrPut(t) { AllocCounts() }
             entry += allocs
         }
 
         val timeRec = frame.timeX2 + initChildren(frame, funcStr, strings)
-        info.getOrPut(funcStr) { FuncInfo() }.timeRec += timeRec
+        funcInfo.timeRec = funcInfo.timeRec + timeRec
         return timeRec
     }
 

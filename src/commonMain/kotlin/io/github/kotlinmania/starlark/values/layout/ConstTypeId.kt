@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.values.layout
 import kotlin.reflect.KClass
 
 /** [KClass] wrapper/provider so callers can carry a type id without a generic parameter. */
-class ConstTypeId internal constructor(
+class ConstTypeId constructor(
     private val typeIdFn: () -> KClass<*>,
 ) {
     override fun toString(): String {

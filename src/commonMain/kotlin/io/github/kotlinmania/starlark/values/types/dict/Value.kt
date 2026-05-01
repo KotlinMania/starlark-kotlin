@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.freeze
@@ -295,7 +296,7 @@ class Dict(
 
     /** Remove given key from the dictionary. */
     fun removeHashed(key: Hashed<Value>): Value? =
-        content.shiftRemoveHashed(key.asRef())
+        content.shiftRemoveHashedByValue(key.asRef())
 
     /** Remove all elements from the dictionary. */
     fun clear() {

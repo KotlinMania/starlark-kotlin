@@ -114,4 +114,10 @@ private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Right -> ref.value
 }
 
-internal fun Dict.clone(): Dict = Dict(SmallMap(ArrayList(content.entries)))
+internal fun Dict.clone(): Dict {
+    val copy = SmallMap.withCapacity<Value, Value>(content.len())
+    for ((k, v) in content.iterHashed()) {
+        copy.insertHashedUniqueUnchecked(k, v)
+    }
+    return Dict(copy)
+}

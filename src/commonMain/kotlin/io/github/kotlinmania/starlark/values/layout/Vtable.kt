@@ -42,7 +42,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
-private fun <T> transmute(value: T): T = value
+@PublishedApi internal fun <T> transmute(value: T): T = value
 
 /**
  * Untyped raw pointer to a [StarlarkValue] without an attached vtable.
@@ -67,7 +67,7 @@ class StarlarkValueRawPtr(
     /**
      * Pointer to the typed payload.
      */
-    inline fun <reified T : Any> valuePtr(): T {
+    internal inline fun <reified T : Any> valuePtr(): T {
         check(
             AValueRepr.paddingAfterHeader<PointerI32>() == 0,
         ) {
@@ -86,7 +86,7 @@ class StarlarkValueRawPtr(
     }
 
     /** Reference to the typed payload; equivalent to [valuePtr]. */
-    inline fun <reified T : Any> valueRef(): T = valuePtr()
+    internal inline fun <reified T : Any> valueRef(): T = valuePtr()
 
     /** Non-reified counterpart of [valueRef] / [valuePtr] using runtime [KClass] lookup. */
     fun <T : Any> valueRef(clazz: KClass<T>): T =
@@ -178,7 +178,7 @@ class AValueVTable(
          * Public for use by simple-frozen vtable registration in doctests.
          * Hidden from docs and uses a private [AValue] bound to prevent direct external use.
          */
-        inline fun <reified T> new(): AValueVTable where T : StarlarkValue, T : AValue {
+        internal inline fun <reified T> new(): AValueVTable where T : StarlarkValue, T : AValue {
             val typeId = ConstTypeId.of<T>()
             val starlarkTypeId = StarlarkTypeId.fromTypeId(typeId)
             val typeName = T::class.simpleName ?: T::class.toString()
@@ -186,9 +186,10 @@ class AValueVTable(
             val STARLARK_TYPE_ID = starlarkTypeId
             val ALLOCATIVE_KEY = typeName
 
-            val dropInPlace = { p: StarlarkValueRawPtr ->
+            val dropInPlace: (StarlarkValueRawPtr) -> Unit = { p ->
                 val p0 = p.valuePtr<T>()
                 AValueRepr.fromPayloadPtrMut(p0)
+                Unit
             }
             val memorySize = { p: StarlarkValueRawPtr ->
                 val p0 = p.valueRef<T>()
