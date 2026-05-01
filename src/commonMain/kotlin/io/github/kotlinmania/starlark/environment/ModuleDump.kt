@@ -1,4 +1,4 @@
-// port-lint: source src/environment/moduleDump.rs
+// port-lint: source environment/module_dump.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -22,33 +22,39 @@ package io.github.kotlinmania.starlark.environment
 import io.github.kotlinmania.starlark.eval.compiler.DefGen
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.types.string.format
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
+
+private class Write {
+    var w: String = ""
+    val writeln: (String) -> Unit = { line -> w += (line + "\n") }
+    val pushStr: (String) -> Unit = { s -> w += s }
+}
 
 /** Print a lot of module internals for debugging. */
 fun FrozenModule.dumpDebug(): String {
-    return buildString {
-        val secs = evalDuration.inWholeMilliseconds / 1000.0
-        appendLine("Eval duration: ${((secs * 1000).toLong() / 1000.0)}s")
-        appendLine("Heap stats:")
-        append(frozenHeap().dumpDebug())
+    val w = Write()
 
-        for ((name, value) in allItems()) {
-            appendLine()
-            appendLine("$name = $value")
-            val def = FrozenValueTyped.new<DefGen<FrozenValue>>(value)
-            if (def != null) {
-                def.asRef().dumpDebug()
-                    .lines()
-                    .forEach { line -> appendLine("  $line") }
-            }
+    val evalDurationAsSecsF64Rounded3 = (((evalDuration.inWholeNanoseconds / 1_000_000_000.0) * 1000).toLong() / 1000.0)
+    w.writeln("Eval duration: ${evalDurationAsSecsF64Rounded3}s")
+    w.writeln("Heap stats:")
+    w.pushStr(frozenHeap().dumpDebug())
+
+    for ((name, value) in allItems()) {
+        // Note (nga): this prints public, private and imported symbols.
+        //   We only care about public and private symbols, but no imported.
+        w.writeln("")
+        w.writeln("$name = $value")
+        val def = FrozenValueTyped.new<DefGen<FrozenValue>>(value)
+        if (def != null) {
+            def.asRef().dumpDebug().lines().forEach { line -> w.writeln("  $line") }
         }
     }
+    return w.w
 }
 
-private fun FrozenHeapRef.dumpDebug(): String {
-    return buildString {
-        appendLine("Allocated bytes: ${allocatedBytes()}")
-        appendLine("Available bytes: ${availableBytes()}")
-    }
+internal fun FrozenHeapRef.dumpDebug(): String {
+    val w = Write()
+    w.writeln("Allocated bytes: ${allocatedBytes()}")
+    w.writeln("Available bytes: ${availableBytes()}")
+    return w.w
 }

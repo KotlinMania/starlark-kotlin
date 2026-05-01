@@ -159,3 +159,93 @@ fun Instant.trace(tracer: Tracer) {
 fun <T> PhantomData<T>.trace(tracer: Tracer) {
 }
 
+fun Long.trace(tracer: Tracer) {
+}
+
+fun UByte.trace(tracer: Tracer) {
+}
+
+fun Byte.trace(tracer: Tracer) {
+}
+
+fun UShort.trace(tracer: Tracer) {
+}
+
+fun Short.trace(tracer: Tracer) {
+}
+
+fun <A, R> ((A) -> R).trace(tracer: Tracer) {
+}
+
+fun <A, B, R> ((A, B) -> R).trace(tracer: Tracer) {
+}
+
+fun <A, B, C, R> ((A, B, C) -> R).trace(tracer: Tracer) {
+}
+
+class ArcMutex<T : Trace>(val value: T) {
+}
+
+fun <T : Trace> ArcMutex<T>.trace(tracer: Tracer) {
+    this.value.trace(tracer)
+}
+
+class AtomicI8(val value: Byte) {
+}
+
+class AtomicU8(val value: UByte) {
+}
+
+class AtomicI16(val value: Short) {
+}
+
+class AtomicU16(val value: UShort) {
+}
+
+class AtomicI32(val value: Int) {
+}
+
+class AtomicU32(val value: UInt) {
+}
+
+class AtomicI64(val value: Long) {
+}
+
+class AtomicU64(val value: ULong) {
+}
+
+class AtomicUsize(val value: ULong) {
+}
+
+class AtomicIsize(val value: Long) {
+}
+
+fun AtomicI8.trace(tracer: Tracer) {
+}
+
+fun AtomicU8.trace(tracer: Tracer) {
+}
+
+fun AtomicI16.trace(tracer: Tracer) {
+}
+
+fun AtomicU16.trace(tracer: Tracer) {
+}
+
+fun AtomicI32.trace(tracer: Tracer) {
+}
+
+fun AtomicU32.trace(tracer: Tracer) {
+}
+
+fun AtomicI64.trace(tracer: Tracer) {
+}
+
+fun AtomicU64.trace(tracer: Tracer) {
+}
+
+fun AtomicUsize.trace(tracer: Tracer) {
+}
+
+fun AtomicIsize.trace(tracer: Tracer) {
+}

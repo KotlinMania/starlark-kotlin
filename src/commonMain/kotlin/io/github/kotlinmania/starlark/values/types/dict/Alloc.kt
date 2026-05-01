@@ -43,12 +43,11 @@ import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
  * # Example
  *
  * ```
- * import starlark::values::dict::AllocDict;
+ * import io.github.kotlinmania.starlark.values.types.dict.AllocDict
+ * import io.github.kotlinmania.starlark.values.layout.heap.{FrozenHeap, Heap}
  *
- * # import starlark::values::{FrozenHeap, Heap};
- * let l = heap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
- * let ls = frozenHeap.alloc(AllocDict([("a", 1), ("b", 2), ("c", 3)]));
- * # }
+ * val l = heap.alloc(AllocDict(listOf("a" to 1, "b" to 2, "c" to 3)))
+ * val ls = frozenHeap.alloc(AllocDict(listOf("a" to 1, "b" to 2, "c" to 3)))
  * ```
  */
 data class AllocDict<D>(val d: D) {

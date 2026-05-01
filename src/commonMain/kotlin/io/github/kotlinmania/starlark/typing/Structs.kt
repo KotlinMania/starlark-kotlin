@@ -1,4 +1,4 @@
-// port-lint: source src/typing/structs.rs
+// port-lint: source structs.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

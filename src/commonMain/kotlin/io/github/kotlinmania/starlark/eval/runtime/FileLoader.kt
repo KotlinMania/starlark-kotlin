@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/fileLoader.rs
+// port-lint: source src/eval/runtime/file_loader.rs
 package io.github.kotlinmania.starlark.eval.runtime.fileloader
 
 /*
@@ -19,8 +19,10 @@ package io.github.kotlinmania.starlark.eval.runtime.fileloader
  * limitations under the License.
  */
 
-//! Define variants of the evaluation function with different support
-//! for the `load(...)` statement.
+/**
+ * Define variants of the evaluation function with different support
+ * for the `load(...)` statement.
+ */
 
 import io.github.kotlinmania.starlark.environment.FrozenModule
 

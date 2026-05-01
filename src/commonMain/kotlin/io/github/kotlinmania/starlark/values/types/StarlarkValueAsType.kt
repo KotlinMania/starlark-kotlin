@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/starlarkValueAsType.rs
+// port-lint: source src/values/types/starlark_value_as_type.rs
 package io.github.kotlinmania.starlark.values.types.starlarkvalueastype
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.starlarkvalueastype
  * limitations under the License.
  */
 
-//! Convert a value implementing [`StarlarkValue`] into a type usable in type expression.
+/** Convert a value implementing [StarlarkValue] into a type usable in type expression. */
 
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember

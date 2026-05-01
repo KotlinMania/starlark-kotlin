@@ -137,7 +137,7 @@ internal class StderrPrintHandler : PrintHandler {
 }
 
 /** Print some values to the output. */
-private fun printImpl(
+private fun print(
     args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
@@ -147,7 +147,7 @@ private fun printImpl(
     return Result.success(NoneType)
 }
 
-private fun pprintImpl(
+private fun pprint(
     args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
@@ -224,7 +224,7 @@ private fun prettyRepr(
 }
 
 /** Like `str`, but produces more verbose pretty-printed output. */
-private fun pstrImpl(
+private fun pstr(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
@@ -236,7 +236,7 @@ private fun pstrImpl(
 }
 
 /** Like `repr`, but produces more verbose pretty-printed output. */
-private fun preprImpl(
+private fun prepr(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
@@ -271,14 +271,14 @@ fun registerDebug(globals: GlobalsBuilder) {
 
 fun registerPrint(globals: GlobalsBuilder) {
     globals.setFunction("print") { callArgs, eval ->
-        printImpl(callArgs.positionalAll(), eval).getOrThrow()
+        print(callArgs.positionalAll(), eval).getOrThrow()
         Value.newNone()
     }
 }
 
 fun registerPprint(globals: GlobalsBuilder) {
     globals.setFunction("pprint") { callArgs, eval ->
-        pprintImpl(callArgs.positionalAll(), eval).getOrThrow()
+        pprint(callArgs.positionalAll(), eval).getOrThrow()
         Value.newNone()
     }
 }
@@ -286,13 +286,13 @@ fun registerPprint(globals: GlobalsBuilder) {
 fun registerPstr(globals: GlobalsBuilder) {
     globals.setFunction("pstr") { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
-        pstrImpl(a, eval).getOrThrow().toValue()
+        pstr(a, eval).getOrThrow().toValue()
     }
 }
 
 fun registerPrepr(globals: GlobalsBuilder) {
     globals.setFunction("prepr") { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
-        preprImpl(a, eval).getOrThrow().toValue()
+        prepr(a, eval).getOrThrow().toValue()
     }
 }

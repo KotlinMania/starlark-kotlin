@@ -461,7 +461,7 @@ internal sealed class ExprCompiled {
             val lv = l.node.asValue()
             val rv = r.node.asValue()
             if (lv != null && rv != null) {
-                // If comparison fails, let it fail in runtime.
+                // If comparison fails, defer it to runtime.
                 val result = lv.equals(rv.toValue())
                 if (result.isSuccess) {
                     return IrSpanned(
@@ -1130,7 +1130,7 @@ internal fun IrSpanned<ExprCompiled>.optimize(ctx: OptCtx): IrSpanned<ExprCompil
             if (frozen != null) {
                 ExprCompiled.ValueExpr(frozen)
             } else {
-                // Let it fail at runtime.
+                // Defer the failure to runtime.
                 ExprCompiled.Module(e.slot)
             }
         }

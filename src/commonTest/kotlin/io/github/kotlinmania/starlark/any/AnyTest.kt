@@ -40,12 +40,10 @@ class AnyTest {
             override fun staticTypeOf(): KClass<*> = Value2::class
         }
 
-        //     <dyn AnyLifetime>::downcastRef(x)
         fun convertValue(x: Value): Value? {
             return x.downcastRef<Value>()
         }
 
-        //     x.downcastRef()
         fun convertAny(x: AnyLifetime): Value? {
             return x.downcastRef<Value>()
         }

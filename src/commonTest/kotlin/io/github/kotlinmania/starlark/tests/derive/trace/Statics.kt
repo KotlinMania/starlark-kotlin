@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark.tests.derive.trace
 
 import io.github.kotlinmania.starlark.values.layout.Value
 
-@Suppress("unused")
 private class TraceWithStatic(
     val actualValue: Value,
     // This field doesn't have a Trace trait, but should be ignored
@@ -34,5 +33,4 @@ private class TraceWithStatic(
     val explicitStatic: String,
 )
 
-@Suppress("unused")
 private class StaticType<T>(val inner: T)

@@ -1,4 +1,4 @@
-// port-lint: source src/environment/modules.rs
+// port-lint: source environment/modules.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -33,11 +33,15 @@ import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
 import io.github.kotlinmania.starlark.docs.fromDocstring
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.profile.ProfileMode
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.avalues.allocList
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
@@ -51,6 +55,9 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.types.list.ListRef
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.Dialect
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
 import io.github.kotlinmania.starlark.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark.errors.didYouMean
@@ -569,6 +576,54 @@ class Module internal constructor(
     }
 }
 
-private fun _testSendSync() {
+fun testSendSync() {
     val v: FrozenModule? = null
+}
+
+fun testGenHeapSummaryProfile() {
+    Module.withTempHeap { module ->
+        val eval = Evaluator.new(module)
+        eval.enableProfile(ProfileMode.HeapSummaryRetained)
+        eval.evalModule(
+            AstModule.parse(
+                "x.star",
+                """
+def f(x):
+    return list([x])
+
+x = f(1)
+""".trimIndent(),
+                Dialect.AllOptionsInternal,
+            ).getOrThrow(),
+            Globals.standard(),
+        ).getOrThrow()
+
+        val frozen = module.freeze().getOrThrow()
+        val heapSummary = frozen.heapProfile().getOrThrow().genCsv()
+        check(heapSummary.contains("\"x.star.f\"")) { heapSummary }
+        Result.success(Unit)
+    }.getOrThrow()
+}
+
+fun testFrozenModuleFromGlobals() {
+    val globals = GlobalsBuilder.new()
+    someGlobals(globals)
+    val globalsBuilt = globals.build()
+
+    val module = FrozenModule.fromGlobals(globalsBuilt).getOrThrow()
+    check("function" == module.get("foo").getOrThrow().value().getType())
+    check(
+        0 == ListRef.fromValue(module.get("BAR").getOrThrow().value())!!
+            .len()
+    )
+}
+
+fun someGlobals(globals: GlobalsBuilder) {
+    globals.setFunction("foo") { _, _ -> foo() }
+    val emptyVec = globals.frozenHeap().allocList(emptyList())
+    globals.setInner("BAR", emptyVec, false)
+}
+
+fun foo(): Result<Int> {
+    return Result.success(17)
 }

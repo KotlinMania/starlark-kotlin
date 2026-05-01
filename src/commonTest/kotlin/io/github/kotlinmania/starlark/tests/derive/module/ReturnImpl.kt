@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
 
-@Suppress("unused")
 private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
     globals.setFunction("func") { args, _ ->
         val v = args.positional<Value>(0)
@@ -32,7 +31,6 @@ private fun testReturnImplAllocValue(globals: GlobalsBuilder) {
     }
 }
 
-@Suppress("unused")
 private fun testReturnImplAllocValueForAttr(methods: MethodsBuilder) {
     methods.setAttribute("attr") { this_, _ ->
         Result.success(this_)

@@ -1,4 +1,4 @@
-// port-lint: source src/typing/mode.rs
+// port-lint: source mode.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

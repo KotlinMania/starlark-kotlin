@@ -1,4 +1,4 @@
-// port-lint: source values/types/bigint.rs
+// port-lint: source src/values/types/bigint.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.bigint
  * limitations under the License.
  */
 
-//! Outside of `i32` range int.
+/** Outside of [Int] range int. */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import starlarkmap.StarlarkHasher

@@ -1,4 +1,4 @@
-// port-lint: source src/typing/bindings.rs
+// port-lint: source bindings.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -274,8 +274,8 @@ internal class BindingsCollect(
                         bindings.checkType.add(Triple(assignTy.span, assignP.rhs, ty2))
                         val lhsNode = assignP.lhs.node
                         if (lhsNode is AssignTargetP.Identifier<CstPayload, *>) {
-                            // FIXME: This could be duplicated if you declare the type of a variable twice,
-                            // we would only see the second one.
+                            // Known issue: declaring the type of a variable twice leaves only the
+                            // second declaration visible.
                             bindings.types[resolvedBindingId(lhsNode.ident, codemap)] = ty2
                         }
                     }

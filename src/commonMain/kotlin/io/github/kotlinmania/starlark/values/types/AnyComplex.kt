@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/anyComplex.rs
+// port-lint: source src/values/types/any_complex.rs
 package io.github.kotlinmania.starlark.values.types.anycomplex
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.anycomplex
  * limitations under the License.
  */
 
-//! A type [`StarlarkAnyComplex`] which can wrap any Rust value into a [`Value`].
+/** A type [StarlarkAnyComplex] which can wrap any Rust value into a [Value]. */
 
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Trace

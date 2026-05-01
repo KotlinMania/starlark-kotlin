@@ -1,4 +1,4 @@
-// port-lint: source src/typing/oracle/traits.rs
+// port-lint: source oracle/traits.rs
 package io.github.kotlinmania.starlark.typing.oracle
 
 /*

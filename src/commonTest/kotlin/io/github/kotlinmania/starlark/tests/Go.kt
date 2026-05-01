@@ -26,17 +26,16 @@ import io.github.kotlinmania.starlark.assert.conformanceExcept
 import io.github.kotlinmania.starlark.assert.conformance
 import kotlin.test.Test
 
-/** LoadP<AstNoPayload, Unit> a test case file from the testcases directory. */
+/** Load a test case file from the testcases directory. */
 private fun testCase(name: String): String {
     return io.github.kotlinmania.starlark.tests.loadTestResource("eval/go/$name")
 }
 
-// In Kotlin multiplatform, resource loading is platform-specific.
-// Placeholder: tests that call this will fail at runtime until platform-specific
-// resource loading is implemented.
-internal fun loadTestResource(path: String): String {
-    error("loadTestResource not yet implemented for this platform: $path")
-}
+/**
+ * Load a test resource file by path relative to the testcases directory.
+ * Platform-specific resource loading is provided by `expect`/`actual` declarations.
+ */
+internal expect fun loadTestResource(path: String): String
 
 private fun ignoreBadLines(x: String, bad: List<String>): String {
     return x.lines()

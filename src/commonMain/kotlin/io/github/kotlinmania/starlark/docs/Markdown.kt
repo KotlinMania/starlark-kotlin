@@ -196,7 +196,7 @@ private fun renderDefaultLayout(
                 append("\n\n#### Details\n\n")
             } else {
                 // No need to aggressively separate the defaults from the summary if there
-                // was nothing in between them. Just let it flow.
+                // was nothing in between them. Just allow them to flow together.
                 append("\n\n")
             }
             append(details)

@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 internal interface Bound
 
 internal class BoundsTest<V>(val field: V) : Freeze<BoundsTest<V>> where V : Freeze<V> {
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<BoundsTest<V>> {
         val frozenField = (field as Freeze<V>).freeze(freezer).getOrElse { return Result.failure(it) }
         return Result.success(BoundsTest(frozenField))
@@ -36,7 +35,6 @@ internal fun <V> checkType(t: BoundsTest<V>): Result<Unit> where V : Bound, V : 
     return Result.success(Unit)
 }
 
-@Suppress("unused")
 internal fun assertImpl() {
     class Impl : Bound, Freeze<Impl> {
         override fun freeze(freezer: Freezer): Result<Impl> = Result.success(this)

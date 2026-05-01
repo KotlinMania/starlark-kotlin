@@ -166,6 +166,17 @@ class AValueRepr<T>(
     companion object {
         // (Alignment is managed by the JVM; no assertion needed.)
 
+        inline fun <reified T> paddingAfterHeader(): Int {
+            // Rust computes type-dependent padding between header and payload.
+            // Kotlin objects do not expose a stable layout, so keep this as zero.
+            return 0
+        }
+
+        fun <T> fromPayloadPtrMut(payload: T): AValueRepr<T> {
+            return reprRegistry.values.firstOrNull { it.payload === payload } as? AValueRepr<T>
+                ?: error("fromPayloadPtrMut: payload not registered")
+        }
+
         fun <T> withMetadata(
             metadata: AValueVTable,
             payload: T,

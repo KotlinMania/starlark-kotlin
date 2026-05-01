@@ -483,7 +483,7 @@ interface DapAdapter {
     /**
      * Sets multiple breakpoints for a file (and clears existing ones).
      *
-     * See [SetBreakpoints](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_SetBreakpoints)
+     * See [SetBreakpoints](https://microsoft.github.io/debug-adapter-protocol/specificationSetBreakpoints)
      */
     fun setBreakpoints(
         source: String,
@@ -496,51 +496,51 @@ interface DapAdapter {
     /**
      * Gets a stacktrace from the current execution state.
      *
-     * See [StackTrace](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StackTrace)
+     * See [StackTrace](https://microsoft.github.io/debug-adapter-protocol/specificationStackTrace)
      */
     fun stackTrace(args: StackTraceArguments): Result<StackTraceResponseBody>
 
     /**
      * Gets the variables scope for a frame.
      *
-     * See [Scopes](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Scopes)
+     * See [Scopes](https://microsoft.github.io/debug-adapter-protocol/specificationScopes)
      */
     fun scopes(): Result<ScopesInfo>
 
     /**
      * Gets variables for the current scope.
      *
-     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
+     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specificationVariables)
      */
     fun variables(): Result<VariablesInfo>
 
     /**
      * Gets all child variables for the given access path.
      *
-     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
+     * See [Variables](https://microsoft.github.io/debug-adapter-protocol/specificationVariables)
      */
     fun inspectVariable(path: VariablePath): Result<InspectVariableInfo>
 
     /**
      * Resumes execution.
      *
-     * See [Continue](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Continue)
+     * See [Continue](https://microsoft.github.io/debug-adapter-protocol/specificationContinue)
      */
     fun continue_(): Result<Unit>
 
     /**
      * Continues execution until some condition.
      *
-     * See [Next](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Next),
-     * [StepIn](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepIn),
-     * [StepOut](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_StepOut)
+     * See [Next](https://microsoft.github.io/debug-adapter-protocol/specificationNext),
+     * [StepIn](https://microsoft.github.io/debug-adapter-protocol/specificationStepIn),
+     * [StepOut](https://microsoft.github.io/debug-adapter-protocol/specificationStepOut)
      */
     fun step(kind: StepKind): Result<Unit>
 
     /**
      * Evaluates an expression in the context of the top-most frame.
      *
-     * See [Evaluate](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Evaluate)
+     * See [Evaluate](https://microsoft.github.io/debug-adapter-protocol/specificationEvaluate)
      */
     fun evaluate(expr: String): Result<EvaluateExprInfo>
 }

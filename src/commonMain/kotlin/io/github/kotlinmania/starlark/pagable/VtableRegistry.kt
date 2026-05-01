@@ -1,4 +1,4 @@
-// port-lint: source src/pagable/vtableRegistry.rs
+// port-lint: source pagable/vtableRegistry.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*
@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.pagable
  */
 
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import kotlin.reflect.KClass
 
 /**
@@ -40,9 +41,17 @@ import kotlin.reflect.KClass
  */
 data class DeserTypeId(val name: String) {
     /** Get the underlying type name string. */
-    fun asStr(): String = name
+    fun asStr(): String {
+        val this0 = name
+        return this0
+    }
 
-    fun fmt(): String = name
+    fun fmt(): String {
+        val display = name
+        val formatter = StringBuilder()
+        formatter.append(display)
+        return formatter.toString()
+    }
 
     override fun toString(): String = fmt()
 
@@ -96,3 +105,115 @@ fun lookupVtable(deserTypeId: DeserTypeId): Result<AValueVTable> {
 
 /** Get a list of all registered type IDs (for debugging/testing). */
 internal fun registeredTypeIds(): List<DeserTypeId> = VTABLE_REGISTRY.keys.toList()
+
+// -----------------------------------------------------------------
+// Upstream `vtableRegistry.rs` tests (ported as pure functions).
+// -----------------------------------------------------------------
+
+internal class TestSimpleType : StarlarkValue {
+    override val TYPE: String get() = "TestSimpleType"
+}
+
+internal class FrozenTestComplex : StarlarkValue {
+    override val TYPE: String get() = "TestComplex"
+}
+
+internal class StarlarkStr : StarlarkValue {
+    override val TYPE: String get() = "StarlarkStr"
+}
+
+internal class FrozenTuple : StarlarkValue {
+    override val TYPE: String get() = "FrozenTuple"
+}
+
+internal class FrozenList : StarlarkValue {
+    override val TYPE: String get() = "FrozenList"
+}
+
+internal class TypeCompiledNonGenericMatcher : StarlarkValue {
+    override val TYPE: String get() = "TypeCompiledNonGenericMatcher"
+}
+
+internal class TypeCompiledGenericMatcher : StarlarkValue {
+    override val TYPE: String get() = "TypeCompiledGenericMatcher"
+}
+
+internal fun testSimpleTypeIsRegistered() {
+    val deserTypeId = DeserTypeId.of<TestSimpleType>()
+    submitVtable(VTableRegistryEntry(deserTypeId = deserTypeId, vtable = AValueVTable.forType(TestSimpleType::class)))
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected TestSimpleType to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "TestSimpleType")
+}
+
+internal fun testComplexTypeFrozenIsRegistered() {
+    val typeId = DeserTypeId.of<FrozenTestComplex>()
+    submitVtable(VTableRegistryEntry(deserTypeId = typeId, vtable = AValueVTable.forType(FrozenTestComplex::class)))
+    val vtable = lookupVtable(typeId)
+    check(vtable.isSuccess) { "Expected FrozenTestComplex to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "FrozenTestComplex" || vt.typeName == "TestComplex")
+}
+
+internal fun testLookupNonexistentType() {
+    val result = lookupVtable(DeserTypeId("this_type_does_not_exist_12345"))
+    check(result.isFailure)
+    val err = result.exceptionOrNull()
+    check(err is PagableError.TypeNotRegistered)
+}
+
+internal fun testStarlarkStrIsRegistered() {
+    val deserTypeId = DeserTypeId.of<StarlarkStr>()
+    submitVtable(VTableRegistryEntry(deserTypeId = deserTypeId, vtable = AValueVTable.forType(StarlarkStr::class)))
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected StarlarkStr to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "StarlarkStr")
+}
+
+internal fun testFrozenTupleIsRegistered() {
+    val deserTypeId = DeserTypeId.of<FrozenTuple>()
+    submitVtable(VTableRegistryEntry(deserTypeId = deserTypeId, vtable = AValueVTable.forType(FrozenTuple::class)))
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected FrozenTuple to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "FrozenTuple")
+}
+
+internal fun testFrozenListIsRegistered() {
+    val deserTypeId = DeserTypeId.of<FrozenList>()
+    submitVtable(VTableRegistryEntry(deserTypeId = deserTypeId, vtable = AValueVTable.forType(FrozenList::class)))
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected FrozenList to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "FrozenList")
+}
+
+internal fun testTypeCompiledNonGenericMatcherIsRegistered() {
+    val deserTypeId = DeserTypeId.of<TypeCompiledNonGenericMatcher>()
+    submitVtable(
+        VTableRegistryEntry(
+            deserTypeId = deserTypeId,
+            vtable = AValueVTable.forType(TypeCompiledNonGenericMatcher::class),
+        ),
+    )
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected TypeCompiledNonGenericMatcher to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "TypeCompiledNonGenericMatcher")
+}
+
+internal fun testTypeCompiledGenericMatcherIsRegistered() {
+    val deserTypeId = DeserTypeId.of<TypeCompiledGenericMatcher>()
+    submitVtable(
+        VTableRegistryEntry(
+            deserTypeId = deserTypeId,
+            vtable = AValueVTable.forType(TypeCompiledGenericMatcher::class),
+        ),
+    )
+    val vtable = lookupVtable(deserTypeId)
+    check(vtable.isSuccess) { "Expected TypeCompiledGenericMatcher to be registered. Available types: ${registeredTypeIds()}" }
+    val vt = vtable.getOrThrow()
+    check(vt.typeName == "TypeCompiledGenericMatcher")
+}

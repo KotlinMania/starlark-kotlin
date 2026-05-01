@@ -20,23 +20,19 @@
 
 // Only check it compiles.
 
-@Suppress("unused")
 private sealed class AllocNoVariant
 
-@Suppress("unused")
 private sealed class AllocOneVariant {
 
     class Int(val value: UInt) : AllocOneVariant()
 }
 
-@Suppress("unused")
 private sealed class AllocTwoVariants {
 
     class Int(val value: UInt) : AllocTwoVariants()
     class `String`(val value: String) : AllocTwoVariants()
 }
 
-@Suppress("unused")
 private sealed class AllocWithLifetime {
     class `String`(val value: String) : AllocWithLifetime()
 }

@@ -30,23 +30,19 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
-@Suppress("unused")
 private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
     globals.setFunction("test_global") { args, _ ->
-        @Suppress("UNUSED_VARIABLE")
         val foo = args.positional<Int>(0)
         Result.success(NoneType)
     }
 }
 
-@Suppress("unused")
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
     methods.setMethod("test_method") { _, _, _, _ ->
         Result.success(Value.newNone())
     }
 }
 
-@Suppress("unused")
 private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
     methods.setAttribute("test_attribute") { _, _ ->
         // NOTE(nga): this marker is no-op.

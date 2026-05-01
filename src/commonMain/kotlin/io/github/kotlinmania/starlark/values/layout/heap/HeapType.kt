@@ -212,7 +212,7 @@ class Heap internal constructor(
 
     /**
      * Allocate a value and return ValueTyped of it.
-     * Can fail if the AllocValue trait generates a different type on the heap.
+     * Can fail if the AllocValue interface generates a different type on the heap.
      */
     internal inline fun <reified T> allocTyped(x: T): ValueTyped<T> where T : AllocValue, T : StarlarkValue {
         return ValueTyped.new<T>(alloc(x))
@@ -246,10 +246,10 @@ class Heap internal constructor(
     }
 
     /**
-     * Garbage collect any values that are unused. This function is unsafe in
-     * the sense that any Value not returned by Tracer will become
-     * invalid. Furthermore, any references to values, e.g. str will
-     * also become invalid.
+     * Garbage collect any values that are unused. The caller must guarantee
+     * that any [Value] not returned by [Tracer] will become invalid.
+     * Furthermore, any references to values, e.g. strings, will also become
+     * invalid.
      */
     internal fun garbageCollect(f: (Tracer) -> Unit) {
         if (owned.banGc) {

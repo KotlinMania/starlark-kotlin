@@ -296,11 +296,3 @@ private fun mapPayloadsClause(
         is ClauseP.If -> mapPayloadsExpr(clause.cond, mapper)
     }
 }
-
-internal typealias CstExpr = Spanned<ExprP<CstPayload>>
-internal typealias CstTypeExpr = Spanned<TypeExprP<CstPayload, *>>
-internal typealias CstAssignTarget = Spanned<AssignTargetP<CstPayload>>
-internal typealias CstAssignIdent = Spanned<AssignIdentP<CstPayload, *>>
-internal typealias CstIdent = Spanned<IdentP<CstPayload, *>>
-internal typealias CstParameter = ParameterP<CstPayload>
-internal typealias CstStmt = Spanned<StmtP<CstPayload>>

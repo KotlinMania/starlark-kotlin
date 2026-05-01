@@ -48,7 +48,6 @@ class FreezeAccessValueTests {
     @Test
     fun testFreezeAccessValue() {
         Heap.temp { heap ->
-            // Kotlin: allocate each i32 as a Value, then allocate the list.
             val list = heap.allocList(listOf(
                 StarlarkInt.from(1).allocValue(heap),
                 StarlarkInt.from(2).allocValue(heap),

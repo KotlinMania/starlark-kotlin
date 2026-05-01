@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/layout/value.rspackage io.github.kotlinmania.starlark.values.layout
+// port-lint: source values/layout/value.rs
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -144,4 +145,3 @@ class ValueTest {
         assertContains(e2.toString(), "Value `function (repr: bool)` is not compatible with")
     }
 }
-

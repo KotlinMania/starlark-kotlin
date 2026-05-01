@@ -1,4 +1,4 @@
-// port-lint: source src/typing/tests/call.rs
+// port-lint: source tests/call.rs
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck

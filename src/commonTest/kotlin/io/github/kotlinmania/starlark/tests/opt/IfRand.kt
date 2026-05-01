@@ -77,19 +77,15 @@ private enum class TestBinOp(val display: String) {
 
 private sealed class TestExpr {
     /** `True` or `False`. */
-    // Const(bool)
     class Const(val value: Boolean) : TestExpr()
 
     /** `true()` or `false()`. */
-    // Count(bool)
     class Count(val value: Boolean) : TestExpr()
 
     /** Binary operation. */
-    // BinOp(TestBinOp, Box<(TestExpr, TestExpr)>)
     class BinOp(val op: TestBinOp, val lhs: TestExpr, val rhs: TestExpr) : TestExpr()
 
     /** `not` operation. */
-    // Not(Box<TestExpr>)
     class Not(val expr: TestExpr) : TestExpr()
 
     /** Evaluate the expression the same way Starlark would evaluate it. */

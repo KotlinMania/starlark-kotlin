@@ -83,7 +83,7 @@ interface FreezeErrorContext<T> : Sealed {
 /** Protects against downstream implementations. */
 sealed interface Sealed
 
-/** Extension to add context to a `Result<T>` returned from freeze operations. */
+/** Extension to add context to a [FreezeResult] returned from freeze operations. */
 fun <T> Result<T>.freezeErrorContext(context: String): Result<T> {
     return when {
         isSuccess -> this

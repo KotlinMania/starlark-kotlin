@@ -40,42 +40,27 @@ internal fun <T> iterFmtParamSpec(
     args: T?,
     namedOnly: Iterable<T>,
     kwargs: T?,
-): Sequence<FmtParam<T>> = sequence {
+): Sequence<FmtParam<T>> {
     val posOnlyIter = posOnly.iterator()
-    val hasPositionalOnly = posOnlyIter.hasNext()
-    val slash: FmtParam<T>? = if (hasPositionalOnly) {
-        FmtParam.Slash
-    } else {
-        null
-    }
+    val slash: Sequence<FmtParam<T>> = if (posOnlyIter.hasNext()) sequenceOf(FmtParam.Slash) else emptySequence()
 
-    val namedOnlyList = namedOnly.toList()
-    val hasNamedOnly = namedOnlyList.isNotEmpty()
+    val namedOnlyIter = namedOnly.iterator()
     // `*args`, otherwise `*` if needed.
-    val argsOrStar: FmtParam<T>? = when {
-        args != null -> FmtParam.Args(args)
-        hasNamedOnly -> FmtParam.Star
-        else -> null
+    val argsOrStar: Sequence<FmtParam<T>> = when {
+        args != null -> sequenceOf(FmtParam.Args(args))
+        namedOnlyIter.hasNext() -> sequenceOf(FmtParam.Star)
+        else -> emptySequence()
     }
 
-    for (p in posOnlyIter) {
-        yield(FmtParam.Regular(p))
-    }
-    if (slash != null) {
-        yield(slash)
-    }
-    for (p in posNamed) {
-        yield(FmtParam.Regular(p))
-    }
-    if (argsOrStar != null) {
-        yield(argsOrStar)
-    }
-    for (p in namedOnlyList) {
-        yield(FmtParam.Regular(p))
-    }
-    if (kwargs != null) {
-        yield(FmtParam.Kwargs(kwargs))
-    }
+    val kwargsSeq: Sequence<FmtParam<T>> = if (kwargs != null) sequenceOf(FmtParam.Kwargs(kwargs)) else emptySequence()
+
+    return emptySequence<FmtParam<T>>()
+        .plus(posOnlyIter.asSequence().map(FmtParam::Regular))
+        .plus(slash)
+        .plus(posNamed.asSequence().map(FmtParam::Regular))
+        .plus(argsOrStar)
+        .plus(namedOnlyIter.asSequence().map(FmtParam::Regular))
+        .plus(kwargsSeq)
 }
 
 /** What to print for unknown default/optional. */

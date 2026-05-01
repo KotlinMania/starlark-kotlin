@@ -52,7 +52,7 @@ class AttrsTests {
 
         class Example(
             val hello: String,
-            @Suppress("unused") val answer: Long, // (starlark(skip))
+            val answer: Long, // (starlark(skip))
             val nested: Nested, // (starlark(clone))
             val type_: Long, // r#type
             val escaped: String, // r#escaped

@@ -43,14 +43,11 @@ class Freezer internal constructor(
     }
 
     /** Allocate a new value while freezing. Usually not a great idea. */
-    fun <T : AllocFrozenValue> alloc(value: T): FrozenValue {
-        return value.allocFrozenValue(heap)
+    fun <T : AllocFrozenValue> alloc(val_: T): FrozenValue {
+        return val_.allocFrozenValue(this.heap)
     }
 
-    internal fun <T> reserve(): Pair<FrozenValue, Reservation<T>>
-        where T : AValue,
-              T : HeapSendable,
-              T : HeapSyncable {
+    internal fun <T> reserve(): Pair<FrozenValue, Reservation<T>> {
         val (fv, r, extra) = heap.reserveWithExtra<T>(0)
         check(extra == Unit)
         return Pair(fv, r)

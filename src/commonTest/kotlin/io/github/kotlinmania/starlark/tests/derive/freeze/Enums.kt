@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark.tests.derive.freeze
 
 import io.github.kotlinmania.starlark.values.Freeze
 
-@Suppress("unused")
 private sealed class TestFreezeEnum<out V> {
     // A
     data object A : TestFreezeEnum<Nothing>()

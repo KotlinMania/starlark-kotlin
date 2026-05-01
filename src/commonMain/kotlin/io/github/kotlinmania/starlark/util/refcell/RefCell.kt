@@ -42,6 +42,11 @@ internal class Ref<T> internal constructor(
     fun leak() {
         active = false
     }
+
+    fun ptrRead(): Ref<T> {
+        check(active) { "Ref is no longer active" }
+        return Ref(refCell, value)
+    }
 }
 
 /** A mutable borrow guard for [RefCell]. */
@@ -99,6 +104,43 @@ internal class RefCell<T>(
 /** "Unleak" previously leaked [RefCell] borrow (which is [Ref]). */
 internal fun <T> unleakBorrow(refCell: RefCell<T>) {
     val r = refCell.borrow()
-    refCell.releaseBorrow()
-    r.close()
+    fun drop(b: Ref<T>) {
+        b.close()
+    }
+
+    val b = r.ptrRead()
+    drop(b)
+    drop(r)
+}
+
+internal fun testUnleakBorrow() {
+    val refCell = RefCell(1)
+    check(refCell.tryBorrowMut() != null)
+
+    refCell.borrow().leak()
+    check(
+        refCell.tryBorrowMut() == null
+    ) { "RefCell is borrowed, so we cannot borrow it mutably" }
+
+    unleakBorrow(refCell)
+    check(
+        refCell.tryBorrowMut() != null
+    ) { "Borrow is unleaked, so we can borrow it mutably" }
+
+    // Now do the same twice.
+
+    refCell.borrow().leak()
+    refCell.borrow().leak()
+
+    check(
+        refCell.tryBorrowMut() == null
+    ) { "RefCell is borrowed, so we cannot borrow it mutably" }
+
+    unleakBorrow(refCell)
+    check(
+        refCell.tryBorrowMut() == null
+    ) { "RefCell is still borrowed" }
+
+    unleakBorrow(refCell)
+    check(refCell.tryBorrowMut() != null)
 }

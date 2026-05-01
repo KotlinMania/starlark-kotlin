@@ -1,4 +1,4 @@
-// port-lint: source src/collections/stringPool.rs
+// port-lint: source src/collections/string_pool.rs
 package io.github.kotlinmania.starlark.collections
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
-//! Reuse string allocation.
+/** Reuse string allocation. */
 
 /** Pool of strings. */
 internal class StringPool {

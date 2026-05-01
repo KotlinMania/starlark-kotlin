@@ -1,4 +1,4 @@
-// port-lint: source typing/ty.rs
+// port-lint: source ty.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -48,7 +48,9 @@ data class Approximation(
 
     /** Format as `Approximation: <category> = "<message>"`. */
     fun fmt(): String {
-        return "Approximation: $category = \"$message\""
+        val category = category
+        val message = message
+        return "Approximation: " + category + " = " + debugString(message)
     }
 
     override fun toString(): String = fmt()
@@ -57,6 +59,23 @@ data class Approximation(
         val cmp = category.compareTo(other.category)
         return if (cmp != 0) cmp else message.compareTo(other.message)
     }
+}
+
+private fun debugString(value: String): String {
+    val out = StringBuilder()
+    out.append('"')
+    for (c in value) {
+        when (c) {
+            '\\' -> out.append("\\\\")
+            '"' -> out.append("\\\"")
+            '\n' -> out.append("\\n")
+            '\r' -> out.append("\\r")
+            '\t' -> out.append("\\t")
+            else -> out.append(c)
+        }
+    }
+    out.append('"')
+    return out.toString()
 }
 
 /**
@@ -96,7 +115,9 @@ class Ty private constructor(
         fun none(): Ty = basic(TyBasic.none())
 
         /** Create a boolean type. */
-        fun bool(): Ty = basic(TyBasic.StarlarkValue(TyStarlarkValue.bool()))
+        fun bool(): Ty {
+            return starlarkValue(TyStarlarkValue.bool())
+        }
 
         /** Create the int type. */
         fun int(): Ty = basic(TyBasic.int())
@@ -288,7 +309,10 @@ class Ty private constructor(
      */
     fun asName(): String? {
         val slice = alternatives.asSlice()
-        return if (slice.size == 1) slice[0].asName() else null
+        return when (slice.size) {
+            1 -> slice[0].asName()
+            else -> null
+        }
     }
 
     /** This type is `TyStarlarkValue`. */
@@ -324,7 +348,10 @@ class Ty private constructor(
      */
     fun asFunction(): TyFunction? {
         val slice = iterUnion()
-        return if (slice.size == 1) slice[0].asFunction() else null
+        return when (slice.size) {
+            1 -> slice[0].asFunction()
+            else -> null
+        }
     }
 
     /**
@@ -421,19 +448,19 @@ class Ty private constructor(
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String {
         val xs = iterUnion()
-        return when {
-            xs.isEmpty() -> TypingNever.TYPE_NAME
-            else -> {
-                val sb = StringBuilder()
-                for ((i, x) in xs.withIndex()) {
-                    if (i != 0) {
-                        sb.append(" | ")
-                    }
-                    x.fmtWithConfig(sb, config)
-                }
-                sb.toString()
-            }
+        if (xs.isEmpty()) {
+            return TypingNever.TYPE_NAME
         }
+
+        val sb = StringBuilder()
+        for (i in xs.indices) {
+            if (i != 0) {
+                sb.append(" | ")
+            }
+            val x = xs[i]
+            x.fmtWithConfig(sb, config)
+        }
+        return sb.toString()
     }
 
     /** Display with a custom configuration, returning a [TyDisplay] wrapper. */

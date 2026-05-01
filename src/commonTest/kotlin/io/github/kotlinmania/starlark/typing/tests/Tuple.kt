@@ -1,4 +1,4 @@
-// port-lint: source src/typing/tests/tuple.rs
+// port-lint: source tests/tuple.rs
 package io.github.kotlinmania.starlark.typing.tests
 
 import io.github.kotlinmania.starlark.typing.TypeCheck

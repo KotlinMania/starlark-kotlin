@@ -4,30 +4,32 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Current Progress:** 88.9% (495/468 files)
-- **Matched Files:** 416
-- **Average Similarity:** 0.50
-- **Critical Issues:** 234 files with <0.60 function similarity
+- **Files Present:** 417/468 (89.1%)
+- **Function parity:** 3445/4540 matched (target 5573) — 75.9%
+- **Class/type parity:** 831/1207 matched (target 1594) — 68.8%
+- **Combined symbol parity:** 4276/5747 matched (target 7167) — 74.4%
+- **Cheat-zeroed Files:** 37
+- **Critical Issues:** 218 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
 ### 1. layout.value
-- **Similarity:** 0.75 (needs 10% improvement)
+- **Similarity:** 0.81 (needs 4% improvement)
 - **Dependencies:** 178
-- **Priority Score:** 178132704.0
-- **Functions:** 108/118 matched (target 159)
-- **Missing functions:** `eq`, `testing_new_int`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
-- **Types:** 7/9 matched (target 10)
+- **Priority Score:** 178042704.0
+- **Functions:** 117/118 matched (target 173)
+- **Missing functions:** `testing_new_int`
+- **Types:** 7/9 matched (target 11)
 - **Missing types:** `Canonical`, `String`
-- **Symbol Deficit:** 12 (functions: 10, types: 2)
-- **Missing Tests:** 9 of 9 `#[test]` functions have no Kotlin counterpart
-- **Action:** Review and complete missing sections
+- **Symbol Deficit:** 3 (functions: 1, types: 2)
+- **Missing Tests:** 1 of 9 `#[test]` functions have no Kotlin counterpart
+- **Action:** Minor refinements needed
 
 ### 2. typing.ty
-- **Similarity:** 0.79 (needs 6% improvement)
+- **Similarity:** 0.80 (needs 5% improvement)
 - **Dependencies:** 109
 - **Priority Score:** 109005400.0
-- **Functions:** 50/50 matched (target 59)
+- **Functions:** 50/50 matched (target 60)
 - **Missing functions:** _none_
 - **Types:** 4/4 matched (target 6)
 - **Missing types:** _none_
@@ -63,17 +65,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Minor refinements needed
 
-### 6. values.trace
-- **Similarity:** 0.51 (needs 34% improvement)
-- **Dependencies:** 52
-- **Priority Score:** 52000204.0
-- **Functions:** 1/1 matched (target 43)
-- **Missing functions:** _none_
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Action:** Deep review - likely missing major functionality
-
-### 7. derive.unpack_value
+### 6. derive.unpack_value
 - **Similarity:** 0.71 (needs 14% improvement)
 - **Dependencies:** 51
 - **Priority Score:** 51000704.0
@@ -83,7 +75,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Review and complete missing sections
 
-### 8. values.freeze
+### 7. values.freeze
 - **Similarity:** 0.69 (needs 16% improvement)
 - **Dependencies:** 42
 - **Priority Score:** 42010304.0
@@ -94,18 +86,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 0, types: 1)
 - **Action:** Review and complete missing sections
 
-### 9. layout.freezer
-- **Similarity:** 0.58 (needs 27% improvement)
-- **Dependencies:** 36
-- **Priority Score:** 36010604.0
-- **Functions:** 4/5 matched (target 4)
-- **Missing functions:** `reserve`
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Symbol Deficit:** 1 (functions: 1, types: 0)
-- **Action:** Deep review - likely missing major functionality
-
-### 10. coerce
+### 8. coerce
 - **Similarity:** 0.63 (needs 22% improvement)
 - **Dependencies:** 34
 - **Priority Score:** 34031404.0
@@ -117,7 +98,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 1 of 4 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
-### 11. values.frozen_ref
+### 9. values.frozen_ref
 - **Similarity:** 0.62 (needs 23% improvement)
 - **Dependencies:** 27
 - **Priority Score:** 27052104.0
@@ -128,7 +109,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 5 (functions: 3, types: 2)
 - **Action:** Review and complete missing sections
 
-### 12. none.none_type
+### 10. none.none_type
 - **Similarity:** 0.82 (needs 3% improvement)
 - **Dependencies:** 27
 - **Priority Score:** 27011302.0
@@ -139,7 +120,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 0, types: 1)
 - **Action:** Minor refinements needed
 
-### 13. runtime.frame_span
+### 11. runtime.frame_span
 - **Similarity:** 0.65 (needs 20% improvement)
 - **Dependencies:** 26
 - **Priority Score:** 26010504.0
@@ -150,7 +131,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Action:** Review and complete missing sections
 
-### 14. runtime.arguments
+### 12. runtime.arguments
 - **Similarity:** 0.58 (needs 27% improvement)
 - **Dependencies:** 25
 - **Priority Score:** 25053804.0
@@ -162,7 +143,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 4 of 4 `#[test]` functions have no Kotlin counterpart
 - **Action:** Deep review - likely missing major functionality
 
-### 15. util.arc_str
+### 13. util.arc_str
 - **Similarity:** 0.60 (needs 25% improvement)
 - **Dependencies:** 21
 - **Priority Score:** 21010704.0
@@ -173,7 +154,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 0, types: 1)
 - **Action:** Review and complete missing sections
 
-### 16. values.value_of_unchecked
+### 14. values.value_of_unchecked
 - **Similarity:** 0.44 (needs 41% improvement)
 - **Dependencies:** 20
 - **Priority Score:** 20102506.0
@@ -185,7 +166,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 5 of 5 `#[test]` functions have no Kotlin counterpart
 - **Action:** Deep review - likely missing major functionality
 
-### 17. environment.globals
+### 15. environment.globals
 - **Similarity:** 0.65 (needs 20% improvement)
 - **Dependencies:** 20
 - **Priority Score:** 20074004.0
@@ -197,19 +178,19 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 5 of 5 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
-### 18. util.refcell
-- **Similarity:** 0.32 (needs 53% improvement)
+### 16. util.refcell
+- **Similarity:** 0.85 (needs 0% improvement)
 - **Dependencies:** 20
-- **Priority Score:** 20010206.0
-- **Functions:** 1/2 matched (target 10)
+- **Priority Score:** 20010202.0
+- **Functions:** 1/2 matched (target 13)
 - **Missing functions:** `test_unleak_borrow`
 - **Types:** 0/0 matched (target 3)
 - **Missing types:** _none_
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Missing Tests:** 1 of 1 `#[test]` functions have no Kotlin counterpart
-- **Action:** Deep review - likely missing major functionality
+- **Action:** Minor refinements needed
 
-### 19. __derive_refs.param_spec
+### 17. __derive_refs.param_spec
 - **Similarity:** 0.83 (needs 2% improvement)
 - **Dependencies:** 20
 - **Priority Score:** 20000802.0
@@ -219,7 +200,17 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Minor refinements needed
 
-### 20. environment.methods
+### 18. derive.module
+- **Similarity:** 0.00 (needs 85% improvement)
+- **Dependencies:** 20
+- **Priority Score:** 20000010.0
+- **Functions:** 0/0 matched (target 13)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 3)
+- **Missing types:** _none_
+- **Action:** Deep review - likely missing major functionality
+
+### 19. environment.methods
 - **Similarity:** 0.70 (needs 15% improvement)
 - **Dependencies:** 17
 - **Priority Score:** 17032302.0
@@ -231,7 +222,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
 - **Action:** Review and complete missing sections
 
-### 21. values.iter
+### 20. values.iter
 - **Similarity:** 0.61 (needs 24% improvement)
 - **Dependencies:** 17
 - **Priority Score:** 17020704.0
@@ -242,7 +233,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 2 (functions: 1, types: 1)
 - **Action:** Review and complete missing sections
 
-### 22. values.error
+### 21. values.error
 - **Similarity:** 0.62 (needs 23% improvement)
 - **Dependencies:** 17
 - **Priority Score:** 17010704.0
@@ -253,7 +244,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Action:** Review and complete missing sections
 
-### 23. private
+### 22. private
 - **Similarity:** 0.00 (needs 85% improvement)
 - **Dependencies:** 15
 - **Priority Score:** 15000110.0
@@ -263,19 +254,19 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Deep review - likely missing major functionality
 
-### 24. layout.avalue
-- **Similarity:** 0.00 (needs 85% improvement)
+### 23. layout.avalue
+- **Similarity:** 0.75 (needs 10% improvement)
 - **Dependencies:** 14
-- **Priority Score:** 14021110.0
+- **Priority Score:** 14021103.0
 - **Functions:** 6/8 matched (target 12)
 - **Missing functions:** `tuple_cycle_freeze`, `test_try_freeze_directly`
 - **Types:** 3/3 matched (target 4)
 - **Missing types:** _none_
 - **Symbol Deficit:** 2 (functions: 2, types: 0)
 - **Missing Tests:** 2 of 2 `#[test]` functions have no Kotlin counterpart
-- **Action:** Deep review - likely missing major functionality
+- **Action:** Review and complete missing sections
 
-### 25. typing.tuple
+### 24. typing.tuple
 - **Similarity:** 0.60 (needs 25% improvement)
 - **Dependencies:** 12
 - **Priority Score:** 12010704.0
@@ -286,7 +277,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Symbol Deficit:** 1 (functions: 1, types: 0)
 - **Action:** Review and complete missing sections
 
-### 26. layout.const_frozen_string
+### 25. layout.const_frozen_string
 - **Similarity:** 0.79 (needs 6% improvement)
 - **Dependencies:** 12
 - **Priority Score:** 12000202.0
@@ -296,7 +287,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Minor refinements needed
 
-### 27. layout.value_lifetimeless
+### 26. layout.value_lifetimeless
 - **Similarity:** 0.00 (needs 85% improvement)
 - **Dependencies:** 12
 - **Priority Score:** 12000110.0
@@ -306,7 +297,7 @@ Based on AST analysis, here are the concrete next steps.
 - **Missing types:** _none_
 - **Action:** Deep review - likely missing major functionality
 
-### 28. int.inline_int
+### 27. int.inline_int
 - **Similarity:** 0.42 (needs 43% improvement)
 - **Dependencies:** 11
 - **Priority Score:** 11123906.0
@@ -331,30 +322,33 @@ Every matched file is listed below with function and type symbol parity.
 ### 1. layout.value
 
 - **Target:** `layout.Value`
-- **Similarity:** 0.75
+- **Similarity:** 0.81
 - **Dependents:** 178
-- **Priority Score:** 178132704.0
-- **Functions:** 108/118 matched (target 159)
-- **Missing functions:** `eq`, `testing_new_int`, `test_downcast_ref`, `test_unpack_i32`, `test_unpack_frozen`, `test_unpack_bigint`, `test_to_json_value`, `test_display_for_type_error`, `test_check_callable_with_none`, `test_check_callable_with_good_function`
-- **Types:** 7/9 matched (target 10)
+- **Priority Score:** 178042704.0
+- **Functions:** 117/118 matched (target 173)
+- **Missing functions:** `testing_new_int`
+- **Types:** 7/9 matched (target 11)
 - **Missing types:** `Canonical`, `String`
-- **Tests:** 0/9 matched
-- **Lint issues:** 3
+- **Tests:** 8/9 matched
+- **Lint issues:** 2
 
 ### 2. typing.ty
 
-- **Target:** `typing.Ty`
-- **Similarity:** 0.79
+- **Target:** `typing.Ty [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.80
 - **Dependents:** 109
 - **Priority Score:** 109005400.0
-- **Functions:** 50/50 matched (target 59)
+- **Functions:** 50/50 matched (target 60)
 - **Missing functions:** _none_
 - **Types:** 4/4 matched (target 6)
 - **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `ty.rs` vs expected `typing/ty.rs`
+- **Proposed provenance header:** `// port-lint: source typing/ty.rs` (current: `// port-lint: source ty.rs`)
+- **Lint issues:** 1
 
 ### 3. typing.starlark_value
 
-- **Target:** `typing.StarlarkValue`
+- **Target:** `typing.StarlarkValue [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.75
 - **Dependents:** 76
 - **Priority Score:** 76003800.0
@@ -362,7 +356,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 4/4 matched (target 5)
 - **Missing types:** _none_
-- **Lint issues:** 2
+- **Provenance warning:** port-lint provenance header matched only by basename: `starlark_value.rs` vs expected `typing/starlark_value.rs`
+- **Proposed provenance header:** `// port-lint: source typing/starlark_value.rs` (current: `// port-lint: source starlark_value.rs`)
+- **Lint issues:** 4
 
 ### 4. params.display
 
@@ -389,14 +385,13 @@ Every matched file is listed below with function and type symbol parity.
 ### 6. values.trace
 
 - **Target:** `values.Trace`
-- **Similarity:** 0.51
+- **Similarity:** 0.90
 - **Dependents:** 52
-- **Priority Score:** 52000204.0
+- **Priority Score:** 52000200.0
 - **Functions:** 1/1 matched (target 43)
 - **Missing functions:** _none_
-- **Types:** 1/1 matched
+- **Types:** 1/1 matched (target 12)
 - **Missing types:** _none_
-- **Lint issues:** 1
 
 ### 7. derive.unpack_value
 
@@ -439,11 +434,11 @@ Every matched file is listed below with function and type symbol parity.
 ### 10. layout.freezer
 
 - **Target:** `layout.Freezer`
-- **Similarity:** 0.58
+- **Similarity:** 0.85
 - **Dependents:** 36
-- **Priority Score:** 36010604.0
-- **Functions:** 4/5 matched (target 4)
-- **Missing functions:** `reserve`
+- **Priority Score:** 36000600.0
+- **Functions:** 5/5 matched
+- **Missing functions:** _none_
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
@@ -558,10 +553,10 @@ Every matched file is listed below with function and type symbol parity.
 ### 20. util.refcell
 
 - **Target:** `refcell.RefCell`
-- **Similarity:** 0.32
+- **Similarity:** 0.85
 - **Dependents:** 20
-- **Priority Score:** 20010206.0
-- **Functions:** 1/2 matched (target 10)
+- **Priority Score:** 20010202.0
+- **Functions:** 1/2 matched (target 13)
 - **Missing functions:** `test_unleak_borrow`
 - **Types:** 0/0 matched (target 3)
 - **Missing types:** _none_
@@ -578,7 +573,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/3 matched (target 5)
 - **Missing types:** _none_
 
-### 22. environment.methods
+### 22. derive.module
+
+- **Target:** `syntax.AstModule [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 20
+- **Priority Score:** 20000010.0
+- **Functions:** 0/0 matched (target 13)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 3)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `src/syntax/module.rs` vs expected `tests/derive/module.rs`
+- **Proposed provenance header:** `// port-lint: source tests/derive/module.rs` (current: `// port-lint: source src/syntax/module.rs`)
+- **Lint issues:** 1
+
+### 23. environment.methods
 
 - **Target:** `environment.Methods`
 - **Similarity:** 0.70
@@ -591,7 +600,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 0/2 matched
 - **Lint issues:** 1
 
-### 23. values.iter
+### 24. values.iter
 
 - **Target:** `values.Iter`
 - **Similarity:** 0.61
@@ -602,7 +611,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/2 matched (target 1)
 - **Missing types:** `Item`
 
-### 24. values.error
+### 25. values.error
 
 - **Target:** `values.Error`
 - **Similarity:** 0.62
@@ -613,7 +622,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched (target 19)
 - **Missing types:** _none_
 
-### 25. private
+### 26. private
 
 - **Target:** `starlark.Private [ZERO]`
 - **Similarity:** 0.00
@@ -624,21 +633,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 26. layout.avalue
+### 27. layout.avalue
 
-- **Target:** `layout.AValue [ZERO]`
-- **Similarity:** 0.00
+- **Target:** `layout.AValue`
+- **Similarity:** 0.75
 - **Dependents:** 14
-- **Priority Score:** 14021110.0
+- **Priority Score:** 14021103.0
 - **Functions:** 6/8 matched (target 12)
 - **Missing functions:** `tuple_cycle_freeze`, `test_try_freeze_directly`
 - **Types:** 3/3 matched (target 4)
 - **Missing types:** _none_
 - **Tests:** 0/2 matched
 
-### 27. typing.tuple
+### 28. typing.tuple
 
-- **Target:** `typing.Tuple`
+- **Target:** `typing.Tuple [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
 - **Dependents:** 12
 - **Priority Score:** 12010704.0
@@ -646,8 +655,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `fmt`
 - **Types:** 1/1 matched (target 3)
 - **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `tuple.rs` vs expected `typing/tuple.rs`
+- **Proposed provenance header:** `// port-lint: source typing/tuple.rs` (current: `// port-lint: source tuple.rs`)
+- **Lint issues:** 1
 
-### 28. layout.const_frozen_string
+### 29. layout.const_frozen_string
 
 - **Target:** `layout.ConstFrozenString [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.79
@@ -662,7 +674,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: tests values/layout/const_frozen_string.rs` (current: `// port-lint: tests src/values/layout/constFrozenString.rs`)
 - **Lint issues:** 1
 
-### 29. layout.value_lifetimeless
+### 30. layout.value_lifetimeless
 
 - **Target:** `layout.ValueLifetimeless [ZERO]`
 - **Similarity:** 0.00
@@ -673,7 +685,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 30. int.inline_int
+### 31. int.inline_int
 
 - **Target:** `int.InlineInt`
 - **Similarity:** 0.42
@@ -685,7 +697,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Error`, `Output`, `Canonical`
 - **Tests:** 0/2 matched
 
-### 31. int.pointer_i32
+### 32. int.pointer_i32
 
 - **Target:** `int.PointerI32`
 - **Similarity:** 0.66
@@ -697,7 +709,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Canonical`
 - **Lint issues:** 2
 
-### 32. types.type_instance_id
+### 33. types.type_instance_id
 
 - **Target:** `types.TypeInstanceId`
 - **Similarity:** 0.00
@@ -708,22 +720,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 33. any
+### 34. any
 
-- **Target:** `starlark.Any [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `starlark.Any [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.46
 - **Dependents:** 8
-- **Priority Score:** 8062710.0
+- **Priority Score:** 8062705.5
 - **Functions:** 8/12 matched (target 15)
 - **Missing functions:** `is`, `convert_value`, `convert_any`, `test`
-- **Types:** 13/15 matched (target 49)
+- **Types:** 13/15 matched (target 43)
 - **Missing types:** `StaticType`, `My`
 - **Tests:** 4/7 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/any.rs` vs expected `any.rs`
 - **Proposed provenance header:** `// port-lint: source any.rs` (current: `// port-lint: source src/any.rs`)
 - **Lint issues:** 1
 
-### 34. layout.aligned_size
+### 35. layout.aligned_size
 
 - **Target:** `layout.AlignedSize [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.46
@@ -738,7 +750,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/aligned_size.rs` (current: `// port-lint: source src/values/layout/alignedSize.rs`)
 - **Lint issues:** 1
 
-### 35. eval.compiler
+### 36. eval.compiler
 
 - **Target:** `eval.Compiler`
 - **Similarity:** 0.81
@@ -749,7 +761,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 36. cast
+### 37. cast
 
 - **Target:** `starlark.Cast`
 - **Similarity:** 0.38
@@ -760,9 +772,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 37. types.bigint
+### 38. types.bigint
 
-- **Target:** `types.Bigint`
+- **Target:** `types.Bigint [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
 - **Dependents:** 7
 - **Priority Score:** 7447407.0
@@ -771,18 +783,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 - **Tests:** 0/42 matched
-- **Lint issues:** 1
-
-### 38. runtime.frozen_file_span
-
-- **Target:** `runtime.FrozenFileSpan`
-- **Similarity:** 0.78
-- **Dependents:** 7
-- **Priority Score:** 7011102.0
-- **Functions:** 9/10 matched
-- **Missing functions:** `fmt`
-- **Types:** 1/1 matched
-- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/bigint.rs` vs expected `values/types/bigint.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/bigint.rs` (current: `// port-lint: source src/values/types/bigint.rs`)
+- **Lint issues:** 2
 
 ### 39. values.starlark_type_id
 
@@ -795,7 +798,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched
 - **Missing types:** _none_
 
-### 40. compiler.opt_ctx
+### 40. runtime.frozen_file_span
+
+- **Target:** `runtime.FrozenFileSpan`
+- **Similarity:** 0.86
+- **Dependents:** 7
+- **Priority Score:** 7001101.5
+- **Functions:** 10/10 matched (target 11)
+- **Missing functions:** _none_
+- **Types:** 1/1 matched
+- **Missing types:** _none_
+
+### 41. compiler.opt_ctx
 
 - **Target:** `compiler.OptCtx`
 - **Similarity:** 0.71
@@ -806,7 +820,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched (target 4)
 - **Missing types:** _none_
 
-### 41. bc.expr
+### 42. bc.expr
 
 - **Target:** `bc.Expr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.98
@@ -821,7 +835,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/bc/expr.rs` (current: `// port-lint: source src/tests/bc/expr.rs`)
 - **Lint issues:** 1
 
-### 42. type_compiled.type_matcher_factory
+### 43. type_compiled.type_matcher_factory
 
 - **Target:** `typecompiled.TypeMatcherFactory`
 - **Similarity:** 0.69
@@ -832,7 +846,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/3 matched
 - **Missing types:** _none_
 
-### 43. runtime.small_duration
+### 44. runtime.small_duration
 
 - **Target:** `runtime.SmallDuration`
 - **Similarity:** 0.38
@@ -844,9 +858,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Output`
 - **Tests:** 0/1 matched
 
-### 44. typing.typecheck
+### 45. typing.typecheck
 
-- **Target:** `typing.Typecheck`
+- **Target:** `typing.Typecheck [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
 - **Dependents:** 6
 - **Priority Score:** 6030705.0
@@ -855,8 +869,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched (target 3)
 - **Missing types:** _none_
 - **Tests:** 0/2 matched
+- **Provenance warning:** port-lint provenance header matched only by basename: `typecheck.rs` vs expected `typing/typecheck.rs`
+- **Proposed provenance header:** `// port-lint: source typing/typecheck.rs` (current: `// port-lint: source typecheck.rs`)
+- **Lint issues:** 1
 
-### 45. none.none_or
+### 46. none.none_or
 
 - **Target:** `none.NoneOr`
 - **Similarity:** 0.73
@@ -867,7 +884,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 4)
 - **Missing types:** `Canonical`, `Error`
 
-### 46. values.freeze_error
+### 47. values.freeze_error
 
 - **Target:** `values.FreezeError`
 - **Similarity:** 0.42
@@ -878,7 +895,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/4 matched (target 3)
 - **Missing types:** `FreezeResult`
 
-### 47. dict.dict_type
+### 48. dict.dict_type
 
 - **Target:** `dict.DictType`
 - **Similarity:** 0.66
@@ -889,7 +906,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 1)
 - **Missing types:** `Canonical`, `Error`
 
-### 48. layout.value_alloc_size
+### 49. layout.value_alloc_size
 
 - **Target:** `layout.ValueAllocSize`
 - **Similarity:** 0.43
@@ -900,18 +917,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 49. compiler.stmt
+### 50. compiler.stmt
 
-- **Target:** `compiler.Stmt [ZERO]`
-- **Similarity:** 0.00
+- **Target:** `compiler.Stmt`
+- **Similarity:** 0.79
 - **Dependents:** 6
-- **Priority Score:** 6003210.0
+- **Priority Score:** 6003202.0
 - **Functions:** 25/25 matched (target 28)
 - **Missing functions:** _none_
 - **Types:** 7/7 matched (target 24)
 - **Missing types:** _none_
 
-### 50. profile.profiler_type
+### 51. profile.profiler_type
 
 - **Target:** `profile.ProfilerType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.69
@@ -925,7 +942,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/profiler_type.rs` (current: `// port-lint: source src/eval/runtime/profile/profilerType.rs`)
 - **Lint issues:** 1
 
-### 51. types.array
+### 52. types.array
 
 - **Target:** `types.Array`
 - **Similarity:** 0.49
@@ -937,9 +954,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/2 matched
 
-### 52. typing.arc_ty
+### 53. typing.arc_ty
 
-- **Target:** `typing.ArcTy`
+- **Target:** `typing.ArcTy [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.57
 - **Dependents:** 5
 - **Priority Score:** 5021104.5
@@ -947,8 +964,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `fmt`
 - **Types:** 3/4 matched (target 10)
 - **Missing types:** `Target`
+- **Provenance warning:** port-lint provenance header matched only by basename: `arc_ty.rs` vs expected `typing/arc_ty.rs`
+- **Proposed provenance header:** `// port-lint: source typing/arc_ty.rs` (current: `// port-lint: source arc_ty.rs`)
+- **Lint issues:** 1
 
-### 53. tests.def
+### 54. tests.def
 
 - **Target:** `tests.Def [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.95
@@ -963,9 +983,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/def.rs` (current: `// port-lint: source src/tests/def.rs`)
 - **Lint issues:** 1
 
-### 54. typing.interface
+### 55. typing.interface
 
-- **Target:** `typing.Interface`
+- **Target:** `typing.Interface [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
 - **Dependents:** 5
 - **Priority Score:** 5000404.0
@@ -973,8 +993,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 1/1 matched
 - **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `interface.rs` vs expected `typing/interface.rs`
+- **Proposed provenance header:** `// port-lint: source typing/interface.rs` (current: `// port-lint: source interface.rs`)
+- **Lint issues:** 1
 
-### 55. scope.scope_resolver_globals
+### 56. scope.scope_resolver_globals
 
 - **Target:** `scope.ScopeResolverGlobals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.72
@@ -988,7 +1011,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/scope/scope_resolver_globals.rs` (current: `// port-lint: source src/eval/compiler/scope/scopeResolverGlobals.rs`)
 - **Lint issues:** 1
 
-### 56. enumeration.enum_type
+### 57. enumeration.enum_type
 
 - **Target:** `enumeration.EnumType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.64
@@ -1005,7 +1028,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: tests values/types/enumeration/enum_type.rs` (current: `// port-lint: tests src/values/types/enumeration/enumType.rs`)
 - **Lint issues:** 5
 
-### 57. types.starlark_value_as_type
+### 58. types.starlark_value_as_type
 
 - **Target:** `types.StarlarkValueAsType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.21
@@ -1016,22 +1039,25 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/4 matched (target 2)
 - **Missing types:** `Canonical`, `CompilerArgs`
 - **Tests:** 0/5 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/starlarkValueAsType.rs` vs expected `values/types/starlark_value_as_type.rs`
-- **Proposed provenance header:** `// port-lint: source values/types/starlark_value_as_type.rs` (current: `// port-lint: source src/values/types/starlarkValueAsType.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/starlark_value_as_type.rs` vs expected `values/types/starlark_value_as_type.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/starlark_value_as_type.rs` (current: `// port-lint: source src/values/types/starlark_value_as_type.rs`)
 - **Lint issues:** 1
 
-### 58. bc.frame
+### 59. bc.frame
 
-- **Target:** `bc.Frame`
+- **Target:** `bc.Frame [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.58
 - **Dependents:** 4
 - **Priority Score:** 4082604.2
-- **Functions:** 16/24 matched (target 31)
+- **Functions:** 16/24 matched (target 34)
 - **Missing functions:** `eq`, `null`, `is_inititalized`, `frame`, `frame_mut`, `offset_of_slots`, `locals_uninit`, `stack_uninit`
-- **Types:** 2/2 matched
+- **Types:** 2/2 matched (target 3)
 - **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `starlarkSyntax/src/frame.rs` vs expected `eval/bc/frame.rs`
+- **Proposed provenance header:** `// port-lint: source eval/bc/frame.rs` (current: `// port-lint: source starlarkSyntax/src/frame.rs`)
+- **Lint issues:** 1
 
-### 59. values.demand
+### 60. values.demand
 
 - **Target:** `values.Demand`
 - **Similarity:** 0.40
@@ -1043,7 +1069,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `SomeTrait`, `StaticType`, `MyValue`
 - **Tests:** 0/3 matched
 
-### 60. values.value_of
+### 61. values.value_of
 
 - **Target:** `values.ValueOf [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.54
@@ -1057,7 +1083,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/value_of.rs` (current: `// port-lint: source src/values/valueOf.rs`)
 - **Lint issues:** 1
 
-### 61. profile.alloc_counts
+### 62. profile.alloc_counts
 
 - **Target:** `profile.AllocCounts [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -1072,7 +1098,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/profile/alloc_counts.rs` (current: `// port-lint: source src/values/layout/heap/profile/allocCounts.rs`)
 - **Lint issues:** 1
 
-### 62. bc.native_function
+### 63. bc.native_function
 
 - **Target:** `bc.NativeFunction [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.51
@@ -1086,7 +1112,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/native_function.rs` (current: `// port-lint: source src/eval/bc/nativeFunction.rs`)
 - **Lint issues:** 1
 
-### 63. types.ellipsis
+### 64. types.ellipsis
 
 - **Target:** `types.Ellipsis [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.55
@@ -1101,7 +1127,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/ellipsis.rs` (current: `// port-lint: source src/values/types/ellipsis.rs`)
 - **Lint issues:** 1
 
-### 64. record.record_type
+### 65. record.record_type
 
 - **Target:** `record.RecordType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -1116,7 +1142,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/record_type.rs` (current: `// port-lint: source src/values/types/record/recordType.rs`)
 - **Lint issues:** 2
 
-### 65. alloc.chunk
+### 66. alloc.chunk
 
 - **Target:** `alloc.Chunk [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.38
@@ -1131,22 +1157,24 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/chunk.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/chunk.rs`)
 - **Lint issues:** 1
 
-### 66. stdlib.call_stack
+### 67. stdlib.call_stack
 
 - **Target:** `stdlib.CallStack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
 - **Dependents:** 3
 - **Priority Score:** 3061406.0
-- **Functions:** 7/13 matched (target 10)
+- **Functions:** 7/13 matched
 - **Missing functions:** `fmt`, `global`, `test_simple`, `test_strip_one`, `test_strip_all`, `test_call_stack_frame`
-- **Types:** 1/1 matched
+- **Types:** 1/1 matched (target 2)
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/stdlib/callStack.rs` vs expected `stdlib/call_stack.rs`
+- **Provenance warning:** port-lint provenance header matched only by basename: `../starlarkSyntax/src/callStack.rs` vs expected `stdlib/call_stack.rs`
 - **Proposed provenance header:** `// port-lint: source stdlib/call_stack.rs` (current: `// port-lint: source src/stdlib/callStack.rs`)
-- **Lint issues:** 1
+- **Proposed provenance header:** `// port-lint: source stdlib/call_stack.rs` (current: `// port-lint: source ../starlarkSyntax/src/callStack.rs`)
+- **Lint issues:** 2
 
-### 67. errors.did_you_mean
+### 68. errors.did_you_mean
 
 - **Target:** `errors.DidYouMean [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.13
@@ -1161,7 +1189,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source errors/did_you_mean.rs` (current: `// port-lint: source src/errors/didYouMean.rs`)
 - **Lint issues:** 1
 
-### 68. list.alloc
+### 69. list.alloc
 
 - **Target:** `list.Alloc [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -1175,7 +1203,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/alloc.rs` (current: `// port-lint: source src/values/types/list/alloc.rs`)
 - **Lint issues:** 1
 
-### 69. list.list_type
+### 70. list.list_type
 
 - **Target:** `list.ListType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.37
@@ -1189,7 +1217,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/list_type.rs` (current: `// port-lint: source src/values/types/list/listType.rs`)
 - **Lint issues:** 1
 
-### 70. profile.instant
+### 71. profile.instant
 
 - **Target:** `profile.Instant [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.34
@@ -1203,7 +1231,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/instant.rs` (current: `// port-lint: source src/eval/runtime/profile/instant.rs`)
 - **Lint issues:** 1
 
-### 71. values.unpack_and_discard
+### 72. values.unpack_and_discard
 
 - **Target:** `values.UnpackAndDiscard [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.34
@@ -1217,7 +1245,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/unpack_and_discard.rs` (current: `// port-lint: source src/values/unpackAndDiscard.rs`)
 - **Lint issues:** 1
 
-### 72. compiler.constants
+### 73. compiler.constants
 
 - **Target:** `compiler.Constants [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.26
@@ -1232,7 +1260,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/constants.rs` (current: `// port-lint: source src/eval/compiler/constants.rs`)
 - **Lint issues:** 1
 
-### 73. sealed
+### 74. sealed
 
 - **Target:** `starlark.Sealed [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -1246,7 +1274,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source sealed.rs` (current: `// port-lint: source src/sealed.rs`)
 - **Lint issues:** 1
 
-### 74. util.arc_or_static
+### 75. util.arc_or_static
 
 - **Target:** `util.ArcOrStatic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.42
@@ -1260,7 +1288,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source util/arc_or_static.rs` (current: `// port-lint: source src/util/arcOrStatic.rs`)
 - **Lint issues:** 1
 
-### 75. typing.type_type
+### 76. typing.type_type
 
 - **Target:** `typing.TypeType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.27
@@ -1275,7 +1303,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_type.rs` (current: `// port-lint: source src/values/typing/typeType.rs`)
 - **Lint issues:** 1
 
-### 76. alloc.chunk_part
+### 77. alloc.chunk_part
 
 - **Target:** `alloc.ChunkPart [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.74
@@ -1288,20 +1316,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 0/4 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/allocator/alloc/chunkPart.rs` vs expected `values/layout/heap/allocator/alloc/chunk_part.rs`
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/chunk_part.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/chunkPart.rs`)
-- **Lint issues:** 1
-
-### 77. values.owned_frozen_ref
-
-- **Target:** `values.OwnedFrozenRef [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 2
-- **Priority Score:** 2031510.0
-- **Functions:** 10/12 matched (target 17)
-- **Missing functions:** `fmt`, `deref`
-- **Types:** 2/3 matched (target 2)
-- **Missing types:** `Target`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/ownedFrozenRef.rs` vs expected `values/owned_frozen_ref.rs`
-- **Proposed provenance header:** `// port-lint: source values/owned_frozen_ref.rs` (current: `// port-lint: source src/values/ownedFrozenRef.rs`)
 - **Lint issues:** 1
 
 ### 78. compiler.small_vec_1
@@ -1361,7 +1375,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/str_.rs` (current: `// port-lint: source src/values/layout/avalues/str_.rs`)
 - **Lint issues:** 2
 
-### 82. values.stack_guard
+### 82. values.owned_frozen_ref
+
+- **Target:** `values.OwnedFrozenRef [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.72
+- **Dependents:** 2
+- **Priority Score:** 2011502.9
+- **Functions:** 12/12 matched (target 19)
+- **Missing functions:** _none_
+- **Types:** 2/3 matched (target 2)
+- **Missing types:** `Target`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/ownedFrozenRef.rs` vs expected `values/owned_frozen_ref.rs`
+- **Proposed provenance header:** `// port-lint: source values/owned_frozen_ref.rs` (current: `// port-lint: source src/values/ownedFrozenRef.rs`)
+- **Lint issues:** 1
+
+### 83. values.stack_guard
 
 - **Target:** `values.StackGuard [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -1375,12 +1403,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/stack_guard.rs` (current: `// port-lint: source src/values/stackGuard.rs`)
 - **Lint issues:** 1
 
-### 83. collections.aligned_padded_str
+### 84. collections.aligned_padded_str
 
-- **Target:** `collections.AlignedPaddedStr [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `collections.AlignedPaddedStr [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.35
 - **Dependents:** 2
-- **Priority Score:** 2010410.0
+- **Priority Score:** 2010406.5
 - **Functions:** 2/3 matched (target 4)
 - **Missing functions:** `eq`
 - **Types:** 1/1 matched
@@ -1389,7 +1417,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source collections/aligned_padded_str.rs` (current: `// port-lint: source src/collections/alignedPaddedStr.rs`)
 - **Lint issues:** 1
 
-### 84. profile.string_index
+### 85. profile.string_index
 
 - **Target:** `profile.StringIndex [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.68
@@ -1403,7 +1431,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/profile/string_index.rs` (current: `// port-lint: source src/values/layout/heap/profile/stringIndex.rs`)
 - **Lint issues:** 1
 
-### 85. runtime.file_loader
+### 86. runtime.file_loader
 
 - **Target:** `runtime.FileLoader [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.70
@@ -1413,11 +1441,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 3/3 matched
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/fileLoader.rs` vs expected `eval/runtime/file_loader.rs`
-- **Proposed provenance header:** `// port-lint: source eval/runtime/file_loader.rs` (current: `// port-lint: source src/eval/runtime/fileLoader.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/file_loader.rs` vs expected `eval/runtime/file_loader.rs`
+- **Proposed provenance header:** `// port-lint: source eval/runtime/file_loader.rs` (current: `// port-lint: source src/eval/runtime/file_loader.rs`)
 - **Lint issues:** 1
 
-### 86. collections.string_pool
+### 87. collections.string_pool
 
 - **Target:** `collections.StringPool [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
@@ -1427,11 +1455,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 1/1 matched
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/collections/stringPool.rs` vs expected `collections/string_pool.rs`
-- **Proposed provenance header:** `// port-lint: source collections/string_pool.rs` (current: `// port-lint: source src/collections/stringPool.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/collections/string_pool.rs` vs expected `collections/string_pool.rs`
+- **Proposed provenance header:** `// port-lint: source collections/string_pool.rs` (current: `// port-lint: source src/collections/string_pool.rs`)
 - **Lint issues:** 1
 
-### 87. def_inline.local_as_value
+### 88. def_inline.local_as_value
 
 - **Target:** `definline.LocalAsValue [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
@@ -1445,7 +1473,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/def_inline/local_as_value.rs` (current: `// port-lint: source src/eval/compiler/defInline/localAsValue.rs`)
 - **Lint issues:** 1
 
-### 88. hint
+### 89. hint
 
 - **Target:** `starlark.Hint [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.92
@@ -1459,7 +1487,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source hint.rs` (current: `// port-lint: source src/hint.rs`)
 - **Lint issues:** 1
 
-### 89. stdlib
+### 90. stdlib
 
 - **Target:** `starlark.Stdlib [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.12
@@ -1474,12 +1502,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib.rs` (current: `// port-lint: source src/stdlib.rs`)
 - **Lint issues:** 1
 
-### 90. heap.arena
+### 91. heap.arena
 
-- **Target:** `heap.Arena [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `heap.Arena [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.46
 - **Dependents:** 1
-- **Priority Score:** 1124410.0
+- **Priority Score:** 1124405.4
 - **Functions:** 26/37 matched (target 33)
 - **Missing functions:** `max`, `drop`, `visit`, `visit_bump`, `to_repr`, `mk_str`, `reserve_str`, `test_trait_arena_iteration`, `drop_with_blackhole`, `test_allocated_summary`, `test_is_empty`
 - **Types:** 6/7 matched (target 8)
@@ -1489,7 +1517,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/arena.rs` (current: `// port-lint: source src/values/layout/heap/arena.rs`)
 - **Lint issues:** 1
 
-### 91. string.interpolation
+### 92. string.interpolation
 
 - **Target:** `string.Interpolation [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.26
@@ -1504,7 +1532,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/interpolation.rs` (current: `// port-lint: source src/values/types/string/interpolation.rs`)
 - **Lint issues:** 1
 
-### 92. layout.pointer
+### 93. layout.pointer
 
 - **Target:** `layout.Pointer [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.47
@@ -1519,7 +1547,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/pointer.rs` (current: `// port-lint: source src/values/layout/pointer.rs`)
 - **Lint issues:** 1
 
-### 93. collections.alloca
+### 94. collections.alloca
 
 - **Target:** `collections.Alloca [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.38
@@ -1534,7 +1562,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source collections/alloca.rs` (current: `// port-lint: source src/collections/alloca.rs`)
 - **Lint issues:** 4
 
-### 94. stdlib.breakpoint
+### 95. stdlib.breakpoint
 
 - **Target:** `stdlib.Breakpoint [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.45
@@ -1549,7 +1577,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/breakpoint.rs` (current: `// port-lint: source src/stdlib/breakpoint.rs`)
 - **Lint issues:** 1
 
-### 95. types.any_complex
+### 96. types.any_complex
 
 - **Target:** `types.AnyComplex [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.42
@@ -1560,11 +1588,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/5 matched (target 1)
 - **Missing types:** `Canonical`, `UnfrozenData`, `Frozen`, `FrozenData`
 - **Tests:** 0/2 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/anyComplex.rs` vs expected `values/types/any_complex.rs`
-- **Proposed provenance header:** `// port-lint: source values/types/any_complex.rs` (current: `// port-lint: source src/values/types/anyComplex.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/any_complex.rs` vs expected `values/types/any_complex.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/any_complex.rs` (current: `// port-lint: source src/values/types/any_complex.rs`)
 - **Lint issues:** 1
 
-### 96. types.any_array
+### 97. types.any_array
 
 - **Target:** `types.AnyArray [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.19
@@ -1575,11 +1603,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 1)
 - **Missing types:** `Canonical`, `IncrementOnDrop`
 - **Tests:** 0/2 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/anyArray.rs` vs expected `values/types/any_array.rs`
-- **Proposed provenance header:** `// port-lint: source values/types/any_array.rs` (current: `// port-lint: source src/values/types/anyArray.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/any_array.rs` vs expected `values/types/any_array.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/any_array.rs` (current: `// port-lint: source src/values/types/any_array.rs`)
 - **Lint issues:** 1
 
-### 97. types.list_or_tuple
+### 98. types.list_or_tuple
 
 - **Target:** `types.ListOrTuple [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.21
@@ -1594,7 +1622,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list_or_tuple.rs` (current: `// port-lint: source src/values/types/listOrTuple.rs`)
 - **Lint issues:** 1
 
-### 98. string.dot_format
+### 99. string.dot_format
 
 - **Target:** `string.DotFormat [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
@@ -1609,7 +1637,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/dot_format.rs` (current: `// port-lint: source src/values/types/string/dotFormat.rs`)
 - **Lint issues:** 1
 
-### 99. util.rtabort
+### 100. util.rtabort
 
 - **Target:** `util.Rtabort [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.26
@@ -1624,7 +1652,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source util/rtabort.rs` (current: `// port-lint: source src/util/rtabort.rs`)
 - **Lint issues:** 1
 
-### 100. bc.if_debug
+### 101. bc.if_debug
 
 - **Target:** `bc.IfDebug [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -1638,7 +1666,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/if_debug.rs` (current: `// port-lint: source src/eval/bc/ifDebug.rs`)
 - **Lint issues:** 1
 
-### 101. util.non_static_type_id
+### 102. util.non_static_type_id
 
 - **Target:** `util.NonStaticTypeId [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.05
@@ -1653,7 +1681,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source util/non_static_type_id.rs` (current: `// port-lint: source src/util/nonStaticTypeId.rs`)
 - **Lint issues:** 1
 
-### 102. runtime.cheap_call_stack
+### 103. runtime.cheap_call_stack
 
 - **Target:** `runtime.CheapCallStack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.73
@@ -1667,12 +1695,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/cheap_call_stack.rs` (current: `// port-lint: source src/eval/runtime/cheapCallStack.rs`)
 - **Lint issues:** 1
 
-### 103. avalues.simple
+### 104. avalues.simple
 
-- **Target:** `avalues.Simple [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `avalues.Simple [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.70
 - **Dependents:** 1
-- **Priority Score:** 1021110.0
+- **Priority Score:** 1021102.9
 - **Functions:** 8/8 matched (target 10)
 - **Missing functions:** _none_
 - **Types:** 1/3 matched (target 1)
@@ -1681,7 +1709,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/simple.rs` (current: `// port-lint: source src/values/layout/avalues/simple.rs`)
 - **Lint issues:** 1
 
-### 104. layout.value_captured
+### 105. layout.value_captured
 
 - **Target:** `layout.ValueCaptured [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.80
@@ -1695,7 +1723,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/value_captured.rs` (current: `// port-lint: source src/values/layout/valueCaptured.rs`)
 - **Lint issues:** 1
 
-### 105. record.field
+### 106. record.field
 
 - **Target:** `record.Field [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.61
@@ -1709,33 +1737,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/field.rs` (current: `// port-lint: source src/values/types/record/field.rs`)
 - **Lint issues:** 1
 
-### 106. typing.bindings
+### 107. typing.bindings
 
-- **Target:** `typing.Bindings [STUB] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `typing.Bindings [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.69
 - **Dependents:** 1
-- **Priority Score:** 1011110.0
+- **Priority Score:** 1011103.1
 - **Functions:** 7/8 matched (target 18)
 - **Missing functions:** `get_for_clause`
 - **Types:** 3/3 matched (target 18)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/bindings.rs` vs expected `typing/bindings.rs`
-- **Proposed provenance header:** `// port-lint: source typing/bindings.rs` (current: `// port-lint: source src/typing/bindings.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `bindings.rs` vs expected `typing/bindings.rs`
+- **Proposed provenance header:** `// port-lint: source typing/bindings.rs` (current: `// port-lint: source bindings.rs`)
 - **Lint issues:** 2
-
-### 107. typing.structs
-
-- **Target:** `typing.Structs [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.63
-- **Dependents:** 1
-- **Priority Score:** 1011003.7
-- **Functions:** 7/8 matched (target 9)
-- **Missing functions:** `fmt`
-- **Types:** 2/2 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/structs.rs` vs expected `typing/structs.rs`
-- **Proposed provenance header:** `// port-lint: source typing/structs.rs` (current: `// port-lint: source src/typing/structs.rs`)
-- **Lint issues:** 1
 
 ### 108. structs.unordered_hasher
 
@@ -1793,9 +1807,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 3/3 matched
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/function.rs` vs expected `typing/function.rs`
-- **Proposed provenance header:** `// port-lint: source typing/function.rs` (current: `// port-lint: source src/typing/function.rs`)
-- **Lint issues:** 1
+- **Provenance warning:** port-lint provenance header matched only by basename: `function.rs` vs expected `typing/function.rs`
+- **Proposed provenance header:** `// port-lint: source typing/function.rs` (current: `// port-lint: source function.rs`)
+- **Lint issues:** 6
 
 ### 112. heap.fast_cell
 
@@ -1825,7 +1839,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/lint_message.rs` (current: `// port-lint: source src/analysis/lintMessage.rs`)
 - **Lint issues:** 1
 
-### 114. bc.instr_impl
+### 114. tests
+
+- **Target:** `typing.Tests [ZERO]`
+- **Similarity:** 0.00
+- **Dependents:** 1
+- **Priority Score:** 1000010.0
+- **Functions:** 0/0 matched (target 24)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 3)
+- **Missing types:** _none_
+
+### 115. bc.instr_impl
 
 - **Target:** `bc.InstrImpl [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.83
@@ -1839,7 +1864,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/instr_impl.rs` (current: `// port-lint: source src/eval/bc/instrImpl.rs`)
 - **Lint issues:** 20
 
-### 115. set.methods
+### 116. set.methods
 
 - **Target:** `set.Methods [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.19
@@ -1854,7 +1879,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/set/methods.rs` (current: `// port-lint: source src/values/types/set/methods.rs`)
 - **Lint issues:** 2
 
-### 116. int.int_or_big
+### 117. int.int_or_big
 
 - **Target:** `int.IntOrBig [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.30
@@ -1869,12 +1894,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/int/int_or_big.rs` (current: `// port-lint: source src/values/types/int/intOrBig.rs`)
 - **Lint issues:** 1
 
-### 117. set.value
+### 118. set.value
 
-- **Target:** `set.Value [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `set.Value [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.46
 - **Dependents:** 0
-- **Priority Score:** 255910.0
+- **Priority Score:** 255905.3
 - **Functions:** 30/50 matched (target 43)
 - **Missing functions:** `fmt`, `test_bit_or`, `test_bit_or_lhs_empty`, `test_bit_or_rhs_empty`, `test_bit_or_fail_iter`, `test_bit_or_ord`, `test_bit_and`, `test_bit_and_lhs_empty`, `test_bit_and_rhs_empty`, `test_bit_and_ord`, `test_bit_and_fail_iter`, `test_bit_xor`, `test_bit_xor_ord`, `test_bit_xor_lhs_empty`, `test_bit_xor_rhs_empty`, `test_bit_xor_fail_iter`, `test_sub`, `test_sub_empty_lhs`, `test_sub_empty_rhs`, `test_sub_fail_iter`
 - **Types:** 4/9 matched (target 6)
@@ -1884,7 +1909,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/set/value.rs` (current: `// port-lint: source src/values/types/set/value.rs`)
 - **Lint issues:** 1
 
-### 118. values.typing.callable
+### 119. values.typing.callable
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.values.typing.Callable [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
@@ -1899,12 +1924,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/callable.rs` (current: `// port-lint: source src/values/typing/callable.rs`)
 - **Lint issues:** 1
 
-### 119. string.str_type
+### 120. string.str_type
 
-- **Target:** `string.StrType [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `string.StrType [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.27
 - **Dependents:** 0
-- **Priority Score:** 225110.0
+- **Priority Score:** 225107.3
 - **Functions:** 28/47 matched (target 59)
 - **Missing functions:** `freeze`, `deref`, `eq`, `partial_cmp`, `cmp`, `fmt`, `new`, `serialize`, `test_string_corruption`, `test_escape_characters`, `test_string_hash`, `test_zero_length_string_hash_is_not_zero`, `test_string_len`, `test_arithmetic_on_string`, `test_slice_string`, `test_string_is_in`, `test_successive_add`, `test_string_index`, `test_str`
 - **Types:** 1/4 matched (target 1)
@@ -1914,7 +1939,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/str_type.rs` (current: `// port-lint: source src/values/types/string/strType.rs`)
 - **Lint issues:** 1
 
-### 120. adapter.tests
+### 121. adapter.tests
 
 - **Target:** `tests.Tests [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
@@ -1929,7 +1954,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source debug/adapter/tests.rs` (current: `// port-lint: source src/debug/adapter/tests.rs`)
 - **Lint issues:** 1
 
-### 121. typing.user
+### 122. tests.call
+
+- **Target:** `commonTest.kotlin.io.github.kotlinmania.starlark.typing.tests.Call`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 181810.0
+- **Functions:** 0/18 matched (target 9)
+- **Missing functions:** `funcall_test`, `f`, `funcall_extra_args_def`, `test_repeated_parameters`, `test_bad_application`, `test_extra_args_native`, `test_insufficient_args_native`, `test_parameter_defaults`, `test_parameter_defaults_frozen`, `test_arguments`, `test_argument_evaluation_order`, `test_empty_args_kwargs`, `test_non_optional_after_optional`, `test_pos_only_pass`, `test_pos_only_fail`, `test_frame_size`, `natives`, `stack_ptr`
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Tests:** 0/15 matched
+
+### 123. typing.user
 
 - **Target:** `typing.User [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.32
@@ -1940,11 +1977,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 5/8 matched
 - **Missing types:** `AbstractPlant`, `FruitCallable`, `Fruit`
 - **Tests:** 0/10 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/user.rs` vs expected `typing/user.rs`
-- **Proposed provenance header:** `// port-lint: source typing/user.rs` (current: `// port-lint: source src/typing/user.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `user.rs` vs expected `typing/user.rs`
+- **Proposed provenance header:** `// port-lint: source typing/user.rs` (current: `// port-lint: source user.rs`)
 - **Lint issues:** 1
 
-### 122. analysis.names
+### 124. analysis.names
 
 - **Target:** `analysis.Names [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.46
@@ -1959,7 +1996,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/names.rs` (current: `// port-lint: source src/analysis/names.rs`)
 - **Lint issues:** 1
 
-### 123. float.float
+### 125. float.float
 
 - **Target:** `float.Float [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.68
@@ -1974,7 +2011,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/float/float.rs` (current: `// port-lint: source src/values/types/float/float.rs`)
 - **Lint issues:** 1
 
-### 124. layout.typed
+### 126. layout.typed
 
 - **Target:** `layout.ValueTyped [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.48
@@ -1989,7 +2026,35 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/typed.rs` (current: `// port-lint: source src/values/layout/typed.rs`)
 - **Lint issues:** 1
 
-### 125. list.value
+### 127. scope.payload
+
+- **Target:** `scope.Payload [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.50
+- **Dependents:** 0
+- **Priority Score:** 152405.0
+- **Functions:** 6/7 matched (target 21)
+- **Missing functions:** `from_ast`
+- **Types:** 3/17 matched (target 3)
+- **Missing types:** `LoadPayload`, `IdentPayload`, `IdentAssignPayload`, `DefPayload`, `TypeExprPayload`, `CstStmtFromAst`, `CstAssignIdentExt`, `CstExpr`, `CstTypeExpr`, `CstAssignTarget`, `CstAssignIdent`, `CstIdent`, `CstParameter`, `CstStmt`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/compiler/scope/payload.rs` vs expected `eval/compiler/scope/payload.rs`
+- **Proposed provenance header:** `// port-lint: source eval/compiler/scope/payload.rs` (current: `// port-lint: source src/eval/compiler/scope/payload.rs`)
+- **Lint issues:** 4
+
+### 128. typing.error
+
+- **Target:** `starlark.Error [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 141410.0
+- **Functions:** 0/9 matched (target 19)
+- **Missing functions:** `msg`, `from_diagnostic`, `from_eval_exception`, `from_error`, `into_error`, `into_eval_exception`, `new`, `new_anyhow`, `from`
+- **Types:** 0/5 matched (target 12)
+- **Missing types:** `InternalError`, `TypingError`, `TypingNoContextError`, `TypingOrInternalError`, `TypingNoContextOrInternalError`
+- **Provenance warning:** port-lint provenance header matched only by basename: `starlarkSyntax/src/error.rs` vs expected `typing/error.rs`
+- **Proposed provenance header:** `// port-lint: source typing/error.rs` (current: `// port-lint: source starlarkSyntax/src/error.rs`)
+- **Lint issues:** 1
+
+### 129. list.value
 
 - **Target:** `list.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.58
@@ -2004,12 +2069,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/value.rs` (current: `// port-lint: source src/values/types/list/value.rs`)
 - **Lint issues:** 1
 
-### 126. dict.value
+### 130. dict.value
 
-- **Target:** `dict.Value [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `dict.Value [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.58
 - **Dependents:** 0
-- **Priority Score:** 136210.0
+- **Priority Score:** 136204.2
 - **Functions:** 44/52 matched (target 67)
 - **Missing functions:** `fmt`, `hash`, `get_type_value_static`, `_assert_coerce`, `dict_methods`, `test_mutate_dict`, `test_get_str`, `test_repr_cycle`
 - **Types:** 5/10 matched (target 8)
@@ -2017,9 +2082,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 0/3 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/dict/value.rs` vs expected `values/types/dict/value.rs`
 - **Proposed provenance header:** `// port-lint: source values/types/dict/value.rs` (current: `// port-lint: source src/values/types/dict/value.rs`)
-- **Lint issues:** 2
+- **Lint issues:** 1
 
-### 127. num.value
+### 131. num.value
 
 - **Target:** `num.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -2034,22 +2099,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/num/value.rs` (current: `// port-lint: source src/values/types/num/value.rs`)
 - **Lint issues:** 1
 
-### 128. stdlib.extra
-
-- **Target:** `stdlib.Extra [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.13
-- **Dependents:** 0
-- **Priority Score:** 122008.7
-- **Functions:** 5/16 matched (target 19)
-- **Missing functions:** `fmt`, `print`, `pprint`, `pstr`, `prepr`, `test_filter`, `test_map`, `test_debug`, `test_print`, `test_pstr`, `test_prepr`
-- **Types:** 3/4 matched (target 3)
-- **Missing types:** `PrintHandlerImpl`
-- **Tests:** 0/6 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/stdlib/extra.rs` vs expected `stdlib/extra.rs`
-- **Proposed provenance header:** `// port-lint: source stdlib/extra.rs` (current: `// port-lint: source src/stdlib/extra.rs`)
-- **Lint issues:** 1
-
-### 129. analysis
+### 132. analysis
 
 - **Target:** `starlark.Analysis [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2064,13 +2114,13 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis.rs` (current: `// port-lint: source src/analysis.rs`)
 - **Lint issues:** 1
 
-### 130. heap.heap_type
+### 133. heap.heap_type
 
-- **Target:** `heap.HeapType [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `heap.HeapType [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.60
 - **Dependents:** 0
-- **Priority Score:** 115510.0
-- **Functions:** 37/47 matched (target 59)
+- **Priority Score:** 115504.0
+- **Functions:** 37/47 matched (target 60)
 - **Missing functions:** `fmt`, `_test_frozen_heap_ref_send_sync`, `hash`, `eq`, `test_send_sync`, `test_string_reallocated_on_heap`, `test_interned_string_equal`, `validate_str_interning`, `append_x`, `test_interned_str_starlark`
 - **Types:** 7/8 matched
 - **Missing types:** `FrozenHeapName`
@@ -2079,7 +2129,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/heap_type.rs` (current: `// port-lint: source src/values/layout/heap/heapType.rs`)
 - **Lint issues:** 2
 
-### 131. tests.markdown
+### 134. tests.markdown
 
 - **Target:** `tests.Markdown [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2094,22 +2144,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source docs/tests/markdown.rs` (current: `// port-lint: source src/docs/tests/markdown.rs`)
 - **Lint issues:** 1
 
-### 132. pagable.vtable_registry
-
-- **Target:** `pagable.VtableRegistry [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.18
-- **Dependents:** 0
-- **Priority Score:** 111708.2
-- **Functions:** 4/13 matched (target 8)
-- **Missing functions:** `registered_type_ids`, `test_simple_type_is_registered`, `test_complex_type_frozen_is_registered`, `test_lookup_nonexistent_type`, `test_starlark_str_is_registered`, `test_frozen_tuple_is_registered`, `test_frozen_list_is_registered`, `test_type_compiled_non_generic_matcher_is_registered`, `test_type_compiled_generic_matcher_is_registered`
-- **Types:** 2/4 matched (target 2)
-- **Missing types:** `TestSimpleType`, `TestComplexGen`
-- **Tests:** 0/9 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/pagable/vtableRegistry.rs` vs expected `pagable/vtable_registry.rs`
-- **Proposed provenance header:** `// port-lint: source pagable/vtable_registry.rs` (current: `// port-lint: source src/pagable/vtableRegistry.rs`)
-- **Lint issues:** 1
-
-### 133. record.globals
+### 135. record.globals
 
 - **Target:** `record.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.06
@@ -2124,7 +2159,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/globals.rs` (current: `// port-lint: source src/values/types/record/globals.rs`)
 - **Lint issues:** 1
 
-### 134. tests.uncategorized
+### 136. tests.uncategorized
 
 - **Target:** `tests.Uncategorized [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.73
@@ -2139,7 +2174,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/uncategorized.rs` (current: `// port-lint: source src/tests/uncategorized.rs`)
 - **Lint issues:** 2
 
-### 135. alloc.chain
+### 137. alloc.chain
 
 - **Target:** `alloc.Chain [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.38
@@ -2154,7 +2189,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/chain.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/chain.rs`)
 - **Lint issues:** 1
 
-### 136. range.range_type
+### 138. range.range_type
 
 - **Target:** `range.RangeType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.59
@@ -2169,13 +2204,13 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/range/range_type.rs` (current: `// port-lint: source src/values/types/range/rangeType.rs`)
 - **Lint issues:** 2
 
-### 137. stdlib.partial
+### 139. stdlib.partial
 
 - **Target:** `stdlib.Partial [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.20
 - **Dependents:** 0
 - **Priority Score:** 101708.0
-- **Functions:** 4/12 matched (target 7)
+- **Functions:** 4/12 matched (target 8)
 - **Missing functions:** `partial`, `fmt`, `eq`, `test_simple`, `test_star_to_partial`, `test_start_to_returned_func`, `test_no_args_to_partial`, `test_typecheck_bug`
 - **Types:** 3/5 matched (target 3)
 - **Missing types:** `Frozen`, `Canonical`
@@ -2184,7 +2219,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/partial.rs` (current: `// port-lint: source src/stdlib/partial.rs`)
 - **Lint issues:** 2
 
-### 138. typing.small_arc_vec_or_static
+### 140. pagable.vtable_registry
+
+- **Target:** `pagable.VtableRegistry [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.63
+- **Dependents:** 0
+- **Priority Score:** 101703.7
+- **Functions:** 4/13 matched (target 16)
+- **Missing functions:** `registered_type_ids`, `test_simple_type_is_registered`, `test_complex_type_frozen_is_registered`, `test_lookup_nonexistent_type`, `test_starlark_str_is_registered`, `test_frozen_tuple_is_registered`, `test_frozen_list_is_registered`, `test_type_compiled_non_generic_matcher_is_registered`, `test_type_compiled_generic_matcher_is_registered`
+- **Types:** 3/4 matched (target 9)
+- **Missing types:** `TestComplexGen`
+- **Tests:** 0/9 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `pagable/vtableRegistry.rs` vs expected `pagable/vtable_registry.rs`
+- **Proposed provenance header:** `// port-lint: source pagable/vtable_registry.rs` (current: `// port-lint: source pagable/vtableRegistry.rs`)
+- **Lint issues:** 1
+
+### 141. typing.small_arc_vec_or_static
 
 - **Target:** `typing.SmallArcVecOrStatic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.25
@@ -2198,7 +2248,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/small_arc_vec_or_static.rs` (current: `// port-lint: source src/typing/smallArcVecOrStatic.rs`)
 - **Lint issues:** 1
 
-### 139. stdlib.json
+### 142. stdlib.json
 
 - **Target:** `stdlib.Json [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.04
@@ -2213,7 +2263,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/json.rs` (current: `// port-lint: source src/stdlib/json.rs`)
 - **Lint issues:** 1
 
-### 140. tuple.value
+### 143. tuple.value
 
 - **Target:** `tuple.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -2228,7 +2278,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/value.rs` (current: `// port-lint: source src/values/types/tuple/value.rs`)
 - **Lint issues:** 1
 
-### 141. tests.rustdocs
+### 144. tests.rustdocs
 
 - **Target:** `tests.Rustdocs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.20
@@ -2243,7 +2293,36 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source docs/tests/rustdocs.rs` (current: `// port-lint: source src/docs/tests/rustdocs.rs`)
 - **Lint issues:** 1
 
-### 142. type_compiled.compiled
+### 145. typing.callable
+
+- **Target:** `tests.Callable [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 90910.0
+- **Functions:** 0/7 matched (target 2)
+- **Missing functions:** `new`, `validate_call`, `params`, `result`, `any`, `fmt_with_config`, `fmt`
+- **Types:** 0/2 matched (target 1)
+- **Missing types:** `TyCallableInner`, `TyCallable`
+- **Provenance warning:** port-lint provenance header matched only by basename: `callable.rs` vs expected `typing/callable.rs`
+- **Proposed provenance header:** `// port-lint: source typing/callable.rs` (current: `// port-lint: source callable.rs`)
+- **Lint issues:** 1
+
+### 146. typing.tests.call
+
+- **Target:** `tests.Call [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 90910.0
+- **Functions:** 0/9 matched (target 17)
+- **Missing functions:** `test_type_kwargs`, `test_types_of_args_kwargs`, `test_kwargs_in_native_code`, `test_call_callable`, `test_call_not_callable`, `test_call_callable_or_not_callable`, `test_calls`, `test_never_call_bug`, `test_call_pos_only`
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Tests:** 0/9 matched
+- **Provenance warning:** port-lint provenance header matched only by basename: `src/tests/call.rs` vs expected `typing/tests/call.rs`
+- **Proposed provenance header:** `// port-lint: source typing/tests/call.rs` (current: `// port-lint: source src/tests/call.rs`)
+- **Lint issues:** 1
+
+### 147. type_compiled.compiled
 
 - **Target:** `typecompiled.Compiled [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
@@ -2257,12 +2336,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/compiled.rs` (current: `// port-lint: source src/values/typing/typeCompiled/compiled.rs`)
 - **Lint issues:** 2
 
-### 143. thin_box_slice_frozen_value.thin_box
+### 148. thin_box_slice_frozen_value.thin_box
 
-- **Target:** `thinboxslicefrozenvalue.ThinBox [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `thinboxslicefrozenvalue.ThinBox [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.46
 - **Dependents:** 0
-- **Priority Score:** 83210.0
+- **Priority Score:** 83205.4
 - **Functions:** 22/29 matched (target 28)
 - **Missing functions:** `deref`, `deref_mut`, `fmt`, `eq`, `partial_cmp`, `hash`, `visit`
 - **Types:** 2/3 matched
@@ -2274,7 +2353,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/thin_box_slice_frozen_value/thin_box.rs` (current: `// port-lint: source src/values/thinBoxSliceFrozenValue/thinBox.rs`)
 - **Lint issues:** 2
 
-### 144. profile.bc
+### 149. profile.bc
 
 - **Target:** `profile.Bc [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.64
@@ -2289,7 +2368,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/bc.rs` (current: `// port-lint: source src/eval/runtime/profile/bc.rs`)
 - **Lint issues:** 1
 
-### 145. bc.instrs
+### 150. bc.instrs
 
 - **Target:** `bc.Instrs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
@@ -2304,7 +2383,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/instrs.rs` (current: `// port-lint: source src/eval/bc/instrs.rs`)
 - **Lint issues:** 1
 
-### 146. analysis.flow
+### 151. analysis.flow
 
 - **Target:** `analysis.Flow [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.48
@@ -2319,21 +2398,37 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/flow.rs` (current: `// port-lint: source src/analysis/flow.rs`)
 - **Lint issues:** 1
 
-### 147. scope.payload
+### 152. alloc.allocator
 
-- **Target:** `scope.Payload [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.50
+- **Target:** `alloc.Allocator [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.40
 - **Dependents:** 0
-- **Priority Score:** 82405.0
-- **Functions:** 6/7 matched (target 21)
-- **Missing functions:** `from_ast`
-- **Types:** 10/17 matched (target 10)
-- **Missing types:** `LoadPayload`, `IdentPayload`, `IdentAssignPayload`, `DefPayload`, `TypeExprPayload`, `CstStmtFromAst`, `CstAssignIdentExt`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/compiler/scope/payload.rs` vs expected `eval/compiler/scope/payload.rs`
-- **Proposed provenance header:** `// port-lint: source eval/compiler/scope/payload.rs` (current: `// port-lint: source src/eval/compiler/scope/payload.rs`)
-- **Lint issues:** 4
+- **Priority Score:** 82106.0
+- **Functions:** 11/18 matched (target 15)
+- **Missing functions:** `fmt`, `default`, `drop`, `test_small`, `test_big`, `random_iteration`, `test_many`
+- **Types:** 2/3 matched (target 2)
+- **Missing types:** `Item`
+- **Tests:** 0/4 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/allocator/alloc/allocator.rs` vs expected `values/layout/heap/allocator/alloc/allocator.rs`
+- **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/allocator.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs`)
+- **Lint issues:** 1
 
-### 148. tests.runtime
+### 153. stdlib.extra
+
+- **Target:** `stdlib.Extra [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.26
+- **Dependents:** 0
+- **Priority Score:** 82007.4
+- **Functions:** 9/16 matched (target 19)
+- **Missing functions:** `fmt`, `test_filter`, `test_map`, `test_debug`, `test_print`, `test_pstr`, `test_prepr`
+- **Types:** 3/4 matched (target 3)
+- **Missing types:** `PrintHandlerImpl`
+- **Tests:** 0/6 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/stdlib/extra.rs` vs expected `stdlib/extra.rs`
+- **Proposed provenance header:** `// port-lint: source stdlib/extra.rs` (current: `// port-lint: source src/stdlib/extra.rs`)
+- **Lint issues:** 1
+
+### 154. tests.runtime
 
 - **Target:** `tests.Runtime [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -2348,7 +2443,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/runtime.rs` (current: `// port-lint: source src/tests/runtime.rs`)
 - **Lint issues:** 1
 
-### 149. typing.small_arc_vec
+### 155. typing.small_arc_vec
 
 - **Target:** `typing.SmallArcVec [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -2362,7 +2457,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/small_arc_vec.rs` (current: `// port-lint: source src/typing/smallArcVec.rs`)
 - **Lint issues:** 1
 
-### 150. module.unpack_value
+### 156. module.unpack_value
 
 - **Target:** `module.UnpackValue [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -2377,7 +2472,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/unpack_value.rs` (current: `// port-lint: source src/tests/derive/module/unpackValue.rs`)
 - **Lint issues:** 1
 
-### 151. profile.aggregated
+### 157. heap.send
+
+- **Target:** `heap.Send [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 81110.0
+- **Functions:** 0/5 matched (target 0)
+- **Missing functions:** `new`, `into_inner`, `deref`, `deref_mut`, `fmt`
+- **Types:** 3/6 matched (target 5)
+- **Missing types:** `DynStarlark`, `Target`, `StaticType`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/send.rs` vs expected `values/layout/heap/send.rs`
+- **Proposed provenance header:** `// port-lint: source values/layout/heap/send.rs` (current: `// port-lint: source src/values/layout/heap/send.rs`)
+- **Lint issues:** 1
+
+### 158. profile.aggregated
 
 - **Target:** `profile.Aggregated [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -2392,7 +2501,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/profile/aggregated.rs` (current: `// port-lint: source src/values/layout/heap/profile/aggregated.rs`)
 - **Lint issues:** 1
 
-### 152. funcs.other
+### 159. funcs.other
 
 - **Target:** `funcs.Other [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2407,7 +2516,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/funcs/other.rs` (current: `// port-lint: source src/stdlib/funcs/other.rs`)
 - **Lint issues:** 1
 
-### 153. typed.string
+### 160. typed.string
 
 - **Target:** `typed.String [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
@@ -2422,7 +2531,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/typed/string.rs` (current: `// port-lint: source src/values/layout/typed/string.rs`)
 - **Lint issues:** 2
 
-### 154. dict.methods
+### 161. dict.methods
 
 - **Target:** `dict.Methods [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2437,7 +2546,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/dict/methods.rs` (current: `// port-lint: source src/values/types/dict/methods.rs`)
 - **Lint issues:** 2
 
-### 155. layout.complex
+### 162. layout.complex
 
 - **Target:** `layout.Complex [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.34
@@ -2452,7 +2561,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/complex.rs` (current: `// port-lint: source src/values/layout/complex.rs`)
 - **Lint issues:** 1
 
-### 156. docs.parse
+### 163. docs.parse
 
 - **Target:** `docs.Parse [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.38
@@ -2467,7 +2576,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source docs/parse.rs` (current: `// port-lint: source src/docs/parse.rs`)
 - **Lint issues:** 1
 
-### 157. string.simd
+### 164. string.simd
 
 - **Target:** `string.Simd [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.02
@@ -2481,7 +2590,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/simd.rs` (current: `// port-lint: source src/values/types/string/simd.rs`)
 - **Lint issues:** 1
 
-### 158. bigint.convert
+### 165. bigint.convert
 
 - **Target:** `bigint.Convert [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -2496,7 +2605,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bigint/convert.rs` (current: `// port-lint: source src/values/types/bigint/convert.rs`)
 - **Lint issues:** 1
 
-### 159. record.ty_record_type
+### 166. record.ty_record_type
 
 - **Target:** `record.TyRecordType [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2511,7 +2620,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/ty_record_type.rs` (current: `// port-lint: source src/values/types/record/tyRecordType.rs`)
 - **Lint issues:** 1
 
-### 160. compiler.scope
+### 167. compiler.scope
 
 - **Target:** `compiler.Scope [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.77
@@ -2525,12 +2634,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/scope.rs` (current: `// port-lint: source src/eval/compiler/scope.rs`)
 - **Lint issues:** 1
 
-### 161. assert.assert
+### 168. assert.assert
 
-- **Target:** `assert.Assert [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `assert.Assert [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.82
 - **Dependents:** 0
-- **Priority Score:** 65210.0
+- **Priority Score:** 65201.8
 - **Functions:** 44/50 matched (target 72)
 - **Missing functions:** `r#true`, `new`, `fail_golden`, `fail_skip_typecheck`, `fails_skip_typecheck`, `is_true_skip_typecheck`
 - **Types:** 2/2 matched
@@ -2540,7 +2649,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source assert/assert.rs` (current: `// port-lint: source src/assert/assert.rs`)
 - **Lint issues:** 1
 
-### 162. string.repr
+### 169. string.repr
 
 - **Target:** `string.Repr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
@@ -2557,7 +2666,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/repr.rs` (current: `// port-lint: source src/values/types/string/repr.rs`)
 - **Lint issues:** 2
 
-### 163. structs.value
+### 170. structs.value
 
 - **Target:** `structs.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
@@ -2572,12 +2681,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/structs/value.rs` (current: `// port-lint: source src/values/types/structs/value.rs`)
 - **Lint issues:** 1
 
-### 164. thin_box_slice_frozen_value.packed_impl
+### 171. thin_box_slice_frozen_value.packed_impl
 
-- **Target:** `thinboxslicefrozenvalue.PackedImpl [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `thinboxslicefrozenvalue.PackedImpl [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.47
 - **Dependents:** 0
-- **Priority Score:** 62110.0
+- **Priority Score:** 62105.3
 - **Functions:** 13/18 matched
 - **Missing functions:** `visit`, `deref`, `fmt`, `eq`, `across_lengths`
 - **Types:** 2/3 matched
@@ -2589,22 +2698,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/thin_box_slice_frozen_value/packed_impl.rs` (current: `// port-lint: source src/values/thinBoxSliceFrozenValue/packedImpl.rs`)
 - **Lint issues:** 2
 
-### 165. tests.call
-
-- **Target:** `tests.Call [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.67
-- **Dependents:** 0
-- **Priority Score:** 61803.3
-- **Functions:** 12/18 matched (target 17)
-- **Missing functions:** `funcall_test`, `funcall_extra_args_def`, `test_extra_args_native`, `test_frame_size`, `natives`, `stack_ptr`
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-- **Tests:** 11/15 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/call.rs` vs expected `tests/call.rs`
-- **Proposed provenance header:** `// port-lint: source tests/call.rs` (current: `// port-lint: source src/tests/call.rs`)
-- **Lint issues:** 1
-
-### 166. analysis.dubious
+### 172. analysis.dubious
 
 - **Target:** `analysis.Dubious [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.47
@@ -2619,7 +2713,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/dubious.rs` (current: `// port-lint: source src/analysis/dubious.rs`)
 - **Lint issues:** 1
 
-### 167. profile.csv
+### 173. profile.csv
 
 - **Target:** `profile.Csv [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.33
@@ -2634,7 +2728,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/csv.rs` (current: `// port-lint: source src/eval/runtime/profile/csv.rs`)
 - **Lint issues:** 1
 
-### 168. analysis.types
+### 174. analysis.types
 
 - **Target:** `analysis.Types [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -2648,7 +2742,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/types.rs` (current: `// port-lint: source src/analysis/types.rs`)
 - **Lint issues:** 1
 
-### 169. list.unpack
+### 175. list.unpack
 
 - **Target:** `list.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.26
@@ -2663,7 +2757,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/unpack.rs` (current: `// port-lint: source src/values/types/list/unpack.rs`)
 - **Lint issues:** 1
 
-### 170. tuple.unpack
+### 176. tuple.unpack
 
 - **Target:** `tuple.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.33
@@ -2678,7 +2772,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/unpack.rs` (current: `// port-lint: source src/values/types/tuple/unpack.rs`)
 - **Lint issues:** 1
 
-### 171. tuple.rust_tuple
+### 177. tuple.rust_tuple
 
 - **Target:** `tuple.RustTuple [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2692,27 +2786,24 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/rust_tuple.rs` (current: `// port-lint: source src/values/types/tuple/rustTuple.rs`)
 - **Lint issues:** 1
 
-### 172. environment.modules
+### 178. environment.modules
 
-- **Target:** `environment.Modules [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.76
+- **Target:** `environment.Modules`
+- **Similarity:** 0.80
 - **Dependents:** 0
-- **Priority Score:** 54702.4
-- **Functions:** 38/43 matched (target 48)
+- **Priority Score:** 54702.0
+- **Functions:** 38/43 matched (target 52)
 - **Missing functions:** `test_send_sync`, `test_gen_heap_summary_profile`, `test_frozen_module_from_globals`, `some_globals`, `foo`
 - **Types:** 4/4 matched (target 6)
 - **Missing types:** _none_
 - **Tests:** 0/5 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/environment/modules.rs` vs expected `environment/modules.rs`
-- **Proposed provenance header:** `// port-lint: source environment/modules.rs` (current: `// port-lint: source src/environment/modules.rs`)
-- **Lint issues:** 1
 
-### 173. values.owned
+### 179. values.owned
 
-- **Target:** `values.Owned [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `values.Owned [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.77
 - **Dependents:** 0
-- **Priority Score:** 53410.0
+- **Priority Score:** 53402.3
 - **Functions:** 26/29 matched (target 32)
 - **Missing functions:** `fmt`, `downcast_starlark`, `deref`
 - **Types:** 3/5 matched
@@ -2721,7 +2812,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/owned.rs` (current: `// port-lint: source src/values/owned.rs`)
 - **Lint issues:** 1
 
-### 174. profile.time_flame
+### 180. profile.time_flame
 
 - **Target:** `profile.TimeFlame [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
@@ -2736,22 +2827,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/time_flame.rs` (current: `// port-lint: source src/eval/runtime/profile/timeFlame.rs`)
 - **Lint issues:** 1
 
-### 175. profile.stmt
-
-- **Target:** `profile.Stmt [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 52610.0
-- **Functions:** 13/17 matched (target 23)
-- **Missing functions:** `r#gen`, `test_coverage`, `test_empty`, `test_merge`
-- **Types:** 8/9 matched
-- **Missing types:** `Data`
-- **Tests:** 0/3 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/profile/stmt.rs` vs expected `eval/runtime/profile/stmt.rs`
-- **Proposed provenance header:** `// port-lint: source eval/runtime/profile/stmt.rs` (current: `// port-lint: source src/eval/runtime/profile/stmt.rs`)
-- **Lint issues:** 1
-
-### 176. typing.callable_param
+### 181. typing.callable_param
 
 - **Target:** `typing.CallableParam [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -2766,24 +2842,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/callable_param.rs` (current: `// port-lint: source src/typing/callableParam.rs`)
 - **Lint issues:** 1
 
-### 177. alloc.allocator
+### 182. profile.stmt
 
-- **Target:** `alloc.Allocator [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.58
+- **Target:** `profile.Stmt [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.68
 - **Dependents:** 0
-- **Priority Score:** 52104.2
-- **Functions:** 14/18 matched (target 19)
-- **Missing functions:** `fmt`, `default`, `drop`, `random_iteration`
-- **Types:** 2/3 matched
-- **Missing types:** `Item`
-- **Tests:** 3/4 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/allocator/alloc/allocator.rs` vs expected `values/layout/heap/allocator/alloc/allocator.rs`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/allocator/alloc/allocator.rs` vs expected `values/layout/heap/allocator/alloc/allocator.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/allocator.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs`)
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/alloc/allocator.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs`)
-- **Lint issues:** 2
+- **Priority Score:** 52603.2
+- **Functions:** 13/17 matched (target 23)
+- **Missing functions:** `r#gen`, `test_coverage`, `test_empty`, `test_merge`
+- **Types:** 8/9 matched
+- **Missing types:** `Data`
+- **Tests:** 0/3 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/profile/stmt.rs` vs expected `eval/runtime/profile/stmt.rs`
+- **Proposed provenance header:** `// port-lint: source eval/runtime/profile/stmt.rs` (current: `// port-lint: source src/eval/runtime/profile/stmt.rs`)
+- **Lint issues:** 1
 
-### 178. namespace.value
+### 183. namespace.value
 
 - **Target:** `namespace.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -2798,7 +2872,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/namespace/value.rs` (current: `// port-lint: source src/values/types/namespace/value.rs`)
 - **Lint issues:** 1
 
-### 179. values.unpack
+### 184. values.unpack
 
 - **Target:** `values.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.45
@@ -2812,7 +2886,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/unpack.rs` (current: `// port-lint: source src/values/unpack.rs`)
 - **Lint issues:** 1
 
-### 180. dict.refs
+### 185. dict.refs
 
 - **Target:** `dict.Refs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -2826,7 +2900,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/dict/refs.rs` (current: `// port-lint: source src/values/types/dict/refs.rs`)
 - **Lint issues:** 1
 
-### 181. analysis.underscore
+### 186. analysis.underscore
 
 - **Target:** `analysis.Underscore [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.44
@@ -2841,21 +2915,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/underscore.rs` (current: `// port-lint: source src/analysis/underscore.rs`)
 - **Lint issues:** 1
 
-### 182. allocator.bumpalo
-
-- **Target:** `allocator.Bumpalo [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.36
-- **Dependents:** 0
-- **Priority Score:** 51106.4
-- **Functions:** 6/8 matched (target 6)
-- **Missing functions:** `next`, `size_hint`
-- **Types:** 0/3 matched (target 1)
-- **Missing types:** `ChunkIteratorWrapper`, `Item`, `ChunkRevIterator`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/allocator/bumpalo.rs` vs expected `values/layout/heap/allocator/bumpalo.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/bumpalo.rs` (current: `// port-lint: source src/values/layout/heap/allocator/bumpalo.rs`)
-- **Lint issues:** 1
-
-### 183. module.named_positional
+### 187. module.named_positional
 
 - **Target:** `module.NamedPositional [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.46
@@ -2870,7 +2930,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/named_positional.rs` (current: `// port-lint: source src/tests/derive/module/namedPositional.rs`)
 - **Lint issues:** 1
 
-### 184. typing.iter
+### 188. typing.iter
 
 - **Target:** `typing.Iter [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.88
@@ -2885,7 +2945,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/iter.rs` (current: `// port-lint: source src/values/typing/iter.rs`)
 - **Lint issues:** 2
 
-### 185. debug.inspect
+### 189. debug.inspect
 
 - **Target:** `debug.Inspect [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.53
@@ -2900,26 +2960,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source debug/inspect.rs` (current: `// port-lint: source src/debug/inspect.rs`)
 - **Lint issues:** 1
 
-### 186. layout.vtable
+### 190. compiler.def
 
-- **Target:** `layout.Vtable [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.72
+- **Target:** `compiler.Def [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.69
 - **Dependents:** 0
-- **Priority Score:** 47302.8
-- **Functions:** 65/67 matched (target 71)
-- **Missing functions:** `drop_in_place`, `fmt`
-- **Types:** 4/6 matched (target 4)
-- **Missing types:** `GetTypeId`, `GetAllocativeKey`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/vtable.rs` vs expected `values/layout/vtable.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/vtable.rs` (current: `// port-lint: source src/values/layout/vtable.rs`)
-- **Lint issues:** 1
-
-### 187. compiler.def
-
-- **Target:** `compiler.Def [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 45210.0
+- **Priority Score:** 45203.1
 - **Functions:** 38/39 matched (target 46)
 - **Missing functions:** `fmt`
 - **Types:** 10/13 matched (target 15)
@@ -2928,7 +2974,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/def.rs` (current: `// port-lint: source src/eval/compiler/def.rs`)
 - **Lint issues:** 4
 
-### 188. params.spec
+### 191. params.spec
 
 - **Target:** `params.Spec [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.64
@@ -2942,7 +2988,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/params/spec.rs` (current: `// port-lint: source src/eval/runtime/params/spec.rs`)
 - **Lint issues:** 1
 
-### 189. string.methods
+### 192. string.methods
 
 - **Target:** `string.Methods [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -2957,7 +3003,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/methods.rs` (current: `// port-lint: source src/values/types/string/methods.rs`)
 - **Lint issues:** 2
 
-### 190. typing.custom
+### 193. typing.custom
 
 - **Target:** `typing.Custom [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.58
@@ -2967,40 +3013,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `eq`, `hash`, `partial_cmp`, `cmp`
 - **Types:** 3/3 matched (target 5)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/custom.rs` vs expected `typing/custom.rs`
-- **Proposed provenance header:** `// port-lint: source typing/custom.rs` (current: `// port-lint: source src/typing/custom.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `custom.rs` vs expected `typing/custom.rs`
+- **Proposed provenance header:** `// port-lint: source typing/custom.rs` (current: `// port-lint: source custom.rs`)
 - **Lint issues:** 1
 
-### 191. heap.repr
-
-- **Target:** `heap.Repr [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.57
-- **Dependents:** 0
-- **Priority Score:** 43204.3
-- **Functions:** 23/27 matched (target 34)
-- **Missing functions:** `hash`, `eq`, `as_avalue_or_header`, `from_payload_ptr_mut`
-- **Types:** 5/5 matched (target 8)
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/repr.rs` vs expected `values/layout/heap/repr.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/repr.rs` (current: `// port-lint: source src/values/layout/heap/repr.rs`)
-- **Lint issues:** 1
-
-### 192. typing.tests
-
-- **Target:** `typing.Tests [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.64
-- **Dependents:** 0
-- **Priority Score:** 43003.6
-- **Functions:** 24/28 matched (target 24)
-- **Missing functions:** `accepts_iterable`, `accepts_typed_kwargs`, `accepts_callable_named_xy`, `new`
-- **Types:** 2/2 matched (target 3)
-- **Missing types:** _none_
-- **Tests:** 18/18 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests.rs` vs expected `typing/tests.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests.rs` (current: `// port-lint: source src/typing/tests.rs`)
-- **Lint issues:** 1
-
-### 193. bc.addr
+### 194. bc.addr
 
 - **Target:** `bc.Addr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.59
@@ -3014,7 +3031,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/addr.rs` (current: `// port-lint: source src/eval/bc/addr.rs`)
 - **Lint issues:** 1
 
-### 194. types.function
+### 195. types.function
 
 - **Target:** `types.Function [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -3028,7 +3045,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/function.rs` (current: `// port-lint: source src/values/types/function.rs`)
 - **Lint issues:** 1
 
-### 195. analysis.incompatible
+### 196. analysis.incompatible
 
 - **Target:** `analysis.Incompatible [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.56
@@ -3043,7 +3060,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/incompatible.rs` (current: `// port-lint: source src/analysis/incompatible.rs`)
 - **Lint issues:** 1
 
-### 196. profile.typecheck
+### 197. profile.typecheck
 
 - **Target:** `profile.Typecheck [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
@@ -3058,7 +3075,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/typecheck.rs` (current: `// port-lint: source src/eval/runtime/profile/typecheck.rs`)
 - **Lint issues:** 1
 
-### 197. profile.flamegraph
+### 198. profile.flamegraph
 
 - **Target:** `profile.Flamegraph [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -3073,7 +3090,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/flamegraph.rs` (current: `// port-lint: source src/eval/runtime/profile/flamegraph.rs`)
 - **Lint issues:** 1
 
-### 198. runtime.inlined_frame
+### 199. runtime.inlined_frame
 
 - **Target:** `runtime.InlinedFrame [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.75
@@ -3088,7 +3105,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/inlined_frame.rs` (current: `// port-lint: source src/eval/runtime/inlinedFrame.rs`)
 - **Lint issues:** 1
 
-### 199. list.methods
+### 200. list.methods
 
 - **Target:** `list.Methods [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.44
@@ -3103,7 +3120,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/methods.rs` (current: `// port-lint: source src/values/types/list/methods.rs`)
 - **Lint issues:** 3
 
-### 200. analysis.performance
+### 201. analysis.performance
 
 - **Target:** `analysis.Performance [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.44
@@ -3118,7 +3135,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/performance.rs` (current: `// port-lint: source src/analysis/performance.rs`)
 - **Lint issues:** 1
 
-### 201. params.parser
+### 202. params.parser
 
 - **Target:** `params.Parser [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.75
@@ -3133,12 +3150,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/params/parser.rs` (current: `// port-lint: source src/eval/runtime/params/parser.rs`)
 - **Lint issues:** 1
 
-### 202. module.other_attributes
+### 203. module.other_attributes
 
-- **Target:** `module.OtherAttributes [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `module.OtherAttributes [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.15
 - **Dependents:** 0
-- **Priority Score:** 40610.0
+- **Priority Score:** 40608.5
 - **Functions:** 2/6 matched (target 3)
 - **Missing functions:** `test_global`, `test_method`, `test_other_attributes_in_atributes`, `test_attribute`
 - **Types:** 0/0 matched
@@ -3147,7 +3164,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/other_attributes.rs` (current: `// port-lint: source src/tests/derive/module/otherAttributes.rs`)
 - **Lint issues:** 1
 
-### 203. structs.alloc
+### 204. structs.alloc
 
 - **Target:** `structs.Alloc [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -3161,9 +3178,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/structs/alloc.rs` (current: `// port-lint: source src/values/types/structs/alloc.rs`)
 - **Lint issues:** 1
 
-### 204. dict.alloc
+### 205. dict.alloc
 
-- **Target:** `dict.Alloc [ZERO] [PROVENANCE-FALLBACK]`
+- **Target:** `dict.Alloc [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 40510.0
@@ -3175,7 +3192,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/dict/alloc.rs` (current: `// port-lint: source src/values/types/dict/alloc.rs`)
 - **Lint issues:** 1
 
-### 205. enumeration.globals
+### 206. enumeration.globals
 
 - **Target:** `enumeration.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.12
@@ -3190,7 +3207,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/enumeration/globals.rs` (current: `// port-lint: source src/values/types/enumeration/globals.rs`)
 - **Lint issues:** 1
 
-### 206. set.set
+### 207. set.set
 
 - **Target:** `set.Set [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.14
@@ -3205,12 +3222,26 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/set/set.rs` (current: `// port-lint: source src/values/types/set/set.rs`)
 - **Lint issues:** 1
 
-### 207. opt.if_rand
+### 208. heap.repr
 
-- **Target:** `opt.IfRand [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `heap.Repr [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.58
 - **Dependents:** 0
-- **Priority Score:** 32910.0
+- **Priority Score:** 33204.2
+- **Functions:** 24/27 matched (target 36)
+- **Missing functions:** `hash`, `eq`, `as_avalue_or_header`
+- **Types:** 5/5 matched (target 8)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/repr.rs` vs expected `values/layout/heap/repr.rs`
+- **Proposed provenance header:** `// port-lint: source values/layout/heap/repr.rs` (current: `// port-lint: source src/values/layout/heap/repr.rs`)
+- **Lint issues:** 1
+
+### 209. opt.if_rand
+
+- **Target:** `opt.IfRand [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.78
+- **Dependents:** 0
+- **Priority Score:** 32902.2
 - **Functions:** 23/26 matched (target 28)
 - **Missing functions:** `r#true`, `r#false`, `fmt`
 - **Types:** 3/3 matched (target 8)
@@ -3220,7 +3251,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/opt/if_rand.rs` (current: `// port-lint: source src/tests/opt/ifRand.rs`)
 - **Lint issues:** 1
 
-### 208. profile.heap
+### 210. profile.heap
 
 - **Target:** `profile.Heap [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.80
@@ -3235,7 +3266,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/heap.rs` (current: `// port-lint: source src/eval/runtime/profile/heap.rs`)
 - **Lint issues:** 1
 
-### 209. type_compiled.matcher
+### 211. type_compiled.matcher
 
 - **Target:** `typecompiled.Matcher [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.80
@@ -3249,7 +3280,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/matcher.rs` (current: `// port-lint: source src/values/typing/typeCompiled/matcher.rs`)
 - **Lint issues:** 1
 
-### 210. avalues.list
+### 212. avalues.list
 
 - **Target:** `avalues.List [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.49
@@ -3263,7 +3294,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/list.rs` (current: `// port-lint: source src/values/layout/avalues/list.rs`)
 - **Lint issues:** 1
 
-### 211. list.refs
+### 213. list.refs
 
 - **Target:** `list.Refs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.52
@@ -3277,7 +3308,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/refs.rs` (current: `// port-lint: source src/values/types/list/refs.rs`)
 - **Lint issues:** 1
 
-### 212. avalues.static_
+### 214. avalues.static_
 
 - **Target:** `avalues.Static [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
@@ -3292,12 +3323,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/static_.rs` (current: `// port-lint: source src/values/layout/avalues/static_.rs`)
 - **Lint issues:** 1
 
-### 213. symbol.map
+### 215. symbol.map
 
-- **Target:** `symbol.Map [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `symbol.Map [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.40
 - **Dependents:** 0
-- **Priority Score:** 31310.0
+- **Priority Score:** 31306.0
 - **Functions:** 9/12 matched (target 11)
 - **Missing functions:** `fmt`, `new`, `with_capacity`
 - **Types:** 1/1 matched
@@ -3306,7 +3337,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source collections/symbol/map.rs` (current: `// port-lint: source src/collections/symbol/map.rs`)
 - **Lint issues:** 1
 
-### 214. bc.opcode
+### 216. bc.opcode
 
 - **Target:** `bc.Opcode [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.45
@@ -3321,21 +3352,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/opcode.rs` (current: `// port-lint: source src/eval/bc/opcode.rs`)
 - **Lint issues:** 1
 
-### 215. heap.send
-
-- **Target:** `heap.Send [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.17
-- **Dependents:** 0
-- **Priority Score:** 31108.3
-- **Functions:** 4/5 matched (target 6)
-- **Missing functions:** `fmt`
-- **Types:** 4/6 matched
-- **Missing types:** `Target`, `StaticType`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/send.rs` vs expected `values/layout/heap/send.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/send.rs` (current: `// port-lint: source src/values/layout/heap/send.rs`)
-- **Lint issues:** 1
-
-### 216. tuple.refs
+### 217. tuple.refs
 
 - **Target:** `tuple.Refs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.64
@@ -3349,7 +3366,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/refs.rs` (current: `// port-lint: source src/values/types/tuple/refs.rs`)
 - **Lint issues:** 1
 
-### 217. module.generic
+### 218. module.generic
 
 - **Target:** `module.Generic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.51
@@ -3364,7 +3381,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/generic.rs` (current: `// port-lint: source src/tests/derive/module/generic.rs`)
 - **Lint issues:** 1
 
-### 218. module.basic
+### 219. module.basic
 
 - **Target:** `module.Basic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.36
@@ -3379,7 +3396,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/basic.rs` (current: `// port-lint: source src/tests/derive/module/basic.rs`)
 - **Lint issues:** 1
 
-### 219. bc.repr
+### 220. bc.repr
 
 - **Target:** `bc.Repr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -3393,7 +3410,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/repr.rs` (current: `// port-lint: source src/eval/bc/repr.rs`)
 - **Lint issues:** 3
 
-### 220. typing.never
+### 221. typing.never
 
 - **Target:** `typing.Never [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.88
@@ -3408,7 +3425,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/never.rs` (current: `// port-lint: source src/values/typing/never.rs`)
 - **Lint issues:** 3
 
-### 221. string.alloc_unpack
+### 222. string.alloc_unpack
 
 - **Target:** `string.AllocUnpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.39
@@ -3422,7 +3439,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/string/alloc_unpack.rs` (current: `// port-lint: source src/values/types/string/allocUnpack.rs`)
 - **Lint issues:** 1
 
-### 222. tuple.alloc
+### 223. tuple.alloc
 
 - **Target:** `tuple.Alloc [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.49
@@ -3437,7 +3454,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/alloc.rs` (current: `// port-lint: source src/values/types/tuple/alloc.rs`)
 - **Lint issues:** 1
 
-### 223. profile.mode
+### 224. profile.mode
 
 - **Target:** `profile.Mode [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.27
@@ -3451,7 +3468,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/mode.rs` (current: `// port-lint: source src/eval/runtime/profile/mode.rs`)
 - **Lint issues:** 1
 
-### 224. float.unpack
+### 225. float.unpack
 
 - **Target:** `float.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.33
@@ -3466,7 +3483,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/float/unpack.rs` (current: `// port-lint: source src/values/types/float/unpack.rs`)
 - **Lint issues:** 1
 
-### 225. freeze.validator_order
+### 226. freeze.validator_order
 
 - **Target:** `freeze.ValidatorOrder [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.53
@@ -3481,7 +3498,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/freeze/validator_order.rs` (current: `// port-lint: source src/tests/derive/freeze/validatorOrder.rs`)
 - **Lint issues:** 2
 
-### 226. values.typing.ty
+### 227. values.typing.ty
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.values.typing.Ty [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.78
@@ -3494,21 +3511,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 0/3 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/typing/ty.rs` vs expected `values/typing/ty.rs`
 - **Proposed provenance header:** `// port-lint: source values/typing/ty.rs` (current: `// port-lint: source src/values/typing/ty.rs`)
-- **Lint issues:** 1
-
-### 227. tests.freeze_access_value
-
-- **Target:** `tests.FreezeAccessValue [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 30410.0
-- **Functions:** 1/2 matched
-- **Missing functions:** `test`
-- **Types:** 0/2 matched (target 3)
-- **Missing types:** `Test`, `Frozen`
-- **Tests:** 0/1 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/freezeAccessValue.rs` vs expected `tests/freeze_access_value.rs`
-- **Proposed provenance header:** `// port-lint: source tests/freeze_access_value.rs` (current: `// port-lint: source src/tests/freezeAccessValue.rs`)
 - **Lint issues:** 1
 
 ### 228. type_compiled.globals
@@ -3526,7 +3528,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/globals.rs` (current: `// port-lint: source src/values/typing/typeCompiled/globals.rs`)
 - **Lint issues:** 1
 
-### 229. debug.evaluate
+### 229. tests.freeze_access_value
+
+- **Target:** `tests.FreezeAccessValue [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.40
+- **Dependents:** 0
+- **Priority Score:** 30406.0
+- **Functions:** 1/2 matched
+- **Missing functions:** `test`
+- **Types:** 0/2 matched (target 3)
+- **Missing types:** `Test`, `Frozen`
+- **Tests:** 0/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/freezeAccessValue.rs` vs expected `tests/freeze_access_value.rs`
+- **Proposed provenance header:** `// port-lint: source tests/freeze_access_value.rs` (current: `// port-lint: source src/tests/freezeAccessValue.rs`)
+- **Lint issues:** 1
+
+### 230. debug.evaluate
 
 - **Target:** `debug.Evaluate [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.43
@@ -3541,7 +3558,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source debug/evaluate.rs` (current: `// port-lint: source src/debug/evaluate.rs`)
 - **Lint issues:** 1
 
-### 230. opt.type_is
+### 231. opt.type_is
 
 - **Target:** `opt.TypeIs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -3556,12 +3573,23 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/opt/type_is.rs` (current: `// port-lint: source src/tests/opt/typeIs.rs`)
 - **Lint issues:** 1
 
-### 231. compiler.expr
+### 232. layout.vtable
 
-- **Target:** `compiler.Expr [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `layout.Vtable`
+- **Similarity:** 0.80
 - **Dependents:** 0
-- **Priority Score:** 27010.0
+- **Priority Score:** 27302.0
+- **Functions:** 67/67 matched (target 76)
+- **Missing functions:** _none_
+- **Types:** 4/6 matched (target 4)
+- **Missing types:** `GetTypeId`, `GetAllocativeKey`
+
+### 233. compiler.expr
+
+- **Target:** `compiler.Expr [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.74
+- **Dependents:** 0
+- **Priority Score:** 27002.6
 - **Functions:** 59/59 matched (target 63)
 - **Missing functions:** _none_
 - **Types:** 9/11 matched (target 56)
@@ -3570,7 +3598,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/expr.rs` (current: `// port-lint: source src/eval/compiler/expr.rs`)
 - **Lint issues:** 1
 
-### 232. values.traits
+### 234. values.traits
 
 - **Target:** `values.Traits [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.75
@@ -3584,7 +3612,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/traits.rs` (current: `// port-lint: source src/values/traits.rs`)
 - **Lint issues:** 6
 
-### 233. adapter.implementation
+### 235. adapter.implementation
 
 - **Target:** `adapter.Implementation [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.73
@@ -3598,7 +3626,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source debug/adapter/implementation.rs` (current: `// port-lint: source src/debug/adapter/implementation.rs`)
 - **Lint issues:** 2
 
-### 234. bc.stack_ptr
+### 236. bc.stack_ptr
 
 - **Target:** `bc.StackPtr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.65
@@ -3612,7 +3640,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/stack_ptr.rs` (current: `// port-lint: source src/eval/bc/stackPtr.rs`)
 - **Lint issues:** 1
 
-### 235. compiler.args
+### 237. compiler.args
 
 - **Target:** `compiler.Args [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
@@ -3626,7 +3654,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/args.rs` (current: `// port-lint: source src/eval/compiler/args.rs`)
 - **Lint issues:** 1
 
-### 236. avalues.array
+### 238. avalues.array
 
 - **Target:** `avalues.Array [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.68
@@ -3640,7 +3668,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/array.rs` (current: `// port-lint: source src/values/layout/avalues/array.rs`)
 - **Lint issues:** 1
 
-### 237. profile.summary_by_function
+### 239. profile.summary_by_function
 
 - **Target:** `profile.SummaryByFunction [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.70
@@ -3655,7 +3683,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/profile/summary_by_function.rs` (current: `// port-lint: source src/values/layout/heap/profile/summaryByFunction.rs`)
 - **Lint issues:** 1
 
-### 238. avalues.tuple
+### 240. avalues.tuple
 
 - **Target:** `avalues.Tuple [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.58
@@ -3669,7 +3697,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/tuple.rs` (current: `// port-lint: source src/values/layout/avalues/tuple.rs`)
 - **Lint issues:** 1
 
-### 239. tests.basic
+### 241. tests.basic
 
 - **Target:** `tests.Basic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.94
@@ -3684,7 +3712,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/basic.rs` (current: `// port-lint: source src/tests/basic.rs`)
 - **Lint issues:** 1
 
-### 240. avalues.complex
+### 242. avalues.complex
 
 - **Target:** `avalues.Complex [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.61
@@ -3698,7 +3726,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/avalues/complex.rs` (current: `// port-lint: source src/values/layout/avalues/complex.rs`)
 - **Lint issues:** 1
 
-### 241. eval.bc.compiler.stmt
+### 243. eval.bc.compiler.stmt
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Stmt [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.59
@@ -3712,7 +3740,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/stmt.rs` (current: `// port-lint: source src/eval/bc/compiler/stmt.rs`)
 - **Lint issues:** 1
 
-### 242. symbol.symbol
+### 244. symbol.symbol
 
 - **Target:** `symbol.Symbol [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.63
@@ -3726,7 +3754,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source collections/symbol/symbol.rs` (current: `// port-lint: source src/collections/symbol/symbol.rs`)
 - **Lint issues:** 1
 
-### 243. set.refs
+### 245. set.refs
 
 - **Target:** `set.Refs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.72
@@ -3740,12 +3768,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/set/refs.rs` (current: `// port-lint: source src/values/types/set/refs.rs`)
 - **Lint issues:** 1
 
-### 244. profile.data
+### 246. profile.data
 
-- **Target:** `profile.Data [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `profile.Data [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.55
 - **Dependents:** 0
-- **Priority Score:** 20910.0
+- **Priority Score:** 20904.5
 - **Functions:** 4/6 matched (target 5)
 - **Missing functions:** `_assert_profile_data_send_sync`, `_assert_send_sync`
 - **Types:** 3/3 matched (target 18)
@@ -3754,49 +3782,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/data.rs` (current: `// port-lint: source src/eval/runtime/profile/data.rs`)
 - **Lint issues:** 1
 
-### 245. bc.call
-
-- **Target:** `bc.Call [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20910.0
-- **Functions:** 3/4 matched (target 15)
-- **Missing functions:** `fmt`
-- **Types:** 4/5 matched (target 8)
-- **Missing types:** `Args`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/call.rs` vs expected `eval/bc/call.rs`
-- **Proposed provenance header:** `// port-lint: source eval/bc/call.rs` (current: `// port-lint: source src/eval/bc/call.rs`)
-- **Lint issues:** 9
-
-### 246. bc.instr_arg
-
-- **Target:** `bc.InstrArg [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20910.0
-- **Functions:** 4/5 matched (target 84)
-- **Missing functions:** `fmt`
-- **Types:** 3/4 matched (target 42)
-- **Missing types:** `HandlerImpl`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/instrArg.rs` vs expected `eval/bc/instr_arg.rs`
-- **Proposed provenance header:** `// port-lint: source eval/bc/instr_arg.rs` (current: `// port-lint: source src/eval/bc/instrArg.rs`)
-- **Lint issues:** 55
-
-### 247. typing.callable
-
-- **Target:** `typing.Callable [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.58
-- **Dependents:** 0
-- **Priority Score:** 20904.2
-- **Functions:** 6/7 matched (target 10)
-- **Missing functions:** `fmt`
-- **Types:** 1/2 matched (target 1)
-- **Missing types:** `TyCallableInner`
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/callable.rs` vs expected `typing/callable.rs`
-- **Proposed provenance header:** `// port-lint: source typing/callable.rs` (current: `// port-lint: source src/typing/callable.rs`)
-- **Lint issues:** 1
-
-### 248. bc.bytecode
+### 247. bc.bytecode
 
 - **Target:** `bc.Bytecode [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
@@ -3809,6 +3795,20 @@ Every matched file is listed below with function and type symbol parity.
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/bytecode.rs` vs expected `eval/bc/bytecode.rs`
 - **Proposed provenance header:** `// port-lint: source eval/bc/bytecode.rs` (current: `// port-lint: source src/eval/bc/bytecode.rs`)
 - **Lint issues:** 1
+
+### 248. bc.call
+
+- **Target:** `bc.Call [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.67
+- **Dependents:** 0
+- **Priority Score:** 20903.3
+- **Functions:** 3/4 matched (target 15)
+- **Missing functions:** `fmt`
+- **Types:** 4/5 matched (target 8)
+- **Missing types:** `Args`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/call.rs` vs expected `eval/bc/call.rs`
+- **Proposed provenance header:** `// port-lint: source eval/bc/call.rs` (current: `// port-lint: source src/eval/bc/call.rs`)
+- **Lint issues:** 9
 
 ### 249. structs.refs
 
@@ -3824,7 +3824,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/structs/refs.rs` (current: `// port-lint: source src/values/types/structs/refs.rs`)
 - **Lint issues:** 1
 
-### 250. derive.docs
+### 250. bc.instr_arg
+
+- **Target:** `bc.InstrArg [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.74
+- **Dependents:** 0
+- **Priority Score:** 20902.6
+- **Functions:** 4/5 matched (target 84)
+- **Missing functions:** `fmt`
+- **Types:** 3/4 matched (target 42)
+- **Missing types:** `HandlerImpl`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/instrArg.rs` vs expected `eval/bc/instr_arg.rs`
+- **Proposed provenance header:** `// port-lint: source eval/bc/instr_arg.rs` (current: `// port-lint: source src/eval/bc/instrArg.rs`)
+- **Lint issues:** 55
+
+### 251. derive.docs
 
 - **Target:** `derive.Docs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.44
@@ -3839,7 +3853,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/docs.rs` (current: `// port-lint: source src/tests/derive/docs.rs`)
 - **Lint issues:** 1
 
-### 251. heap.call_enter_exit
+### 252. heap.call_enter_exit
 
 - **Target:** `heap.CallEnterExit [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -3853,7 +3867,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/call_enter_exit.rs` (current: `// port-lint: source src/values/layout/heap/callEnterExit.rs`)
 - **Lint issues:** 1
 
-### 252. types.any
+### 253. types.any
 
 - **Target:** `types.Any [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.71
@@ -3865,21 +3879,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Canonical`
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/any.rs` vs expected `values/types/any.rs`
 - **Proposed provenance header:** `// port-lint: source values/types/any.rs` (current: `// port-lint: source src/values/types/any.rs`)
-- **Lint issues:** 1
-
-### 253. freeze.bounds
-
-- **Target:** `freeze.Bounds [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 20610.0
-- **Functions:** 2/3 matched (target 5)
-- **Missing functions:** `assert_impl`
-- **Types:** 2/3 matched
-- **Missing types:** `Test`
-- **Tests:** 0/1 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/freeze/bounds.rs` vs expected `tests/derive/freeze/bounds.rs`
-- **Proposed provenance header:** `// port-lint: source tests/derive/freeze/bounds.rs` (current: `// port-lint: source src/tests/derive/freeze/bounds.rs`)
 - **Lint issues:** 1
 
 ### 254. dict.traits
@@ -3940,7 +3939,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/list/globals.rs` (current: `// port-lint: source src/values/types/list/globals.rs`)
 - **Lint issues:** 2
 
-### 258. int.i32
+### 258. freeze.bounds
+
+- **Target:** `freeze.Bounds [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.60
+- **Dependents:** 0
+- **Priority Score:** 20604.0
+- **Functions:** 2/3 matched (target 5)
+- **Missing functions:** `assert_impl`
+- **Types:** 2/3 matched
+- **Missing types:** `Test`
+- **Tests:** 0/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/freeze/bounds.rs` vs expected `tests/derive/freeze/bounds.rs`
+- **Proposed provenance header:** `// port-lint: source tests/derive/freeze/bounds.rs` (current: `// port-lint: source src/tests/derive/freeze/bounds.rs`)
+- **Lint issues:** 1
+
+### 259. int.i32
 
 - **Target:** `int.I32 [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.73
@@ -3954,7 +3968,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/int/i32.rs` (current: `// port-lint: source src/values/types/int/i32.rs`)
 - **Lint issues:** 1
 
-### 259. dict.unpack
+### 260. dict.unpack
 
 - **Target:** `dict.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -3968,7 +3982,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/dict/unpack.rs` (current: `// port-lint: source src/values/types/dict/unpack.rs`)
 - **Lint issues:** 1
 
-### 260. intern.interner
+### 261. intern.interner
 
 - **Target:** `intern.Interner [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.36
@@ -3981,9 +3995,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 0/2 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/string/intern/interner.rs` vs expected `values/types/string/intern/interner.rs`
 - **Proposed provenance header:** `// port-lint: source values/types/string/intern/interner.rs` (current: `// port-lint: source src/values/types/string/intern/interner.rs`)
-- **Lint issues:** 2
+- **Lint issues:** 1
 
-### 261. bc.definitely_assigned
+### 262. bc.definitely_assigned
 
 - **Target:** `bc.DefinitelyAssigned [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.42
@@ -3997,7 +4011,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/definitely_assigned.rs` (current: `// port-lint: source src/eval/bc/definitelyAssigned.rs`)
 - **Lint issues:** 1
 
-### 262. funcs.min_max
+### 263. funcs.min_max
 
 - **Target:** `funcs.MinMax [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.43
@@ -4011,7 +4025,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/funcs/min_max.rs` (current: `// port-lint: source src/stdlib/funcs/minMax.rs`)
 - **Lint issues:** 1
 
-### 263. typing.any
+### 264. typing.any
 
 - **Target:** `typing.Any [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.82
@@ -4026,12 +4040,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/any.rs` (current: `// port-lint: source src/values/typing/any.rs`)
 - **Lint issues:** 1
 
-### 264. module.return_impl
+### 265. module.return_impl
 
-- **Target:** `module.ReturnImpl [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `module.ReturnImpl [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.21
 - **Dependents:** 0
-- **Priority Score:** 20410.0
+- **Priority Score:** 20407.9
 - **Functions:** 2/4 matched (target 2)
 - **Missing functions:** `func`, `attr`
 - **Types:** 0/0 matched
@@ -4040,7 +4054,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/return_impl.rs` (current: `// port-lint: source src/tests/derive/module/returnImpl.rs`)
 - **Lint issues:** 1
 
-### 265. module.kwargs
+### 266. module.kwargs
 
 - **Target:** `module.Kwargs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.28
@@ -4055,7 +4069,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/kwargs.rs` (current: `// port-lint: source src/tests/derive/module/kwargs.rs`)
 - **Lint issues:** 1
 
-### 266. collections.maybe_uninit_backport
+### 267. collections.maybe_uninit_backport
 
 - **Target:** `collections.MaybeUninitBackport [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -4069,7 +4083,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source collections/maybe_uninit_backport.rs` (current: `// port-lint: source src/collections/maybeUninitBackport.rs`)
 - **Lint issues:** 1
 
-### 267. stdlib.internal
+### 268. stdlib.internal
 
 - **Target:** `stdlib.Internal [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
@@ -4084,7 +4098,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/internal.rs` (current: `// port-lint: source src/stdlib/internal.rs`)
 - **Lint issues:** 1
 
-### 268. enumeration.ty_enum_type
+### 269. enumeration.ty_enum_type
 
 - **Target:** `enumeration.TyEnumType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -4098,7 +4112,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/enumeration/ty_enum_type.rs` (current: `// port-lint: source src/values/types/enumeration/tyEnumType.rs`)
 - **Lint issues:** 1
 
-### 269. heap.maybe_uninit_slice_util
+### 270. heap.maybe_uninit_slice_util
 
 - **Target:** `heap.MaybeUninitSliceUtil [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.34
@@ -4112,12 +4126,27 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/maybe_uninit_slice_util.rs` (current: `// port-lint: source src/values/layout/heap/maybeUninitSliceUtil.rs`)
 - **Lint issues:** 1
 
-### 270. debug.adapter
+### 271. tests.callable
 
-- **Target:** `debug.Adapter [ZERO] [PROVENANCE-FALLBACK]`
+- **Target:** `typing.Callable [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 13610.0
+- **Priority Score:** 20210.0
+- **Functions:** 0/2 matched (target 10)
+- **Missing functions:** `test_callable_with_args`, `test_callable_named`
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Tests:** 0/2 matched
+- **Provenance warning:** port-lint provenance header matched only by basename: `tests/callable.rs` vs expected `typing/tests/callable.rs`
+- **Proposed provenance header:** `// port-lint: source typing/tests/callable.rs` (current: `// port-lint: source tests/callable.rs`)
+- **Lint issues:** 1
+
+### 272. debug.adapter
+
+- **Target:** `debug.Adapter [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.68
+- **Dependents:** 0
+- **Priority Score:** 13603.2
 - **Functions:** 21/22 matched (target 23)
 - **Missing functions:** `fmt`
 - **Types:** 14/14 matched (target 29)
@@ -4126,12 +4155,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source debug/adapter.rs` (current: `// port-lint: source src/debug/adapter.rs`)
 - **Lint issues:** 1
 
-### 271. docs
+### 273. docs
 
-- **Target:** `docs.Docs [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `docs.Docs [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.55
 - **Dependents:** 0
-- **Priority Score:** 12310.0
+- **Priority Score:** 12304.5
 - **Functions:** 12/13 matched (target 16)
 - **Missing functions:** `default`
 - **Types:** 10/10 matched (target 15)
@@ -4140,7 +4169,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source docs.rs` (current: `// port-lint: source src/docs.rs`)
 - **Lint issues:** 1
 
-### 272. typing.basic
+### 274. typing.basic
 
 - **Target:** `typing.Basic [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.72
@@ -4150,11 +4179,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `fmt`
 - **Types:** 1/1 matched (target 11)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/basic.rs` vs expected `typing/basic.rs`
-- **Proposed provenance header:** `// port-lint: source typing/basic.rs` (current: `// port-lint: source src/typing/basic.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `basic.rs` vs expected `typing/basic.rs`
+- **Proposed provenance header:** `// port-lint: source typing/basic.rs` (current: `// port-lint: source basic.rs`)
 - **Lint issues:** 1
 
-### 273. record.instance
+### 275. record.instance
 
 - **Target:** `record.Instance [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
@@ -4168,7 +4197,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/instance.rs` (current: `// port-lint: source src/values/types/record/instance.rs`)
 - **Lint issues:** 1
 
-### 274. compiler.def_inline
+### 276. compiler.def_inline
 
 - **Target:** `compiler.DefInline [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.70
@@ -4182,7 +4211,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/def_inline.rs` (current: `// port-lint: source src/eval/compiler/defInline.rs`)
 - **Lint issues:** 1
 
-### 275. type_compiled.factory
+### 277. type_compiled.factory
 
 - **Target:** `typecompiled.Factory [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.93
@@ -4196,7 +4225,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/factory.rs` (current: `// port-lint: source src/values/typing/typeCompiled/factory.rs`)
 - **Lint issues:** 1
 
-### 276. bool.value
+### 278. bool.value
 
 - **Target:** `bool.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.49
@@ -4210,7 +4239,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bool/value.rs` (current: `// port-lint: source src/values/types/bool/value.rs`)
 - **Lint issues:** 1
 
-### 277. enumeration.value
+### 279. enumeration.value
 
 - **Target:** `enumeration.Value [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.57
@@ -4224,7 +4253,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/enumeration/value.rs` (current: `// port-lint: source src/values/types/enumeration/value.rs`)
 - **Lint issues:** 3
 
-### 278. namespace.typing
+### 280. namespace.typing
 
 - **Target:** `namespace.Typing [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.65
@@ -4238,7 +4267,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/namespace/typing.rs` (current: `// port-lint: source src/values/types/namespace/typing.rs`)
 - **Lint issues:** 1
 
-### 279. tests.type_annot
+### 281. tests.type_annot
 
 - **Target:** `tests.TypeAnnot [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.84
@@ -4253,7 +4282,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/type_annot.rs` (current: `// port-lint: source src/tests/typeAnnot.rs`)
 - **Lint issues:** 1
 
-### 280. values.recursive_repr_or_json_guard
+### 282. values.recursive_repr_or_json_guard
 
 - **Target:** `values.RecursiveReprOrJsonGuard [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.34
@@ -4267,7 +4296,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/recursive_repr_or_json_guard.rs` (current: `// port-lint: source src/values/recursiveReprOrJsonGuard.rs`)
 - **Lint issues:** 1
 
-### 281. profile.by_type
+### 283. profile.by_type
 
 - **Target:** `profile.ByType [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -4282,7 +4311,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/profile/by_type.rs` (current: `// port-lint: source src/values/layout/heap/profile/byType.rs`)
 - **Lint issues:** 1
 
-### 282. module.methods
+### 284. module.methods
 
 - **Target:** `module.Methods [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.61
@@ -4297,7 +4326,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/methods.rs` (current: `// port-lint: source src/tests/derive/module/methods.rs`)
 - **Lint issues:** 1
 
-### 283. compiler.if_compiler
+### 285. compiler.if_compiler
 
 - **Target:** `compiler.IfCompiler [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.77
@@ -4311,21 +4340,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/if_compiler.rs` (current: `// port-lint: source src/eval/bc/compiler/ifCompiler.rs`)
 - **Lint issues:** 1
 
-### 284. types.unbound
-
-- **Target:** `types.Unbound [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 10510.0
-- **Functions:** 3/4 matched
-- **Missing functions:** `fmt`
-- **Types:** 1/1 matched (target 3)
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/unbound.rs` vs expected `values/types/unbound.rs`
-- **Proposed provenance header:** `// port-lint: source values/types/unbound.rs` (current: `// port-lint: source src/values/types/unbound.rs`)
-- **Lint issues:** 1
-
-### 285. eval.bc.compiler.call
+### 286. eval.bc.compiler.call
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Call [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
@@ -4339,7 +4354,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/call.rs` (current: `// port-lint: source src/eval/bc/compiler/call.rs`)
 - **Lint issues:** 1
 
-### 286. structs.structs
+### 287. types.unbound
+
+- **Target:** `types.Unbound [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.60
+- **Dependents:** 0
+- **Priority Score:** 10504.0
+- **Functions:** 3/4 matched
+- **Missing functions:** `fmt`
+- **Types:** 1/1 matched (target 3)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/unbound.rs` vs expected `values/types/unbound.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/unbound.rs` (current: `// port-lint: source src/values/types/unbound.rs`)
+- **Lint issues:** 1
+
+### 288. structs.structs
 
 - **Target:** `structs.Structs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.60
@@ -4353,7 +4382,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/structs/structs.rs` (current: `// port-lint: source src/values/types/structs/structs.rs`)
 - **Lint issues:** 1
 
-### 287. module.type_annotation
+### 289. module.type_annotation
 
 - **Target:** `module.TypeAnnotation [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.43
@@ -4368,7 +4397,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/type_annotation.rs` (current: `// port-lint: source src/tests/derive/module/typeAnnotation.rs`)
 - **Lint issues:** 1
 
-### 288. analysis.find_call_name
+### 290. analysis.find_call_name
 
 - **Target:** `analysis.FindCallName [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.53
@@ -4383,7 +4412,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/find_call_name.rs` (current: `// port-lint: source src/analysis/findCallName.rs`)
 - **Lint issues:** 1
 
-### 289. freeze.validator
+### 291. freeze.validator
 
 - **Target:** `freeze.Validator [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.84
@@ -4398,7 +4427,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/freeze/validator.rs` (current: `// port-lint: source src/tests/derive/freeze/validator.rs`)
 - **Lint issues:** 2
 
-### 290. dict.globals
+### 292. dict.globals
 
 - **Target:** `dict.Globals [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -4412,7 +4441,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/dict/globals.rs` (current: `// port-lint: source src/values/types/dict/globals.rs`)
 - **Lint issues:** 1
 
-### 291. module.default_value
+### 293. module.default_value
 
 - **Target:** `module.DefaultValue [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.45
@@ -4427,7 +4456,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/default_value.rs` (current: `// port-lint: source src/tests/derive/module/defaultValue.rs`)
 - **Lint issues:** 1
 
-### 292. module.special_params
+### 294. module.special_params
 
 - **Target:** `module.SpecialParams [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.47
@@ -4442,7 +4471,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/module/special_params.rs` (current: `// port-lint: source src/tests/derive/module/specialParams.rs`)
 - **Lint issues:** 1
 
-### 293. compiler.assign_modify
+### 295. compiler.assign_modify
 
 - **Target:** `compiler.AssignModify [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.88
@@ -4456,21 +4485,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/assign_modify.rs` (current: `// port-lint: source src/eval/bc/compiler/assignModify.rs`)
 - **Lint issues:** 1
 
-### 294. runtime.visit_span
-
-- **Target:** `runtime.VisitSpan [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 10210.0
-- **Functions:** 0/1 matched (target 19)
-- **Missing functions:** `visit_spans`
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/visitSpan.rs` vs expected `eval/runtime/visit_span.rs`
-- **Proposed provenance header:** `// port-lint: source eval/runtime/visit_span.rs` (current: `// port-lint: source src/eval/runtime/visitSpan.rs`)
-- **Lint issues:** 1
-
-### 295. pagable.error
+### 296. pagable.error
 
 - **Target:** `pagable.Error [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -4484,7 +4499,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source pagable/error.rs` (current: `// port-lint: source src/pagable/error.rs`)
 - **Lint issues:** 1
 
-### 296. float.globals
+### 297. runtime.visit_span
+
+- **Target:** `runtime.VisitSpan [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10210.0
+- **Functions:** 0/1 matched (target 19)
+- **Missing functions:** `visit_spans`
+- **Types:** 1/1 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/visitSpan.rs` vs expected `eval/runtime/visit_span.rs`
+- **Proposed provenance header:** `// port-lint: source eval/runtime/visit_span.rs` (current: `// port-lint: source src/eval/runtime/visitSpan.rs`)
+- **Lint issues:** 1
+
+### 298. float.globals
 
 - **Target:** `float.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.18
@@ -4498,7 +4527,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/float/globals.rs` (current: `// port-lint: source src/values/types/float/globals.rs`)
 - **Lint issues:** 1
 
-### 297. bool.globals
+### 299. bool.globals
 
 - **Target:** `bool.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.21
@@ -4512,7 +4541,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bool/globals.rs` (current: `// port-lint: source src/values/types/bool/globals.rs`)
 - **Lint issues:** 1
 
-### 298. int.globals
+### 300. int.globals
 
 - **Target:** `int.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.23
@@ -4526,7 +4555,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/int/globals.rs` (current: `// port-lint: source src/values/types/int/globals.rs`)
 - **Lint issues:** 1
 
-### 299. bool.type_repr
+### 301. bool.type_repr
 
 - **Target:** `bool.TypeRepr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.28
@@ -4540,7 +4569,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bool/type_repr.rs` (current: `// port-lint: source src/values/types/bool/typeRepr.rs`)
 - **Lint issues:** 1
 
-### 300. tuple.globals
+### 302. tuple.globals
 
 - **Target:** `tuple.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.29
@@ -4554,7 +4583,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/tuple/globals.rs` (current: `// port-lint: source src/values/types/tuple/globals.rs`)
 - **Lint issues:** 1
 
-### 301. range.globals
+### 303. range.globals
 
 - **Target:** `range.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.30
@@ -4568,7 +4597,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/range/globals.rs` (current: `// port-lint: source src/values/types/range/globals.rs`)
 - **Lint issues:** 1
 
-### 302. namespace.globals
+### 304. namespace.globals
 
 - **Target:** `namespace.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.31
@@ -4582,7 +4611,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/namespace/globals.rs` (current: `// port-lint: source src/values/types/namespace/globals.rs`)
 - **Lint issues:** 1
 
-### 303. num.globals
+### 305. num.globals
 
 - **Target:** `num.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.32
@@ -4596,7 +4625,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/num/globals.rs` (current: `// port-lint: source src/values/types/num/globals.rs`)
 - **Lint issues:** 1
 
-### 304. bool.unpack
+### 306. bool.unpack
 
 - **Target:** `bool.Unpack [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.94
@@ -4610,7 +4639,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bool/unpack.rs` (current: `// port-lint: source src/values/types/bool/unpack.rs`)
 - **Lint issues:** 1
 
-### 305. freeze.basic
+### 307. freeze.basic
 
 - **Target:** `freeze.Basic [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -4624,7 +4653,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/freeze/basic.rs` (current: `// port-lint: source src/tests/derive/freeze/basic.rs`)
 - **Lint issues:** 1
 
-### 306. bc.writer
+### 308. bc.writer
 
 - **Target:** `bc.Writer [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.81
@@ -4638,7 +4667,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/writer.rs` (current: `// port-lint: source src/eval/bc/writer.rs`)
 - **Lint issues:** 1
 
-### 307. typing.fill_types_for_lint
+### 309. typing.fill_types_for_lint
 
 - **Target:** `typing.FillTypesForLint [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -4652,7 +4681,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/fill_types_for_lint.rs` (current: `// port-lint: source src/typing/fillTypesForLint.rs`)
 - **Lint issues:** 4
 
-### 308. oracle.ctx
+### 310. oracle.ctx
 
 - **Target:** `oracle.Ctx [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.81
@@ -4662,11 +4691,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 2/2 matched (target 14)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/oracle/ctx.rs` vs expected `typing/oracle/ctx.rs`
-- **Proposed provenance header:** `// port-lint: source typing/oracle/ctx.rs` (current: `// port-lint: source src/typing/oracle/ctx.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `oracle/ctx.rs` vs expected `typing/oracle/ctx.rs`
+- **Proposed provenance header:** `// port-lint: source typing/oracle/ctx.rs` (current: `// port-lint: source oracle/ctx.rs`)
 - **Lint issues:** 1
 
-### 309. type_compiled.alloc
+### 311. type_compiled.alloc
 
 - **Target:** `typecompiled.Alloc [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.90
@@ -4680,7 +4709,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/alloc.rs` (current: `// port-lint: source src/values/typing/typeCompiled/alloc.rs`)
 - **Lint issues:** 1
 
-### 310. type_compiled.matchers
+### 312. type_compiled.matchers
 
 - **Target:** `typecompiled.Matchers [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.86
@@ -4694,21 +4723,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/matchers.rs` (current: `// port-lint: source src/values/typing/typeCompiled/matchers.rs`)
 - **Lint issues:** 3
 
-### 311. docs.markdown
-
-- **Target:** `docs.Markdown [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 2010.0
-- **Functions:** 18/18 matched (target 19)
-- **Missing functions:** _none_
-- **Types:** 2/2 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/docs/markdown.rs` vs expected `docs/markdown.rs`
-- **Proposed provenance header:** `// port-lint: source docs/markdown.rs` (current: `// port-lint: source src/docs/markdown.rs`)
-- **Lint issues:** 1
-
-### 312. typing.ctx
+### 313. typing.ctx
 
 - **Target:** `typing.Ctx [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.72
@@ -4718,11 +4733,25 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 1/1 matched (target 2)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/ctx.rs` vs expected `typing/ctx.rs`
-- **Proposed provenance header:** `// port-lint: source typing/ctx.rs` (current: `// port-lint: source src/typing/ctx.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `ctx.rs` vs expected `typing/ctx.rs`
+- **Proposed provenance header:** `// port-lint: source typing/ctx.rs` (current: `// port-lint: source ctx.rs`)
 - **Lint issues:** 2
 
-### 313. scope.tests
+### 314. docs.markdown
+
+- **Target:** `docs.Markdown [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.84
+- **Dependents:** 0
+- **Priority Score:** 2001.6
+- **Functions:** 18/18 matched (target 19)
+- **Missing functions:** _none_
+- **Types:** 2/2 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/docs/markdown.rs` vs expected `docs/markdown.rs`
+- **Proposed provenance header:** `// port-lint: source docs/markdown.rs` (current: `// port-lint: source src/docs/markdown.rs`)
+- **Lint issues:** 1
+
+### 315. scope.tests
 
 - **Target:** `scope.Tests [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.88
@@ -4737,7 +4766,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/scope/tests.rs` (current: `// port-lint: source src/eval/compiler/scope/tests.rs`)
 - **Lint issues:** 1
 
-### 314. tests.fstring
+### 316. tests.fstring
 
 - **Target:** `tests.Fstring [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.97
@@ -4752,7 +4781,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/fstring.rs` (current: `// port-lint: source src/tests/fstring.rs`)
 - **Lint issues:** 1
 
-### 315. environment.names
+### 317. environment.names
 
 - **Target:** `environment.Names [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.63
@@ -4766,7 +4795,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source environment/names.rs` (current: `// port-lint: source src/environment/names.rs`)
 - **Lint issues:** 1
 
-### 316. eval.bc.compiler.expr
+### 318. eval.bc.compiler.expr
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Expr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.81
@@ -4780,7 +4809,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/expr.rs` (current: `// port-lint: source src/eval/bc/compiler/expr.rs`)
 - **Lint issues:** 1
 
-### 317. compiler.call
+### 319. compiler.call
 
 - **Target:** `compiler.Call [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.75
@@ -4794,21 +4823,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/call.rs` (current: `// port-lint: source src/eval/compiler/call.rs`)
 - **Lint issues:** 1
 
-### 318. typing.error
-
-- **Target:** `typing.Error [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.78
-- **Dependents:** 0
-- **Priority Score:** 1402.2
-- **Functions:** 9/9 matched (target 23)
-- **Missing functions:** _none_
-- **Types:** 5/5 matched (target 10)
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/error.rs` vs expected `typing/error.rs`
-- **Proposed provenance header:** `// port-lint: source typing/error.rs` (current: `// port-lint: source src/typing/error.rs`)
-- **Lint issues:** 1
-
-### 319. type_compiled.tests
+### 320. type_compiled.tests
 
 - **Target:** `typecompiled.Tests [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.95
@@ -4823,7 +4838,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/type_compiled/tests.rs` (current: `// port-lint: source src/values/typing/typeCompiled/tests.rs`)
 - **Lint issues:** 1
 
-### 320. profile.tests
+### 321. profile.tests
 
 - **Target:** `profile.Tests [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.96
@@ -4838,7 +4853,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/runtime/profile/tests.rs` (current: `// port-lint: source src/eval/runtime/profile/tests.rs`)
 - **Lint issues:** 1
 
-### 321. compiler.compr
+### 322. compiler.compr
 
 - **Target:** `compiler.Compr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.76
@@ -4852,7 +4867,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/compr.rs` (current: `// port-lint: source src/eval/compiler/compr.rs`)
 - **Lint issues:** 1
 
-### 322. bc.if_stmt
+### 323. bc.if_stmt
 
 - **Target:** `bc.IfStmt [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.98
@@ -4867,7 +4882,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/bc/if_stmt.rs` (current: `// port-lint: source src/tests/bc/ifStmt.rs`)
 - **Lint issues:** 1
 
-### 323. environment.slots
+### 324. environment.slots
 
 - **Target:** `environment.Slots [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
@@ -4881,7 +4896,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source environment/slots.rs` (current: `// port-lint: source src/environment/slots.rs`)
 - **Lint issues:** 1
 
-### 324. docs.multipage
+### 325. docs.multipage
 
 - **Target:** `docs.Multipage [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.86
@@ -4895,7 +4910,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source docs/multipage.rs` (current: `// port-lint: source src/docs/multipage.rs`)
 - **Lint issues:** 1
 
-### 325. tests.comprehension
+### 326. tests.comprehension
 
 - **Target:** `tests.Comprehension [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.96
@@ -4908,21 +4923,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Tests:** 9/9 matched
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/comprehension.rs` vs expected `tests/comprehension.rs`
 - **Proposed provenance header:** `// port-lint: source tests/comprehension.rs` (current: `// port-lint: source src/tests/comprehension.rs`)
-- **Lint issues:** 1
-
-### 326. typing.tests.call
-
-- **Target:** `commonTest.kotlin.io.github.kotlinmania.starlark.typing.tests.Call [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.71
-- **Dependents:** 0
-- **Priority Score:** 902.9
-- **Functions:** 9/9 matched
-- **Missing functions:** _none_
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-- **Tests:** 9/9 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests/call.rs` vs expected `typing/tests/call.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests/call.rs` (current: `// port-lint: source src/typing/tests/call.rs`)
 - **Lint issues:** 1
 
 ### 327. compiler.types
@@ -5168,8 +5168,8 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Tests:** 6/6 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests/list.rs` vs expected `typing/tests/list.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests/list.rs` (current: `// port-lint: source src/typing/tests/list.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `tests/list.rs` vs expected `typing/tests/list.rs`
+- **Proposed provenance header:** `// port-lint: source typing/tests/list.rs` (current: `// port-lint: source tests/list.rs`)
 - **Lint issues:** 1
 
 ### 344. int.tests
@@ -5204,10 +5204,10 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 346. string.globals
 
-- **Target:** `string.Globals [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `string.Globals [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.71
 - **Dependents:** 0
-- **Priority Score:** 510.0
+- **Priority Score:** 502.9
 - **Functions:** 5/5 matched
 - **Missing functions:** _none_
 - **Types:** 0/0 matched
@@ -5315,21 +5315,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/bc/definitely_assigned.rs` (current: `// port-lint: source src/tests/bc/definitelyAssigned.rs`)
 - **Lint issues:** 1
 
-### 354. trace.bounds
-
-- **Target:** `trace.Bounds [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 410.0
-- **Functions:** 2/2 matched (target 3)
-- **Missing functions:** _none_
-- **Types:** 2/2 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/trace/bounds.rs` vs expected `tests/derive/trace/bounds.rs`
-- **Proposed provenance header:** `// port-lint: source tests/derive/trace/bounds.rs` (current: `// port-lint: source src/tests/derive/trace/bounds.rs`)
-- **Lint issues:** 1
-
-### 355. __derive_refs.components
+### 354. __derive_refs.components
 
 - **Target:** `deriverefs.Components [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.77
@@ -5343,7 +5329,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source __derive_refs/components.rs` (current: `// port-lint: source src/__derive_refs/components.rs`)
 - **Lint issues:** 1
 
-### 356. string.iter
+### 355. string.iter
 
 - **Target:** `string.Iter [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.82
@@ -5355,9 +5341,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/types/string/iter.rs` vs expected `values/types/string/iter.rs`
 - **Proposed provenance header:** `// port-lint: source values/types/string/iter.rs` (current: `// port-lint: source src/values/types/string/iter.rs`)
-- **Lint issues:** 2
+- **Lint issues:** 1
 
-### 357. tests.util
+### 356. tests.util
 
 - **Target:** `tests.Util [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.83
@@ -5371,7 +5357,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/util.rs` (current: `// port-lint: source src/tests/util.rs`)
 - **Lint issues:** 2
 
-### 358. unused_loads.remove_tests
+### 357. unused_loads.remove_tests
 
 - **Target:** `unusedloads.RemoveTestsTest [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.86
@@ -5386,7 +5372,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source analysis/unused_loads/remove_tests.rs` (current: `// port-lint: source src/analysis/unusedLoads/removeTests.rs`)
 - **Lint issues:** 1
 
-### 359. __derive_refs.sig
+### 358. __derive_refs.sig
 
 - **Target:** `deriverefs.Sig [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.86
@@ -5398,6 +5384,20 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/__derive_refs/sig.rs` vs expected `__derive_refs/sig.rs`
 - **Proposed provenance header:** `// port-lint: source __derive_refs/sig.rs` (current: `// port-lint: source src/__derive_refs/sig.rs`)
+- **Lint issues:** 1
+
+### 359. trace.bounds
+
+- **Target:** `trace.Bounds [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.98
+- **Dependents:** 0
+- **Priority Score:** 400.2
+- **Functions:** 2/2 matched (target 3)
+- **Missing functions:** _none_
+- **Types:** 2/2 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/trace/bounds.rs` vs expected `tests/derive/trace/bounds.rs`
+- **Proposed provenance header:** `// port-lint: source tests/derive/trace/bounds.rs` (current: `// port-lint: source src/tests/derive/trace/bounds.rs`)
 - **Lint issues:** 1
 
 ### 360. bc.compr
@@ -5432,10 +5432,10 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 362. derive.attrs
 
-- **Target:** `derive.Attrs [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `derive.Attrs [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.58
 - **Dependents:** 0
-- **Priority Score:** 310.0
+- **Priority Score:** 304.2
 - **Functions:** 1/1 matched (target 11)
 - **Missing functions:** _none_
 - **Types:** 2/2 matched (target 3)
@@ -5469,8 +5469,8 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 2/2 matched
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/oracle/traits.rs` vs expected `typing/oracle/traits.rs`
-- **Proposed provenance header:** `// port-lint: source typing/oracle/traits.rs` (current: `// port-lint: source src/typing/oracle/traits.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `oracle/traits.rs` vs expected `typing/oracle/traits.rs`
+- **Proposed provenance header:** `// port-lint: source typing/oracle/traits.rs` (current: `// port-lint: source oracle/traits.rs`)
 - **Lint issues:** 1
 
 ### 365. compiler.error
@@ -5479,13 +5479,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Similarity:** 0.62
 - **Dependents:** 0
 - **Priority Score:** 303.8
-- **Functions:** 2/2 matched
+- **Functions:** 2/2 matched (target 25)
 - **Missing functions:** _none_
-- **Types:** 1/1 matched
+- **Types:** 1/1 matched (target 11)
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/compiler/error.rs` vs expected `eval/compiler/error.rs`
+- **Provenance warning:** port-lint provenance header matched only by basename: `error.rs` vs expected `eval/compiler/error.rs`
 - **Proposed provenance header:** `// port-lint: source eval/compiler/error.rs` (current: `// port-lint: source src/eval/compiler/error.rs`)
-- **Lint issues:** 1
+- **Proposed provenance header:** `// port-lint: source eval/compiler/error.rs` (current: `// port-lint: source error.rs`)
+- **Lint issues:** 2
 
 ### 366. tests.types
 
@@ -5498,8 +5500,8 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Tests:** 3/3 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests/types.rs` vs expected `typing/tests/types.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests/types.rs` (current: `// port-lint: source src/typing/tests/types.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `tests/types.rs` vs expected `typing/tests/types.rs`
+- **Proposed provenance header:** `// port-lint: source typing/tests/types.rs` (current: `// port-lint: source tests/types.rs`)
 - **Lint issues:** 1
 
 ### 367. callable.param
@@ -5522,13 +5524,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Similarity:** 0.89
 - **Dependents:** 0
 - **Priority Score:** 301.1
-- **Functions:** 2/2 matched
+- **Functions:** 2/2 matched (target 8)
 - **Missing functions:** _none_
-- **Types:** 1/1 matched
+- **Types:** 1/1 matched (target 17)
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/compiler/typeExpr.rs` vs expected `eval/compiler/type_expr.rs`
+- **Provenance warning:** port-lint provenance header matched only by basename: `starlarkSyntax/src/syntax/typeExpr.rs` vs expected `eval/compiler/type_expr.rs`
 - **Proposed provenance header:** `// port-lint: source eval/compiler/type_expr.rs` (current: `// port-lint: source src/eval/compiler/typeExpr.rs`)
-- **Lint issues:** 1
+- **Proposed provenance header:** `// port-lint: source eval/compiler/type_expr.rs` (current: `// port-lint: source starlarkSyntax/src/syntax/typeExpr.rs`)
+- **Lint issues:** 2
 
 ### 369. bc.for_stmt
 
@@ -5588,7 +5592,21 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/unpack_value_attr.rs` (current: `// port-lint: source src/tests/derive/unpackValueAttr.rs`)
 - **Lint issues:** 1
 
-### 373. allocator.api
+### 373. bc.instr
+
+- **Target:** `bc.Instr [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 210.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 2/2 matched (target 5)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/instr.rs` vs expected `eval/bc/instr.rs`
+- **Proposed provenance header:** `// port-lint: source eval/bc/instr.rs` (current: `// port-lint: source src/eval/bc/instr.rs`)
+- **Lint issues:** 1
+
+### 374. allocator.api
 
 - **Target:** `allocator.Api [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -5602,7 +5620,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator/api.rs` (current: `// port-lint: source src/values/layout/heap/allocator/api.rs`)
 - **Lint issues:** 1
 
-### 374. trace.statics
+### 375. trace.statics
 
 - **Target:** `trace.Statics [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -5614,20 +5632,6 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/trace/statics.rs` vs expected `tests/derive/trace/statics.rs`
 - **Proposed provenance header:** `// port-lint: source tests/derive/trace/statics.rs` (current: `// port-lint: source src/tests/derive/trace/statics.rs`)
-- **Lint issues:** 1
-
-### 375. bc.instr
-
-- **Target:** `bc.Instr [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 210.0
-- **Functions:** 0/0 matched
-- **Missing functions:** _none_
-- **Types:** 2/2 matched (target 5)
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/instr.rs` vs expected `eval/bc/instr.rs`
-- **Proposed provenance header:** `// port-lint: source eval/bc/instr.rs` (current: `// port-lint: source src/eval/bc/instr.rs`)
 - **Lint issues:** 1
 
 ### 376. __derive_refs.invoke_macro_error
@@ -5644,37 +5648,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source __derive_refs/invoke_macro_error.rs` (current: `// port-lint: source src/__derive_refs/invokeMacroError.rs`)
 - **Lint issues:** 1
 
-### 377. tests.tuple
-
-- **Target:** `tests.Tuple [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.69
-- **Dependents:** 0
-- **Priority Score:** 203.1
-- **Functions:** 2/2 matched
-- **Missing functions:** _none_
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-- **Tests:** 2/2 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests/tuple.rs` vs expected `typing/tests/tuple.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests/tuple.rs` (current: `// port-lint: source src/typing/tests/tuple.rs`)
-- **Lint issues:** 1
-
-### 378. tests.callable
-
-- **Target:** `tests.Callable [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.69
-- **Dependents:** 0
-- **Priority Score:** 203.1
-- **Functions:** 2/2 matched
-- **Missing functions:** _none_
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-- **Tests:** 2/2 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/tests/callable.rs` vs expected `typing/tests/callable.rs`
-- **Proposed provenance header:** `// port-lint: source typing/tests/callable.rs` (current: `// port-lint: source src/typing/tests/callable.rs`)
-- **Lint issues:** 1
-
-### 379. bc.golden
+### 377. bc.golden
 
 - **Target:** `bc.Golden [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.71
@@ -5688,7 +5662,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/bc/golden.rs` (current: `// port-lint: source src/tests/bc/golden.rs`)
 - **Lint issues:** 1
 
-### 380. tests.special_function
+### 378. tests.special_function
 
 - **Target:** `tests.SpecialFunction [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.77
@@ -5703,7 +5677,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/tests/special_function.rs` (current: `// port-lint: source src/typing/tests/specialFunction.rs`)
 - **Lint issues:** 1
 
-### 381. typing.macro_refs
+### 379. typing.macro_refs
 
 - **Target:** `typing.MacroRefs [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.80
@@ -5717,7 +5691,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/macro_refs.rs` (current: `// port-lint: source src/values/typing/macroRefs.rs`)
 - **Lint issues:** 1
 
-### 382. enumeration.matcher
+### 380. enumeration.matcher
 
 - **Target:** `enumeration.Matcher [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.82
@@ -5731,21 +5705,23 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/enumeration/matcher.rs` (current: `// port-lint: source src/values/types/enumeration/matcher.rs`)
 - **Lint issues:** 1
 
-### 383. eval.bc.compiler.def
+### 381. eval.bc.compiler.def
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Def [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.84
 - **Dependents:** 0
 - **Priority Score:** 201.6
-- **Functions:** 2/2 matched
+- **Functions:** 2/2 matched (target 6)
 - **Missing functions:** _none_
-- **Types:** 0/0 matched
+- **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/compiler/def.rs` vs expected `eval/bc/compiler/def.rs`
+- **Provenance warning:** port-lint provenance header matched only by basename: `starlarkSyntax/src/syntax/def.rs` vs expected `eval/bc/compiler/def.rs`
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/def.rs` (current: `// port-lint: source src/eval/bc/compiler/def.rs`)
-- **Lint issues:** 1
+- **Proposed provenance header:** `// port-lint: source eval/bc/compiler/def.rs` (current: `// port-lint: source starlarkSyntax/src/syntax/def.rs`)
+- **Lint issues:** 2
 
-### 384. eval
+### 382. eval
 
 - **Target:** `eval.Eval [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.84
@@ -5759,7 +5735,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval.rs` (current: `// port-lint: source src/eval.rs`)
 - **Lint issues:** 1
 
-### 385. typing.macro_support
+### 383. typing.macro_support
 
 - **Target:** `typing.MacroSupport [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.85
@@ -5773,7 +5749,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source typing/macro_support.rs` (current: `// port-lint: source src/typing/macroSupport.rs`)
 - **Lint issues:** 1
 
-### 386. compiler.assign
+### 384. compiler.assign
 
 - **Target:** `compiler.Assign [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.85
@@ -5787,7 +5763,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/assign.rs` (current: `// port-lint: source src/eval/bc/compiler/assign.rs`)
 - **Lint issues:** 1
 
-### 387. layout.identity
+### 385. layout.identity
 
 - **Target:** `layout.Identity [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.86
@@ -5801,7 +5777,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/layout/identity.rs` (current: `// port-lint: source src/values/layout/identity.rs`)
 - **Lint issues:** 1
 
-### 388. opt.constant_folding
+### 386. opt.constant_folding
 
 - **Target:** `opt.ConstantFolding [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.87
@@ -5816,7 +5792,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/opt/constant_folding.rs` (current: `// port-lint: source src/tests/opt/constantFolding.rs`)
 - **Lint issues:** 1
 
-### 389. record.matcher
+### 387. record.matcher
 
 - **Target:** `record.Matcher [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.89
@@ -5830,7 +5806,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/record/matcher.rs` (current: `// port-lint: source src/values/types/record/matcher.rs`)
 - **Lint issues:** 1
 
-### 390. eval.bc.compiler.compr
+### 388. eval.bc.compiler.compr
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.starlark.eval.bc.compiler.Compr [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.93
@@ -5844,7 +5820,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/bc/compiler/compr.rs` (current: `// port-lint: source src/eval/bc/compiler/compr.rs`)
 - **Lint issues:** 1
 
-### 391. bool.alloc
+### 389. bool.alloc
 
 - **Target:** `bool.Alloc [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.95
@@ -5858,7 +5834,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/bool/alloc.rs` (current: `// port-lint: source src/values/types/bool/alloc.rs`)
 - **Lint issues:** 1
 
-### 392. opt.list_add
+### 390. opt.list_add
 
 - **Target:** `opt.ListAdd [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.99
@@ -5873,7 +5849,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/opt/list_add.rs` (current: `// port-lint: source src/tests/opt/listAdd.rs`)
 - **Lint issues:** 1
 
-### 393. opt.types
+### 391. opt.types
 
 - **Target:** `opt.Types [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.99
@@ -5888,35 +5864,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/opt/types.rs` (current: `// port-lint: source src/tests/opt/types.rs`)
 - **Lint issues:** 1
 
-### 394. bc.for_loop
-
-- **Target:** `bc.ForLoop [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 110.0
-- **Functions:** 0/0 matched (target 2)
-- **Missing functions:** _none_
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/forLoop.rs` vs expected `eval/bc/for_loop.rs`
-- **Proposed provenance header:** `// port-lint: source eval/bc/for_loop.rs` (current: `// port-lint: source src/eval/bc/forLoop.rs`)
-- **Lint issues:** 1
-
-### 395. typing.mode
-
-- **Target:** `typing.Mode [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 110.0
-- **Functions:** 0/0 matched
-- **Missing functions:** _none_
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/mode.rs` vs expected `typing/mode.rs`
-- **Proposed provenance header:** `// port-lint: source typing/mode.rs` (current: `// port-lint: source src/typing/mode.rs`)
-- **Lint issues:** 1
-
-### 396. environment
+### 392. environment
 
 - **Target:** `starlark.Environment [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -5930,35 +5878,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source environment.rs` (current: `// port-lint: source src/environment.rs`)
 - **Lint issues:** 1
 
-### 397. typing.call_args
-
-- **Target:** `typing.CallArgs [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 110.0
-- **Functions:** 0/0 matched
-- **Missing functions:** _none_
-- **Types:** 1/1 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/callArgs.rs` vs expected `typing/call_args.rs`
-- **Proposed provenance header:** `// port-lint: source typing/call_args.rs` (current: `// port-lint: source src/typing/callArgs.rs`)
-- **Lint issues:** 1
-
-### 398. profile.or_instrumentation
-
-- **Target:** `profile.OrInstrumentation [ZERO] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 110.0
-- **Functions:** 0/0 matched
-- **Missing functions:** _none_
-- **Types:** 1/1 matched (target 4)
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/profile/orInstrumentation.rs` vs expected `eval/runtime/profile/or_instrumentation.rs`
-- **Proposed provenance header:** `// port-lint: source eval/runtime/profile/or_instrumentation.rs` (current: `// port-lint: source src/eval/runtime/profile/orInstrumentation.rs`)
-- **Lint issues:** 1
-
-### 399. trace.enums
+### 393. trace.enums
 
 - **Target:** `trace.Enums [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -5972,7 +5892,63 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/trace/enums.rs` (current: `// port-lint: source src/tests/derive/trace/enums.rs`)
 - **Lint issues:** 1
 
-### 400. freeze.enums
+### 394. profile.or_instrumentation
+
+- **Target:** `profile.OrInstrumentation [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 110.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 1/1 matched (target 4)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/runtime/profile/orInstrumentation.rs` vs expected `eval/runtime/profile/or_instrumentation.rs`
+- **Proposed provenance header:** `// port-lint: source eval/runtime/profile/or_instrumentation.rs` (current: `// port-lint: source src/eval/runtime/profile/orInstrumentation.rs`)
+- **Lint issues:** 1
+
+### 395. bc.for_loop
+
+- **Target:** `bc.ForLoop [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 110.0
+- **Functions:** 0/0 matched (target 2)
+- **Missing functions:** _none_
+- **Types:** 1/1 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/eval/bc/forLoop.rs` vs expected `eval/bc/for_loop.rs`
+- **Proposed provenance header:** `// port-lint: source eval/bc/for_loop.rs` (current: `// port-lint: source src/eval/bc/forLoop.rs`)
+- **Lint issues:** 1
+
+### 396. typing.call_args
+
+- **Target:** `typing.CallArgs [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 110.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 1/1 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/typing/callArgs.rs` vs expected `typing/call_args.rs`
+- **Proposed provenance header:** `// port-lint: source typing/call_args.rs` (current: `// port-lint: source src/typing/callArgs.rs`)
+- **Lint issues:** 1
+
+### 397. typing.mode
+
+- **Target:** `typing.Mode [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 110.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 1/1 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `mode.rs` vs expected `typing/mode.rs`
+- **Proposed provenance header:** `// port-lint: source typing/mode.rs` (current: `// port-lint: source mode.rs`)
+- **Lint issues:** 1
+
+### 398. freeze.enums
 
 - **Target:** `freeze.Enums [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -5986,7 +5962,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/freeze/enums.rs` (current: `// port-lint: source src/tests/derive/freeze/enums.rs`)
 - **Lint issues:** 1
 
-### 401. wasm
+### 399. wasm
 
 - **Target:** `starlark.Wasm [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.22
@@ -6000,21 +5976,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source wasm.rs` (current: `// port-lint: source src/wasm.rs`)
 - **Lint issues:** 1
 
-### 402. environment.module_dump
-
-- **Target:** `environment.ModuleDump [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.48
-- **Dependents:** 0
-- **Priority Score:** 105.2
-- **Functions:** 1/1 matched (target 2)
-- **Missing functions:** _none_
-- **Types:** 0/0 matched
-- **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/environment/moduleDump.rs` vs expected `environment/module_dump.rs`
-- **Proposed provenance header:** `// port-lint: source environment/module_dump.rs` (current: `// port-lint: source src/environment/moduleDump.rs`)
-- **Lint issues:** 1
-
-### 403. tests.replace_binary
+### 400. tests.replace_binary
 
 - **Target:** `tests.ReplaceBinary [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.70
@@ -6029,7 +5991,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/replace_binary.rs` (current: `// port-lint: source src/tests/replaceBinary.rs`)
 - **Lint issues:** 1
 
-### 404. none.globals
+### 401. none.globals
 
 - **Target:** `none.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.71
@@ -6043,7 +6005,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/types/none/globals.rs` (current: `// port-lint: source src/values/types/none/globals.rs`)
 - **Lint issues:** 1
 
-### 405. typing.globals
+### 402. typing.globals
 
 - **Target:** `typing.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.74
@@ -6057,7 +6019,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source values/typing/globals.rs` (current: `// port-lint: source src/values/typing/globals.rs`)
 - **Lint issues:** 1
 
-### 406. compiler.known
+### 403. environment.module_dump
+
+- **Target:** `environment.ModuleDump`
+- **Similarity:** 0.76
+- **Dependents:** 0
+- **Priority Score:** 102.4
+- **Functions:** 1/1 matched (target 2)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+
+### 404. compiler.known
 
 - **Target:** `compiler.Known [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.77
@@ -6071,7 +6044,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/compiler/known.rs` (current: `// port-lint: source src/eval/compiler/known.rs`)
 - **Lint issues:** 1
 
-### 407. eval.params
+### 405. eval.params
 
 - **Target:** `eval.Params [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.91
@@ -6085,7 +6058,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source eval/params.rs` (current: `// port-lint: source src/eval/params.rs`)
 - **Lint issues:** 1
 
-### 408. tests.for_loop
+### 406. tests.for_loop
 
 - **Target:** `tests.ForLoop [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.99
@@ -6100,22 +6073,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/for_loop.rs` (current: `// port-lint: source src/tests/forLoop.rs`)
 - **Lint issues:** 1
 
-### 409. tests.bc.call
-
-- **Target:** `commonTest.kotlin.io.github.kotlinmania.starlark.tests.bc.Call [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.99
-- **Dependents:** 0
-- **Priority Score:** 100.1
-- **Functions:** 1/1 matched
-- **Missing functions:** _none_
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-- **Tests:** 1/1 matched
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/bc/call.rs` vs expected `tests/bc/call.rs`
-- **Proposed provenance header:** `// port-lint: source tests/bc/call.rs` (current: `// port-lint: source src/tests/bc/call.rs`)
-- **Lint issues:** 1
-
-### 410. bc.isinstance
+### 407. bc.isinstance
 
 - **Target:** `bc.Isinstance [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.99
@@ -6130,7 +6088,22 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/bc/isinstance.rs` (current: `// port-lint: source src/tests/bc/isinstance.rs`)
 - **Lint issues:** 1
 
-### 411. funcs.globals
+### 408. tests.bc.call
+
+- **Target:** `commonTest.kotlin.io.github.kotlinmania.starlark.tests.bc.Call [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.99
+- **Dependents:** 0
+- **Priority Score:** 100.1
+- **Functions:** 1/1 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Tests:** 1/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/bc/call.rs` vs expected `tests/bc/call.rs`
+- **Proposed provenance header:** `// port-lint: source tests/bc/call.rs` (current: `// port-lint: source src/tests/bc/call.rs`)
+- **Lint issues:** 1
+
+### 409. funcs.globals
 
 - **Target:** `funcs.Globals [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.99
@@ -6144,9 +6117,9 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source stdlib/funcs/globals.rs` (current: `// port-lint: source src/stdlib/funcs/globals.rs`)
 - **Lint issues:** 1
 
-### 412. heap.branding
+### 410. derive.trace
 
-- **Target:** `heap.Branding [STUB] [PROVENANCE-FALLBACK]`
+- **Target:** `derive.Trace [STUB] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 10.0
@@ -6154,11 +6127,11 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 0/0 matched
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/branding.rs` vs expected `values/layout/heap/branding.rs`
-- **Proposed provenance header:** `// port-lint: source values/layout/heap/branding.rs` (current: `// port-lint: source src/values/layout/heap/branding.rs`)
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/trace.rs` vs expected `tests/derive/trace.rs`
+- **Proposed provenance header:** `// port-lint: source tests/derive/trace.rs` (current: `// port-lint: source src/tests/derive/trace.rs`)
 - **Lint issues:** 1
 
-### 413. macros
+### 411. macros
 
 - **Target:** `starlark.Macros [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -6172,7 +6145,49 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source macros.rs` (current: `// port-lint: source src/macros.rs`)
 - **Lint issues:** 1
 
-### 414. derive.freeze
+### 412. types.structs
+
+- **Target:** `typing.Structs [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched (target 9)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 2)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `structs.rs` vs expected `values/types/structs.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/structs.rs` (current: `// port-lint: source structs.rs`)
+- **Lint issues:** 1
+
+### 413. heap.branding
+
+- **Target:** `heap.Branding [STUB] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/values/layout/heap/branding.rs` vs expected `values/layout/heap/branding.rs`
+- **Proposed provenance header:** `// port-lint: source values/layout/heap/branding.rs` (current: `// port-lint: source src/values/layout/heap/branding.rs`)
+- **Lint issues:** 1
+
+### 414. types.tuple
+
+- **Target:** `tests.Tuple [ZERO] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched (target 2)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `tests/tuple.rs` vs expected `values/types/tuple.rs`
+- **Proposed provenance header:** `// port-lint: source values/types/tuple.rs` (current: `// port-lint: source tests/tuple.rs`)
+- **Lint issues:** 1
+
+### 415. derive.freeze
 
 - **Target:** `derive.Freeze [STUB] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -6186,7 +6201,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source tests/derive/freeze.rs` (current: `// port-lint: source src/tests/derive/freeze.rs`)
 - **Lint issues:** 1
 
-### 415. pagable.vtable_register
+### 416. pagable.vtable_register
 
 - **Target:** `pagable.VtableRegister [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
@@ -6200,18 +6215,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Proposed provenance header:** `// port-lint: source pagable/vtable_register.rs` (current: `// port-lint: source src/pagable/vtableRegister.rs`)
 - **Lint issues:** 1
 
-### 416. derive.trace
+### 417. heap.allocator
 
-- **Target:** `derive.Trace [STUB] [PROVENANCE-FALLBACK]`
+- **Target:** `alloc.AllocatorTest [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 10.0
-- **Functions:** 0/0 matched
+- **Functions:** 0/0 matched (target 4)
 - **Missing functions:** _none_
-- **Types:** 0/0 matched
+- **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/tests/derive/trace.rs` vs expected `tests/derive/trace.rs`
-- **Proposed provenance header:** `// port-lint: source tests/derive/trace.rs` (current: `// port-lint: source src/tests/derive/trace.rs`)
+- **Provenance warning:** port-lint provenance header matched only by basename: `src/values/layout/heap/allocator/alloc/allocator.rs` vs expected `values/layout/heap/allocator.rs`
+- **Proposed provenance header:** `// port-lint: source values/layout/heap/allocator.rs` (current: `// port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs`)
 - **Lint issues:** 1
 
 ## Success Criteria
@@ -6248,12 +6263,11 @@ do not treat them as the next implementation target by default.
 | `assert` | `assert.Assert` | 84 | `assert.rs` | `assert/Assert.kt` |
 | `debug` | `debug.Debug` | 53 | `debug.rs` | `debug/Debug.kt` |
 | `typing.type_compiled` | `values.typing.typecompiled.TypeCompiled` | 22 | `values/typing/type_compiled.rs` | `values/typing/typecompiled/TypeCompiled.kt` |
-| `derive.module` | `tests.derive.module.Module` | 20 | `tests/derive/module.rs` | `tests/derive/module/Module.kt` |
 | `collections.symbol` | `collections.symbol.Symbol` | 15 | `collections/symbol.rs` | `collections/symbol/Symbol.kt` |
 | `types.dict` | `values.types.dict.Dict` | 12 | `values/types/dict.rs` | `values/types/dict/Dict.kt` |
 | `values.layout` | `values.layout.Layout` | 6 | `values/layout.rs` | `values/layout/Layout.kt` |
-| `eval.bc` | `eval.bc.Bc` | 5 | `eval/bc.rs` | `eval/bc/Bc.kt` |
 | `types.range` | `values.types.range.Range` | 5 | `values/types/range.rs` | `values/types/range/Range.kt` |
+| `eval.bc` | `eval.bc.Bc` | 5 | `eval/bc.rs` | `eval/bc/Bc.kt` |
 | `types.record` | `values.types.record.Record` | 3 | `values/types/record.rs` | `values/types/record/Record.kt` |
 | `types.namespace` | `values.types.namespace.Namespace` | 3 | `values/types/namespace.rs` | `values/types/namespace/Namespace.kt` |
 | `types.num` | `values.types.num.Num` | 2 | `values/types/num.rs` | `values/types/num/Num.kt` |
@@ -6262,24 +6276,19 @@ do not treat them as the next implementation target by default.
 | `types.string` | `values.types.string.String` | 1 | `values/types/string.rs` | `values/types/string/String.kt` |
 | `types.set` | `values.types.set.Set` | 1 | `values/types/set.rs` | `values/types/set/Set.kt` |
 | `types.none` | `values.types.none.None` | 1 | `values/types/none.rs` | `values/types/none/None.kt` |
-| `tests` | `tests.Tests` | 1 | `tests.rs` | `tests/Tests.kt` |
 | `types.int` | `values.types.int.Int` | 1 | `values/types/int.rs` | `values/types/int/Int.kt` |
 | `types.enumeration` | `values.types.enumeration.Enumeration` | 1 | `values/types/enumeration.rs` | `values/types/enumeration/Enumeration.kt` |
-| `typing` | `typing.Typing` | 1 | `typing.rs` | `typing/Typing.kt` |
 | `types.bool` | `values.types.bool.Bool` | 1 | `values/types/bool.rs` | `values/types/bool/Bool.kt` |
-| `allocator.alloc` | `values.layout.heap.allocator.alloc.Alloc` | 0 | `values/layout/heap/allocator/alloc.rs` | `values/layout/heap/allocator/alloc/Alloc.kt` |
+| `typing` | `typing.Typing` | 1 | `typing.rs` | `typing/Typing.kt` |
+| `values` | `values.Values` | 0 | `values.rs` | `values/Values.kt` |
 | `__derive_refs` | `deriverefs.DeriveRefs` | 0 | `__derive_refs.rs` | `deriverefs/DeriveRefs.kt` |
-| `docs.tests` | `docs.tests.Tests` | 0 | `docs/tests.rs` | `docs/tests/Tests.kt` |
+| `typing.tests` | `typing.tests.Tests` | 0 | `typing/tests.rs` | `typing/tests/Tests.kt` |
+| `typing.oracle` | `typing.oracle.Oracle` | 0 | `typing/oracle.rs` | `typing/oracle/Oracle.kt` |
 | `layout.avalues` | `values.layout.avalues.Avalues` | 0 | `values/layout/avalues.rs` | `values/layout/avalues/Avalues.kt` |
-| `collections` | `collections.Collections` | 0 | `collections.rs` | `collections/Collections.kt` |
-| `heap.allocator` | `values.layout.heap.allocator.Allocator` | 0 | `values/layout/heap/allocator.rs` | `values/layout/heap/allocator/Allocator.kt` |
-| `util` | `util.Util` | 0 | `util.rs` | `util/Util.kt` |
+| `tests.derive` | `tests.derive.Derive` | 0 | `tests/derive.rs` | `tests/derive/Derive.kt` |
+| `allocator.alloc` | `values.layout.heap.allocator.alloc.Alloc` | 0 | `values/layout/heap/allocator/alloc.rs` | `values/layout/heap/allocator/alloc/Alloc.kt` |
 | `heap.profile` | `values.layout.heap.profile.Profile` | 0 | `values/layout/heap/profile.rs` | `values/layout/heap/profile/Profile.kt` |
 | `values.types` | `values.types.Types` | 0 | `values/types.rs` | `values/types/Types.kt` |
-| `typing.oracle` | `typing.oracle.Oracle` | 0 | `typing/oracle.rs` | `typing/oracle/Oracle.kt` |
-| `analysis.unused_loads` | `analysis.unusedloads.UnusedLoads` | 0 | `analysis/unused_loads.rs` | `analysis/unusedloads/UnusedLoads.kt` |
-| `errors` | `errors.Errors` | 0 | `errors.rs` | `errors/Errors.kt` |
-| `tests.derive` | `tests.derive.Derive` | 0 | `tests/derive.rs` | `tests/derive/Derive.kt` |
 | `tests.bc` | `tests.bc.Bc` | 0 | `tests/bc.rs` | `tests/bc/Bc.kt` |
 | `syntax` | `Syntax` | 0 | `syntax.rs` | `Syntax.kt` |
 | `stdlib.funcs` | `stdlib.funcs.Funcs` | 0 | `stdlib/funcs.rs` | `stdlib/funcs/Funcs.kt` |
@@ -6289,9 +6298,11 @@ do not treat them as the next implementation target by default.
 | `runtime.params` | `eval.runtime.params.Params` | 0 | `eval/runtime/params.rs` | `eval/runtime/params/Params.kt` |
 | `eval.runtime` | `eval.runtime.Runtime` | 0 | `eval/runtime.rs` | `eval/runtime/Runtime.kt` |
 | `bc.compiler` | `eval.bc.compiler.Compiler` | 0 | `eval/bc/compiler.rs` | `eval/bc/compiler/Compiler.kt` |
+| `errors` | `errors.Errors` | 0 | `errors.rs` | `errors/Errors.kt` |
+| `docs.tests` | `docs.tests.Tests` | 0 | `docs/tests.rs` | `docs/tests/Tests.kt` |
+| `collections` | `collections.Collections` | 0 | `collections.rs` | `collections/Collections.kt` |
+| `analysis.unused_loads` | `analysis.unusedloads.UnusedLoads` | 0 | `analysis/unused_loads.rs` | `analysis/unusedloads/UnusedLoads.kt` |
 | `string.intern` | `values.types.string.intern.Intern` | 0 | `values/types/string/intern.rs` | `values/types/string/intern/Intern.kt` |
-| `types.structs` | `values.types.structs.Structs` | 0 | `values/types/structs.rs` | `values/types/structs/Structs.kt` |
-| `types.tuple` | `values.types.tuple.Tuple` | 0 | `values/types/tuple.rs` | `values/types/tuple/Tuple.kt` |
 | `values.typing` | `values.typing.Typing` | 0 | `values/typing.rs` | `values/typing/Typing.kt` |
-| `values` | `values.Values` | 0 | `values.rs` | `values/Values.kt` |
+| `util` | `util.Util` | 0 | `util.rs` | `util/Util.kt` |
 

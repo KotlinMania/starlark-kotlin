@@ -193,7 +193,7 @@ class Value internal constructor(
         /**
          * Create a new int for testing purposes.
          */
-        internal fun testingNewInt(x: Int): Value {
+        fun testingNewInt(x: Int): Value {
             return FrozenValue.testingNewInt(x).toValue()
         }
 
@@ -1276,6 +1276,33 @@ class Value internal constructor(
     // This is equivalent to toRepr().
     override fun toString(): String = toRepr()
 
+    /**
+     * Equivalent of Rust `Display::fmt` for [Value].
+     *
+     * Writes the Starlark `repr()` form into [collector], including cycle handling.
+     */
+    fun fmt(collector: StringBuilder) {
+        collectRepr(collector)
+    }
+
+    /**
+     * Equivalent of Rust `Debug::fmt` for [Value].
+     */
+    fun fmt(collector: StringBuilder, debug: Boolean) {
+        if (debug) {
+            collector.append(debugValue("Value", this))
+        } else {
+            fmt(collector)
+        }
+    }
+
+    /**
+     * Equivalent of Rust `PartialEq::eq` for [Value].
+     */
+    fun eq(other: Value): Boolean {
+        return equals(other).getOrDefault(false)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Value) return false
@@ -1574,6 +1601,31 @@ class FrozenValue internal constructor(
      */
     override fun compare(other: Value): Result<Int> {
         return toValue().compare(other)
+    }
+
+    /**
+     * Equivalent of Rust `Display::fmt` for [FrozenValue].
+     */
+    fun fmt(collector: StringBuilder) {
+        toValue().fmt(collector)
+    }
+
+    /**
+     * Equivalent of Rust `Debug::fmt` for [FrozenValue].
+     */
+    fun fmt(collector: StringBuilder, debug: Boolean) {
+        if (debug) {
+            collector.append(debugValue("FrozenValue", Value.newFrozen(this)))
+        } else {
+            fmt(collector)
+        }
+    }
+
+    /**
+     * Equivalent of Rust `PartialEq::eq` for [FrozenValue].
+     */
+    fun eq(other: FrozenValue): Boolean {
+        return toValue().eq(other.toValue())
     }
 
     override fun toString(): String {

@@ -31,7 +31,9 @@ data class FrozenFileSpan private constructor(
     private val span: Span,
 ) {
 
-    override fun toString(): String = toFileSpan().toString()
+    internal fun fmt(): String = toFileSpan().toString()
+
+    override fun toString(): String = fmt()
 
     companion object {
 
@@ -39,7 +41,9 @@ data class FrozenFileSpan private constructor(
 
         val DEFAULT: FrozenFileSpan = newUnchecked(FrozenRef(EMPTY_CODEMAP), Span.DEFAULT)
 
-        fun default(): FrozenFileSpan = DEFAULT
+        fun default(): FrozenFileSpan {
+            return new(FrozenRef(EMPTY_CODEMAP), Span.DEFAULT)
+        }
 
 
         fun newUnchecked(file: FrozenRef<CodeMap>, span: Span): FrozenFileSpan {

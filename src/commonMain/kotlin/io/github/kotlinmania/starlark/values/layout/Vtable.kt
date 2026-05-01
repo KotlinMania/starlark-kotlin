@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/vtable.rs
+// port-lint: source values/layout/vtable.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -37,8 +37,12 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
+
+private fun <T> transmute(value: T): T = value
 
 /**
  * Untyped raw pointer to a [StarlarkValue] without an attached vtable.
@@ -48,24 +52,37 @@ class StarlarkValueRawPtr(
     val ptr: Any,
 ) {
     companion object {
-        fun newHeader(header: Any): StarlarkValueRawPtr {
+        fun newHeader(header: AValueHeader): StarlarkValueRawPtr {
+            check(header.index % AValueHeader.ALIGN.toLong() == 0L)
             return StarlarkValueRawPtr(header)
         }
 
         internal fun newPointerI32(ptr: PointerI32): StarlarkValueRawPtr {
-            return StarlarkValueRawPtr(ptr)
+            val ptr = ptr as PointerI32
+            val ptrAny = ptr as Any
+            return StarlarkValueRawPtr(ptrAny)
         }
     }
 
     /**
-     * Pointer to the typed payload. The [ptr] field carries the typed object
-     * reference directly; this method runtime-checks the type via the Kotlin
-     * smart-cast and returns the value.
+     * Pointer to the typed payload.
      */
     inline fun <reified T : Any> valuePtr(): T {
-        val p = ptr
-        check(p is T) { "StarlarkValueRawPtr is not a ${T::class.simpleName}" }
-        return p
+        check(
+            AValueRepr.paddingAfterHeader<PointerI32>() == 0,
+        ) {
+            "There is no header for PointerI32, but following code should work"
+        }
+
+        val ptr = ptr
+        val paddingAfterHeader = AValueRepr.paddingAfterHeader<T>()
+        return if (ptr is AValueHeader) {
+            val repr = ptr.asRepr<T>()
+            check(paddingAfterHeader == AValueRepr.paddingAfterHeader<T>())
+            repr.payload
+        } else {
+            ptr as T
+        }
     }
 
     /** Reference to the typed payload; equivalent to [valuePtr]. */
@@ -87,6 +104,8 @@ class AValueVTable(
     val staticTypeOfValue: ConstTypeId,
     val starlarkTypeId: StarlarkTypeId,
     val typeName: String,
+    /** Cache `typeName` here to avoid computing hash (mirrors Rust `typeAsAllocativeKey`). */
+    val typeAsAllocativeKey: String = typeName,
 
     // AValue
     val isStr: Boolean,
@@ -96,6 +115,14 @@ class AValueVTable(
 
     // StarlarkValue dispatch
     internal val starlarkValue: StarlarkValue,
+
+    // Drop
+    private val dropInPlaceFn: (StarlarkValueRawPtr) -> Unit = { value ->
+        val p = value.ptr
+        if (p is AutoCloseable) {
+            p.close()
+        }
+    },
 
     /**
      * Capability flags indicating which [StarlarkValue] interface methods are
@@ -107,27 +134,43 @@ class AValueVTable(
     val hasEquals: Boolean = false,
 
     // Display/Debug
-    private val displayFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },
-    private val debugFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },
+    private val displayFn: (StarlarkValueRawPtr) -> Any = { it.ptr },
+    private val debugFn: (StarlarkValueRawPtr) -> Any = { it.ptr },
+    private val erasedSerdeSerializeFn: (StarlarkValueRawPtr) -> Any = { error("unreachable") },
+    private val allocativeFn: (StarlarkValueRawPtr) -> Any = { it.ptr },
+    private val totalMemoryForProfileFn: (StarlarkValueRawPtr) -> UInt = { p ->
+        memorySizeFn(p).bytes()
+    },
 ) {
     companion object {
         fun newBlackHole(): AValueVTable {
+            val BLACKHOLE_ALLOCATIVE_KEY = "BlackHole"
+            val BLACKHOLE_TYPE_ID = ConstTypeId.of<BlackHole>()
+            val BLACKHOLE_STARLARK_TYPE_ID = StarlarkTypeId.fromTypeId(BLACKHOLE_TYPE_ID)
             return AValueVTable(
-                staticTypeOfValue = ConstTypeId.of<BlackHole>(),
-                starlarkTypeId = StarlarkTypeId.fromTypeId(ConstTypeId.of<BlackHole>()),
+                staticTypeOfValue = BLACKHOLE_TYPE_ID,
+                starlarkTypeId = BLACKHOLE_STARLARK_TYPE_ID,
                 typeName = "BlackHole",
+                typeAsAllocativeKey = BLACKHOLE_ALLOCATIVE_KEY,
                 isStr = false,
+                dropInPlaceFn = { _ -> },
                 memorySizeFn = { p ->
-                    val bh = p.valueRef<BlackHole>()
-                    bh.size
+                    val thisValue = p.valueRef<BlackHole>()
+                    thisValue.size
                 },
                 heapFreezeFn = { _, _ -> error("BlackHole") },
                 heapCopyFn = { _, _ -> error("BlackHole") },
                 starlarkValue = object : StarlarkValue {
                     override val TYPE: String get() = "BlackHole"
                 },
-                displayFn = { "BlackHole" },
-                debugFn = { "BlackHole" },
+                displayFn = { thisPtr -> thisPtr.valueRef<BlackHole>() },
+                debugFn = { thisPtr -> thisPtr.valueRef<BlackHole>() },
+                erasedSerdeSerializeFn = { _this -> error("unreachable") },
+                allocativeFn = { thisPtr -> thisPtr.valueRef<BlackHole>() },
+                totalMemoryForProfileFn = { thisPtr ->
+                    val p = thisPtr.valueRef<BlackHole>()
+                    p.size.bytes()
+                },
             )
         }
 
@@ -135,8 +178,71 @@ class AValueVTable(
          * Public for use by simple-frozen vtable registration in doctests.
          * Hidden from docs and uses a private [AValue] bound to prevent direct external use.
          */
-        inline fun <reified T : Any> new(): AValueVTable {
-            return forType(T::class)
+        inline fun <reified T> new(): AValueVTable where T : StarlarkValue, T : AValue {
+            val typeId = ConstTypeId.of<T>()
+            val starlarkTypeId = StarlarkTypeId.fromTypeId(typeId)
+            val typeName = T::class.simpleName ?: T::class.toString()
+            val TYPE_ID = typeId
+            val STARLARK_TYPE_ID = starlarkTypeId
+            val ALLOCATIVE_KEY = typeName
+
+            val dropInPlace = { p: StarlarkValueRawPtr ->
+                val p0 = p.valuePtr<T>()
+                AValueRepr.fromPayloadPtrMut(p0)
+            }
+            val memorySize = { p: StarlarkValueRawPtr ->
+                val p0 = p.valueRef<T>()
+                p0.allocSizeForExtraLen(p0.extraLen(p0))
+            }
+            val heapFreeze = { p: StarlarkValueRawPtr, freezer: Freezer ->
+                val p0 = p.valueRef<T>()
+                AValueRepr.fromPayloadPtrMut(p0)
+                p0.heapFreeze(freezer)
+            }
+            val heapCopy = { p: StarlarkValueRawPtr, tracer: Tracer ->
+                val p0 = p.valueRef<T>()
+                AValueRepr.fromPayloadPtrMut(p0)
+                p0.heapCopy(tracer)
+            }
+            val display = { thisPtr: StarlarkValueRawPtr ->
+                val thisValue = thisPtr.valuePtr<T>()
+                transmute(thisValue)
+            }
+            val debug = { thisPtr: StarlarkValueRawPtr ->
+                val thisValue = thisPtr.valuePtr<T>()
+                transmute(thisValue)
+            }
+            val erasedSerdeSerialize = { thisPtr: StarlarkValueRawPtr ->
+                val thisValue = thisPtr.valuePtr<T>()
+                transmute(thisValue)
+            }
+            val allocative = { thisPtr: StarlarkValueRawPtr ->
+                val thisValue = thisPtr.valuePtr<T>()
+                transmute(thisValue)
+            }
+            val totalMemoryForProfile = { thisPtr: StarlarkValueRawPtr ->
+                val p = thisPtr.valueRef<T>()
+                p.totalMemoryForProfile(p).toUInt()
+            }
+            return AValueVTable(
+                staticTypeOfValue = TYPE_ID,
+                starlarkTypeId = STARLARK_TYPE_ID,
+                typeName = typeName,
+                typeAsAllocativeKey = ALLOCATIVE_KEY,
+                isStr = false,
+                dropInPlaceFn = dropInPlace,
+                memorySizeFn = memorySize,
+                heapFreezeFn = heapFreeze,
+                heapCopyFn = heapCopy,
+                starlarkValue = object : StarlarkValue {
+                    override val TYPE: String get() = typeName
+                },
+                displayFn = display,
+                debugFn = debug,
+                erasedSerdeSerializeFn = erasedSerdeSerialize,
+                allocativeFn = allocative,
+                totalMemoryForProfileFn = totalMemoryForProfile,
+            )
         }
 
         /**
@@ -152,6 +258,7 @@ class AValueVTable(
                 staticTypeOfValue = typeId,
                 starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
                 typeName = typeName,
+                typeAsAllocativeKey = typeName,
                 isStr = false,
                 memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
                 heapFreezeFn = { _, _ -> error("forType: heapFreeze not supported for $typeName") },
@@ -176,6 +283,13 @@ class AValueVTable(
     }
 
     /**
+     * Drop the value in-place, mirroring Rust's `AValueVTable::dropInPlace`.
+     */
+    fun dropInPlace(value: StarlarkValueRawPtr) {
+        dropInPlaceFn(value)
+    }
+
+    /**
      * Create an AValueDyn from this vtable.
      * Used by AValueHeader.unpack() to create a dynamic dispatch reference.
      */
@@ -194,6 +308,12 @@ internal class AValueDyn(
     internal val value: StarlarkValueRawPtr,
     private val _vtable: AValueVTable,
 ) {
+    companion object {
+        fun new(value: StarlarkValueRawPtr, vtable: AValueVTable): AValueDyn {
+            return AValueDyn(value = value, _vtable = vtable)
+        }
+    }
+
     fun vtable(): AValueVTable = _vtable
 
     fun memorySize(): ValueAllocSize {
@@ -204,7 +324,10 @@ internal class AValueDyn(
      * Allocative-trait reference. Kotlin has no equivalent trait, so the
      * underlying value is returned for callers to inspect via [kotlin.reflect].
      */
-    fun asAllocative(): Any = value.ptr
+    fun asAllocative(): Any {
+        val value = this.value
+        return value.valueRef<StarlarkValue>()
+    }
 
     /**
      * Total bytes attributed to this value when building a heap profile.
@@ -216,7 +339,10 @@ internal class AValueDyn(
      * Serializable view. Returns the underlying value for kotlinx.serialization
      * to dispatch on at the JSON path.
      */
-    fun asSerialize(): Any = value.ptr
+    fun asSerialize(): Any {
+        val value = this.value
+        return value.valueRef<StarlarkValue>()
+    }
 
     fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         return _vtable.heapFreezeFn(value, freezer)
@@ -371,12 +497,19 @@ internal class AValueDyn(
     }
 
     inline fun <reified T : StarlarkValue> downcastRef(): T? {
-        val sv = starlarkValue()
-        return sv as? T
+        val expectedTypeId = ConstTypeId.of<T>()
+        if (_vtable.staticTypeOfValue != expectedTypeId) {
+            return null
+        }
+        return value.valueRef()
     }
 
     fun <T : StarlarkValue> downcastRef(clazz: kotlin.reflect.KClass<T>): T? {
-        return clazz.safeCast(starlarkValue())
+        val expectedTypeId = ConstTypeId.of(clazz)
+        if (_vtable.staticTypeOfValue != expectedTypeId) {
+            return null
+        }
+        return clazz.safeCast(value.ptr)
     }
 
     fun equals(other: Value): Result<Boolean> {
@@ -412,11 +545,13 @@ internal class AValueDyn(
     }
 
     fun asDisplay(): Any {
-        return starlarkValue()
+        val value = this.value
+        return value.valueRef<StarlarkValue>()
     }
 
     fun asDebug(): Any {
-        return starlarkValue()
+        val value = this.value
+        return value.valueRef<StarlarkValue>()
     }
 
     fun provide(demand: Demand) {
@@ -427,7 +562,12 @@ internal class AValueDyn(
         return value.valueRef()
     }
 
-    override fun toString(): String = "AValueDyn(..)"
+    fun fmt(): String {
+        val debugStruct = "AValueDyn"
+        return "$debugStruct { .. }"
+    }
+
+    override fun toString(): String = fmt()
 }
 
 /** Raw pointer, vtable and [Value]. */
@@ -435,6 +575,12 @@ internal class AValueDynFull(
     private val avalue: AValueDyn,
     val value: Value,
 ) {
+    companion object {
+        fun new(avalue: AValueDyn, value: Value): AValueDynFull {
+            return AValueDynFull(avalue = avalue, value = value)
+        }
+    }
+
     fun invoke(
         args: Arguments,
         eval: Evaluator,

@@ -354,7 +354,6 @@ private fun reversed(a: Value, heap: Heap): Value {
  */
 // This function is not spec-safe, because it may call `key` function
 // which might be not spec-safe.
-//     reverse: bool, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<AllocList<...>>
 private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Value {
     val heap = eval.heap()
     val it = x.iterate(heap).getOrThrow()
@@ -468,7 +467,6 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // This function is not spec-safe, because it may call `key` function
     // which might be not spec-safe.
-    //     reverse: bool, eval: &mut Evaluator<'v, '_, '_>)
     globals.setFunction("sorted") { callArgs, eval ->
         val x = callArgs.positional<Value>(0)
         val key = callArgs.optionalNamed<Value>("key")
