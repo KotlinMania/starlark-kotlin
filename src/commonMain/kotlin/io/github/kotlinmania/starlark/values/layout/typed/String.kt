@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.values.layout.typed
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHashValue
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.CoerceKey
 import io.github.kotlinmania.starlark.Sealed
 import io.github.kotlinmania.starlark.environment.Methods

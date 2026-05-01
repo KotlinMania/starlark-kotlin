@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.environment
  */
 
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlark.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.docs.DocFunction
@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.Ty
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef

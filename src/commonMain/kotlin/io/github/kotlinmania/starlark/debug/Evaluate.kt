@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /**
  * Evaluate statements in the existing context. This function is designed for debugging,

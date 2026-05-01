@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.codemap.Span
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /**
  * Type implementation for the struct type.

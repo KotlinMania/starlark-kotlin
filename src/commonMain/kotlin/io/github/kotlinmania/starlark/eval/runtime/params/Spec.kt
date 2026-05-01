@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
@@ -48,7 +48,7 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.getValue
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /** Describe parameter for [`ParametersSpec`]. */
 sealed class ParametersSpecParam<out V> {

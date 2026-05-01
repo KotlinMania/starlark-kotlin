@@ -23,10 +23,10 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.SetType
-import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 

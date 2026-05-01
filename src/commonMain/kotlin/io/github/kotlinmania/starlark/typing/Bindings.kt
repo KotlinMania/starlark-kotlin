@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.typing
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.eval.compiler.BindingId
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload

@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark.values.AllocFrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /**
  * Utility to allocate a struct on a heap.

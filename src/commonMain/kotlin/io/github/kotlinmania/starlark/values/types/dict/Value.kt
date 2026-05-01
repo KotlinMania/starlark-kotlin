@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
@@ -42,7 +42,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.toValue
-import starlarkmap.Equivalent
+import io.github.kotlinmania.starlarkmap.Equivalent
 import kotlin.reflect.KClass
 
 data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {

@@ -26,8 +26,8 @@ package io.github.kotlinmania.starlark.environment
  * all values from this environment become immutable.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.docs.DocString

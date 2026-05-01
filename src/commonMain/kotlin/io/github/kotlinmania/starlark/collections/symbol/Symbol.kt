@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark.Coerce
 import io.github.kotlinmania.starlark.collections.alignedpaddedstr.AlignedPaddedStr
 import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 
 /**
  * A pre-hashed string used for efficient dictionary lookup.

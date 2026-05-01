@@ -23,8 +23,8 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Spanned
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.docs.DocFunction
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember

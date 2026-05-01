@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark.values.types.bigint
 /** Outside of [Int] range int. */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TypingBinOp

@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.list.ListData

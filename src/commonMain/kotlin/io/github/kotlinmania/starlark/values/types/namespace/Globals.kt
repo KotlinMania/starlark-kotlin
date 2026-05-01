@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.namespace
  * limitations under the License.
  */
 
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.values.layout.Value
 

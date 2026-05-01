@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.environment
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
 

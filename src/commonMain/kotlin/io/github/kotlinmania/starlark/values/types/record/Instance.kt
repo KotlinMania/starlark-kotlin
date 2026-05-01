@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.values.types.record
 
 /** An actual record instance. */
 
-import starlarkmap.smallmap.SmallMap
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.freeze
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue

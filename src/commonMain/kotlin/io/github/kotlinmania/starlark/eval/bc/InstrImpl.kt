@@ -14,11 +14,11 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 // Types from values.layout.typed
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 // Types from values.layout.heap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 // Types from starlarkmap
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 // Types from eval.runtime.profile
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 // Types from eval.runtime

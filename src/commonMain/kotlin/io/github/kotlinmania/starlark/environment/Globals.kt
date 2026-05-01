@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.environment
 
 import io.github.kotlinmania.starlark.LibraryExtension
 import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.map.SymbolMap
 import io.github.kotlinmania.starlark.docs.DocFunction
 import io.github.kotlinmania.starlark.docs.DocItem

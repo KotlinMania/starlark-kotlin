@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.record
  * limitations under the License.
  */
 
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.StarlarkValue

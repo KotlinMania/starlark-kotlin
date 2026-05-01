@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue

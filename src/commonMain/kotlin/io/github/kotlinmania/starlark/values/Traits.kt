@@ -36,9 +36,9 @@ package io.github.kotlinmania.starlark.values
  * hold several values.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHasher
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocProperty

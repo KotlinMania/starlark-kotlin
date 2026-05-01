@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.values.types.bool
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
-import starlarkmap.StarlarkHashValue
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple

@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
-import starlarkmap.smallset.SmallSet
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.coerce
 import io.github.kotlinmania.starlark.values.StarlarkIterator

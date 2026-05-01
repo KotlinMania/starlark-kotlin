@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.values.types.enumeration.value
 
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.typing.Ty
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.enumeration.TyEnumData
 import io.github.kotlinmania.starlark.environment.Methods

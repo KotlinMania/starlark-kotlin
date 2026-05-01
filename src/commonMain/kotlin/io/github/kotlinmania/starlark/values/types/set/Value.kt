@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.types.set
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty

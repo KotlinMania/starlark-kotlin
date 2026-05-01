@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.types.float
  * limitations under the License.
  */
 
-import starlarkmap.StarlarkHashValue
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp

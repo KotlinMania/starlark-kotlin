@@ -43,8 +43,8 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 // ---- JsonNumber: analogous to serdeJson::Number ----
 

@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.deriverefs
  */
 
 import io.github.kotlinmania.starlark.coerce
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.values.layout.FrozenValue

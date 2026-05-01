@@ -33,9 +33,9 @@ package io.github.kotlinmania.starlark.values.layout
 // our getRef requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHashValue
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyCallable

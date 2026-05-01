@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.tuple
  * limitations under the License.
  */
 
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.ValueError

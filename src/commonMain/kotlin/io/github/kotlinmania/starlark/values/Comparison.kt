@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values
  * limitations under the License.
  */
 
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 internal fun <E : Exception, X1, X2> equalsSlice(
     xs: List<X1>,

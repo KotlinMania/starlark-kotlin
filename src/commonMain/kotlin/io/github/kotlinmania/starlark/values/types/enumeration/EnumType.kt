@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.environment.MethodsStatic

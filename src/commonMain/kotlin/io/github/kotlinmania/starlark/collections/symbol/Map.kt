@@ -41,7 +41,7 @@ package io.github.kotlinmania.starlark.collections.symbol.map
  */
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 
 /**
  * A symbol map backed by a hash table of [Symbol] keys.

@@ -22,9 +22,9 @@ package io.github.kotlinmania.starlark.values
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
-import starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 
 /**
  *

@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.UnpackValue

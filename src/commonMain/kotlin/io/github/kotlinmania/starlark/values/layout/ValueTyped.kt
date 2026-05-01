@@ -46,8 +46,8 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.int.PointerI32
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 
 /** [Value] wrapper which asserts contained value is of type `<T>`. */
 class ValueTyped<T : StarlarkValue>(

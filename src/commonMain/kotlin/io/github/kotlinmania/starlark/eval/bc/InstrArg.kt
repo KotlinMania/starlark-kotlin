@@ -28,8 +28,8 @@ import io.github.kotlinmania.starlark.eval.runtime.ArgSymbol
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
-import starlarkmap.Hashed
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.bc.BcInstr

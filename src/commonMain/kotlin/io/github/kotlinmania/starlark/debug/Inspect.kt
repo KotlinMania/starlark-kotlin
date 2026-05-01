@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.debug
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.compiler.DefGen
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.dict.Dict
-import starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 
 internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
     if (x.unpackFrozen() != null) {

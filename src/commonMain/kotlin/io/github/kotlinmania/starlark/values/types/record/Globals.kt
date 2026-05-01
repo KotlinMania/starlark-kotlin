@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.values.types.record
 
 /** Implementation of `record` function. */
 
-import starlarkmap.smallmap.SmallMap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.positionalAll
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen

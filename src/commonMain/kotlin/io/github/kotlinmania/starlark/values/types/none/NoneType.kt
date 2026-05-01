@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.values.types.none
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
-import starlarkmap.StarlarkHashValue
-import starlarkmap.StarlarkHasher
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap

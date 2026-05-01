@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.layout.avalues.str
  * limitations under the License.
  */
 
-import starlarkmap.Hashed
-import starlarkmap.StarlarkHashValue
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.StarlarkHashValue
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Freezer
