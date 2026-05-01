@@ -16,4 +16,18 @@ dependencyResolutionManagement {
     }
 }
 
+val starlarkMapBuild =
+    listOf(
+        file("deps/starlarkmap-kotlin"),
+        file("../starlarkmap-kotlin"),
+    ).firstOrNull { it.resolve("settings.gradle.kts").isFile }
+
+if (starlarkMapBuild != null) {
+    includeBuild(starlarkMapBuild) {
+        dependencySubstitution {
+            substitute(module("io.github.kotlinmania:starlarkmap")).using(project(":"))
+        }
+    }
+}
+
 rootProject.name = "starlark"
