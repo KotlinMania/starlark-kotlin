@@ -11,7 +11,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 import kotlin.reflect.KClass
 
 /*

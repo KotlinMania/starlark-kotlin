@@ -37,3 +37,5 @@ java_pid*.hprof
 
 # macOS Finder metadata
 .DS_Store
+/.android-sdk/.knownPackages
+/.android-sdk/

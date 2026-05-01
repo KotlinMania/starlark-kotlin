@@ -19,6 +19,9 @@ package io.github.kotlinmania.starlark.values.types.int
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.types.bigint.StarlarkBigInt
 import io.github.kotlinmania.starlark.values.layout.Value
 import com.ionspin.kotlin.bignum.integer.BigInteger
@@ -59,7 +62,7 @@ sealed class StarlarkIntError : Exception() {
 /**
  * Starlark integer that can be either a small inline value or a big integer.
  */
-sealed class StarlarkInt {
+sealed class StarlarkInt : AllocValue, AllocFrozenValue {
     data class Small(val value: InlineInt) : StarlarkInt() {
         override fun toString(): String = value.toString()
     }
@@ -76,6 +79,18 @@ sealed class StarlarkInt {
     operator fun unaryMinus(): StarlarkInt {
         // NOTE(nga): can negate without allocating in most cases.
         return -asRef()
+    }
+
+    override fun starlarkTypeRepr(): Ty = Ty.int()
+
+    override fun allocValue(heap: Heap): Value = when (this) {
+        is Small -> Value.newInt(value)
+        is Big -> heap.allocSimple(value)
+    }
+
+    override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
+        is Small -> FrozenValue.newInt(value)
+        is Big -> heap.allocSimple(value)
     }
 
     companion object {
@@ -150,16 +165,6 @@ sealed class StarlarkInt {
             is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> from(value.value)
         }
     }
-}
-
-fun StarlarkInt.allocValue(heap: Heap): Value = when (this) {
-    is StarlarkInt.Small -> Value.newInt(value)
-    is StarlarkInt.Big -> heap.allocSimple(value)
-}
-
-fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = when (this) {
-    is StarlarkInt.Small -> FrozenValue.newInt(value)
-    is StarlarkInt.Big -> heap.allocSimple(value)
 }
 
 /**

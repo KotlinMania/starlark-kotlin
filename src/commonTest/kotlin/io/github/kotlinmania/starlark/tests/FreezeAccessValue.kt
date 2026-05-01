@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.layout.heap.Heap

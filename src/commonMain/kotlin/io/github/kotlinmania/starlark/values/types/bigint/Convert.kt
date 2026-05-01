@@ -37,8 +37,6 @@ import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.types.int.allocFrozenValue
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 
 /**
  * Starlark type repr for all integer types.

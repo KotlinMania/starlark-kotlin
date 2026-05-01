@@ -31,8 +31,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.types.int.allocFrozenValue
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 import io.github.kotlinmania.starlark.values.types.int.plus
 import io.github.kotlinmania.starlark.values.types.int.minus
 import io.github.kotlinmania.starlark.values.types.int.times

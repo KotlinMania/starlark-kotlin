@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.types.int.INT_TYPE
 import io.github.kotlinmania.starlark.values.types.int.InlineInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 import io.github.kotlinmania.starlark.values.types.int.and
 import io.github.kotlinmania.starlark.values.types.int.not
 import io.github.kotlinmania.starlark.values.types.int.or

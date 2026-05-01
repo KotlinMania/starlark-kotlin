@@ -22,7 +22,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocArray
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark.values.types.int.allocValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
