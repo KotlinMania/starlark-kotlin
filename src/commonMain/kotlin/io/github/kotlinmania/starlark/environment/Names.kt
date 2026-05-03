@@ -44,7 +44,6 @@ import io.github.kotlinmania.starlark.syntax.ast.Visibility
  * before (apart from the total) number of slots required.
  */
 class MutableNames {
-    // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
     companion object {
