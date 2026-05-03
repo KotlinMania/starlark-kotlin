@@ -21,6 +21,9 @@ package io.github.kotlinmania.starlark.values.types.dict
 
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.util.refcell.Ref
+import io.github.kotlinmania.starlark.util.refcell.RefCell
+import io.github.kotlinmania.starlark.util.refcell.RefMut
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.values.UnpackValue
@@ -34,7 +37,7 @@ class DictRef internal constructor(
 )
 
 fun DictRef.clone(): DictRef = when (val ref = this.aref) {
-    is Either.Left -> DictRef(Either.Left(ref.value.clone()))
+    is Either.Left -> DictRef(Either.Left(ref.value.ptrRead()))
     is Either.Right -> DictRef(Either.Right(ref.value))
 }
 
@@ -44,7 +47,7 @@ fun dictRefFromValue(x: Value): DictRef? =
         x.downcastRef<DictGen<FrozenDictData>>()
             ?.let { DictRef(Either.Right(coerce(it.inner))) }
     } else {
-        val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
+        val ptr = x.downcastRef<DictGen<RefCell<Dict>>>() ?: return null
         DictRef(Either.Left(ptr.inner.borrow()))
     }
 
@@ -73,7 +76,7 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
         if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue
         else NotDictError(x.getType())
 
-    val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
+    val ptr = x.downcastRef<DictGen<RefCell<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
         null -> Result.failure(ValueError.MutationDuringIteration)
         else -> Result.success(DictMut(borrowed))
@@ -108,12 +111,6 @@ object DictRefUnpackValue : UnpackValue<DictRef> {
     override fun unpackValueImpl(value: Value): Result<DictRef?> =
         Result.success(dictRefFromValue(value))
 }
-
-class Ref<T>(val value: T) {
-    fun clone(): Ref<T> = Ref(value)
-}
-
-class RefMut<T>(val value: T)
 
 private fun coerce(data: FrozenDictData): Dict =
     Dict(data.content as SmallMap<Value, Value>)

@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
@@ -49,7 +50,7 @@ import kotlin.reflect.KClass
 data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-        val mutableSelf = this as DictGen<AtomicRef<Dict>>
+        val mutableSelf = this as DictGen<RefCell<Dict>>
         return mutableSelf.freezeDict(freezer) as Result<StarlarkValue>
     }
 
@@ -180,7 +181,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
             for ((k, v) in rhsDictVal.iterHashed()) {
                 clonedContent.insertHashed(k, v)
             }
-            return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(clonedContent)))))
+            return Result.success(heap.allocComplex(DictGen(RefCell(Dict.new(clonedContent)))))
         }
 
         val items = SmallMap.withCapacity<Value, Value>(innerVal.content().len())
@@ -191,7 +192,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         for ((k, v) in rhsDictVal.iterHashed()) {
             items.insertHashed(k, v)
         }
-        return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
+        return Result.success(heap.allocComplex(DictGen(RefCell(Dict.new(items)))))
     }
 
     override fun typecheckerTy(): Ty? = Ty.anyDict()
@@ -225,8 +226,8 @@ class Dict(
         fun isDictType(x: KClass<*>): Boolean =
             x == DictGen::class
 
-        fun fromValueUncheckedMut(x: Value): AtomicRef<Dict> {
-            val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict>>>()
+        fun fromValueUncheckedMut(x: Value): RefCell<Dict> {
+            val dict = x.downcastRefUnchecked<DictGen<RefCell<Dict>>>()
             return dict.inner
         }
     }
@@ -305,7 +306,7 @@ class Dict(
 }
 
 fun Dict.allocValue(heap: Heap): Value =
-    heap.allocComplex(DictGen(AtomicRef(this)))
+    heap.allocComplex(DictGen(RefCell(this)))
 
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
@@ -349,9 +350,9 @@ data class ValueStr(val str: String) : Equivalent<Value> {
     override fun equivalent(key: Value): Boolean = key.unpackStr() == str
 }
 
-/** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
-fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
-    val frozenContent = this.inner.value.content.freeze(
+/** Freeze implementation for DictGen<RefCell<Dict>> (mutable dict). */
+fun DictGen<RefCell<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
+    val frozenContent = this.inner.borrow().value.content.freeze(
         freezer,
         freezeKey = { v -> v.freeze(freezer) },
         freezeValue = { v -> v.freeze(freezer) },
@@ -370,19 +371,21 @@ interface DictLike {
     fun setAt(index: Hashed<Value>, value: Value): Result<Unit>
 }
 
-class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
-    override fun content(): SmallMap<Value, Value> = cell.value.content
+class RefCellDictLike(private val cell: RefCell<Dict>) : DictLike {
+    override fun content(): SmallMap<Value, Value> = cell.borrow().value.content
 
     override fun iterStart() {
+        cell.borrow()
     }
 
     override fun iterStop() {
+        cell.releaseBorrow()
     }
 
-    override fun contentUnchecked(): SmallMap<Value, Value> = cell.value.content
+    override fun contentUnchecked(): SmallMap<Value, Value> = cell.borrow().value.content
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> = try {
-        cell.value.content.insertHashed(index, value)
+        cell.borrow().value.content.insertHashed(index, value)
         Result.success(Unit)
     } catch (_: Exception) {
         Result.failure(ValueError.MutationDuringIteration)
@@ -435,11 +438,6 @@ internal fun <K, V> fmtKeyedContainer(
     }
     builder.append(end)
     return builder.toString()
-}
-
-class AtomicRef<T>(var value: T) {
-    fun borrow(): Ref<T> = Ref(value)
-    fun tryBorrowMut(): RefMut<T>? = RefMut(value)
 }
 
 internal fun hashStringValue(s: String): Int = s.hashCode()
