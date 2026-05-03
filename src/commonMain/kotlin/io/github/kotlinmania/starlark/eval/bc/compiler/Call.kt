@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /** Compile function calls. */
 
+import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFull
@@ -284,8 +285,3 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     }
 }
 
-/** Simple two-variant `Either` discriminated union. */
-internal sealed class Either<out L, out R> {
-    data class Left<L>(val value: L) : Either<L, Nothing>()
-    data class Right<R>(val value: R) : Either<Nothing, R>()
-}
