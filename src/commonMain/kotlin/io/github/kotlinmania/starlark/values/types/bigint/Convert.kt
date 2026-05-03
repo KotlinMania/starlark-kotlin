@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bigint/convert.rs
+// port-lint: source values/types/bigint/convert.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
@@ -17,14 +17,6 @@ package io.github.kotlinmania.starlark.values.types.bigint
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * Conversion adapters for Kotlin numeric types to/from Starlark values.
- *
- * for StarlarkTypeRepr, AllocValue, AllocFrozenValue, and UnpackValue.
- * In Kotlin, we cannot implement interfaces on primitives, so we provide
- * extension functions and converter objects.
  */
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
