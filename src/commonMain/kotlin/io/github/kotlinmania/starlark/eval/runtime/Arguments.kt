@@ -27,9 +27,9 @@ import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.coerce
 import io.github.kotlinmania.starlark.values.StarlarkIterator
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -508,8 +508,8 @@ class Arguments(
 
 private fun DictRef.dict(): Dict {
     return when (val ref = aref) {
-        is DictEither.Left -> ref.value.value
-        is DictEither.Right -> ref.value
+        is Either.Left -> ref.value.value
+        is Either.Right -> ref.value
     }
 }
 

@@ -53,10 +53,10 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictMut
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.types.dict.Either
 import io.github.kotlinmania.starlark.values.types.dict.dictMutFromValue
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListData
