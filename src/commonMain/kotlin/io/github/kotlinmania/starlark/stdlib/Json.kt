@@ -89,9 +89,6 @@ class JsonNumber(private val raw: String) {
 
 // ---- StarlarkTypeRepr for JsonNumber ----
 
-// Canonical = Either<i32, f64>
-// In Kotlin, we represent this as returning int | float type.
-
 /** [StarlarkTypeRepr] implementation for [JsonNumber]. */
 object JsonNumberTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())

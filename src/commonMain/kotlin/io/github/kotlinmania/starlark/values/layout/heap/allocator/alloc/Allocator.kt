@@ -25,13 +25,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.allocator.ChunkAllocati
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 
-/**
- * Chunk-based arena allocator.
- *
- * manipulation. In Kotlin, we import simple mutable fields with offset-based addressing
- * matching [ChunkChain]'s Int-based abstraction.
- *
- */
+/** Chunk-based arena allocator. */
 internal class ChunkAllocator : ArenaAllocator {
     /**
      * Current chunk in the chunk chain is partially filled.

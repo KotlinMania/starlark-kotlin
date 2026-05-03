@@ -31,15 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 
-/**
- * Reduce boilerplate when making types instances of ComplexValue.
- *
- * StarlarkTypeRepr, and fromValue implementations for complex value types
- * (types that can contain references to other Starlark values).
- *
- * In Kotlin, we import a registration function that wires up the same capabilities
- * at runtime via the type registry.
- */
+/** Reduce boilerplate when making types instances of ComplexValue. */
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
     frozenType: KClass<out StarlarkValue>,
@@ -56,11 +48,7 @@ fun <T : StarlarkValue> starlarkComplexValue(
     )
 }
 
-/**
- * Similar to starlarkComplexValue but fromValue returns Either<unfrozen, frozen>.
- *
- * that returns Either<&Self, &FrozenX> instead of coercing to unfrozen.
- */
+/** Similar to starlarkComplexValue but fromValue returns Either<unfrozen, frozen>. */
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
     frozenType: KClass<F>,
@@ -80,11 +68,6 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
 /**
  * A macro reducing boilerplate defining Starlark values which are simple - they
  * aren't mutable and can't contain references to other Starlark values.
- *
- * StarlarkTypeRepr, and fromValue implementations for simple value types.
- *
- * In Kotlin, we import a registration function that wires up the same capabilities
- * at runtime via the type registry.
  */
 fun <T : StarlarkValue> starlarkSimpleValue(
     type: KClass<T>,

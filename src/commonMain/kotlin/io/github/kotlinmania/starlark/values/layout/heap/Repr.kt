@@ -107,8 +107,6 @@ class AValueHeader(
     }
 
     fun payloadPtr(): StarlarkValueRawPtr {
-        // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
-        // in the vtable since there's no raw memory layout.
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
@@ -128,8 +126,6 @@ class AValueHeader(
     }
 
     internal fun <T> asRepr(): AValueRepr<T> {
-        // In Kotlin, the AValueRepr that owns this header is looked up
-        // through the repr registry using the header's index.
         val repr = reprRegistry[index]
         check(repr != null) { "asRepr: header index $index" }
         return repr as AValueRepr<T>
@@ -189,7 +185,6 @@ class AValueRepr<T>(
     }
 
     fun offsetOfPayload(): Int {
-        // In Kotlin, we simulate with the header's conceptual size.
         return AValueHeader.ALIGN
     }
 

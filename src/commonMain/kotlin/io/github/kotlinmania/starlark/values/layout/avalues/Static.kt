@@ -117,7 +117,6 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
 // Tests are in commonTest.
 
 internal fun testAllocStaticSimple() {
-    // In Kotlin we define a simple StarlarkValue manually.
     class MySimpleValue(val value: UInt) : StarlarkValue {
         override fun toString(): String = "MySimpleValue"
     }

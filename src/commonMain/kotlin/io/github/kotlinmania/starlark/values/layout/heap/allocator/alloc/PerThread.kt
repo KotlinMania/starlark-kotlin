@@ -72,10 +72,7 @@ internal class PerThreadChunkCache {
     }
 }
 
-/**
- * Allocator chunk cache.
- * In Kotlin with coroutines, this is a shared cache instance.
- */
+/** Allocator chunk cache. */
 private val PER_THREAD_ALLOCATOR: PerThreadChunkCache = PerThreadChunkCache()
 
 /**
