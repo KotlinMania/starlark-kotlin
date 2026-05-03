@@ -154,16 +154,22 @@ private object NamedXy : StarlarkCallableParamSpec {
 }
 
 private fun registerTypecheckGlobals(globals: GlobalsBuilder) {
+    fun acceptsIterable(): NoneType = NoneType
+
+    fun acceptsTypedKwargs(): NoneType = NoneType
+
+    fun acceptsCallableNamedXy(): NoneType = NoneType
+
     globals.setFunction("accepts_iterable") { args: Arguments, eval: Evaluator ->
-        NoneType
+        acceptsIterable()
     }
 
     globals.setFunction("accepts_typed_kwargs") { args: Arguments, eval: Evaluator ->
-        NoneType
+        acceptsTypedKwargs()
     }
 
     globals.setFunction("accepts_callable_named_xy") { args: Arguments, eval: Evaluator ->
-        NoneType
+        acceptsCallableNamedXy()
     }
 }
 

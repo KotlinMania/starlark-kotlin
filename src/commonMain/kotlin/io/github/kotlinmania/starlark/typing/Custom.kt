@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
+import io.github.kotlinmania.cmpany.OrdAny
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
@@ -98,7 +99,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
 internal interface TyCustomDyn {
     fun eqToken(): Any
     fun hashCodeDyn(): Int
-    fun cmpToken(): Pair<Comparable<*>, String>
+    fun cmpToken(): Pair<OrdAny, String>
     fun intoAny(): Any
     fun asAny(): Any
 
@@ -128,8 +129,8 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 
     override fun hashCodeDyn(): Int = inner.hashCode()
 
-    override fun cmpToken(): Pair<Comparable<*>, String> =
-        Pair(inner, inner::class.simpleName ?: "unknown")
+    override fun cmpToken(): Pair<OrdAny, String> =
+        Pair(OrdAny.new<TyCustomImpl>(inner), inner::class.simpleName ?: "unknown")
 
     override fun intoAny(): Any = inner
 
@@ -197,7 +198,7 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
  * A custom type, wrapping a [TyCustomDyn] instance.
  *
  */
-class TyCustom internal constructor(internal val inner: TyCustomDyn) {
+class TyCustom internal constructor(internal val inner: TyCustomDyn) : Comparable<TyCustom> {
     companion object {
         fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
 
@@ -258,4 +259,23 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     override fun hashCode(): Int = inner.hashCodeDyn()
 
     override fun toString(): String = inner.toString()
+
+    /** Compare by type name first, then by value. */
+    override fun compareTo(other: TyCustom): Int {
+        val (aCmp, aTypeName) = this.inner.cmpToken()
+        val (bCmp, bTypeName) = other.inner.cmpToken()
+
+        // Type ids are comparable, but we want comparison independent of hashing.
+        if (aCmp.typeId() != bCmp.typeId()) {
+            val typeNameCmp = aTypeName.compareTo(bTypeName)
+            if (typeNameCmp != 0) {
+                return typeNameCmp
+            }
+
+            // This is unreachable: if the type names are the same,
+            // the type ids should be the same.
+        }
+
+        return aCmp.compareTo(bCmp)
+    }
 }

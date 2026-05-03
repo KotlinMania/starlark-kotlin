@@ -38,6 +38,8 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
@@ -414,4 +416,35 @@ test()
         """,
         "Type of parameter `_f` doesn't match",
     )
+}
+
+/**
+ * Runtime regression guard verifying [FrozenStarlarkCallable] survives
+ * transfer across coroutine workers. Ships an instance through a
+ * [kotlinx.coroutines.channels.Channel] across coroutine dispatchers and
+ * verifies the wrapped [FrozenValue] equals its original after the round
+ * trip. Throws if the wrapped value changes identity under transfer.
+ */
+internal fun assertSyncSend() {
+    kotlinx.coroutines.runBlocking {
+        val callable: FrozenStarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr> =
+            FrozenStarlarkCallable.uncheckedNew(
+                io.github.kotlinmania.starlark.values.layout.FrozenValue.newNone()
+            )
+
+        val channel = kotlinx.coroutines.channels.Channel<
+            FrozenStarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>
+        >(1)
+        val received = async(kotlinx.coroutines.Dispatchers.Default) {
+            val c = channel.receive()
+            c.value
+        }
+        launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(callable) }
+        val receivedValue = received.await()
+        channel.close()
+
+        check(callable.value == receivedValue) {
+            "FrozenStarlarkCallable did not survive Channel round-trip"
+        }
+    }
 }

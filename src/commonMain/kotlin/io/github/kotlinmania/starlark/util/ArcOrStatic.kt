@@ -1,4 +1,4 @@
-// port-lint: source src/util/arcOrStatic.rs
+// port-lint: source src/util/arc_or_static.rs
 package io.github.kotlinmania.starlark.util.arcorstatic
 
 /*
@@ -25,9 +25,9 @@ internal sealed interface Inner<T : Any> {
     data class Static<T : Any>(val value: T) : Inner<T>
 }
 
-internal class ArcOrStatic<T> private constructor(
+internal class ArcOrStatic<T : Any> private constructor(
     private val inner: Inner<T>,
-) : Comparable<ArcOrStatic<T>> where T : Any, T : Comparable<T> {
+) {
 
     fun deref(): T {
         return when (val inner = inner) {
@@ -55,21 +55,21 @@ internal class ArcOrStatic<T> private constructor(
 
     override fun hashCode(): Int = deref().hashCode()
 
-    override fun compareTo(other: ArcOrStatic<T>): Int {
-        return deref().compareTo(other.deref())
-    }
-
     companion object {
-        fun <T> newStatic(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+        fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
             return ArcOrStatic(Inner.Static(a))
         }
 
-        fun <T> newArc(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+        fun <T : Any> newArc(a: T): ArcOrStatic<T> {
             return ArcOrStatic(Inner.Arc(a))
         }
 
-        fun <T> new(a: T): ArcOrStatic<T> where T : Any, T : Comparable<T> {
+        fun <T : Any> new(a: T): ArcOrStatic<T> {
             return newArc(a)
         }
     }
+}
+
+internal fun <T : Comparable<T>> ArcOrStatic<T>.compareTo(other: ArcOrStatic<T>): Int {
+    return deref().compareTo(other.deref())
 }

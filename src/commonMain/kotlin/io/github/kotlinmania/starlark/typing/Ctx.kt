@@ -1,4 +1,4 @@
-// port-lint: source ctx.rs
+// port-lint: source src/typing/ctx.rs
 package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.CodeMap
@@ -40,80 +40,6 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingUnOp
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// --- CallArgsUnpack ---
-
-/** Validated call arguments, unpacked from a CallArgsP. */
-internal class CallArgsUnpack<P : AstPayload>(
-    val pos: List<Spanned<ArgumentP<P>>>,
-    val named: List<Spanned<ArgumentP<P>>>,
-    val star: Spanned<ArgumentP<P>>?,
-    val starStar: Spanned<ArgumentP<P>>?,
-) {
-    companion object {
-        fun <P : AstPayload> unpack(
-            callArgs: CallArgsP<P>,
-            codemap: CodeMap,
-        ): CallArgsUnpack<P> {
-            val args = callArgs.args
-            var numPos = 0
-            var numNamed = 0
-            var star: Spanned<ArgumentP<P>>? = null
-            var starStar: Spanned<ArgumentP<P>>? = null
-            val namedNames = mutableSetOf<String>()
-            var stage = 0 // 0=positional, 1=named, 2=args, 3=kwargs
-
-            for (arg in args) {
-                when (arg.node) {
-                    is ArgumentP.Positional -> {
-                        if (stage != 0) {
-                            throw EvalException("positional argument after non positional")
-                        }
-                        numPos++
-                    }
-                    is ArgumentP.Named -> {
-                        if (stage > 1) {
-                            throw EvalException("named argument after *args or **kwargs")
-                        }
-                        val name = (arg.node).name.node
-                        if (!namedNames.add(name)) {
-                            throw EvalException("repeated named argument")
-                        }
-                        stage = 1
-                        numNamed++
-                    }
-                    is ArgumentP.Args -> {
-                        if (stage > 1) {
-                            throw EvalException("Args array after another args or kwargs")
-                        }
-                        if (star != null) {
-                            throw EvalException("Multiple *args in arguments")
-                        }
-                        stage = 2
-                        star = arg
-                    }
-                    is ArgumentP.KwArgs -> {
-                        if (stage == 3) {
-                            throw EvalException("Multiple kwargs dictionary in arguments")
-                        }
-                        if (starStar != null) {
-                            throw EvalException("Multiple **kwargs in arguments")
-                        }
-                        stage = 3
-                        starStar = arg
-                    }
-                }
-            }
-
-            return CallArgsUnpack(
-                pos = args.subList(0, numPos),
-                named = args.subList(numPos, numPos + numNamed),
-                star = star,
-                starStar = starStar,
-            )
-        }
-    }
-}
 
 // --- TypingContext ---
 

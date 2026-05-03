@@ -168,8 +168,22 @@ fun typeCompiledCheckMatches(thisValue: Value, value: Value): NoneType {
 
 /** Methods for compiled type values. */
 fun typeCompiledMethods(methods: MethodsBuilder) {
-    // methods.addMethod("matches", ::typeCompiledMatches)
-    // methods.addMethod("checkMatches", ::typeCompiledCheckMatches)
+    /** True iff the value matches this type. */
+    fun matches(thisValue: Value, value: Value): Result<Boolean> =
+        Result.success(typeCompiledMatches(thisValue, value))
+
+    /** Error if the value does not match this type. */
+    fun checkMatches(thisValue: Value, value: Value): Result<NoneType> =
+        runCatching { typeCompiledCheckMatches(thisValue, value) }
+
+    methods.setMethod("matches") { eval, thisVal, _, args ->
+        val v = args.positional1(eval.heap()).getOrThrow()
+        matches(thisVal, v).map { Value.newBool(it) }
+    }
+    methods.setMethod("checkMatches") { eval, thisVal, _, args ->
+        val v = args.positional1(eval.heap()).getOrThrow()
+        checkMatches(thisVal, v).map { Value.newNone() }
+    }
 }
 
 /** Wrapper for a [Value] that acts like a runtime type matcher. */

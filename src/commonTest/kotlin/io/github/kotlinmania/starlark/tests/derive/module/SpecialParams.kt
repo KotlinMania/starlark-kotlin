@@ -26,10 +26,11 @@ import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 import kotlin.test.Test
 
 private fun functions(builder: GlobalsBuilder) {
+    fun nonStandardHeapName(heap: String, starlarkHeap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<io.github.kotlinmania.starlark.values.layout.Value> =
+        Result.success(starlarkHeap.allocStrConcat(heap, "!").toValue())
+
     builder.setFunction("non_standard_heap_name") { args, eval ->
-        val heapParam = args.positional<String>(0)
-        val starlarkHeap = eval.heap()
-        Result.success(starlarkHeap.allocStrConcat(heapParam, "!").toValue())
+        nonStandardHeapName(args.positional<String>(0), eval.heap())
     }
 }
 

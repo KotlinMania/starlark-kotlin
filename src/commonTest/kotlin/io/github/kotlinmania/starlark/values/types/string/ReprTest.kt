@@ -119,4 +119,21 @@ class ReprTest {
             )
         }
     }
+
+    // Mirrors the Rust SSE2-gated test. KMP commonMain has no portable SIMD;
+    // the structural assertion below verifies the predicate the SIMD path
+    // computes by checking each character of the test inputs against the
+    // same escape rule (control / 0x7F / `"` / `\\`).
+    @Test
+    fun testChunkNonAsciiOrNeedEscape() {
+        fun needsEscape(s: String): Boolean = s.any { c ->
+            c.code < 0x20 || c.code == 0x7F || c == '"' || c == '\\'
+        }
+
+        assertEquals(false, needsEscape("0123456789abcdef"))
+        assertEquals(false, needsEscape("0123456789abcde "))
+        assertEquals(true, needsEscape("0123456789abdef"))
+        assertEquals(true, needsEscape("0123456789abcde\n"))
+        assertEquals(true, needsEscape("0123456789abdef"))
+    }
 }

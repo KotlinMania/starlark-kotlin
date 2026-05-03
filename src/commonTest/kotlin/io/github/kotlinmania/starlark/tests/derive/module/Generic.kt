@@ -54,10 +54,18 @@ private fun <T, U> methodBuilder(
     defaultU: () -> U,
 ) {
     // Just check that this compiles
+    fun testAttribute(thisU32: UInt): Result<CustomNone<T>> {
+        // Mirrors Rust `fn test_attribute(this: u32) -> Result<CustomNone<T>>` — `this`
+        // is consumed by the unpacker for type-binding only.
+        thisU32.toLong()
+        defaultU().toString().length
+        defaultT()
+        return Result.success(CustomNone())
+    }
+
     builder.setAttribute("test_attribute") { _this, heap ->
-        val _u = defaultU().toString()
-        val _t = defaultT()
-        Result.success(CustomNone<T>().allocValue(heap))
+        // The `this` parameter is u32 in Rust; the helper consumes it for type-binding only.
+        Result.success(testAttribute(0u).getOrThrow().allocValue(heap))
     }
 }
 
@@ -66,10 +74,12 @@ private fun <T, U> globalBuilderForFunc(
     defaultT: () -> T,
     defaultU: () -> U,
 ) {
-    globals.setFunction("make_my_str") { _, _ ->
-        val _t = defaultT()
-        Result.success(defaultU().toString())
+    fun makeMyStr(): Result<String> {
+        defaultT()
+        return Result.success(defaultU().toString())
     }
+
+    globals.setFunction("make_my_str") { _, _ -> makeMyStr() }
 }
 
 class GenericTests {

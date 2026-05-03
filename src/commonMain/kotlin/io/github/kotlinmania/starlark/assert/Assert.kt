@@ -131,7 +131,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
         }
     }
 
-    fun true_(x: Value): Result<NoneType> =
+    fun `true`(x: Value): Result<NoneType> =
         assertEquals(Value.newBool(x.toBool()), Value.newBool(true))
 
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
@@ -152,7 +152,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
     builder.setFunction("ne") { args, _ -> ne(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("lt") { args, _ -> lt(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("contains") { args, _ -> contains(args.positionalAll()[0], args.positionalAll()[1]) }
-    builder.setFunction("true") { args, _ -> true_(args.positionalAll()[0]) }
+    builder.setFunction("true") { args, _ -> `true`(args.positionalAll()[0]) }
     builder.setFunction("freeze") { args, _ -> freeze(args.positionalAll()[0]) }
     builder.setFunction("fails") { args, eval -> fails(args.positionalAll()[0], args.positionalAll()[1].toString(), eval) }
 }

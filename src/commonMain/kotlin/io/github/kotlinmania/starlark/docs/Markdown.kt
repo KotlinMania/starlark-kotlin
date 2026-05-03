@@ -397,8 +397,6 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
     }
 }
 
-// --- Extension methods on DocModule and DocType (implementation blocks in Rust) ---
-
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,

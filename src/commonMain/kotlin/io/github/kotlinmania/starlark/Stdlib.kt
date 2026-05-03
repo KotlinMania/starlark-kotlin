@@ -9,7 +9,7 @@ import io.github.kotlinmania.starlark.stdlib.internal.registerInternal
 import io.github.kotlinmania.starlark.stdlib.partialStdlib
 import io.github.kotlinmania.starlark.stdlib.registerDebug
 import io.github.kotlinmania.starlark.stdlib.registerFilter
-import io.github.kotlinmania.starlark.stdlib.registerJson
+import io.github.kotlinmania.starlark.stdlib.json
 import io.github.kotlinmania.starlark.stdlib.registerMap
 import io.github.kotlinmania.starlark.stdlib.registerPprint
 import io.github.kotlinmania.starlark.stdlib.registerPrint
@@ -140,7 +140,7 @@ enum class LibraryExtension {
             Pstr -> registerPstr(builder)
             Prepr -> registerPrepr(builder)
             Breakpoint -> breakpointGlobal(builder)
-            Json -> registerJson(builder)
+            Json -> json(builder)
             Typing -> registerTyping(builder)
             Internal -> registerInternal(builder)
             CallStack -> callStackGlobal(builder)

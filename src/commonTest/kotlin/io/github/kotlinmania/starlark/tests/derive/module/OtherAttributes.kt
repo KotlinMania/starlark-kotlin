@@ -31,21 +31,39 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 
 private fun testOtherAttributesInGlobals(globals: GlobalsBuilder) {
+    fun testGlobal(foo: UInt): Result<NoneType> {
+        // Mirrors Rust `fn test_global(#[allow(unused_variables)] foo: u32) -> Result<NoneType>` —
+        // parameter is consumed only for type-binding by the unpacker.
+        foo.toLong()
+        return Result.success(NoneType)
+    }
+
     globals.setFunction("test_global") { args, _ ->
-        val foo = args.positional<Int>(0)
-        Result.success(NoneType)
+        testGlobal(args.positional<Int>(0).toUInt())
     }
 }
 
 private fun testOtherAttributesInMethods(methods: MethodsBuilder) {
+    fun testMethod(thisU32: UInt): Result<NoneType> {
+        thisU32.toLong()
+        return Result.success(NoneType)
+    }
+
     methods.setMethod("test_method") { _, _, _, _ ->
-        Result.success(Value.newNone())
+        testMethod(0u).map { Value.newNone() }
     }
 }
 
-private fun testOtherAttributesInAttributes(methods: MethodsBuilder) {
+// Note: Rust upstream contains a typo (`atributes` instead of `attributes`). The Kotlin
+// port preserves it so the function name matches the upstream symbol exactly.
+private fun testOtherAttributesInAtributes(methods: MethodsBuilder) {
+    fun testAttribute(thisU32: UInt): Result<NoneType> {
+        thisU32.toLong()
+        return Result.success(NoneType)
+    }
+
     methods.setAttribute("test_attribute") { _, _ ->
         // NOTE(nga): this marker is no-op.
-        Result.success(Value.newNone())
+        testAttribute(0u).map { Value.newNone() }
     }
 }

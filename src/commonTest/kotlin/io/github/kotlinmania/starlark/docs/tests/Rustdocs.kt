@@ -58,29 +58,24 @@ private fun globals(builder: GlobalsBuilder) {
     builder.set("Input", StarlarkValueAsType.new(InputTypeRepr()))
     builder.set("Output", StarlarkValueAsType.new(OutputTypeRepr()))
 
-    builder.setFunction("simple") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun simple(): Result<Nothing> = error("unimplemented")
 
-    builder.setFunction("default_arg") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun defaultArg(): Result<Nothing> = error("unimplemented")
 
-    builder.setFunction("args_kwargs") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun argsKwargs(): Result<Nothing> = error("unimplemented")
 
-    builder.setFunction("custom_types") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun customTypes(): Result<Nothing> = error("unimplemented")
 
-    builder.setFunction("pos_named") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun posNamed(): Result<Nothing> = error("unimplemented")
 
-    builder.setFunction("with_arguments") { args: Arguments, eval: Evaluator ->
-        error("unimplemented")
-    }
+    fun withArguments(): Result<Nothing> = error("unimplemented")
+
+    builder.setFunction("simple") { _: Arguments, _: Evaluator -> simple() }
+    builder.setFunction("default_arg") { _: Arguments, _: Evaluator -> defaultArg() }
+    builder.setFunction("args_kwargs") { _: Arguments, _: Evaluator -> argsKwargs() }
+    builder.setFunction("custom_types") { _: Arguments, _: Evaluator -> customTypes() }
+    builder.setFunction("pos_named") { _: Arguments, _: Evaluator -> posNamed() }
+    builder.setFunction("with_arguments") { _: Arguments, _: Evaluator -> withArguments() }
 }
 
 class RustdocsTest {
@@ -163,7 +158,7 @@ internal class Obj : StarlarkValue {
     override fun toString(): String = "obj"
 
     override fun getMethods(): Methods? {
-        return objMethodsStatic.methods(::objectMethods)
+        return objMethodsStatic.methods(::`object`)
     }
 
     companion object {
@@ -172,7 +167,7 @@ internal class Obj : StarlarkValue {
 }
 
 /** These are where the module docs go */
-private fun objectMethods(builder: MethodsBuilder) {
+private fun `object`(builder: MethodsBuilder) {
     /** Docs for func1 */
     builder.setMethod("func1") { eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, args: Arguments ->
         Result.success(Value.newNone())

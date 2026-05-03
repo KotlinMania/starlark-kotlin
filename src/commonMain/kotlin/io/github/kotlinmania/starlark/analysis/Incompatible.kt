@@ -170,7 +170,7 @@ private fun matchBadTypeEquality(
     }
 }
 
-private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+internal fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
     fun check(
         codemap: CodeMap,
@@ -187,7 +187,7 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+internal fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, isLoad))
     val exported = HashSet<String>() // name's already exported by isLoad
 

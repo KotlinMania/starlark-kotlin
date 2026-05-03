@@ -18,3 +18,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "starlark"
+
+// Until cmp-any-kotlin publishes to Maven Central, build it from a sibling
+// path. The composite build uses substitution to resolve the
+// `io.github.kotlinmania:cmp-any-kotlin` dependency declared in the
+// dependencies block of build.gradle.kts.
+includeBuild("../cmp-any-kotlin")

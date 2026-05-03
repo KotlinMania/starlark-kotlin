@@ -1,4 +1,5 @@
-// port-lint: source tests:src/stdlib/callStack.rspackage io.github.kotlinmania.starlark.stdlib
+// port-lint: source tests:src/stdlib/callStack.rs
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

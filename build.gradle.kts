@@ -101,6 +101,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
                 implementation("com.ionspin.kotlin:bignum:0.3.10")
                 implementation("io.github.kotlinmania:starlarkmap-kotlin:0.1.2")
+                implementation("io.github.kotlinmania:cmp-any-kotlin:0.1.0")
             }
         }
 

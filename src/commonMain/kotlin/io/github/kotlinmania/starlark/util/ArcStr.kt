@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.util
  */
 
 import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
+import io.github.kotlinmania.starlark.util.arcorstatic.compareTo
 
 /** Reference-counted immutable [String] wrapper. */
 class ArcStr private constructor(

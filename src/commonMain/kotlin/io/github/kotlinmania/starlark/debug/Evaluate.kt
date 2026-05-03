@@ -118,11 +118,14 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
 
 // Tests
 
-private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_evaluate") { args, eval ->
-        val code = args.positional<String>(0)
+private fun debugger(builder: GlobalsBuilder) {
+    fun debugEvaluate(code: String, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
         val ast = AstModule.parse("interactive", code, Dialect.AllOptionsInternal).getOrThrow()
-        eval.evalStatements(ast).getOrThrow()
+        return eval.evalStatements(ast).getOrThrow()
+    }
+
+    builder.setFunction("debug_evaluate") { args, eval ->
+        debugEvaluate(args.positional<String>(0), eval)
     }
 }
 
@@ -133,7 +136,7 @@ internal fun testDebugEvaluate() {
 
     val a = Assert()
     a.disableStaticTypechecking()
-    a.globalsAdd(::debuggerFunctions)
+    a.globalsAdd(::debugger)
     val check = """
 assert_eq(debug_evaluate("1+2"), 3)
 x = 10

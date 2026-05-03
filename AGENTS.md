@@ -154,6 +154,110 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 - Rust trait objects (`Box<dyn Trait>`) → Kotlin interface references
 - Rust trait bounds → Kotlin generic constraints (`where T : SomeTrait`)
 
+### Trait default methods with `where` clauses → method-level Kotlin generic bounds
+
+Rust traits routinely declare a default method whose body only typechecks
+when the type parameter satisfies a stricter bound:
+
+```rust
+pub trait RangeBounds<T> {
+    fn start_bound(&self) -> Bound<&T>;
+    fn end_bound(&self) -> Bound<&T>;
+
+    fn is_empty(&self) -> bool
+    where T: PartialOrd,
+    { /* default body uses < */ }
+}
+```
+
+The trait stays unconstrained; the *method* picks up the bound via its
+own `where` clause. Kotlin has no per-method `where` on an interface
+member. Three obvious mappings fail:
+
+1. **Tighten the interface to `<T : Comparable<T>>`.** Breaks every
+   caller that holds the unbounded interface type for an opaque `Q`.
+2. **Make the method abstract on the interface.** Forces every concrete
+   impl, including ones whose Rust counterpart inherits the default,
+   to invent a body and pile on `override` boilerplate.
+3. **Runtime cast helper.** `if (left is Comparable<*> && right is Comparable<*>) ... else throw IllegalStateException(...)` — compile-time
+   bounds become runtime crashes. The cheat detector flags this and
+   zeros the file's score.
+
+#### The faithful pattern
+
+Translate the default to a Kotlin **extension function whose own type
+parameter carries the bound**:
+
+```kotlin
+interface RangeBounds<T> {
+    fun startBound(): Bound<T>
+    fun endBound(): Bound<T>
+    // The `is_empty(&self) where T: PartialOrd` default lives outside the
+    // interface, on an extension function whose own type parameter
+    // carries the bound.
+}
+
+fun <T : Comparable<T>> RangeBounds<T>.isEmpty(): Boolean { /* default body */ }
+```
+
+Concrete impls that want to specialise the default supply a same-named
+**member function**. Kotlin resolves `range.isEmpty()` to the member for
+the concrete static receiver type and to the extension for the interface
+type — exactly mirroring Rust's "default method, per-impl override". No
+`override` keyword on the member; there is nothing on the interface to
+override.
+
+Recipe:
+
+1. Interface keeps only the methods declared without where-clauses.
+2. Each default-method-with-where-clause becomes a Kotlin extension
+   whose own type-parameter bound mirrors the where-clause
+   (`<T : Comparable<T>>`, `<Q : Comparable<Q>>` plus
+   `where K : Comparable<Q>`, etc.).
+3. Concrete subtypes specialise by declaring a same-named member.
+4. Callers holding the unbounded interface type cannot invoke the
+   comparison-using methods. That is correct: Rust would reject the
+   same call without the where-clause's bound.
+
+#### Pair with the dual-overload pattern when both paths are needed
+
+When a function has to work in both the comparator-aware and natural-order
+paths, expose two overloads — the unbounded one takes the comparator
+explicitly, the bounded one is sugar that delegates:
+
+```kotlin
+internal fun <Q> Tree.search(key: Q, compare: (StoredKey, Q) -> Int): Hit { /* heavy lifting */ }
+
+internal fun <Q : Comparable<Q>> Tree.search(key: Q): Hit
+    where StoredKey : Comparable<Q> =
+    search(key) { stored, query -> stored.compareTo(query) }
+```
+
+The natural-order overload is one-line sugar; the comparator overload
+holds the implementation. The canonical implementation lives in
+`btree-kotlin`'s `Search.kt::searchTree`/`searchNode`/`findLowerBoundEdge`/
+`findUpperBoundEdge` and `Navigate.kt::searchTreeForBifurcation`/
+`lowerBound`/`upperBound`.
+
+#### Why this is faithful, not engineering
+
+- Interface mirrors Rust's trait declaration shape exactly.
+- Extension's bound mirrors Rust's `where` clause exactly.
+- Concrete-class members shadow the extension exactly the way Rust
+  inherent-impl methods override a trait default.
+- Unbounded callers being unable to invoke the methods mirrors Rust's
+  compile-time rejection without the bound.
+- No runtime casts, no `IllegalStateException`, no `is Comparable<*>`.
+
+#### When you cannot apply this
+
+When the bound is on a *class* type parameter (e.g. `impl<K: Ord> Map<K, V>`),
+Kotlin has no method-level analog — class type parameters bind for the
+whole class. Use the `Comparator<in K>` field pattern instead, with a
+`compareKeys(a, b)` dispatch helper that prefers the supplied
+comparator and falls back to a `Comparable<K>`-based path. The fallback
+is the design contract, not a translation hack.
+
 ### Macros
 
 - Rust procedural macros cannot be directly ported

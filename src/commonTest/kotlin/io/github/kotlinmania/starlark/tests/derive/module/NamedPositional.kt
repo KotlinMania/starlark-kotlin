@@ -41,17 +41,19 @@ private fun namedPositionalFunctions(globals: GlobalsBuilder) {
         Result.success(x)
     }
 
-    globals.setFunction("named_after_args") { args, _ ->
-        val starArgs = args.positional<UnpackTuple<Int>>(0)
-        val x = args.positional<Int>(1)
+    fun namedAfterArgs(starArgs: UnpackTuple<Int>, x: Int): Result<Int> =
         Result.success(x + starArgs.items.sum())
-    }
 
     // Same as above, but with explicit redundant annotation.
+    fun namedAfterArgsExplicitlyMarked(args: UnpackTuple<Int>, x: Int): Result<Int> =
+        Result.success(x + args.items.sum())
+
+    globals.setFunction("named_after_args") { args, _ ->
+        namedAfterArgs(args.positional(0), args.positional(1))
+    }
+
     globals.setFunction("named_after_args_explicitly_marked") { args, _ ->
-        val starArgs = args.positional<UnpackTuple<Int>>(0)
-        val x = args.positional<Int>(1)
-        Result.success(x + starArgs.items.sum())
+        namedAfterArgsExplicitlyMarked(args.positional(0), args.positional(1))
     }
 }
 

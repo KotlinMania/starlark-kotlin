@@ -153,3 +153,36 @@ data class ProfileData internal constructor(
         }
     }
 }
+
+/**
+ * Runtime regression guard verifying [ProfileData] survives transfer across
+ * coroutine workers. Ships a [ProfileData] instance through a
+ * [kotlinx.coroutines.channels.Channel] across coroutine dispatchers and
+ * verifies the profile mode equals its original after the round trip.
+ * Throws if the wrapped profile mode changes identity under transfer.
+ */
+internal fun assertProfileDataSendSync() {
+    /**
+     * Generic helper that round-trips an arbitrary value through a channel
+     * across coroutine dispatchers and returns the received instance.
+     */
+    suspend fun <T : Any> assertSendSync(value: T): T {
+        val channel = kotlinx.coroutines.channels.Channel<T>(1)
+        return kotlinx.coroutines.coroutineScope {
+            val d = kotlinx.coroutines.async(kotlinx.coroutines.Dispatchers.Default) {
+                channel.receive()
+            }
+            launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(value) }
+            d.await().also { channel.close() }
+        }
+    }
+
+    kotlinx.coroutines.runBlocking {
+        val original = ProfileData(ProfileDataImpl.Bc(BcProfileData()))
+        val expectedMode = original.profileMode()
+        val received = assertSendSync(original)
+        check(expectedMode == received.profileMode()) {
+            "ProfileData did not survive Channel round-trip"
+        }
+    }
+}

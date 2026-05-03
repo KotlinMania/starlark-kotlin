@@ -36,11 +36,14 @@ class BasicTests {
     @Test
     fun testStarlarkModule() {
         fun global(builder: GlobalsBuilder) {
+            fun ccBinary(name: String, srcs: Value, eval: Evaluator): Value {
+                // real implementation may write it to a global variable
+                return eval.heap().allocStr("\"$name\" $srcs").toValue()
+            }
             builder.setFunction("cc_binary") { args: Arguments, eval: Evaluator ->
                 val name = args.positional<String>(0)
                 val srcs = args.positional<Value>(1)
-                // real implementation may write it to a global variable
-                eval.heap().allocStr("\"$name\" $srcs")
+                ccBinary(name, srcs, eval)
             }
         }
 
@@ -56,10 +59,13 @@ class BasicTests {
     @Test
     fun testStarlarkMethods() {
         fun methods(builder: MethodsBuilder) {
+            fun `enum`(thisVal: Value, index: Int, eval: Evaluator): Result<Value> {
+                val sv = eval.heap().allocStr("$thisVal $index")
+                return Result.success(sv.toValue())
+            }
             builder.setMethod("enum") { eval: Evaluator, thisVal: Value, _: ParametersSpec<FrozenValue>, args: Arguments ->
                 val index = args.optionalNamed<Int>("index") ?: 3
-                val sv = eval.heap().allocStr("$thisVal $index")
-                Result.success(sv.toValue())
+                `enum`(thisVal, index, eval)
             }
         }
 

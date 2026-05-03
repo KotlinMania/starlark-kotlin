@@ -1,4 +1,5 @@
-// port-lint: source tests:src/tests/derive/allocValue.rspackage io.github.kotlinmania.starlark.tests.derive
+// port-lint: source tests:src/tests/derive/allocValue.rs
+package io.github.kotlinmania.starlark.tests.derive
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

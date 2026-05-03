@@ -1029,7 +1029,7 @@ internal fun rstrip(
  * splitting at occurrences of the delimiter string `sep`.
  *
  * Consecutive occurrences of `sep` are considered to delimit empty
- * strings, so `'food'.split('o')` returns `['f', '', D_']`.
+ * strings, so `'food'.split('o')` returns `['f', '', 'd']`.
  * Splitting an empty string with a specified separator returns `['']`.
  * If `sep` is the empty string, `split` fails.
  *
@@ -1147,9 +1147,9 @@ internal fun splitlines(
  * # starlark::assert::allTrue(r#"
  * "filename.sky".startswith("filename") == True
  * "filename.sky".startswith("sky") == False
- * 'abc'.startswith(('a', A_')) == True
- * 'ABC'.startswith(('a', A_')) == True
- * 'def'.startswith(('a', A_')) == False
+ * 'abc'.startswith(('a', 'A')) == True
+ * 'ABC'.startswith(('a', 'A')) == True
+ * 'def'.startswith(('a', 'A')) == False
  * # "#);
  * ```
  */

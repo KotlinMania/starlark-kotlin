@@ -124,6 +124,14 @@ interface StarlarkValue {
     }
 
     /**
+     * Please do not implement this method or [getType], but use the
+     * `@StarlarkValue` annotation / processor.
+     */
+    fun pleaseUseStarlarkTypeMacro() {
+        error("This function is implemented by @StarlarkValue proc macro")
+    }
+
+    /**
      * Type is special in Starlark, it is implemented differently than user defined types.
      * For example, some special types like `bool` cannot be heap allocated.
      */

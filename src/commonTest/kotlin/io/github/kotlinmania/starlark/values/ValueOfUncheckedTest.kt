@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/valueOfUnchecked.rspackage io.github.kotlinmania.starlark.values
+// port-lint: source tests:src/values/valueOfUnchecked.rs
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

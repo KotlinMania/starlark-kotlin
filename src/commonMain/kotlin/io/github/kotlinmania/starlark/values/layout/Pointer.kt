@@ -266,4 +266,28 @@ internal class FrozenPointer private constructor(
     }
 }
 
-// Tests are in commonTest, not here.
+/**
+ * Runtime regression guard verifying [FrozenPointer] handed out in one scope
+ * continues to point at the same underlying [RawPointer] when it crosses
+ * coroutine boundaries. Throws if the value loses identity across the
+ * round-trip.
+ */
+internal fun testLifetimeCovariant() {
+    kotlinx.coroutines.runBlocking {
+        val original = FrozenPointer.newInt(42)
+        val expectedRaw = original.raw().ptrValue()
+
+        val channel = kotlinx.coroutines.channels.Channel<FrozenPointer>(1)
+        val received = kotlinx.coroutines.async(kotlinx.coroutines.Dispatchers.Default) {
+            val p = channel.receive()
+            p.raw().ptrValue()
+        }
+        launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(original) }
+        val actualRaw = received.await()
+        channel.close()
+
+        check(expectedRaw == actualRaw) {
+            "FrozenPointer did not survive Channel round-trip: expected=$expectedRaw actual=$actualRaw"
+        }
+    }
+}
