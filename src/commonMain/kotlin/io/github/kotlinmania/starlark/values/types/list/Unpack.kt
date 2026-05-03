@@ -61,10 +61,6 @@ data class UnpackList<T>(
  * Attempts to unpack a [Value] as a list, then unpacks each element
  * using the provided element unpacker.
  *
- * The error type in Rust is `<T as UnpackValue>::Error`, i.e. the
- * element unpacker's error type is propagated. In Kotlin we use
- * `Result<UnpackList<T>?>` with standard `Throwable` errors.
- *
  * @param T The target type for each list element.
  * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */

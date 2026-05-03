@@ -119,15 +119,6 @@ internal fun registerList(globals: GlobalsBuilder) {
 /**
  * Implementation of the `list()` built-in function.
  *
- * The function is annotated in Rust with:
- * - `asType = FrozenList` (establishes the canonical type)
- * - `speculativeExecSafe` (safe for speculative evaluation)
- * - `specialBuiltinFunction = SpecialBuiltinFunction::List`
- * - `tyCustomFunction = ListType`
- *
- * The return type in Rust is `ValueOfUnchecked<&ListRef>`, wrapping
- * the newly allocated list. In Kotlin we return a plain `Result<Value>`.
- *
  * @param a Optional iterable argument. If `null`, returns an empty list.
  * @param heap The heap on which to allocate the new list.
  * @return A new list value.

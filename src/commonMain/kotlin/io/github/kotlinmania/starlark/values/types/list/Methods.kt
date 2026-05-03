@@ -171,10 +171,6 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  * `extend` fails if `x` is not iterable, or if the list L is frozen or has
  * active iterators.
  *
- * `ValueOfUnchecked<StarlarkIter<Value>>` to allow the type checker to
- * verify the argument is iterable. In Kotlin, we accept a plain [Value]
- * and perform the iterable check at runtime via [Value.iterate].
- *
  * ```starlark
  * x = []
  * x.extend([1, 2, 3])
