@@ -47,12 +47,8 @@ internal class ReprCycle
 /** Returned when `toJson` is called recursively and a cycle is detected. */
 internal class JsonCycle
 
-// threadLocal! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
-// In Kotlin Multiplatform, Starlark evaluation is single-threaded per evaluator,
-// so a simple mutable set suffices.
 private val reprStack = SmallSet<RawPointer>()
 
-// threadLocal! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
 private val jsonStack = SmallSet<RawPointer>()
 
 /** Push a value to the stack, return error if it is already on the stack. */

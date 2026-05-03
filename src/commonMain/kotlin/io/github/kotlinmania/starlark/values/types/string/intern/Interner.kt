@@ -33,8 +33,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
  * Caches frozen string allocations so that identical strings share the same value.
  */
 internal class FrozenStringValueInterner {
-    // HashTable<FrozenStringValue> in Rust.
-    // In Kotlin, we import a HashMap keyed by hash+content for O(1) lookup.
     private val map: HashMap<ULong, MutableList<FrozenStringValue>> = HashMap()
 
     fun intern(

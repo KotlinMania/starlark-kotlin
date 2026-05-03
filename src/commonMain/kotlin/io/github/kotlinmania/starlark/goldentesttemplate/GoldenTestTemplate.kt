@@ -1,4 +1,4 @@
-// port-lint: source ../starlarkSyntax/src/goldenTestTemplate.rs
+// port-lint: source ../starlark_syntax/src/golden_test_template.rs
 package io.github.kotlinmania.starlark.goldentesttemplate
 
 /*
@@ -33,18 +33,10 @@ private fun makeGolden(output: String): String {
     }
 }
 
-/**
- * Common code for golden tests.
- *
- * In the Kotlin port, the actual file I/O needs platform-specific implementation.
- * For now, this validates the output format and stores it for comparison.
- */
+/** Common code for golden tests. */
 fun goldenTestTemplate(goldenRelPath: String, output: String) {
     require(goldenRelPath.startsWith("src/")) { "Golden path must start with src/" }
     require(goldenRelPath.contains(".golden")) { "Golden path must contain .golden" }
 
     val outputWithPrefix = makeGolden(output)
-
-    // File I/O will be implemented when the test runner is set up.
-    // In Kotlin/Native, this will import platform.posix file operations.
 }

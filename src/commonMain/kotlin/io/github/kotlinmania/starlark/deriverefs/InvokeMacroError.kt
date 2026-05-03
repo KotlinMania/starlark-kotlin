@@ -21,12 +21,7 @@ package io.github.kotlinmania.starlark.deriverefs
 
 import io.github.kotlinmania.starlark.Error as StarlarkError
 
-/**
- * Trait used to convert error returned from native function into [StarlarkError].
- *
- * In Kotlin, this is an interface that throwables can implement to provide
- * custom conversion to a Starlark error.
- */
+/** Trait used to convert error returned from native function into [StarlarkError]. */
 interface InvokeMacroError {
     fun intoStarlarkError(): StarlarkError
 }
