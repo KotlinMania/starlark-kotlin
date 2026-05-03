@@ -403,8 +403,8 @@ private class GlobalTypesBuilder(
         return Ty.any()
     }
 
-    // TypePathP: { first: CstIdent, rem: Vec<Spanned<&str>> }
-    // Not yet ported as a separate type, inlined as Pair
+    // TypePathP { first: CstIdent, rem: List<Spanned<String>> }
+    // Not yet ported as a separate type, parameters passed individually.
     fun evalPath(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Value? {
         var value = exprIdent(first).value ?: return null
         for (x in rem) {
