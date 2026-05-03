@@ -115,19 +115,6 @@ fun <T : Freeze<TFrozen>, TFrozen> T?.freeze(freezer: Freezer): Result<TFrozen?>
     return freeze(freezer) { v -> v.freeze(freezer) }
 }
 
-fun <T, TFrozen> Box<T>.freeze(
-    freezer: Freezer,
-    freezeInner: (T) -> Result<TFrozen>,
-): Result<Box<TFrozen>> {
-    val frozen = freezeInner(this.value).getOrElse { return Result.failure(it) }
-    return Result.success(Box(frozen))
-}
-
-fun <T : Freeze<TFrozen>, TFrozen> Box<T>.freeze(freezer: Freezer): Result<Box<TFrozen>> {
-    val frozen = this.value.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Box(frozen))
-}
-
 fun <K, KFrozen> Hashed<K>.freeze(
     freezer: Freezer,
     freezeKey: (K) -> Result<KFrozen>,

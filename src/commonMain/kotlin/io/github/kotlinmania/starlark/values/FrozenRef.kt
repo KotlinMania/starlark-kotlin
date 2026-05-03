@@ -25,16 +25,6 @@ import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
- * Owning indirection wrapper around a value of type [T].
- *
- * Used only where the original API distinguishes `T` from a heap-allocated
- * indirection in trait implementations.
- */
-class Box<T>(
-    val value: T,
-)
-
-/**
  * A [FrozenRef] is essentially a [FrozenValue], and has the same memory and
  * access guarantees as it. However, this keeps the type `T` of the actual
  * [FrozenValue] as a reference, allowing manipulation of the actual typed data.
@@ -103,10 +93,6 @@ class FrozenRef<T>(
 
 fun <T> FrozenRef<T>.borrow(): T {
     return value
-}
-
-fun <T> FrozenRef<Box<T>>.borrow(): T {
-    return value.value
 }
 
 fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {
