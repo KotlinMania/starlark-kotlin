@@ -156,9 +156,6 @@ fun AtomicLong.trace(tracer: Tracer) {
 fun Instant.trace(tracer: Tracer) {
 }
 
-fun <T> PhantomData<T>.trace(tracer: Tracer) {
-}
-
 fun Long.trace(tracer: Tracer) {
 }
 

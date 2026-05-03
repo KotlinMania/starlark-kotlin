@@ -26,16 +26,6 @@ import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 
-/**
- *
- * A zero-sized marker type used for type-level tracking without runtime overhead.
- */
-class PhantomData<T> private constructor() {
-    companion object {
-        fun <T> new(): PhantomData<T> = PhantomData()
-    }
-}
-
 data class Tuple1<T>(val value0: T)
 
 data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
@@ -97,11 +87,6 @@ fun ULong.freeze(freezer: Freezer): Result<ULong> {
 fun Boolean.freeze(freezer: Freezer): Result<Boolean> {
     return Result.success(this)
 }
-
-fun <T> PhantomData<T>.freeze(freezer: Freezer): Result<PhantomData<T>> {
-    return Result.success(PhantomData.new())
-}
-
 
 fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,

@@ -30,9 +30,8 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
 /** Store value annotated with type, but do not check the type. */
-open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> protected constructor(
+open class ValueOfUncheckedGeneric<V : ValueLifetimeless, out T : StarlarkTypeRepr> protected constructor(
     private val value: V,
-    private val marker: PhantomData<() -> T> = PhantomData.new(),
 ) {
 
     /** Cast to a different Rust type for the same Starlark type. */
@@ -98,7 +97,7 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
     companion object {
         /** New. */
         fun <V : ValueLifetimeless, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> {
-            return ValueOfUncheckedGeneric(value, PhantomData.new())
+            return ValueOfUncheckedGeneric(value)
         }
     }
 }
