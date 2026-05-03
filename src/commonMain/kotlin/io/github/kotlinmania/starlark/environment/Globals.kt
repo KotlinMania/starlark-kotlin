@@ -116,7 +116,6 @@ class Globals internal constructor(
     internal fun getOwned(name: String): OwnedFrozenValue? {
         val v = getFrozen(name) ?: return null
         // Safety: We know the heap this is allocated in.
-        // In Kotlin, FrozenHeapRef is already a reference type (no dupe needed).
         return OwnedFrozenValue(heap(), v)
     }
 

@@ -98,11 +98,7 @@ internal data class BcPtrRange(
     }
 }
 
-/**
- * Pointer to an instruction in memory.
- *
- * In Kotlin, this is an offset into a bytecode buffer with debug validation.
- */
+/** Pointer to an instruction in memory. */
 internal data class BcPtrAddr(
     // ptr: *const u8
     val offset: Int,

@@ -548,7 +548,6 @@ internal class BcWriter(
     }
 
     fun allocFileSpan(span: FrameSpan): FrameSpan {
-        // In Kotlin, the GC manages memory so we just return the span.
         return span
     }
 }

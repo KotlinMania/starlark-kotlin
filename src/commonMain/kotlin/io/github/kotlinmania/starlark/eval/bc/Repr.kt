@@ -23,10 +23,6 @@ package io.github.kotlinmania.starlark.eval.bc
 
 import kotlin.reflect.KClass
 
-/**
- * In Kotlin, instructions are stored as 2 list elements (header + arg),
- * so the stride is 2.
- */
 internal const val BC_INSTR_ALIGN: Int = 2
 
 /** Instruction header. */
@@ -61,14 +57,9 @@ internal class BcInstrRepr<I : BcInstr<*>>(
         }
 
         fun assertAlign(instrClass: KClass<out BcInstr<*>>) {
-            // In Kotlin/Multiplatform there is no direct equivalent of repr(C) alignment,
-            // but we preserve the assertion structure for parity.
-            // assert(alignOf<BcInstrRepr<I>>() == BC_INSTR_ALIGN)
-            // assert(sizeOf<BcInstrRepr<I>>() % BC_INSTR_ALIGN == 0)
         }
 
         fun sizeOf(instrClass: KClass<out BcInstr<*>>): Int {
-            // In Kotlin there is no direct equivalent; returns a nominal value.
             return BC_INSTR_ALIGN
         }
     }

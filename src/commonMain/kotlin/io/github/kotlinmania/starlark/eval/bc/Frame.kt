@@ -39,10 +39,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
  * [ loopIndices | BcFrame | locals | stack ]
  *   BcFramePtr points here ^
  * ```
- *
- * In Kotlin, we import safe arrays instead of raw pointer arithmetic.
- * Loop indices are stored in a separate [IntArray], and locals/stack
- * share a single [Array] of nullable [Value].
  */
 internal class BcFrame(
     /** Number of local slots. */
@@ -52,21 +48,11 @@ internal class BcFrame(
     /** Max number of nested for loops. */
     val maxLoopDepth: LoopDepth,
 ) {
-    /**
-     * `localCount` local slots followed by `maxStackSize` stack slots.
-     *
-     * In Kotlin we import a safe array.
-     */
+    /** `localCount` local slots followed by `maxStackSize` stack slots. */
     val slots: Array<Value?> = arrayOfNulls(localCount + maxStackSize)
 
-    /**
-     * Loop iteration indices, stored separately.
-     *
-     * and accessed via pointer arithmetic. In Kotlin we import a safe [IntArray].
-     */
+    /** Loop iteration indices, stored separately. */
     val loopIndices: IntArray = IntArray(maxLoopDepth.depth)
-
-    // Not needed in Kotlin -- no raw pointer arithmetic.
 
     fun framePtr(): BcFramePtr = BcFramePtr(this)
 
@@ -74,8 +60,6 @@ internal class BcFrame(
         // Returns the backing slots array. Callers must only access indices 0 until localCount.
         return slots
     }
-
-    // Not needed in Kotlin -- arrays are initialized by the runtime.
 
     /**
      * Initialize frame after it was allocated.
@@ -88,11 +72,6 @@ internal class BcFrame(
         for (i in 0 until localCount) {
             slots[i] = null
         }
-
-        // In Kotlin, stack slots are already null from arrayOfNulls.
-        // if the stack is used incorrectly. Kotlin's null default serves a similar
-        // purpose: reading an uninitialized stack slot will produce null, which
-        // will be caught by the non-null assertion in getBcSlot.
     }
 
     /**

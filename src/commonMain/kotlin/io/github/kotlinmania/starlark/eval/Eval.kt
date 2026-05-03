@@ -47,8 +47,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.allocAny
 import kotlin.time.TimeSource
 
-// In Kotlin, these are accessible via their own packages. No re-export needed.
-
 // --- implementation Evaluator ---
 
 /**

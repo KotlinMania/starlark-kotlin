@@ -130,7 +130,6 @@ internal enum class BcOpcode {
 
         /** Invoke a callback parameterized by instruction type for each opcode. */
         fun dispatchAll(handler: BcOpcodeAllHandler) {
-            // In Kotlin we iterate all entries.
             doDispatchAll(handler)
         }
 
