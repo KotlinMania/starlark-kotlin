@@ -194,8 +194,7 @@ data class SimpleValueEntry<T : StarlarkValue>(
     val fromValue: (Value) -> T?,
 )
 
-/** Either type used by starlarkComplexValues for fromValue return. */
-// (corresponds to either::Either in Rust)
+/** A general-purpose enum for an alternative between two types. */
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()
     data class Right<out R>(val value: R) : Either<Nothing, R>()
