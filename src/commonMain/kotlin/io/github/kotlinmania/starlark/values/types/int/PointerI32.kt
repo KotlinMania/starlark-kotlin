@@ -45,15 +45,9 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp as OracleTypingB
 /** The result of calling `type()` on integers. */
 const val INT_TYPE: String = "int"
 
-/**
- * Integer value stored inline using pointer tagging.
- *
- * In Kotlin, we maintain the semantic interface while adapting to platform
- * constraints (no raw pointer manipulation).
- *
- * The canonical type for int is [StarlarkBigInt]; this type shares
- * the same Starlark `"int"` type name.
- */
+// WARNING: This type isn't a real type, a pointer to this is secretly an i32.
+// Therefore, don't derive stuff on it, since it will be wrong.
+// However, `ProvidesStaticType` promises not to peek at its value, so that's fine.
 internal class PointerI32 internal constructor(
     /** The inline integer value this pointer represents. */
     private val value: InlineInt,
