@@ -24,19 +24,17 @@ package io.github.kotlinmania.starlark.any
 import kotlin.reflect.KClass
 
 /**
- * Provides access to the same type as `Self` but as a static type identifier
- * (including across any of its parameters).
+ * Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
+ * (including lifetimes of parameters).
  *
- * In Kotlin this maps to providing the [KClass] of the static type for
- * runtime type identification.
+ * This type is usually implemented with `#[derive(ProvidesStaticType)]`.
  */
 interface ProvidesStaticType {
     /**
-     * Same type as `Self`, exposed as a static type identifier.
+     * Same type as `Self` but with lifetimes dropped to `'static`.
      *
-     * Implementations must satisfy the upstream invariants documented on
-     * the corresponding interface — incorrect implementations can corrupt
-     * downcasting.
+     * The trait is unsafe because if this is implemented incorrectly,
+     * the program might not work correctly.
      */
     val staticType: KClass<*>
 }
@@ -50,15 +48,14 @@ interface ProvidesStaticType {
  */
 
 /**
- * Like [Any][kotlin.Any], but while `Any` requires the static-only form, this
- * version allows borrowed type parameters.
+ * Like [Any][kotlin.Any], but while `Any` requires `'static`, this version
+ * allows a lifetime parameter.
  *
- * Code using this trait is _unsafe_ if the implementation of the inner
- * methods does not meet the invariants listed. Therefore, it is recommended
- * you import one of the helper macros.
+ * Code using this trait is _unsafe_ if your implementation of the inner methods do not meet the
+ * invariants listed. Therefore, it is recommended you use one of the helper macros.
  *
- * You cannot implement this trait directly. You should instead implement
- * [ProvidesStaticType], usually via the derive macro.
+ * You cannot implement this trait directly. You should instead implement `ProvidesStaticType`,
+ * usually via the derive macro.
  */
 interface AnyLifetime {
     /**
