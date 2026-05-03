@@ -25,14 +25,6 @@ import io.github.kotlinmania.starlark.typing.TypingNoContextError
 import io.github.kotlinmania.starlark.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark.values.types.list.ListType
 
-// Missing value types not yet ported from Rust (crate::values::*::value):
-//   - List (crate::values::list::value::List)
-//   - MutableDict (crate::values::dict::value::MutableDict)
-//   - Tuple (crate::values::tuple::value::Tuple)
-//   - MutableSet (crate::values::set::value::MutableSet)
-// In the Kotlin port, TyStarlarkValue provides named factory methods instead:
-//   TyStarlarkValue.list(), .dict(), .tuple(), .set()
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
