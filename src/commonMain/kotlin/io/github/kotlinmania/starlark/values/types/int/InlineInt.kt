@@ -51,7 +51,6 @@ data class InlineInt internal constructor(private val value: Int) :
         }
 
         /** Number of bits in the integer. */
-        // Kotlin Multiplatform targets 64-bit, so we import 32.
         internal const val BITS: Int = 32
 
         internal val ZERO: InlineInt = InlineInt(0)
@@ -108,7 +107,6 @@ data class InlineInt internal constructor(private val value: Int) :
             }
         }
 
-        //     where i32: TryFrom<I>,
         private fun <T> tryFromImpl(value: T): Result<InlineInt>
             where T : Number, T : Comparable<T> {
             val i = when (value) {
@@ -240,7 +238,6 @@ data class InlineInt internal constructor(private val value: Int) :
 
     internal fun abs(): StarlarkInt {
         return if (value == Int.MIN_VALUE) {
-            // abs(Int.MIN_VALUE) overflows; promote to BigInt.
             StarlarkInt.from(toBigint().abs())
         } else {
             StarlarkInt.from(kotlin.math.abs(value))
@@ -273,8 +270,6 @@ data class InlineInt internal constructor(private val value: Int) :
         return value.compareTo(other)
     }
 
-    // Value class equals/hashCode are derived from the underlying Int.
-    // For explicit comparison with Int, import equalsInt.
     internal fun equalsInt(other: Int): Boolean {
         return value == other
     }
