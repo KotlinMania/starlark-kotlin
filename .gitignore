@@ -41,5 +41,9 @@ java_pid*.hprof
 
 # macOS Finder metadata
 .DS_Store
+
+# Python bytecode caches
+__pycache__/
+*.pyc
 /.android-sdk/.knownPackages
 /.android-sdk/
