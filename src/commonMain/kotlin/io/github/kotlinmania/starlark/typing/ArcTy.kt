@@ -28,7 +28,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object Bool : ArcTyInner()
     data object None : ArcTyInner()
     /** Default implementation. */
-    // Arc(Arc<Ty>),
     data class Arc(val ty: Ty) : ArcTyInner()
 
     override fun compareTo(other: ArcTyInner): kotlin.Int {

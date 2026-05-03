@@ -40,11 +40,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 sealed class TyTuple : Comparable<TyTuple> {
 
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
-    // Elems(Arc<[Ty]>)
     data class Elems(val elems: List<Ty>) : TyTuple()
 
     /** `tuple[T, ...]` -- a tuple where all elements have the same type. */
-    // Of(ArcTy)
     data class Of(val item: ArcTy) : TyTuple()
 
     /** Get the type at index [i], or `null` for `Of` (any index valid). */
