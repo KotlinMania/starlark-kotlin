@@ -137,11 +137,7 @@ internal fun BcFrame.trace(tracer: Tracer) {
     }
 }
 
-/**
- * Pointer to a [BcFrame].
- *
- * In Kotlin, we simply hold a nullable reference to the [BcFrame].
- */
+/** Pointer to a [BcFrame]. */
 internal class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {
@@ -161,8 +157,6 @@ internal class BcFramePtr internal constructor(
      * Is this frame allocated or constructed empty?
      */
     fun isInitialized(): Boolean = frame != null
-
-    // In Kotlin we simply access the non-null frame reference.
 
     fun getSlotSlow(slot: LocalSlotIdCapturedOrNot): Value? {
         val f = frame!!
@@ -229,11 +223,7 @@ internal fun BcFramePtr.trace(tracer: Tracer) {
     getFrame()?.trace(tracer)
 }
 
-/**
- * Allocate raw frame memory.
- *
- * In Kotlin, we simply construct a [BcFrame] on the heap.
- */
+/** Allocate raw frame memory. */
 private fun <R> allocaRaw(
     eval: Evaluator,
     localCount: Int,
