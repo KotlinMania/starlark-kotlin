@@ -26,12 +26,6 @@ import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 
-data class Tuple1<T>(val value0: T)
-
-data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
-
-data class Tuple5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E)
-
 /**
  * Need to be implemented for non-simple `StarlarkValue`.
  *
@@ -200,11 +194,6 @@ fun freezeUnit(freezer: Freezer): Result<Unit> {
 }
 
 
-fun <A : Freeze<AFrozen>, AFrozen> Tuple1<A>.freeze(freezer: Freezer): Result<Tuple1<AFrozen>> {
-    val frozen0 = this.value0.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple1(frozen0))
-}
-
 fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, AFrozen, BFrozen> Pair<A, B>.freeze(
     freezer: Freezer,
 ): Result<Pair<AFrozen, BFrozen>> {
@@ -220,43 +209,4 @@ fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, C : Freeze<CFrozen>, AFrozen, BFr
     val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
     val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
     return Result.success(Triple(a, b, c))
-}
-
-fun <
-    A : Freeze<AFrozen>,
-    B : Freeze<BFrozen>,
-    C : Freeze<CFrozen>,
-    D : Freeze<DFrozen>,
-    AFrozen,
-    BFrozen,
-    CFrozen,
-    DFrozen,
-    > Tuple4<A, B, C, D>.freeze(freezer: Freezer): Result<Tuple4<AFrozen, BFrozen, CFrozen, DFrozen>> {
-    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
-    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
-    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
-    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple4(a, b, c, d))
-}
-
-fun <
-    A : Freeze<AFrozen>,
-    B : Freeze<BFrozen>,
-    C : Freeze<CFrozen>,
-    D : Freeze<DFrozen>,
-    E : Freeze<EFrozen>,
-    AFrozen,
-    BFrozen,
-    CFrozen,
-    DFrozen,
-    EFrozen,
-    > Tuple5<A, B, C, D, E>.freeze(
-    freezer: Freezer,
-): Result<Tuple5<AFrozen, BFrozen, CFrozen, DFrozen, EFrozen>> {
-    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
-    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
-    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
-    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
-    val e = this.fifth.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple5(a, b, c, d, e))
 }

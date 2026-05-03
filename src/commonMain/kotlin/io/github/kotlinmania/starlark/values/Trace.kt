@@ -93,10 +93,6 @@ fun <T : Trace> T?.trace(tracer: Tracer) {
     }
 }
 
-fun <T1 : Trace> Tuple1<T1>.trace(tracer: Tracer) {
-    this.value0.trace(tracer)
-}
-
 fun <T1 : Trace, T2 : Trace> Pair<T1, T2>.trace(tracer: Tracer) {
     this.first.trace(tracer)
     this.second.trace(tracer)
@@ -106,13 +102,6 @@ fun <T1 : Trace, T2 : Trace, T3 : Trace> Triple<T1, T2, T3>.trace(tracer: Tracer
     this.first.trace(tracer)
     this.second.trace(tracer)
     this.third.trace(tracer)
-}
-
-fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> Tuple4<T1, T2, T3, T4>.trace(tracer: Tracer) {
-    this.first.trace(tracer)
-    this.second.trace(tracer)
-    this.third.trace(tracer)
-    this.fourth.trace(tracer)
 }
 
 fun <T1 : Trace, T2 : Trace> Either<T1, T2>.trace(tracer: Tracer) {

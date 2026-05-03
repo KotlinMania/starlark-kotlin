@@ -20,7 +20,6 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 import io.github.kotlinmania.starlark.eval.compiler.CompareOp
-import io.github.kotlinmania.starlark.values.Tuple4
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
@@ -93,16 +92,6 @@ internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut> Triple<A, B,
     first.visitSpans(visitor)
     second.visitSpans(visitor)
     third.visitSpans(visitor)
-}
-
-/** VisitSpanMut for 4-tuple — visits all elements. */
-internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut, D : VisitSpanMut> Tuple4<A, B, C, D>.visitSpansMut(
-    visitor: (FrameSpan) -> FrameSpan,
-) {
-    first.visitSpans(visitor)
-    second.visitSpans(visitor)
-    third.visitSpans(visitor)
-    fourth.visitSpans(visitor)
 }
 
 /** VisitSpanMut for [MutableList] (Vec) — visits each element. */
