@@ -77,7 +77,7 @@ class StarlarkValueAsType<T : StarlarkTypeRepr> @PublishedApi internal construct
         /**
          * Constructor.
          *
-         * Use [`newNoDocs`](Self::newNoDocs) if `T` is not a `StarlarkValue`.
+         * Use [newNoDocs] if `T` is not a `StarlarkValue`.
          */
         inline fun <reified T> new(instance: T): StarlarkValueAsType<T>
             where T : StarlarkTypeRepr, T : StarlarkValue
