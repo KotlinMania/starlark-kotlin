@@ -29,22 +29,13 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 
-/**
- * Store value annotated with type, but do not check the type.
- *
- * where `T` is tracked via `PhantomData<fn() -> T>` (type-level only, no runtime storage).
- *
- * In Kotlin, `T` is a phantom type parameter used only for type-level annotation.
- * The `V` parameter represents the underlying value type ([Value] or [FrozenValue]).
- */
+/** Store value annotated with type, but do not check the type. */
 open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> protected constructor(
     private val value: V,
     private val marker: PhantomData<() -> T> = PhantomData.new(),
 ) {
 
-    /**
-     * Cast to a different Rust type for the same Starlark type.
-     */
+    /** Cast to a different Rust type for the same Starlark type. */
     open fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> {
         return new(this.value)
     }
@@ -54,11 +45,7 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
         return value
     }
 
-    /**
-     * Unpack the value.
-     *
-     * In Kotlin, due to type erasure, an explicit [UnpackValue] instance is required.
-     */
+    /** Unpack the value. */
     fun <R> unpack(unpacker: UnpackValue<R>): Result<R> {
         val v = value as? ValueLike<*>
             ?: return Result.failure(IllegalStateException("ValueOfUncheckedGeneric.unpack requires ValueLike<*>"))
@@ -74,34 +61,16 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
         return value.toString()
     }
 
-    /**
-     * The representation of the starlark type.
-     *
-     * In Kotlin, due to type erasure, the concrete [StarlarkTypeRepr] for `T`
-     * must be provided externally.
-     */
     fun starlarkTypeRepr(typeRepr: StarlarkTypeRepr): Ty {
         return typeRepr.starlarkTypeRepr()
     }
 
-    /**
-     * Allocate the wrapped value on the heap. Returns the underlying value.
-     *
-     * The heap parameter is unused because the value is already allocated;
-     * this simply extracts the [Value] from the wrapper.
-     */
-    fun allocValue(_heap: Heap): Value {
+    fun allocValue(heap: Heap): Value {
         val v = value as? ValueLike<*> ?: error("ValueOfUncheckedGeneric.allocValue requires ValueLike<*>")
         return v.toValue()
     }
 
-    /**
-     * Allocate frozen value. Returns the underlying frozen value.
-     *
-     * The heap parameter is unused because the value is already frozen;
-     * this simply extracts the [FrozenValue] from the wrapper.
-     */
-    fun allocFrozenValue(_heap: FrozenHeap): FrozenValue {
+    fun allocFrozenValue(heap: FrozenHeap): FrozenValue {
         return value as? FrozenValue
             ?: error("ValueOfUncheckedGeneric.allocFrozenValue requires FrozenValue")
     }
@@ -120,14 +89,14 @@ open class ValueOfUncheckedGeneric<V : ValueLifetimeless, T : StarlarkTypeRepr> 
         return Result.success(new(frozen))
     }
 
-    /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
+    /** Convert to a value. */
     open fun toValue(): ValueOfUncheckedGeneric<Value, T> {
         val v = value as? ValueLike<*> ?: error("ValueOfUncheckedGeneric.toValue requires ValueLike<*>")
         return new(v.toValue())
     }
 
     companion object {
-        /** Wrap a value with a phantom type annotation. */
+        /** New. */
         fun <V : ValueLifetimeless, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> {
             return ValueOfUncheckedGeneric(value, PhantomData.new())
         }
@@ -189,21 +158,11 @@ class FrozenValueOfUnchecked<T : StarlarkTypeRepr> private constructor(value: Fr
     }
 }
 
-/**
- * Unpack a [Value] into a [ValueOfUnchecked].
- *
- * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.
- */
-fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> {
-    return ValueOfUnchecked.new(value)
-}
-
-/** [UnpackValue] implementation for [ValueOfUnchecked]. */
 class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
     private val typeRepr: StarlarkTypeRepr,
 ) : UnpackValue<ValueOfUnchecked<T>> {
     override fun unpackValueImpl(value: Value): Result<ValueOfUnchecked<T>?> {
-        return Result.success(unpackValueOfUnchecked(value))
+        return Result.success(ValueOfUnchecked.new(value))
     }
 
     override fun starlarkTypeRepr(): Ty = typeRepr.starlarkTypeRepr()
