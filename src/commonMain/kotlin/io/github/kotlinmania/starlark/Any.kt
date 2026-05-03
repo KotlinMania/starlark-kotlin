@@ -24,14 +24,14 @@ package io.github.kotlinmania.starlark.any
 import kotlin.reflect.KClass
 
 /**
- * Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
- * (including lifetimes of parameters).
+ * Provides access to the static type identifier of `Self`, with all generic parameters erased
+ * (including parameters of the receiver type).
  *
- * This type is usually implemented with `#[derive(ProvidesStaticType)]`.
+ * This type is usually implemented with `@ProvidesStaticType`.
  */
 interface ProvidesStaticType {
     /**
-     * Same type as `Self` but with lifetimes dropped to `'static`.
+     * Static type identifier of `Self`, with generic parameters erased.
      *
      * The trait is unsafe because if this is implemented incorrectly,
      * the program might not work correctly.
@@ -48,8 +48,8 @@ interface ProvidesStaticType {
  */
 
 /**
- * Like [Any][kotlin.Any], but while `Any` requires `'static`, this version
- * allows a lifetime parameter.
+ * Like [Any][kotlin.Any], but provides a stable type identifier suitable for runtime
+ * type comparisons across generic parameters.
  *
  * Code using this trait is _unsafe_ if your implementation of the inner methods do not meet the
  * invariants listed. Therefore, it is recommended you use one of the helper macros.
