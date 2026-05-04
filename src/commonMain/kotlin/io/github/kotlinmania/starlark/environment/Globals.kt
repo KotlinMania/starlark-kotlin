@@ -244,9 +244,6 @@ class GlobalsBuilder private constructor(
         namespaceFields.add(SmallMap.new())
         f(this)
         val fields = namespaceFields.removeLast()
-        // Convert SmallMap<FrozenStringValue, MaybeDocHiddenValue<FrozenValue>> to
-        // SmallMap<String, MaybeDocHiddenValue<FrozenValue>>
-        // because NamespaceGen<V> uses String keys in the Kotlin port.
         val stringKeyFields = SmallMap.new<String, MaybeDocHiddenValue<FrozenValue>>()
         for ((k, v) in fields) {
             stringKeyFields.insert(k.asStr(), v)
