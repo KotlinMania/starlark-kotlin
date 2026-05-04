@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/inlinedFrame.rs
+// port-lint: source eval/runtime/inlined_frame.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

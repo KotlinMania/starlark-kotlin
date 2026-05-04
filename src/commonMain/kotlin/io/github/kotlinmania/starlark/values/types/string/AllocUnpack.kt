@@ -1,4 +1,4 @@
-// port-lint: source values/types/string/allocUnpack.rs
+// port-lint: source values/types/string/alloc_unpack.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*

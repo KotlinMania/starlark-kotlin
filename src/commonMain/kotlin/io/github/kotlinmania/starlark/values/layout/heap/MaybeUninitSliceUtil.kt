@@ -1,4 +1,4 @@
-// port-lint: source values/layout/heap/maybeUninitSliceUtil.rs
+// port-lint: source values/layout/heap/maybe_uninit_slice_util.rs
 package io.github.kotlinmania.starlark.values.layout.heap.maybeuninitsliceutil
 
 /*

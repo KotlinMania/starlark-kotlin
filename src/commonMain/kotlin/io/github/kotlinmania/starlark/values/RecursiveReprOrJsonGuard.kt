@@ -1,4 +1,4 @@
-// port-lint: source values/recursiveReprOrJsonGuard.rs
+// port-lint: source values/recursive_repr_or_json_guard.rs
 package io.github.kotlinmania.starlark.values
 
 /*

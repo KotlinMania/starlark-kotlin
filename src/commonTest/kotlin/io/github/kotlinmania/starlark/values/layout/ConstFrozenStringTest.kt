@@ -1,4 +1,4 @@
-// port-lint: tests values/layout/constFrozenString.rs
+// port-lint: tests values/layout/const_frozen_string.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

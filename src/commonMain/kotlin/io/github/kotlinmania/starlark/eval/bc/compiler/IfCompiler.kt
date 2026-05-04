@@ -1,4 +1,4 @@
-// port-lint: source eval/bc/compiler/ifCompiler.rs
+// port-lint: source eval/bc/compiler/if_compiler.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*

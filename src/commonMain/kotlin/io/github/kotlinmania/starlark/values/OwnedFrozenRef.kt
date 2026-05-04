@@ -1,4 +1,4 @@
-// port-lint: source values/ownedFrozenRef.rs
+// port-lint: source values/owned_frozen_ref.rs
 package io.github.kotlinmania.starlark.values.ownedfrozenref
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source tests/beforeStmt.rs
+// port-lint: source tests/before_stmt.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

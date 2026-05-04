@@ -1,4 +1,4 @@
-// port-lint: source values/layout/staticString.rs
+// port-lint: source values/layout/static_string.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

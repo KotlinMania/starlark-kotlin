@@ -1,4 +1,4 @@
-// port-lint: source values/layout/heap/profile/summaryByFunction.rs
+// port-lint: source values/layout/heap/profile/summary_by_function.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*

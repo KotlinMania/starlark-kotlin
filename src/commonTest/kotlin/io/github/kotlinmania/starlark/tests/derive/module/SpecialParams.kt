@@ -1,4 +1,4 @@
-// port-lint: source tests/derive/module/specialParams.rs
+// port-lint: source tests/derive/module/special_params.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source tests/derive/module/unpackValue.rs
+// port-lint: source tests/derive/module/unpack_value.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source values/types/bool/typeRepr.rs
+// port-lint: source values/types/bool/type_repr.rs
 package io.github.kotlinmania.starlark.values.types.bool
 
 /*

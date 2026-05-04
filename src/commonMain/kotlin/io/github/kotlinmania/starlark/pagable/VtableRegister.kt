@@ -1,4 +1,4 @@
-// port-lint: source pagable/vtableRegister.rs
+// port-lint: source pagable/vtable_register.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*

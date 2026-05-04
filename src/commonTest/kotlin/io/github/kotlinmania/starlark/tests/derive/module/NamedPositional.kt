@@ -1,4 +1,4 @@
-// port-lint: source tests/derive/module/namedPositional.rs
+// port-lint: source tests/derive/module/named_positional.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source tests/opt/speculativeExec.rs
+// port-lint: source tests/opt/speculative_exec.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest

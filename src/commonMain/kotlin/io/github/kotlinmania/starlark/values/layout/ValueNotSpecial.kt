@@ -1,4 +1,4 @@
-// port-lint: source values/layout/valueNotSpecial.rs
+// port-lint: source values/layout/value_not_special.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

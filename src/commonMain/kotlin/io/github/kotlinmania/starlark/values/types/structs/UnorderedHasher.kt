@@ -1,4 +1,4 @@
-// port-lint: source values/types/structs/unorderedHasher.rs
+// port-lint: source values/types/structs/unordered_hasher.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*

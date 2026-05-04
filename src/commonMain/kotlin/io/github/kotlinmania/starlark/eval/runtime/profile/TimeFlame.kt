@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/profile/timeFlame.rs
+// port-lint: source eval/runtime/profile/time_flame.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*

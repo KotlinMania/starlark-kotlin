@@ -1,4 +1,4 @@
-// port-lint: source tests/opt/listAdd.rs
+// port-lint: source tests/opt/list_add.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 import io.github.kotlinmania.starlark.tests.bc.bcGoldenTest

@@ -1,4 +1,4 @@
-// port-lint: source typing/callArgs.rs
+// port-lint: source typing/call_args.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

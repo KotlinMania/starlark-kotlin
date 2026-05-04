@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/cheapCallStack.rs
+// port-lint: source eval/runtime/cheap_call_stack.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

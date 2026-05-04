@@ -1,4 +1,4 @@
-// port-lint: source tests/typeAnnot.rs
+// port-lint: source tests/type_annot.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

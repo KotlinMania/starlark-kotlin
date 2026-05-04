@@ -1,4 +1,4 @@
-// port-lint: source eval/runtime/profile/profilerType.rs
+// port-lint: source eval/runtime/profile/profiler_type.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*

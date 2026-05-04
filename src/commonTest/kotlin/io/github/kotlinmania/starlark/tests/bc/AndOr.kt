@@ -1,4 +1,4 @@
-// port-lint: source tests/bc/andOr.rs
+// port-lint: source tests/bc/and_or.rs
 package io.github.kotlinmania.starlark.tests.bc
 
 import kotlin.test.Test
