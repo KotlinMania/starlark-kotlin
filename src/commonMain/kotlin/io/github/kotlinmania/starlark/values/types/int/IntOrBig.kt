@@ -140,8 +140,6 @@ sealed class StarlarkInt : AllocValue, AllocFrozenValue {
             }
         }
 
-        // TokenInt is not yet fully ported; parsing is handled by fromStrRadix.
-
         fun from(value: UInt): StarlarkInt = fromImpl(
             value,
             { v -> InlineInt.tryFrom(v.toInt()).getOrNull()?.takeIf { it.toI32().toUInt() == v } },
