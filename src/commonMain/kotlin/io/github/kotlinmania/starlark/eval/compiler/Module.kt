@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.BindingsCollect
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.InternalError
 import io.github.kotlinmania.starlark.typing.ModuleVarTypes
 import io.github.kotlinmania.starlark.typing.Ty

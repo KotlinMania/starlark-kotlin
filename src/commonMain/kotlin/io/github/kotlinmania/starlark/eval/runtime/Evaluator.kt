@@ -59,7 +59,7 @@ import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer

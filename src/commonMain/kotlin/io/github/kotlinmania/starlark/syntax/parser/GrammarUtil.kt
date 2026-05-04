@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Pos
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString

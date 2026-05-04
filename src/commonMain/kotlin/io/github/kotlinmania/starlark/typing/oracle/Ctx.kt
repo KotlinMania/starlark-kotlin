@@ -16,7 +16,7 @@ import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyCallArgs
 import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCustom
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TyTuple
 import io.github.kotlinmania.starlark.typing.TypingBinOp

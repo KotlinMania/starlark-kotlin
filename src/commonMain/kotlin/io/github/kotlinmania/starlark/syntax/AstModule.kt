@@ -92,7 +92,7 @@ class AstModule(
                 } else {
                     Result.success(AstModule(codemap, statement, dialect, false))
                 }
-            } catch (e: io.github.kotlinmania.starlark.typing.EvalException) {
+            } catch (e: io.github.kotlinmania.starlarksyntax.evalexception.EvalException) {
                 Result.failure(e)
             }
         }
