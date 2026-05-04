@@ -24,3 +24,12 @@ rootProject.name = "starlark"
 // `io.github.kotlinmania:cmp-any-kotlin` dependency declared in the
 // dependencies block of build.gradle.kts.
 includeBuild("../cmp-any-kotlin")
+
+// Until starlark-syntax-kotlin publishes (or if Maven resolution is
+// unavailable locally), build it from a sibling path and substitute it for
+// `io.github.kotlinmania:starlark-syntax-kotlin`.
+includeBuild("../starlark-syntax-kotlin") {
+    dependencySubstitution {
+        substitute(module("io.github.kotlinmania:starlark-syntax-kotlin")).using(project(":"))
+    }
+}
