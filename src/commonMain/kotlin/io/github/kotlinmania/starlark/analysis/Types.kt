@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/types.rs
+// port-lint: source analysis/types.rs
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/bc/golden.rs
+// port-lint: source tests/bc/golden.rs
 package io.github.kotlinmania.starlark.tests.bc
 
 /*

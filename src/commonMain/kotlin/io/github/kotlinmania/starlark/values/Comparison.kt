@@ -1,4 +1,4 @@
-// port-lint: source src/values/comparison.rs
+// port-lint: source values/comparison.rs
 package io.github.kotlinmania.starlark.values
 
 /*

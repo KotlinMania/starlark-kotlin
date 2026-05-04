@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/avalues/tuple.rs
+// port-lint: source values/layout/avalues/tuple.rs
 package io.github.kotlinmania.starlark.values.layout.avalues
 
 /*

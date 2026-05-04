@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/underscore.rs
+// port-lint: source analysis/underscore.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

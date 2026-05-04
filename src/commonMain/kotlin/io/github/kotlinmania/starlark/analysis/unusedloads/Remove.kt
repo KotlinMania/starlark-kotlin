@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/unusedLoads/remove.rs
+// port-lint: source analysis/unusedLoads/remove.rs
 package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*

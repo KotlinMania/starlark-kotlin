@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/scope/scopeResolverGlobals.rs
+// port-lint: source eval/compiler/scope/scopeResolverGlobals.rs
 package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*

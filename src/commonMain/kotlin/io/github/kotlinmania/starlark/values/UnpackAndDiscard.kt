@@ -1,4 +1,4 @@
-// port-lint: source src/values/unpackAndDiscard.rs
+// port-lint: source values/unpackAndDiscard.rs
 package io.github.kotlinmania.starlark.values.unpackanddiscard
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/smallVec1.rs
+// port-lint: source eval/compiler/smallVec1.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/forLoop.rs
+// port-lint: source tests/forLoop.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

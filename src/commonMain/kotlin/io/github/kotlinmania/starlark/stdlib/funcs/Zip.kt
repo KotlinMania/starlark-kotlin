@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/funcs/zip.rs
+// port-lint: source stdlib/funcs/zip.rs
 package io.github.kotlinmania.starlark.stdlib.funcs.zip
 
 /*

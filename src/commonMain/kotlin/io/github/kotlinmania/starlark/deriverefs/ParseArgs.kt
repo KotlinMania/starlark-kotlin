@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/parseArgs.rs
+// port-lint: source __derive_refs/parseArgs.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*

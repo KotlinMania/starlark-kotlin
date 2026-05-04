@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/beforeStmt.rs
+// port-lint: source eval/runtime/beforeStmt.rs
 package io.github.kotlinmania.starlark.eval.runtime.beforestmt
 
 /*

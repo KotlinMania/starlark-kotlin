@@ -1,4 +1,4 @@
-// port-lint: source src/tests/bc/definitelyAssigned.rs
+// port-lint: source tests/bc/definitelyAssigned.rs
 package io.github.kotlinmania.starlark.tests.bc
 
 /*

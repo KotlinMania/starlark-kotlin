@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/float/float.rs
+// port-lint: source values/types/float/float.rs
 package io.github.kotlinmania.starlark.values.types.float
 
 /*

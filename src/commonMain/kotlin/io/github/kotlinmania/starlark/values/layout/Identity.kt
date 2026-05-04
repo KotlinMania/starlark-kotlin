@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/identity.rs
+// port-lint: source values/layout/identity.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

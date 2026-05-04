@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/compiler/assignModify.rs
+// port-lint: source eval/bc/compiler/assignModify.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*

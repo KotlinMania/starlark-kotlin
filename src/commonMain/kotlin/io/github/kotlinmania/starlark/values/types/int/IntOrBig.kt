@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/intOrBig.rs
+// port-lint: source values/types/int/int_or_big.rs
 package io.github.kotlinmania.starlark.values.types.int
 
 /*

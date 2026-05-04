@@ -1,4 +1,4 @@
-// port-lint: source src/collections/symbol/map.rs
+// port-lint: source collections/symbol/map.rs
 package io.github.kotlinmania.starlark.collections.symbol.map
 
 /*

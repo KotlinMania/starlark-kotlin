@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/chunkPart.rs
+// port-lint: source values/layout/heap/allocator/alloc/chunkPart.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart
 
 /*

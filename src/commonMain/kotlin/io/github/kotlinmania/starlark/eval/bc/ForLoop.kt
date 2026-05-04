@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/forLoop.rs
+// port-lint: source eval/bc/forLoop.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

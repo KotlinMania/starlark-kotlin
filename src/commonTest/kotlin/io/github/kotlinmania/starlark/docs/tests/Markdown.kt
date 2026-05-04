@@ -1,4 +1,4 @@
-// port-lint: source src/docs/tests/markdown.rs
+// port-lint: source docs/tests/markdown.rs
 package io.github.kotlinmania.starlark.docs.tests
 
 /*

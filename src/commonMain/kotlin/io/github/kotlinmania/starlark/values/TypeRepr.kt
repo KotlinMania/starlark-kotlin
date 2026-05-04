@@ -1,4 +1,4 @@
-// port-lint: source src/values/typeRepr.rs
+// port-lint: source values/typeRepr.rs
 package io.github.kotlinmania.starlark.values
 
 /*

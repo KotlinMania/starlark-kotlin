@@ -1,4 +1,4 @@
-// port-lint: source src/tests/def.rs
+// port-lint: source tests/def.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

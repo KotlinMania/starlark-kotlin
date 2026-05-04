@@ -1,4 +1,4 @@
-// port-lint: source src/tests/opt/constantFolding.rs
+// port-lint: source tests/opt/constantFolding.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 /*

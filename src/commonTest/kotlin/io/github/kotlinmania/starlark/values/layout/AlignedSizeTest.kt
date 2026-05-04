@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/alignedSize.rs
+// port-lint: source values/layout/alignedSize.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

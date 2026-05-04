@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/compr.rs
+// port-lint: source eval/compiler/compr.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload

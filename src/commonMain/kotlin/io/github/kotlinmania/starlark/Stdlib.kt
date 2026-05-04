@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib.rs
+// port-lint: source stdlib.rs
 package io.github.kotlinmania.starlark
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder

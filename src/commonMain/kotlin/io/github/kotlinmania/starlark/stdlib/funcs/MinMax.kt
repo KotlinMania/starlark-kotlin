@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/funcs/minMax.rs
+// port-lint: source stdlib/funcs/minMax.rs
 package io.github.kotlinmania.starlark.stdlib.funcs.minmax
 
 /*

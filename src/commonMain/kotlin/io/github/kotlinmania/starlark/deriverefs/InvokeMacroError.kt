@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/invokeMacroError.rs
+// port-lint: source __derive_refs/invokeMacroError.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list/methods.rs
+// port-lint: source values/types/list/methods.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 /*

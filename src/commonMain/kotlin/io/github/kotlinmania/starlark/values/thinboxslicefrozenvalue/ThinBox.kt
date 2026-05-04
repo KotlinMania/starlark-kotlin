@@ -1,4 +1,4 @@
-// port-lint: source src/values/thinBoxSliceFrozenValue/thinBox.rs
+// port-lint: source values/thinBoxSliceFrozenValue/thinBox.rs
 package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
 
 /*

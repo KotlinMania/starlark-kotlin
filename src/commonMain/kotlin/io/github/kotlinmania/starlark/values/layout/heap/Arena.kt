@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/arena.rs
+// port-lint: source values/layout/heap/arena.rs
 package io.github.kotlinmania.starlark.values.layout.heap.arena
 
 /*

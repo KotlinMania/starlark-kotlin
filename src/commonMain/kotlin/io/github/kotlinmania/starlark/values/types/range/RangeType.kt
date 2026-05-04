@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/range/rangeType.rs
+// port-lint: source values/types/range/rangeType.rs
 package io.github.kotlinmania.starlark.values.types.range
 
 /*

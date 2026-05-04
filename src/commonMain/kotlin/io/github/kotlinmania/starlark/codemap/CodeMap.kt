@@ -1,4 +1,4 @@
-// port-lint: source src/codemap.rs
+// port-lint: source codemap.rs
 package io.github.kotlinmania.starlark.codemap
 
 /*

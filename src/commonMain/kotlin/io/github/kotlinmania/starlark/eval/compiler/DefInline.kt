@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/defInline.rs
+// port-lint: source eval/compiler/defInline.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue

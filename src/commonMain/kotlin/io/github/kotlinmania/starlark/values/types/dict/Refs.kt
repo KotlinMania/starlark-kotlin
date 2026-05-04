@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/dict/refs.rs
+// port-lint: source values/types/dict/refs.rs
 package io.github.kotlinmania.starlark.values.types.dict
 
 /*

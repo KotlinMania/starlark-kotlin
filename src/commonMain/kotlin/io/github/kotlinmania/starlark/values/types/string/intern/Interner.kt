@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/string/intern/interner.rs
+// port-lint: source values/types/string/intern/interner.rs
 package io.github.kotlinmania.starlark.values.types.string.intern
 
 /*

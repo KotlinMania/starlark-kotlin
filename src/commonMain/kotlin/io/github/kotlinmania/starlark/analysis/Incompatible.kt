@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/incompatible.rs
+// port-lint: source analysis/incompatible.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

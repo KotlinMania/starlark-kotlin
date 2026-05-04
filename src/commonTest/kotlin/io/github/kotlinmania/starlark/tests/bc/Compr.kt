@@ -1,4 +1,4 @@
-// port-lint: source src/tests/bc/compr.rs
+// port-lint: source tests/bc/compr.rs
 package io.github.kotlinmania.starlark.tests.bc
 
 import kotlin.test.Test

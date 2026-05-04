@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/dubious.rs
+// port-lint: source analysis/dubious.rs
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.ast.ExprP

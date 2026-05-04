@@ -1,4 +1,4 @@
-// port-lint: source src/docs/tests/rustdocs.rs
+// port-lint: source docs/tests/rustdocs.rs
 package io.github.kotlinmania.starlark.docs.tests
 
 /*

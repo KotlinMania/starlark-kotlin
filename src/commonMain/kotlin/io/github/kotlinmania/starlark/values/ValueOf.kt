@@ -1,4 +1,4 @@
-// port-lint: source src/values/valueOf.rs
+// port-lint: source values/valueOf.rs
 package io.github.kotlinmania.starlark.values.valueof
 
 /*

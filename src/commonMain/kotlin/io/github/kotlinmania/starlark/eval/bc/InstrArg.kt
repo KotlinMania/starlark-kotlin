@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/instrArg.rs
+// port-lint: source eval/bc/instrArg.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

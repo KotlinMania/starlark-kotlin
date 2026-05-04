@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/allocCounts.rs
+// port-lint: source values/layout/heap/profile/allocCounts.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
 
 /*

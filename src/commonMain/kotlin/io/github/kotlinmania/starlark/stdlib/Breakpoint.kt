@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/breakpoint.rs
+// port-lint: source stdlib/breakpoint.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*

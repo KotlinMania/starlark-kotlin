@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/performance.rs
+// port-lint: source analysis/performance.rs
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.ast.ExprP

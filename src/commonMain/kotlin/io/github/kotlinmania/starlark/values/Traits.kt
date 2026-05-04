@@ -1,4 +1,4 @@
-// port-lint: source src/values/traits.rs
+// port-lint: source values/traits.rs
 package io.github.kotlinmania.starlark.values
 
 /*

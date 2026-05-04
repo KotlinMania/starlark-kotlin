@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/unusedLoads/findTests.rs
+// port-lint: source analysis/unusedLoads/findTests.rs
 package io.github.kotlinmania.starlark.analysis.unusedloads
 
 /*

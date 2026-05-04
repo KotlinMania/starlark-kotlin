@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/callStack.rs
+// port-lint: source stdlib/callStack.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/record/field.rs
+// port-lint: source values/types/record/field.rs
 package io.github.kotlinmania.starlark.values.types.record
 
 /*

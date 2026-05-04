@@ -1,4 +1,4 @@
-// port-lint: source src/eval/softError.rs
+// port-lint: source eval/softError.rs
 package io.github.kotlinmania.starlark.eval
 
 /*

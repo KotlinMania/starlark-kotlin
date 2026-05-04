@@ -1,4 +1,4 @@
-// port-lint: source src/collections/maybeUninitBackport.rs
+// port-lint: source collections/maybeUninitBackport.rs
 package io.github.kotlinmania.starlark.collections
 
 /*

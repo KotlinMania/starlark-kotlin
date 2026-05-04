@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/writer.rs
+// port-lint: source eval/bc/writer.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

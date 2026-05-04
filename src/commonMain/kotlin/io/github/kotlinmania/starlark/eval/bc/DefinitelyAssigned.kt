@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/definitelyAssigned.rs
+// port-lint: source eval/bc/definitelyAssigned.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/util/arc_or_static.rs
+// port-lint: source util/arc_or_static.rs
 package io.github.kotlinmania.starlark.util.arcorstatic
 
 /*

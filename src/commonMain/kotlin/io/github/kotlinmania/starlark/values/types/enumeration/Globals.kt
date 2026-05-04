@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/enumeration/globals.rs
+// port-lint: source values/types/enumeration/globals.rs
 package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*

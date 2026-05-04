@@ -1,4 +1,4 @@
-// port-lint: source src/tests/comprehension.rs
+// port-lint: source tests/comprehension.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/typing/fillTypesForLint.rs
+// port-lint: source typing/fillTypesForLint.rs
 package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple

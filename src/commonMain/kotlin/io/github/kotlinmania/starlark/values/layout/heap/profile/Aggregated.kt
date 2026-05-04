@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/aggregated.rs
+// port-lint: source values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts

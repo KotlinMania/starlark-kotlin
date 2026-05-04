@@ -1,4 +1,4 @@
-// port-lint: source src/debug/inspect.rs
+// port-lint: source debug/inspect.rs
 package io.github.kotlinmania.starlark.debug
 
 /*

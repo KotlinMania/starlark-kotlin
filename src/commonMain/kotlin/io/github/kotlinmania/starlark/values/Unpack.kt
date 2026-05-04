@@ -1,4 +1,4 @@
-// port-lint: source src/values/unpack.rs
+// port-lint: source values/unpack.rs
 package io.github.kotlinmania.starlark.values
 
 /*

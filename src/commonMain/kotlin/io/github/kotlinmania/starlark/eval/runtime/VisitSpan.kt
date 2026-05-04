@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/visitSpan.rs
+// port-lint: source eval/runtime/visitSpan.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

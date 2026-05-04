@@ -1,4 +1,4 @@
-// port-lint: source src/typing/smallArcVecOrStatic.rs
+// port-lint: source typing/smallArcVecOrStatic.rs
 package io.github.kotlinmania.starlark.typing.smallarcvecorstatic
 import io.github.kotlinmania.starlark.typing.SmallArcVec1
 

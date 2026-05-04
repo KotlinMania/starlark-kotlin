@@ -1,4 +1,4 @@
-// port-lint: source src/typing/error.rs
+// port-lint: source typing/error.rs
 package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Span

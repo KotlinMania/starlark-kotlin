@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/string/dotFormat.rs
+// port-lint: source values/types/string/dotFormat.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 import io.github.kotlinmania.starlark.values.layout.Value

@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/findCallName.rs
+// port-lint: source analysis/findCallName.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

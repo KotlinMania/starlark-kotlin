@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/bc.rs
+// port-lint: source eval/runtime/profile/bc.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*

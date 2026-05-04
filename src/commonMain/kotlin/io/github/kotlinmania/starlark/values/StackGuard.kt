@@ -1,4 +1,4 @@
-// port-lint: source src/values/stackGuard.rs
+// port-lint: source values/stackGuard.rs
 package io.github.kotlinmania.starlark.values
 
 /*

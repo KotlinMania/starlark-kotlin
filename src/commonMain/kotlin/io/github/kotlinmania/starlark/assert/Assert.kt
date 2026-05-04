@@ -1,4 +1,4 @@
-// port-lint: source src/assert/assert.rs
+// port-lint: source assert/assert.rs
 package io.github.kotlinmania.starlark.assert
 
 /*
