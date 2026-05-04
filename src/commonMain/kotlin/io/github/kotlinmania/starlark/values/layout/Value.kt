@@ -396,14 +396,14 @@ class Value internal constructor(
     }
 
     /**
-     * Obtain the underlying `str` if it is a string.
+     * Obtain the underlying String if it is a string.
      */
     fun unpackStr(): String? {
         return unpackStarlarkStr()?.asStr()
     }
 
     /**
-     * Obtain the underlying `str` if it is a string, otherwise return an error for users.
+     * Obtain the underlying String if it is a string, otherwise return an error for users.
      */
     fun unpackStrErr(): Result<String> = unpackStr()?.let { Result.success(it) }
         ?: Result.failure(IllegalArgumentException("Expected value of type `string` but got `${toStringForTypeError()}`"))
@@ -1278,7 +1278,7 @@ class Value internal constructor(
     override fun toString(): String = toRepr()
 
     /**
-     * Equivalent of Rust `Display::fmt` for [Value].
+     * Equivalent of Rust Display fmt for [Value].
      *
      * Writes the Starlark `repr()` form into [collector], including cycle handling.
      */
@@ -1287,7 +1287,7 @@ class Value internal constructor(
     }
 
     /**
-     * Equivalent of Rust `Debug::fmt` for [Value].
+     * Equivalent of Rust Debug fmt for [Value].
      */
     fun fmt(collector: StringBuilder, debug: Boolean) {
         if (debug) {
@@ -1298,7 +1298,7 @@ class Value internal constructor(
     }
 
     /**
-     * Equivalent of Rust `PartialEq::eq` for [Value].
+     * Equivalent of Rust PartialEq eq for [Value].
      */
     fun eq(other: Value): Boolean {
         return equals(other).getOrDefault(false)
@@ -1605,14 +1605,14 @@ class FrozenValue internal constructor(
     }
 
     /**
-     * Equivalent of Rust `Display::fmt` for [FrozenValue].
+     * Equivalent of Rust Display fmt for [FrozenValue].
      */
     fun fmt(collector: StringBuilder) {
         toValue().fmt(collector)
     }
 
     /**
-     * Equivalent of Rust `Debug::fmt` for [FrozenValue].
+     * Equivalent of Rust Debug fmt for [FrozenValue].
      */
     fun fmt(collector: StringBuilder, debug: Boolean) {
         if (debug) {
@@ -1623,7 +1623,7 @@ class FrozenValue internal constructor(
     }
 
     /**
-     * Equivalent of Rust `PartialEq::eq` for [FrozenValue].
+     * Equivalent of Rust PartialEq eq for [FrozenValue].
      */
     fun eq(other: FrozenValue): Boolean {
         return toValue().eq(other.toValue())
@@ -1782,5 +1782,3 @@ interface ValueLike<Self : ValueLike<Self>> :
     }
 }
 
-private fun testSendSync() {
-}
