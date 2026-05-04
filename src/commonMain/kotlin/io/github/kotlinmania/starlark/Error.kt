@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/error.rs
+// port-lint: source ../starlark_syntax/src/error.rs
 package io.github.kotlinmania.starlark
 
 /*

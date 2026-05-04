@@ -57,8 +57,7 @@ sealed class Dubious : LintWarning {
     }
 }
 
-// Helper sealed class for duplicate dictionary key detection.
-// Cannot be local because Kotlin does not support sealed local classes.
+/** Helper sealed class for duplicate dictionary key detection. */
 private sealed class DubiousKey {
     class IntKey(val value: StarlarkInt) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is IntKey && value == other.value
