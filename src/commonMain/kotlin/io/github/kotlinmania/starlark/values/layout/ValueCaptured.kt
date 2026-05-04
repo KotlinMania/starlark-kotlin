@@ -1,5 +1,5 @@
 
-// port-lint: source values/layout/valueCaptured.rs
+// port-lint: source values/layout/value_captured.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
