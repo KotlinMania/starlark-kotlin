@@ -135,6 +135,7 @@ class EvalMessage(
             message: Any,
             fullError: Any,
         ): EvalMessage {
+            val original = span.sourceSpan()
             val resolvedSpan = span.resolve()
             return EvalMessage(
                 path = span.description,
@@ -143,7 +144,7 @@ class EvalMessage(
                 name = "error",
                 description = message.toString(),
                 fullErrorWithSpan = fullError.toString(),
-                original = null, // span.sourceSpan() not yet available
+                original = original,
             )
         }
     }
