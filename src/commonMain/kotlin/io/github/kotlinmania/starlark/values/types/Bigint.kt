@@ -114,10 +114,6 @@ class StarlarkBigInt private constructor(
         }
     }
 
-    fun equalsI32(other: Int): Boolean {
-        return false
-    }
-
     fun serialize(): Any {
         // Always serialize as a number, prefer signed Long if it fits, otherwise unsigned Long.
         val longVal = try {
