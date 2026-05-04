@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/instrImpl.rs
+// port-lint: source eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 import io.github.kotlinmania.starlark.eval.bc.InstrControl

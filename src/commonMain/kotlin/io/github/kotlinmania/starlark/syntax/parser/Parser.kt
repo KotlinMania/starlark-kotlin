@@ -1,4 +1,4 @@
-// port-lint: source src/syntax/grammar.lalrpop
+// port-lint: source syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark.syntax.parser
 
 /*
