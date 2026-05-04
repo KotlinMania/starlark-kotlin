@@ -705,7 +705,7 @@ internal fun isTrueSkipTypecheck(program: String) {
 /** See [Assert.allTrue]. */
 fun allTrue(expressions: String) {
     val a = Assert()
-    // NOTE(nga): fix and enable.
+    // TODO(nga): fix and enable.
     a.disableStaticTypechecking()
     a.allTrue(expressions)
 }
