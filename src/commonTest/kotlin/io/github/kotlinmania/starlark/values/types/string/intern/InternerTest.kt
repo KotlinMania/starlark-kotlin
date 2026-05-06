@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.values.types.string.intern
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlarkmap.Hashed
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

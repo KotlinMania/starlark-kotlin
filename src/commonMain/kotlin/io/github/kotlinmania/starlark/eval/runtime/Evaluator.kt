@@ -385,13 +385,13 @@ class Evaluator(
     }
 
     /** Obtain the current call-stack, suitable for import in diagnostics. */
-    fun callStack(): io.github.kotlinmania.starlark.CallStack {
+    fun callStack(): io.github.kotlinmania.starlarksyntax.callstack.CallStack {
         return callStack.toDiagnosticFrames(InlinedFrames())
     }
 
     /** Obtain the top frame on the call-stack. May be `null` if the
      * call happened via native functions. */
-    fun callStackTopFrame(): io.github.kotlinmania.starlark.Frame? {
+    fun callStackTopFrame(): io.github.kotlinmania.starlarksyntax.frame.Frame? {
         return callStack.topFrame()
     }
 

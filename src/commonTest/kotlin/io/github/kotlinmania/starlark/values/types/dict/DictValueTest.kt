@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.values.types.dict
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
-import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.CallStack
-import io.github.kotlinmania.starlark.Frame
+import io.github.kotlinmania.starlarksyntax.callstack.CallStack
+import io.github.kotlinmania.starlarksyntax.frame.Frame
 import io.github.kotlinmania.starlark.eval.runtime.InlinedFrames
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.layout.Value

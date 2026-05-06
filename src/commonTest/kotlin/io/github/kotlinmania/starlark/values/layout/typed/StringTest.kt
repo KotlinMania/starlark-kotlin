@@ -13,7 +13,7 @@ package io.github.kotlinmania.starlark.values.layout.typed
  *     https://www.apache.org/licenses/LICENSE-2.0
  */
 
-import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlark.values.layout.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.StringValue
 import io.github.kotlinmania.starlark.values.layout.Value

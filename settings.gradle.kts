@@ -19,17 +19,16 @@ dependencyResolutionManagement {
 
 rootProject.name = "starlark"
 
-// Until cmp-any-kotlin publishes to Maven Central, build it from a sibling
-// path. The composite build uses substitution to resolve the
-// `io.github.kotlinmania:cmp-any-kotlin` dependency declared in the
-// dependencies block of build.gradle.kts.
+// NOTE: These dependencies are not available from Maven Central yet, so we build them
+// from sibling repos via composite builds.
 includeBuild("../cmp-any-kotlin")
 
-// starlarkmap-kotlin is published to Maven Central; do not use a local composite build copy.
+includeBuild("../starlarkmap-kotlin") {
+    dependencySubstitution {
+        substitute(module("io.github.kotlinmania:starlarkmap-kotlin")).using(project(":"))
+    }
+}
 
-// Until starlark-syntax-kotlin publishes (or if Maven resolution is
-// unavailable locally), build it from a sibling path and substitute it for
-// `io.github.kotlinmania:starlark-syntax-kotlin`.
 includeBuild("../starlark-syntax-kotlin") {
     dependencySubstitution {
         substitute(module("io.github.kotlinmania:starlark-syntax-kotlin")).using(project(":"))

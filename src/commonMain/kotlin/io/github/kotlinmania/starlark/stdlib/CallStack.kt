@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.stdlib
 
 /** Implementation of `callStack` function. */
 
-import io.github.kotlinmania.starlark.CallStack
+import io.github.kotlinmania.starlarksyntax.callstack.CallStack
 import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
