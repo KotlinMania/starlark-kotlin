@@ -17,9 +17,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "starlark"
-
-includeBuild("../starlark-syntax-kotlin") {
-    dependencySubstitution {
-        substitute(module("io.github.kotlinmania:starlark-syntax-kotlin")).using(project(":"))
-    }
-}
