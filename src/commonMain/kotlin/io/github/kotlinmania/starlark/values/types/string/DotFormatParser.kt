@@ -1,4 +1,4 @@
-// port-lint: ignore
+// port-lint: source ../starlark_syntax/src/dot_format_parser.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*

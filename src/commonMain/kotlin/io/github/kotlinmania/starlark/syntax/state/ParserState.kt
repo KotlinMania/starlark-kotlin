@@ -1,4 +1,4 @@
-// port-lint: ignore
+// port-lint: source ../starlark_syntax/src/syntax/state.rs
 package io.github.kotlinmania.starlark.syntax.state
 
 import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap

@@ -1,4 +1,4 @@
-// port-lint: ignore
+// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark.syntax.parser
 
 import io.github.kotlinmania.starlark.syntax.state.ParserState

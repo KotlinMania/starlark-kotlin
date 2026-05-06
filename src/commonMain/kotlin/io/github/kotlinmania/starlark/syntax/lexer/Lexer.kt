@@ -1,4 +1,4 @@
-// port-lint: ignore
+// port-lint: source ../starlark_syntax/src/lexer.rs
 package io.github.kotlinmania.starlark.syntax.lexer
 
 /*
