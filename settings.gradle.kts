@@ -18,16 +18,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "starlark"
 
-// NOTE: These dependencies are not available from Maven Central yet, so we build them
-// from sibling repos via composite builds.
-includeBuild("../gazebo-kotlin")
-
-includeBuild("../starlarkmap-kotlin") {
-    dependencySubstitution {
-        substitute(module("io.github.kotlinmania:starlarkmap-kotlin")).using(project(":"))
-    }
-}
-
 includeBuild("../starlark-syntax-kotlin") {
     dependencySubstitution {
         substitute(module("io.github.kotlinmania:starlark-syntax-kotlin")).using(project(":"))
