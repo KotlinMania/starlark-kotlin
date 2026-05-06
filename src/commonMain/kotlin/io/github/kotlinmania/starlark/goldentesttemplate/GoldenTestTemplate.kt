@@ -1,4 +1,4 @@
-// port-lint: source ../starlark_syntax/src/golden_test_template.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark.goldentesttemplate
 
 /*

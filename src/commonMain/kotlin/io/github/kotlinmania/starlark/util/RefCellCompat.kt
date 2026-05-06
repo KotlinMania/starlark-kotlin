@@ -1,3 +1,4 @@
+// port-lint: ignore
 package io.github.kotlinmania.starlark.util
 
 import io.github.kotlinmania.starlark.util.refcell.RefCell

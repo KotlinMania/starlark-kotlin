@@ -1,3 +1,4 @@
+// port-lint: ignore
 package io.github.kotlinmania.starlark.syntax.parser
 
 import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned

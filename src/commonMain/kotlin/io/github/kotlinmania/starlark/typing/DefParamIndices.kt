@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/syntax/def.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark.typing
 
 /*

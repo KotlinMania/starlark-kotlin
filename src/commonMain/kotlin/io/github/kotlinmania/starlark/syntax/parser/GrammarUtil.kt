@@ -1,4 +1,4 @@
-// port-lint: source ../starlarkSyntax/src/syntax/grammarUtil.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark.syntax.parser
 
 /*

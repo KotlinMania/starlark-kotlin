@@ -1,3 +1,4 @@
+// port-lint: ignore
 package io.github.kotlinmania.starlark.syntax.parser
 
 object GrammarState {
