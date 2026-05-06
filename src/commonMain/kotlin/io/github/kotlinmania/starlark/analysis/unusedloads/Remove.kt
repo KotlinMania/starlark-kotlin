@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.analysis.unusedloads
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 
 /**
  * Helper for building the output string with span-based skipping.

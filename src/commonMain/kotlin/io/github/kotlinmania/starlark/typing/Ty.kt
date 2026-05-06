@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.TypingNever

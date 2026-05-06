@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
  */
 
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
+import io.github.kotlinmania.threadlocal.ThreadLocal
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
@@ -73,7 +74,9 @@ internal class PerThreadChunkCache {
 }
 
 /** Allocator chunk cache. */
-private val PER_THREAD_ALLOCATOR: PerThreadChunkCache = PerThreadChunkCache()
+private val PER_THREAD_ALLOCATOR: ThreadLocal<PerThreadChunkCache> = ThreadLocal()
+
+private fun perThreadAllocator(): PerThreadChunkCache = PER_THREAD_ALLOCATOR.getOr { PerThreadChunkCache() }
 
 /**
  * Compute next chunk size based on chunk count.
@@ -94,7 +97,7 @@ internal fun threadLocalAllocAtLeast(
     len: AlignedSize,
     chunkCountInBump: Int,
 ): ChunkPart {
-    val chunk = PER_THREAD_ALLOCATOR.fetch(len)
+    val chunk = perThreadAllocator().fetch(len)
         ?: run {
             val nextSize = nextChunkSize(chunkCountInBump) - Chunk.HEADER_SIZE
             val allocLen = maxOf(len, nextSize)
@@ -117,6 +120,6 @@ internal fun threadLocalRelease(chunk: ChunkPart) {
         // better return it to malloc.
         return
     } else {
-        PER_THREAD_ALLOCATOR.store(chunk)
+        perThreadAllocator().store(chunk)
     }
 }

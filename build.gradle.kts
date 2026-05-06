@@ -101,6 +101,7 @@ kotlin {
                 implementation("io.github.kotlinmania:starlarkmap-kotlin:0.1.2")
                 implementation("io.github.kotlinmania:cmp-any-kotlin:0.1.0")
                 implementation("io.github.kotlinmania:starlark-syntax-kotlin:0.1.1")
+                implementation("io.github.kotlinmania:threadlocal-kotlin:0.2.1")
             }
         }
 

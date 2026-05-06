@@ -1,8 +1,8 @@
 // port-lint: source typing/error.rs
 package io.github.kotlinmania.starlark.typing
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlarksyntax.diagnostic.WithDiagnostic
 import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 

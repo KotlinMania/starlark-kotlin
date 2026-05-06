@@ -1,9 +1,9 @@
 // port-lint: source oracle/ctx.rs
 package io.github.kotlinmania.starlark.typing.oracle
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.typing.ArcTy
 import io.github.kotlinmania.starlark.typing.InternalError

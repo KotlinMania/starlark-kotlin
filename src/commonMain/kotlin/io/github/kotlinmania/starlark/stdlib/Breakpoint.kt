@@ -1,4 +1,6 @@
 // port-lint: source stdlib/breakpoint.rs
+@file:OptIn(ExperimentalAtomicApi::class)
+
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -27,13 +29,25 @@ import io.github.kotlinmania.starlark.readline.ReadLine
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.ReentrantLock
-import io.github.kotlinmania.starlark.withLock
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 // A breakpoint takes over the console UI, so having two going at once confuses everything.
 // Have a global mutex to ensure one at a time.
-private val breakpointLock = ReentrantLock()
+private val breakpointMutex = AtomicInt(0)
 private var breakpointState: State = State.Allow
+
+private inline fun <T> withBreakpointMutex(action: () -> T): T {
+    while (!breakpointMutex.compareAndSet(0, 1)) {
+        // We do not expect contention here. This is a best-effort translation of Rust's
+        // blocking mutex to a multiplatform-compatible primitive.
+    }
+    try {
+        return action()
+    } finally {
+        breakpointMutex.store(0)
+    }
+}
 
 /**
  * `breakpoint` function uses this interface to perform console IO.
@@ -196,7 +210,7 @@ internal const val BREAKPOINT_HIT_MESSAGE: String =
 
 internal fun resetBreakpointGlobalStateForTests() {
     // `breakpoint()` function modifies the global state.
-    breakpointLock.withLock {
+    withBreakpointMutex {
         breakpointState = State.Allow
     }
 }
@@ -208,7 +222,7 @@ internal fun resetBreakpointGlobalStateForTests() {
  */
 fun breakpointGlobal(builder: GlobalsBuilder) {
     builder.setFunction("breakpoint") { _, eval ->
-        breakpointLock.withLock {
+        withBreakpointMutex {
             if (breakpointState == State.Allow) {
                 val handler = eval.breakpointHandler
                     ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")

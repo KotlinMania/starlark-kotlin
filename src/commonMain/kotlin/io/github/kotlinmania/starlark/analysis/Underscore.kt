@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP

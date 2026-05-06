@@ -25,14 +25,7 @@ rootProject.name = "starlark"
 // dependencies block of build.gradle.kts.
 includeBuild("../cmp-any-kotlin")
 
-// Until starlarkmap-kotlin publishes (or if Maven resolution is unavailable
-// locally), build it from a sibling path and substitute it for
-// `io.github.kotlinmania:starlarkmap-kotlin`.
-includeBuild("../starlarkmap-kotlin") {
-    dependencySubstitution {
-        substitute(module("io.github.kotlinmania:starlarkmap-kotlin")).using(project(":"))
-    }
-}
+// starlarkmap-kotlin is published to Maven Central; do not use a local composite build copy.
 
 // Until starlark-syntax-kotlin publishes (or if Maven resolution is
 // unavailable locally), build it from a sibling path and substitute it for

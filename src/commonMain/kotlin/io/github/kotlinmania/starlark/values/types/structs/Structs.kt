@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.typing.TyCallArgs
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /**

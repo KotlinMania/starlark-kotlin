@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark.typing
  */
 
 import io.github.kotlinmania.cmpany.OrdAny
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox

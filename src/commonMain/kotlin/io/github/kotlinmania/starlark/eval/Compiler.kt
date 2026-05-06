@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 // ModuleScopeData, ScopeId, ScopeNames are in the same package (eval.compiler)
@@ -81,7 +81,7 @@ internal class Compiler(
     val codemap: FrozenRef<CodeMap>,
     var checkTypes: Boolean,
     var topLevelStmtCount: Int,
-    /** Set with `@starlark-rust: typecheck`. */
+    /** Set with a `typecheck` directive in the source. */
     var typecheck: Boolean,
 ) {
     fun enterScope(scopeId: ScopeId) {

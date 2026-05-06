@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.

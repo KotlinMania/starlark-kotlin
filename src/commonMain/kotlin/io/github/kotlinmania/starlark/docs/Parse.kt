@@ -23,7 +23,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 
@@ -53,13 +53,39 @@ enum class DocStringKind {
     Starlark,
 
     /**
-     * Docstrings used with `@StarlarkModule` in the host language.
+     * Docstrings used with `starlarkModule` in the host language.
      *
-     * These are the documentation strings prefixed by `///` on
-     * `@StarlarkModule`, and the functions / attributes within it. It supports
+     * These are the documentation strings written as KDoc (`/** ... */`) on the
+     * module/object definition, and the functions/attributes within it. It supports
      * a section `# Arguments` and `# Returns`, and removes some lines from code
-     * blocks that are valid for the host-language docs but not useful for people
-     * using these functions via starlark.
+     * blocks that are valid for host-language documentation but not useful for people
+     * using these functions via Starlark. An example might be something like:
+     *
+     * ```kotlin
+     * /**
+     *  * These are where the module/object level docs go.
+     *  *\/
+     * fun addSomeValue(builder: MethodsBuilder) {
+     *     /**
+     *      * attr1 is an attribute that does nothing interesting.
+     *      *\/
+     *     // builder.attribute("attr1") { thisValue: Value -> "attr1" }
+     *
+     *     /**
+     *      * Copies a string.
+     *      *
+     *      * This is where details would be, if this were
+     *      * a more interesting function.
+     *      *
+     *      * # Arguments
+     *      * - `s`: This is the string that is returned.
+     *      *
+     *      * # Returns
+     *      * A copy of the original string.
+     *      *\/
+     *     // builder.method("copyString") { thisValue: Value, s: String -> s }
+     * }
+     * ```
      */
     Rust,
 }

@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 /** Compile and evaluate module top-level statements. */
 
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark.eval.bc.allocaFrame
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload

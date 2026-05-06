@@ -29,8 +29,8 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Bazel's BUILD file). The BUILD dialect does not allow `def` statements.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload

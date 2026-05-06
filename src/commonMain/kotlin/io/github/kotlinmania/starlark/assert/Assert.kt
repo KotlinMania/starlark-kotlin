@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.eval.runtime.positionalAll
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect

@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 import io.github.kotlinmania.starlark.any.AnyLifetime as AnyLt
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
 import io.github.kotlinmania.starlark.collections.Alloca
 import io.github.kotlinmania.starlark.collections.StringPool
 import io.github.kotlinmania.starlark.environment.FrozenModuleData

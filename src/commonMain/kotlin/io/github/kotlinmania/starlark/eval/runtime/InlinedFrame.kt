@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.Frame
 import io.github.kotlinmania.starlark.values.types.allocAny
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 
 /**

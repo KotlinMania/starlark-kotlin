@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 
 /** A frame of the call-stack. */
 data class Frame(

@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.debug.adapter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.debug.Breakpoint
 import io.github.kotlinmania.starlark.debug.DapAdapter
 import io.github.kotlinmania.starlark.debug.DapAdapterClient
@@ -48,10 +48,24 @@ import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.runBlocking
-import io.github.kotlinmania.starlark.ReentrantLock
-import io.github.kotlinmania.starlark.withLock
 import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+
+@OptIn(ExperimentalAtomicApi::class)
+private class SpinMutex {
+    private val locked: AtomicInt = AtomicInt(0)
+
+    inline fun <T> withLock(action: () -> T): T {
+        while (!locked.compareAndSet(0, 1)) {
+            // Contention is expected to be extremely rare.
+        }
+        try {
+            return action()
+        } finally {
+            locked.store(0)
+        }
+    }
+}
 
 internal fun prepareDapAdapter(
     client: DapAdapterClient,
@@ -114,7 +128,7 @@ private class Receiver<T>(
     private val channel: kotlinx.coroutines.channels.Channel<T>,
 ) {
     fun recv(): Result<T> {
-        return runBlocking {
+        return kotlinx.coroutines.runBlocking {
             try {
                 Result.success(channel.receive())
             } catch (e: Exception) {
@@ -139,7 +153,7 @@ private class DapAdapterImpl(
         source: String,
         breakpoints: ResolvedBreakpoints,
     ): Result<Unit> {
-        return state.breakpointsLock.withLock {
+        return state.breakpointsMutex.withLock {
             state.breakpoints.setBreakpoints(source, breakpoints)
         }
     }
@@ -295,7 +309,7 @@ private class DapAdapterEvalHookImpl private constructor(
         val stop = if (state.disableBreakpoints.load() > 0) {
             false
         } else {
-            val breakpoint = state.breakpointsLock.withLock {
+            val breakpoint = state.breakpointsMutex.withLock {
                 state.breakpoints.at(spanLoc)
             }
             when {
@@ -378,7 +392,7 @@ private class SharedAdapterState(
     // Those values for which we abort the execution.
     val breakpoints: BreakpointConfig,
     // Lock protecting access to breakpoints.
-    val breakpointsLock: ReentrantLock = ReentrantLock(),
+    val breakpointsMutex: SpinMutex = SpinMutex(),
     // Set while we are doing evaluate calls (>= 1 means disable)
     val disableBreakpoints: AtomicInt,
 )

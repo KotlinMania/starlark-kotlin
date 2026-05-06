@@ -4,7 +4,7 @@ This file contains guidelines for AI agents and human contributors working on th
 
 ## Project Context
 
-This is a **line-by-line transliteration port** of [facebook/starlark-rust](https://github.com/facebook/starlark-rust) to Kotlin Multiplatform. The goal is semantic parity with the Rust implementation while providing idiomatic Kotlin APIs.
+This is a **line-by-line transliteration port** of [facebook/starlark-rust](https://github.com/facebook/starlark-rust) to Kotlin Multiplatform. The goal is semantic parity with upstream behavior while providing idiomatic Kotlin APIs.
 
 ## General Porting Principles
 
@@ -13,7 +13,7 @@ This is a **line-by-line transliteration port** of [facebook/starlark-rust](http
 - **Port the intent and behavior**, not just syntax
 - Rust's traits often carry specific formatting contracts, behavioral expectations, or performance characteristics
 - Do **not** oversimplify implementations if the original code performed non-trivial work
-- Example: Rust's `Display` trait implementations often handle formatting, ANSI codes, truncation - replicate this logic in Kotlin's `toString()` or helper methods
+- Example: Rust's `Display` trait implementations often handle formatting, ANSI codes, truncation — translate that logic faithfully into Kotlin's `toString()` or helper methods
 
 ### 2. Research First
 

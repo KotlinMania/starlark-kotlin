@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 
 /**
  * An error produced by starlark.

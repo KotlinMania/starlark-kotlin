@@ -20,8 +20,8 @@ package io.github.kotlinmania.starlark.syntax.ast
  */
 
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 
 /** Payload types attached to AST nodes. */
 interface AstPayload

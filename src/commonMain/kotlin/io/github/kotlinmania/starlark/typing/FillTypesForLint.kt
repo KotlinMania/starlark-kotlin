@@ -13,9 +13,9 @@ import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
