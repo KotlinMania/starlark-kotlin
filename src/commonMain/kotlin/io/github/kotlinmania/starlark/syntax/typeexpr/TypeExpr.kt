@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/syntax/type_expr.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark.syntax.typeexpr
 
 /*

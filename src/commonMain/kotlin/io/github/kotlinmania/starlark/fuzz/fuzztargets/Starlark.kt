@@ -1,4 +1,4 @@
-// port-lint: source fuzz/fuzzTargets/starlark.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark.fuzz.fuzztargets
 
 /*

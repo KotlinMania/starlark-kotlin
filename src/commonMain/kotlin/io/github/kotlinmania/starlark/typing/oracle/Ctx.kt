@@ -1,4 +1,4 @@
-// port-lint: source oracle/ctx.rs
+// port-lint: source typing/oracle/ctx.rs
 package io.github.kotlinmania.starlark.typing.oracle
 
 import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap

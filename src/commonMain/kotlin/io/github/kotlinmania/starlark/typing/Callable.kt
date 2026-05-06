@@ -1,4 +1,4 @@
-// port-lint: source tests/callable.rs
+// port-lint: source typing/tests/callable.rs
 package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlarksyntax.codemap.Span as Span

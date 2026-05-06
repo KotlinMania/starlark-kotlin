@@ -1,4 +1,4 @@
-// port-lint: source tuple.rs
+// port-lint: source typing/tuple.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

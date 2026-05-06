@@ -1,4 +1,4 @@
-// port-lint: source ../starlark_syntax/src/frame.rs
+// port-lint: ignore
 package io.github.kotlinmania.starlark
 
 /*

@@ -1,5 +1,5 @@
-// port-lint: source typing/interface.rs
-package io.github.kotlinmania.starlark.typing
+// port-lint: source debug.rs
+package io.github.kotlinmania.starlark.debug
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,21 +19,6 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.typing.Ty
-
-/** Interface representing the types of all bindings in a module. */
-class Interface private constructor(
-    private val bindings: Map<String, Ty>,
-) {
-
-    companion object {
-        /** Create an empty interface, with no bindings. */
-        fun empty(): Interface = Interface(emptyMap())
-
-        /** Create a new interface with the given bindings. */
-        fun new(bindings: Map<String, Ty>): Interface = Interface(bindings)
-    }
-
-    /** Get the type for a given binding. */
-    fun get(name: String): Ty? = bindings[name]
-}
+/**
+ * Provides debug-related functionality and utilities.
+ */
