@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.cmpany.OrdAny
+import io.github.kotlinmania.gazebo.cmpany.OrdAny
 import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc

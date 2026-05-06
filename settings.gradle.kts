@@ -21,7 +21,7 @@ rootProject.name = "starlark"
 
 // NOTE: These dependencies are not available from Maven Central yet, so we build them
 // from sibling repos via composite builds.
-includeBuild("../cmp-any-kotlin")
+includeBuild("../gazebo-kotlin")
 
 includeBuild("../starlarkmap-kotlin") {
     dependencySubstitution {
