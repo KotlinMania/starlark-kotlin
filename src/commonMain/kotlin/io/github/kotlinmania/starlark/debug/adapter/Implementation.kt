@@ -49,23 +49,8 @@ import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-
-@OptIn(ExperimentalAtomicApi::class)
-private class SpinMutex {
-    private val locked: AtomicInt = AtomicInt(0)
-
-    inline fun <T> withLock(action: () -> T): T {
-        while (!locked.compareAndSet(0, 1)) {
-            // Contention is expected to be extremely rare.
-        }
-        try {
-            return action()
-        } finally {
-            locked.store(0)
-        }
-    }
-}
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal fun prepareDapAdapter(
     client: DapAdapterClient,
@@ -153,8 +138,10 @@ private class DapAdapterImpl(
         source: String,
         breakpoints: ResolvedBreakpoints,
     ): Result<Unit> {
-        return state.breakpointsMutex.withLock {
-            state.breakpoints.setBreakpoints(source, breakpoints)
+        return kotlinx.coroutines.runBlocking {
+            state.breakpointsMutex.withLock {
+                state.breakpoints.setBreakpoints(source, breakpoints)
+            }
         }
     }
 
@@ -309,8 +296,8 @@ private class DapAdapterEvalHookImpl private constructor(
         val stop = if (state.disableBreakpoints.load() > 0) {
             false
         } else {
-            val breakpoint = state.breakpointsMutex.withLock {
-                state.breakpoints.at(spanLoc)
+            val breakpoint = kotlinx.coroutines.runBlocking {
+                state.breakpointsMutex.withLock { state.breakpoints.at(spanLoc) }
             }
             when {
                 breakpoint != null && breakpoint.condition != null -> {
@@ -392,7 +379,7 @@ private class SharedAdapterState(
     // Those values for which we abort the execution.
     val breakpoints: BreakpointConfig,
     // Lock protecting access to breakpoints.
-    val breakpointsMutex: SpinMutex = SpinMutex(),
+    val breakpointsMutex: Mutex = Mutex(),
     // Set while we are doing evaluate calls (>= 1 means disable)
     val disableBreakpoints: AtomicInt,
 )
