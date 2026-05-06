@@ -22,13 +22,14 @@ package io.github.kotlinmania.starlark.values
 /** Detect recursion when doing `repr` or `toJson`. */
 
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.threadlocal.ThreadLocal
 import io.github.kotlinmania.starlark.values.layout.RawPointer
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Pop the stack on drop. */
 internal class ReprStackGuard : AutoCloseable {
     override fun close() {
-        val popped = reprStack.pop()
+        val popped = reprStack().pop()
         check(popped != null)
     }
 }
@@ -36,7 +37,7 @@ internal class ReprStackGuard : AutoCloseable {
 /** Pop the stack on drop. */
 internal class JsonStackGuard : AutoCloseable {
     override fun close() {
-        val popped = jsonStack.pop()
+        val popped = jsonStack().pop()
         check(popped != null)
     }
 }
@@ -47,13 +48,17 @@ internal class ReprCycle
 /** Returned when `toJson` is called recursively and a cycle is detected. */
 internal class JsonCycle
 
-private val reprStack = SmallSet<RawPointer>()
+private val reprStackLocal: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
 
-private val jsonStack = SmallSet<RawPointer>()
+private val jsonStackLocal: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
+
+private fun reprStack(): SmallSet<RawPointer> = reprStackLocal.getOr { SmallSet() }
+
+private fun jsonStack(): SmallSet<RawPointer> = jsonStackLocal.getOr { SmallSet() }
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
-    if (!reprStack.insert(value.ptrValue())) {
+    if (!reprStack().insert(value.ptrValue())) {
         return Result.failure(Exception(ReprCycle().toString()))
     }
     return Result.success(ReprStackGuard())
@@ -61,7 +66,7 @@ internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
-    if (!jsonStack.insert(value.ptrValue())) {
+    if (!jsonStack().insert(value.ptrValue())) {
         return Result.failure(Exception(JsonCycle().toString()))
     }
     return Result.success(JsonStackGuard())
