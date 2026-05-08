@@ -325,8 +325,6 @@ private fun rewriteStmt(stmt: Spanned<StmtP<AstNoPayload>>, replace: Map<String,
     return Spanned(rewritten, stmt.span)
 }
 
-// IAP for Def is captured through a star projection — extracted to a generic
-// helper so the IAP type variable is bound rather than asserted via UNCHECKED_CAST.
 private fun <IAP> rewriteDef(
     node: StmtP.Def<AstNoPayload, IAP>,
     replace: Map<String, String>,
