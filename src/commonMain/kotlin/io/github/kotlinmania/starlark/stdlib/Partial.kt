@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/partial.rs
+// port-lint: source stdlib/partial.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*

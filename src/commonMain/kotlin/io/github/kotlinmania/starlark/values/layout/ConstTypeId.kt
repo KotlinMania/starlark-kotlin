@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/constTypeId.rs
+// port-lint: source values/layout/const_type_id.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

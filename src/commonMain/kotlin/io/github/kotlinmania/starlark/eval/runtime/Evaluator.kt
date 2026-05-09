@@ -20,9 +20,9 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 import io.github.kotlinmania.starlark.any.AnyLifetime as AnyLt
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
 import io.github.kotlinmania.starlark.collections.Alloca
 import io.github.kotlinmania.starlark.collections.StringPool
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
@@ -59,7 +59,7 @@ import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -385,13 +385,13 @@ class Evaluator(
     }
 
     /** Obtain the current call-stack, suitable for import in diagnostics. */
-    fun callStack(): io.github.kotlinmania.starlark.CallStack {
+    fun callStack(): io.github.kotlinmania.starlarksyntax.callstack.CallStack {
         return callStack.toDiagnosticFrames(InlinedFrames())
     }
 
     /** Obtain the top frame on the call-stack. May be `null` if the
      * call happened via native functions. */
-    fun callStackTopFrame(): io.github.kotlinmania.starlark.Frame? {
+    fun callStackTopFrame(): io.github.kotlinmania.starlarksyntax.frame.Frame? {
         return callStack.topFrame()
     }
 

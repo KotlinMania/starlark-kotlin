@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/scope.rs
+// port-lint: source eval/compiler/scope.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -28,9 +28,9 @@ package io.github.kotlinmania.starlark.eval.compiler
  *  - scope/Tests.kt (tests)
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.environment.MutableNames
@@ -58,7 +58,7 @@ import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.Interface
 import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap

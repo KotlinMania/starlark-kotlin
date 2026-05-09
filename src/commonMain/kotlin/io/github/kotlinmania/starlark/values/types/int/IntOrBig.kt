@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/int/intOrBig.rs
+// port-lint: source values/types/int/int_or_big.rs
 package io.github.kotlinmania.starlark.values.types.int
 
 /*
@@ -139,8 +139,6 @@ sealed class StarlarkInt : AllocValue, AllocFrozenValue {
                 else -> Small(inline)
             }
         }
-
-        // TokenInt is not yet fully ported; parsing is handled by fromStrRadix.
 
         fun from(value: UInt): StarlarkInt = fromImpl(
             value,

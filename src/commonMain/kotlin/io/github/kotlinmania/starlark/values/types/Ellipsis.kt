@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/ellipsis.rs
+// port-lint: source values/types/ellipsis.rs
 package io.github.kotlinmania.starlark.values.types.ellipsis
 
 /*

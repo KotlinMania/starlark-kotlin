@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/params/parser.rs
+// port-lint: source eval/runtime/params/parser.rs
 package io.github.kotlinmania.starlark.eval.runtime.params
 
 /*

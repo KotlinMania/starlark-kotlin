@@ -1,4 +1,5 @@
-// port-lint: source tests:src/stdlib/funcs/other.rspackage io.github.kotlinmania.starlark.stdlib.funcs
+// port-lint: source tests:src/stdlib/funcs/other.rs
+package io.github.kotlinmania.starlark.stdlib.funcs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

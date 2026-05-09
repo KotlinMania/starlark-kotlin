@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/layout/pointer.rspackage io.github.kotlinmania.starlark.values.layout
+// port-lint: source tests:src/values/layout/pointer.rs
+package io.github.kotlinmania.starlark.values.layout
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -25,7 +26,6 @@ class PointerTest {
 
     @Test
     fun testIntTag() {
-        // Kotlin: RawPointer.newInt takes Int directly (drift from Rust which takes InlineInt).
         fun check(x: Int) {
             assertEquals(x, RawPointer.newInt(x).unpackInt())
         }
@@ -33,8 +33,6 @@ class PointerTest {
         for (x in -10..9) {
             check(x)
         }
-        // InlineInt::MAX / InlineInt::MIN are InlineInt::BITS=32 boundaries,
-        // i.e. Int.MAX_VALUE / Int.MIN_VALUE on the Kotlin side.
         check(Int.MAX_VALUE)
         check(Int.MIN_VALUE)
     }

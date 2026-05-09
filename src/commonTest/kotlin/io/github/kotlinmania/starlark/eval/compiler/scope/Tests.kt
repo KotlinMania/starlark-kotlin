@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/scope/tests.rs
+// port-lint: source eval/compiler/scope/tests.rs
 package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*

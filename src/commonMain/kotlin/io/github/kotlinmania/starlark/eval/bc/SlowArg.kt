@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/slowArg.rs
+// port-lint: source eval/bc/slow_arg.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

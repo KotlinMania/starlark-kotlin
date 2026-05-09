@@ -1,4 +1,4 @@
-// port-lint: source src/readLine.rs
+// port-lint: source read_line.rs
 package io.github.kotlinmania.starlark.readline
 
 /*

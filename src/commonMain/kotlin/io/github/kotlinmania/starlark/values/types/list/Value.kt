@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list/value.rs
+// port-lint: source values/types/list/value.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 // Copyright 2018 The Starlark in Rust Authors.

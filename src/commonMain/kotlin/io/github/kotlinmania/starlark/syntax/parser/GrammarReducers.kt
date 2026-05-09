@@ -1,11 +1,12 @@
+// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark.syntax.parser
 
 import io.github.kotlinmania.starlark.syntax.state.ParserState
 import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.lexer.*
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 
 fun <T> T.ast(begin: Int, end: Int): Spanned<T> = Spanned(this, Span(Pos(begin), Pos(end)))
 

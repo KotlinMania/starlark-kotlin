@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/layout/heap/allocator/alloc/chain.rspackage io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
+// port-lint: source tests:src/values/layout/heap/allocator/alloc/chain.rs
+package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

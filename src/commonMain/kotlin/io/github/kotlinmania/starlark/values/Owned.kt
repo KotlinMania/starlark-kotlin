@@ -1,4 +1,4 @@
-// port-lint: source src/values/owned.rs
+// port-lint: source values/owned.rs
 package io.github.kotlinmania.starlark.values.owned
 
 /*

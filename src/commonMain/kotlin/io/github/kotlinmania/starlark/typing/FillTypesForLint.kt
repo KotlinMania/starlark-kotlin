@@ -1,4 +1,4 @@
-// port-lint: source src/typing/fillTypesForLint.rs
+// port-lint: source typing/fill_types_for_lint.rs
 package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
@@ -13,9 +13,9 @@ import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -403,8 +403,8 @@ private class GlobalTypesBuilder(
         return Ty.any()
     }
 
-    // TypePathP: { first: CstIdent, rem: Vec<Spanned<&str>> }
-    // Not yet ported as a separate type, inlined as Pair
+    // TypePathP { first: CstIdent, rem: List<Spanned<String>> }
+    // Not yet ported as a separate type, parameters passed individually.
     fun evalPath(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Value? {
         var value = exprIdent(first).value ?: return null
         for (x in rem) {

@@ -1,4 +1,4 @@
-// port-lint: source src/debug/adapter.rs
+// port-lint: source debug/adapter.rs
 package io.github.kotlinmania.starlark.debug
 
 /*
@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.debug.adapter.prepareDapAdapter as prepareDapAdapterImpl
 import io.github.kotlinmania.starlark.debug.adapter.resolveBreakpoints as resolveBreakpointsImpl
 import io.github.kotlinmania.starlark.debug.adapter.resolvedBreakpointsToDap as resolvedBreakpointsToDapImpl
-import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 import io.github.kotlinmania.starlark.syntax.AstModule
 
 /**

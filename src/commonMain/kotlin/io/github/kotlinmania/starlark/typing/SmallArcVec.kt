@@ -1,4 +1,4 @@
-// port-lint: source src/typing/smallArcVec.rs
+// port-lint: source typing/small_arc_vec.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

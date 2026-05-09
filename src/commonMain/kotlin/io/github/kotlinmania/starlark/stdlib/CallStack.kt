@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/callStack.rs
+// port-lint: source stdlib/call_stack.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.stdlib
 
 /** Implementation of `callStack` function. */
 
-import io.github.kotlinmania.starlark.CallStack
-import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlarksyntax.callstack.CallStack
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.environment.Methods

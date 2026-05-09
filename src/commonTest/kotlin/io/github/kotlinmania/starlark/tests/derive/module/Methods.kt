@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/methods.rs
+// port-lint: source tests/derive/module/methods.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -60,13 +60,17 @@ private class Applaud(
 }
 
 private fun methods(builder: MethodsBuilder) {
+    fun testMethod(receiver: Value, thisInt: Int): Result<Int> {
+        val applaud = receiver.downcastRef<Applaud>()!!
+        return Result.success(applaud.value + thisInt)
+    }
+
     builder.setMethod("test_method") { eval, receiver, _, args ->
         val thisParam = args.positional1(eval.heap()).getOrThrow()
         val thisInt = thisParam.unpackI32() ?: return@setMethod Result.failure(
             IllegalArgumentException("Expected int, got ${thisParam.toRepr()}")
         )
-        val applaud = receiver.downcastRef<Applaud>()!!
-        Result.success((applaud.value + thisInt).allocValue(eval.heap()))
+        testMethod(receiver, thisInt).map { it.allocValue(eval.heap()) }
     }
 }
 

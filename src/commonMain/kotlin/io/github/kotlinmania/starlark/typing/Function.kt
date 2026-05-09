@@ -1,4 +1,4 @@
-// port-lint: source function.rs
+// port-lint: source typing/function.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 

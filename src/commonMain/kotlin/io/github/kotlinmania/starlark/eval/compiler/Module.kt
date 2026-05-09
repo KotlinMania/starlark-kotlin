@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/module.rs
+// port-lint: source eval/compiler/module.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -21,7 +21,7 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 /** Compile and evaluate module top-level statements. */
 
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark.eval.bc.allocaFrame
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.BindingsCollect
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.InternalError
 import io.github.kotlinmania.starlark.typing.ModuleVarTypes
 import io.github.kotlinmania.starlark.typing.Ty

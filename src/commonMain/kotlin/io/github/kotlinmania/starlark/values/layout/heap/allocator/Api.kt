@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/api.rs
+// port-lint: source values/layout/heap/allocator/api.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator
 
 /*

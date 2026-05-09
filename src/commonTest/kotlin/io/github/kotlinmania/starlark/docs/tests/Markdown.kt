@@ -1,4 +1,4 @@
-// port-lint: source src/docs/tests/markdown.rs
+// port-lint: source docs/tests/markdown.rs
 package io.github.kotlinmania.starlark.docs.tests
 
 /*
@@ -123,7 +123,7 @@ private class Obj : StarlarkValue, StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 
     override fun getMethods(): Methods? {
-        return objMethodsStatic.methods(::objectMethods)
+        return objMethodsStatic.methods(::`object`)
     }
 
     companion object {
@@ -386,7 +386,7 @@ And some assertions:
     )
 }
 
-private fun submoduleFunctions(builder: GlobalsBuilder) {
+private fun submodule(builder: GlobalsBuilder) {
     fun notypes(a: Value): Result<Value> {
         return Result.success(a)
     }
@@ -529,12 +529,12 @@ private fun submoduleFunctions(builder: GlobalsBuilder) {
 private fun getGlobals(): Globals {
     return GlobalsBuilder.new()
         .with(::moduleFunctions)
-        .withNamespace("submod", ::submoduleFunctions)
+        .withNamespace("submod", ::submodule)
         .build()
 }
 
 /** These are where the module docs go */
-private fun objectMethods(builder: MethodsBuilder) {
+private fun `object`(builder: MethodsBuilder) {
     /** Docs for attr1 */
     fun attr1(thisValue: Value): Result<String> {
         val _unused = thisValue

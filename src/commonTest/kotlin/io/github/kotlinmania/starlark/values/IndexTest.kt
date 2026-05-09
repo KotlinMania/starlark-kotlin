@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/index.rspackage io.github.kotlinmania.starlark.values
+// port-lint: source tests:src/values/index.rs
+package io.github.kotlinmania.starlark.values
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

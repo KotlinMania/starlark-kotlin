@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/callEnterExit.rs
+// port-lint: source values/layout/heap/call_enter_exit.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*

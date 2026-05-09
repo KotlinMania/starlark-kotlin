@@ -1,4 +1,4 @@
-// port-lint: source src/values/traits.rs
+// port-lint: source values/traits.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -121,6 +121,14 @@ interface StarlarkValue {
      */
     fun getTypeStarlarkRepr(): Ty {
         return Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+    }
+
+    /**
+     * Please do not implement this method or [getType], but use the
+     * `@StarlarkValue` annotation / processor.
+     */
+    fun pleaseUseStarlarkTypeMacro() {
+        error("This function is implemented by @StarlarkValue proc macro")
     }
 
     /**

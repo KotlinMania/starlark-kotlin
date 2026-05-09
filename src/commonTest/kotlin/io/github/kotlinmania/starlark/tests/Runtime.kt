@@ -1,4 +1,4 @@
-// port-lint: source src/tests/runtime.rs
+// port-lint: source tests/runtime.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -64,16 +64,16 @@ assert_eq(y, str(x))
             override fun toString(): String = "Dealloc"
         }
 
-        fun globalsFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("mk") { _, _ ->
-                Result.success(StarlarkAny.new(Dealloc()))
-            }
+        fun mk(): Result<StarlarkAny<Dealloc>> = Result.success(StarlarkAny.new(Dealloc()))
+
+        fun globals(builder: GlobalsBuilder) {
+            builder.setFunction("mk") { _, _ -> mk() }
         }
 
         count.store(0)
         val a = Assert()
         a.disableGc()
-        a.globalsAdd(::globalsFunctions)
+        a.globalsAdd(::globals)
         a.module("test", "x = [mk(), mk()]\ndef y(): return mk()")
         a.pass(
             """
@@ -92,18 +92,20 @@ r = [y(), mk()]
     @Test
     fun testStackDepth() {
         val depthCounter = AtomicInt(0)
-        fun measureStackFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("stack_depth") { _, _ ->
-                // We don't have direct stack-pointer access here, so we import a
-                // monotonic counter as a proxy to verify that the evaluator
-                // does not grow the stack unboundedly across loop iterations.
-                val depth = depthCounter.fetchAndAdd(1)
-                Result.success(depth.toString())
-            }
+        fun stackDepth(): Result<String> {
+            // We don't have direct stack-pointer access here, so we import a
+            // monotonic counter as a proxy to verify that the evaluator
+            // does not grow the stack unboundedly across loop iterations.
+            val depth = depthCounter.fetchAndAdd(1)
+            return Result.success(depth.toString())
+        }
+
+        fun measureStack(builder: GlobalsBuilder) {
+            builder.setFunction("stack_depth") { _, _ -> stackDepth() }
         }
 
         val a = Assert()
-        a.globalsAdd(::measureStackFunctions)
+        a.globalsAdd(::measureStack)
         val s = a.pass(
             """
 for i in range(1001):
@@ -134,18 +136,19 @@ v1 + " " + v100 + " " + v1000
     @Test
     fun testGarbageCollectHappens() {
         // GC is meant to be "not observable", but if we break it, we want this test to fail
-        fun helpersFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("current_usage") { _, eval ->
-                Result.success(eval.heap().allocatedBytes())
-            }
+        fun currentUsage(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Int> =
+            Result.success(eval.heap().allocatedBytes())
 
-            builder.setFunction("is_gc_disabled") { _, eval ->
-                Result.success(eval.disableGc)
-            }
+        fun isGcDisabled(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> =
+            Result.success(eval.disableGc)
+
+        fun helpers(builder: GlobalsBuilder) {
+            builder.setFunction("current_usage") { _, eval -> currentUsage(eval) }
+            builder.setFunction("is_gc_disabled") { _, eval -> isGcDisabled(eval) }
         }
 
         val a = Assert()
-        a.globalsAdd(::helpersFunctions)
+        a.globalsAdd(::helpers)
 
         // Approach is to keep doing something expensive, and we want to see the memory usage decrease.
         val code = buildString {

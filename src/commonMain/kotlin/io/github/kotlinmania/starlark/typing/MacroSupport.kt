@@ -1,4 +1,4 @@
-// port-lint: source src/typing/macroSupport.rs
+// port-lint: source typing/macro_support.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/dotFormatParser.rs
+// port-lint: source ../starlark_syntax/src/dot_format_parser.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -29,7 +29,6 @@ enum class FormatConv {
 sealed class FormatToken {
     /** Text to copy verbatim to the output. */
     data class Text(val text: String) : FormatToken()
-    // Capture {
     data class Capture(
         /** Format part inside curly braces before the conversion. */
         val capture: String,
@@ -38,7 +37,6 @@ sealed class FormatToken {
         /** The conversion to apply to this capture. */
         val conv: FormatConv
     ) : FormatToken()
-    // Escape(EscapeCurlyBrace),
     data class Escape(val escape: EscapeCurlyBrace) : FormatToken()
 }
 

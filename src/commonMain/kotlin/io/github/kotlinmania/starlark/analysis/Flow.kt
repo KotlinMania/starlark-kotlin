@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/flow.rs
+// port-lint: source analysis/flow.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark.codemap.ResolvedPos
-import io.github.kotlinmania.starlark.codemap.ResolvedSpan
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedPos as ResolvedPos
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedSpan as ResolvedSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
@@ -350,7 +350,7 @@ private fun checkStmt(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: Mu
 // stmt
 // ---------------------------------------------------------------------------
 
-private fun stmt(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
+internal fun stmt(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
     checkStmt(codemap, x, res)
     x.visitStmt { stmt(codemap, it, res) }
 }
@@ -363,7 +363,7 @@ private fun stmt(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: Mutable
  * Returns `true` if the code aborts this sequence early,
  * due to return, fail, break or continue.
  */
-private fun reachable(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>): Boolean {
+internal fun reachable(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>): Boolean {
     return when (val s = x.node) {
         is StmtP.Break, is StmtP.Continue, is StmtP.Return -> true
         is StmtP.Expression -> isFail(s.expr)
@@ -413,7 +413,7 @@ private fun reachable(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: Mu
  * If you have a definition which ends with return, or a loop which ends with continue
  * that is a useless statement.
  */
-private fun redundant(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
+internal fun redundant(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
     fun check(isLoop: Boolean, codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
         when (val s = x.node) {
             is StmtP.Continue -> if (isLoop) {
@@ -451,7 +451,7 @@ private fun redundant(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: Mu
 // misplacedLoad
 // ---------------------------------------------------------------------------
 
-private fun misplacedLoad(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
+internal fun misplacedLoad(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
     // accumulate all statements at the top-level
     fun topStatements(x: Spanned<StmtP<AstNoPayload>>, stmts: MutableList<Spanned<StmtP<AstNoPayload>>>) {
         when (val s = x.node) {
@@ -495,7 +495,7 @@ private fun misplacedLoad(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res
 // noEffect
 // ---------------------------------------------------------------------------
 
-private fun noEffect(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
+internal fun noEffect(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
     when (val s = x.node) {
         is StmtP.Expression -> if (!hasEffect(s.expr)) {
             res.add(LintT.new(codemap, (s.expr).span, FlowIssue.NoEffect))

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/types.rs
+// port-lint: source eval/compiler/types.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.eval.compiler
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/opt/typeIs.rs
+// port-lint: source tests/opt/type_is.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 /*
@@ -30,24 +30,27 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.test.Test
 
-private fun globalsFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("returns_type_is") { args, _ ->
-        val value = args.positional<Value>(0)
+private fun globals(builder: GlobalsBuilder) {
+    fun returnsTypeIs(value: Value): Result<Boolean> {
         val defGen = value.downcastRef<DefGen<*>>()
-        if (defGen != null) {
-            val result = defGen.defInfo.inlineDefBody is InlineDefBody.ReturnTypeIs
-            Result.success(result)
+        return if (defGen != null) {
+            Result.success(defGen.defInfo.inlineDefBody is InlineDefBody.ReturnTypeIs)
         } else {
             error("not def")
         }
+    }
+
+    builder.setFunction("returns_type_is") { args, _ ->
+        val value = args.positional<Value>(0)
+        returnsTypeIs(value).getOrThrow()
     }
 }
 
 class TypeIsTests {
     @Test
-    fun testReturnsTypeIs() {
+    fun returnsTypeIs() {
         val a = Assert()
-        a.globalsAdd(::globalsFunctions)
+        a.globalsAdd(::globals)
 
         a.module(
             "types.star",
@@ -68,9 +71,9 @@ class TypeIsTests {
     }
 
     @Test
-    fun testDoesNotReturnTypeIs() {
+    fun doesNotReturnTypeIs() {
         val a = Assert()
-        a.globalsAdd(::globalsFunctions)
+        a.globalsAdd(::globals)
         a.pass(
             """
     def is_not_list(x):

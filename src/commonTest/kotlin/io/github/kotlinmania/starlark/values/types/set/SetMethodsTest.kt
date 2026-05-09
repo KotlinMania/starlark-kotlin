@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/types/set/methods.rspackage io.github.kotlinmania.starlark.values.types.set
+// port-lint: source tests:src/values/types/set/methods.rs
+package io.github.kotlinmania.starlark.values.types.set
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

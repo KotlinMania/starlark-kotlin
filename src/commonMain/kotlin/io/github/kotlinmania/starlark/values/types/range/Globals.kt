@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/range/globals.rs
+// port-lint: source values/types/range/globals.rs
 package io.github.kotlinmania.starlark.values.types.range
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments

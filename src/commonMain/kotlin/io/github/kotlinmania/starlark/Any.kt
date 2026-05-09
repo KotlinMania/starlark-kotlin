@@ -24,19 +24,17 @@ package io.github.kotlinmania.starlark.any
 import kotlin.reflect.KClass
 
 /**
- * Provides access to the same type as `Self` but as a static type identifier
- * (including across any of its parameters).
+ * Provides access to the static type identifier of `Self`, with all generic parameters erased
+ * (including parameters of the receiver type).
  *
- * In Kotlin this maps to providing the [KClass] of the static type for
- * runtime type identification.
+ * This type is usually implemented with `@ProvidesStaticType`.
  */
 interface ProvidesStaticType {
     /**
-     * Same type as `Self`, exposed as a static type identifier.
+     * Static type identifier of `Self`, with generic parameters erased.
      *
-     * Implementations must satisfy the upstream invariants documented on
-     * the corresponding interface — incorrect implementations can corrupt
-     * downcasting.
+     * The trait is unsafe because if this is implemented incorrectly,
+     * the program might not work correctly.
      */
     val staticType: KClass<*>
 }
@@ -50,15 +48,14 @@ interface ProvidesStaticType {
  */
 
 /**
- * Like [Any][kotlin.Any], but while `Any` requires the static-only form, this
- * version allows borrowed type parameters.
+ * Like [Any][kotlin.Any], but provides a stable type identifier suitable for runtime
+ * type comparisons across generic parameters.
  *
- * Code using this trait is _unsafe_ if the implementation of the inner
- * methods does not meet the invariants listed. Therefore, it is recommended
- * you import one of the helper macros.
+ * Code using this trait is _unsafe_ if your implementation of the inner methods do not meet the
+ * invariants listed. Therefore, it is recommended you use one of the helper macros.
  *
- * You cannot implement this trait directly. You should instead implement
- * [ProvidesStaticType], usually via the derive macro.
+ * You cannot implement this trait directly. You should instead implement `ProvidesStaticType`,
+ * usually via the derive macro.
  */
 interface AnyLifetime {
     /**
@@ -106,129 +103,3 @@ inline fun <reified T> AnyLifetime.downcastMut(): T? {
     }
 }
 
-/**
- * One of the disadvantages of AnyLifetime is there is no finite covering set of
- * types so we predeclare instances for things that seem useful, but the list is
- * pretty adhoc.
- */
-
-class UnitStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Unit::class
-}
-
-class BoolStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Boolean::class
-}
-
-class U8StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = UByte::class
-}
-
-class U16StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = UShort::class
-}
-
-class U32StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = UInt::class
-}
-
-class U64StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = ULong::class
-}
-
-class U128StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = ULong::class
-}
-
-class UsizeStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = ULong::class
-}
-
-class I8StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Byte::class
-}
-
-class I16StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Short::class
-}
-
-class I32StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Int::class
-}
-
-class I64StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Long::class
-}
-
-class I128StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Long::class
-}
-
-class IsizeStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Long::class
-}
-
-class F32StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Float::class
-}
-
-class F64StaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Double::class
-}
-
-class StringStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = String::class
-}
-
-class StrStaticType : ProvidesStaticType {
-    override val staticType: KClass<*> get() = CharSequence::class
-}
-
-class RefStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class MutRefStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class ConstPtrStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class MutPtrStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class SliceStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = List::class
-}
-
-class OptionStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = inner.staticType
-}
-
-class ResultStaticType<T : ProvidesStaticType, E : ProvidesStaticType>(
-    val okType: T,
-    val errType: E,
-) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Result::class
-}
-
-class VecStaticType<T : ProvidesStaticType>(val inner: T) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = MutableList::class
-}
-
-class HashMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
-    val keyType: K,
-    val valueType: V,
-) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = MutableMap::class
-}
-
-class BTreeMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
-    val keyType: K,
-    val valueType: V,
-) : ProvidesStaticType {
-    override val staticType: KClass<*> get() = Map::class
-}

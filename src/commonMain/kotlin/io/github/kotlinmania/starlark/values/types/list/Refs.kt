@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list/refs.rs
+// port-lint: source values/types/list/refs.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 /*
@@ -91,11 +91,7 @@ class ListRef private constructor(
     /** Get the element at the given index, or null if out of bounds. */
     operator fun get(index: Int): Value? = elements.getOrNull(index)
 
-    /**
-     * Get a sublist for the given range, or null if the range is invalid.
-     *
-     * In Kotlin, we clamp and return a subList.
-     */
+    /** Get a sublist for the given range, or null if the range is invalid. */
     fun get(range: IntRange): List<Value>? {
         val start = maxOf(0, range.first)
         val end = minOf(elements.size, range.last + 1)
@@ -180,13 +176,7 @@ class FrozenListRef private constructor(
     override fun toString(): String = displayList(elements.map { it.toValue() })
 }
 
-// -- Deref implementations (structural equivalents) ---------------------------
-
-/**
- *
- * be used directly as a slice. In Kotlin, the equivalent is calling
- * [ListRef.asList] or [ListRef.content].
- */
+/** Materialize a [ListRef] as the underlying [List]. */
 object ListRefDeref {
     /** The target type is `List<Value>`. */
     fun deref(ref: ListRef): List<Value> = ref.content()

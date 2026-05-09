@@ -1,4 +1,5 @@
-// port-lint: source tests:src/environment/globals.rspackage io.github.kotlinmania.starlark.environment
+// port-lint: source tests:src/environment/globals.rs
+package io.github.kotlinmania.starlark.environment
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -27,6 +28,11 @@ import kotlin.test.assertIs
 class GlobalsTest {
 
     // Not applicable in Kotlin - all objects are thread-shareable by default.
+
+    private fun registerFoo(builder: GlobalsBuilder) {
+        fun foo(): Result<Int> = Result.success(1)
+        builder.setFunction("foo") { _, _ -> foo() }
+    }
 
     @Test
     fun testDocHidden() {

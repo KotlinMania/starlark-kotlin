@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/float/globals.rs
+// port-lint: source values/types/float/globals.rs
 package io.github.kotlinmania.starlark.values.types.float
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.positionalAll

@@ -1,4 +1,4 @@
-// port-lint: source src/lexer.rs
+// port-lint: source ../starlark_syntax/src/lexer.rs
 package io.github.kotlinmania.starlark.syntax.lexer
 
 /*
@@ -19,11 +19,11 @@ package io.github.kotlinmania.starlark.syntax.lexer
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 
 sealed class LexemeError(val message: String) {

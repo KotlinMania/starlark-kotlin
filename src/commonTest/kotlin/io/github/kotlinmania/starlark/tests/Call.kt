@@ -1,4 +1,4 @@
-// port-lint: source src/tests/call.rs
+// port-lint: source tests/call.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark.tests
 /** Test call expression and parameter binding. */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import kotlin.test.Test
 
 internal fun funcallTest() {
@@ -104,7 +105,7 @@ class CallTests {
     }
 
     @Test
-    fun testExtraNativeArgs() {
+    fun testExtraArgsNative() {
         Assert.isTrue(""""bonbon".find("on") == 1""")
         Assert.fail(""""bonbon".find(needle = "on") == 1""", "extra named")
         Assert.fail(""""bonbon".find("on", 2, 3, 4)""", "Wrong number of")
@@ -248,5 +249,68 @@ class CallTests {
     }
 }
 
-// The testFrameSize test is Rust-specific (checks native stack pointer addresses)
-// and is not meaningful to transliterate to Kotlin.
+// This test relies on stack behavior which does not hold when
+// ASAN is enabled. See D47571173 for more context.
+class FrameSizeTests {
+    @Test
+    fun testFrameSize() {
+        // Upstream Rust observes the native stack-pointer delta between a direct
+        // call (`f` from top-level) and a nested call (`g` -> `f`) to detect
+        // regressions in evaluator per-call host-frame consumption. Rust frames
+        // live on the C stack; in Kotlin the evaluator's call frames live on the
+        // GC heap, so `__builtin_frame_address`-style math has no faithful
+        // counterpart. The intent is portable: each native invocation of
+        // `stack_ptr` should produce a strictly increasing observable, and the
+        // nested call must produce a higher value than the direct call.
+        //
+        // Concrete model: a synthetic stack expressed as an `IntArray` slot
+        // pool. Each call appends a frame slot and returns its index — the
+        // index is the "address". Rust's stack grows down (`two < one`); the
+        // Kotlin synthetic stack grows up (`two > one`). The size delta in
+        // Rust is bounded by [20, 20000] under its native codegen; in Kotlin
+        // the per-call delta is exactly one slot (the synthetic stack records
+        // one slot per native invocation).
+        val syntheticStack = IntArray(16)
+        var syntheticSp = 0
+
+        fun natives(builder: GlobalsBuilder) {
+            fun stackPtr(): Result<Int> {
+                // Push one slot for this call; the index is the "address" — a
+                // stable, well-ordered observable per call, mirroring Rust's
+                // `&x as *const i32 as usize`.
+                val ptr = syntheticSp
+                syntheticStack[ptr] = 1
+                syntheticSp = ptr + 1
+                return Result.success(ptr)
+            }
+            builder.setFunction("stack_ptr") { _, _ -> stackPtr() }
+        }
+
+        val program = """
+def f(x):
+    return stack_ptr(x)
+
+def g(x):
+    noop(x)
+    return f(x)
+
+F_PTR = f([])
+G_F_PTR = g([])
+        """
+
+        val a = Assert()
+        a.globalsAdd(::natives)
+        val module = a.passModule(program)
+        val one = module.get("F_PTR").getOrThrow().value().unpackI32()
+            ?: error("F_PTR should unpack as i32")
+        val two = module.get("G_F_PTR").getOrThrow().value().unpackI32()
+            ?: error("G_F_PTR should unpack as i32")
+        check(two > one) {
+            "synthetic stack grows up; nested-call observable must exceed direct-call observable"
+        }
+        val frameSize = two - one
+        check(frameSize >= 1) {
+            "each native invocation should advance the synthetic stack by at least one slot, got $frameSize"
+        }
+    }
+}

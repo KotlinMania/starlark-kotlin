@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/rustLoc.rs
+// port-lint: source eval/runtime/rust_loc.rs
 package io.github.kotlinmania.starlark.eval.runtime.rustloc
 
 /*
@@ -18,9 +18,9 @@ package io.github.kotlinmania.starlark.eval.runtime.rustloc
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/cheapCallStack.rs
+// port-lint: source eval/runtime/cheap_call_stack.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -20,14 +20,14 @@ package io.github.kotlinmania.starlark.eval.runtime
  */
 
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.CallStack
-import io.github.kotlinmania.starlark.Frame
+import io.github.kotlinmania.starlarksyntax.callstack.CallStack
+import io.github.kotlinmania.starlarksyntax.frame.Frame
 import io.github.kotlinmania.starlark.eval.runtime.InlinedFrames
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
 
 // A value akin to Frame, but can be created cheaply, since it doesn't resolve
 // anything in advance.

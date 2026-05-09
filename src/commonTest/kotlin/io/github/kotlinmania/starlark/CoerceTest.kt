@@ -1,4 +1,4 @@
-// port-lint: tests src/coerce.rs
+// port-lint: tests coerce.rs
 package io.github.kotlinmania.starlark
 
 /*

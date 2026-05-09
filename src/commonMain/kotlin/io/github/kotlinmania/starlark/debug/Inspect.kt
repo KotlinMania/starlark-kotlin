@@ -1,4 +1,4 @@
-// port-lint: source src/debug/inspect.rs
+// port-lint: source debug/inspect.rs
 package io.github.kotlinmania.starlark.debug
 
 /*
@@ -80,25 +80,32 @@ private fun inspectModuleVariables(eval: Evaluator): SmallMap<String, Value> {
 
 // Tests
 
-private fun debuggerFunctions(builder: GlobalsBuilder) {
-    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
-        Result.success(eval.callStack().intoFrames().map { it.toString() })
+private fun debugger(builder: GlobalsBuilder) {
+    fun debugInspectStack(eval: Evaluator): Result<List<String>> {
+        return Result.success(eval.callStack().intoFrames().map { it.toString() })
     }
 
-    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
+    fun debugInspectVariables(eval: Evaluator): Result<Dict> {
         val sm = SmallMap.new<Value, Value>()
         for ((k, v) in eval.localVariables()) {
             val sv = eval.heap().allocStr(k)
             val hashedValue = Hashed.newUnchecked(sv.getHash(), sv.toValue())
             sm.insertHashed(hashedValue, v)
         }
-        Result.success(Dict.new(sm))
+        return Result.success(Dict.new(sm))
+    }
+
+    builder.setFunction("debug_inspect_stack") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
+        debugInspectStack(eval)
+    }
+    builder.setFunction("debug_inspect_variables") { _: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: Evaluator ->
+        debugInspectVariables(eval)
     }
 }
 
 internal fun testDebugStack() {
     val a = Assert()
-    a.globalsAdd(::debuggerFunctions)
+    a.globalsAdd(::debugger)
     a.pass(
         """
 def assert_stack(want):
@@ -116,7 +123,7 @@ g()
 
 internal fun testDebugVariables() {
     val a = Assert()
-    a.globalsAdd(::debuggerFunctions)
+    a.globalsAdd(::debugger)
     a.pass(
         """
 root = 12

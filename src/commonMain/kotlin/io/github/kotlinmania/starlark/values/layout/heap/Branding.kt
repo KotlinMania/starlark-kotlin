@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/branding.rs
+// port-lint: source values/layout/heap/branding.rs
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.

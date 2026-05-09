@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/unbound.rs
+// port-lint: source values/types/unbound.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*

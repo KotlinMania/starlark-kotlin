@@ -1,4 +1,4 @@
-// port-lint: source src/wasm.rs
+// port-lint: source wasm.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -21,7 +21,5 @@ package io.github.kotlinmania.starlark
 
 /** Are we on wasm? */
 fun isWasm(): Boolean {
-    // In Kotlin Multiplatform commonMain, we return false.
-    // Override with expect/actual if wasmJs/wasmWasi targets are added.
     return false
 }

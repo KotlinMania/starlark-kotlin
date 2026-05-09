@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/stringIndex.rs
+// port-lint: source values/layout/heap/profile/string_index.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
 
 /*

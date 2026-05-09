@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/nativeFunction.rs
+// port-lint: source eval/bc/native_function.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

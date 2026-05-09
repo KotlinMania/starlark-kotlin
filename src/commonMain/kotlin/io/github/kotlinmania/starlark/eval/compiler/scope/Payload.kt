@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/scope/payload.rs
+// port-lint: source eval/compiler/scope/payload.rs
 package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*
@@ -42,8 +42,8 @@ import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.InternalError
 import io.github.kotlinmania.starlark.typing.Interface
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 
 /** Compiler-specific AST payload. */
 object CstPayload : AstPayload

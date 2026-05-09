@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/none/globals.rs
+// port-lint: source values/types/none/globals.rs
 package io.github.kotlinmania.starlark.values.types.none
 
 /*

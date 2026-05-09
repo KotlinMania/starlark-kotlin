@@ -1,4 +1,4 @@
-// port-lint: source src/eval/params.rs
+// port-lint: source eval/params.rs
 package io.github.kotlinmania.starlark.eval
 
 /*

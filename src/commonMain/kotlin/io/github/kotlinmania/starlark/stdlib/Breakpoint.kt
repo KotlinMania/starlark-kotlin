@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/breakpoint.rs
+// port-lint: source stdlib/breakpoint.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -27,12 +27,12 @@ import io.github.kotlinmania.starlark.readline.ReadLine
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.ReentrantLock
-import io.github.kotlinmania.starlark.withLock
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 // A breakpoint takes over the console UI, so having two going at once confuses everything.
 // Have a global mutex to ensure one at a time.
-private val breakpointLock = ReentrantLock()
+private val breakpointMutex: Mutex = Mutex()
 private var breakpointState: State = State.Allow
 
 /**
@@ -196,9 +196,7 @@ internal const val BREAKPOINT_HIT_MESSAGE: String =
 
 internal fun resetBreakpointGlobalStateForTests() {
     // `breakpoint()` function modifies the global state.
-    breakpointLock.withLock {
-        breakpointState = State.Allow
-    }
+    kotlinx.coroutines.runBlocking { breakpointMutex.withLock { breakpointState = State.Allow } }
 }
 
 /**
@@ -208,13 +206,15 @@ internal fun resetBreakpointGlobalStateForTests() {
  */
 fun breakpointGlobal(builder: GlobalsBuilder) {
     builder.setFunction("breakpoint") { _, eval ->
-        breakpointLock.withLock {
-            if (breakpointState == State.Allow) {
-                val handler = eval.breakpointHandler
-                    ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
-                val rl = handler()
-                rl.println(BREAKPOINT_HIT_MESSAGE)
-                breakpointState = breakpointLoop(eval, rl)
+        kotlinx.coroutines.runBlocking {
+            breakpointMutex.withLock {
+                if (breakpointState == State.Allow) {
+                    val handler = eval.breakpointHandler
+                        ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
+                    val rl = handler()
+                    rl.println(BREAKPOINT_HIT_MESSAGE)
+                    breakpointState = breakpointLoop(eval, rl)
+                }
             }
         }
         NoneType

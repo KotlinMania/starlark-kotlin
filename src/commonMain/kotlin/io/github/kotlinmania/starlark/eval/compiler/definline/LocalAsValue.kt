@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/defInline/localAsValue.rs
+// port-lint: source eval/compiler/def_inline/local_as_value.rs
 package io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue
 
 /*

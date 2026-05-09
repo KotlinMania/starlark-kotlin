@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/call.rs
+// port-lint: source eval/compiler/call.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol

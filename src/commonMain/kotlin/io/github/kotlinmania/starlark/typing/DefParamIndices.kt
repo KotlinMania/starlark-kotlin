@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/syntax/def.rs
+// port-lint: source ../starlark_syntax/src/syntax/def.rs
 package io.github.kotlinmania.starlark.typing
 
 /*

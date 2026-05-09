@@ -1,4 +1,4 @@
-// port-lint: source src/collections/alloca.rs
+// port-lint: source collections/alloca.rs
 package io.github.kotlinmania.starlark.collections
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/stmt.rs
+// port-lint: source eval/runtime/profile/stmt.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.CodeMapId
-import io.github.kotlinmania.starlark.codemap.CodeMaps
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMapId as CodeMapId
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMaps as CodeMaps
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData

@@ -1,4 +1,4 @@
-// port-lint: source src/typing/callArgs.rs
+// port-lint: source typing/call_args.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 
 /**
  * Function call arguments with type information.

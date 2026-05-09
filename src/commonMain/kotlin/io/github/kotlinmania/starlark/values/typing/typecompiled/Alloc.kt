@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/typeCompiled/alloc.rs
+// port-lint: source values/typing/type_compiled/alloc.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*

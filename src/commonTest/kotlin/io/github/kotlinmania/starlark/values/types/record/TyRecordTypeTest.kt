@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/types/record/tyRecordType.rspackage io.github.kotlinmania.starlark.values.types.record
+// port-lint: source tests:src/values/types/record/tyRecordType.rs
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

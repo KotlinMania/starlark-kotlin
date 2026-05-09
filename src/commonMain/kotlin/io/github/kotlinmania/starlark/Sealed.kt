@@ -1,4 +1,4 @@
-// port-lint: source src/sealed.rs
+// port-lint: source sealed.rs
 package io.github.kotlinmania.starlark
 
 /*

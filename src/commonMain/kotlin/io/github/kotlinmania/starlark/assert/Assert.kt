@@ -1,4 +1,4 @@
-// port-lint: source src/assert/assert.rs
+// port-lint: source assert/assert.rs
 package io.github.kotlinmania.starlark.assert
 
 /*
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.eval.runtime.positionalAll
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
@@ -131,7 +131,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
         }
     }
 
-    fun true_(x: Value): Result<NoneType> =
+    fun `true`(x: Value): Result<NoneType> =
         assertEquals(Value.newBool(x.toBool()), Value.newBool(true))
 
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
@@ -152,7 +152,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
     builder.setFunction("ne") { args, _ -> ne(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("lt") { args, _ -> lt(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("contains") { args, _ -> contains(args.positionalAll()[0], args.positionalAll()[1]) }
-    builder.setFunction("true") { args, _ -> true_(args.positionalAll()[0]) }
+    builder.setFunction("true") { args, _ -> `true`(args.positionalAll()[0]) }
     builder.setFunction("freeze") { args, _ -> freeze(args.positionalAll()[0]) }
     builder.setFunction("fails") { args, eval -> fails(args.positionalAll()[0], args.positionalAll()[1].toString(), eval) }
 }
@@ -705,7 +705,7 @@ internal fun isTrueSkipTypecheck(program: String) {
 /** See [Assert.allTrue]. */
 fun allTrue(expressions: String) {
     val a = Assert()
-    // NOTE(nga): fix and enable.
+    // TODO(nga): fix and enable.
     a.disableStaticTypechecking()
     a.allTrue(expressions)
 }

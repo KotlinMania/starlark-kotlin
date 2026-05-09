@@ -1,4 +1,4 @@
-// port-lint: source src/pagable/vtableRegister.rs
+// port-lint: source pagable/vtable_register.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*
@@ -21,13 +21,6 @@ package io.github.kotlinmania.starlark.pagable
 
 import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
-
-/**
- * for deserialization via the `inventory` crate (compile-time global registry).
- *
- * In Kotlin, we import a runtime-based registry instead of macros.
- * Types are registered via function calls during module initialization.
- */
 
 /**
  * Register a frozen value type for deserialization.

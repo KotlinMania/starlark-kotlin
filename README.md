@@ -31,7 +31,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:starlark-kotlin:0.1.0-SNAPSHOT")
+    implementation("io.github.kotlinmania:starlark-kotlin:0.1.0")
 }
 ```
 

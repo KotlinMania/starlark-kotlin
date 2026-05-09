@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/string/repr.rs
+// port-lint: source values/types/string/repr.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 import io.github.kotlinmania.starlark.unlikely
@@ -30,13 +30,19 @@ import io.github.kotlinmania.starlark.unlikely
  * Check if any byte in the buffer is non-ASCII or need escape.
  */
 private fun <V : Vector> chunkNonAsciiOrNeedEscape(chunk: V): Boolean {
+    fun or4(a: Vector, b: Vector, c: Vector, d: Vector): Vector {
+        val ab = a.or(b)
+        val cd = c.or(d)
+        return ab.or(cd)
+    }
+
     // Note `cmplt` is signed comparison.
     val anyControlOrNonAscii = chunk.cmplt(chunk.splat(32))
     val any7f = chunk.cmpeq(chunk.splat(0x7f.toByte()))
     val anyDoubleQuote = chunk.cmpeq(chunk.splat('"'.code.toByte()))
     val anyBackslash = chunk.cmpeq(chunk.splat('\\'.code.toByte()))
 
-    val needEscape = anyControlOrNonAscii.or(any7f).or(anyDoubleQuote).or(anyBackslash)
+    val needEscape = or4(anyControlOrNonAscii, any7f, anyDoubleQuote, anyBackslash)
     return needEscape.movemask() != 0u
 }
 
@@ -158,14 +164,21 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
         }
     }
 
-    /** SIMD-optimized ASCII loop. */
+    /**
+     * SIMD-optimized ASCII loop.
+     *
+     * The Rust upstream uses portable SIMD with an unaligned vector store via
+     * `push_vec_tail` to handle the trailing partial chunk. KMP commonMain has
+     * no portable SIMD; this falls back to the byte-at-a-time loop. The
+     * upstream `push_vec_tail` helper has no Kotlin call site in this
+     * fallback and is intentionally not ported — it would be unreachable code.
+     *
+     * ```text
+     * buffer:   [       buffer.len         |  buffer rem capacity   ]
+     * vector:              [  overwriting  |  tail_len  ]
+     * ```
+     */
     fun <V : Vector> loopAsciiSimd(value: String, buffer: StringBuilder) {
-        // No portable SIMD support is available; fall back to the byte-at-a-time loop.
-        //
-        // - Requires buffer to have enough capacity for value + 1 (trailing quote)
-        // - Processes full SIMD chunks first
-        // - Handles the tail with overlapping reads
-        // - Bails out to loopAscii if any character needs escaping
         loopAscii(value, buffer)
     }
 

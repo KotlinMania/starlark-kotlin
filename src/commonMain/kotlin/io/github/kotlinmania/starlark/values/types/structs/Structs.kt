@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/structs/structs.rs
+// port-lint: source values/types/structs/structs.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*
@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.typing.TyCallArgs
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 
 /**
@@ -86,13 +86,9 @@ internal object StructType : TyCustomFunctionImpl {
  * this explicitly.
  */
 internal fun registerStruct(builder: GlobalsBuilder) {
-    builder.setFunction(
-        name = "struct",
-        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
-    ) { args: Arguments, eval ->
-        val heap = eval.heap()
+    fun `struct`(args: Arguments, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<StructGen<Value>> {
         val noPosResult = args.noPositionalArgs(heap)
-        if (noPosResult.isFailure) return@setFunction noPosResult
+        if (noPosResult.isFailure) return Result.failure(noPosResult.exceptionOrNull()!!)
 
         // Note: missing optimization: practically most `struct` invocations are
         // performed with fixed named arguments, e.g. `struct(a = 1, b = 2)`.
@@ -100,7 +96,7 @@ internal fun registerStruct(builder: GlobalsBuilder) {
         // allocate field index once at compilation time and store field values in a vector.
 
         val namesResult = args.namesMap()
-        if (namesResult.isFailure) return@setFunction Result.failure<Any?>(namesResult.exceptionOrNull()!!)
+        if (namesResult.isFailure) return Result.failure(namesResult.exceptionOrNull()!!)
         val namesMap = namesResult.getOrThrow()
 
         // Convert SmallMap<StringValue, Value> to SmallMap<String, Value>
@@ -108,6 +104,13 @@ internal fun registerStruct(builder: GlobalsBuilder) {
         for ((k, v) in namesMap.iter()) {
             fields.insert(k.asStr(), v)
         }
-        Result.success(StructGen(fields))
+        return Result.success(StructGen(fields))
+    }
+
+    builder.setFunction(
+        name = "struct",
+        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
+    ) { args: Arguments, eval ->
+        `struct`(args, eval.heap())
     }
 }

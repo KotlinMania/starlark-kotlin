@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/internal.rs
+// port-lint: source stdlib/internal.rs
 package io.github.kotlinmania.starlark.stdlib.internal
 
 /*
@@ -30,9 +30,12 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 
 private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
+    fun tyOfValueDebug(value: Value): Result<String> =
+        Result.success(Ty.ofValue(value).toString())
+
     globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: Value = args.full.pos.firstOrNull() ?: Value.newNone()
-        eval.heap().allocStr(Ty.ofValue(value).toString())
+        tyOfValueDebug(value).map { eval.heap().allocStr(it) }
     }
 }
 

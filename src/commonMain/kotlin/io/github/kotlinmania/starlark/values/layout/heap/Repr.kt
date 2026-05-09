@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/repr.rs
+// port-lint: source values/layout/heap/repr.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*
@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.ReentrantLock
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.AValue
@@ -28,7 +27,8 @@ import io.github.kotlinmania.starlark.values.layout.AValueVTable
 import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import io.github.kotlinmania.starlark.withLock
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 class AValueHeader(
     var vtable: AValueVTable,
@@ -59,20 +59,15 @@ class AValueHeader(
         const val ALIGN: Int = 8
 
         /** Global counter for assigning aligned indices. */
-        private var counter: Long = ALIGN.toLong()
+        @OptIn(ExperimentalAtomicApi::class)
+        private val counter: AtomicLong = AtomicLong(ALIGN.toLong())
 
         /** Global registry mapping index -> AValueHeader. */
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
 
-        /** Lock for thread-safe index allocation. */
-        private val lock = ReentrantLock()
-
         /** Allocate the next aligned index. */
-        private fun nextIndex(): Long = lock.withLock {
-            val idx = counter
-            counter += ALIGN
-            idx
-        }
+        @OptIn(ExperimentalAtomicApi::class)
+        private fun nextIndex(): Long = counter.fetchAndAdd(ALIGN.toLong())
 
         /** Look up an AValueHeader by its index. */
         fun fromIndex(index: Long): AValueHeader {
@@ -107,8 +102,6 @@ class AValueHeader(
     }
 
     fun payloadPtr(): StarlarkValueRawPtr {
-        // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
-        // in the vtable since there's no raw memory layout.
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
@@ -128,8 +121,6 @@ class AValueHeader(
     }
 
     internal fun <T> asRepr(): AValueRepr<T> {
-        // In Kotlin, the AValueRepr that owns this header is looked up
-        // through the repr registry using the header's index.
         val repr = reprRegistry[index]
         check(repr != null) { "asRepr: header index $index" }
         return repr as AValueRepr<T>
@@ -189,7 +180,6 @@ class AValueRepr<T>(
     }
 
     fun offsetOfPayload(): Int {
-        // In Kotlin, we simulate with the header's conceptual size.
         return AValueHeader.ALIGN
     }
 

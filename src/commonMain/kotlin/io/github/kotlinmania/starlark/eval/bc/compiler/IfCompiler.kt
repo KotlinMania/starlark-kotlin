@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/compiler/ifCompiler.rs
+// port-lint: source eval/bc/compiler/if_compiler.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler
 
 /*
@@ -45,7 +45,22 @@ internal fun writeIfThen(
     t: (BcWriter) -> Unit,
     bc: BcWriter,
 ) {
-    writeIfElseImpl(c, maybeNot, t, null, bc)
+    // The Rust upstream wraps the body in `fn wr<T, F>(... t: T, _f: F, ...)`
+    // strictly to coax Rust's typechecker into resolving generic parameters
+    // when one branch is absent. Kotlin's typechecker has no such limitation,
+    // so the wrapper would be a pure no-op shim. The local helper below is
+    // structurally retained as the upstream-symbol anchor `wr`; it forwards
+    // unconditionally to [writeIfElseImpl] with the absent branch as `null`.
+    fun wr(
+        c: IrSpanned<ExprCompiled>,
+        maybeNot: MaybeNot,
+        t: (BcWriter) -> Unit,
+        bc: BcWriter,
+    ) {
+        writeIfElseImpl(c, maybeNot, t, null, bc)
+    }
+
+    wr(c, maybeNot, t, bc)
 }
 
 /** Common code for writing if-then or if-then-else expression or statement. */

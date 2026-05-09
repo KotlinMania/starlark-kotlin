@@ -42,8 +42,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
-@PublishedApi internal fun <T> transmute(value: T): T = value
-
 /**
  * Untyped raw pointer to a [StarlarkValue] without an attached vtable.
  */
@@ -207,19 +205,19 @@ class AValueVTable(
             }
             val display = { thisPtr: StarlarkValueRawPtr ->
                 val thisValue = thisPtr.valuePtr<T>()
-                transmute(thisValue)
+                thisValue
             }
             val debug = { thisPtr: StarlarkValueRawPtr ->
                 val thisValue = thisPtr.valuePtr<T>()
-                transmute(thisValue)
+                thisValue
             }
             val erasedSerdeSerialize = { thisPtr: StarlarkValueRawPtr ->
                 val thisValue = thisPtr.valuePtr<T>()
-                transmute(thisValue)
+                thisValue
             }
             val allocative = { thisPtr: StarlarkValueRawPtr ->
                 val thisValue = thisPtr.valuePtr<T>()
-                transmute(thisValue)
+                thisValue
             }
             val totalMemoryForProfile = { thisPtr: StarlarkValueRawPtr ->
                 val p = thisPtr.valueRef<T>()

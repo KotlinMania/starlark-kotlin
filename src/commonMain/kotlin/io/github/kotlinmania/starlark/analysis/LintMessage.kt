@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/lintMessage.rs
+// port-lint: source analysis/lint_message.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

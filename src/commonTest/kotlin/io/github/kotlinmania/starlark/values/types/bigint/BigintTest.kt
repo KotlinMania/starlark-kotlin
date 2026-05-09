@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/types/bigint.rspackage io.github.kotlinmania.starlark.values.types.bigint
+// port-lint: source tests:src/values/types/bigint.rs
+package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

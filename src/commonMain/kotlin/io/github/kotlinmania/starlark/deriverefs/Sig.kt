@@ -1,4 +1,4 @@
-// port-lint: source src/__derive_refs/sig.rs
+// port-lint: source __derive_refs/sig.rs
 package io.github.kotlinmania.starlark.deriverefs
 
 /*

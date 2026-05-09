@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/def.rs
+// port-lint: source eval/compiler/def.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -21,8 +21,8 @@ package io.github.kotlinmania.starlark.eval.compiler
 
 // Implementation of `def`.
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlarkmap.StarlarkHasher
 import io.github.kotlinmania.starlark.docs.DocFunction

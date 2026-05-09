@@ -1,4 +1,5 @@
-// port-lint: source tests:src/pagable/vtableRegistry.rspackage io.github.kotlinmania.starlark.pagable
+// port-lint: source tests:src/pagable/vtableRegistry.rs
+package io.github.kotlinmania.starlark.pagable
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

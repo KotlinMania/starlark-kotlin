@@ -27,10 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.AtomicLong
-import kotlinx.datetime.Instant
 
 /**
  * Called by the garbage collection, and must walk over every contained [Value] in the type.
@@ -93,10 +89,6 @@ fun <T : Trace> T?.trace(tracer: Tracer) {
     }
 }
 
-fun <T1 : Trace> Tuple1<T1>.trace(tracer: Tracer) {
-    this.value0.trace(tracer)
-}
-
 fun <T1 : Trace, T2 : Trace> Pair<T1, T2>.trace(tracer: Tracer) {
     this.first.trace(tracer)
     this.second.trace(tracer)
@@ -106,13 +98,6 @@ fun <T1 : Trace, T2 : Trace, T3 : Trace> Triple<T1, T2, T3>.trace(tracer: Tracer
     this.first.trace(tracer)
     this.second.trace(tracer)
     this.third.trace(tracer)
-}
-
-fun <T1 : Trace, T2 : Trace, T3 : Trace, T4 : Trace> Tuple4<T1, T2, T3, T4>.trace(tracer: Tracer) {
-    this.first.trace(tracer)
-    this.second.trace(tracer)
-    this.third.trace(tracer)
-    this.fourth.trace(tracer)
 }
 
 fun <T1 : Trace, T2 : Trace> Either<T1, T2>.trace(tracer: Tracer) {
@@ -135,117 +120,3 @@ fun String.trace(tracer: Tracer) {
 fun Int.trace(tracer: Tracer) {
 }
 
-fun UInt.trace(tracer: Tracer) {
-}
-
-fun ULong.trace(tracer: Tracer) {
-}
-
-fun Boolean.trace(tracer: Tracer) {
-}
-
-fun AtomicBoolean.trace(tracer: Tracer) {
-}
-
-fun AtomicInt.trace(tracer: Tracer) {
-}
-
-fun AtomicLong.trace(tracer: Tracer) {
-}
-
-fun Instant.trace(tracer: Tracer) {
-}
-
-fun <T> PhantomData<T>.trace(tracer: Tracer) {
-}
-
-fun Long.trace(tracer: Tracer) {
-}
-
-fun UByte.trace(tracer: Tracer) {
-}
-
-fun Byte.trace(tracer: Tracer) {
-}
-
-fun UShort.trace(tracer: Tracer) {
-}
-
-fun Short.trace(tracer: Tracer) {
-}
-
-fun <A, R> ((A) -> R).trace(tracer: Tracer) {
-}
-
-fun <A, B, R> ((A, B) -> R).trace(tracer: Tracer) {
-}
-
-fun <A, B, C, R> ((A, B, C) -> R).trace(tracer: Tracer) {
-}
-
-class ArcMutex<T : Trace>(val value: T) {
-}
-
-fun <T : Trace> ArcMutex<T>.trace(tracer: Tracer) {
-    this.value.trace(tracer)
-}
-
-class AtomicI8(val value: Byte) {
-}
-
-class AtomicU8(val value: UByte) {
-}
-
-class AtomicI16(val value: Short) {
-}
-
-class AtomicU16(val value: UShort) {
-}
-
-class AtomicI32(val value: Int) {
-}
-
-class AtomicU32(val value: UInt) {
-}
-
-class AtomicI64(val value: Long) {
-}
-
-class AtomicU64(val value: ULong) {
-}
-
-class AtomicUsize(val value: ULong) {
-}
-
-class AtomicIsize(val value: Long) {
-}
-
-fun AtomicI8.trace(tracer: Tracer) {
-}
-
-fun AtomicU8.trace(tracer: Tracer) {
-}
-
-fun AtomicI16.trace(tracer: Tracer) {
-}
-
-fun AtomicU16.trace(tracer: Tracer) {
-}
-
-fun AtomicI32.trace(tracer: Tracer) {
-}
-
-fun AtomicU32.trace(tracer: Tracer) {
-}
-
-fun AtomicI64.trace(tracer: Tracer) {
-}
-
-fun AtomicU64.trace(tracer: Tracer) {
-}
-
-fun AtomicUsize.trace(tracer: Tracer) {
-}
-
-fun AtomicIsize.trace(tracer: Tracer) {
-}

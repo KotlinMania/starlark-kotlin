@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/typeAnnotation.rs
+// port-lint: source tests/derive/module/type_annotation.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*

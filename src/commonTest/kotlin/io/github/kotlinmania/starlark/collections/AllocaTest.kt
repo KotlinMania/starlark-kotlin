@@ -1,4 +1,5 @@
-// port-lint: source tests:src/collections/alloca.rspackage io.github.kotlinmania.starlark.collections
+// port-lint: source tests:src/collections/alloca.rs
+package io.github.kotlinmania.starlark.collections
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

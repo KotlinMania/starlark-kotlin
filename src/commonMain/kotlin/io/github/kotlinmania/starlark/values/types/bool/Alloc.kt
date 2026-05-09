@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bool/alloc.rs
+// port-lint: source values/types/bool/alloc.rs
 package io.github.kotlinmania.starlark.values.types.bool
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/typeExpr.rs
+// port-lint: source eval/compiler/type_expr.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*

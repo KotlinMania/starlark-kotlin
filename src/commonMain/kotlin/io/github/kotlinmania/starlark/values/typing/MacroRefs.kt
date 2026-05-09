@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/macroRefs.rs
+// port-lint: source values/typing/macro_refs.rs
 package io.github.kotlinmania.starlark.values.typing
 
 /*

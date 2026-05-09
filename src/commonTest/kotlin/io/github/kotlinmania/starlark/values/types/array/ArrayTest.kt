@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/types/array.rspackage io.github.kotlinmania.starlark.values.types.array
+// port-lint: source tests:src/values/types/array.rs
+package io.github.kotlinmania.starlark.values.types.array
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

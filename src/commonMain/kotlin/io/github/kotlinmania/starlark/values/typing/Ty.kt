@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/ty.rs
+// port-lint: source values/typing/ty.rs
 package io.github.kotlinmania.starlark.values.typing.ty
 
 import io.github.kotlinmania.starlark.assert.Assert
@@ -8,8 +8,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Type of type. */
-// An uninhabited enum in Rust — no instances can be created.
-// In Kotlin, represented as a sealed class with no subclasses.
 sealed class AbstractType : StarlarkValue {
     override val TYPE: kotlin.String get() = "type"
 
