@@ -1,4 +1,4 @@
-// port-lint: source ../starlarkSyntax/src/syntax/grammarUtil.rs
+// port-lint: source ../starlark_syntax/src/syntax/grammar_util.rs
 package io.github.kotlinmania.starlark.syntax.parser
 
 /*
@@ -21,11 +21,11 @@ package io.github.kotlinmania.starlark.syntax.parser
 
 /** Code called by the parser to handle complex cases not handled by the grammar. */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString

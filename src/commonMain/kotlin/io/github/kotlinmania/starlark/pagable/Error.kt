@@ -1,4 +1,4 @@
-// port-lint: source src/pagable/error.rs
+// port-lint: source pagable/error.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*

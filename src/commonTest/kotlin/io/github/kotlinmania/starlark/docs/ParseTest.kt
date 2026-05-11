@@ -1,4 +1,5 @@
-// port-lint: source tests:src/docs/parse.rspackage io.github.kotlinmania.starlark.docs
+// port-lint: source tests:src/docs/parse.rs
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

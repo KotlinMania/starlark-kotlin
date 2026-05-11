@@ -1,9 +1,9 @@
-// port-lint: source src/analysis/performance.rs
+// port-lint: source analysis/performance.rs
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.codemap.*
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.*
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.values.layout.size
 

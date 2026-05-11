@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/string/simd.rs
+// port-lint: source values/types/string/simd.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -19,41 +19,24 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
-/**
- * Fixed length byte vector API.
- *
- * In Kotlin, we model this as a value-like interface. Implementations should
- * be lightweight and efficiently copyable.
- */
+/** Fixed length byte vector API. */
 internal interface Vector {
-    /**
-     * Fill the vector with given byte value.
-     */
+    /** Fill the vector with given byte value. */
     fun splat(byte: Byte): Vector
 
-    /**
-     * LoadP<AstNoPayload, Unit> the vector from given memory address.
-     */
+    /** Load the vector from given memory address. */
     fun loadUnaligned(ptr: ByteArray, offset: Int): Vector
 
-    /**
-     * Store the vector to given memory address.
-     */
+    /** Store the vector to given memory address. */
     fun storeUnaligned(ptr: ByteArray, offset: Int)
 
-    /**
-     * **Signed** element-wise comparison of the vector.
-     */
+    /** **Signed** element-wise comparison of the vector. */
     fun cmplt(other: Vector): Vector
 
-    /**
-     * Element-wise comparison. Result elements contain 0 for false or 0xff for true.
-     */
+    /** Element-wise comparison. Result elements contain 0 for false or 0xff for true. */
     fun cmpeq(other: Vector): Vector
 
-    /**
-     * Bitwise or.
-     */
+    /** Bitwise or. */
     fun or(other: Vector): Vector
 
     /**
@@ -63,37 +46,14 @@ internal interface Vector {
     fun movemask(): UInt
 }
 
-/**
- * Run different code depending on whether SIMD is available or not.
- */
+/** Run different code depending on whether SIMD is available or not. */
 internal interface SwitchHaveSimd<R> {
-    /**
-     * This function is called when SIMD is not available.
-     */
+    /** This function is called when SIMD is not available. */
     fun noSimd(): R
 
-    /**
-     * This function is called when SIMD is available.
-     */
+    /** This function is called when SIMD is available. */
     fun <V : Vector> simd(): R
 
-    /**
-     * Call either [simd] or [noSimd] function.
-     */
-    fun switch(): R {
-        // Any x8664 supports SSE2.
-        // In Kotlin Multiplatform, we don't currently have SIMD support,
-        // so this always falls back to noSimd().
-        // Platform-specific implementations can override this via expect/actual.
-        return switchImpl()
-    }
-}
-
-/**
- * Implementation of [SwitchHaveSimd.switch].
- *
- * to the appropriate implementation. In Kotlin, we always import the non-SIMD path.
- */
-internal fun <R> SwitchHaveSimd<R>.switchImpl(): R {
-    return noSimd()
+    /** Call either [simd] or [noSimd] function. */
+    fun switch(): R = noSimd()
 }

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/freeze/identity.rs
+// port-lint: source tests/derive/freeze/identity.rs
 package io.github.kotlinmania.starlark.tests.derive.freeze
 
 /*

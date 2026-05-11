@@ -1,4 +1,4 @@
-// port-lint: source src/util/nonStaticTypeId.rs
+// port-lint: source util/non_static_type_id.rs
 package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*

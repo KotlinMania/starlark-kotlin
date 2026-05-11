@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/opcode.rs
+// port-lint: source eval/bc/opcode.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -130,7 +130,6 @@ internal enum class BcOpcode {
 
         /** Invoke a callback parameterized by instruction type for each opcode. */
         fun dispatchAll(handler: BcOpcodeAllHandler) {
-            // In Kotlin we iterate all entries.
             doDispatchAll(handler)
         }
 

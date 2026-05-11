@@ -1,4 +1,4 @@
-// port-lint: source src/syntax/ast.rs
+// port-lint: source ../starlark_syntax/src/syntax/ast.rs
 package io.github.kotlinmania.starlark.syntax.ast
 
 /*
@@ -20,16 +20,11 @@ package io.github.kotlinmania.starlark.syntax.ast
  */
 
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 
 /** Payload types attached to AST nodes. */
-interface AstPayload {
-    // We don't really need `Clone` for any payload in Kotlin.
-    // In Kotlin we import generics directly or expect the implementation to provide the correct types.
-    // Since Kotlin doesn't have associated types, we'll parameterize or just use `Any?` for now,
-    // or properly type the nodes using generic type parameters.
-}
+interface AstPayload
 
 /** 
  * Default implementation of payload, which attaches `()` to nodes.

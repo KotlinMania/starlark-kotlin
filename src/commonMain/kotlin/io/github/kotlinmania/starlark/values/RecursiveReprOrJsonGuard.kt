@@ -1,4 +1,4 @@
-// port-lint: source src/values/recursiveReprOrJsonGuard.rs
+// port-lint: source values/recursive_repr_or_json_guard.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -22,13 +22,16 @@ package io.github.kotlinmania.starlark.values
 /** Detect recursion when doing `repr` or `toJson`. */
 
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.threadlocal.ThreadLocal
 import io.github.kotlinmania.starlark.values.layout.RawPointer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.unlikely
 
 /** Pop the stack on drop. */
 internal class ReprStackGuard : AutoCloseable {
     override fun close() {
-        val popped = reprStack.pop()
+        val stack = reprStack()
+        val popped = stack.pop()
         check(popped != null)
     }
 }
@@ -36,37 +39,42 @@ internal class ReprStackGuard : AutoCloseable {
 /** Pop the stack on drop. */
 internal class JsonStackGuard : AutoCloseable {
     override fun close() {
-        val popped = jsonStack.pop()
+        val stack = jsonStack()
+        val popped = stack.pop()
         check(popped != null)
     }
 }
 
 /** Returned when `repr` is called recursively and a cycle is detected. */
-internal class ReprCycle
+internal class ReprCycle : Exception()
 
 /** Returned when `toJson` is called recursively and a cycle is detected. */
-internal class JsonCycle
+internal class JsonCycle : Exception()
 
-// threadLocal! { static REPR_STACK: Cell<SmallSet<RawPointer>> }
-// In Kotlin Multiplatform, Starlark evaluation is single-threaded per evaluator,
-// so a simple mutable set suffices.
-private val reprStack = SmallSet<RawPointer>()
+private val REPR_STACK: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
 
-// threadLocal! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
-private val jsonStack = SmallSet<RawPointer>()
+private val JSON_STACK: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
+
+private fun reprStack(): SmallSet<RawPointer> = REPR_STACK.getOr { SmallSet() }
+
+private fun jsonStack(): SmallSet<RawPointer> = JSON_STACK.getOr { SmallSet() }
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
-    if (!reprStack.insert(value.ptrValue())) {
-        return Result.failure(Exception(ReprCycle().toString()))
+    val stack = reprStack()
+    return if (unlikely(!stack.insert(value.ptrValue()))) {
+        Result.failure(ReprCycle())
+    } else {
+        Result.success(ReprStackGuard())
     }
-    return Result.success(ReprStackGuard())
 }
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
-    if (!jsonStack.insert(value.ptrValue())) {
-        return Result.failure(Exception(JsonCycle().toString()))
+    val stack = jsonStack()
+    return if (unlikely(!stack.insert(value.ptrValue()))) {
+        Result.failure(JsonCycle())
+    } else {
+        Result.success(JsonStackGuard())
     }
-    return Result.success(JsonStackGuard())
 }

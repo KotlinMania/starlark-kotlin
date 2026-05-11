@@ -55,11 +55,11 @@ internal fun <T> iterFmtParamSpec(
     val kwargsSeq: Sequence<FmtParam<T>> = if (kwargs != null) sequenceOf(FmtParam.Kwargs(kwargs)) else emptySequence()
 
     return emptySequence<FmtParam<T>>()
-        .plus(posOnlyIter.asSequence().map(FmtParam::Regular))
+        .plus(posOnlyIter.asSequence().map { FmtParam.Regular(it) })
         .plus(slash)
-        .plus(posNamed.asSequence().map(FmtParam::Regular))
+        .plus(posNamed.asSequence().map { FmtParam.Regular(it) })
         .plus(argsOrStar)
-        .plus(namedOnlyIter.asSequence().map(FmtParam::Regular))
+        .plus(namedOnlyIter.asSequence().map { FmtParam.Regular(it) })
         .plus(kwargsSeq)
 }
 

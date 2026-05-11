@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/typeCompiled/globals.rs
+// port-lint: source values/typing/type_compiled/globals.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -49,13 +49,17 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      * `L = evalType(list); [isinstance(x, L) for x in y]`:
      * `evalType()` converts `list` value into prepared type matcher.
      */
+    fun isinstance(value: Value, ty: Value, eval: Evaluator): Result<Boolean> {
+        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
+            .getOrElse { return Result.failure(it) }
+        return Result.success(compiled.matches(value))
+    }
+
     globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
         val positional = args.positionalN(2, eval.heap()).getOrThrow()
         val value = positional[0]
         val ty = positional[1]
-        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return@setFunction Result.failure<Value>(it) }
-        Value.newBool(compiled.matches(value))
+        isinstance(value, ty, eval).map { Value.newBool(it) }
     }
 }
 

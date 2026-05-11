@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/fastCell.rs
+// port-lint: source values/layout/heap/fast_cell.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*

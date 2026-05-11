@@ -1,4 +1,4 @@
-// port-lint: source src/environment/slots.rs
+// port-lint: source environment/slots.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -32,7 +32,6 @@ data class ModuleSlotId(val index: Int) {
 
 /** Indexed slots of a module. May contain unassigned values as `None`. */
 class MutableSlots {
-    // RefCell<Vec<Option<Value>>> → mutable list
     private val slots: MutableList<Value?> = mutableListOf()
 
     companion object {

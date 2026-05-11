@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/set/methods.rs
+// port-lint: source values/types/set/methods.rs
 package io.github.kotlinmania.starlark.values.types.set
 
 /*
@@ -79,7 +79,7 @@ private sealed class SetFromValue {
     }
 
     fun containsHashed(value: Hashed<Value>): Boolean {
-        return get().containsHashed(value)
+        return get().containsHashedByValue(value)
     }
 }
 
@@ -201,7 +201,7 @@ internal fun symmetricDifference(
 
     for (elem in otherSet.get().iter()) {
         val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-        if (!thisSet.content.containsHashed(hashed.asRef())) {
+        if (!thisSet.content.containsHashedByValue(hashed.asRef())) {
             data.addHashed(hashed)
         }
     }
@@ -363,7 +363,7 @@ internal fun pop(thisValue: Value): Result<Value> {
     } else {
         // Pop the last element - get it then remove it
         val last = content.iterHashed().last()
-        content.shiftRemoveHashed(last)
+        content.shiftRemoveHashedByValue(last)
         Result.success(last.key())
     }
 }
@@ -428,7 +428,7 @@ internal fun issuperset(
             return Result.success(false)
         }
         for (hashed in otherSetRef.content.iterHashed()) {
-            if (!thisSet.content.containsHashed(hashed.copied())) {
+            if (!thisSet.content.containsHashedByValue(hashed.copied())) {
                 return Result.success(false)
             }
         }
@@ -436,7 +436,7 @@ internal fun issuperset(
         val iter = other.iterate(heap).getOrElse { return Result.failure(it) }
         for (elem in iter) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-            if (!thisSet.content.containsHashed(hashed)) {
+            if (!thisSet.content.containsHashedByValue(hashed)) {
                 return Result.success(false)
             }
         }

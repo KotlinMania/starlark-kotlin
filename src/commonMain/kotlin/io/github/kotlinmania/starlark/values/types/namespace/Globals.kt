@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/namespace/globals.rs
+// port-lint: source values/types/namespace/globals.rs
 package io.github.kotlinmania.starlark.values.types.namespace
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/incompatible.rs
+// port-lint: source analysis/incompatible.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
@@ -170,7 +170,7 @@ private fun matchBadTypeEquality(
     }
 }
 
-private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+internal fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
     fun check(
         codemap: CodeMap,
@@ -187,7 +187,7 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+internal fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, isLoad))
     val exported = HashSet<String>() // name's already exported by isLoad
 

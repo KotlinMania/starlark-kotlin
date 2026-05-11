@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/beforeStmt.rs
+// port-lint: source eval/runtime/before_stmt.rs
 package io.github.kotlinmania.starlark.eval.runtime.beforestmt
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.eval.runtime.beforestmt
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 /**

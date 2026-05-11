@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/set/value.rs
+// port-lint: source values/types/set/value.rs
 package io.github.kotlinmania.starlark.values.types.set
 
 /*
@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlarkmap.Hashed
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 import io.github.kotlinmania.starlark.environment.Methods
 import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
@@ -47,8 +48,11 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
         val innerVal = inner
         if (innerVal is RefCell<*>) {
-            val borrowed = innerVal.borrow()
-            val frozenContent = borrowed.data.content
+            val borrowedValue = innerVal.borrow().value
+            check(borrowedValue is SetData) {
+                "SetGen<RefCell<*>> inner must wrap SetData, got ${borrowedValue!!::class}"
+            }
+            val frozenContent = borrowedValue.content
                 .freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
                 .getOrElse { return Result.failure(it) }
             return Result.success(SetGen(FrozenSetData(frozenContent)))
@@ -74,7 +78,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun isIn(other: Value): Result<Boolean> {
         return try {
             val hashed = other.getHashed().getOrThrow()
-            Result.success(setLike().content().containsHashed(hashed.asRef()))
+            Result.success(setLike().content().containsHashedByValue(hashed.asRef()))
         } catch (e: Throwable) {
             Result.failure(e)
         }
@@ -141,7 +145,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
 
             val items = SmallSet<Value>()
             for (h in otherSet.iterHashed()) {
-                if (setLike().content().containsHashed(h.asRef())) {
+                if (setLike().content().containsHashedByValue(h.asRef())) {
                     items.insertHashedUniqueUnchecked(h)
                 }
             }
@@ -169,7 +173,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
             }
 
             for (hashed in otherSet.iterHashed()) {
-                if (!setLike().content().containsHashed(hashed.asRef())) {
+                if (!setLike().content().containsHashedByValue(hashed.asRef())) {
                     data.addHashed(hashed)
                 }
             }
@@ -248,7 +252,7 @@ class SetData internal constructor(
      * Check if the set contains a hashed element.
      */
     fun containsHashed(key: Hashed<Value>): Boolean {
-        return content.containsHashed(key.asRef())
+        return content.containsHashedByValue(key.asRef())
     }
 
     fun addHashed(value: Hashed<Value>): Boolean {
@@ -260,7 +264,7 @@ class SetData internal constructor(
     }
 
     fun removeHashed(value: Hashed<Value>): Boolean {
-        return content.shiftRemoveHashed(value)
+        return content.shiftRemoveHashedByValue(value)
     }
 }
 
@@ -315,16 +319,12 @@ interface SetLike {
     fun iterStop()
 }
 
-/**
- * SetLike implementation for RefCell<SetData>.
- */
 class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     override fun content(): SmallSet<Value> {
-        return cell.borrow().data.content
+        return cell.borrow().value.content
     }
 
     override fun iterStart() {
-        // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
         cell.borrow()
     }
 
@@ -333,7 +333,7 @@ class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     }
 
     override fun contentUnchecked(): SmallSet<Value> {
-        return cell.borrow().data.content
+        return cell.borrow().value.content
     }
 }
 

@@ -1,9 +1,9 @@
-// port-lint: source oracle/ctx.rs
+// port-lint: source typing/oracle/ctx.rs
 package io.github.kotlinmania.starlark.typing.oracle
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.typing.ArcTy
 import io.github.kotlinmania.starlark.typing.InternalError
@@ -16,7 +16,7 @@ import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyCallArgs
 import io.github.kotlinmania.starlark.typing.TyCallable
 import io.github.kotlinmania.starlark.typing.TyCustom
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TyTuple
 import io.github.kotlinmania.starlark.typing.TypingBinOp
@@ -24,14 +24,6 @@ import io.github.kotlinmania.starlark.typing.TypingError
 import io.github.kotlinmania.starlark.typing.TypingNoContextError
 import io.github.kotlinmania.starlark.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark.values.types.list.ListType
-
-// Missing value types not yet ported from Rust (crate::values::*::value):
-//   - List (crate::values::list::value::List)
-//   - MutableDict (crate::values::dict::value::MutableDict)
-//   - Tuple (crate::values::tuple::value::Tuple)
-//   - MutableSet (crate::values::set::value::MutableSet)
-// In the Kotlin port, TyStarlarkValue provides named factory methods instead:
-//   TyStarlarkValue.list(), .dict(), .tuple(), .set()
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

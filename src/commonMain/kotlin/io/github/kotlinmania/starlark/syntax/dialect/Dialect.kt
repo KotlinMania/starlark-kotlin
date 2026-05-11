@@ -1,4 +1,4 @@
-// port-lint: source src/dialect.rs
+// port-lint: source ../starlark_syntax/src/dialect.rs
 package io.github.kotlinmania.starlark.syntax.dialect
 
 /*

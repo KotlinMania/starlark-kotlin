@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/json.rs
+// port-lint: source stdlib/json.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -88,9 +88,6 @@ class JsonNumber(private val raw: String) {
 }
 
 // ---- StarlarkTypeRepr for JsonNumber ----
-
-// Canonical = Either<i32, f64>
-// In Kotlin, we represent this as returning int | float type.
 
 /** [StarlarkTypeRepr] implementation for [JsonNumber]. */
 object JsonNumberTypeRepr : StarlarkTypeRepr {
@@ -332,42 +329,30 @@ internal fun parseJsonValue(input: String): JsonValue {
     return jsonElementToJsonValue(element)
 }
 
-// ---- json.encode / json.decode ----
-
-/**
- * `json.encode`: Encode a Starlark value to a JSON string.
- *
- * Delegates to [Value.toJson].
- */
-fun jsonEncode(x: Value): Result<String> {
-    return x.toJson()
-}
-
-/**
- * `json.decode`: Decode a JSON string to a Starlark value.
- *
- * Parses the input string as JSON and allocates the resulting value on the given heap.
- */
-fun jsonDecode(x: String, heap: Heap): Result<Value> {
-    return try {
-        val parsed = parseJsonValue(x)
-        Result.success(allocJsonValue(parsed, heap))
-    } catch (e: Exception) {
-        Result.failure(e)
-    }
-}
-
 // ---- Module registration ----
 
 private fun jsonMembers(globals: GlobalsBuilder) {
+    fun encode(x: Value): Result<String> {
+        return x.toJson()
+    }
+
+    fun decode(x: String, heap: Heap): Result<Value> {
+        return try {
+            val parsed = parseJsonValue(x)
+            Result.success(allocJsonValue(parsed, heap))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     globals.setFunction("encode") { args, eval ->
         val x = args.positional<Value>(0)
-        eval.heap().allocStr(jsonEncode(x).getOrThrow())
+        eval.heap().allocStr(encode(x).getOrThrow())
     }
 
     globals.setFunction("decode") { args, eval ->
         val x = args.positional<String>(0)
-        jsonDecode(x, eval.heap()).getOrThrow()
+        decode(x, eval.heap()).getOrThrow()
     }
 }
 
@@ -380,6 +365,6 @@ private fun jsonMembers(globals: GlobalsBuilder) {
  *
  * Provides `json.encode` and `json.decode` following Bazel's json module specification.
  */
-internal fun registerJson(globals: GlobalsBuilder) {
+internal fun json(globals: GlobalsBuilder) {
     globals.namespace("json", ::jsonMembers)
 }

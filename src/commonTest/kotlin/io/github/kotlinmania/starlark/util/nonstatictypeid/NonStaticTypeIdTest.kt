@@ -1,4 +1,5 @@
-// port-lint: source tests:src/util/nonStaticTypeId.rspackage io.github.kotlinmania.starlark.util.nonstatictypeid
+// port-lint: source tests:src/util/nonStaticTypeId.rs
+package io.github.kotlinmania.starlark.util.nonstatictypeid
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

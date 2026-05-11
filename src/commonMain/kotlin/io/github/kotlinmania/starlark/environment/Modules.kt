@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark.docs.DocStringKind
 import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.profile.ProfileMode
+import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
@@ -57,7 +57,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.list.ListRef
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.Dialect
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.syntax.ast.Visibility
 import io.github.kotlinmania.starlark.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark.errors.didYouMean

@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/tuple/unpack.rs
+// port-lint: source values/types/tuple/unpack.rs
 package io.github.kotlinmania.starlark.values.types.tuple
 
 /*

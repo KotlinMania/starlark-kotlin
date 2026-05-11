@@ -1,4 +1,4 @@
-// port-lint: source src/pagable/vtableRegister.rs
+// port-lint: source pagable/vtable_register.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*
@@ -23,13 +23,6 @@ import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
 
 /**
- * for deserialization via the `inventory` crate (compile-time global registry).
- *
- * In Kotlin, we import a runtime-based registry instead of macros.
- * Types are registered via function calls during module initialization.
- */
-
-/**
  * Register a frozen value type for deserialization.
  *
  * Invoke this function for each frozen StarlarkValue type that needs to be
@@ -40,9 +33,9 @@ import io.github.kotlinmania.starlark.values.layout.AValueVTable
  * will fail.
  */
 fun registerAvalueSimpleFrozen(type: KClass<*>) {
-    registerVTableEntry(
+    submitVtable(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(type),
+            deserTypeId = DeserTypeId(type.qualifiedName ?: type.simpleName ?: type.toString()),
             vtable = AValueVTable.forType(type),
         )
     )
@@ -55,9 +48,9 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
  * that import custom AValue implementations instead of the simple wrapper.
  */
 internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClass<*>) {
-    registerVTableEntry(
+    submitVtable(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(starlarkValue),
+            deserTypeId = DeserTypeId(starlarkValue.qualifiedName ?: starlarkValue.simpleName ?: starlarkValue.toString()),
             vtable = AValueVTable.forType(avalue),
         )
     )

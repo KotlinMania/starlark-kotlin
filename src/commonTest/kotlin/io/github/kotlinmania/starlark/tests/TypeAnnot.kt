@@ -1,4 +1,4 @@
-// port-lint: source src/tests/typeAnnot.rs
+// port-lint: source tests/type_annot.rs
 package io.github.kotlinmania.starlark.tests
 
 /*
@@ -76,7 +76,7 @@ xs[0] : int = 4
     }
 
     @Test
-    fun testOnlyGlobalsOrBuiltinsAllowed() {
+    fun testOnlyGlobalsOrBultinsAllowed() {
         Assert.fail(
             """
 def f():

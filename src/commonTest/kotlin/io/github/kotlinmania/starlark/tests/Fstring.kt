@@ -1,4 +1,4 @@
-// port-lint: source src/tests/fstring.rs
+// port-lint: source tests/fstring.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

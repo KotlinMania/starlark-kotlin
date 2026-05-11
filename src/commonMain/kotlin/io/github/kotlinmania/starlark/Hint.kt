@@ -1,4 +1,4 @@
-// port-lint: source src/hint.rs
+// port-lint: source hint.rs
 package io.github.kotlinmania.starlark
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/dubious.rs
+// port-lint: source analysis/dubious.rs
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
@@ -6,11 +6,11 @@ import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.syntax.AstModule
 
 /*
@@ -57,8 +57,7 @@ sealed class Dubious : LintWarning {
     }
 }
 
-// Helper sealed class for duplicate dictionary key detection.
-// Cannot be local because Kotlin does not support sealed local classes.
+/** Helper sealed class for duplicate dictionary key detection. */
 private sealed class DubiousKey {
     class IntKey(val value: StarlarkInt) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is IntKey && value == other.value

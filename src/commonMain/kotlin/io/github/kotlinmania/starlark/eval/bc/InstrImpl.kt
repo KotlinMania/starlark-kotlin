@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/instrImpl.rs
+// port-lint: source eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 import io.github.kotlinmania.starlark.eval.bc.InstrControl
@@ -6,7 +6,7 @@ import io.github.kotlinmania.starlark.eval.bc.BcInstr
 import io.github.kotlinmania.starlark.values.toValue
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 // Types from values.layout
 import io.github.kotlinmania.starlark.values.layout.Value

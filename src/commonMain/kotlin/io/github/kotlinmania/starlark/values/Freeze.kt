@@ -27,22 +27,6 @@ import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import io.github.kotlinmania.starlarkmap.smallset.SmallSet
 
 /**
- *
- * A zero-sized marker type used for type-level tracking without runtime overhead.
- */
-class PhantomData<T> private constructor() {
-    companion object {
-        fun <T> new(): PhantomData<T> = PhantomData()
-    }
-}
-
-data class Tuple1<T>(val value0: T)
-
-data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
-
-data class Tuple5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E)
-
-/**
  * Need to be implemented for non-simple `StarlarkValue`.
  *
  * This is called on freeze of the heap. Must produce a replacement object to place
@@ -98,11 +82,6 @@ fun Boolean.freeze(freezer: Freezer): Result<Boolean> {
     return Result.success(this)
 }
 
-fun <T> PhantomData<T>.freeze(freezer: Freezer): Result<PhantomData<T>> {
-    return Result.success(PhantomData.new())
-}
-
-
 fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
     freezeElement: (T) -> Result<TFrozen>,
@@ -134,19 +113,6 @@ fun <T, TFrozen> T?.freeze(
 
 fun <T : Freeze<TFrozen>, TFrozen> T?.freeze(freezer: Freezer): Result<TFrozen?> {
     return freeze(freezer) { v -> v.freeze(freezer) }
-}
-
-fun <T, TFrozen> Box<T>.freeze(
-    freezer: Freezer,
-    freezeInner: (T) -> Result<TFrozen>,
-): Result<Box<TFrozen>> {
-    val frozen = freezeInner(this.value).getOrElse { return Result.failure(it) }
-    return Result.success(Box(frozen))
-}
-
-fun <T : Freeze<TFrozen>, TFrozen> Box<T>.freeze(freezer: Freezer): Result<Box<TFrozen>> {
-    val frozen = this.value.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Box(frozen))
 }
 
 fun <K, KFrozen> Hashed<K>.freeze(
@@ -215,11 +181,6 @@ fun freezeUnit(freezer: Freezer): Result<Unit> {
 }
 
 
-fun <A : Freeze<AFrozen>, AFrozen> Tuple1<A>.freeze(freezer: Freezer): Result<Tuple1<AFrozen>> {
-    val frozen0 = this.value0.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple1(frozen0))
-}
-
 fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, AFrozen, BFrozen> Pair<A, B>.freeze(
     freezer: Freezer,
 ): Result<Pair<AFrozen, BFrozen>> {
@@ -235,43 +196,4 @@ fun <A : Freeze<AFrozen>, B : Freeze<BFrozen>, C : Freeze<CFrozen>, AFrozen, BFr
     val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
     val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
     return Result.success(Triple(a, b, c))
-}
-
-fun <
-    A : Freeze<AFrozen>,
-    B : Freeze<BFrozen>,
-    C : Freeze<CFrozen>,
-    D : Freeze<DFrozen>,
-    AFrozen,
-    BFrozen,
-    CFrozen,
-    DFrozen,
-    > Tuple4<A, B, C, D>.freeze(freezer: Freezer): Result<Tuple4<AFrozen, BFrozen, CFrozen, DFrozen>> {
-    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
-    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
-    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
-    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple4(a, b, c, d))
-}
-
-fun <
-    A : Freeze<AFrozen>,
-    B : Freeze<BFrozen>,
-    C : Freeze<CFrozen>,
-    D : Freeze<DFrozen>,
-    E : Freeze<EFrozen>,
-    AFrozen,
-    BFrozen,
-    CFrozen,
-    DFrozen,
-    EFrozen,
-    > Tuple5<A, B, C, D, E>.freeze(
-    freezer: Freezer,
-): Result<Tuple5<AFrozen, BFrozen, CFrozen, DFrozen, EFrozen>> {
-    val a = this.first.freeze(freezer).getOrElse { return Result.failure(it) }
-    val b = this.second.freeze(freezer).getOrElse { return Result.failure(it) }
-    val c = this.third.freeze(freezer).getOrElse { return Result.failure(it) }
-    val d = this.fourth.freeze(freezer).getOrElse { return Result.failure(it) }
-    val e = this.fifth.freeze(freezer).getOrElse { return Result.failure(it) }
-    return Result.success(Tuple5(a, b, c, d, e))
 }

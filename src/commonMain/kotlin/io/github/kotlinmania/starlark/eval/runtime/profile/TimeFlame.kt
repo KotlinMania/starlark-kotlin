@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/timeFlame.rs
+// port-lint: source eval/runtime/profile/time_flame.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
@@ -211,7 +211,7 @@ private class Stacks(
     ) {
         while (frames.hasNext()) {
             val (frame, time) = frames.next()
-            this.time += time.durationSince(lastTime[0])
+            this.time = this.time + time.durationSince(lastTime[0])
             lastTime[0] = time
             when (frame) {
                 is Frame.Pop -> return

@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark.eval.runtime.frozenfilespan
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.FileSpanRef
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.values.FrozenRef
 
 @ConsistentCopyVisibility

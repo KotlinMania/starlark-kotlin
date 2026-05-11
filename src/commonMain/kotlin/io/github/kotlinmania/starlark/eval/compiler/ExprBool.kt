@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/exprBool.rs
+// port-lint: source eval/compiler/expr_bool.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*

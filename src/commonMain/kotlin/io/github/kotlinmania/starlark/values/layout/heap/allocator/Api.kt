@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/api.rs
+// port-lint: source values/layout/heap/allocator/api.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator
 
 /*
@@ -29,7 +29,7 @@ enum class ChunkAllocationDirection {
 }
 
 /** Fast memory allocator for the heap. */
-internal sealed interface ArenaAllocator {
+internal interface ArenaAllocator {
     /**
      * Number of bytes allocated by this allocator.
      *

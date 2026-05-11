@@ -1,6 +1,7 @@
+// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark.syntax.parser
 
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
@@ -8,6 +9,40 @@ import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Marker for nested optional handling where Kotlin nullability flattening loses state. */
 class Comma
+
+/**
+ * Three-state value distinguishing the cases of a nested `Option<Option<T>>` from the
+ * upstream Rust grammar.
+ *
+ * Necessary because Kotlin's nullable types collapse: `T??` is the same as `T?`, so the
+ * three Rust states `None` / `Some(None)` / `Some(Some(value))` cannot be carried by a
+ * plain `T?`. The upstream LALRPOP type analysis assigns those three states to a single
+ * variant ([GrammarSymbol.Variant8] in this grammar) and the parse table relies on that
+ * variant being distinguishable from a flat `T?` ([GrammarSymbol.Variant7]), so the
+ * Kotlin port has to carry them in a wrapper.
+ *
+ * - [Absent]  — the outer Option matched `None` (Rust: `None`).
+ * - [Empty]   — the outer Option matched `Some(None)` (Rust: `Some(None)`).
+ * - [Present] — both matched (Rust: `Some(Some(value))`).
+ */
+sealed class NullableOption<out T> {
+    object Absent : NullableOption<Nothing>()
+    object Empty : NullableOption<Nothing>()
+    data class Present<T>(val value: T) : NullableOption<T>()
+
+    /**
+     * Mirror of Rust's `option.unwrap_or(None)`. Collapses [Absent] and [Empty] both to
+     * `null`, and [Present] to its inner value. Use this at the point in the grammar
+     * action body where Rust would have called `unwrap_or(None)`; do not call it
+     * earlier, because the Variant carrying the value relies on the three-state
+     * distinction up to that point.
+     */
+    fun unwrapOrNull(): T? = when (this) {
+        Absent -> null
+        Empty -> null
+        is Present -> value
+    }
+}
 
 sealed class GrammarSymbol {
     data class Variant0(val value: Token) : GrammarSymbol()
@@ -18,7 +53,7 @@ sealed class GrammarSymbol {
     data class Variant5(val value: Token?) : GrammarSymbol()
     data class Variant6(val value: List<Token>) : GrammarSymbol()
     data class Variant7(val value: Spanned<ExprP<AstNoPayload>>?) : GrammarSymbol()
-    data class Variant8(val value: Spanned<ExprP<AstNoPayload>>?) : GrammarSymbol()
+    data class Variant8(val value: NullableOption<Spanned<ExprP<AstNoPayload>>>) : GrammarSymbol()
     data class Variant9(val value: Spanned<StmtP<AstNoPayload>>) : GrammarSymbol()
     data class Variant10(val value: List<Spanned<StmtP<AstNoPayload>>>) : GrammarSymbol()
     data class Variant11(val value: Spanned<ArgumentP<AstNoPayload>>) : GrammarSymbol()

@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/syntax/typeExpr.rs
+// port-lint: source ../starlark_syntax/src/syntax/type_expr.rs
 package io.github.kotlinmania.starlark.syntax.typeexpr
 
 /*
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.syntax.typeexpr
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.BinOp

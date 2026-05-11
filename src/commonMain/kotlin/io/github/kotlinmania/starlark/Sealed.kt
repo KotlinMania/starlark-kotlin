@@ -1,4 +1,4 @@
-// port-lint: source src/sealed.rs
+// port-lint: source sealed.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -20,4 +20,4 @@ package io.github.kotlinmania.starlark
  */
 
 /** Marker for interfaces which should not be implemented outside of the module. */
-sealed interface Sealed
+interface Sealed

@@ -113,34 +113,3 @@ internal fun <T> unleakBorrow(refCell: RefCell<T>) {
     drop(r)
 }
 
-internal fun testUnleakBorrow() {
-    val refCell = RefCell(1)
-    check(refCell.tryBorrowMut() != null)
-
-    refCell.borrow().leak()
-    check(
-        refCell.tryBorrowMut() == null
-    ) { "RefCell is borrowed, so we cannot borrow it mutably" }
-
-    unleakBorrow(refCell)
-    check(
-        refCell.tryBorrowMut() != null
-    ) { "Borrow is unleaked, so we can borrow it mutably" }
-
-    // Now do the same twice.
-
-    refCell.borrow().leak()
-    refCell.borrow().leak()
-
-    check(
-        refCell.tryBorrowMut() == null
-    ) { "RefCell is borrowed, so we cannot borrow it mutably" }
-
-    unleakBorrow(refCell)
-    check(
-        refCell.tryBorrowMut() == null
-    ) { "RefCell is still borrowed" }
-
-    unleakBorrow(refCell)
-    check(refCell.tryBorrowMut() != null)
-}

@@ -1,4 +1,4 @@
-// port-lint: source src/collections/string_pool.rs
+// port-lint: source collections/string_pool.rs
 package io.github.kotlinmania.starlark.collections
 
 /*

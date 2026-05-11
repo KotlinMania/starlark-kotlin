@@ -1,4 +1,4 @@
-// port-lint: source src/collections/alignedPaddedStr.rs
+// port-lint: source collections/aligned_padded_str.rs
 package io.github.kotlinmania.starlark.collections.alignedpaddedstr
 
 /*

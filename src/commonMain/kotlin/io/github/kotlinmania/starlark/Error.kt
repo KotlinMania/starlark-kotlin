@@ -1,4 +1,4 @@
-// port-lint: source starlarkSyntax/src/error.rs
+// port-lint: source ../starlark_syntax/src/error.rs
 package io.github.kotlinmania.starlark
 
 /*
@@ -19,9 +19,10 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.frame.Frame as Frame
 
 /**
  * An error produced by starlark.

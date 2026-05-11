@@ -1,4 +1,4 @@
-// port-lint: source src/tests/replaceBinary.rs
+// port-lint: source tests/replace_binary.rs
 package io.github.kotlinmania.starlark.tests
 
 /*

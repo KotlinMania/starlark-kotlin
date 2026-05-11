@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/extra.rs
+// port-lint: source stdlib/extra.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*

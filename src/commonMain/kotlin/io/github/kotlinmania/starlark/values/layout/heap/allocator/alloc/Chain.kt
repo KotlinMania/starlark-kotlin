@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/allocator/alloc/chain.rs
+// port-lint: source values/layout/heap/allocator/alloc/chain.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
@@ -22,12 +22,7 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
 
-/**
- * What is stored inside each node of the ChunkChain linked list.
- *
- * of each chunk part. In Kotlin the header is a simple wrapper with
- * a reference to the previous chain node.
- */
+/** What is stored inside each node of the ChunkChain linked list. */
 private class ChunkChainData(
     val prev: ChunkChain,
 )
@@ -38,9 +33,6 @@ private class ChunkChainData(
  * Each node in the chain owns a [ChunkPart] whose first [HEADER_SIZE] bytes
  * are reserved for the chain header ([ChunkChainData]).
  * The remaining bytes in the chunk part are available for allocation.
- *
- * into the beginning of the chunk memory. In Kotlin, we store the header
- * as a separate reference since we don't manage raw memory.
  */
 internal class ChunkChain private constructor(
     /**

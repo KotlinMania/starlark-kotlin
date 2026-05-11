@@ -1,4 +1,4 @@
-// port-lint: source basic.rs
+// port-lint: source typing/basic.rs
 package io.github.kotlinmania.starlark.typing
 import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
 import io.github.kotlinmania.starlark.values.types.none.NoneType

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/compiler/expr.rs
+// port-lint: source eval/compiler/expr.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -23,7 +23,7 @@ package io.github.kotlinmania.starlark.eval.compiler
  * Evaluation of an expression.
  */
 
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.errors.didYouMean

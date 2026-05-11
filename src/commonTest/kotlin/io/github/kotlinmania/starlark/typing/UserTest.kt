@@ -1,4 +1,5 @@
-// port-lint: source tests:src/typing/user.rspackage io.github.kotlinmania.starlark.typing
+// port-lint: source tests:src/typing/user.rs
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -30,6 +31,38 @@ import kotlin.test.Test
 // Here we define minimal stubs to capture the test structure.
 
 class UserTest {
+
+    private fun fruit(name: String): Result<FruitCallable> {
+        // Mirrors upstream `fn fruit(name: String) -> Result<FruitCallable>`.
+        // The Kotlin port returns a thin holder that downstream tests treat
+        // as a callable type token.
+        val tyFruit = Ty.custom(
+            TyUser.new(
+                name,
+                TyStarlarkValue.new<Fruit>(),
+                TypeInstanceId.gen(),
+                TyUserParams(
+                    supertypes = AbstractPlant.getTypeStarlarkRepr().iterUnion().toList(),
+                ),
+            ).getOrThrow(),
+        )
+        val tyFruitCallable = Ty.custom(
+            TyUser.new(
+                "fruit[$name]",
+                TyStarlarkValue.new<FruitCallable>(),
+                TypeInstanceId.gen(),
+                TyUserParams(
+                    callable = TyCallable.new(ParamSpec.empty(), tyFruit),
+                ),
+            ).getOrThrow(),
+        )
+        return Result.success(FruitCallable(name, tyFruit, tyFruitCallable))
+    }
+
+    private fun mkFruit(): Result<Fruit> {
+        error("not needed in test")
+    }
+
     @Test
     fun testIntersectWithAbstractType() {
         val a = Assert()

@@ -1,4 +1,4 @@
-// port-lint: source src/tests/opt/ifRand.rs
+// port-lint: source tests/opt/if_rand.rs
 package io.github.kotlinmania.starlark.tests.opt
 
 /*
@@ -48,17 +48,20 @@ private class CountCalls : AnyLifetime {
 
 private fun boolFns(builder: GlobalsBuilder) {
     /** Return `true` and record side effect. */
-    builder.setFunction("true") { _, eval ->
+    fun `true`(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> {
         val calls = eval.extra as CountCalls
         calls.calls += 1
-        Result.success(true)
+        return Result.success(true)
     }
 
-    builder.setFunction("false") { _, eval ->
+    fun `false`(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> {
         val calls = eval.extra as CountCalls
         calls.calls += 1
-        Result.success(false)
+        return Result.success(false)
     }
+
+    builder.setFunction("true") { _, eval -> `true`(eval) }
+    builder.setFunction("false") { _, eval -> `false`(eval) }
 }
 
 private enum class TestBinOp(val display: String) {

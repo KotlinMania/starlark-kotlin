@@ -1,4 +1,4 @@
-// port-lint: source src/assert/conformance.rs
+// port-lint: source assert/conformance.rs
 package io.github.kotlinmania.starlark.assert
 
 import io.github.kotlinmania.starlark.Error

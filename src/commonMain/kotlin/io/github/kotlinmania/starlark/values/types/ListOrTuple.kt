@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/listOrTuple.rs
+// port-lint: source values/types/list_or_tuple.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -19,10 +19,7 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-/**
- * Utility for unpacking a value of type `list[T]` or `tuple[T, ...]` into a list.
- *
- */
+// Utility for unpacking a value of type `list[T]` or `tuple[T, ...]` into a list.
 
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.Either
@@ -52,15 +49,6 @@ data class UnpackListOrTuple<T>(
     }
 }
 
-/**
- * [UnpackValue] implementation for [UnpackListOrTuple].
- *
- * ```
- * }
- * ```
- *
- * Kotlin takes a value-level element unpacker instance of [UnpackValue].
- */
 class UnpackListOrTupleUnpackValue<T>(
     private val elementUnpacker: UnpackValue<T>,
 ) : UnpackValue<UnpackListOrTuple<T>> {

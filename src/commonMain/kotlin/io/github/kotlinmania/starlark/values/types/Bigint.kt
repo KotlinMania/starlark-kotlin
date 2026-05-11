@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bigint.rs
+// port-lint: source values/types/bigint.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*
@@ -112,10 +112,6 @@ class StarlarkBigInt private constructor(
         } catch (_: ArithmeticException) {
             null
         }
-    }
-
-    fun equalsI32(other: Int): Boolean {
-        return false
     }
 
     fun serialize(): Any {

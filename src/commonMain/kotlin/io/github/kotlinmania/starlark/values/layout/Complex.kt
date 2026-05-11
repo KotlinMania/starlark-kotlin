@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/complex.rs
+// port-lint: source values/layout/complex.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -35,15 +35,7 @@ import io.github.kotlinmania.starlark.values.trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 
-/**
- * Value which is either a complex mutable value or a frozen value.
- *
- * over the complex value type T (where T: ComplexValue) and its frozen counterpart
- *
- * In Kotlin, the class is parameterised by [T] (the mutable ComplexValue type) and
- * [F] (its frozen StarlarkValue counterpart). Both type parameters are reified where
- * needed via inline factory methods.
- */
+/** Value which is either a complex mutable value or a frozen value. */
 class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi internal constructor(
     @PublishedApi internal var value: Value,
     @PublishedApi internal val mutableClass: KClass<T>,

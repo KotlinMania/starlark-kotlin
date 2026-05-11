@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/set/refs.rs
+// port-lint: source values/types/set/refs.rs
 package io.github.kotlinmania.starlark.values.types.set
 
 /*
@@ -19,7 +19,11 @@ package io.github.kotlinmania.starlark.values.types.set
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.util.refcell.Ref
+import io.github.kotlinmania.starlark.util.refcell.RefCell
+import io.github.kotlinmania.starlark.util.refcell.RefMut
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
@@ -34,7 +38,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
  * Define the set type.
  */
 class SetRef internal constructor(
-    internal val aref: Either<BorrowedSetData, SetData>
+    internal val aref: Either<Ref<SetData>, SetData>
 ) {
     companion object {
         /**
@@ -50,7 +54,7 @@ class SetRef internal constructor(
  */
 fun SetRef.clone(): SetRef {
     return when (val ref = this.aref) {
-        is Either.Left -> SetRef(Either.Left(ref.value.clone()))
+        is Either.Left -> SetRef(Either.Left(ref.value.ptrRead()))
         is Either.Right -> SetRef(Either.Right(ref.value))
     }
 }
@@ -58,19 +62,19 @@ fun SetRef.clone(): SetRef {
 /** Access the underlying content of the borrowed set. */
 val SetRef.content: SmallSet<Value>
     get() = when (val ref = aref) {
-        is Either.Left -> ref.value.data.content
+        is Either.Left -> ref.value.value.content
         is Either.Right -> ref.value.content
     }
 
 /** Iterate through the values in the set, retaining their hashes. */
 fun SetRef.iterHashed(): Sequence<Hashed<Value>> = when (val ref = aref) {
-    is Either.Left -> ref.value.data.iterHashed()
+    is Either.Left -> ref.value.value.iterHashed()
     is Either.Right -> ref.value.iterHashed()
 }
 
 /** Check if the set contains a hashed element. */
 fun SetRef.containsHashed(key: Hashed<Value>): Boolean = when (val ref = aref) {
-    is Either.Left -> ref.value.data.containsHashed(key)
+    is Either.Left -> ref.value.value.containsHashed(key)
     is Either.Right -> ref.value.containsHashed(key)
 }
 
@@ -78,7 +82,7 @@ fun SetRef.containsHashed(key: Hashed<Value>): Boolean = when (val ref = aref) {
  * Mutably borrowed `Set`.
  */
 class SetMut internal constructor(
-    internal val aref: BorrowedMutSetData
+    internal val aref: RefMut<SetData>
 ) {
     companion object {
         /**
@@ -153,54 +157,4 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
 private fun coerceSetData(data: FrozenSetData): SetData =
     SetData(data.content as SmallSet<Value>)
 
-/**
- * Either type for representing one of two possible values.
- */
-sealed class Either<out L, out R> {
-    data class Left<out L>(val value: L) : Either<L, Nothing>()
-    data class Right<out R>(val value: R) : Either<Nothing, R>()
-}
 
-/**
- * RefCell type for interior mutability.
- */
-class RefCell<T>(private var value: T) {
-    private var borrowCount = 0
-    private var mutBorrowCount = 0
-
-    fun borrow(): BorrowedSetData {
-        if (mutBorrowCount > 0) {
-            throw IllegalStateException("Already mutably borrowed")
-        }
-        borrowCount++
-        return BorrowedSetData(value as SetData)
-    }
-
-    /**
-     * Release (unleak) a previously leaked borrow.
-     */
-    fun releaseBorrow() {
-        check(borrowCount > 0) { "No borrow to release" }
-        borrowCount--
-    }
-
-    fun tryBorrowMut(): BorrowedMutSetData? {
-        if (borrowCount > 0 || mutBorrowCount > 0) {
-            return null
-        }
-        mutBorrowCount++
-        return BorrowedMutSetData(value as SetData)
-    }
-}
-
-/**
- * Borrowed reference to SetData (immutable).
- */
-class BorrowedSetData(val data: SetData) {
-    fun clone(): BorrowedSetData = BorrowedSetData(data)
-}
-
-/**
- * Mutably borrowed reference to SetData.
- */
-class BorrowedMutSetData(val data: SetData)

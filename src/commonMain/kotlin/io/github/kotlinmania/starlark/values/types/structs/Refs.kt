@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/structs/refs.rs
+// port-lint: source values/types/structs/refs.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/environment/names.rs
+// port-lint: source environment/names.rs
 package io.github.kotlinmania.starlark.environment
 
 /*
@@ -44,7 +44,6 @@ import io.github.kotlinmania.starlark.syntax.ast.Visibility
  * before (apart from the total) number of slots required.
  */
 class MutableNames {
-    // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
     companion object {
@@ -97,9 +96,11 @@ class MutableNames {
     }
 
     fun hideName(name: String) {
-        val index = map.entries.indexOfFirst { it.key.key().asStr() == name }
-        if (index >= 0) {
-            map.entries.removeAt(index)
+        val index = map.iterHashed().withIndex().firstOrNull { (_, entry) ->
+            entry.first.key().asStr() == name
+        }?.index
+        if (index != null) {
+            map.shiftRemoveIndex(index)
         }
     }
 

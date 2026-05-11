@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/unpackValue.rs
+// port-lint: source tests/derive/module/unpack_value.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -38,22 +38,22 @@ import kotlin.test.Test
 class UnpackValueTests {
     // NOTE(nmj): Figure out default values here. ValueOf<i32> = 5 should work.
     private fun validateModule(builder: GlobalsBuilder) {
-        builder.setFunction("with_int") { args, eval ->
+        fun withInt(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val unpacker = ValueOfUnpackValue(IntUnpackValue)
             val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
-            heap.allocTuple(listOf(v.value, heap.allocStr(v.typed.toString()).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(v.typed.toString()).toValue()))
         }
 
-        builder.setFunction("with_int_list") { args, eval ->
+        fun withIntList(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val unpacker = ValueOfUnpackValue(UnpackListUnpackValue(IntUnpackValue))
             val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
             val repr = v.typed.items.joinToString(", ")
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_list_list") { args, eval ->
+        fun withListList(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val inner = ValueOfUnpackValue(UnpackListUnpackValue(IntUnpackValue))
             val unpacker = ValueOfUnpackValue(UnpackListUnpackValue(inner))
@@ -61,10 +61,10 @@ class UnpackValueTests {
             val repr = v.typed.items.joinToString(" + ") { l ->
                 l.typed.items.joinToString(", ")
             }
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_dict_list") { args, eval ->
+        fun withDictList(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val dict = UnpackDictEntriesUnpackValue(IntUnpackValue, IntUnpackValue)
             val unpacker = ValueOfUnpackValue(UnpackListUnpackValue(dict))
@@ -72,18 +72,18 @@ class UnpackValueTests {
             val repr = v.typed.items.joinToString(" + ") { l ->
                 l.entries.joinToString(", ") { (k, v2) -> "$k: $v2" }
             }
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_int_dict") { args, eval ->
+        fun withIntDict(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val unpacker = ValueOfUnpackValue(UnpackDictEntriesUnpackValue(IntUnpackValue, IntUnpackValue))
             val v = unpacker.unpackParam(args.positional1(heap).getOrThrow())
             val repr = v.typed.entries.joinToString(" + ") { (k, v2) -> "$k: $v2" }
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_list_dict") { args, eval ->
+        fun withListDict(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val list = ValueOfUnpackValue(UnpackListUnpackValue(IntUnpackValue))
             val dict = UnpackDictEntriesUnpackValue(IntUnpackValue, list)
@@ -92,10 +92,10 @@ class UnpackValueTests {
             val repr = v.typed.entries.joinToString(" + ") { (k, v2) ->
                 "$k: ${v2.typed.items.joinToString(", ")}"
             }
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_dict_dict") { args, eval ->
+        fun withDictDict(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val inner = UnpackDictEntriesUnpackValue(IntUnpackValue, IntUnpackValue)
             val unpacker = ValueOfUnpackValue(UnpackDictEntriesUnpackValue(IntUnpackValue, inner))
@@ -104,10 +104,10 @@ class UnpackValueTests {
                 val innerRepr = v2.entries.joinToString(", ") { (k2, v3) -> "$k2:$v3" }
                 "$k: $innerRepr"
             }
-            heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
+            return heap.allocTuple(listOf(v.value, heap.allocStr(repr).toValue()))
         }
 
-        builder.setFunction("with_either") { args, eval ->
+        fun withEither(args: io.github.kotlinmania.starlark.eval.runtime.Arguments, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
             val heap = eval.heap()
             val nested = io.github.kotlinmania.starlark.values.EitherUnpackValue(
                 StringUnpackValue,
@@ -125,9 +125,19 @@ class UnpackValueTests {
                     is Either.Right -> nested2.value.value.toRepr()
                 }
             }
-            heap.allocStr(result)
+            return heap.allocStr(result).toValue()
         }
+
+        builder.setFunction("with_int") { args, eval -> withInt(args, eval) }
+        builder.setFunction("with_int_list") { args, eval -> withIntList(args, eval) }
+        builder.setFunction("with_list_list") { args, eval -> withListList(args, eval) }
+        builder.setFunction("with_dict_list") { args, eval -> withDictList(args, eval) }
+        builder.setFunction("with_int_dict") { args, eval -> withIntDict(args, eval) }
+        builder.setFunction("with_list_dict") { args, eval -> withListDict(args, eval) }
+        builder.setFunction("with_dict_dict") { args, eval -> withDictDict(args, eval) }
+        builder.setFunction("with_either") { args, eval -> withEither(args, eval) }
     }
+
 
     @Test
     fun testValueOf() {

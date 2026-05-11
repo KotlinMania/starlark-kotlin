@@ -89,6 +89,7 @@ import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeG
 import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
 import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
 import io.github.kotlinmania.starlark.values.types.structs.StructGen
+import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
 import io.github.kotlinmania.starlark.CoerceKey
@@ -395,14 +396,14 @@ class Value internal constructor(
     }
 
     /**
-     * Obtain the underlying `str` if it is a string.
+     * Obtain the underlying String if it is a string.
      */
     fun unpackStr(): String? {
         return unpackStarlarkStr()?.asStr()
     }
 
     /**
-     * Obtain the underlying `str` if it is a string, otherwise return an error for users.
+     * Obtain the underlying String if it is a string, otherwise return an error for users.
      */
     fun unpackStrErr(): Result<String> = unpackStr()?.let { Result.success(it) }
         ?: Result.failure(IllegalArgumentException("Expected value of type `string` but got `${toStringForTypeError()}`"))
@@ -458,7 +459,7 @@ class Value internal constructor(
      * Downcast without checking the value type.
      */
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
-        assert(getRef().downcastRef<T>() != null)
+        check(getRef().downcastRef<T>() != null)
         if (PointerI32.typeIsPointerI32<T>()) {
             val pi32 = PointerI32(ptr.unpackIntValue())
             check(pi32 is T)
@@ -1277,7 +1278,7 @@ class Value internal constructor(
     override fun toString(): String = toRepr()
 
     /**
-     * Equivalent of Rust `Display::fmt` for [Value].
+     * Equivalent of Rust Display fmt for [Value].
      *
      * Writes the Starlark `repr()` form into [collector], including cycle handling.
      */
@@ -1286,7 +1287,7 @@ class Value internal constructor(
     }
 
     /**
-     * Equivalent of Rust `Debug::fmt` for [Value].
+     * Equivalent of Rust Debug fmt for [Value].
      */
     fun fmt(collector: StringBuilder, debug: Boolean) {
         if (debug) {
@@ -1297,7 +1298,7 @@ class Value internal constructor(
     }
 
     /**
-     * Equivalent of Rust `PartialEq::eq` for [Value].
+     * Equivalent of Rust PartialEq eq for [Value].
      */
     fun eq(other: Value): Boolean {
         return equals(other).getOrDefault(false)
@@ -1604,14 +1605,14 @@ class FrozenValue internal constructor(
     }
 
     /**
-     * Equivalent of Rust `Display::fmt` for [FrozenValue].
+     * Equivalent of Rust Display fmt for [FrozenValue].
      */
     fun fmt(collector: StringBuilder) {
         toValue().fmt(collector)
     }
 
     /**
-     * Equivalent of Rust `Debug::fmt` for [FrozenValue].
+     * Equivalent of Rust Debug fmt for [FrozenValue].
      */
     fun fmt(collector: StringBuilder, debug: Boolean) {
         if (debug) {
@@ -1622,7 +1623,7 @@ class FrozenValue internal constructor(
     }
 
     /**
-     * Equivalent of Rust `PartialEq::eq` for [FrozenValue].
+     * Equivalent of Rust PartialEq eq for [FrozenValue].
      */
     fun eq(other: FrozenValue): Boolean {
         return toValue().eq(other.toValue())
@@ -1724,7 +1725,7 @@ interface ValueLike<Self : ValueLike<Self>> :
      * Get hash value.
      */
     fun getHashed(): Result<Hashed<Self>> {
-        val hash = toValue().unpackStarlarkStr()?.getHash()
+        val hash = toValue().unpackStarlarkStr()?.getHashValue()
             ?: toValue().getHash().getOrElse { return Result.failure(it) }
         return Result.success(Hashed.newUnchecked(hash, this as Self))
     }
@@ -1781,5 +1782,3 @@ interface ValueLike<Self : ValueLike<Self>> :
     }
 }
 
-private fun testSendSync() {
-}

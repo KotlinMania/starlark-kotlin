@@ -1,4 +1,5 @@
-// port-lint: source tests:src/values/types/record/globals.rspackage io.github.kotlinmania.starlark.values.types.record
+// port-lint: source tests:src/values/types/record/globals.rs
+package io.github.kotlinmania.starlark.values.types.record
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/mode.rs
+// port-lint: source eval/runtime/profile/mode.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile.mode
 
 /*

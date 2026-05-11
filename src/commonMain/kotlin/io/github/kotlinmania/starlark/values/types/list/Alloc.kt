@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list/alloc.rs
+// port-lint: source values/types/list/alloc.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 /*

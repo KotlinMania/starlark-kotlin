@@ -1,4 +1,4 @@
-// port-lint: source src/tests/bc/isinstance.rs
+// port-lint: source tests/bc/isinstance.rs
 package io.github.kotlinmania.starlark.tests.bc
 
 import kotlin.test.Test

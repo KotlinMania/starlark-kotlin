@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/heap/profile/aggregated.rs
+// port-lint: source values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
@@ -166,7 +166,7 @@ internal class StackCollector(
     override fun callEnter(function: Value, time: ProfilerInstant) {
         val lt = lastTime
         if (lt != null) {
-            current.last().data.timeX2 += time.durationSince(lt)
+            current.last().data.timeX2 = current.last().data.timeX2 + time.durationSince(lt)
             current.last().data.callsX2 += 1
         }
 
@@ -183,7 +183,7 @@ internal class StackCollector(
     override fun callExit(time: ProfilerInstant) {
         val lt = lastTime
         if (lt != null) {
-            current.last().data.timeX2 += time.durationSince(lt)
+            current.last().data.timeX2 = current.last().data.timeX2 + time.durationSince(lt)
         }
         current.removeAt(current.lastIndex)
         lastTime = time

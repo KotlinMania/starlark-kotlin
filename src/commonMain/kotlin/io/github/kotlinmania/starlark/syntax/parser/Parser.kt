@@ -1,4 +1,4 @@
-// port-lint: source src/syntax/grammar.lalrpop
+// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark.syntax.parser
 
 /*
@@ -19,14 +19,14 @@ package io.github.kotlinmania.starlark.syntax.parser
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Pos
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 
 /**

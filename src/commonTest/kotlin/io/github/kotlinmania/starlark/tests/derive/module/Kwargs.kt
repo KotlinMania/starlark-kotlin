@@ -1,4 +1,4 @@
-// port-lint: source src/tests/derive/module/kwargs.rs
+// port-lint: source tests/derive/module/kwargs.rs
 package io.github.kotlinmania.starlark.tests.derive.module
 
 /*
@@ -26,6 +26,12 @@ import io.github.kotlinmania.starlark.eval.runtime.positional
 import kotlin.test.Test
 
 private fun testKwargsModule(globals: GlobalsBuilder) {
+    fun posKwargs(a: UInt, b: Boolean, kwargsStr: String): Result<String> =
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
+
+    fun posNamedKwargs(a: UInt, b: Boolean, kwargsStr: String): Result<String> =
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
+
     globals.setFunction("pos_kwargs") { args, _ ->
         val a = args.positional<UInt>(0)
         val b = args.positional<Boolean>(1)
@@ -34,7 +40,7 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
         val kwargsStr = kwargsEntries.iter().joinToString(", ") { (k, v) ->
             "\"${k.asStr()}\": ${v.unpackI32()}"
         }
-        Result.success("a=$a b=$b kwargs={$kwargsStr}")
+        posKwargs(a, b, kwargsStr)
     }
 
     globals.setFunction("pos_named_kwargs") { args, _ ->
@@ -47,7 +53,7 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
             .joinToString(", ") { (k, v) ->
                 "\"${k.asStr()}\": ${v.unpackI32()}"
             }
-        Result.success("a=$a b=$b kwargs={$kwargsStr}")
+        posNamedKwargs(a, b, kwargsStr)
     }
 }
 

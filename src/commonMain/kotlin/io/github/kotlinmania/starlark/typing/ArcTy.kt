@@ -1,4 +1,4 @@
-// port-lint: source arc_ty.rs
+// port-lint: source typing/arc_ty.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -28,7 +28,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object Bool : ArcTyInner()
     data object None : ArcTyInner()
     /** Default implementation. */
-    // Arc(Arc<Ty>),
     data class Arc(val ty: Ty) : ArcTyInner()
 
     override fun compareTo(other: ArcTyInner): kotlin.Int {

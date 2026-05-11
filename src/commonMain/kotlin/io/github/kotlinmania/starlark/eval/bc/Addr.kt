@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/addr.rs
+// port-lint: source eval/bc/addr.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -56,9 +56,6 @@ internal data class BcAddr(val value: UInt) : Comparable<BcAddr> {
     operator fun plus(rhs: UInt): BcAddr {
         return BcAddr(this.value + rhs)
     }
-
-    // Note: BcAddr is immutable in Kotlin (data class), so no += operator.
-    // Use reassignment: addr = addr + rhs
 }
 
 /**
@@ -66,7 +63,6 @@ internal data class BcAddr(val value: UInt) : Comparable<BcAddr> {
  * Used for debugging assertions. This object is not created in release mode.
  */
 internal data class BcPtrRange(
-    // start: *const u8,
     val start: Int,
     /** Length in bytes. */
     val len: Int,
@@ -98,13 +94,8 @@ internal data class BcPtrRange(
     }
 }
 
-/**
- * Pointer to an instruction in memory.
- *
- * In Kotlin, this is an offset into a bytecode buffer with debug validation.
- */
+/** Pointer to an instruction in memory. */
 internal data class BcPtrAddr(
-    // ptr: *const u8
     val offset: Int,
     /** When assertions enabled, we validate the pointer is in this range. */
     val range: IfDebug<BcPtrRange>,

@@ -1,4 +1,5 @@
-// port-lint: source tests:src/util/refcell.rspackage io.github.kotlinmania.starlark.util.refcell
+// port-lint: source tests:src/util/refcell.rs
+package io.github.kotlinmania.starlark.util.refcell
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

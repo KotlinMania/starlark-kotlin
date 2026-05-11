@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/list/globals.rs
+// port-lint: source values/types/list/globals.rs
 package io.github.kotlinmania.starlark.values.types.list
 
 /*
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.values.types.list
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
@@ -118,15 +118,6 @@ internal fun registerList(globals: GlobalsBuilder) {
 
 /**
  * Implementation of the `list()` built-in function.
- *
- * The function is annotated in Rust with:
- * - `asType = FrozenList` (establishes the canonical type)
- * - `speculativeExecSafe` (safe for speculative evaluation)
- * - `specialBuiltinFunction = SpecialBuiltinFunction::List`
- * - `tyCustomFunction = ListType`
- *
- * The return type in Rust is `ValueOfUnchecked<&ListRef>`, wrapping
- * the newly allocated list. In Kotlin we return a plain `Result<Value>`.
  *
  * @param a Optional iterable argument. If `null`, returns an empty list.
  * @param heap The heap on which to allocate the new list.

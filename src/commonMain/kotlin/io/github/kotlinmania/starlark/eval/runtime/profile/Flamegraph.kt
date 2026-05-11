@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/profile/flamegraph.rs
+// port-lint: source eval/runtime/profile/flamegraph.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph
 
 /*

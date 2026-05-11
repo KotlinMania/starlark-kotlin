@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/compiler/compr.rs
+// port-lint: source eval/bc/compiler/compr.rs
 package io.github.kotlinmania.starlark.eval.bc.compiler.compr
 
 /*

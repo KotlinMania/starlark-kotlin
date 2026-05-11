@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/stackPtr.rs
+// port-lint: source eval/bc/stack_ptr.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

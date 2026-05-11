@@ -1,4 +1,4 @@
-// port-lint: source src/eval/bc/bytecode.rs
+// port-lint: source eval/bc/bytecode.rs
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -93,12 +93,7 @@ internal class Bc(
     }
 }
 
-/**
- * Execute one instruction by dispatching on the opcode.
- *
- * generated code. In Kotlin, we dispatch using the opcode to look up the
- * instruction argument from the buffer and call the appropriate handler.
- */
+/** Execute one instruction by dispatching on the opcode. */
 private fun step(
     eval: Evaluator,
     ec: EvaluationCallbacks,
@@ -117,12 +112,7 @@ private fun step(
     return dispatchInstruction(opcode, eval, frame, ip, arg)
 }
 
-/**
- * Dispatch an instruction by opcode.
- *
- * This is the Kotlin equivalent of the Rust proc-macro generated dispatch.
- * Each opcode maps to a specific instruction implementation.
- */
+/** Dispatch an instruction by opcode. */
 private fun dispatchInstruction(
     opcode: BcOpcode,
     eval: Evaluator,

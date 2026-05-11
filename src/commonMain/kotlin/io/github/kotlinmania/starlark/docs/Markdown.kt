@@ -1,4 +1,4 @@
-// port-lint: source src/docs/markdown.rs
+// port-lint: source docs/markdown.rs
 package io.github.kotlinmania.starlark.docs.markdown
 
 /*
@@ -396,8 +396,6 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
             """<pre class="language-python"><code>$contents</code></pre>"""
     }
 }
-
-// --- Extension methods on DocModule and DocType (implementation blocks in Rust) ---
 
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,

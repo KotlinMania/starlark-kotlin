@@ -1,4 +1,4 @@
-// port-lint: source src/stdlib/partial.rs
+// port-lint: source stdlib/partial.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -191,10 +191,10 @@ open class PartialGen<V : Any, S : Any>(
             )
         )
 
-        val funcValue = when (func) {
-            is Value -> func
-            is io.github.kotlinmania.starlark.values.layout.FrozenValue -> func.toValue()
-            else -> func as Value
+        val funcValue: Value = when (val currentFunc = func) {
+            is Value -> currentFunc
+            is io.github.kotlinmania.starlark.values.layout.FrozenValue -> currentFunc.toValue()
+            else -> currentFunc as Value
         }
         return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }

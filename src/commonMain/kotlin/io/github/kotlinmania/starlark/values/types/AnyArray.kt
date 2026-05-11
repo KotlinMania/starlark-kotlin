@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/any_array.rs
+// port-lint: source values/types/any_array.rs
 package io.github.kotlinmania.starlark.values.types.anyarray
 
 /*

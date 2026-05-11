@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/enumeration/tyEnumType.rs
+// port-lint: source values/types/enumeration/ty_enum_type.rs
 package io.github.kotlinmania.starlark.values.types.enumeration
 
 /*

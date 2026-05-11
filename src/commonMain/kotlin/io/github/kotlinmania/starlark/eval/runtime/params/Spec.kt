@@ -1,4 +1,4 @@
-// port-lint: source src/eval/runtime/params/spec.rs
+// port-lint: source eval/runtime/params/spec.rs
 package io.github.kotlinmania.starlark.eval.runtime.params.spec
 
 /*
@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.typing.ParamIsRequired
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlarkmap.Hashed

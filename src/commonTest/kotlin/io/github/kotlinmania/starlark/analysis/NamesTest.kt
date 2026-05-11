@@ -1,4 +1,5 @@
-// port-lint: source tests:src/analysis/names.rspackage io.github.kotlinmania.starlark.analysis
+// port-lint: source tests:src/analysis/names.rs
+package io.github.kotlinmania.starlark.analysis
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,4 +1,4 @@
-// port-lint: source src/syntax/module.rs
+// port-lint: source ../starlark_syntax/src/syntax/module.rs
 package io.github.kotlinmania.starlark.syntax
 
 /*
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.syntax
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.FileSpan
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark.syntax.lexer.Lexer
 import io.github.kotlinmania.starlark.syntax.parser.Parser
 import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 
 class AstLoad(
     val span: FileSpan,
@@ -67,7 +67,7 @@ class AstModule(
     val dialect: Dialect,
     /**
      * Opt-in typecheck.
-     * Specified with `@starlark-rust: typecheck`.
+     * Specified with a `typecheck` directive in the source.
      */
     val typecheck: Boolean
 ) {
@@ -82,7 +82,7 @@ class AstModule(
          * The returned error may contain diagnostic information.
          */
         fun parse(filename: String, content: String, dialect: Dialect): Result<AstModule> {
-            val codemap = CodeMap(filename, content)
+            val codemap = CodeMap.new(filename, content)
             val lexer = Lexer(content, dialect, codemap)
             val parserState = ParserState(dialect, codemap, mutableListOf())
             return try {
@@ -92,7 +92,7 @@ class AstModule(
                 } else {
                     Result.success(AstModule(codemap, statement, dialect, false))
                 }
-            } catch (e: io.github.kotlinmania.starlark.typing.EvalException) {
+            } catch (e: io.github.kotlinmania.starlarksyntax.evalexception.EvalException) {
                 Result.failure(e)
             }
         }
@@ -198,7 +198,7 @@ private fun rewriteExpr(expr: Spanned<ExprP<AstNoPayload>>, replace: Map<String,
         is ExprP.Op -> {
             val func = replace[node.op.toSymbol()]
             if (func != null) {
-                // Replace: Op(lhs, op, rhs) -> Call(Identifier(func), [lhs, rhs])
+                // Replace a binary operation with a function call: `func(lhs, rhs)`.
                 val lhs = rewriteExpr(node.lhs, replace)
                 val rhs = rewriteExpr(node.rhs, replace)
                 ExprP.Call<AstNoPayload>(
@@ -325,8 +325,6 @@ private fun rewriteStmt(stmt: Spanned<StmtP<AstNoPayload>>, replace: Map<String,
     return Spanned(rewritten, stmt.span)
 }
 
-// IAP for Def is captured through a star projection — extracted to a generic
-// helper so the IAP type variable is bound rather than asserted via UNCHECKED_CAST.
 private fun <IAP> rewriteDef(
     node: StmtP.Def<AstNoPayload, IAP>,
     replace: Map<String, String>,

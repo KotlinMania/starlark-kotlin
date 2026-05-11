@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/namespace/typing.rs
+// port-lint: source values/types/namespace/typing.rs
 package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.types.namespace
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyCallable

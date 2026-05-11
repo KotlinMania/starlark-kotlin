@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.Either
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.typing.TypingNever
@@ -41,23 +41,26 @@ data class Approximation(
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
-                message = message.toString(),
+                message = debugAny(message),
             )
         }
     }
 
-    /** Format as `Approximation: <category> = "<message>"`. */
-    fun fmt(): String {
-        val category = category
-        val message = message
-        return "Approximation: " + category + " = " + debugString(message)
-    }
+    /** Format as `Approximation: <category> = <debug(message)>`. */
+    fun fmt(): String = "Approximation: " + category + " = " + debugString(message)
 
     override fun toString(): String = fmt()
 
     override fun compareTo(other: Approximation): Int {
         val cmp = category.compareTo(other.category)
         return if (cmp != 0) cmp else message.compareTo(other.message)
+    }
+}
+
+private fun debugAny(value: Any): String {
+    return when (value) {
+        is String -> debugString(value)
+        else -> value.toString()
     }
 }
 
@@ -115,9 +118,7 @@ class Ty private constructor(
         fun none(): Ty = basic(TyBasic.none())
 
         /** Create a boolean type. */
-        fun bool(): Ty {
-            return starlarkValue(TyStarlarkValue.bool())
-        }
+        fun bool(): Ty = starlarkValue(TyStarlarkValue.bool())
 
         /** Create the int type. */
         fun int(): Ty = basic(TyBasic.int())
@@ -308,18 +309,18 @@ class Ty private constructor(
      * Types like [Ty.any] will return `null`.
      */
     fun asName(): String? {
-        val slice = alternatives.asSlice()
-        return when (slice.size) {
-            1 -> slice[0].asName()
+        val xs = alternatives.asSlice()
+        return when (xs.size) {
+            1 -> xs[0].asName()
             else -> null
         }
     }
 
     /** This type is `TyStarlarkValue`. */
     internal fun isStarlarkValue(): TyStarlarkValue? {
-        val slice = iterUnion()
-        return if (slice.size == 1 && slice[0] is TyBasic.StarlarkValue) {
-            (slice[0] as TyBasic.StarlarkValue).value
+        val xs = iterUnion()
+        return if (xs.size == 1 && xs[0] is TyBasic.StarlarkValue) {
+            (xs[0] as TyBasic.StarlarkValue).value
         } else {
             null
         }
@@ -332,10 +333,7 @@ class Ty private constructor(
     fun isNever(): Boolean = alternatives.isEmpty()
 
     /** Check if this type is a list. */
-    fun isList(): Boolean {
-        val slice = alternatives.asSlice()
-        return slice.size == 1 && slice[0] is TyBasic.List
-    }
+    fun isList(): Boolean = alternatives.asSlice().let { xs -> xs.size == 1 && xs[0] is TyBasic.List }
 
     /** Check if this is a function type. */
     fun isFunction(): Boolean = asName() == "function"
@@ -347,9 +345,9 @@ class Ty private constructor(
      * probably it does not do what you think.
      */
     fun asFunction(): TyFunction? {
-        val slice = iterUnion()
-        return when (slice.size) {
-            1 -> slice[0].asFunction()
+        val xs = iterUnion()
+        return when (xs.size) {
+            1 -> xs[0].asFunction()
             else -> null
         }
     }
@@ -437,12 +435,7 @@ class Ty private constructor(
         val oracle = TypingOracleCtx(
             codemap = CodeMap("", ""),
         )
-        val result = oracle.intersects(this, other)
-        return if (result.isSuccess) {
-            Result.success(result.getOrThrow())
-        } else {
-            Result.failure(result.exceptionOrNull()!!)
-        }
+        return oracle.intersects(this, other)
     }
 
     /** Format with a custom rendering configuration. */

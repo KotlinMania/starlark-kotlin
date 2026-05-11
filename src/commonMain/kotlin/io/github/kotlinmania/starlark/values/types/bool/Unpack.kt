@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/bool/unpack.rs
+// port-lint: source values/types/bool/unpack.rs
 package io.github.kotlinmania.starlark.values.types.bool
 
 /*

@@ -1,4 +1,4 @@
-// port-lint: source src/analysis/findCallName.rs
+// port-lint: source analysis/find_call_name.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload

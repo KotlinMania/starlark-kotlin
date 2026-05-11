@@ -1,4 +1,4 @@
-// port-lint: source src/values/types/knownMethods.rs
+// port-lint: source values/types/known_methods.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*

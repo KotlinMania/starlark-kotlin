@@ -1,8 +1,10 @@
-// port-lint: source error.rs
+// port-lint: source typing/error.rs
 package io.github.kotlinmania.starlark.typing
 
-import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
+import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
+import io.github.kotlinmania.starlarksyntax.diagnostic.WithDiagnostic
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,44 +24,12 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
  * limitations under the License.
  */
 
-class EvalException(override val message: String, cause: Throwable? = null) : Exception(message, cause) {
-    companion object {
-        fun new(error: StarlarkError, span: Span, codemap: CodeMap): EvalException {
-            return EvalException("${error.message} at ${span} in ${codemap}")
-        }
-
-        fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): EvalException {
-            return EvalException("${error.message} at ${span} in ${codemap}", error)
-        }
-
-        fun newWithCallStack(
-            error: Throwable,
-            span: Span,
-            file: CodeMap,
-            callStackFrames: () -> List<Any>,
-        ): EvalException {
-            val frames = callStackFrames()
-            val framesStr = if (frames.isNotEmpty()) "\n  ${frames.joinToString("\n  ")}" else ""
-            return EvalException("${error.message} at $span in $file$framesStr", error)
-        }
-    }
-
-    fun intoError(): StarlarkError = StarlarkError(message, this)
-
-    fun intoInternalError(): EvalException {
-        return EvalException("Internal: $message", cause)
-    }
-}
-
+// CLEANUP NEEDED: StarlarkError is a stubby duplicate of upstream `starlark_syntax/src/error.rs`.
+// The proper port (`class Error`) lives in starlark-syntax-kotlin's `error/Error.kt`.
+// Callers should be migrated to that, then this stub deleted.
 open class StarlarkError(message: String, cause: Throwable? = null) : Exception(message, cause) {
     fun intoInternalError(): StarlarkError {
         return StarlarkError("Internal: $message", cause)
-    }
-}
-
-class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
-    fun <R> map(f: (T) -> R): WithDiagnostic<R> {
-        return WithDiagnostic(f(value), span, codemap)
     }
 }
 
@@ -147,8 +117,6 @@ object TypingNoContextError : Exception("typing error (no context)")
  * * Typing error means, types are not compatible.
  * * Internal error means, bug in the typechecker.
  */
-//     Typing(TypingError),
-//     Internal(InternalError),
 sealed class TypingOrInternalError : Exception() {
     class Typing(val error: TypingError) : TypingOrInternalError()
     class Internal(val error: InternalError) : TypingOrInternalError()
@@ -159,8 +127,6 @@ sealed class TypingOrInternalError : Exception() {
     }
 }
 
-//     Typing,
-//     Internal(InternalError),
 sealed class TypingNoContextOrInternalError : Exception() {
     data object Typing : TypingNoContextOrInternalError()
     class Internal(val error: InternalError) : TypingNoContextOrInternalError()

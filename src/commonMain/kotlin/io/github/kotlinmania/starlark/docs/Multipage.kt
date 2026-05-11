@@ -1,4 +1,4 @@
-// port-lint: source src/docs/multipage.rs
+// port-lint: source docs/multipage.rs
 package io.github.kotlinmania.starlark.docs
 
 /*

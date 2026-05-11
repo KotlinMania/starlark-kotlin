@@ -1,4 +1,4 @@
-// port-lint: source src/values/stackGuard.rs
+// port-lint: source values/stack_guard.rs
 package io.github.kotlinmania.starlark.values
 
 /*
@@ -22,8 +22,7 @@ package io.github.kotlinmania.starlark.values
 /** Guard to check we don't recurse too deeply with nested operations like Equals. */
 
 import io.github.kotlinmania.starlark.unlikely
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import io.github.kotlinmania.threadlocal.ThreadLocal
 
 // Maximum recursion level for comparison
 private const val MAX_RECURSION: Int = 3000
@@ -39,35 +38,38 @@ private const val MAX_RECURSION: Int = 3000
 //   starlark function which calls toStr. We could change all evaluation stack
 //   signatures to accept some "context" parameters, but passing it as
 //   thread-local is easier.
-@OptIn(ExperimentalAtomicApi::class)
-private val STACK_DEPTH: AtomicInt = AtomicInt(0)
+private class StackDepth(
+    var value: Int,
+)
+
+private val STACK_DEPTH: ThreadLocal<StackDepth> = ThreadLocal()
+
+private fun stackDepth(): StackDepth = STACK_DEPTH.getOr { StackDepth(value = 0) }
 
 /**
  * Stored previous stack depth before calling [stackGuard].
  *
  * Stores the previous stack depth back to thread-local on [close].
  */
-@OptIn(ExperimentalAtomicApi::class)
 class StackGuard internal constructor(
     private val prevDepth: Int,
 ) : AutoCloseable {
     override fun close() {
-        STACK_DEPTH.store(prevDepth)
+        stackDepth().value = prevDepth
     }
 }
 
 /** Increment stack depth. */
-@OptIn(ExperimentalAtomicApi::class)
 private fun inc(): StackGuard {
-    val prevDepth = STACK_DEPTH.load()
-    STACK_DEPTH.store(prevDepth + 1)
-    return StackGuard(prevDepth)
+    val depth = stackDepth()
+    val prevDepth = depth.value
+    depth.value = prevDepth + 1
+    return StackGuard(prevDepth = prevDepth)
 }
 
 /** Check stack depth does not exceed configured max stack depth. */
-@OptIn(ExperimentalAtomicApi::class)
 private fun check() {
-    if (unlikely(STACK_DEPTH.load() >= MAX_RECURSION)) {
+    if (unlikely(stackDepth().value >= MAX_RECURSION)) {
         throw ControlError.TooManyRecursionLevel
     }
 }

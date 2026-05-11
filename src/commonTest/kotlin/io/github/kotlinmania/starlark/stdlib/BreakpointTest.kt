@@ -1,4 +1,5 @@
-// port-lint: source tests:src/stdlib/breakpoint.rspackage io.github.kotlinmania.starlark.stdlib
+// port-lint: source tests:src/stdlib/breakpoint.rs
+package io.github.kotlinmania.starlark.stdlib
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,6 +28,11 @@ import kotlin.test.assertEquals
 // Breakpoint tests should not be executed concurrently
 // to avoid interfering with the breakpoint state.
 private val testLock = ReentrantLock()
+
+private fun resetGlobalState() {
+    // `breakpoint()` function modifies the global state.
+    resetBreakpointGlobalStateForTests()
+}
 
 /** Tests for the breakpoint module. */
 class BreakpointTests {

@@ -110,4 +110,27 @@ class ArenaTest {
         arena.allocStr("xyz")
         assertFalse(arena.isEmpty())
     }
+
+    @Test
+    // Make sure that even if there are some blackholes when we drop, we can still walk to heap
+    fun dropWithBlackhole() {
+        val arena = Arena()
+        arena.alloc(mkStr("test"))
+        // reserve but do not fill!
+        reserveStr(arena, mkStr(""))
+        arena.alloc(mkStr("hello"))
+        val res = mutableListOf<AValueHeader>()
+        arena.forEachOrdered { x ->
+            when (x) {
+                is io.github.kotlinmania.starlark.values.layout.heap.ArenaVisitEvent.EnterBump -> {}
+                is io.github.kotlinmania.starlark.values.layout.heap.ArenaVisitEvent.Value -> {
+                    val unpacked = x.value.unpackHeader()
+                    if (unpacked != null) res.add(unpacked)
+                }
+            }
+        }
+        assertEquals(3, res.size)
+        assertEquals("\"test\"", toRepr(res[0]))
+        assertEquals("\"hello\"", toRepr(res[2]))
+    }
 }

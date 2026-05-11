@@ -1,4 +1,4 @@
-// port-lint: source src/values/typing/typeCompiled/matcher.rs
+// port-lint: source values/typing/type_compiled/matcher.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*
@@ -22,19 +22,10 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.typing.TyCustom
 
-/**
- * Marker interface for type matchers which are registered.
- *
- * In Kotlin we import a plain marker interface — all TypeMatcher implementations are
- * considered registered.
- */
+/** Marker interface for type matchers which are registered. */
 interface TypeMatcherRegistered
 
-/**
- * Base interface for type matchers.
- *
- * In Kotlin the combined constraints are represented as an empty base interface.
- */
+/** Base interface for type matchers. */
 interface TypeMatcherBase
 
 /**
@@ -54,7 +45,6 @@ internal interface TypeMatcherDyn {
     fun toBox(): TypeMatcherBox
 }
 
-// In Kotlin we provide a wrapper adapter instead.
 internal class TypeMatcherDynAdapter<T : TypeMatcherT>(private val inner: T) : TypeMatcherDyn {
     override fun matchesDyn(value: Value): Boolean = inner.matches(value)
     override fun isWildcardDyn(): Boolean = inner.isWildcard()
