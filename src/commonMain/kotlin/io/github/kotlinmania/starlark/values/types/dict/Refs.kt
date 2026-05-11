@@ -65,7 +65,7 @@ fun DictRef.iter(): Sequence<Pair<Value, Value>> = when (val ref = aref) {
 /** Mutably borrowed `Dict`. */
 class DictMut(
     /** Mutable reference to the dict */
-    val aref: RefMut<Dict>
+    internal val aref: RefMut<Dict>
 )
 
 /** Downcast the value to a mutable dict reference. */

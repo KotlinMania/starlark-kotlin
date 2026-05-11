@@ -615,11 +615,11 @@ internal fun testFrozenHeapRefSendSync() {
         val expected = ref.allocatedBytes()
 
         val channel = kotlinx.coroutines.channels.Channel<FrozenHeapRef>(1)
-        val received = kotlinx.coroutines.async(kotlinx.coroutines.Dispatchers.Default) {
+        val received = this.async(kotlinx.coroutines.Dispatchers.Default) {
             val r = channel.receive()
             r.allocatedBytes()
         }
-        launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(ref) }
+        this.launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(ref) }
         val actual = received.await()
         channel.close()
 

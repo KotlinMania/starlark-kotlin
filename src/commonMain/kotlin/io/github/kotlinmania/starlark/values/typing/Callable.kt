@@ -38,8 +38,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamAny
 import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpec
@@ -435,11 +433,11 @@ internal fun assertSyncSend() {
         val channel = kotlinx.coroutines.channels.Channel<
             FrozenStarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>
         >(1)
-        val received = async(kotlinx.coroutines.Dispatchers.Default) {
+        val received = this.async(kotlinx.coroutines.Dispatchers.Default) {
             val c = channel.receive()
             c.value
         }
-        launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(callable) }
+        this.launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(callable) }
         val receivedValue = received.await()
         channel.close()
 

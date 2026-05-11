@@ -278,11 +278,11 @@ internal fun testLifetimeCovariant() {
         val expectedRaw = original.raw().ptrValue()
 
         val channel = kotlinx.coroutines.channels.Channel<FrozenPointer>(1)
-        val received = kotlinx.coroutines.async(kotlinx.coroutines.Dispatchers.Default) {
+        val received = this.async(kotlinx.coroutines.Dispatchers.Default) {
             val p = channel.receive()
             p.raw().ptrValue()
         }
-        launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(original) }
+        this.launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(original) }
         val actualRaw = received.await()
         channel.close()
 

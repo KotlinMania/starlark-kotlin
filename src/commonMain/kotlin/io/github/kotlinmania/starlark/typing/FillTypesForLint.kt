@@ -428,7 +428,7 @@ private class GlobalTypesBuilder(
             ty.asTy()
         } catch (e: Exception) {
             val span = Span.mergeAll(
-                (listOf(first.span) + rem.map { it.span }).iterator()
+                listOf(first.span) + rem.map { it.span }
             )
             errors.add(TypingError.newAnyhow(e, span, ctx.codemap))
             null
@@ -438,7 +438,7 @@ private class GlobalTypesBuilder(
     fun pathTy(first: Spanned<IdentP<CstPayload, *>>, rem: List<Spanned<String>>): Ty {
         tryProperTy(first, rem)?.let { return it }
         val span = Span.mergeAll(
-            (listOf(first.span) + rem.map { it.span }).iterator()
+            listOf(first.span) + rem.map { it.span }
         )
         return unknownTy(span)
     }

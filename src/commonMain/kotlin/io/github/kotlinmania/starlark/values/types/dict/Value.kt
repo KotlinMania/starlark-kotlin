@@ -227,7 +227,7 @@ class Dict(
         fun isDictType(x: KClass<*>): Boolean =
             x == DictGen::class
 
-        fun fromValueUncheckedMut(x: Value): RefCell<Dict> {
+        internal fun fromValueUncheckedMut(x: Value): RefCell<Dict> {
             val dict = x.downcastRefUnchecked<DictGen<RefCell<Dict>>>()
             return dict.inner
         }
@@ -352,7 +352,7 @@ data class ValueStr(val str: String) : Equivalent<Value> {
 }
 
 /** Freeze implementation for DictGen<RefCell<Dict>> (mutable dict). */
-fun DictGen<RefCell<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
+internal fun DictGen<RefCell<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
     val frozenContent = this.inner.borrow().value.content.freeze(
         freezer,
         freezeKey = { v -> v.freeze(freezer) },
@@ -372,7 +372,7 @@ interface DictLike {
     fun setAt(index: Hashed<Value>, value: Value): Result<Unit>
 }
 
-class RefCellDictLike(private val cell: RefCell<Dict>) : DictLike {
+internal class RefCellDictLike(private val cell: RefCell<Dict>) : DictLike {
     override fun content(): SmallMap<Value, Value> = cell.borrow().value.content
 
     override fun iterStart() {

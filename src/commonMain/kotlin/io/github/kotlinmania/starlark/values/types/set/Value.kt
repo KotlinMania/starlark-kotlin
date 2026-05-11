@@ -319,7 +319,7 @@ interface SetLike {
     fun iterStop()
 }
 
-class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
+internal class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     override fun content(): SmallSet<Value> {
         return cell.borrow().value.content
     }

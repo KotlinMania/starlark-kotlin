@@ -38,8 +38,8 @@ class InternalError(private val exception: EvalException) : Exception(exception.
     companion object {
         fun msg(message: Any, span: Span, codemap: CodeMap): InternalError {
             return InternalError(
-                EvalException.new(
-                    StarlarkError(message.toString()),
+                EvalException.newAnyhow(
+                    Exception(message.toString()),
                     span,
                     codemap
                 )
@@ -47,11 +47,13 @@ class InternalError(private val exception: EvalException) : Exception(exception.
         }
 
         fun fromDiagnostic(d: WithDiagnostic<Any>): InternalError {
-            val internal = d.map { m ->
-                StarlarkError(m.toString())
-            }
+            val fileSpan = d.span()!!
             return InternalError(
-                EvalException.new(internal.value, internal.span, internal.codemap)
+                EvalException.newAnyhow(
+                    Exception(d.inner().toString()),
+                    fileSpan.span,
+                    fileSpan.file,
+                )
             )
         }
 
@@ -61,11 +63,11 @@ class InternalError(private val exception: EvalException) : Exception(exception.
 
         fun fromError(e: StarlarkError, span: Span, codemap: CodeMap): InternalError {
             val internalErr = e.intoInternalError()
-            return InternalError(EvalException.new(internalErr, span, codemap))
+            return InternalError(EvalException.newAnyhow(internalErr, span, codemap))
         }
     }
 
-    fun intoError(): StarlarkError {
+    fun intoError(): Exception {
         return exception.intoError()
     }
 
@@ -88,7 +90,7 @@ class TypingError(private val exception: EvalException) {
         }
 
         fun new(error: StarlarkError, span: Span, codemap: CodeMap): TypingError {
-            return TypingError(EvalException.new(error, span, codemap))
+            return TypingError(EvalException.newAnyhow(error, span, codemap))
         }
 
         fun newAnyhow(error: Throwable, span: Span, codemap: CodeMap): TypingError {
@@ -100,7 +102,7 @@ class TypingError(private val exception: EvalException) {
         }
     }
 
-    fun intoError(): StarlarkError {
+    fun intoError(): Exception {
         return exception.intoError()
     }
 

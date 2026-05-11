@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.state.ParserState
 import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.StarlarkError
 
 /**
  * LR(1) parser driven by pre-computed ACTION/GOTO tables from GrammarState.
@@ -123,6 +122,6 @@ object Parser {
         } else {
             Span(Pos(parserState.codemap.fullSpan().end().value), Pos(parserState.codemap.fullSpan().end().value))
         }
-        return EvalException.new(StarlarkError(msg), span, parserState.codemap)
+        return EvalException.newAnyhow(Exception(msg), span, parserState.codemap)
     }
 }

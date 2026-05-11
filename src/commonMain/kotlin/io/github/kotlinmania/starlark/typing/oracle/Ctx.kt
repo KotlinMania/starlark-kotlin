@@ -312,7 +312,7 @@ class TypingOracleCtx(
             if (result.isSuccess) {
                 successful.add(result.getOrThrow())
             } else {
-                errors.add(TypingError.fromEvalException(EvalException(result.exceptionOrNull()?.message ?: "")))
+                errors.add(TypingError.newAnyhow(result.exceptionOrNull() ?: Exception("call error"), span, codemap))
             }
         }
 

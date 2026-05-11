@@ -59,7 +59,6 @@ import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
 import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -805,11 +804,11 @@ class Evaluator(
                     EvalCallbacksMode.BcProfile
                 evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
                     return Result.failure(
-                        EvalException("both before_stmt and bc_profile are enabled")
+                        IllegalStateException("both before_stmt and bc_profile are enabled")
                     )
                 else ->
                     return Result.failure(
-                        EvalException("neither before_stmt nor bc_profile are enabled")
+                        IllegalStateException("neither before_stmt nor bc_profile are enabled")
                     )
             }
             return bc.run(

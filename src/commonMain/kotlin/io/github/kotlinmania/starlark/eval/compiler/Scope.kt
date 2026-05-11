@@ -861,7 +861,7 @@ internal class ModuleScopeBuilder(
             ident.node.ident,
             variants,
         )
-        return EvalException.new(
+        return EvalException.newAnyhow(
             if (better != null) {
                 ScopeError.VariableNotFoundDidYouMean(ident.node.ident, better)
             } else {
@@ -896,7 +896,7 @@ internal class ModuleScopeBuilder(
                 is ResolvedIdent.Slot -> when (resolved.slot) {
                     is Slot.Local -> {
                         errors.add(
-                            EvalException.new(
+                            EvalException.newAnyhow(
                                 ScopeError.TypeExpressionGlobalOrBuiltin(ident.node.ident),
                                 ident.span,
                                 codemap.value,

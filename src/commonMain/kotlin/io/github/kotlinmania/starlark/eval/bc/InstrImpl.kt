@@ -88,7 +88,7 @@ private fun asStarlarkError(t: Throwable): StarlarkError =
     if (t is StarlarkError) t else StarlarkError(t.message ?: "", t)
 
 internal fun addSpanToExprError(e: Throwable, span: FrameSpan, eval: Evaluator): EvalException =
-    EvalException(e.message ?: "")
+    EvalException.newAnyhow(e, span.span.span(), span.span.file().value)
 internal fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
     result
 internal fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =

@@ -93,7 +93,7 @@ internal fun setMethods(builder: MethodsBuilder) {
 
 internal fun clear(thisValue: Value): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    thisSet.aref.data.clear()
+    thisSet.aref.value.clear()
     return Result.success(NoneType)
 }
 
@@ -224,7 +224,7 @@ internal fun add(
 ): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    thisSet.aref.data.addHashed(hashed)
+    thisSet.aref.value.addHashed(hashed)
     return Result.success(NoneType)
 }
 
@@ -249,15 +249,15 @@ internal fun update(
         return Result.success(NoneType)
     }
 
-    if (thisSet.aref.data.content.isEmpty()) {
+    if (thisSet.aref.value.content.isEmpty()) {
         val otherSet = SetFromValue.fromValue(other, heap)
             .getOrElse { return Result.failure(it) }
         val newContent = otherSet.intoSet()
-        thisSet.aref.data.content.addAll(newContent.iterHashed().asIterable())
+        thisSet.aref.value.content.addAll(newContent.iterHashed().asIterable())
     } else {
         for (elem in other.iterate(heap).getOrElse { return Result.failure(it) }) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-            thisSet.aref.data.addHashed(hashed)
+            thisSet.aref.value.addHashed(hashed)
         }
     }
 
@@ -294,7 +294,7 @@ internal fun remove(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    return if (set.aref.data.removeHashed(hashed.asRef())) {
+    return if (set.aref.value.removeHashed(hashed.asRef())) {
         Result.success(NoneType)
     } else {
         Result.failure(ValueError.KeyNotFound("`$value` not found in `$thisValue`"))
@@ -331,7 +331,7 @@ internal fun discard(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    set.aref.data.removeHashed(hashed.asRef())
+    set.aref.value.removeHashed(hashed.asRef())
     return Result.success(NoneType)
 }
 
@@ -357,7 +357,7 @@ internal fun discard(
  */
 internal fun pop(thisValue: Value): Result<Value> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    val content = set.aref.data.content
+    val content = set.aref.value.content
     return if (content.isEmpty()) {
         Result.failure(ValueError.KeyNotFound("pop from an empty set"))
     } else {
