@@ -55,34 +55,34 @@ enum class DocStringKind {
     /**
      * Docstrings used with `starlarkModule` in the host language.
      *
-     * These are the documentation strings written as KDoc (`/** ... */`) on the
+     * These are the documentation strings written as KDoc (`/&#42;&#42; ... &#42;/`) on the
      * module/object definition, and the functions/attributes within it. It supports
      * a section `# Arguments` and `# Returns`, and removes some lines from code
      * blocks that are valid for host-language documentation but not useful for people
      * using these functions via Starlark. An example might be something like:
      *
      * ```kotlin
-     * /**
-     *  * These are where the module/object level docs go.
-     *  *\/
+     * /&#42;&#42;
+     *  &#42; These are where the module/object level docs go.
+     *  &#42;/
      * fun addSomeValue(builder: MethodsBuilder) {
-     *     /**
-     *      * attr1 is an attribute that does nothing interesting.
-     *      *\/
+     *     /&#42;&#42;
+     *      &#42; attr1 is an attribute that does nothing interesting.
+     *      &#42;/
      *     // builder.attribute("attr1") { thisValue: Value -> "attr1" }
      *
-     *     /**
-     *      * Copies a string.
-     *      *
-     *      * This is where details would be, if this were
-     *      * a more interesting function.
-     *      *
-     *      * # Arguments
-     *      * - `s`: This is the string that is returned.
-     *      *
-     *      * # Returns
-     *      * A copy of the original string.
-     *      *\/
+     *     /&#42;&#42;
+     *      &#42; Copies a string.
+     *      &#42;
+     *      &#42; This is where details would be, if this were
+     *      &#42; a more interesting function.
+     *      &#42;
+     *      &#42; # Arguments
+     *      &#42; - `s`: This is the string that is returned.
+     *      &#42;
+     *      &#42; # Returns
+     *      &#42; A copy of the original string.
+     *      &#42;/
      *     // builder.method("copyString") { thisValue: Value, s: String -> s }
      * }
      * ```

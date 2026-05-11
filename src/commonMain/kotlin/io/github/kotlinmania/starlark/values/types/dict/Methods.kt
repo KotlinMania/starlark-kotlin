@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.Either
 
 internal fun dictMethods(registry: MethodsBuilder) {
     // Methods are registered through the MethodsBuilder.

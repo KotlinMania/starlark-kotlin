@@ -46,6 +46,7 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.toValue
 import io.github.kotlinmania.starlarkmap.Equivalent
 import kotlin.reflect.KClass
+import io.github.kotlinmania.starlark.Either
 
 data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
 
