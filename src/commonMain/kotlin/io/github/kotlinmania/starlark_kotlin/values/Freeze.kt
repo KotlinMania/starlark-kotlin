@@ -219,7 +219,12 @@ fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeR
 }
 
 // impl<T> Freeze for Box<[T]>
-fun <T, TFrozen> Box<List<T>>.freeze(
+// Distinct Kotlin name (not `freeze`) to avoid a JVM signature clash with the
+// preceding `Box<T>.freeze` overload. Kotlin's JVM target erases the generic
+// parameter on Box, so both extensions would compile down to the same
+// `freeze(Box, Freezer, Function2)` JVM signature. Per the kotlinmania
+// JVM-clash workaround we use a distinct Kotlin name rather than @JvmName.
+fun <T, TFrozen> Box<List<T>>.freezeListBox(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<Box<List<TFrozen>>> {
