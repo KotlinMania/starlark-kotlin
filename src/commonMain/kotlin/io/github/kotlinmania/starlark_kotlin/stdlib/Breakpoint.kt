@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Breakpoint.kt
-// port-lint: source stdlib/breakpoint.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: source src/stdlib/breakpoint.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Breakpoint.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,18 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Breakpoint.kt
-import io.github.kotlinmania.starlark.debug.evalStatements
-import io.github.kotlinmania.starlark.debug.localVariables
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.readline.ReadLine
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-=======
 import io.github.kotlinmania.starlark_kotlin.debug.evalStatements
 import io.github.kotlinmania.starlark_kotlin.debug.localVariables
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
@@ -46,11 +29,10 @@ import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.withLock
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Breakpoint.kt
 
 // A breakpoint takes over the console UI, so having two going at once confuses everything.
 // Have a global mutex to ensure one at a time.
-private val breakpointMutex: Mutex = Mutex()
+private val breakpointLock = ReentrantLock()
 private var breakpointState: State = State.Allow
 
 /**
@@ -214,17 +196,11 @@ internal class BreakpointError(message: String) : RuntimeException(message)
 internal const val BREAKPOINT_HIT_MESSAGE: String =
     "BREAKPOINT HIT! :resume to continue, :help for all options"
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Breakpoint.kt
-internal fun resetBreakpointGlobalStateForTests() {
-    // `breakpoint()` function modifies the global state.
-    kotlinx.coroutines.runBlocking { breakpointMutex.withLock { breakpointState = State.Allow } }
-=======
 /** Reset test-visible breakpoint state. */
 internal fun resetBreakpointState() {
     breakpointLock.withLock {
         breakpointState = State.Allow
     }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Breakpoint.kt
 }
 
 /**
@@ -234,15 +210,13 @@ internal fun resetBreakpointState() {
  */
 fun breakpointGlobal(builder: GlobalsBuilder) {
     builder.setFunction("breakpoint") { _, eval ->
-        kotlinx.coroutines.runBlocking {
-            breakpointMutex.withLock {
-                if (breakpointState == State.Allow) {
-                    val handler = eval.breakpointHandler
-                        ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
-                    val rl = handler()
-                    rl.println(BREAKPOINT_HIT_MESSAGE)
-                    breakpointState = breakpointLoop(eval, rl)
-                }
+        breakpointLock.withLock {
+            if (breakpointState == State.Allow) {
+                val handler = eval.breakpointHandler
+                    ?: throw BreakpointError("Breakpoint handler is not enabled for current Evaluator")
+                val rl = handler()
+                rl.println(BREAKPOINT_HIT_MESSAGE)
+                breakpointState = breakpointLoop(eval, rl)
             }
         }
         NoneType

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Scope.kt
-// port-lint: source eval/compiler/scope.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/scope.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Scope.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -33,45 +28,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  *  - scope/Tests.kt (tests)
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Scope.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.environment.Module
-import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.environment.MutableNames
-import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.typing.InternalError
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
-import io.github.kotlinmania.starlark.eval.compiler.scope.cstStmtFromAst
-import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.DefP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.syntax.ast.ForP
-import io.github.kotlinmania.starlark.syntax.ast.LambdaP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
-import io.github.kotlinmania.starlark.syntax.ast.LoadP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark.syntax.ast.Visibility
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.Interface
-import io.github.kotlinmania.starlark.typing.StarlarkError
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
@@ -116,7 +72,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Scope.kt
 
 // ---------------------------------------------------------------------------
 // Visitor infrastructure (port of starlark_syntax::syntax::uniplate)
@@ -1272,7 +1227,7 @@ internal class ModuleScopeBuilder(
             ident.node.ident,
             variants,
         )
-        return EvalException.newAnyhow(
+        return EvalException.new(
             if (better != null) {
                 ScopeError.VariableNotFoundDidYouMean(ident.node.ident, better)
             } else {
@@ -1308,7 +1263,7 @@ internal class ModuleScopeBuilder(
                 is ResolvedIdent.Slot -> when (resolved.slot) {
                     is Slot.Local -> {
                         errors.add(
-                            EvalException.newAnyhow(
+                            EvalException.new(
                                 ScopeError.TypeExpressionGlobalOrBuiltin(ident.node.ident),
                                 ident.span,
                                 codemap.value,

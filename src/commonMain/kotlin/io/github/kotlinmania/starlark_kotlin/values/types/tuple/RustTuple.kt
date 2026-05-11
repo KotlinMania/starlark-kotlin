@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/tuple/RustTuple.kt
-// port-lint: source values/types/tuple/rust_tuple.rs
-package io.github.kotlinmania.starlark.values.types.tuple
-=======
 // port-lint: source src/values/types/tuple/rust_tuple.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.tuple
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/tuple/RustTuple.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

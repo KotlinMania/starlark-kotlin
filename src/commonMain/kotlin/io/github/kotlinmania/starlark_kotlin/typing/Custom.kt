@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Custom.kt
-// port-lint: source typing/custom.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/custom.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Custom.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,16 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Custom.kt
-import io.github.kotlinmania.gazebo.cmpany.OrdAny
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAllocImpl
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiledFactory
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
@@ -41,7 +26,6 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMat
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherBoxAllocImpl
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Custom.kt
 
 enum class TypingBinOp(private val symbol: String) {
     Less("<"),
@@ -116,7 +100,7 @@ interface TyCustomImpl : Comparable<TyCustomImpl> {
 internal interface TyCustomDyn {
     fun eqToken(): Any
     fun hashCodeDyn(): Int
-    fun cmpToken(): Pair<OrdAny, String>
+    fun cmpToken(): Pair<Comparable<*>, String>
     fun intoAny(): Any
     fun asAny(): Any
 
@@ -147,8 +131,8 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
 
     override fun hashCodeDyn(): Int = inner.hashCode()
 
-    override fun cmpToken(): Pair<OrdAny, String> =
-        Pair(OrdAny.new<TyCustomImpl>(inner), inner::class.simpleName ?: "unknown")
+    override fun cmpToken(): Pair<Comparable<*>, String> =
+        Pair(inner, inner::class.simpleName ?: "unknown")
 
     override fun intoAny(): Any = inner
 
@@ -220,7 +204,7 @@ internal class TyCustomDynBridge<T : TyCustomImpl>(val inner: T) : TyCustomDyn {
  *
  * In Rust: `pub struct TyCustom(pub(crate) Arc<dyn TyCustomDyn>)`
  */
-class TyCustom internal constructor(internal val inner: TyCustomDyn) : Comparable<TyCustom> {
+class TyCustom internal constructor(internal val inner: TyCustomDyn) {
     companion object {
         fun <T : TyCustomImpl> new(ty: T): TyCustom = TyCustom(TyCustomDynBridge(ty))
 
@@ -286,23 +270,4 @@ class TyCustom internal constructor(internal val inner: TyCustomDyn) : Comparabl
     override fun hashCode(): Int = inner.hashCodeDyn()
 
     override fun toString(): String = inner.toString()
-
-    /** Compare by type name first, then by value. */
-    override fun compareTo(other: TyCustom): Int {
-        val (aCmp, aTypeName) = this.inner.cmpToken()
-        val (bCmp, bTypeName) = other.inner.cmpToken()
-
-        // Type ids are comparable, but we want comparison independent of hashing.
-        if (aCmp.typeId() != bCmp.typeId()) {
-            val typeNameCmp = aTypeName.compareTo(bTypeName)
-            if (typeNameCmp != 0) {
-                return typeNameCmp
-            }
-
-            // This is unreachable: if the type names are the same,
-            // the type ids should be the same.
-        }
-
-        return aCmp.compareTo(bCmp)
-    }
 }

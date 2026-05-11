@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/InspectTest.kt
-// port-lint: source tests:src/debug/inspect.rs
-package io.github.kotlinmania.starlark.debug
-=======
 // port-lint: tests src/debug/inspect.rs
 package io.github.kotlinmania.starlark_kotlin.debug
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/InspectTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -12,11 +7,7 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/InspectTest.kt
- * you may not import this file except in compliance with the License.
-=======
  * you may not use this file except in compliance with the License.
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/InspectTest.kt
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,15 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/InspectTest.kt
-import kotlin.test.Test
-
-class InspectTest {
-
-    @Test
-    fun testDebugStack() {
-        io.github.kotlinmania.starlark.debug.testDebugStack()
-=======
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
@@ -82,14 +64,10 @@ def g(): f()
 g()
 """,
         )
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/InspectTest.kt
     }
 
     @Test
     fun testDebugVariables() {
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/InspectTest.kt
-        io.github.kotlinmania.starlark.debug.testDebugVariables()
-=======
         val a = Assert()
         a.globalsAdd(::debuggerFunctions)
         a.pass(
@@ -105,6 +83,5 @@ f(y = "hello")
 assert_eq(debug_inspect_variables(), {"root": 12, "f": f, "_ignore": [True]})
 """,
         )
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/InspectTest.kt
     }
 }

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/ReturnImpl.kt
-// port-lint: source tests/derive/module/return_impl.rs
-package io.github.kotlinmania.starlark.tests.derive.module
-=======
 // port-lint: tests tests/derive/module/return_impl.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/ReturnImpl.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

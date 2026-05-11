@@ -19,15 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.util
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/ArcStr.kt
-import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
-import io.github.kotlinmania.starlark.util.arcorstatic.compareTo
-=======
 // use std::borrow::Borrow;
 // use std::hash::Hash;
 // use std::ops::Deref;
 // use std::sync::Arc;
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/ArcStr.kt
 
 // use allocative::Allocative;
 // use dupe::Dupe;

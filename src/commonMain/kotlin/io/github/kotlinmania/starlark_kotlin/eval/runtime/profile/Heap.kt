@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Heap.kt
-// port-lint: source eval/runtime/profile/heap.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile.heap
-=======
 // port-lint: source src/eval/runtime/profile/heap.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.heap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Heap.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

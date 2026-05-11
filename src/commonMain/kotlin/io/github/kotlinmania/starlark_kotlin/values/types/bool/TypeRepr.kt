@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/bool/TypeRepr.kt
-// port-lint: source values/types/bool/type_repr.rs
-package io.github.kotlinmania.starlark.values.types.bool
-=======
 // port-lint: source src/values/types/bool/type_repr.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.bool
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/bool/TypeRepr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

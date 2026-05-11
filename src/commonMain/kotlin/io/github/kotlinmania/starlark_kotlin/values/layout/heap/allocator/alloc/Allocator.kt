@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/Allocator.kt
-// port-lint: source values/layout/heap/allocator/alloc/allocator.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
-=======
 // port-lint: source src/values/layout/heap/allocator/alloc/allocator.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/Allocator.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -30,9 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.ChunkA
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/Allocator.kt
-/** Chunk-based arena allocator. */
-=======
 /**
  * Chunk-based arena allocator.
  *
@@ -42,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
  *
  * pub(crate) struct ChunkAllocator
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/Allocator.kt
 internal class ChunkAllocator : ArenaAllocator {
     /**
      * Current chunk in the chunk chain is partially filled.

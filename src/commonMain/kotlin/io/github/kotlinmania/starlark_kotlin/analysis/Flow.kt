@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-// port-lint: source analysis/flow.rs
-package io.github.kotlinmania.starlark.analysis
-=======
 // port-lint: source src/analysis/flow.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,23 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedPos as ResolvedPos
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedSpan as ResolvedSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
@@ -58,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
 
 // ---------------------------------------------------------------------------
 // Codemap resolution helpers (until FileSpan.resolve / description are added
@@ -383,11 +360,7 @@ private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
 // stmt
 // ---------------------------------------------------------------------------
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-internal fun stmt(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
-=======
 private fun stmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
     checkStmt(codemap, x, res)
     x.visitStmt { stmt(codemap, it, res) }
 }
@@ -400,11 +373,7 @@ private fun stmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>
  * Returns `true` if the code aborts this sequence early,
  * due to return, fail, break or continue.
  */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-internal fun reachable(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>): Boolean {
-=======
 private fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>): Boolean {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
     return when (val s = x.node) {
         is StmtP.Break, is StmtP.Continue, is StmtP.Return -> true
         is StmtP.Expression -> isFail(s.expr as AstExpr)
@@ -454,13 +423,8 @@ private fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
  * If you have a definition which ends with return, or a loop which ends with continue
  * that is a useless statement.
  */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-internal fun redundant(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
-    fun check(isLoop: Boolean, codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
-=======
 private fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     fun check(isLoop: Boolean, codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
         when (val s = x.node) {
             is StmtP.Continue -> if (isLoop) {
                 res.add(LintT.new(codemap, x.span, FlowIssue.RedundantContinue))
@@ -497,11 +461,7 @@ private fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
 // misplacedLoad
 // ---------------------------------------------------------------------------
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-internal fun misplacedLoad(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
-=======
 private fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
     // accumulate all statements at the top-level
     fun topStatements(x: AstStmt, stmts: MutableList<AstStmt>) {
         when (val s = x.node) {
@@ -545,11 +505,7 @@ private fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<F
 // noEffect
 // ---------------------------------------------------------------------------
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Flow.kt
-internal fun noEffect(codemap: CodeMap, x: Spanned<StmtP<AstNoPayload>>, res: MutableList<LintT<FlowIssue>>) {
-=======
 private fun noEffect(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Flow.kt
     when (val s = x.node) {
         is StmtP.Expression -> if (!hasEffect(s.expr as AstExpr)) {
             res.add(LintT.new(codemap, (s.expr as AstExpr).span, FlowIssue.NoEffect))

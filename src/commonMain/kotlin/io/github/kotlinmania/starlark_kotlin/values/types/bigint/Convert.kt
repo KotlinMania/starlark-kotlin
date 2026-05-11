@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/bigint/Convert.kt
-// port-lint: source values/types/bigint/convert.rs
-package io.github.kotlinmania.starlark.values.types.bigint
-=======
 // port-lint: source src/values/types/bigint/convert.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.bigint
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/bigint/Convert.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,8 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/bigint/Convert.kt
-=======
 /**
  * Conversion adapters for Kotlin numeric types to/from Starlark values.
  *
@@ -35,7 +28,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.bigint
  * extension functions and converter objects.
  */
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/bigint/Convert.kt
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocValue

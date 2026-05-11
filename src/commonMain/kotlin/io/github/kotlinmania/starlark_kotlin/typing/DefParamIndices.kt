@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/DefParamIndices.kt
-// port-lint: source ../starlark_syntax/src/syntax/def.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source starlark_syntax/src/syntax/def.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/DefParamIndices.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

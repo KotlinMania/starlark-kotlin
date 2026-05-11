@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/collections/symbol/Map.kt
-// port-lint: source collections/symbol/map.rs
-package io.github.kotlinmania.starlark.collections.symbol.map
-=======
 // port-lint: source src/collections/symbol/map.rs
 package io.github.kotlinmania.starlark_kotlin.collections.symbol
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/collections/symbol/Map.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

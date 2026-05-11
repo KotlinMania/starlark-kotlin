@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/analysis/NamesTest.kt
-// port-lint: source tests:src/analysis/names.rs
-package io.github.kotlinmania.starlark.analysis
-=======
 // port-lint: tests src/analysis/names.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.analysis
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/NamesTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

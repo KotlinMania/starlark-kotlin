@@ -1,19 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Dubious.kt
-// port-lint: source analysis/dubious.rs
-package io.github.kotlinmania.starlark.analysis
-
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark.values.types.num.NumRef
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.syntax.AstModule
-=======
 // port-lint: source src/analysis/dubious.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
@@ -28,7 +12,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Dubious.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -74,7 +57,8 @@ sealed class Dubious : LintWarning {
     }
 }
 
-/** Helper sealed class for duplicate dictionary key detection. */
+// Helper sealed class for duplicate dictionary key detection.
+// Cannot be local because Kotlin does not support sealed local classes.
 private sealed class DubiousKey {
     class IntKey(val value: StarlarkInt) : DubiousKey() {
         override fun equals(other: Any?): Boolean = other is IntKey && value == other.value

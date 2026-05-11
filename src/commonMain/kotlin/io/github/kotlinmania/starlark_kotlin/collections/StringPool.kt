@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/collections/StringPool.kt
-// port-lint: source collections/string_pool.rs
-package io.github.kotlinmania.starlark.collections
-=======
 // port-lint: source src/collections/string_pool.rs
 package io.github.kotlinmania.starlark_kotlin.collections
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/collections/StringPool.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

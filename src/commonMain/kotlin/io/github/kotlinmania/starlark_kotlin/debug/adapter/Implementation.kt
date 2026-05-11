@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/adapter/Implementation.kt
-// port-lint: source debug/adapter/implementation.rs
-package io.github.kotlinmania.starlark.debug.adapter
-=======
 // port-lint: source src/debug/adapter/implementation.rs
 package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/adapter/Implementation.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,37 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/adapter/Implementation.kt
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.debug.Breakpoint
-import io.github.kotlinmania.starlark.debug.DapAdapter
-import io.github.kotlinmania.starlark.debug.DapAdapterClient
-import io.github.kotlinmania.starlark.debug.DapAdapterEvalHook
-import io.github.kotlinmania.starlark.debug.DapBreakpoint
-import io.github.kotlinmania.starlark.debug.EvaluateExprInfo
-import io.github.kotlinmania.starlark.debug.InspectVariableInfo
-import io.github.kotlinmania.starlark.debug.PathSegment
-import io.github.kotlinmania.starlark.debug.ResolvedBreakpoints
-import io.github.kotlinmania.starlark.debug.ScopesInfo
-import io.github.kotlinmania.starlark.debug.SetBreakpointsArguments
-import io.github.kotlinmania.starlark.debug.SetBreakpointsResponseBody
-import io.github.kotlinmania.starlark.debug.StackFrame
-import io.github.kotlinmania.starlark.debug.StackTraceArguments
-import io.github.kotlinmania.starlark.debug.StackTraceResponseBody
-import io.github.kotlinmania.starlark.debug.StepKind
-import io.github.kotlinmania.starlark.debug.Variable
-import io.github.kotlinmania.starlark.debug.VariablePath
-import io.github.kotlinmania.starlark.debug.VariablesInfo
-import io.github.kotlinmania.starlark.debug.evalStatements
-import io.github.kotlinmania.starlark.debug.localVariables
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.values.layout.Value
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -87,10 +51,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.runBlocking
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.withLock
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/adapter/Implementation.kt
 import kotlin.concurrent.atomics.AtomicInt
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 internal fun prepareDapAdapterImpl(
     client: DapAdapterClient,
@@ -153,7 +114,7 @@ private class MessageChannel<T> {
     }
 
     fun recv(): Result<T> {
-        return kotlinx.coroutines.runBlocking {
+        return runBlocking {
             try {
                 Result.success(channel.receive())
             } catch (e: Exception) {
@@ -173,10 +134,8 @@ private class DapAdapterImpl(
         source: String,
         breakpoints: ResolvedBreakpoints,
     ): Result<Unit> {
-        return kotlinx.coroutines.runBlocking {
-            state.breakpointsMutex.withLock {
-                state.breakpoints.setBreakpoints(source, breakpoints)
-            }
+        return state.breakpointsLock.withLock {
+            state.breakpoints.setBreakpoints(source, breakpoints)
         }
     }
 
@@ -334,8 +293,8 @@ private class DapAdapterEvalHookImpl private constructor(
         val stop = if (state.disableBreakpoints.load() > 0) {
             false
         } else {
-            val breakpoint = kotlinx.coroutines.runBlocking {
-                state.breakpointsMutex.withLock { state.breakpoints.at(spanLoc) }
+            val breakpoint = state.breakpointsLock.withLock {
+                state.breakpoints.at(spanLoc)
             }
             when {
                 breakpoint != null && breakpoint.condition != null -> {
@@ -418,13 +377,8 @@ private class SharedAdapterState(
     // These breakpoints must all match statements as per before_stmt.
     // Those values for which we abort the execution.
     val breakpoints: BreakpointConfig,
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/adapter/Implementation.kt
-    // Lock protecting access to breakpoints.
-    val breakpointsMutex: Mutex = Mutex(),
-=======
     // Lock protecting access to breakpoints (replaces Rust's Mutex)
     val breakpointsLock: ReentrantLock = ReentrantLock(),
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/adapter/Implementation.kt
     // Set while we are doing evaluate calls (>= 1 means disable)
     val disableBreakpoints: AtomicInt,
 )

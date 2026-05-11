@@ -11,8 +11,8 @@ If stub files don't exist yet, generate them:
 ```bash
 python tools/generate_stubs.py \
   tmp/starlark/src \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark \
-  io.github.kotlinmania.starlark
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin \
+  io.github.kotlinmania.starlark_kotlin
 ```
 
 This creates:
@@ -55,7 +55,7 @@ package your.package.name
 Example:
 ```kotlin
 // port-lint: source src/values/layout.rs
-package io.github.kotlinmania.starlark.values
+package io.github.kotlinmania.starlark_kotlin.values
 
 data class Layout(...)
 ```
@@ -136,7 +136,7 @@ Compare a specific file pair:
 ```bash
 ./tools/ast_distance/ast_distance \
   tmp/starlark/src/values/layout.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
 ```
 
 Look for:

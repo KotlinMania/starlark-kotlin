@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/compiler/Def.kt
-// port-lint: source eval/bc/compiler/def.rs
-package io.github.kotlinmania.starlark.eval.bc.compiler.def
-=======
 // port-lint: source src/eval/bc/compiler/def.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.def
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/compiler/Def.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

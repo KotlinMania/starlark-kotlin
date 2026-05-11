@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/DotFormatParser.kt
-// port-lint: source ../starlark_syntax/src/dot_format_parser.rs
-package io.github.kotlinmania.starlark.values.types.string
-=======
 // port-lint: source src/dot_format_parser.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/DotFormatParser.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -44,6 +39,7 @@ sealed class FormatToken {
     /// Text to copy verbatim to the output.
     // Text(&'a str),
     data class Text(val text: String) : FormatToken()
+    // Capture {
     data class Capture(
         /// Format part inside curly braces before the conversion.
         // capture: &'a str,
@@ -55,6 +51,7 @@ sealed class FormatToken {
         // conv: FormatConv,
         val conv: FormatConv
     ) : FormatToken()
+    // Escape(EscapeCurlyBrace),
     data class Escape(val escape: EscapeCurlyBrace) : FormatToken()
 }
 

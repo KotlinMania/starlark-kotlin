@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/Repr.kt
-// port-lint: source values/layout/heap/repr.rs
-package io.github.kotlinmania.starlark.values.layout.heap
-=======
 // port-lint: source src/values/layout/heap/repr.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/Repr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,18 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/Repr.kt
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.AValue
-import io.github.kotlinmania.starlark.values.layout.AValueDyn
-import io.github.kotlinmania.starlark.values.layout.AValueVTable
-import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
-import kotlin.concurrent.atomics.AtomicLong
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-=======
 import io.github.kotlinmania.starlark_kotlin.ReentrantLock
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
@@ -46,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.StarlarkValueRawPtr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark_kotlin.withLock
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/Repr.kt
 
 // #[derive(Clone)]
 // #[repr(C)]
@@ -92,15 +74,20 @@ class AValueHeader(
         const val ALIGN: Int = 8
 
         /** Global counter for assigning aligned indices. */
-        @OptIn(ExperimentalAtomicApi::class)
-        private val counter: AtomicLong = AtomicLong(ALIGN.toLong())
+        private var counter: Long = ALIGN.toLong()
 
         /** Global registry mapping index -> AValueHeader. */
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
 
+        /** Lock for thread-safe index allocation. */
+        private val lock = ReentrantLock()
+
         /** Allocate the next aligned index. */
-        @OptIn(ExperimentalAtomicApi::class)
-        private fun nextIndex(): Long = counter.fetchAndAdd(ALIGN.toLong())
+        private fun nextIndex(): Long = lock.withLock {
+            val idx = counter
+            counter += ALIGN
+            idx
+        }
 
         /** Look up an AValueHeader by its index. */
         fun fromIndex(index: Long): AValueHeader {
@@ -142,19 +129,16 @@ class AValueHeader(
     // #[inline]
     // pub(crate) fn payload_ptr(&self) -> StarlarkValueRawPtr
     fun payloadPtr(): StarlarkValueRawPtr {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/Repr.kt
-=======
         // In Rust, this does pointer arithmetic from the header to the payload
         // area in contiguous arena memory. In Kotlin, the StarlarkValue is stored
         // in the vtable since there's no raw memory layout.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/Repr.kt
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
     // pub(crate) unsafe fn payload<'v, T: StarlarkValue<'v>>(&self) -> &T
     @Suppress("UNCHECKED_CAST")
     fun <T : StarlarkValue> payload(): T {
-        return payloadPtr().ptr as T
+        return payloadPtr().valueRef()
     }
 
     // pub(crate) unsafe fn unpack_value<'v>(&'v self, heap_kind: HeapKind) -> Value<'v>
@@ -173,12 +157,9 @@ class AValueHeader(
     // pub(crate) unsafe fn as_repr<'v, T: StarlarkValue<'v>>(&self) -> &AValueRepr<T>
     @Suppress("UNCHECKED_CAST")
     internal fun <T> asRepr(): AValueRepr<T> {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/Repr.kt
-=======
         // In Rust, this casts the header pointer to an AValueRepr pointer.
         // In Kotlin, the AValueRepr that owns this header is looked up
         // through the repr registry using the header's index.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/Repr.kt
         val repr = reprRegistry[index]
         check(repr != null) { "asRepr: header index $index" }
         return repr as AValueRepr<T>
@@ -243,11 +224,8 @@ class AValueRepr<T>(
 
     // pub(crate) fn offset_of_payload() -> usize
     fun offsetOfPayload(): Int {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/Repr.kt
-=======
         // In Rust, this is the byte offset of payload within the repr struct.
         // In Kotlin, we simulate with the header's conceptual size.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/Repr.kt
         return AValueHeader.ALIGN
     }
 

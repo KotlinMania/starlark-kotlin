@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Traits.kt
-// port-lint: source values/types/dict/traits.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/traits.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Traits.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,19 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Traits.kt
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.AllocFrozenValue
-import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.UnpackValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark.Either
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.AllocFrozenValue
@@ -47,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.StarlarkTypeRepr
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Traits.kt
 
 // SmallMap
 

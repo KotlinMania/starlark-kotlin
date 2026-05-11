@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Complex.kt
-// port-lint: source values/layout/complex.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 // port-lint: source src/values/layout/complex.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Complex.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -40,9 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.values.trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import kotlin.reflect.KClass
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Complex.kt
-/** Value which is either a complex mutable value or a frozen value. */
-=======
 /**
  * Value which is either a complex mutable value or a frozen value.
  *
@@ -57,7 +49,6 @@ import kotlin.reflect.KClass
 // #[derive(Copy_, Clone_, Dupe_, Allocative)]
 // pub struct ValueTypedComplex<'v, T>(Value<'v>, PhantomData<T>)
 // where T: ComplexValue<'v>, T::Frozen: StarlarkValue<'static>;
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Complex.kt
 class ValueTypedComplex<T : ComplexValue, F : StarlarkValue> @PublishedApi internal constructor(
     // Mutable: tracer.trace(&mut self.0) may update the pointer during GC.
     @PublishedApi internal var value: Value,

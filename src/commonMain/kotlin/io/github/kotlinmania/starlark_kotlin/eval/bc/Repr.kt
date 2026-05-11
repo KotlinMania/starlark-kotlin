@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Repr.kt
-// port-lint: source eval/bc/repr.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 // port-lint: source src/eval/bc/repr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Repr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,16 +23,12 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 import kotlin.reflect.KClass
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Repr.kt
-internal const val BC_INSTR_ALIGN: Int = 2
-=======
 /**
  * In Rust, instructions are 8-byte aligned in a raw byte buffer.
  * In Kotlin, instructions are stored as 2 list elements (header + arg),
  * so the stride is 2.
  */
 const val BC_INSTR_ALIGN: Int = 2
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Repr.kt
 
 /** Instruction header. */
 class BcInstrHeader(
@@ -70,12 +61,6 @@ class BcInstrRepr<I : BcInstr>(
             )
         }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Repr.kt
-        fun assertAlign(instrClass: KClass<out BcInstr<*>>) {
-        }
-
-        fun sizeOf(instrClass: KClass<out BcInstr<*>>): Int {
-=======
         fun assertAlign(instrClass: KClass<out BcInstr>) {
             // In Rust this checks mem::align_of and mem::size_of against BC_INSTR_ALIGN.
             // In Kotlin/Multiplatform there is no direct equivalent of repr(C) alignment,
@@ -91,7 +76,6 @@ class BcInstrRepr<I : BcInstr>(
             // In Rust this calls assert_align() then returns mem::size_of::<BcInstrRepr<I>>().
             // In Kotlin there is no direct equivalent; returns a nominal value.
             assertAlign(instrClass)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Repr.kt
             return BC_INSTR_ALIGN
         }
     }

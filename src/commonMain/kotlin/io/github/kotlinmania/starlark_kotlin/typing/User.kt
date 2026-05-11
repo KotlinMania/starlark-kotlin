@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/User.kt
-// port-lint: source typing/user.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/user.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/User.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,21 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/User.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.types.TypeInstanceId
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/User.kt
 
 // #[derive(Debug, thiserror::Error)]
 // enum TyUserError

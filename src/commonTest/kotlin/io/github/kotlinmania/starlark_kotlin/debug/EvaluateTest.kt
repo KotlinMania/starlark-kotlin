@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/EvaluateTest.kt
-// port-lint: source tests:src/debug/evaluate.rs
-package io.github.kotlinmania.starlark.debug
-=======
 // port-lint: tests src/debug/evaluate.rs
 package io.github.kotlinmania.starlark_kotlin.debug
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/EvaluateTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -12,11 +7,7 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/EvaluateTest.kt
- * you may not import this file except in compliance with the License.
-=======
  * you may not use this file except in compliance with the License.
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/EvaluateTest.kt
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,15 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/EvaluateTest.kt
-import kotlin.test.Test
-
-class EvaluateTest {
-
-    @Test
-    fun testDebugEvaluate() {
-        io.github.kotlinmania.starlark.debug.testDebugEvaluate()
-=======
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.isWasm
@@ -111,6 +93,5 @@ def bar(y):
 """,
         )
         a.pass("load('test', 'bar'); assert_eq(bar(4), 4 + 7 + 2)")
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/EvaluateTest.kt
     }
 }

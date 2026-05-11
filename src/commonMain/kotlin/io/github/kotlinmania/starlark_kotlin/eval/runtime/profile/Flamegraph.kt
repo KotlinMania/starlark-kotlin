@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Flamegraph.kt
-// port-lint: source eval/runtime/profile/flamegraph.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph
-=======
 // port-lint: source src/eval/runtime/profile/flamegraph.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Flamegraph.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

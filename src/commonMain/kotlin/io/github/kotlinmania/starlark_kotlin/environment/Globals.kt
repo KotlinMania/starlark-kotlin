@@ -132,6 +132,7 @@ class Globals internal constructor(
     internal fun getOwned(name: String): OwnedFrozenValue? {
         val v = getFrozen(name) ?: return null
         // Safety: We know the heap this is allocated in.
+        // In Kotlin, FrozenHeapRef is already a reference type (no dupe needed).
         return OwnedFrozenValue(heap(), v)
     }
 
@@ -260,13 +261,9 @@ class GlobalsBuilder private constructor(
         namespaceFields.add(SmallMap.new())
         f(this)
         val fields = namespaceFields.removeLast()
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/environment/Globals.kt
-        val stringKeyFields = SmallMap.new<String, MaybeDocHiddenValue<FrozenValue>>()
-=======
         // Convert SmallMap<FrozenStringValue, GlobalValue> to SmallMap<String, GlobalValue>
         // because NamespaceGen<V> uses String keys in the Kotlin port.
         val stringKeyFields = SmallMap.new<String, GlobalValue>()
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/environment/Globals.kt
         for ((k, v) in fields) {
             stringKeyFields.insert(k.asStr(), v)
         }

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Addr.kt
-// port-lint: source eval/bc/addr.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 // port-lint: source src/eval/bc/addr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Addr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -70,27 +65,20 @@ data class BcAddr(val value: UInt) : Comparable<BcAddr> {
     operator fun plus(rhs: UInt): BcAddr {
         return BcAddr(this.value + rhs)
     }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Addr.kt
-=======
 
     // impl AddAssign<u32> for BcAddr
     // Note: BcAddr is immutable in Kotlin (data class), so no += operator.
     // Use reassignment: addr = addr + rhs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Addr.kt
 }
 
 /**
  * Valid pointer range of bytecode.
  * Used for debugging assertions. This object is not created in release mode.
  */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Addr.kt
-internal data class BcPtrRange(
-=======
 // #[derive(Copy, Clone, Dupe, Debug, PartialEq)]
 // pub(crate) struct BcPtrRange
 data class BcPtrRange(
     // start: *const u8,
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Addr.kt
     val start: Int,
     /** Length in bytes. */
     // len: usize,
@@ -126,10 +114,6 @@ data class BcPtrRange(
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Addr.kt
-/** Pointer to an instruction in memory. */
-internal data class BcPtrAddr(
-=======
 /**
  * Pointer to an instruction in memory.
  *
@@ -139,7 +123,6 @@ internal data class BcPtrAddr(
 // pub(crate) struct BcPtrAddr<'b>
 data class BcPtrAddr(
     // ptr: *const u8
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Addr.kt
     val offset: Int,
     /** When assertions enabled, we validate the pointer is in this range. */
     // range: IfDebug<BcPtrRange>

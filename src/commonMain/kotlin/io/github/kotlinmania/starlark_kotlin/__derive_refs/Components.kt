@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/deriverefs/Components.kt
-// port-lint: source __derive_refs/components.rs
-package io.github.kotlinmania.starlark.deriverefs
-=======
 // port-lint: source src/__derive_refs/components.rs
 package io.github.kotlinmania.starlark_kotlin.__derive_refs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/__derive_refs/Components.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

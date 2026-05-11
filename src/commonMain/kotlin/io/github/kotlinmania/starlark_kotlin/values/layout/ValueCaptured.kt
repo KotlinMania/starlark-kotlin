@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/ValueCaptured.kt
-// port-lint: source values/layout/value_captured.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 
 // port-lint: source src/values/layout/value_captured.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/ValueCaptured.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

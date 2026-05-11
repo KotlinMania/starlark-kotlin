@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/Freeze.kt
-// port-lint: source tests/derive/freeze.rs
-package io.github.kotlinmania.starlark.tests.derive
-=======
 // port-lint: tests src/docs/tests.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.docs.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Tests.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

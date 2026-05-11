@@ -26,44 +26,6 @@ package io.github.kotlinmania.starlark_kotlin.environment
  * all values from this environment become immutable.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/environment/Modules.kt
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlark.docs.DocItem
-import io.github.kotlinmania.starlark.docs.DocModule
-import io.github.kotlinmania.starlark.docs.DocString
-import io.github.kotlinmania.starlark.docs.DocStringKind
-import io.github.kotlinmania.starlark.docs.fromDocstring
-import io.github.kotlinmania.starlark.eval.evalModule
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocList
-import kotlin.time.Duration
-import kotlin.time.TimeSource
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark.values.layout.heap.profile.RetainedHeapProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
-import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.values.types.list.ListRef
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.syntax.ast.Visibility
-import io.github.kotlinmania.starlark.eval.compiler.postFreeze
-import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.EnvironmentError
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.docs.DocItem
@@ -94,7 +56,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark_kotlin.errors.didYouMean
 import io.github.kotlinmania.starlark_kotlin.EnvironmentError
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/environment/Modules.kt
 
 /**
  * #[derive(Debug, thiserror::Error)]

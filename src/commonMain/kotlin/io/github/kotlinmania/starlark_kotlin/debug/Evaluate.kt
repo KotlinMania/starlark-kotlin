@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Evaluate.kt
-// port-lint: source debug/evaluate.rs
-package io.github.kotlinmania.starlark.debug
-=======
 // port-lint: source src/debug/evaluate.rs
 package io.github.kotlinmania.starlark_kotlin.debug
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Evaluate.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -115,83 +110,3 @@ fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
 
     return res
 }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Evaluate.kt
-
-// Tests
-
-private fun debugger(builder: GlobalsBuilder) {
-    fun debugEvaluate(code: String, eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): io.github.kotlinmania.starlark.values.layout.Value {
-        val ast = AstModule.parse("interactive", code, Dialect.AllOptionsInternal).getOrThrow()
-        return eval.evalStatements(ast).getOrThrow()
-    }
-
-    builder.setFunction("debug_evaluate") { args, eval ->
-        debugEvaluate(args.positional<String>(0), eval)
-    }
-}
-
-internal fun testDebugEvaluate() {
-    if (isWasm()) {
-        return
-    }
-
-    val a = Assert()
-    a.disableStaticTypechecking()
-    a.globalsAdd(::debugger)
-    val check = """
-assert_eq(debug_evaluate("1+2"), 3)
-x = 10
-assert_eq(debug_evaluate("x"), 10)
-assert_eq(debug_evaluate("x = 5"), None)
-assert_eq(x, 5)
-y = [20]
-debug_evaluate("y.append(30)")
-assert_eq(y, [20, 30])
-"""
-    // Check evaluation works at the root
-    a.pass(check)
-    // And inside functions
-    a.pass(
-        "def local():\n" +
-            check.lines().joinToString("\n") { "    $it" } +
-            "\nlocal()",
-    )
-
-    // Check we get the right stack frames
-    a.pass(
-        """
-def foo(x, y, z):
-    return bar(y)
-def bar(x):
-    return debug_evaluate("x")
-assert_eq(foo(1, 2, 3), 2)
-""",
-    )
-
-    // Check we can access module-level and globals
-    a.pass(
-        """
-x = 7
-def bar(y):
-    return debug_evaluate("x + y")
-assert_eq(bar(4), 4 + 7)
-""",
-    )
-
-    // Check module-level access works in imported modules
-    a.module(
-        "test",
-        """
-x = 7
-z = 2
-def bar(y):
-    assert_eq(x, 7)
-    debug_evaluate("x = 20")
-    assert_eq(x, 7) # doesn't work for frozen variables
-    return debug_evaluate("x + y + z")
-""",
-    )
-    a.pass("load('test', 'bar'); assert_eq(bar(4), 4 + 7 + 2)")
-}
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Evaluate.kt

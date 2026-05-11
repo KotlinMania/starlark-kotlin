@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Repr.kt
-// port-lint: source values/types/string/repr.rs
-package io.github.kotlinmania.starlark.values.types.string
-=======
 // port-lint: source src/values/types/string/repr.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Repr.kt
 
 import io.github.kotlinmania.starlark_kotlin.unlikely
 
@@ -40,25 +35,16 @@ import io.github.kotlinmania.starlark_kotlin.unlikely
  */
 @Suppress("UNUSED")
 private fun <V : Vector> chunkNonAsciiOrNeedEscape(chunk: V): Boolean {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Repr.kt
-    fun or4(a: Vector, b: Vector, c: Vector, d: Vector): Vector {
-        val ab = a.or(b)
-        val cd = c.or(d)
-        return ab.or(cd)
-    }
-
-=======
     /**
      * Combine four vectors with OR operation.
      */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Repr.kt
     // Note `cmplt` is signed comparison.
     val anyControlOrNonAscii = chunk.cmplt(chunk.splat(32))
     val any7f = chunk.cmpeq(chunk.splat(0x7f.toByte()))
     val anyDoubleQuote = chunk.cmpeq(chunk.splat('"'.code.toByte()))
     val anyBackslash = chunk.cmpeq(chunk.splat('\\'.code.toByte()))
 
-    val needEscape = or4(anyControlOrNonAscii, any7f, anyDoubleQuote, anyBackslash)
+    val needEscape = anyControlOrNonAscii.or(any7f).or(anyDoubleQuote).or(anyBackslash)
     return needEscape.movemask() != 0u
 }
 
@@ -183,20 +169,6 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
     /**
      * SIMD-optimized ASCII loop.
      *
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Repr.kt
-     * The Rust upstream uses portable SIMD with an unaligned vector store via
-     * `push_vec_tail` to handle the trailing partial chunk. KMP commonMain has
-     * no portable SIMD; this falls back to the byte-at-a-time loop. The
-     * upstream `push_vec_tail` helper has no Kotlin call site in this
-     * fallback and is intentionally not ported — it would be unreachable code.
-     *
-     * ```text
-     * buffer:   [       buffer.len         |  buffer rem capacity   ]
-     * vector:              [  overwriting  |  tail_len  ]
-     * ```
-     */
-    fun <V : Vector> loopAsciiSimd(value: String, buffer: StringBuilder) {
-=======
      * Note: This function is currently not used because the Kotlin port
      * doesn't have SIMD support yet. The SIMD path in the switch below
      * is not enabled, so this function exists for future use.
@@ -214,7 +186,6 @@ internal fun stringRepr(str: String, buffer: StringBuilder) {
         // - Bails out to loopAscii if any character needs escaping
         //
         // For now, we just delegate to the non-SIMD version.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Repr.kt
         loopAscii(value, buffer)
     }
 

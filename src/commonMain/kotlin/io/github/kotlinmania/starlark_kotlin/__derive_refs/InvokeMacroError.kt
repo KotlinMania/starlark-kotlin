@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/deriverefs/InvokeMacroError.kt
-// port-lint: source __derive_refs/invoke_macro_error.rs
-package io.github.kotlinmania.starlark.deriverefs
-=======
 // port-lint: source src/__derive_refs/invoke_macro_error.rs
 package io.github.kotlinmania.starlark_kotlin.__derive_refs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/__derive_refs/InvokeMacroError.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,9 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.__derive_refs
 
 import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/deriverefs/InvokeMacroError.kt
-/** Trait used to convert error returned from native function into [StarlarkError]. */
-=======
 // pub trait InvokeMacroError {
 //     fn into_starlark_error(self) -> crate::Error;
 // }
@@ -38,7 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
  * In Kotlin, this is an interface that throwables can implement to provide
  * custom conversion to a Starlark error.
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/__derive_refs/InvokeMacroError.kt
 interface InvokeMacroError {
     fun intoStarlarkError(): StarlarkError
 }

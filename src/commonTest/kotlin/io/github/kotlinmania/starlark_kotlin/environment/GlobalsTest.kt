@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/environment/GlobalsTest.kt
-// port-lint: source tests:src/environment/globals.rs
-package io.github.kotlinmania.starlark.environment
-=======
 // port-lint: tests src/environment/globals.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.environment
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/environment/GlobalsTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -34,11 +29,6 @@ class GlobalsTest {
 
     // Rust: fn test_send_sync() where Globals: Send + Sync {}
     // Not applicable in Kotlin - all objects are thread-shareable by default.
-
-    private fun registerFoo(builder: GlobalsBuilder) {
-        fun foo(): Result<Int> = Result.success(1)
-        builder.setFunction("foo") { _, _ -> foo() }
-    }
 
     @Test
     fun testDocHidden() {

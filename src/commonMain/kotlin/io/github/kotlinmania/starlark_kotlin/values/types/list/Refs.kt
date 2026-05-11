@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Refs.kt
-// port-lint: source values/types/list/refs.rs
-package io.github.kotlinmania.starlark.values.types.list
-=======
 // port-lint: source src/values/types/list/refs.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Refs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -99,16 +94,12 @@ class ListRef private constructor(
     /** Get the element at the given index, or null if out of bounds. */
     operator fun get(index: Int): Value? = elements.getOrNull(index)
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Refs.kt
-    /** Get a sublist for the given range, or null if the range is invalid. */
-=======
     /**
      * Get a sublist for the given range, or null if the range is invalid.
      *
      * In Rust, this delegates to slice indexing: `this.get(start..end)`.
      * In Kotlin, we clamp and return a subList.
      */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Refs.kt
     fun get(range: IntRange): List<Value>? {
         val start = maxOf(0, range.first)
         val end = minOf(elements.size, range.last + 1)
@@ -201,9 +192,6 @@ class FrozenListRef private constructor(
     override fun toString(): String = displayList(elements.map { it.toValue() })
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Refs.kt
-/** Materialize a [ListRef] as the underlying [List]. */
-=======
 // -- Deref implementations (structural equivalents) ---------------------------
 
 /**
@@ -213,7 +201,6 @@ class FrozenListRef private constructor(
  * be used directly as a slice. In Kotlin, the equivalent is calling
  * [ListRef.asList] or [ListRef.content].
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Refs.kt
 object ListRefDeref {
     /** The target type is `List<Value>`. */
     fun deref(ref: ListRef): List<Value> = ref.content()

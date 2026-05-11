@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/compiler/Compr.kt
-// port-lint: source eval/bc/compiler/compr.rs
-package io.github.kotlinmania.starlark.eval.bc.compiler.compr
-=======
 // port-lint: source src/eval/bc/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/compiler/Compr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,12 +1,6 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/OrInstrumentation.kt
-// port-lint: source eval/runtime/profile/or_instrumentation.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-=======
 // port-lint: source src/eval/runtime/profile/or_instrumentation.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/OrInstrumentation.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

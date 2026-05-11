@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/none/Globals.kt
-// port-lint: source values/types/none/globals.rs
-package io.github.kotlinmania.starlark.values.types.none
-=======
 // port-lint: source src/values/types/none/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.none
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/none/Globals.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

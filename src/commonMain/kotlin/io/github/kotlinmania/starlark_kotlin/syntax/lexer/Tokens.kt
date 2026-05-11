@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/lexer/Tokens.kt
-// port-lint: source ../starlark_syntax/src/lexer.rs
-package io.github.kotlinmania.starlark.syntax.lexer
-=======
 // port-lint: source src/lexer.rs
 package io.github.kotlinmania.starlark_kotlin.syntax.lexer
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/lexer/Tokens.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

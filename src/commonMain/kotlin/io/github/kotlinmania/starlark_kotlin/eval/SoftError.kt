@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/SoftError.kt
-// port-lint: source eval/soft_error.rs
-package io.github.kotlinmania.starlark.eval
-=======
 // port-lint: source src/eval/soft_error.rs
 package io.github.kotlinmania.starlark_kotlin.eval
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/SoftError.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

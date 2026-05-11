@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/Trace.kt
-// port-lint: source tests/derive/trace.rs
-package io.github.kotlinmania.starlark.tests.derive
-=======
 // port-lint: source src/values/thin_box_slice_frozen_value.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/ThinBoxSliceFrozenValue.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

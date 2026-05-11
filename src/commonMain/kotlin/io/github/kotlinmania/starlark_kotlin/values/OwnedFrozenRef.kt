@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/OwnedFrozenRef.kt
-// port-lint: source values/owned_frozen_ref.rs
-package io.github.kotlinmania.starlark.values.ownedfrozenref
-=======
 // port-lint: source src/values/owned_frozen_ref.rs
 package io.github.kotlinmania.starlark_kotlin.values.owned_frozen_ref
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/OwnedFrozenRef.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

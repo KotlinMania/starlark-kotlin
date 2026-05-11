@@ -95,8 +95,10 @@ In parity mode, every Kotlin file translated from a Rust source file starts with
 the repo's `port-lint` source header before the package line:
 
 ```kotlin
-// port-lint: source <path-relative-to-upstream-root>
-package <repo package>
+// port-lint: source <relative-path-to-rust-file>
+package io.github.kotlinmania.starlark_kotlin.<module>
+
+// Rest of file...
 ```
 
 Use the path convention from `CLAUDE.md` or `.ast_distance_config.json`. Do not
@@ -121,105 +123,15 @@ The translation direction is always Rust -> Kotlin.
 | Packages | lowercase, no underscores, no camelCase |
 
 Examples:
+```kotlin
+// port-lint: source src/environment/module.rs
+package io.github.kotlinmania.starlark_kotlin.environment
 
-| Rust source | Kotlin port |
-|---|---|
-| `fn first_key_value` | `fun firstKeyValue` |
-| `let len_underflow` | `val lenUnderflow` |
-| `const FOO_BAR: usize = 5` | `const val FOO_BAR: Int = 5` |
-| `src/foo_bar.rs` | `FooBar.kt` |
+// port-lint: source src/values/layout.rs
+package io.github.kotlinmania.starlark_kotlin.values
 
-## Rust -> Kotlin mapping defaults
-
-Repo-local rules in `CLAUDE.md` may narrow these, but do not invent new shapes
-without documenting the rule in project docs.
-
-| Rust | Kotlin |
-|---|---|
-| `Option<T>` | `T?` |
-| `Result<T, E>` | `Result<T>` when `E` is not modeled; sealed result or exception when error data/behavior matters |
-| `Vec<T>` | `MutableList<T>` / `List<T>` |
-| `HashMap<K, V>` | `MutableMap<K, V>` / `Map<K, V>` |
-| `HashSet<T>` | `MutableSet<T>` / `Set<T>` |
-| `BTreeMap<K, V>` | `BTreeMap`/sorted map from `btree-kotlin`; do not use JVM-only `TreeMap` in common code |
-| `&T`, `&mut T` | regular Kotlin reference; mutate through the owning object |
-| `*const T`, `*mut T`, `NonNull<T>` | regular Kotlin reference unless native interop is explicitly required |
-| `Box<T>` | bare `T` |
-| `Rc<T>`, `Arc<T>` | bare `T` reference unless shared concurrency semantics must be modeled |
-| `Cell<T>`, `RefCell<T>` | `var`; use multiplatform atomics only for real shared mutation |
-| `PhantomData<T>` | drop field; encode variance with `in` / `out` when needed |
-| `MaybeUninit<T>` | nullable slot/array plus local invariant, or a typed initialization helper |
-| `ManuallyDrop<T>` | omit unless drop side effects are observable |
-| `mem::replace`, `take_mut` | read old value, compute new value, assign back; return side result explicitly |
-| `ptr::read`, `ptr::write` | direct field/slot access |
-| `ptr::drop_in_place` | omit unless observable drop behavior is being modeled |
-| `mem::transmute` | verified cast or explicit conversion; no shim that hides the invariant |
-| `dyn Trait` | interface reference |
-| trait | `interface` |
-| trait default method with `where` | extension function carrying its own bound |
-| class/impl generic bound such as `K: Ord` | `Comparable` bound or `Comparator<in K>` field/dispatch helper |
-| struct with fields | `data class` when value semantics fit; otherwise `class` |
-| enum with payload variants | `sealed class` / `sealed interface` |
-| `pub fn foo()` | `fun foo()`; public is default |
-| `pub(crate)` / `pub(super)` | `internal` |
-| private `fn foo()` | `private fun foo()` |
-| `let` / `let mut` | `val` / `var` |
-| `match` | `when` |
-| `if let Some(v) = x` | nullable handling such as `x?.let { v -> ... }` |
-| `?` operator | explicit early return, `Result` transform, or throw according to the mapped error shape |
-| `unsafe { ... }` | regular Kotlin code; keep only upstream comments translated to Kotlin-facing terms |
-| `proc-macro` derive | explicit Kotlin codegen/runtime API; never silently elide behavior |
-| `pub type X = Y` | `typealias X = Y` only when upstream really defines a type alias and it is not a re-export bridge |
-| `impl Iterator for X` | class implementing `Iterator<T>` or `MutableIterator<T>` as appropriate |
-
-## Required `mod.rs` / re-export workflow
-
-Pure upstream `mod.rs` re-export glue must not become a Kotlin central-alias API.
-This rule is required.
-
-When an upstream Rust `mod.rs` only re-exports something that actually lives
-elsewhere, such as `pub use <crate-path>::<Name>;`, often under a different
-name:
-
-1. Identify the original symbol's fully qualified upstream path and the exported
-   name.
-2. Search dependent Kotlin callers across the kotlinmania monorepo. A caller is
-   a Kotlin file in another `*-kotlin` repo with a `tmp/` source tree and a
-   Cargo.toml depending on this crate's Rust counterpart. Search for direct
-   imports, wildcard imports plus body usage, and fully qualified references.
-3. Rewrite callers to reference the original/defining Kotlin symbol directly.
-   If the call site must keep the old spelling, use Kotlin import aliasing:
-   `import <defining.package.Symbol> as <Name>`.
-4. Never bridge a pure re-export with a Kotlin `typealias` at a root or
-   re-export package.
-5. Keep `Mod.kt` or the equivalent package file as a tracking ledger when the
-   upstream file carries module docs or re-export history. It should contain the
-   translated upstream module-level comments and literal quoted `pub use` lines,
-   for example `// pub use crate::lib::result::Result;`.
-6. Each time a caller is migrated off the re-export, append that caller's
-   absolute path under a `// Callers migrated:` ledger. Append; do not delete
-   migration history.
-7. Once all callers are migrated, remove any temporary bridge alias. The ledger
-   file remains as the record of the migration.
-
-If a `mod.rs` contains real implementation rather than pure re-export glue,
-translate the implementation into the appropriate Kotlin file/package shape
-named by repo docs.
-
-## Trait defaults with `where` clauses
-
-Rust traits often put stricter bounds on a default method than on the trait:
-
-```rust
-pub trait RangeBounds<T> {
-    fn start_bound(&self) -> Bound<&T>;
-    fn end_bound(&self) -> Bound<&T>;
-
-    fn is_empty(&self) -> bool
-    where
-        T: PartialOrd,
-    { /* default body */ }
-}
+// port-lint: source src/eval/runtime/evaluator.rs
+package io.github.kotlinmania.starlark_kotlin.eval.runtime
 ```
 
 Do not tighten the whole Kotlin interface to `T : Comparable<T>`. Do not make
@@ -253,38 +165,199 @@ internal fun <K, Q> search(key: Q, compare: (K, Q) -> Int): Hit {
     // heavy lifting
 }
 
-internal fun <K, Q : Comparable<Q>> search(key: Q): Hit where K : Comparable<Q> =
-    search(key) { stored, query -> stored.compareTo(query) }
+### 7. TODO Policy (IMPORTANT)
+
+**DO NOT add TODO comments without explicit user approval.**
+
+- If you cannot implement something fully, ASK the user first
+- Research Rust documentation before adding TODOs
+- Look for similar patterns in the codebase
+- Prefer complete implementations or approved placeholder strategies
+- TODOs should only be added when the user explicitly approves them
+
+## Kotlin-Specific Guidelines
+
+### CRITICAL: Kotlin Multiplatform - NO JAVA
+
+**This is a Kotlin Multiplatform project targeting JVM, Native, and JS.**
+
+**ABSOLUTELY NO Java-specific code is allowed in commonMain:**
+- ❌ NO `import java.*`
+- ❌ NO `java.util.concurrent.*`
+- ❌ NO `java.io.*`
+- ❌ NO `java.nio.*`
+- ❌ NO JVM-only APIs
+
+**Use Kotlin Multiplatform alternatives:**
+- ✅ `kotlin.collections.*` for collections
+- ✅ `kotlinx.atomicfu` for atomic operations (tree-sitter parsers already integrated)
+- ✅ `kotlinx.coroutines` for concurrency
+- ✅ `expect`/`actual` for platform-specific implementations
+- ✅ Pure Kotlin standard library APIs
+
+**Tree-sitter parsers are already available** - no need to implement parsers yourself.
+
+### Naming Conventions
+
+- **Files:** Match Rust file names but use PascalCase for Kotlin files (e.g., `module.rs` → `Module.kt`)
+- **Packages:** Mirror Rust crate structure (e.g., `starlark::environment` → `io.github.kotlinmania.starlark_kotlin.environment`)
+- **Types:** PascalCase (same as Rust)
+- **Functions/Variables:** camelCase (Rust snake_case → Kotlin camelCase)
+- **Constants:** UPPER_SNAKE_CASE (same as Rust)
+
+### Error Handling
+
+- Rust `Result<T, E>` → Kotlin `Result<T>` with appropriate exception types
+- Consider using Kotlin's built-in `runCatching` where appropriate
+- Preserve error messages and context from Rust
+
+### Collections
+
+- Rust `Vec<T>` → Kotlin `MutableList<T>` or `List<T>` (prefer immutable when possible)
+- Rust `HashMap<K, V>` → Kotlin `MutableMap<K, V>` or `Map<K, V>`
+- Use `kotlinx-collections-immutable` for persistent collections where Rust uses immutable structures
+
+### Concurrency
+
+- Rust `Arc<T>` / `Mutex<T>` → Use Kotlin coroutines and atomic references where appropriate
+- Rust async → Kotlin `suspend fun`
+- Be mindful of thread safety - Kotlin Multiplatform has different concurrency models per platform
+
+### Traits vs Interfaces
+
+- Rust trait → Kotlin interface (with default implementations where appropriate)
+- Rust trait objects (`Box<dyn Trait>`) → Kotlin interface references
+- Rust trait bounds → Kotlin generic constraints (`where T : SomeTrait`)
+
+### Macros
+
+- Rust procedural macros cannot be directly ported
+- Implement equivalent functionality using Kotlin's language features:
+  - Code generation if needed
+  - Inline functions
+  - Delegation
+  - Annotation processing (JVM-only)
+
+## Testing
+
+- Port Rust tests to Kotlin tests
+- Maintain test structure and organization
+- Use `kotlin.test` for multiplatform test compatibility
+- Snapshot tests: Consider using equivalents to Rust's `insta` crate
+
+## Building and Tooling
+
+### Build Commands
+
+```bash
+# Build all targets
+./gradlew build
+
+# Run tests
+./gradlew test
+
+# Check specific target
+./gradlew macosArm64Test
+./gradlew jvmTest
 ```
 
-## Other recurring porting patterns
+### Task Management Workflow (REQUIRED)
 
-- `Ordering::{Less, Equal, Greater}` maps to Kotlin comparator `Int` convention:
-  negative, zero, positive. Do not introduce an `Ordering` enum unless repo docs
-  require it.
-- Rust `Iterator::next() -> Option<T>` maps to Kotlin `hasNext()` plus `next()`.
-  Cache the next value once; do not advance twice.
-- `ExactSizeIterator` has no Kotlin equivalent. Pass the known size explicitly
-  when an algorithm needs it.
-- `FusedIterator` is implicit: after `hasNext()` becomes false, keep it false.
-- Rust `Peekable<I>` maps to a small private one-element lookahead adapter.
-- Sum enums used only to tag iterator side/source can map to nullable slots plus
-  an explicit discriminator enum; the discriminator is the source of truth.
-- Same-name Rust impl methods that differ only by typestate marker often erase
-  to the same Kotlin/JVM signature. Use typed routers and distinct Kotlin names
-  for erased collisions; do not use `@JvmName`, JVM imports, unchecked casts, or
-  fake typealiases to force the Rust layout.
-- Most Rust `Drop` impls disappear under Kotlin GC. If upstream tests observe
-  drop/clone side effects, model them deterministically with narrow internal
-  hooks and prove the behavior with ported tests. Do not rely on GC timing.
-- Rust iterator `Clone` often has no Kotlin equivalent. Omit cloneability unless
-  behavior requires it; represent `Debug` as `toString()` when useful.
-- Rust trait specialization (`default fn`) has no direct Kotlin equivalent.
-  Prefer explicit dispatch helpers or documented runtime type checks at the
-  narrow call site.
-- Compile-time-incomplete files are acceptable only in early parity phases when
-  they contain no fake stubs and the missing dependencies are tracked. Missing
-  symbols are better than placeholder classes that conflict with the real port.
+**⚠️ IMPORTANT: Use the task system - DO NOT port files randomly!**
+
+The project uses a task assignment system to coordinate parallel porting work and prevent conflicts.
+
+#### Getting Your Next Task
+
+```bash
+./tools/ast_distance/ast_distance --assign tasks.json <your-agent-id>
+```
+
+This will:
+1. Assign you the highest-priority unassigned task
+2. Show you the source file path and target path
+3. Output complete porting instructions
+4. Lock the task to prevent other agents from taking it
+
+#### Completing a Task
+
+After porting a file:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json <source_qualified_name>
+```
+
+Example:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json layout.value
+```
+
+#### Releasing a Task (if blocked)
+
+If you cannot complete a task:
+```bash
+./tools/ast_distance/ast_distance --release tasks.json <source_qualified_name>
+```
+
+#### Viewing Task Status
+
+```bash
+./tools/ast_distance/ast_distance --tasks tasks.json
+```
+
+Shows pending, assigned, and completed tasks with priority rankings.
+
+#### ⚠️ WARNING: Do NOT Re-Initialize Tasks
+
+**NEVER run `--init-tasks` if `tasks.json` already exists!** This will overwrite all task assignments and progress. The task file is already initialized and managed.
+
+### Tracking Progress
+
+Use the built-in AST distance tool:
+
+```bash
+# Analyze overall porting progress
+./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
+
+# Check similarity of specific files
+./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
+
+# Find missing files ranked by importance
+./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
+
+# Scan for TODOs
+./tools/ast_distance/ast_distance --todos src
+
+# Run lint checks
+./tools/ast_distance/ast_distance --lint src
+```
+
+**Similarity Targets:**
+- `≥ 0.85` — Excellent port (aim for this)
+- `0.60–0.85` — Good port, may need refinement
+- `< 0.60` — Incomplete, needs more work
+
+## Code Style
+
+### Formatting
+
+- Use default Kotlin formatting (ktlint/IntelliJ defaults)
+- 4-space indentation
+- Max line length: 120 characters (flexible for readability)
+
+### Commenting
+
+- Only comment code that needs clarification
+- Do not add redundant comments
+- Translate meaningful Rust comments to Kotlin
+- Preserve algorithmic explanations and rationale
+
+### Prefer Kotlin Idioms
+
+- Use Kotlin's standard library when equivalent to Rust's
+- Leverage Kotlin's null safety instead of `Option<T>` where appropriate
+- Use data classes for simple structs
+- Use sealed classes for Rust enums with data
+- Use object for Rust unit structs with no data
 
 ## Dependencies
 

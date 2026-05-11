@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/avalues/Str.kt
-// port-lint: source values/layout/avalues/str_.rs
-package io.github.kotlinmania.starlark.values.layout.avalues.str
-=======
 // port-lint: source src/values/layout/avalues/str_.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/avalues/Str.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -147,12 +142,12 @@ internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue {
 /** Allocate prehashed string. */
 // pub fn alloc_str_hashed(&self, s: Hashed<&str>) -> FrozenStringValue
 fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
-    val constant = constantString(s.key())
+    val constant = constantString(s.key)
     if (constant != null) {
         return constant
     }
-    val bytes = s.key().encodeToByteArray()
-    return allocStrInit(bytes.size, s.hash()) { dst ->
+    val bytes = s.key.encodeToByteArray()
+    return allocStrInit(bytes.size, s.hash) { dst ->
         bytes.copyInto(dst)
     }
 }

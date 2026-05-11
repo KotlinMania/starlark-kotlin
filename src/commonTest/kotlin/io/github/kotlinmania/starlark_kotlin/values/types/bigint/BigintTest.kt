@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/bigint/BigintTest.kt
-// port-lint: source tests:src/values/types/bigint.rs
-package io.github.kotlinmania.starlark.values.types.bigint
-=======
 // port-lint: tests src/values/types/bigint.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.types.bigint
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/bigint/BigintTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

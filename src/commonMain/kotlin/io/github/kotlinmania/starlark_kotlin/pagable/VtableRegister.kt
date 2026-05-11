@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/pagable/VtableRegister.kt
-// port-lint: source pagable/vtable_register.rs
-package io.github.kotlinmania.starlark.pagable
-=======
 // port-lint: source src/pagable/vtable_register.rs
 package io.github.kotlinmania.starlark_kotlin.pagable
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/pagable/VtableRegister.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,8 +23,6 @@ import kotlin.reflect.KClass
 import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
 
 /**
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/pagable/VtableRegister.kt
-=======
  * In Rust, `register_avalue_simple_frozen!` is a macro that registers a frozen value type
  * for deserialization via the `inventory` crate (compile-time global registry).
  *
@@ -38,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
  */
 
 /**
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/pagable/VtableRegister.kt
  * Register a frozen value type for deserialization.
  *
  * Invoke this function for each frozen StarlarkValue type that needs to be
@@ -50,9 +42,9 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.AValueVTable
  */
 // macro_rules! register_avalue_simple_frozen
 fun registerAvalueSimpleFrozen(type: KClass<*>) {
-    submitVtable(
+    registerVTableEntry(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(type.qualifiedName ?: type.simpleName ?: type.toString()),
+            deserTypeId = DeserTypeId(type),
             vtable = AValueVTable.forType(type),
         )
     )
@@ -66,9 +58,9 @@ fun registerAvalueSimpleFrozen(type: KClass<*>) {
  */
 // macro_rules! register_special_avalue_frozen
 internal fun registerSpecialAvalueFrozen(starlarkValue: KClass<*>, avalue: KClass<*>) {
-    submitVtable(
+    registerVTableEntry(
         VTableRegistryEntry(
-            deserTypeId = DeserTypeId(starlarkValue.qualifiedName ?: starlarkValue.simpleName ?: starlarkValue.toString()),
+            deserTypeId = DeserTypeId(starlarkValue),
             vtable = AValueVTable.forType(avalue),
         )
     )

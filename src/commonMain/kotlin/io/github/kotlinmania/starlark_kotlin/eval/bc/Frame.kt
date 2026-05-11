@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-// port-lint: source eval/bc/frame.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 
 // port-lint: source src/eval/bc/frame.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -44,13 +39,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.ValueHolder
  * [ loop_indices | BcFrame | locals | stack ]
  *   BcFramePtr points here ^
  * ```
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-=======
  *
  * In Kotlin, we use safe arrays instead of raw pointer arithmetic.
  * Loop indices are stored in a separate [IntArray], and locals/stack
  * share a single [Array] of nullable [Value].
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
  */
 // #[repr(C)]
 // struct BcFrame<'v> {
@@ -67,14 +59,6 @@ internal class BcFrame(
     /** Max number of nested for loops. */
     val maxLoopDepth: LoopDepth,
 ) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-    /** `localCount` local slots followed by `maxStackSize` stack slots. */
-    val slots: Array<Value?> = arrayOfNulls(localCount + maxStackSize)
-
-    /** Loop iteration indices, stored separately. */
-    val loopIndices: IntArray = IntArray(maxLoopDepth.depth)
-
-=======
     /**
      * `localCount` local slots followed by `maxStackSize` stack slots.
      *
@@ -97,7 +81,6 @@ internal class BcFrame(
     // Not needed in Kotlin -- no raw pointer arithmetic.
 
     // fn frame_ptr(&mut self) -> BcFramePtr<'v>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
     fun framePtr(): BcFramePtr = BcFramePtr(this)
 
     // fn locals_mut(&mut self) -> &mut [Option<Value<'v>>]
@@ -106,13 +89,10 @@ internal class BcFrame(
         return slots
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-=======
     // fn locals_uninit(&mut self) -> &mut [MaybeUninit<Option<Value<'v>>>]
     // fn stack_uninit(&mut self) -> &mut [MaybeUninit<Value<'v>>]
     // Not needed in Kotlin -- arrays are initialized by the runtime.
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
     /**
      * Initialize frame after it was allocated.
      *
@@ -125,15 +105,12 @@ internal class BcFrame(
         for (i in 0 until localCount) {
             slots[i] = null
         }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-=======
 
         // In Kotlin, stack slots are already null from arrayOfNulls.
         // The Rust code writes junk bytes in debug mode to trigger memory errors
         // if the stack is used incorrectly. Kotlin's null default serves a similar
         // purpose: reading an uninitialized stack slot will produce null, which
         // will be caught by the non-null assertion in getBcSlot.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
     }
 
     /**
@@ -213,10 +190,6 @@ internal fun BcFrame.trace(tracer: Tracer) {
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-/** Pointer to a [BcFrame]. */
-internal class BcFramePtr internal constructor(
-=======
 /**
  * Pointer to a [BcFrame].
  *
@@ -228,7 +201,6 @@ internal class BcFramePtr internal constructor(
 //     slots_ptr: *mut Option<Value<'v>>,
 // }
 class BcFramePtr internal constructor(
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
     private var frame: BcFrame?,
 ) {
     companion object {
@@ -251,15 +223,12 @@ class BcFramePtr internal constructor(
     // pub(crate) fn is_inititalized(self) -> bool
     fun isInitialized(): Boolean = frame != null
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-=======
     // #[inline(always)]
     // fn frame<'a>(self) -> &'a BcFrame<'v>
     // fn frame_mut<'a>(self) -> &'a mut BcFrame<'v>
     // In Kotlin we simply access the non-null frame reference.
 
     // pub(crate) fn get_slot_slow(self, slot: LocalSlotIdCapturedOrNot) -> Option<Value<'v>>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
     fun getSlotSlow(slot: LocalSlotIdCapturedOrNot): Value? {
         val f = frame!!
         check(slot.index < f.localCount.toUInt())
@@ -340,9 +309,6 @@ internal fun BcFramePtr.trace(tracer: Tracer) {
     getFrame()?.trace(tracer)
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Frame.kt
-/** Allocate raw frame memory. */
-=======
 // #[inline(always)]
 // fn alloca_raw<'v, 'a, 'e, R>(
 //     eval: &mut Evaluator<'v, 'a, 'e>,
@@ -357,7 +323,6 @@ internal fun BcFramePtr.trace(tracer: Tracer) {
  * In Rust, this uses stack-like allocation via the evaluator's alloca.
  * In Kotlin, we simply construct a [BcFrame] on the heap.
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Frame.kt
 private fun <R> allocaRaw(
     eval: Evaluator,
     localCount: Int,

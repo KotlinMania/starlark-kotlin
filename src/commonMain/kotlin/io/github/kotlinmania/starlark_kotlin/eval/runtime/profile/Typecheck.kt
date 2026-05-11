@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Typecheck.kt
-// port-lint: source eval/runtime/profile/typecheck.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile
-=======
 // port-lint: source src/eval/runtime/profile/typecheck.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Typecheck.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

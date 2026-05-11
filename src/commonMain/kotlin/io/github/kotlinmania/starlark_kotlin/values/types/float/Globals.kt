@@ -1,15 +1,7 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/float/Globals.kt
-// port-lint: source values/types/float/globals.rs
-package io.github.kotlinmania.starlark.values.types.float
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark.typing.Ty
-=======
 // port-lint: source src/values/types/float/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.float
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/Globals.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

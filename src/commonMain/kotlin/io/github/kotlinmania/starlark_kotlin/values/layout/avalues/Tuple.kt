@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/avalues/Tuple.kt
-// port-lint: source values/layout/avalues/tuple.rs
-package io.github.kotlinmania.starlark.values.layout.avalues
-=======
 // port-lint: source src/values/layout/avalues/tuple.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/avalues/Tuple.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

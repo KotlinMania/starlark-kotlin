@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Types.kt
-// port-lint: source eval/compiler/types.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/types.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Types.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,30 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Types.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
-import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.StarlarkError
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
-import io.github.kotlinmania.starlark.values.types.list.allocList
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.constants.Constants
@@ -72,7 +43,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Types.kt
 
 // #[derive(Debug, thiserror::Error)]
 // enum TypesError

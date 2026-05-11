@@ -58,15 +58,6 @@ internal fun <T> iterFmtParamSpec(
         else -> null
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/params/Display.kt
-    return emptySequence<FmtParam<T>>()
-        .plus(posOnlyIter.asSequence().map { FmtParam.Regular(it) })
-        .plus(slash)
-        .plus(posNamed.asSequence().map { FmtParam.Regular(it) })
-        .plus(argsOrStar)
-        .plus(namedOnlyIter.asSequence().map { FmtParam.Regular(it) })
-        .plus(kwargsSeq)
-=======
     for (p in posOnlyIter) {
         yield(FmtParam.Regular(p))
     }
@@ -85,7 +76,6 @@ internal fun <T> iterFmtParamSpec(
     if (kwargs != null) {
         yield(FmtParam.Kwargs(kwargs))
     }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/params/Display.kt
 }
 
 /** What to print for unknown default/optional. */

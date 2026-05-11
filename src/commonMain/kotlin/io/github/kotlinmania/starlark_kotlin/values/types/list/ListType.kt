@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/ListType.kt
-// port-lint: source values/types/list/list_type.rs
-package io.github.kotlinmania.starlark.values.types.list
-=======
 // port-lint: source src/values/types/list/list_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/ListType.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

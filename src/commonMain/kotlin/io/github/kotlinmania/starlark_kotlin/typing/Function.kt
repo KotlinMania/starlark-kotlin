@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Function.kt
-// port-lint: source typing/function.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/function.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Function.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,15 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Function.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Function.kt
 
 /** Custom function typechecker. */
 // pub trait TyCustomFunctionImpl: Debug + Eq + Ord + Hash + Allocative + Send + Sync + 'static

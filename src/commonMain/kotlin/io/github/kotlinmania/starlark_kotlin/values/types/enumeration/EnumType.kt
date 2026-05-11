@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/enumeration/EnumType.kt
-// port-lint: source values/types/enumeration/enum_type.rs
-package io.github.kotlinmania.starlark.values.types.enumeration.enumtype
-=======
 // port-lint: source src/values/types/enumeration/enum_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.enumeration.enum_type
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/enumeration/EnumType.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

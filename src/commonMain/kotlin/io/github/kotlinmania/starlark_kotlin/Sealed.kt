@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Sealed.kt
-// port-lint: source sealed.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: source src/sealed.rs
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Sealed.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,12 +19,7 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Sealed.kt
-/** Marker for interfaces which should not be implemented outside of the module. */
-interface Sealed
-=======
 // Marker for traits which should not be implemented outside of the crate.
 // pub trait Sealed {}
 // Kotlin: sealed interface achieves the same — only this module can implement it.
 sealed interface Sealed
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Sealed.kt

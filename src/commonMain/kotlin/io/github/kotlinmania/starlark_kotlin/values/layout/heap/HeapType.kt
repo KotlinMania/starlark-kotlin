@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/HeapType.kt
-// port-lint: source values/layout/heap/heap_type.rs
-package io.github.kotlinmania.starlark.values.layout.heap
-=======
 // port-lint: source src/values/layout/heap/heap_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/HeapType.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -592,32 +587,3 @@ class Tracer internal constructor(
 
 /** Mutable holder for Value, used during tracing. */
 class ValueHolder(var value: Value)
-
-/**
- * Runtime regression guard verifying [FrozenHeapRef] survives transfer across
- * coroutine workers. Allocates a reference on one coroutine, ships it through
- * a [kotlinx.coroutines.channels.Channel] to a coroutine on a different
- * dispatcher worker, and verifies that an API call on the receiving side
- * yields the same observable. Throws if the type drifts to hold something
- * that breaks under cross-worker transfer.
- */
-internal fun testFrozenHeapRefSendSync() {
-    kotlinx.coroutines.runBlocking {
-        val heap = FrozenHeap.new()
-        val ref: FrozenHeapRef = heap.intoRef()
-        val expected = ref.allocatedBytes()
-
-        val channel = kotlinx.coroutines.channels.Channel<FrozenHeapRef>(1)
-        val received = this.async(kotlinx.coroutines.Dispatchers.Default) {
-            val r = channel.receive()
-            r.allocatedBytes()
-        }
-        this.launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(ref) }
-        val actual = received.await()
-        channel.close()
-
-        check(expected == actual) {
-            "FrozenHeapRef did not survive Channel round-trip: expected=$expected actual=$actual"
-        }
-    }
-}

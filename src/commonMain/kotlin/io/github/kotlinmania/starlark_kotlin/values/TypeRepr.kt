@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/TypeRepr.kt
-// port-lint: source values/type_repr.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: source src/values/type_repr.rs
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/TypeRepr.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -38,10 +33,9 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
 /**
  * Provides a starlark type representation, even if StarlarkValue is not implemented.
  *
- * # Sealed-class implementations
+ * # Derive
  *
- * `StarlarkTypeRepr` can be implemented on sealed classes whose subclasses each have a single
- * field, for example:
+ * There is `StarlarkTypeRepr` annotation for sealed classes, for example:
  *
  * ```
  * sealed class IntOrString : StarlarkTypeRepr {
@@ -52,18 +46,10 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
  *
  * It emits type `int | str`.
  *
- * This interface is useful in combination with [UnpackValue].
+ * This interface is useful in combination with `UnpackValue`.
  */
 interface StarlarkTypeRepr {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/TypeRepr.kt
-    /**
-     * Different Kotlin types representing the same Starlark type.
-     *
-     * For example, `Boolean` and `StarlarkBool` represent the same Starlark type `bool`.
-     */
-=======
     /** The representation of a type that a user would use verbatim in starlark type annotations. */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/TypeRepr.kt
     fun starlarkTypeRepr(): Ty
 }
 

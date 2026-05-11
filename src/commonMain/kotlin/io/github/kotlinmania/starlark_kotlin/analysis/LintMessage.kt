@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/LintMessage.kt
-// port-lint: source analysis/lint_message.rs
-package io.github.kotlinmania.starlark.analysis
-=======
 // port-lint: source src/analysis/lint_message.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/LintMessage.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

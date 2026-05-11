@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/tuple/Alloc.kt
-// port-lint: source values/types/tuple/alloc.rs
-package io.github.kotlinmania.starlark.values.types.tuple
-=======
 // port-lint: source src/values/types/tuple/alloc.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.tuple
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/tuple/Alloc.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

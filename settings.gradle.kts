@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    plugins { kotlin("multiplatform") version "2.3.21" }
+    plugins { kotlin("multiplatform") version "2.3.0" }
 }
 
 plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0" }
@@ -17,4 +17,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "starlark"
+rootProject.name = "starlark-kotlin"

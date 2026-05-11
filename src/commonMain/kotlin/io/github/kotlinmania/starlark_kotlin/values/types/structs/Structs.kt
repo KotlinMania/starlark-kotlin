@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/structs/Structs.kt
-// port-lint: source values/types/structs/structs.rs
-package io.github.kotlinmania.starlark.values.types.structs
-=======
 // port-lint: source src/values/types/structs/structs.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.structs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/structs/Structs.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -28,21 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.structs
  * Implementation of `struct` function.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/structs/Structs.kt
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.typing.TyStruct
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark.typing.TyCallArgs
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-=======
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -56,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/structs/Structs.kt
 
 /**
  * Type implementation for the struct type.
@@ -109,9 +88,13 @@ internal object StructType : TyCustomFunctionImpl {
  * this explicitly.
  */
 internal fun registerStruct(builder: GlobalsBuilder) {
-    fun `struct`(args: Arguments, heap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<StructGen<Value>> {
+    builder.setFunction(
+        name = "struct",
+        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
+    ) { args: Arguments, eval ->
+        val heap = eval.heap()
         val noPosResult = args.noPositionalArgs(heap)
-        if (noPosResult.isFailure) return Result.failure(noPosResult.exceptionOrNull()!!)
+        if (noPosResult.isFailure) return@setFunction noPosResult
 
         // Note: missing optimization: practically most `struct` invocations are
         // performed with fixed named arguments, e.g. `struct(a = 1, b = 2)`.
@@ -119,7 +102,7 @@ internal fun registerStruct(builder: GlobalsBuilder) {
         // allocate field index once at compilation time and store field values in a vector.
 
         val namesResult = args.namesMap()
-        if (namesResult.isFailure) return Result.failure(namesResult.exceptionOrNull()!!)
+        if (namesResult.isFailure) return@setFunction Result.failure<Any?>(namesResult.exceptionOrNull()!!)
         val namesMap = namesResult.getOrThrow()
 
         // Convert SmallMap<StringValue, Value> to SmallMap<String, Value>
@@ -127,17 +110,6 @@ internal fun registerStruct(builder: GlobalsBuilder) {
         for ((k, v) in namesMap.iter()) {
             fields.insert(k.asStr(), v)
         }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/structs/Structs.kt
-        return Result.success(StructGen(fields))
-    }
-
-    builder.setFunction(
-        name = "struct",
-        asType = Ty.starlarkValue(TyStarlarkValue.new("struct"))
-    ) { args: Arguments, eval ->
-        `struct`(args, eval.heap())
-=======
         Result.success(Struct(fields))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/structs/Structs.kt
     }
 }

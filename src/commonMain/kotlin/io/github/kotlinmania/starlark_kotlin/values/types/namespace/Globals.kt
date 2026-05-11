@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/namespace/Globals.kt
-// port-lint: source values/types/namespace/globals.rs
-package io.github.kotlinmania.starlark.values.types.namespace
-=======
 // port-lint: source src/values/types/namespace/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.namespace
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/namespace/Globals.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

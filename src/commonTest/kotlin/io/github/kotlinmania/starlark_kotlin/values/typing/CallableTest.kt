@@ -1,47 +1,12 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/typing/CallableTest.kt
-// port-lint: source tests:src/values/typing/callable.rs
-package io.github.kotlinmania.starlark.values.typing
-
-/*
- * Copyright 2018 The Starlark in Rust Authors.
-=======
 // port-lint: tests src/values/typing/callable.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/CallableTest.kt
  * Copyright (c) Facebook, Inc. and its affiliates.
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/typing/CallableTest.kt
- * you may not import this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- */
-
-import io.github.kotlinmania.starlark.assert.Assert
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import kotlin.test.Test
-
-class CallableTest {
-
-    @Test
-    fun testNativeCallablePass() {
-        fun myModule(globals: GlobalsBuilder) {
-            fun acceptF(x: StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>): Result<NoneType> {
-                x.toString()
-                return Result.success(NoneType)
-            }
-            globals.setFunction("accept_f") { args, _ ->
-                acceptF(args.positional<StarlarkCallable<StarlarkCallableParamAny, StarlarkTypeRepr>>(0))
-            }
-        }
-
-=======
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -110,7 +75,6 @@ def bar():
 
     @Test
     fun testNativeCallablePass() {
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/CallableTest.kt
         val a = Assert()
         a.globalsAdd(::myModule)
         a.pass(
@@ -125,26 +89,6 @@ def test():
     }
 
     @Test
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/typing/CallableTest.kt
-    fun testCallableCheckedRuntime() {
-        fun module(globals: GlobalsBuilder) {
-            fun acceptF(f: StarlarkCallableChecked<StarlarkCallableParamAny, StarlarkTypeRepr>): Result<NoneType> {
-                f.toString()
-                return Result.success(NoneType)
-            }
-            fun good(): Result<NoneType> = Result.success(NoneType)
-            fun bad(): Result<Int> = Result.success(10)
-
-            globals.setFunction("accept_f") { args, _ ->
-                acceptF(args.positional<StarlarkCallableChecked<StarlarkCallableParamAny, StarlarkTypeRepr>>(0))
-            }
-            globals.setFunction("good") { _, _ -> good() }
-            globals.setFunction("bad") { _, _ -> bad() }
-        }
-
-        val a = Assert()
-        a.globalsAdd(::module)
-=======
     fun testNativeCallableFailCompileTimeWrongParamType() {
         val a = Assert()
         a.globalsAdd(::myModule)
@@ -247,17 +191,11 @@ def test():
 
         val a = Assert()
         a.globalsAdd(::checkedModule)
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/CallableTest.kt
 
         a.pass("accept_f(good)")
 
         a.fail(
             """
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/typing/CallableTest.kt
-accept_f(bad)
-""",
-            "Expected type",
-=======
 def test():
     x = noop(bad) # Hide the type from static typechecker.
     accept_f(x)
@@ -265,7 +203,6 @@ def test():
 test()
         """,
             "Type of parameter `_f` doesn't match",
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/CallableTest.kt
         )
     }
 }

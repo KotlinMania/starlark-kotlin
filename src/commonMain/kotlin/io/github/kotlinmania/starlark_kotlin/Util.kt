@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/util/nonstatictypeid/NonStaticTypeIdTest.kt
-// port-lint: source tests:src/util/nonStaticTypeId.rs
-package io.github.kotlinmania.starlark.util.nonstatictypeid
-=======
 // port-lint: source src/util.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Util.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

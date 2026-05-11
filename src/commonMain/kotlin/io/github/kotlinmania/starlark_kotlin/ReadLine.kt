@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/ReadLine.kt
-// port-lint: source read_line.rs
-package io.github.kotlinmania.starlark.readline
-=======
 // port-lint: source src/read_line.rs
 package io.github.kotlinmania.starlark_kotlin.read_line
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/ReadLine.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

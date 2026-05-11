@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/unusedloads/Remove.kt
-// port-lint: source analysis/unused_loads/remove.rs
-package io.github.kotlinmania.starlark.analysis.unusedloads
-=======
 // port-lint: source src/analysis/unused_loads/remove.rs
 package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/unused_loads/Remove.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,15 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/unusedloads/Remove.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/unused_loads/Remove.kt
 
 /**
  * Helper for building the output string with span-based skipping.
@@ -51,7 +40,7 @@ private class Out(
      */
     fun appendTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end())
+        check(pos <= codemap.fullSpan().end)
         out.append(codemap.sourceSpan(Span(this.pos, pos)))
         this.pos = pos
     }
@@ -63,7 +52,7 @@ private class Out(
      */
     fun skipTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end())
+        check(pos <= codemap.fullSpan().end)
         this.pos = pos
     }
 
@@ -73,8 +62,8 @@ private class Out(
      * fn skip_span(&mut self, span: Span)
      */
     fun skipSpan(span: Span) {
-        appendTo(span.begin())
-        skipTo(span.end())
+        appendTo(span.begin)
+        skipTo(span.end)
     }
 }
 

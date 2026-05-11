@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/RecursiveReprOrJsonGuard.kt
-// port-lint: source values/recursive_repr_or_json_guard.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: source src/values/recursive_repr_or_json_guard.rs
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/RecursiveReprOrJsonGuard.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,25 +21,16 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 /** Detect recursion when doing `repr` or `to_json`. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/RecursiveReprOrJsonGuard.kt
-import io.github.kotlinmania.starlarkmap.smallset.SmallSet
-import io.github.kotlinmania.threadlocal.ThreadLocal
-import io.github.kotlinmania.starlark.values.layout.RawPointer
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.unlikely
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/RecursiveReprOrJsonGuard.kt
 
 /** Pop the stack on drop. */
 // pub(crate) struct ReprStackGuard;
 internal class ReprStackGuard : AutoCloseable {
     // impl Drop for ReprStackGuard
     override fun close() {
-        val stack = reprStack()
-        val popped = stack.pop()
+        val popped = reprStack.pop()
         check(popped != null)
     }
 }
@@ -54,27 +40,12 @@ internal class ReprStackGuard : AutoCloseable {
 internal class JsonStackGuard : AutoCloseable {
     // impl Drop for JsonStackGuard
     override fun close() {
-        val stack = jsonStack()
-        val popped = stack.pop()
+        val popped = jsonStack.pop()
         check(popped != null)
     }
 }
 
 /** Returned when `repr` is called recursively and a cycle is detected. */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/RecursiveReprOrJsonGuard.kt
-internal class ReprCycle : Exception()
-
-/** Returned when `toJson` is called recursively and a cycle is detected. */
-internal class JsonCycle : Exception()
-
-private val REPR_STACK: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
-
-private val JSON_STACK: ThreadLocal<SmallSet<RawPointer>> = ThreadLocal()
-
-private fun reprStack(): SmallSet<RawPointer> = REPR_STACK.getOr { SmallSet() }
-
-private fun jsonStack(): SmallSet<RawPointer> = JSON_STACK.getOr { SmallSet() }
-=======
 // pub(crate) struct ReprCycle;
 internal class ReprCycle
 
@@ -89,26 +60,21 @@ private val reprStack = SmallSet<RawPointer>()
 
 // thread_local! { static JSON_STACK: Cell<SmallSet<RawPointer>> }
 private val jsonStack = SmallSet<RawPointer>()
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/RecursiveReprOrJsonGuard.kt
 
 /** Push a value to the stack, return error if it is already on the stack. */
 // pub(crate) fn repr_stack_push(value: Value) -> Result<ReprStackGuard, ReprCycle>
 internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
-    val stack = reprStack()
-    return if (unlikely(!stack.insert(value.ptrValue()))) {
-        Result.failure(ReprCycle())
-    } else {
-        Result.success(ReprStackGuard())
+    if (!reprStack.insert(value.ptrValue())) {
+        return Result.failure(Exception(ReprCycle().toString()))
     }
+    return Result.success(ReprStackGuard())
 }
 
 /** Push a value to the stack, return error if it is already on the stack. */
 // pub(crate) fn json_stack_push(value: Value) -> Result<JsonStackGuard, JsonCycle>
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
-    val stack = jsonStack()
-    return if (unlikely(!stack.insert(value.ptrValue()))) {
-        Result.failure(JsonCycle())
-    } else {
-        Result.success(JsonStackGuard())
+    if (!jsonStack.insert(value.ptrValue())) {
+        return Result.failure(Exception(JsonCycle().toString()))
     }
+    return Result.success(JsonStackGuard())
 }

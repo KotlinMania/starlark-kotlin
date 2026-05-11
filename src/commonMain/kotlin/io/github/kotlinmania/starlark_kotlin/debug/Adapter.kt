@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Adapter.kt
-// port-lint: source debug/adapter.rs
-package io.github.kotlinmania.starlark.debug
-=======
 // port-lint: source src/debug/adapter.rs
 package io.github.kotlinmania.starlark_kotlin.debug
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Adapter.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -30,20 +25,6 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * [DapAdapter]/[DapAdapterEvalHook] that provide for debugging a starlark Evaluation.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Adapter.kt
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark.values.types.dict.iter
-import io.github.kotlinmania.starlark.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark.debug.adapter.prepareDapAdapter as prepareDapAdapterImpl
-import io.github.kotlinmania.starlark.debug.adapter.resolveBreakpoints as resolveBreakpointsImpl
-import io.github.kotlinmania.starlark.debug.adapter.resolvedBreakpointsToDap as resolvedBreakpointsToDapImpl
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlark.syntax.AstModule
-=======
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.DictRef
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
@@ -56,7 +37,6 @@ import io.github.kotlinmania.starlark_kotlin.debug.adapter_impl.resolveBreakpoin
 import io.github.kotlinmania.starlark_kotlin.debug.adapter_impl.resolvedBreakpointsToDap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Adapter.kt
 
 /**
  * The DapAdapterClient is implemented by the user and provides functionality

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Expr.kt
-// port-lint: source eval/compiler/expr.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/expr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Expr.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -28,64 +23,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * Evaluation of an expression.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Expr.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark.eval.compiler.args.compileArgs
-import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
-import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.BinOp
-import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.syntax.ast.FStringP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.syntax.ast.LambdaP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.toValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
-import io.github.kotlinmania.starlark.values.types.UnboundValue
-import io.github.kotlinmania.starlark.values.types.BoundMethodGen
-import io.github.kotlinmania.starlark.values.types.list.FrozenListData
-import io.github.kotlinmania.starlark.values.types.int.InlineInt
-import io.github.kotlinmania.starlark.values.types.list.ListData
-import io.github.kotlinmania.starlark.values.types.list.ListRef
-import io.github.kotlinmania.starlark.values.types.range.Range
-import io.github.kotlinmania.starlark.values.types.bool.BOOL_TYPE
-import io.github.kotlinmania.starlark.values.types.bool.StarlarkBool
-import io.github.kotlinmania.starlark.values.types.dict.Dict
-import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark.values.types.float.allocFrozenValue
-import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark.values.layout.constFrozenString
-import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtxEvalForEvaluator
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.environment.ModuleSlotId
@@ -145,7 +82,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark_kotlin.values.types.FrozenBoundMethod
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtxEvalForEvaluator
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Expr.kt
 
 // ---------------------------------------------------------------------------
 // MaybeNot

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/ReplaceBinary.kt
-// port-lint: source tests/replace_binary.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests tests/replace_binary.rs
 package io.github.kotlinmania.starlark_kotlin.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/ReplaceBinary.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

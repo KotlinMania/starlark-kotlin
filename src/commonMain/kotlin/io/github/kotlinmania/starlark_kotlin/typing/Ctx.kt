@@ -1,29 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ctx.kt
-// port-lint: source typing/ctx.rs
-package io.github.kotlinmania.starlark.typing
-
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.eval.compiler.BindingId
-import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
-import io.github.kotlinmania.starlark.eval.compiler.Slot
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark.syntax.ast.AssignOp
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.BinOp
-import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.typing.oracle.TypingUnOp
-=======
 // port-lint: source src/typing/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
@@ -51,7 +25,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingUnOp
 import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ctx.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -71,8 +44,6 @@ import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ctx.kt
-=======
 // --- CallArgsUnpack ---
 
 /** Validated call arguments, unpacked from a CallArgsP. */
@@ -159,7 +130,6 @@ internal class CallArgsUnpack<P : AstPayload>(
     }
 }
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ctx.kt
 // --- TypingContext ---
 
 internal class TypingContext(

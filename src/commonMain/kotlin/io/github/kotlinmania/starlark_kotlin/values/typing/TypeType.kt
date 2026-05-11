@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/TypeType.kt
-// port-lint: source values/typing/type_type.rs
-package io.github.kotlinmania.starlark.values.typing
-=======
 // port-lint: source src/values/typing/type_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/TypeType.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/ValueNotSpecial.kt
-// port-lint: source values/layout/value_not_special.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 // port-lint: source src/values/layout/value_not_special.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/ValueNotSpecial.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

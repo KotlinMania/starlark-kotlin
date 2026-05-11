@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/profile/ByType.kt
-// port-lint: source values/layout/heap/profile/by_type.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile
-=======
 // port-lint: source src/values/layout/heap/profile/by_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/profile/ByType.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

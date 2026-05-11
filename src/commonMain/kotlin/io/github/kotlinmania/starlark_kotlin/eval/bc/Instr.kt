@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Instr.kt
-// port-lint: source eval/bc/instr.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 // port-lint: source src/eval/bc/instr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Instr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/util/refcell/RefCellTest.kt
-// port-lint: source tests:src/util/refcell.rs
-package io.github.kotlinmania.starlark.util.refcell
-=======
 // port-lint: tests src/util/refcell.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.util.refcell
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/util/refcell/RefCellTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

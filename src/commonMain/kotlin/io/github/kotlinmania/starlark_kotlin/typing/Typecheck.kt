@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Typecheck.kt
-// port-lint: source typing/typecheck.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/typecheck.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Typecheck.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,27 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Typecheck.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.environment.Globals
-import io.github.kotlinmania.starlark.environment.MutableNames
-import io.github.kotlinmania.starlark.eval.compiler.BindingId
-import io.github.kotlinmania.starlark.eval.compiler.BindingSource
-import io.github.kotlinmania.starlark.eval.compiler.ModuleScopes
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
-import io.github.kotlinmania.starlark.eval.compiler.topLevelStmtsMut
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.Visibility
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -65,7 +39,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
 import io.github.kotlinmania.starlark_kotlin.values.typing.Approximation
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Typecheck.kt
 
 // Things which are None in the map have type void - they are never constructed
 internal fun solveBindings(

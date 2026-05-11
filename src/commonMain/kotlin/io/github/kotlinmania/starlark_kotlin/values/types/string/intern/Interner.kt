@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/intern/Interner.kt
-// port-lint: source values/types/string/intern/interner.rs
-package io.github.kotlinmania.starlark.values.types.string.intern
-=======
 // port-lint: source src/values/types/string/intern/interner.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string.intern
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/intern/Interner.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -49,11 +44,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 //     map: HashTable<FrozenStringValue>,
 // }
 internal class FrozenStringValueInterner {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/intern/Interner.kt
-=======
     // HashTable<FrozenStringValue> in Rust.
     // In Kotlin, we use a HashMap keyed by hash+content for O(1) lookup.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/intern/Interner.kt
     private val map: HashMap<ULong, MutableList<FrozenStringValue>> = HashMap()
 
     // pub(crate) fn intern(&mut self, s: Hashed<&str>, alloc: impl FnOnce() -> FrozenStringValue) -> FrozenStringValue

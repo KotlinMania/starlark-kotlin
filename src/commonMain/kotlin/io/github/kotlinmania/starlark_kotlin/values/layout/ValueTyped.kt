@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/ValueTyped.kt
-// port-lint: source values/layout/typed.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 // port-lint: source src/values/layout/typed.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/ValueTyped.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

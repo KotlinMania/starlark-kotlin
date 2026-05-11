@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Known.kt
-// port-lint: source eval/compiler/known.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/known.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Known.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,15 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Known.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Known.kt
 
 /**
  * Convert a list into a tuple. In many cases (iteration, `in`) these types

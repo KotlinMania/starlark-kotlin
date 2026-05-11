@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Args.kt
-// port-lint: source eval/compiler/args.rs
-package io.github.kotlinmania.starlark.eval.compiler.args
-=======
 // port-lint: source src/eval/compiler/args.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.args
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Args.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

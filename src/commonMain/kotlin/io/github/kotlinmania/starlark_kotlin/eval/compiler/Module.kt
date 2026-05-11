@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Module.kt
-// port-lint: source eval/compiler/module.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/module.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Module.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,32 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 /** Compile and evaluate module top-level statements. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Module.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
-import io.github.kotlinmania.starlark.eval.bc.allocaFrame
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.LoadP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.typing.BindingsCollect
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.InternalError
-import io.github.kotlinmania.starlark.typing.ModuleVarTypes
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TypecheckMode
-import io.github.kotlinmania.starlark.typing.TypingError
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.typing.solveBindings
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.constFrozenString
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.toValue
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.asBc
 import io.github.kotlinmania.starlark_kotlin.eval.bc.allocaFrame
@@ -77,7 +46,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.values.toValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Module.kt
 
 // #[derive(Debug, thiserror::Error)]
 // enum ModuleError

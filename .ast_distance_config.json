@@ -6,7 +6,7 @@
     "lang": "rust"
   },
   "target": {
-    "path": "src/commonMain/kotlin/io/github/kotlinmania/starlark",
+    "path": "src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin",
     "lang": "kotlin"
   },
   "checks": {
@@ -14,9 +14,5 @@
     "missing": true,
     "todos": true,
     "lint": true
-  },
-  "reexport_modules": [
-    "mod.rs",
-    "lib.rs"
-  ]
+  }
 }

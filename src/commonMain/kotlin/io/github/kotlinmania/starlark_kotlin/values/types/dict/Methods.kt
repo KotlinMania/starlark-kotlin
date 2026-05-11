@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Methods.kt
-// port-lint: source values/types/dict/methods.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Methods.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,15 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
 
 /** Methods for the `dict` type. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Methods.kt
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.Either
-=======
 import io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableParamSpec
@@ -49,7 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Methods.kt
 
 internal fun dictMethods(registry: MethodsBuilder) {
     val components = NativeCallableComponents(
@@ -407,7 +392,7 @@ internal fun popitem(thisValue: Value): Result<Pair<Value, Value>> {
         return Result.failure(IllegalArgumentException("Cannot .popitem() on an empty dictionary"))
     }
     val first = content.getIndex(0)!!
-    content.shiftRemoveIndex(0)
+    content.entries.removeAt(0)
     return Result.success(first)
 }
 

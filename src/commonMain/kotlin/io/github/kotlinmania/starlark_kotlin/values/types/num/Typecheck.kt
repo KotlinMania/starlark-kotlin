@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/num/Typecheck.kt
-// port-lint: source values/types/num/typecheck.rs
-package io.github.kotlinmania.starlark.values.types.num
-=======
 // port-lint: source src/values/types/num/typecheck.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.num
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/num/Typecheck.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

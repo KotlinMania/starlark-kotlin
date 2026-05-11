@@ -1,9 +1,4 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarState.kt
-// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
-package io.github.kotlinmania.starlark.syntax.parser
-=======
 package io.github.kotlinmania.starlark_kotlin.syntax.parser
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarState.kt
 
 object GrammarState {
     val ACTION_DATA = """

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Partial.kt
-// port-lint: source stdlib/partial.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: source src/stdlib/partial.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Partial.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -219,19 +214,12 @@ open class PartialGen<V : Any, S : Any>(
             )
         )
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Partial.kt
-        val funcValue: Value = when (val currentFunc = func) {
-            is Value -> currentFunc
-            is io.github.kotlinmania.starlark.values.layout.FrozenValue -> currentFunc.toValue()
-            else -> currentFunc as Value
-=======
         @Suppress("UNCHECKED_CAST")
         val funcValue = when (func) {
             is Value -> func
             is io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue ->
                 (func as io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue).toValue()
             else -> func as Value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Partial.kt
         }
         return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }

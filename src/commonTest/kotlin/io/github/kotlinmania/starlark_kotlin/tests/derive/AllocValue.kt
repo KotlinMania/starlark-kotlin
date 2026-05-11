@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/AllocValue.kt
-// port-lint: source tests:src/tests/derive/allocValue.rs
-package io.github.kotlinmania.starlark.tests.derive
-=======
 // port-lint: tests tests/derive/alloc_value.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.tests.derive
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/AllocValue.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

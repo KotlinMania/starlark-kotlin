@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Globals.kt
-// port-lint: source values/typing/type_compiled/globals.rs
-package io.github.kotlinmania.starlark.values.typing.typecompiled
-=======
 // port-lint: source src/values/typing/type_compiled/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Globals.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -57,21 +52,14 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      * `L = eval_type(list); [isinstance(x, L) for x in y]`:
      * `eval_type()` converts `list` value into prepared type matcher.
      */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Globals.kt
-    fun isinstance(value: Value, ty: Value, eval: Evaluator): Result<Boolean> {
-        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
-            .getOrElse { return Result.failure(it) }
-        return Result.success(compiled.matches(value))
-    }
-
-=======
     // fn isinstance<'v>(#[starlark(require = pos)] value: Value<'v>, #[starlark(require = pos)] ty: ValueOfUnchecked<'v, AbstractType>, eval: &mut Evaluator) -> anyhow::Result<bool>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Globals.kt
     globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
         val positional = args.positional(2, eval.heap()).getOrThrow()
         val value = positional[0]
         val ty = positional[1]
-        isinstance(value, ty, eval).map { Value.newBool(it) }
+        val compiled = runCatching { TypeCompiled.new(ty, eval.heap()) }
+            .getOrElse { return@setFunction Result.failure<Value>(it) }
+        Value.newBool(compiled.matches(value))
     }
 }
 

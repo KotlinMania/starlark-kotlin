@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/ArcOrStatic.kt
-// port-lint: source util/arc_or_static.rs
-package io.github.kotlinmania.starlark.util.arcorstatic
-=======
 // port-lint: source src/util/arc_or_static.rs
 package io.github.kotlinmania.starlark_kotlin.util.arc_or_static
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/ArcOrStatic.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -39,11 +34,6 @@ internal sealed interface Inner<T : Any> {
     ) : Inner<T>
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/ArcOrStatic.kt
-internal class ArcOrStatic<T : Any> private constructor(
-    private val inner: Inner<T>,
-) {
-=======
 // #[derive(Debug, Allocative)]
 // pub(crate) struct ArcOrStatic<T: ?Sized + 'static>(Inner<T>);
 internal class ArcOrStatic<T : Any> private constructor(
@@ -54,7 +44,6 @@ internal class ArcOrStatic<T : Any> private constructor(
         fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
             return ArcOrStatic(Inner.Static(a))
         }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/ArcOrStatic.kt
 
         // pub(crate) fn new_arc(a: Arc<T>) -> Self
         fun <T : Any> newArc(a: T): ArcOrStatic<T> {
@@ -97,28 +86,9 @@ internal class ArcOrStatic<T : Any> private constructor(
     // impl Hash for ArcOrStatic
     override fun hashCode(): Int = deref().hashCode()
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/ArcOrStatic.kt
-    companion object {
-        fun <T : Any> newStatic(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(Inner.Static(a))
-        }
-
-        fun <T : Any> newArc(a: T): ArcOrStatic<T> {
-            return ArcOrStatic(Inner.Arc(a))
-        }
-
-        fun <T : Any> new(a: T): ArcOrStatic<T> {
-            return newArc(a)
-        }
-=======
     // impl Ord for ArcOrStatic
     @Suppress("UNCHECKED_CAST")
     override fun compareTo(other: ArcOrStatic<T>): Int {
         return (deref() as Comparable<T>).compareTo(other.deref())
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/ArcOrStatic.kt
     }
-}
-
-internal fun <T : Comparable<T>> ArcOrStatic<T>.compareTo(other: ArcOrStatic<T>): Int {
-    return deref().compareTo(other.deref())
 }

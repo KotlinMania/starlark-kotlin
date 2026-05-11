@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Factory.kt
-// port-lint: source values/typing/type_compiled/factory.rs
-package io.github.kotlinmania.starlark.values.typing.typecompiled
-=======
 // port-lint: source src/values/typing/type_compiled/factory.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Factory.kt
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap

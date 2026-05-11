@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/assert/Conformance.kt
-// port-lint: source assert/conformance.rs
-package io.github.kotlinmania.starlark.assert
-=======
 // port-lint: source src/assert/conformance.rs
 package io.github.kotlinmania.starlark_kotlin.assert
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/assert/Conformance.kt
 
 import io.github.kotlinmania.starlark_kotlin.Error
 

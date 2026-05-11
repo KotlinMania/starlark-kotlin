@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Names.kt
-// port-lint: source analysis/names.rs
-package io.github.kotlinmania.starlark.analysis
-=======
 // port-lint: source src/analysis/names.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Names.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -31,22 +26,6 @@ package io.github.kotlinmania.starlark_kotlin.analysis
 //
 // But it does as things stand.
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Names.kt
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.syntax.AstModule
-=======
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
@@ -64,7 +43,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Names.kt
 
 sealed class NameWarning : LintWarning {
     data class UnusedLoad(val name: String) : NameWarning()

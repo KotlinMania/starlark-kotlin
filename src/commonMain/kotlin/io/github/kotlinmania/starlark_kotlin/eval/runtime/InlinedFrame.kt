@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/InlinedFrame.kt
-// port-lint: source eval/runtime/inlined_frame.rs
-package io.github.kotlinmania.starlark.eval.runtime
-=======
 // port-lint: source src/eval/runtime/inlined_frame.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/InlinedFrame.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,16 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/InlinedFrame.kt
-import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlarksyntax.frame.Frame
-import io.github.kotlinmania.starlark.values.types.allocAny
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
-=======
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.frozen_file_span.FrozenFileSpan
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -42,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.Frame
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/InlinedFrame.kt
 
 /**
  * When a function `a` is inlined into `b`, this struct contains
@@ -151,93 +135,3 @@ class InlinedFrameAlloc(
         return allocated
     }
 }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/InlinedFrame.kt
-
-// --- Tests ---
-
-internal fun testInlineInto() {
-    // Test frame inlining with this code:
-    //
-    // def a(): return {}
-    // def b(): return a()
-    // def c(): return b()
-    //
-    // def d(): return c()
-    // def e(): return d()
-    // def f(): return e()
-    //
-    // If `a` is inlined into `b` and then inlined into `c`,
-    // then if `d` is inlined into `e` and then inlined into `f`,
-    // and then `c` is inlined into `d` (which is already inlined into `f`),
-    // the resulting stack trace should be `f`, `e`, `d`, `c`, `b`, `a`.
-
-    val frozenHeap = FrozenHeap()
-
-    fun makeSpan(heap: FrozenHeap, text: String): FrameSpan {
-        val codemap = CodeMap.new("$text.bzl", text)
-        val codemapRef = heap.allocAny(codemap)
-        return FrameSpan(
-            span = FrozenFileSpan.new(codemapRef, codemapRef.value.fullSpan()),
-            inlinedFrames = InlinedFrames(),
-        )
-    }
-
-    val spanAlloc = InlinedFrameAlloc.new(frozenHeap)
-
-    fun assertStack(expected: List<String>, span: FrameSpan) {
-        val frames = mutableListOf<Frame>()
-        span.inlinedFrames.extendFrames(frames)
-        val frameStrs = frames.map { f ->
-            val spanStr = f.location?.sourceSpan() ?: ""
-            val name = f.name.trim('"')
-            "$spanStr in $name"
-        }
-        check(expected == frameStrs)
-    }
-
-    val a = makeSpan(frozenHeap, "{}")
-    val b = makeSpan(frozenHeap, "a()")
-    val c = makeSpan(frozenHeap, "b()")
-    a.inlinedFrames.inlineInto(
-        b,
-        frozenHeap.allocStr("b").toFrozenValue(),
-        spanAlloc,
-    )
-    a.inlinedFrames.inlineInto(
-        c,
-        frozenHeap.allocStr("c").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(listOf("b() in c", "a() in b"), a)
-
-    val d = makeSpan(frozenHeap, "c()")
-    val e = makeSpan(frozenHeap, "d()")
-    val f = makeSpan(frozenHeap, "e()")
-
-    d.inlinedFrames.inlineInto(
-        e,
-        frozenHeap.allocStr("e").toFrozenValue(),
-        spanAlloc,
-    )
-    d.inlinedFrames.inlineInto(
-        f,
-        frozenHeap.allocStr("f").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(listOf("e() in f", "d() in e"), d)
-
-    a.inlinedFrames.inlineInto(
-        d,
-        frozenHeap.allocStr("d").toFrozenValue(),
-        spanAlloc,
-    )
-
-    assertStack(
-        listOf("e() in f", "d() in e", "c() in d", "b() in c", "a() in b"),
-        a,
-    )
-}
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/InlinedFrame.kt

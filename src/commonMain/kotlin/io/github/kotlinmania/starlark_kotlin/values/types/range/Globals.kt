@@ -1,18 +1,8 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/range/Globals.kt
-// port-lint: source values/types/range/globals.rs
-package io.github.kotlinmania.starlark.values.types.range
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.optionalPositional
-import io.github.kotlinmania.starlark.eval.runtime.positional
-=======
 // port-lint: source src/values/types/range/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.range
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/range/Globals.kt
 
 
 /*

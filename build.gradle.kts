@@ -8,14 +8,14 @@ import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnRootEnvSpec
 
 plugins {
-    kotlin("multiplatform") version "2.3.21"
-    kotlin("plugin.serialization") version "2.3.21"
-    id("com.android.kotlin.multiplatform.library") version "9.2.0"
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    kotlin("multiplatform") version "2.3.20"
+    kotlin("plugin.serialization") version "2.3.20"
+    id("com.android.kotlin.multiplatform.library") version "8.6.0"
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
 group = "io.github.kotlinmania"
-version = "0.2.2"
+version = "0.1.2"
 
 val androidSdkDir: String? =
     providers.environmentVariable("ANDROID_SDK_ROOT").orNull
@@ -36,11 +36,6 @@ kotlin {
         languageSettings.optIn("kotlin.time.ExperimentalTime")
         languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
         languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
-    }
-
-    compilerOptions {
-        allWarningsAsErrors.set(true)
-        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
     val xcf = XCFramework("Starlark")
@@ -75,34 +70,23 @@ kotlin {
         nodejs()
     }
 
-    swiftExport {
-        moduleName = "Starlark"
-        flattenPackage = "io.github.kotlinmania.starlark"
-    }
-
-    android {
-        namespace = "io.github.kotlinmania.starlark"
+    androidLibrary {
+        namespace = "io.github.kotlinmania.starlark_kotlin"
         compileSdk = 34
         minSdk = 24
-        withHostTestBuilder {}.configure {}
-        withDeviceTestBuilder {
-            sourceSetTreeName = "test"
-        }
     }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
                 implementation("com.ionspin.kotlin:bignum:0.3.10")
-                implementation("io.github.kotlinmania:starlarkmap-kotlin:0.1.2")
-                implementation("io.github.kotlinmania:gazebo-kotlin:0.1.0")
-                implementation("io.github.kotlinmania:starlark-syntax-kotlin:0.1.1")
-                implementation("io.github.kotlinmania:threadlocal-kotlin:0.2.1")
+                // Ported Rust test modules live in commonMain (inline with source, matching Rust convention)
+                implementation(kotlin("test"))
             }
         }
 
@@ -170,10 +154,10 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates(group.toString(), "starlark", version.toString())
+    coordinates(group.toString(), "starlark-kotlin", version.toString())
 
     pom {
-        name.set("starlark")
+        name.set("starlark-kotlin")
         description.set("Kotlin Multiplatform port of facebook/starlark-rust - Starlark configuration language interpreter")
         inceptionYear.set("2026")
         url.set("https://github.com/KotlinMania/starlark-kotlin")

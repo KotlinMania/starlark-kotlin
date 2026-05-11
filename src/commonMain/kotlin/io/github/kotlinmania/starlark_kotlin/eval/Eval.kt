@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/Eval.kt
-// port-lint: source eval.rs
-package io.github.kotlinmania.starlark.eval
-=======
 // port-lint: source src/eval.rs
 package io.github.kotlinmania.starlark_kotlin.eval
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/Eval.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -58,9 +53,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.types.allocAny
 import kotlin.time.TimeSource
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/Eval.kt
-// --- implementation Evaluator ---
-=======
 // --- Re-exports (Rust `pub use`) ---
 // pub use runtime::arguments::Arguments;
 // pub use runtime::before_stmt::BeforeStmtFuncDyn;
@@ -77,7 +69,6 @@ import kotlin.time.TimeSource
 // In Kotlin, these are accessible via their own packages. No re-export needed.
 
 // --- impl Evaluator ---
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/Eval.kt
 
 /**
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope

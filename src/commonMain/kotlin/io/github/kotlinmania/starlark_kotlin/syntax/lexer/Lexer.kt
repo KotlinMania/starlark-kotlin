@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/lexer/Lexer.kt
-// port-lint: source ../starlark_syntax/src/lexer.rs
-package io.github.kotlinmania.starlark.syntax.lexer
-=======
 // port-lint: source src/lexer.rs
 package io.github.kotlinmania.starlark_kotlin.syntax.lexer
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/lexer/Lexer.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,13 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.lexer
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/lexer/Lexer.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -40,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 
 // type Lexeme = Result<(usize, Token, usize), EvalException>
 typealias Lexeme = Triple<Int, Token, Int>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/lexer/Lexer.kt
 
 sealed class LexemeError(val message: String) {
     data object Indentation : LexemeError("Parse error: incorrect indentation")
@@ -72,8 +59,8 @@ class Lexer(
     }
 
     private fun errSpan(msg: LexemeError, start: Int, end: Int): EvalException {
-        return EvalException.newAnyhow(
-            Exception(msg.message),
+        return EvalException.new(
+            StarlarkError(msg.message),
             Span(Pos(start), Pos(end)),
             codemap
         )

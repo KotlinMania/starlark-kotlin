@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/StarlarkValue.kt
-// port-lint: source typing/starlark_value.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/starlark_value.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/StarlarkValue.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,14 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/StarlarkValue.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.environment.Methods
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.typing.oracle.TypingUnOp
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
-import io.github.kotlinmania.starlark.values.typing.typecompiled.StarlarkTypeIdMatcher
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
@@ -48,7 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.set.FrozenSet
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.StarlarkTypeIdMatcher
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/StarlarkValue.kt
 
 private sealed class TyStarlarkValueError : Exception() {
     data class NotCallable(val ty: TyStarlarkValue) : TyStarlarkValueError() {

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/Parser.kt
-// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
-package io.github.kotlinmania.starlark.syntax.parser
-=======
 // port-lint: source src/syntax/grammar.lalrpop
 package io.github.kotlinmania.starlark_kotlin.syntax.parser
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/Parser.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,16 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/Parser.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.lexer.Token
-import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
@@ -42,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Token
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/Parser.kt
 
 /**
  * LR(1) parser driven by pre-computed ACTION/GOTO tables from GrammarState.
@@ -150,8 +134,8 @@ object Parser {
         val span = if (lookahead != null) {
             Span(Pos(lookahead.first), Pos(lookahead.third))
         } else {
-            Span(Pos(parserState.codemap.fullSpan().end().value), Pos(parserState.codemap.fullSpan().end().value))
+            Span(Pos(parserState.codemap.fullSpan().end.value), Pos(parserState.codemap.fullSpan().end.value))
         }
-        return EvalException.newAnyhow(Exception(msg), span, parserState.codemap)
+        return EvalException.new(StarlarkError(msg), span, parserState.codemap)
     }
 }

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/Kwargs.kt
-// port-lint: source tests/derive/module/kwargs.rs
-package io.github.kotlinmania.starlark.tests.derive.module
-=======
 // port-lint: tests tests/derive/module/kwargs.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/Kwargs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -30,20 +25,11 @@ import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 // #[starlark_module]
 // fn test_kwargs_module(globals: &mut GlobalsBuilder)
 private fun testKwargsModule(globals: GlobalsBuilder) {
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/Kwargs.kt
-    fun posKwargs(a: UInt, b: Boolean, kwargsStr: String): Result<String> =
-        Result.success("a=$a b=$b kwargs={$kwargsStr}")
-
-    fun posNamedKwargs(a: UInt, b: Boolean, kwargsStr: String): Result<String> =
-        Result.success("a=$a b=$b kwargs={$kwargsStr}")
-
-=======
     // fn pos_kwargs(
     //     #[starlark(require = pos)] a: u32,
     //     #[starlark(require = pos)] b: bool,
     //     #[starlark(kwargs)] kwargs: SmallMap<String, u64>,
     // ) -> anyhow::Result<String>
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/Kwargs.kt
     globals.setFunction("pos_kwargs") { args, _ ->
         val a = args.positional<UInt>(0)
         val b = args.positional<Boolean>(1)
@@ -52,7 +38,7 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
         val kwargsStr = kwargsEntries.iter().joinToString(", ") { (k, v) ->
             "\"${k.asStr()}\": ${v.unpackI32()}"
         }
-        posKwargs(a, b, kwargsStr)
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 
     // fn pos_named_kwargs(
@@ -70,7 +56,7 @@ private fun testKwargsModule(globals: GlobalsBuilder) {
             .joinToString(", ") { (k, v) ->
                 "\"${k.asStr()}\": ${v.unpackI32()}"
             }
-        posNamedKwargs(a, b, kwargsStr)
+        Result.success("a=$a b=$b kwargs={$kwargsStr}")
     }
 }
 

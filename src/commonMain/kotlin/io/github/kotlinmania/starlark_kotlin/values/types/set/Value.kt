@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-// port-lint: source values/types/set/value.rs
-package io.github.kotlinmania.starlark.values.types.set
-=======
 // port-lint: source src/values/types/set/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,26 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.smallset.SmallSet
-import io.github.kotlinmania.starlark.environment.Methods
-import io.github.kotlinmania.starlark.environment.MethodsStatic
-import io.github.kotlinmania.starlark.util.refcell.RefCell
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.freeze
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
@@ -61,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.freezeSmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
 
 /**
  * Generic set wrapper.
@@ -76,25 +50,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // impl Freeze for SetGen<RefCell<SetData>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-        val innerVal = inner
-        if (innerVal is RefCell<*>) {
-            val borrowedValue = innerVal.borrow().value
-            check(borrowedValue is SetData) {
-                "SetGen<RefCell<*>> inner must wrap SetData, got ${borrowedValue!!::class}"
-            }
-            val frozenContent = borrowedValue.content
-                .freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
-                .getOrElse { return Result.failure(it) }
-            return Result.success(SetGen(FrozenSetData(frozenContent)))
-        }
-        // Already frozen.
-        if (innerVal is FrozenSetData) return Result.success(this as StarlarkValue)
-        return Result.failure(IllegalStateException("Unexpected SetGen inner: ${innerVal!!::class}"))
-=======
         val mutableSelf = this as MutableSet
         return mutableSelf.freeze(freezer) as Result<StarlarkValue>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
     }
     override val TYPE: String get() = SET_TYPE
     override val HAS_iterate: Boolean get() = true
@@ -120,7 +77,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     override fun isIn(other: Value): Result<Boolean> {
         return try {
             val hashed = other.getHashed().getOrThrow()
-            Result.success(setLike().content().containsHashedByValue(hashed.asRef()))
+            Result.success(setLike().content().containsHashed(hashed.asRef()))
         } catch (e: Throwable) {
             Result.failure(e)
         }
@@ -195,13 +152,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
             }
 
             val items = SmallSet<Value>()
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-            for (h in otherSet.iterHashed()) {
-                if (setLike().content().containsHashedByValue(h.asRef())) {
-=======
             for (h in rhsSet.iterHashed()) {
                 if (setLike().content().containsHashed(h.asRef())) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
                     items.insertHashedUniqueUnchecked(h)
                 }
             }
@@ -229,13 +181,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
                 }
             }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-            for (hashed in otherSet.iterHashed()) {
-                if (!setLike().content().containsHashedByValue(hashed.asRef())) {
-=======
             for (hashed in rhsSet.iterHashed()) {
                 if (!setLike().content().containsHashed(hashed.asRef())) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
                     data.addHashed(hashed)
                 }
             }
@@ -319,7 +266,7 @@ class SetData internal constructor(
      * Check if the set contains a hashed element.
      */
     fun containsHashed(key: Hashed<Value>): Boolean {
-        return content.containsHashedByValue(key.asRef())
+        return content.containsHashed(key.asRef())
     }
 
     fun addHashed(value: Hashed<Value>): Boolean {
@@ -331,7 +278,7 @@ class SetData internal constructor(
     }
 
     fun removeHashed(value: Hashed<Value>): Boolean {
-        return content.shiftRemoveHashedByValue(value)
+        return content.shiftRemoveHashed(value)
     }
 }
 
@@ -406,17 +353,17 @@ interface SetLike {
     fun iterStop()
 }
 
-internal class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
+/**
+ * SetLike implementation for RefCell<SetData>.
+ */
+class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
     override fun content(): SmallSet<Value> {
-        return cell.borrow().value.content
+        return cell.borrow().data.content
     }
 
     override fun iterStart() {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
-=======
         // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
         // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
         cell.borrow()
     }
 
@@ -425,7 +372,7 @@ internal class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLi
     }
 
     override fun contentUnchecked(): SmallSet<Value> {
-        return cell.borrow().value.content
+        return cell.borrow().data.content
     }
 }
 

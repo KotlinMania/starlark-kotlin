@@ -19,60 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Evaluator.kt
-import io.github.kotlinmania.starlark.any.AnyLifetime as AnyLt
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
-import io.github.kotlinmania.starlark.collections.Alloca
-import io.github.kotlinmania.starlark.collections.StringPool
-import io.github.kotlinmania.starlark.environment.FrozenModuleData
-import io.github.kotlinmania.starlark.environment.Module
-import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.eval.HardErrorSoftErrorHandler
-import io.github.kotlinmania.starlark.eval.SoftErrorHandler
-import io.github.kotlinmania.starlark.eval.bc.Bc
-import io.github.kotlinmania.starlark.eval.bc.BcInstrs
-import io.github.kotlinmania.starlark.eval.bc.BcOpcode
-import io.github.kotlinmania.starlark.eval.bc.BcPtrAddr
-import io.github.kotlinmania.starlark.eval.bc.BcStatementLocations
-import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark.eval.bc.trace
-import io.github.kotlinmania.starlark.eval.compiler.CopySlotFromParent
-import io.github.kotlinmania.starlark.eval.compiler.DefGen
-import io.github.kotlinmania.starlark.eval.compiler.DefInfo
-import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmt
-import io.github.kotlinmania.starlark.eval.runtime.beforestmt.BeforeStmtFunc
-import io.github.kotlinmania.starlark.eval.runtime.fileloader.FileLoader
-import io.github.kotlinmania.starlark.eval.runtime.profile.BcProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.ProfileOrInstrumentationMode
-import io.github.kotlinmania.starlark.eval.runtime.profile.StmtProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.TimeFlameProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.TypecheckProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfile
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapProfileFormat
-import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-import io.github.kotlinmania.starlark.eval.runtime.rustloc.rustLoc
-import io.github.kotlinmania.starlark.stdlib.BreakpointConsole
-import io.github.kotlinmania.starlark.stdlib.PrintHandler
-import io.github.kotlinmania.starlark.stdlib.RealBreakpointConsole
-import io.github.kotlinmania.starlark.stdlib.StderrPrintHandler
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.FrozenValueCaptured
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.ValueCaptured
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark.values.layout.constFrozenString
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
-import io.github.kotlinmania.starlark.values.types.NativeFunction
-=======
 import io.github.kotlinmania.starlark_kotlin.any.AnyLifetime
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
@@ -126,7 +72,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.constFrozenString
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.valueCapturedGet
 import io.github.kotlinmania.starlark_kotlin.values.types.NativeFunction
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Evaluator.kt
 
 private sealed class EvaluatorError(override val message: String) : Exception(message) {
     data object ProfilingNotEnabled :
@@ -447,23 +392,14 @@ class Evaluator(
         breakpointHandler = RealBreakpointConsole.factory()
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Evaluator.kt
-    /** Obtain the current call-stack, suitable for import in diagnostics. */
-    fun callStack(): io.github.kotlinmania.starlarksyntax.callstack.CallStack {
-=======
     /** Obtain the current call-stack, suitable for use in diagnostics. */
     fun callStack(): io.github.kotlinmania.starlark_kotlin.CallStack {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Evaluator.kt
         return callStack.toDiagnosticFrames(InlinedFrames())
     }
 
     /** Obtain the top frame on the call-stack. May be `null` if the
      * call happened via native functions. */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Evaluator.kt
-    fun callStackTopFrame(): io.github.kotlinmania.starlarksyntax.frame.Frame? {
-=======
     fun callStackTopFrame(): io.github.kotlinmania.starlark_kotlin.Frame? {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Evaluator.kt
         return callStack.topFrame()
     }
 
@@ -877,11 +813,11 @@ class Evaluator(
                     EvalCallbacksMode.BcProfile
                 evalInstrumentation.beforeStmt.enabled() && evalInstrumentation.bcProfile.enabled() ->
                     return Result.failure(
-                        IllegalStateException("both before_stmt and bc_profile are enabled")
+                        EvalException("both before_stmt and bc_profile are enabled")
                     )
                 else ->
                     return Result.failure(
-                        IllegalStateException("neither before_stmt nor bc_profile are enabled")
+                        EvalException("neither before_stmt nor bc_profile are enabled")
                     )
             }
             return bc.run(

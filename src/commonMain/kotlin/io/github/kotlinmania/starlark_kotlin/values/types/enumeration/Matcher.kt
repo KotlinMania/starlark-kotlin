@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/enumeration/Matcher.kt
-// port-lint: source values/types/enumeration/matcher.rs
-package io.github.kotlinmania.starlark.values.types.enumeration
-=======
 // port-lint: source src/values/types/enumeration/matcher.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.enumeration
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/enumeration/Matcher.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

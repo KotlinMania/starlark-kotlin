@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/Function.kt
-// port-lint: source values/types/function.rs
-package io.github.kotlinmania.starlark.values.types
-=======
 // port-lint: source src/values/types/function.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Function.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

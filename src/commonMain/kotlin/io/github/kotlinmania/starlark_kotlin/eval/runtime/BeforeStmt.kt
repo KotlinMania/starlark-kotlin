@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/BeforeStmt.kt
-// port-lint: source eval/runtime/before_stmt.rs
-package io.github.kotlinmania.starlark.eval.runtime.beforestmt
-=======
 // port-lint: source src/eval/runtime/before_stmt.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/BeforeStmt.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,13 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.before_stmt
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/BeforeStmt.kt
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/BeforeStmt.kt
 
 /**
  * Used by DAP; this is not public API.

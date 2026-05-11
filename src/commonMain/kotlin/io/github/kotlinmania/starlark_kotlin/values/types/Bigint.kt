@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/Bigint.kt
-// port-lint: source values/types/bigint.rs
-package io.github.kotlinmania.starlark.values.types.bigint
-=======
 // port-lint: source src/values/types/bigint.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.bigint
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Bigint.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -139,8 +134,6 @@ class StarlarkBigInt private constructor(
         }
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/Bigint.kt
-=======
     /**
      * A [StarlarkBigInt] is never equal to an Int, because big ints are outside Int range.
      * Rust: `impl PartialEq<i32> for StarlarkBigInt`
@@ -156,7 +149,6 @@ class StarlarkBigInt private constructor(
      *
      * Rust: `fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>`
      */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Bigint.kt
     fun serialize(): Any {
         // Always serialize as a number, prefer i64 if it fits, otherwise u64
         val longVal = try {

@@ -19,14 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.typing.TypingNever
-=======
 import io.github.kotlinmania.starlark_kotlin.Either
 import io.github.kotlinmania.starlark_kotlin.__derive_refs.NativeCallableComponents
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
@@ -59,7 +51,6 @@ private fun format(value: Any?): String {
         else -> value.toString()
     }
 }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
 
 /**
  * A typing operation wasn't able to produce a precise result,
@@ -79,55 +70,15 @@ data class Approximation(
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-                message = debugAny(message),
-=======
                 message = format(message),
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
             )
         }
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-    /** Format as `Approximation: <category> = <debug(message)>`. */
-    fun fmt(): String = "Approximation: " + category + " = " + debugString(message)
-
-    override fun toString(): String = fmt()
-
-    override fun compareTo(other: Approximation): Int {
-        val cmp = category.compareTo(other.category)
-        return if (cmp != 0) cmp else message.compareTo(other.message)
-    }
-}
-
-private fun debugAny(value: Any): String {
-    return when (value) {
-        is String -> debugString(value)
-        else -> value.toString()
-    }
-}
-
-private fun debugString(value: String): String {
-    val out = StringBuilder()
-    out.append('"')
-    for (c in value) {
-        when (c) {
-            '\\' -> out.append("\\\\")
-            '"' -> out.append("\\\"")
-            '\n' -> out.append("\\n")
-            '\r' -> out.append("\\r")
-            '\t' -> out.append("\\t")
-            else -> out.append(c)
-        }
-    }
-    out.append('"')
-    return out.toString()
-=======
     // impl Display for Approximation
     override fun toString(): String {
         return "Approximation: $category = ${format(message)}"
     }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
 }
 
 /**
@@ -168,11 +119,7 @@ data class Ty private constructor(
         fun none(): Ty = basic(TyBasic.none())
 
         /** Create a boolean type. */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-        fun bool(): Ty = starlarkValue(TyStarlarkValue.bool())
-=======
         fun bool(): Ty = basic(TyBasic.StarlarkValue(TyStarlarkValue.bool()))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
 
         /** Create the int type. */
         fun int(): Ty = basic(TyBasic.int())
@@ -379,23 +326,15 @@ data class Ty private constructor(
      * Types like [Ty.any] will return `null`.
      */
     fun asName(): String? {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-        val xs = alternatives.asSlice()
-        return when (xs.size) {
-            1 -> xs[0].asName()
-            else -> null
-        }
-=======
         val slice = alternatives.asSlice()
         return if (slice.size == 1) slice[0].asName() else null
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
     }
 
     /** This type is `TyStarlarkValue`. */
     internal fun isStarlarkValue(): TyStarlarkValue? {
-        val xs = iterUnion()
-        return if (xs.size == 1 && xs[0] is TyBasic.StarlarkValue) {
-            (xs[0] as TyBasic.StarlarkValue).value
+        val slice = iterUnion()
+        return if (slice.size == 1 && slice[0] is TyBasic.StarlarkValue) {
+            (slice[0] as TyBasic.StarlarkValue).value
         } else {
             null
         }
@@ -408,7 +347,10 @@ data class Ty private constructor(
     fun isNever(): Boolean = alternatives.isEmpty()
 
     /** Check if this type is a list. */
-    fun isList(): Boolean = alternatives.asSlice().let { xs -> xs.size == 1 && xs[0] is TyBasic.List }
+    fun isList(): Boolean {
+        val slice = alternatives.asSlice()
+        return slice.size == 1 && slice[0] is TyBasic.List
+    }
 
     /** Check if this is a function type. */
     fun isFunction(): Boolean = asName() == "function"
@@ -420,16 +362,8 @@ data class Ty private constructor(
      * probably it does not do what you think.
      */
     fun asFunction(): TyFunction? {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-        val xs = iterUnion()
-        return when (xs.size) {
-            1 -> xs[0].asFunction()
-            else -> null
-        }
-=======
         val slice = iterUnion()
         return if (slice.size == 1) slice[0].asFunction() else null
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
     }
 
     /**
@@ -493,11 +427,7 @@ data class Ty private constructor(
         expectedReturnType: Ty,
     ): Boolean {
         val oracle = TypingOracleCtx(
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-            codemap = CodeMap.new("", ""),
-=======
             codemap = CodeMap.emptyStatic(),
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
         )
         val ret = oracle.validateCall(
             Span.DEFAULT,
@@ -522,13 +452,14 @@ data class Ty private constructor(
      */
     internal fun checkIntersects(other: Ty): Result<Boolean> {
         val oracle = TypingOracleCtx(
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Ty.kt
-            codemap = CodeMap.new("", ""),
-=======
             codemap = CodeMap.emptyStatic(),
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Ty.kt
         )
-        return oracle.intersects(this, other)
+        val result = oracle.intersects(this, other)
+        return if (result.isSuccess) {
+            Result.success(result.getOrThrow())
+        } else {
+            Result.failure(result.exceptionOrNull()!!)
+        }
     }
 
     /** Format with a custom rendering configuration. */

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Matcher.kt
-// port-lint: source values/typing/type_compiled/matcher.rs
-package io.github.kotlinmania.starlark.values.typing.typecompiled
-=======
 // port-lint: source src/values/typing/type_compiled/matcher.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Matcher.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,12 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.typing.TyCustom
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Matcher.kt
-/** Marker interface for type matchers which are registered. */
-interface TypeMatcherRegistered
-
-/** Base interface for type matchers. */
-=======
 /**
  * Marker interface for type matchers which are registered.
  *
@@ -50,7 +39,6 @@ interface TypeMatcherRegistered
  * In Kotlin the combined constraints are represented as an empty base interface.
  */
 // pub trait TypeMatcherBase: Allocative + Debug + Clone + Sized + Send + Sync + 'static {}
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Matcher.kt
 interface TypeMatcherBase
 
 /**
@@ -72,11 +60,8 @@ internal interface TypeMatcherDyn {
     fun toBox(): TypeMatcherBox
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Matcher.kt
-=======
 // impl<T: TypeMatcher> TypeMatcherDyn for T — blanket impl
 // In Kotlin we provide a wrapper adapter instead.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Matcher.kt
 internal class TypeMatcherDynAdapter<T : TypeMatcherT>(private val inner: T) : TypeMatcherDyn {
     override fun matchesDyn(value: Value): Boolean = inner.matches(value)
     override fun isWildcardDyn(): Boolean = inner.isWildcard()

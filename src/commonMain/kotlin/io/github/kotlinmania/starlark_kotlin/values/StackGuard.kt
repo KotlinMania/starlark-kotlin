@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/StackGuard.kt
-// port-lint: source values/stack_guard.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: source src/values/stack_guard.rs
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/StackGuard.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,14 +21,9 @@ package io.github.kotlinmania.starlark_kotlin.values
 
 /** Guard to check we don't recurse too deeply with nested operations like Equals. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/StackGuard.kt
-import io.github.kotlinmania.starlark.unlikely
-import io.github.kotlinmania.threadlocal.ThreadLocal
-=======
 import io.github.kotlinmania.starlark_kotlin.unlikely
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/StackGuard.kt
 
 // Maximum recursion level for comparison
 private const val MAX_RECURSION: Int = 3000
@@ -49,39 +39,36 @@ private const val MAX_RECURSION: Int = 3000
 //   starlark function which calls to_str. We could change all evaluation stack
 //   signatures to accept some "context" parameters, but passing it as
 //   thread-local is easier.
-private class StackDepth(
-    var value: Int,
-)
-
-private val STACK_DEPTH: ThreadLocal<StackDepth> = ThreadLocal()
-
-private fun stackDepth(): StackDepth = STACK_DEPTH.getOr { StackDepth(value = 0) }
+@OptIn(ExperimentalAtomicApi::class)
+private val STACK_DEPTH: AtomicInt = AtomicInt(0)
 
 /**
  * Stored previous stack depth before calling [stackGuard].
  *
  * Stores the previous stack depth back to thread-local on [close].
  */
+@OptIn(ExperimentalAtomicApi::class)
 class StackGuard internal constructor(
     private val prevDepth: Int,
 ) : AutoCloseable {
     // impl Drop for StackGuard
     override fun close() {
-        stackDepth().value = prevDepth
+        STACK_DEPTH.store(prevDepth)
     }
 }
 
 /** Increment stack depth. */
+@OptIn(ExperimentalAtomicApi::class)
 private fun inc(): StackGuard {
-    val depth = stackDepth()
-    val prevDepth = depth.value
-    depth.value = prevDepth + 1
-    return StackGuard(prevDepth = prevDepth)
+    val prevDepth = STACK_DEPTH.load()
+    STACK_DEPTH.store(prevDepth + 1)
+    return StackGuard(prevDepth)
 }
 
 /** Check stack depth does not exceed configured max stack depth. */
+@OptIn(ExperimentalAtomicApi::class)
 private fun check() {
-    if (unlikely(stackDepth().value >= MAX_RECURSION)) {
+    if (unlikely(STACK_DEPTH.load() >= MAX_RECURSION)) {
         throw ControlError.TooManyRecursionLevel
     }
 }

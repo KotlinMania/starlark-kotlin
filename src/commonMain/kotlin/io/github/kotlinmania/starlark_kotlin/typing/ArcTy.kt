@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/ArcTy.kt
-// port-lint: source typing/arc_ty.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/arc_ty.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/ArcTy.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -46,10 +41,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
     data object Int : ArcTyInner()
     data object Bool : ArcTyInner()
     data object None : ArcTyInner()
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/ArcTy.kt
-    /** Default implementation. */
-    data class Arc(val ty: Ty) : ArcTyInner()
-=======
     /// Default implementation.
     // Arc(Arc<Ty>),
     data class Wrapped(val ty: Ty) : ArcTyInner()
@@ -63,7 +54,6 @@ private sealed class ArcTyInner : Comparable<ArcTyInner> {
         is None -> 5
         is Wrapped -> 6
     }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/ArcTy.kt
 
     override fun compareTo(other: ArcTyInner): kotlin.Int {
         val cmp = ordinal().compareTo(other.ordinal())

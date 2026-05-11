@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/ForLoop.kt
-// port-lint: source eval/bc/for_loop.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 // port-lint: source src/eval/bc/for_loop.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/ForLoop.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

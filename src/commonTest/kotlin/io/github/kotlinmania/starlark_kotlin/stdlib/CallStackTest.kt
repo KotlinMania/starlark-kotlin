@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/stdlib/CallStackTest.kt
-// port-lint: source tests:src/stdlib/callStack.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: tests src/stdlib/call_stack.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/CallStackTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

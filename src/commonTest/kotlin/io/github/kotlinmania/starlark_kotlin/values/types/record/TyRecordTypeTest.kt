@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/record/TyRecordTypeTest.kt
-// port-lint: source tests:src/values/types/record/tyRecordType.rs
-package io.github.kotlinmania.starlark.values.types.record
-=======
 // port-lint: tests src/values/types/record/ty_record_type.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.types.record
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/record/TyRecordTypeTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

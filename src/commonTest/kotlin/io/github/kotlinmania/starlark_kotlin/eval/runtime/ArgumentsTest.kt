@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/eval/runtime/ArgumentsTest.kt
-// port-lint: source tests:src/eval/runtime/arguments.rs
-package io.github.kotlinmania.starlark.eval.runtime
-=======
 // port-lint: tests src/eval/runtime/arguments.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/ArgumentsTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

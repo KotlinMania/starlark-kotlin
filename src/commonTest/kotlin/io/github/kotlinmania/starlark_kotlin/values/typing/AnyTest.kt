@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/ForLoop.kt
-// port-lint: source tests/for_loop.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests src/values/typing/any.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/AnyTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

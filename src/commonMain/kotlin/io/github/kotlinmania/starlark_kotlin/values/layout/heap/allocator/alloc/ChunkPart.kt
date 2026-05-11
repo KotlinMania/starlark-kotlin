@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/ChunkPart.kt
-// port-lint: source values/layout/heap/allocator/alloc/chunk_part.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart
-=======
 // port-lint: source src/values/layout/heap/allocator/alloc/chunk_part.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/ChunkPart.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

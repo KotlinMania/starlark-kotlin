@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/docs/ParseTest.kt
-// port-lint: source tests:src/docs/parse.rs
-package io.github.kotlinmania.starlark.docs
-=======
 // port-lint: tests src/docs/parse.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.docs
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/docs/ParseTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

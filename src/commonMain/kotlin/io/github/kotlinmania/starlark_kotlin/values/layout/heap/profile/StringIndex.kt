@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/profile/StringIndex.kt
-// port-lint: source values/layout/heap/profile/string_index.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex
-=======
 // port-lint: source src/values/layout/heap/profile/string_index.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.string_index
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/profile/StringIndex.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

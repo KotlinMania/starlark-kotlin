@@ -1,12 +1,6 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Globals.kt
-// port-lint: source values/types/string/globals.rs
-package io.github.kotlinmania.starlark.values.types.string
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-=======
 // port-lint: source src/values/types/string/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Globals.kt
 
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.toValue

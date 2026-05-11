@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Traits.kt
-// port-lint: source values/traits.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: source src/values/traits.rs
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Traits.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -125,14 +120,6 @@ interface StarlarkValue {
      */
     fun getTypeStarlarkRepr(): Ty {
         return Ty.starlarkValue(TyStarlarkValue.new(TYPE))
-    }
-
-    /**
-     * Please do not implement this method or [getType], but use the
-     * `@StarlarkValue` annotation / processor.
-     */
-    fun pleaseUseStarlarkTypeMacro() {
-        error("This function is implemented by @StarlarkValue proc macro")
     }
 
     /**
@@ -265,15 +252,15 @@ interface StarlarkValue {
     }
 
     /** Return the result of `a[index]` if `a` is indexable. */
-    fun at(index: Value, heap: Heap): Result<Value> {
+    fun at(index: Value, _heap: Heap): Result<Value> {
         return ValueError.unsupportedWith(TYPE, "[]", index)
     }
 
     /** Return the result of `a[index0, index1]` if `a` is indexable by two parameters. */
     fun at2(
-        index0: Value,
-        index1: Value,
-        heap: Heap,
+        _index0: Value,
+        _index1: Value,
+        _heap: Heap,
     ): Result<Value> {
         return ValueError.unsupported(TYPE, "[,]")
     }

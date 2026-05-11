@@ -46,11 +46,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingBinOp as Oracle
 // Rust: pub const INT_TYPE: &str = "int";
 const val INT_TYPE: String = "int"
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/int/PointerI32.kt
-// WARNING: This type isn't a real type, a pointer to this is secretly an i32.
-// Therefore, don't derive stuff on it, since it will be wrong.
-// However, `ProvidesStaticType` promises not to peek at its value, so that's fine.
-=======
 /**
  * Integer value stored inline using pointer tagging.
  *
@@ -62,7 +57,6 @@ const val INT_TYPE: String = "int"
  * the same Starlark `"int"` type name.
  */
 // Rust: pub(crate) struct PointerI32 { _private: () }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/PointerI32.kt
 internal class PointerI32 internal constructor(
     /** The inline integer value this pointer represents. */
     private val value: InlineInt,

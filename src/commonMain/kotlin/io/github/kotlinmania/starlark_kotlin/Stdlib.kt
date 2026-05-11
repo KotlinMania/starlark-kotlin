@@ -1,28 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Stdlib.kt
-// port-lint: source stdlib.rs
-package io.github.kotlinmania.starlark
-
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.stdlib.breakpointGlobal
-import io.github.kotlinmania.starlark.stdlib.callStackGlobal
-import io.github.kotlinmania.starlark.stdlib.funcs.registerGlobals
-import io.github.kotlinmania.starlark.stdlib.internal.registerInternal
-import io.github.kotlinmania.starlark.stdlib.partialStdlib
-import io.github.kotlinmania.starlark.stdlib.registerDebug
-import io.github.kotlinmania.starlark.stdlib.registerFilter
-import io.github.kotlinmania.starlark.stdlib.json
-import io.github.kotlinmania.starlark.stdlib.registerMap
-import io.github.kotlinmania.starlark.stdlib.registerPprint
-import io.github.kotlinmania.starlark.stdlib.registerPrint
-import io.github.kotlinmania.starlark.stdlib.registerPrepr
-import io.github.kotlinmania.starlark.stdlib.registerPstr
-import io.github.kotlinmania.starlark.values.types.enumeration.registerEnum
-import io.github.kotlinmania.starlark.values.types.namespace.registerNamespace
-import io.github.kotlinmania.starlark.values.types.record.registerRecord
-import io.github.kotlinmania.starlark.values.types.set.registerSet
-import io.github.kotlinmania.starlark.values.types.structs.registerStruct
-import io.github.kotlinmania.starlark.values.typing.registerTyping
-=======
 // port-lint: source src/stdlib.rs
 package io.github.kotlinmania.starlark_kotlin
 
@@ -46,7 +21,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.record.registerRecord
 import io.github.kotlinmania.starlark_kotlin.values.types.set.registerSet
 import io.github.kotlinmania.starlark_kotlin.values.types.structs.registerStruct
 import io.github.kotlinmania.starlark_kotlin.values.typing.registerTyping
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Stdlib.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -180,7 +154,7 @@ enum class LibraryExtension {
             Pstr -> registerPstr(builder)
             Prepr -> registerPrepr(builder)
             Breakpoint -> breakpointGlobal(builder)
-            Json -> json(builder)
+            Json -> registerJson(builder)
             Typing -> registerTyping(builder)
             Internal -> registerInternal(builder)
             CallStack -> callStackGlobal(builder)

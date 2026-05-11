@@ -1,13 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Performance.kt
-// port-lint: source analysis/performance.rs
-package io.github.kotlinmania.starlark.analysis
-
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlarksyntax.codemap.*
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.values.layout.size
-=======
 // port-lint: source src/analysis/performance.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
@@ -17,7 +7,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark_kotlin.values.layout.size
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Performance.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

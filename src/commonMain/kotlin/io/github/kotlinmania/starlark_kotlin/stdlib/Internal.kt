@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Internal.kt
-// port-lint: source stdlib/internal.rs
-package io.github.kotlinmania.starlark.stdlib.internal
-=======
 // port-lint: source src/stdlib/internal.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib.internal
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Internal.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -37,16 +32,10 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 // #[starlark_module]
 // fn starlark_rust_internal_members(globals: &mut GlobalsBuilder)
 private fun starlarkRustInternalMembers(globals: GlobalsBuilder) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Internal.kt
-    fun tyOfValueDebug(value: Value): Result<String> =
-        Result.success(Ty.ofValue(value).toString())
-
-=======
     // fn ty_of_value_debug(#[starlark(require = pos)] value: Value) -> anyhow::Result<String>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Internal.kt
     globals.setFunction("ty_of_value_debug") { args, eval ->
         val value: Value = args.full.pos.firstOrNull() ?: Value.newNone()
-        tyOfValueDebug(value).map { eval.heap().allocStr(it) }
+        eval.heap().allocStr(Ty.ofValue(value).toString())
     }
 }
 

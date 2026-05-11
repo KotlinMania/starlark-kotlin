@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Globals.kt
-// port-lint: source values/types/list/globals.rs
-package io.github.kotlinmania.starlark.values.types.list
-=======
 // port-lint: source src/values/types/list/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Globals.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,21 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.list
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Globals.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyFunction
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark.typing.TyCallArgs
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
@@ -54,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Globals.kt
 
 /**
  * Custom type function implementation for the `list` constructor.
@@ -146,8 +125,6 @@ internal fun registerList(globals: GlobalsBuilder) {
 /**
  * Implementation of the `list()` built-in function.
  *
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Globals.kt
-=======
  * The function is annotated in Rust with:
  * - `as_type = FrozenList` (establishes the canonical type)
  * - `speculative_exec_safe` (safe for speculative evaluation)
@@ -157,7 +134,6 @@ internal fun registerList(globals: GlobalsBuilder) {
  * The return type in Rust is `ValueOfUnchecked<&ListRef>`, wrapping
  * the newly allocated list. In Kotlin we return a plain `Result<Value>`.
  *
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Globals.kt
  * @param a Optional iterable argument. If `null`, returns an empty list.
  * @param heap The heap on which to allocate the new list.
  * @return A new list value.

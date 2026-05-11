@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Simd.kt
-// port-lint: source values/types/string/simd.rs
-package io.github.kotlinmania.starlark.values.types.string
-=======
 // port-lint: source src/values/types/string/simd.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Simd.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,9 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Simd.kt
-/** Fixed length byte vector API. */
-=======
 /**
  * Fixed length byte vector API.
  *
@@ -34,30 +26,35 @@ package io.github.kotlinmania.starlark_kotlin.values.types.string
  * In Kotlin, we model this as a value-like interface. Implementations should
  * be lightweight and efficiently copyable.
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Simd.kt
 internal interface Vector {
-    /** Fill the vector with given byte value. */
+    /**
+     * Fill the vector with given byte value.
+     */
     fun splat(byte: Byte): Vector
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Simd.kt
-    /** Load the vector from given memory address. */
-=======
     /**
      * Load the vector from given memory address.
      */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Simd.kt
     fun loadUnaligned(ptr: ByteArray, offset: Int): Vector
 
-    /** Store the vector to given memory address. */
+    /**
+     * Store the vector to given memory address.
+     */
     fun storeUnaligned(ptr: ByteArray, offset: Int)
 
-    /** **Signed** element-wise comparison of the vector. */
+    /**
+     * **Signed** element-wise comparison of the vector.
+     */
     fun cmplt(other: Vector): Vector
 
-    /** Element-wise comparison. Result elements contain 0 for false or 0xff for true. */
+    /**
+     * Element-wise comparison. Result elements contain 0 for false or 0xff for true.
+     */
     fun cmpeq(other: Vector): Vector
 
-    /** Bitwise or. */
+    /**
+     * Bitwise or.
+     */
     fun or(other: Vector): Vector
 
     /**
@@ -67,18 +64,20 @@ internal interface Vector {
     fun movemask(): UInt
 }
 
-/** Run different code depending on whether SIMD is available or not. */
+/**
+ * Run different code depending on whether SIMD is available or not.
+ */
 internal interface SwitchHaveSimd<R> {
-    /** This function is called when SIMD is not available. */
+    /**
+     * This function is called when SIMD is not available.
+     */
     fun noSimd(): R
 
-    /** This function is called when SIMD is available. */
+    /**
+     * This function is called when SIMD is available.
+     */
     fun <V : Vector> simd(): R
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Simd.kt
-    /** Call either [simd] or [noSimd] function. */
-    fun switch(): R = noSimd()
-=======
     /**
      * Call either [simd] or [noSimd] function.
      */
@@ -99,5 +98,4 @@ internal interface SwitchHaveSimd<R> {
  */
 internal fun <R> SwitchHaveSimd<R>.switchImpl(): R {
     return noSimd()
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Simd.kt
 }

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/int/IntOrBigTest.kt
-// port-lint: source tests:src/values/types/int/intOrBig.rs
-package io.github.kotlinmania.starlark.values.types.int
-=======
 // port-lint: tests src/values/types/int/int_or_big.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.types.int
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/IntOrBigTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

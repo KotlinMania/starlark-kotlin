@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/funcs/Zip.kt
-// port-lint: source stdlib/funcs/zip.rs
-package io.github.kotlinmania.starlark.stdlib.funcs.zip
-=======
 // port-lint: source src/stdlib/funcs/zip.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/funcs/Zip.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,22 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.zip
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/funcs/Zip.kt
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.TyCallArgs
-import io.github.kotlinmania.starlark.typing.TyCustomFunctionImpl
-import io.github.kotlinmania.starlark.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.types.list.allocList
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.ParamSpec
@@ -53,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.list.allocList
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/funcs/Zip.kt
 
 class ZipType : TyCustomFunctionImpl {
     override fun asCallable(): TyCallable {

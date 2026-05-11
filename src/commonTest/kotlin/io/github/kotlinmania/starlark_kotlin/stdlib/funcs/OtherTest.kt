@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/stdlib/funcs/OtherTest.kt
-// port-lint: source tests:src/stdlib/funcs/other.rs
-package io.github.kotlinmania.starlark.stdlib.funcs
-=======
 // port-lint: tests src/stdlib/funcs/other.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/funcs/OtherTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

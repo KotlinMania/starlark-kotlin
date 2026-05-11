@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/int/IntOrBig.kt
-// port-lint: source values/types/int/int_or_big.rs
-package io.github.kotlinmania.starlark.values.types.int
-=======
 // port-lint: source src/values/types/int/int_or_big.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/IntOrBig.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -131,12 +126,9 @@ sealed class StarlarkInt {
             }
         }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/int/IntOrBig.kt
-=======
         // Rust: impl From<TokenInt> for StarlarkInt
         // TokenInt is not yet fully ported; parsing is handled by fromStrRadix.
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/IntOrBig.kt
         fun from(value: UInt): StarlarkInt = fromImpl(
             value,
             { v -> InlineInt.tryFrom(v.toInt()).getOrNull()?.takeIf { it.toI32().toUInt() == v } },

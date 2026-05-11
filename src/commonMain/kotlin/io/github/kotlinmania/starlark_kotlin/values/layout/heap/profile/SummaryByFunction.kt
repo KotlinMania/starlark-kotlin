@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/profile/SummaryByFunction.kt
-// port-lint: source values/layout/heap/profile/summary_by_function.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile
-=======
 // port-lint: source src/values/layout/heap/profile/summary_by_function.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/profile/SummaryByFunction.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -53,7 +48,7 @@ internal data class FuncInfo(
             val result = FuncInfo()
             for (x in xs) {
                 result.calls += x.calls
-                result.time = result.time + x.time
+                result.time += x.time
                 for ((k, v) in x.allocations) {
                     val entry = result.allocations.getOrPut(k) { AllocCounts() }
                     entry += v
@@ -104,7 +99,7 @@ internal class HeapSummaryByFunction(
     ): SmallDuration {
         var timeRec = SmallDuration()
         for ((func, child) in frame.callees) {
-            timeRec = timeRec + initChild(func, child, name, strings)
+            timeRec += initChild(func, child, name, strings)
         }
         return timeRec
     }
@@ -117,18 +112,17 @@ internal class HeapSummaryByFunction(
         strings: StringIndex,
     ): SmallDuration {
         val funcStr = strings.get(func)
-        val funcInfo = info.getOrPut(funcStr) { FuncInfo() }
-        funcInfo.time = funcInfo.time + frame.timeX2
-        funcInfo.calls += frame.callsX2
-        val callerEntry = funcInfo.callers
+        info.getOrPut(funcStr) { FuncInfo() }.time += frame.timeX2
+        info.getOrPut(funcStr) { FuncInfo() }.calls += frame.callsX2
+        val callerEntry = info.getOrPut(funcStr) { FuncInfo() }.callers
         callerEntry[caller] = (callerEntry[caller] ?: 0) + 1
         for ((t, allocs) in frame.allocs.summary) {
-            val entry = funcInfo.allocations.getOrPut(t) { AllocCounts() }
+            val entry = info.getOrPut(funcStr) { FuncInfo() }.allocations.getOrPut(t) { AllocCounts() }
             entry += allocs
         }
 
         val timeRec = frame.timeX2 + initChildren(frame, funcStr, strings)
-        funcInfo.timeRec = funcInfo.timeRec + timeRec
+        info.getOrPut(funcStr) { FuncInfo() }.timeRec += timeRec
         return timeRec
     }
 

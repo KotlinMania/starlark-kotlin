@@ -1,12 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/bc/Call.kt
-// port-lint: source tests/bc/call.rs
-package io.github.kotlinmania.starlark.tests.bc
-
-import kotlin.test.Test
-=======
 // port-lint: source src/values/types/tuple.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Tuple.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

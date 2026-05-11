@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/scope/ScopeResolverGlobals.kt
-// port-lint: source eval/compiler/scope/scope_resolver_globals.rs
-package io.github.kotlinmania.starlark.eval.compiler.scope
-=======
 // port-lint: source src/eval/compiler/scope/scope_resolver_globals.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.scope
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/scope/ScopeResolverGlobals.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/bc/Golden.kt
-// port-lint: source tests/bc/golden.rs
-package io.github.kotlinmania.starlark.tests.bc
-=======
 // port-lint: tests tests/bc/golden.rs
 package io.github.kotlinmania.starlark_kotlin.tests.bc
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/bc/Golden.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/Unbound.kt
-// port-lint: source values/types/unbound.rs
-package io.github.kotlinmania.starlark.values.types
-=======
 // port-lint: source src/values/types/unbound.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Unbound.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

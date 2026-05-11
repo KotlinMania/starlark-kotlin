@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/compiler/Call.kt
-// port-lint: source eval/bc/compiler/call.rs
-package io.github.kotlinmania.starlark.eval.bc.compiler
-=======
 // port-lint: source src/eval/bc/compiler/call.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/compiler/Call.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,40 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc.compiler
 
 /** Compile function calls. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/compiler/Call.kt
-import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFull
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPos
-import io.github.kotlinmania.starlark.eval.bc.BcNativeFunction
-import io.github.kotlinmania.starlark.eval.bc.BcWriter
-import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
-import io.github.kotlinmania.starlark.eval.bc.resolve
-import io.github.kotlinmania.starlark.eval.bc.CallArg
-import io.github.kotlinmania.starlark.eval.bc.CallFrozenArg
-import io.github.kotlinmania.starlark.eval.bc.CallFrozenDefArg
-import io.github.kotlinmania.starlark.eval.bc.CallMethodArg
-import io.github.kotlinmania.starlark.eval.bc.CallMaybeKnownMethodArg
-import io.github.kotlinmania.starlark.eval.bc.BcNativeFunctionCallable
-import io.github.kotlinmania.starlark.eval.bc.FrozenValueCallable
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosCallArgs
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullCallArgs
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsPosForDef
-import io.github.kotlinmania.starlark.eval.bc.BcCallArgsFullForDef
-import io.github.kotlinmania.starlark.eval.compiler.args.ArgsCompiledValue
-import io.github.kotlinmania.starlark.eval.compiler.CallCompiled
-import io.github.kotlinmania.starlark.eval.compiler.ExprCompiled
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.types.NativeFunction
-import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.values.types.getKnownMethod
-import io.github.kotlinmania.starlark.eval.bc.compiler.assign.markDefinitelyAssignedAfter
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.eval.compiler.DefGen
-=======
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcCallArgsFull
@@ -93,7 +54,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.FrozenDef
 
 // impl ArgsCompiledValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/compiler/Call.kt
 
 /**
  * After evaluation of function arguments like `foo(a, b=c[d], **e)`,
@@ -342,12 +302,9 @@ internal fun IrSpanned<CallCompiled>.writeBcCall(target: BcSlotOut, bc: BcWriter
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/compiler/Call.kt
-=======
 /** Simple Either type to match Rust's `either::Either`. */
 // use either::Either;
 internal sealed class Either<out L, out R> {
     data class Left<L>(val value: L) : Either<L, Nothing>()
     data class Right<R>(val value: R) : Either<Nothing, R>()
 }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/compiler/Call.kt

@@ -1,10 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Callable.kt
-// port-lint: source typing/tests/callable.rs
-package io.github.kotlinmania.starlark.typing
-
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
-=======
 // port-lint: source src/typing/callable.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
@@ -25,7 +18,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Callable.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

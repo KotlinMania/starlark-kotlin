@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/environment/Names.kt
-// port-lint: source environment/names.rs
-package io.github.kotlinmania.starlark.environment
-=======
 // port-lint: source src/environment/names.rs
 package io.github.kotlinmania.starlark_kotlin.environment
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/environment/Names.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -51,6 +46,7 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Visibility
 // #[derive(Debug)]
 // pub(crate) struct MutableNames(RefCell<SmallMap<FrozenStringValue, (ModuleSlotId, Visibility)>>);
 class MutableNames {
+    // RefCell<SmallMap<...>> → mutable SmallMap field
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
     // impl MutableNames
@@ -113,18 +109,10 @@ class MutableNames {
 
     // pub(crate) fn hide_name(&self, name: &str)
     fun hideName(name: String) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/environment/Names.kt
-        val index = map.iterHashed().withIndex().firstOrNull { (_, entry) ->
-            entry.first.key().asStr() == name
-        }?.index
-        if (index != null) {
-            map.shiftRemoveIndex(index)
-=======
         // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we find the index by string content.
         val index = map.entries.indexOfFirst { it.key.key().asStr() == name }
         if (index >= 0) {
             map.entries.removeAt(index)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/environment/Names.kt
         }
     }
 

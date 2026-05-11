@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/freeze/Basic.kt
-// port-lint: source tests/derive/freeze/basic.rs
-package io.github.kotlinmania.starlark.tests.derive.freeze
-=======
 // port-lint: source src/values/types/num.rs
 package io.github.kotlinmania.starlark_kotlin.values.types
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/Num.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

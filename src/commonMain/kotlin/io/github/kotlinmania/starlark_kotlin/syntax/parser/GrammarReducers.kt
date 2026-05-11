@@ -1,14 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-// port-lint: source ../starlark_syntax/src/syntax/grammar.lalrpop
-package io.github.kotlinmania.starlark.syntax.parser
-
-import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlark.syntax.ast.*
-import io.github.kotlinmania.starlark.syntax.lexer.*
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-=======
 package io.github.kotlinmania.starlark_kotlin.syntax.parser
 
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
@@ -17,7 +6,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.lexer.*
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
 
 fun <T> T.ast(begin: Int, end: Int): Spanned<T> = Spanned(this, Span(Pos(begin), Pos(end)))
 
@@ -122,19 +110,12 @@ object GrammarReducers {
         }
         10 -> {
             // // (":" <Test?>)? = ":", Test => ActionFn(271);
-            // Variant8's payload is NullableOption<Spanned<ExprP<...>>> (the Rust type is
-            // Option<Option<AstExpr>>). __action271 is statically typed to return that
-            // wrapper, so this push needs no cast.
             val __sym1 = symbols.popUnwrap()
             val __sym0 = symbols.popUnwrap()
             val __start = __sym0.first;
             val __end = __sym1.third;
             val __nt = __action271(state, __sym0, __sym1);
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-            symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt), __end))
-=======
             symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
             return 2 to 5
         }
         11 -> {
@@ -143,11 +124,7 @@ object GrammarReducers {
             val __start = __sym0.first;
             val __end = __sym0.third;
             val __nt = __action272(state, __sym0);
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-            symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt), __end))
-=======
             symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
             return 1 to 5
         }
         12 -> {
@@ -155,11 +132,7 @@ object GrammarReducers {
             val __start = lookaheadStart ?: symbols.lastOrNull()?.third ?: 0;
             val __end = __start;
             val __nt = __action159(state, __start, __end);
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-            symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt), __end))
-=======
             symbols.add(Triple(__start, GrammarSymbol.Variant8(__nt as AstExpr?), __end))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
             return 0 to 5
         }
         13 -> {
@@ -3533,22 +3506,10 @@ fun __action76(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserS
 
 fun __action77(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>, sym2: Triple<Int, Any?, Int>, sym3: Triple<Int, Any?, Int>, sym4: Triple<Int, Any?, Int>, sym5: Triple<Int, Any?, Int>, sym6: Triple<Int, Any?, Int>, sym7: Triple<Int, Any?, Int>, sym8: Triple<Int, Any?, Int>): Any? {
     val l = sym0.second as Int
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-    val e = sym1.second as Spanned<ExprP<AstNoPayload>>
-    val i1 = sym3.second as Spanned<ExprP<AstNoPayload>>?
-    val i2 = sym5.second as Spanned<ExprP<AstNoPayload>>?
-    // sym6 is the `(":" <Test?>)?` slot. The Rust action body for this production is
-    // `i3.unwrap_or(None).map(|x| Box::new(x))` — collapse the outer Option by treating
-    // None and Some(None) both as "no third slice argument," and Some(Some(v)) as v.
-    // [NullableOption.unwrapOrNull] is the matching Kotlin idiom.
-    val i3Wrapped = sym6.second as NullableOption<Spanned<ExprP<AstNoPayload>>>
-    val i3 = i3Wrapped.unwrapOrNull()
-=======
     val e = sym1.second as AstExpr
     val i1 = sym3.second as AstExpr?
     val i2 = sym5.second as AstExpr?
     val i3 = sym6.second as AstExpr?
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
     val r = sym8.second as Int
     val __ret = run {
           ExprP.Slice<AstNoPayload>(e, i1, i2, i3)
@@ -4161,31 +4122,6 @@ fun __action157(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     return __ret
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-fun __action158(
-    state: io.github.kotlinmania.starlark.syntax.state.ParserState,
-    sym0: Triple<Int, Any?, Int>,
-): NullableOption<Spanned<ExprP<AstNoPayload>>> {
-    // Mirrors Rust `__action158`: lifts the inner `Option<AstExpr>` (Variant7-shape) into
-    // `Some(Option<AstExpr>)` (Variant8-shape). The Rust source is `Some(__0)` — the outer
-    // Some that distinguishes "matched, inner absent" from "did not match." Kotlin can't
-    // express that with `T??` (nullables flatten), so we use [NullableOption.Present] /
-    // [NullableOption.Empty]: a present-but-empty inner becomes [NullableOption.Empty],
-    // a present-with-value inner becomes [NullableOption.Present].
-    val __0 = sym0.second as Spanned<ExprP<AstNoPayload>>?
-    return if (__0 == null) NullableOption.Empty else NullableOption.Present(__0)
-}
-
-fun __action159(
-    state: io.github.kotlinmania.starlark.syntax.state.ParserState,
-    __lookbehind: Int,
-    __lookahead: Int,
-): NullableOption<Spanned<ExprP<AstNoPayload>>> {
-    // Mirrors Rust `__action159` (`None`): the outer `Option<Option<AstExpr>>` matched
-    // `None`. Carried as [NullableOption.Absent] so the consumer can distinguish "did not
-    // match at all" from "matched with empty inner."
-    return NullableOption.Absent
-=======
 fun __action158(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>): Any? {
     val __0 = sym0.second as AstExpr?
     val __ret = (__0)
@@ -4195,7 +4131,6 @@ fun __action158(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
 fun __action159(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, __lookbehind: Int, __lookahead: Int): Any? {
     val __ret = null
     return __ret
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
 }
 
 fun __action160(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>): Any? {
@@ -5179,18 +5114,8 @@ fun __action267(state: io.github.kotlinmania.starlark_kotlin.syntax.state.Parser
     val __2 = sym2 as Triple<Int, Token, Int>
     val __3 = sym3 as Triple<Int, AstExpr, Int>
     val __4 = sym4 as Triple<Int, Token, Int>
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-    val __5 = sym5 as Triple<Int, Spanned<ExprP<AstNoPayload>>, Int>
-    // sym6 is the `(":" <Test?>)?` slot — Variant8 carries it as NullableOption to
-    // preserve the three-state distinction between "outer None", "Some(inner None)",
-    // and "Some(inner Some(value))" that the upstream Rust grammar expresses with
-    // Option<Option<AstExpr>>. Pulled through unchanged here; the consumer __action77
-    // does the unwrap_or(None) flatten that mirrors the Rust action body.
-    val __6 = sym6 as Triple<Int, NullableOption<Spanned<ExprP<AstNoPayload>>>, Int>
-=======
     val __5 = sym5 as Triple<Int, AstExpr, Int>
     val __6 = sym6 as Triple<Int, AstExpr?, Int>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
     val __7 = sym7 as Triple<Int, Token, Int>
     val __8 = sym8 as Triple<Int, Int, Int>
     val __ret = run {
@@ -5347,56 +5272,42 @@ val __start0 = __2.third;
     return __ret
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-fun __action271(
-    state: io.github.kotlinmania.starlark.syntax.state.ParserState,
-    sym0: Triple<Int, Any?, Int>,
-    sym1: Triple<Int, Any?, Int>,
-): NullableOption<Spanned<ExprP<AstNoPayload>>> {
-    val __0 = sym0 as Triple<Int, Token, Int>
-    val __1 = sym1 as Triple<Int, Spanned<ExprP<AstNoPayload>>, Int>
-    val __start0 = __0.first
-    val __end0 = __1.third
-=======
 fun __action271(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>): Any? {
     val __0 = sym0 as Triple<Int, Token, Int>
     val __1 = sym1 as Triple<Int, AstExpr, Int>
     val __ret = run {
 val __start0 = __0.first;
     val __end0 = __1.third;
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
     val __temp0 = __action263(
         state,
         __0,
         __1,
-    )
+    );
     val __temp0_triple = Triple(__start0, __temp0, __end0)
-    return __action158(
+    __action158(
         state,
         __temp0_triple,
     )
+    }
+    return __ret
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarReducers.kt
-fun __action272(
-    state: io.github.kotlinmania.starlark.syntax.state.ParserState,
-    sym0: Triple<Int, Any?, Int>,
-): NullableOption<Spanned<ExprP<AstNoPayload>>> {
-=======
 fun __action272(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>): Any? {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarReducers.kt
     val __0 = sym0 as Triple<Int, Token, Int>
-    val __start0 = __0.first
-    val __end0 = __0.third
+    val __ret = run {
+val __start0 = __0.first;
+    val __end0 = __0.third;
     val __temp0 = __action264(
         state,
         __0,
-    )
+    );
     val __temp0_triple = Triple(__start0, __temp0, __end0)
-    return __action158(
+    __action158(
         state,
         __temp0_triple,
     )
+    }
+    return __ret
 }
 
 fun __action273(state: io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState, sym0: Triple<Int, Any?, Int>, sym1: Triple<Int, Any?, Int>, sym2: Triple<Int, Any?, Int>, sym3: Triple<Int, Any?, Int>, sym4: Triple<Int, Any?, Int>, sym5: Triple<Int, Any?, Int>, sym6: Triple<Int, Any?, Int>, sym7: Triple<Int, Any?, Int>, sym8: Triple<Int, Any?, Int>, sym9: Triple<Int, Any?, Int>): Any? {

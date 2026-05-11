@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Json.kt
-// port-lint: source stdlib/json.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: source src/stdlib/json.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Json.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -93,13 +88,10 @@ class JsonNumber(private val raw: String) {
 
 // ---- StarlarkTypeRepr for JsonNumber ----
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Json.kt
-=======
 // impl StarlarkTypeRepr for serde_json::Number
 // Canonical = Either<i32, f64>
 // In Kotlin, we represent this as returning int | float type.
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Json.kt
 /** [StarlarkTypeRepr] implementation for [JsonNumber]. */
 object JsonNumberTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.union2(Ty.int(), Ty.float())
@@ -361,37 +353,46 @@ internal fun parseJsonValue(input: String): JsonValue {
     return jsonElementToJsonValue(element)
 }
 
+// ---- json.encode / json.decode ----
+
+/**
+ * `json.encode`: Encode a Starlark value to a JSON string.
+ *
+ * Delegates to [Value.toJson].
+ */
+fun jsonEncode(x: Value): Result<String> {
+    return x.toJson()
+}
+
+/**
+ * `json.decode`: Decode a JSON string to a Starlark value.
+ *
+ * Parses the input string as JSON and allocates the resulting value on the given heap.
+ */
+fun jsonDecode(x: String, heap: Heap): Result<Value> {
+    return try {
+        val parsed = parseJsonValue(x)
+        Result.success(allocJsonValue(parsed, heap))
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+
 // ---- Module registration ----
 
 // #[starlark_module]
 // fn json_members(globals: &mut GlobalsBuilder)
 private fun jsonMembers(globals: GlobalsBuilder) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Json.kt
-    fun encode(x: Value): Result<String> {
-        return x.toJson()
-    }
-
-    fun decode(x: String, heap: Heap): Result<Value> {
-        return try {
-            val parsed = parseJsonValue(x)
-            Result.success(allocJsonValue(parsed, heap))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-=======
     // fn encode(#[starlark(require = pos)] x: Value) -> anyhow::Result<String>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Json.kt
     globals.setFunction("encode") { args, eval ->
         val x = args.positional<Value>(0)
-        eval.heap().allocStr(encode(x).getOrThrow())
+        eval.heap().allocStr(jsonEncode(x).getOrThrow())
     }
 
     // fn decode<'v>(#[starlark(require = pos)] x: &str, heap: Heap<'v>) -> anyhow::Result<Value<'v>>
     globals.setFunction("decode") { args, eval ->
         val x = args.positional<String>(0)
-        decode(x, eval.heap()).getOrThrow()
+        jsonDecode(x, eval.heap()).getOrThrow()
     }
 }
 
@@ -404,6 +405,6 @@ private fun jsonMembers(globals: GlobalsBuilder) {
  *
  * Provides `json.encode` and `json.decode` following Bazel's json module specification.
  */
-internal fun json(globals: GlobalsBuilder) {
+internal fun registerJson(globals: GlobalsBuilder) {
     globals.namespace("json", ::jsonMembers)
 }

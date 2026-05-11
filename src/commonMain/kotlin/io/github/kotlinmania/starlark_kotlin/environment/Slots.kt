@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/environment/Slots.kt
-// port-lint: source environment/slots.rs
-package io.github.kotlinmania.starlark.environment
-=======
 // port-lint: source src/environment/slots.rs
 package io.github.kotlinmania.starlark_kotlin.environment
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/environment/Slots.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -46,6 +41,7 @@ data class ModuleSlotId(val index: Int) {
 // #[derive(Debug)]
 // pub(crate) struct MutableSlots<'v>(RefCell<Vec<Option<Value<'v>>>>);
 class MutableSlots {
+    // RefCell<Vec<Option<Value>>> → mutable list
     private val slots: MutableList<Value?> = mutableListOf()
 
     // impl MutableSlots

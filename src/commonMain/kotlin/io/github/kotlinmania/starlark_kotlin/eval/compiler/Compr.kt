@@ -1,14 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Compr.kt
-// port-lint: source eval/compiler/compr.rs
-package io.github.kotlinmania.starlark.eval.compiler
-
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
-=======
 // port-lint: source src/eval/compiler/compr.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
@@ -17,7 +6,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.opt_ctx.OptCtx
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Compr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

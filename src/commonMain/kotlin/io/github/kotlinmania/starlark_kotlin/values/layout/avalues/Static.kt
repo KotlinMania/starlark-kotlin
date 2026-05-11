@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/avalues/Static.kt
-// port-lint: source values/layout/avalues/static_.rs
-package io.github.kotlinmania.starlark.values.layout.avalues
-=======
 // port-lint: source src/values/layout/avalues/static_.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.avalues
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/avalues/Static.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -133,17 +128,3 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
         return unpack().toFrozenValue()
     }
 }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/avalues/Static.kt
-
-// Tests are in commonTest.
-
-internal fun testAllocStaticSimple() {
-    class MySimpleValue(val value: UInt) : StarlarkValue {
-        override fun toString(): String = "MySimpleValue"
-    }
-
-    val allocated = AllocStaticSimple.alloc(MySimpleValue(17u))
-    check(17u == allocated.unpack().asRef().value)
-}
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/avalues/Static.kt

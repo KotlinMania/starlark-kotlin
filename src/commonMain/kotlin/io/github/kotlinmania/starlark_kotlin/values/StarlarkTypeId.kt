@@ -51,6 +51,8 @@ data class StarlarkTypeId(
  * We require alignment 8 for `StarlarkValue`.
  * `TypeId` is 16 bytes aligned on Rust 1.72 on Apple Silicon.
  * Use this struct to put `ConstTypeId` in a `StarlarkValue`.
+ *
+ * In Kotlin, there are no alignment concerns; this is a simple wrapper.
  */
 data class StarlarkTypeIdAligned(
     private val starlarkTypeId: StarlarkTypeId,

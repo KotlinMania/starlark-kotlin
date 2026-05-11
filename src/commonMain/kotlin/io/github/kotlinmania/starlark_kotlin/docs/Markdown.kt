@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Markdown.kt
-// port-lint: source docs/markdown.rs
-package io.github.kotlinmania.starlark.docs.markdown
-=======
 // port-lint: source src/docs/markdown.rs
 package io.github.kotlinmania.starlark_kotlin.docs.markdown
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Markdown.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -423,13 +418,10 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Markdown.kt
-=======
 // --- Extension methods on DocModule and DocType (impl blocks in Rust) ---
 
 // impl DocModule
 // pub(super) fn render_markdown_page_for_multipage_render(&self, name: &str, render_config: &RenderConfig) -> String
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Markdown.kt
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,

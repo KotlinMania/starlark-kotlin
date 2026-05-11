@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/BeforeStmt.kt
-// port-lint: source tests/before_stmt.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests tests/before_stmt.rs
 package io.github.kotlinmania.starlark_kotlin.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/BeforeStmt.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

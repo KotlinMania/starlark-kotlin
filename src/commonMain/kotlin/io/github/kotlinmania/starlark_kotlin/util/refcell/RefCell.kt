@@ -103,18 +103,6 @@ internal class RefCell<T>(
 /** "Unleak" a previously leaked [RefCell] borrow (decrement the borrow count by one). */
 internal fun <T> unleakBorrow(refCell: RefCell<T>) {
     val r = refCell.borrow()
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/refcell/RefCell.kt
-    fun drop(b: Ref<T>) {
-        b.close()
-    }
-
-    val b = r.ptrRead()
-    drop(b)
-    drop(r)
-}
-
-=======
     refCell.releaseBorrow()
     r.close()
 }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/refcell/RefCell.kt

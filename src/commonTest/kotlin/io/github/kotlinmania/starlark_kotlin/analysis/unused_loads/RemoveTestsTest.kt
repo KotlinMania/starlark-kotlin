@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/analysis/unusedloads/RemoveTestsTest.kt
-// port-lint: source analysis/unusedLoads/remove_tests.rs
-package io.github.kotlinmania.starlark.analysis.unusedloads
-=======
 // port-lint: tests src/analysis/unused_loads/remove_tests.rs
 package io.github.kotlinmania.starlark_kotlin.analysis.unused_loads
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/unused_loads/RemoveTestsTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

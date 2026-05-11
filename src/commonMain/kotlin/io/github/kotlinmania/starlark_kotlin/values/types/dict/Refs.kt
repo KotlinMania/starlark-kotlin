@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Refs.kt
-// port-lint: source values/types/dict/refs.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/refs.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Refs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,21 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Refs.kt
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.util.refcell.Ref
-import io.github.kotlinmania.starlark.util.refcell.RefCell
-import io.github.kotlinmania.starlark.util.refcell.RefMut
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.values.UnpackValue
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-
-/** Borrowed `Dict`. */
-=======
 // use std::cell::Ref;
 // use std::cell::RefCell;
 // use std::cell::RefMut;
@@ -77,7 +57,6 @@ sealed class Either<out L, out R> {
 // pub struct DictRef<'v> {
 //     pub(crate) aref: Either<Ref<'v, Dict<'v>>, &'v Dict<'v>>,
 // }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Refs.kt
 class DictRef internal constructor(
     internal val aref: Either<Ref<Dict>, Dict>
 )
@@ -85,7 +64,7 @@ class DictRef internal constructor(
 // impl<'v> Clone for DictRef<'v>
 //     fn clone(&self) -> Self
 fun DictRef.clone(): DictRef = when (val ref = this.aref) {
-    is Either.Left -> DictRef(Either.Left(ref.value.ptrRead()))
+    is Either.Left -> DictRef(Either.Left(ref.value.clone()))
     is Either.Right -> DictRef(Either.Right(ref.value))
 }
 
@@ -97,7 +76,7 @@ fun dictRefFromValue(x: Value): DictRef? =
         x.downcastRef<DictGen<FrozenDictData>>()
             ?.let { DictRef(Either.Right(Dict(it.inner.content as SmallMap<Value, Value>))) }
     } else {
-        val ptr = x.downcastRef<DictGen<RefCell<Dict>>>() ?: return null
+        val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
         DictRef(Either.Left(ptr.inner.borrow()))
     }
 
@@ -121,13 +100,8 @@ fun DictRef.iter(): Sequence<Pair<Value, Value>> = when (val ref = aref) {
 //     pub aref: RefMut<'v, Dict<'v>>,
 // }
 class DictMut(
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Refs.kt
-    /** Mutable reference to the dict */
-    internal val aref: RefMut<Dict>
-=======
     /// Mutable reference to the dict
     val aref: RefMut<Dict>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Refs.kt
 )
 
 // impl<'v> DictMut<'v>
@@ -141,7 +115,7 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
         if (x.downcastRef<DictGen<FrozenDictData>>() != null) ValueError.CannotMutateImmutableValue
         else NotDictError(x.getType())
 
-    val ptr = x.downcastRef<DictGen<RefCell<Dict>>>() ?: return Result.failure(error(x))
+    val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
         null -> Result.failure(ValueError.MutationDuringIteration)
         else -> Result.success(DictMut(borrowed))
@@ -189,13 +163,8 @@ object DictRefUnpackValue : UnpackValue<DictRef> {
         Result.success(dictRefFromValue(value))
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Refs.kt
-private fun coerce(data: FrozenDictData): Dict =
-    Dict(data.content as SmallMap<Value, Value>)
-=======
 class Ref<T>(val value: T) {
     fun clone(): Ref<T> = Ref(value)
 }
 
 class RefMut<T>(val value: T)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Refs.kt

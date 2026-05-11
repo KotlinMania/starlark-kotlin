@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Globals.kt
-// port-lint: source values/types/dict/globals.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Globals.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,17 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Globals.kt
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlark.Either
-=======
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Arguments
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -43,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Globals.kt
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
@@ -133,10 +116,4 @@ private fun DictRef.deref(): Dict = when (val ref = aref) {
     is Either.Right -> ref.value
 }
 
-internal fun Dict.clone(): Dict {
-    val copy = SmallMap.withCapacity<Value, Value>(content.len())
-    for ((k, v) in content.iterHashed()) {
-        copy.insertHashedUniqueUnchecked(k, v)
-    }
-    return Dict(copy)
-}
+internal fun Dict.clone(): Dict = Dict(SmallMap(ArrayList(content.entries)))

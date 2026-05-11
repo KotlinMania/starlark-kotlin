@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/stdlib/PartialTest.kt
-// port-lint: source tests:src/stdlib/partial.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: tests src/stdlib/partial.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/PartialTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/TypeAnnot.kt
-// port-lint: source tests/type_annot.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests tests/type_annot.rs
 package io.github.kotlinmania.starlark_kotlin.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/TypeAnnot.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -81,7 +76,7 @@ xs[0] : int = 4
     }
 
     @Test
-    fun testOnlyGlobalsOrBultinsAllowed() {
+    fun testOnlyGlobalsOrBuiltinsAllowed() {
         Assert.fail(
             """
 def f():

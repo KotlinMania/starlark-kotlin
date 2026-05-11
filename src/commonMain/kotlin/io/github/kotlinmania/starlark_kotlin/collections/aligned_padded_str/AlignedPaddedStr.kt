@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/collections/AlignedPaddedStr.kt
-// port-lint: source collections/aligned_padded_str.rs
-package io.github.kotlinmania.starlark.collections.alignedpaddedstr
-=======
 // port-lint: source src/collections/aligned_padded_str.rs
 package io.github.kotlinmania.starlark_kotlin.collections.aligned_padded_str
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/collections/aligned_padded_str/AlignedPaddedStr.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

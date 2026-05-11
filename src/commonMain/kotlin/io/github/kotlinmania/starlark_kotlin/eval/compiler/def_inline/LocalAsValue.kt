@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/definline/LocalAsValue.kt
-// port-lint: source eval/compiler/def_inline/local_as_value.rs
-package io.github.kotlinmania.starlark.eval.compiler.definline.localasvalue
-=======
 // port-lint: source src/eval/compiler/def_inline/local_as_value.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler.def_inline.local_as_value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/def_inline/LocalAsValue.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

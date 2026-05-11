@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Alloc.kt
-// port-lint: source values/typing/type_compiled/alloc.rs
-package io.github.kotlinmania.starlark.values.typing.typecompiled
-=======
 // port-lint: source src/values/typing/type_compiled/alloc.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Alloc.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

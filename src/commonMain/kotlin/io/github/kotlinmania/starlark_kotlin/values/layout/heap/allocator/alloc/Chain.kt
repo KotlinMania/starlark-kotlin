@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/Chain.kt
-// port-lint: source values/layout/heap/allocator/alloc/chain.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
-=======
 // port-lint: source src/values/layout/heap/allocator/alloc/chain.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/Chain.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,9 +22,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/Chain.kt
-/** What is stored inside each node of the ChunkChain linked list. */
-=======
 /**
  * What is stored inside each node of the ChunkChain linked list.
  *
@@ -37,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.
  * of each chunk part. In Kotlin the header is a simple wrapper with
  * a reference to the previous chain node.
  */
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/Chain.kt
 private class ChunkChainData(
     val prev: ChunkChain,
 )
@@ -48,13 +39,10 @@ private class ChunkChainData(
  * Each node in the chain owns a [ChunkPart] whose first [HEADER_SIZE] bytes
  * are reserved for the chain header ([ChunkChainData]).
  * The remaining bytes in the chunk part are available for allocation.
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/Chain.kt
-=======
  *
  * In Rust, the header is written via raw pointer operations (`ptr::write`)
  * into the beginning of the chunk memory. In Kotlin, we store the header
  * as a separate reference since we don't manage raw memory.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/Chain.kt
  */
 internal class ChunkChain private constructor(
     /**

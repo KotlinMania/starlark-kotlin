@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/float/FloatTest.kt
-// port-lint: source tests:src/values/types/float/float.rs
-package io.github.kotlinmania.starlark.values.types.float
-=======
 // port-lint: tests src/values/types/float/float.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.float
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/FloatTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -12,11 +7,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/float/FloatTest.kt
- * you may not import this file except in compliance with the License.
-=======
  * you may not use this file except in compliance with the License.
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/FloatTest.kt
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -28,12 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.float
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/float/FloatTest.kt
-import io.github.kotlinmania.starlark.assert.Assert
-import kotlin.test.Test
-
-class FloatTest {
-=======
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
 import kotlin.math.E
 import kotlin.math.PI
@@ -125,7 +110,6 @@ internal class FloatTest {
 """,
         )
     }
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/FloatTest.kt
 
     @Test
     fun testDictionaryKey() {
@@ -137,21 +121,13 @@ assert_eq(x[0], 123)
 assert_eq(x[noop(0.0)], 123)
 assert_eq(x[noop(-0.0)], 123)
 assert_eq(1 in x, False)
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/float/FloatTest.kt
-        """,
-=======
 """,
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/FloatTest.kt
         )
     }
 
     @Test
     fun testComparisons() {
         val a = Assert()
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/float/FloatTest.kt
-        // TODO(nga): fix and enable.
-=======
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/float/FloatTest.kt
         a.disableStaticTypechecking()
         a.allTrue(
             """

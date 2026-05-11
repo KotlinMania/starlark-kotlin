@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/dialect/Dialect.kt
-// port-lint: source ../starlark_syntax/src/dialect.rs
-package io.github.kotlinmania.starlark.syntax.dialect
-=======
 // port-lint: source src/dialect.rs
 package io.github.kotlinmania.starlark_kotlin.syntax.dialect
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/dialect/Dialect.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Identity.kt
-// port-lint: source values/layout/identity.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 // port-lint: source src/values/layout/identity.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Identity.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

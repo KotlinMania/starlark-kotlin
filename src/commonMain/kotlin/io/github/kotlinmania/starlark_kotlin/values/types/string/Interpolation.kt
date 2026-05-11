@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Interpolation.kt
-// port-lint: source values/types/string/interpolation.rs
-package io.github.kotlinmania.starlark.values.types.string
-=======
 // port-lint: source src/values/types/string/interpolation.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Interpolation.kt
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue

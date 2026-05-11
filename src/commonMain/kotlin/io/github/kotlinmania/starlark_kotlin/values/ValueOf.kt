@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/ValueOf.kt
-// port-lint: source values/value_of.rs
-package io.github.kotlinmania.starlark.values.valueof
-=======
 // port-lint: source src/values/value_of.rs
 package io.github.kotlinmania.starlark_kotlin.values.value_of
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/ValueOf.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

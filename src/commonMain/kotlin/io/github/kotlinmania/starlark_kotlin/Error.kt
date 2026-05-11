@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Error.kt
-// port-lint: source ../starlark_syntax/src/error.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: source starlark_syntax/src/error.rs
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Error.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,16 +19,9 @@ package io.github.kotlinmania.starlark_kotlin
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Error.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.frame.Frame as Frame
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Error.kt
 
 /**
  * An error produced by starlark.

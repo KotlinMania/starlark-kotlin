@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Set.kt
-// port-lint: source values/types/set/set.rs
-package io.github.kotlinmania.starlark.values.types.set
-=======
 // port-lint: source src/values/types/set/set.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Set.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/SmallArcVec.kt
-// port-lint: source typing/small_arc_vec.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/small_arc_vec.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/SmallArcVec.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

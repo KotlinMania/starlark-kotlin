@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/UnpackValueAttr.kt
-// port-lint: source tests/derive/unpack_value_attr.rs
-package io.github.kotlinmania.starlark.tests.derive
-=======
 // port-lint: tests tests/derive/unpack_value_attr.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/UnpackValueAttr.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

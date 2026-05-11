@@ -125,14 +125,7 @@ class FrozenRef<T> internal constructor(
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/FrozenRef.kt
-fun <T> FrozenRef<T>.borrow(): T {
-    return value
-}
-
-=======
 // impl PartialOrd for FrozenRef
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/FrozenRef.kt
 fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? {
     return value.compareTo(other.value)
 }

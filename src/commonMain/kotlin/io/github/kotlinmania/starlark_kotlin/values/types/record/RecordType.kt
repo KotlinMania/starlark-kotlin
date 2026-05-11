@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/record/RecordType.kt
-// port-lint: source values/types/record/record_type.rs
-package io.github.kotlinmania.starlark.values.types.record.recordtype
-=======
 // port-lint: source src/values/types/record/record_type.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.record.record_type
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/record/RecordType.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

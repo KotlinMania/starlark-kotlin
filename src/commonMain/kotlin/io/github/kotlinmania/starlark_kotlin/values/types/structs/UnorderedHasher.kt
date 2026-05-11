@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/structs/UnorderedHasher.kt
-// port-lint: source values/types/structs/unordered_hasher.rs
-package io.github.kotlinmania.starlark.values.types.structs
-=======
 // port-lint: source src/values/types/structs/unordered_hasher.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.structs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/structs/UnorderedHasher.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

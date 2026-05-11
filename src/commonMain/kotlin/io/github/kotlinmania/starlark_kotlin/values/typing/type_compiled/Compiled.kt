@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Compiled.kt
-// port-lint: source values/typing/type_compiled/compiled.rs
-package io.github.kotlinmania.starlark.values.typing.typecompiled
-=======
 // port-lint: source src/values/typing/type_compiled/compiled.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Compiled.kt
 
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiledFactory
@@ -176,27 +171,8 @@ fun typeCompiledCheckMatches(thisValue: Value, value: Value): NoneType {
 
 /** Methods for compiled type values. */
 fun typeCompiledMethods(methods: MethodsBuilder) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/typecompiled/Compiled.kt
-    /** True iff the value matches this type. */
-    fun matches(thisValue: Value, value: Value): Result<Boolean> =
-        Result.success(typeCompiledMatches(thisValue, value))
-
-    /** Error if the value does not match this type. */
-    fun checkMatches(thisValue: Value, value: Value): Result<NoneType> =
-        runCatching { typeCompiledCheckMatches(thisValue, value) }
-
-    methods.setMethod("matches") { eval, thisVal, _, args ->
-        val v = args.positional1(eval.heap()).getOrThrow()
-        matches(thisVal, v).map { Value.newBool(it) }
-    }
-    methods.setMethod("checkMatches") { eval, thisVal, _, args ->
-        val v = args.positional1(eval.heap()).getOrThrow()
-        checkMatches(thisVal, v).map { Value.newNone() }
-    }
-=======
     // methods.addMethod("matches", ::typeCompiledMatches)
     // methods.addMethod("check_matches", ::typeCompiledCheckMatches)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/type_compiled/Compiled.kt
 }
 
 /** Wrapper for a [Value] that acts like a runtime type matcher. */

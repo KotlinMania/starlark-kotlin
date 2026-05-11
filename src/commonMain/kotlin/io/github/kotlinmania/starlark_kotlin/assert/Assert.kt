@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/assert/Assert.kt
-// port-lint: source assert/assert.rs
-package io.github.kotlinmania.starlark.assert
-=======
 // port-lint: source src/assert/assert.rs
 package io.github.kotlinmania.starlark_kotlin.assert
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/assert/Assert.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,29 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.assert
 
 /** Utilities to test Starlark code execution. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/assert/Assert.kt
-import io.github.kotlinmania.starlark.environment.FrozenModule
-import io.github.kotlinmania.starlark.environment.Globals
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.environment.Module
-import io.github.kotlinmania.starlark.stdlib.PrintHandler
-import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.types.structs.AllocStruct
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.positionalAll
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.eval.evalModule
-import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.values.layout.avalues.allocList
-import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
-=======
 import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
 import io.github.kotlinmania.starlark_kotlin.environment.Globals
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
@@ -69,7 +41,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.evalModule
 import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/assert/Assert.kt
 
 /**
  * Print error diagnostic to stderr (or stdout as multiplatform fallback).
@@ -161,11 +132,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
         }
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/assert/Assert.kt
-    fun `true`(x: Value): Result<NoneType> =
-=======
     fun assertTrue(x: Value): Result<NoneType> =
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/assert/Assert.kt
         assertEquals(Value.newBool(x.toBool()), Value.newBool(true))
 
     // We don't allow this at runtime - just to be compatible with the Go Starlark test suite
@@ -185,11 +152,7 @@ private fun assertsStar(builder: GlobalsBuilder) {
     builder.setFunction("ne") { args, _ -> ne(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("lt") { args, _ -> lt(args.positionalAll()[0], args.positionalAll()[1]) }
     builder.setFunction("contains") { args, _ -> contains(args.positionalAll()[0], args.positionalAll()[1]) }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/assert/Assert.kt
-    builder.setFunction("true") { args, _ -> `true`(args.positionalAll()[0]) }
-=======
     builder.setFunction("true") { args, _ -> assertTrue(args.positionalAll()[0]) }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/assert/Assert.kt
     builder.setFunction("freeze") { args, _ -> freeze(args.positionalAll()[0]) }
     builder.setFunction("fails") { args, eval -> fails(args.positionalAll()[0], args.positionalAll()[1].toString(), eval) }
 }

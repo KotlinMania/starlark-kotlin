@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Code.kt
-// port-lint: source docs/code.rs
-package io.github.kotlinmania.starlark.docs
-=======
 // port-lint: source src/docs/code.rs
 package io.github.kotlinmania.starlark_kotlin.docs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Code.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

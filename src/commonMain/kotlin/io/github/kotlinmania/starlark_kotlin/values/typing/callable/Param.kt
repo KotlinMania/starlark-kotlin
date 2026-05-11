@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/callable/Param.kt
-// port-lint: source values/typing/callable/param.rs
-package io.github.kotlinmania.starlark.values.typing.callable
-=======
 // port-lint: source src/values/typing/callable/param.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing.callable
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/callable/Param.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

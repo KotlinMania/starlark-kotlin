@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Def.kt
-// port-lint: source eval/compiler/def.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/def.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Def.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,69 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.compiler
 
 // Implementation of `def`.
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/Def.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.StarlarkHasher
-import io.github.kotlinmania.starlark.docs.DocFunction
-import io.github.kotlinmania.starlark.docs.DocItem
-import io.github.kotlinmania.starlark.docs.DocMember
-import io.github.kotlinmania.starlark.docs.DocString
-import io.github.kotlinmania.starlark.docs.DocStringKind
-import io.github.kotlinmania.starlark.docs.fromDocstring
-import io.github.kotlinmania.starlark.environment.FrozenModuleData
-import io.github.kotlinmania.starlark.environment.Globals
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
-import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
-import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
-import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.eval.bc.Bc
-import io.github.kotlinmania.starlark.eval.bc.allocaFrame
-import io.github.kotlinmania.starlark.eval.bc.compiler.asBc
-import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtx
-import io.github.kotlinmania.starlark.eval.compiler.optctx.OptCtxEvalForOptimizeOnFreeze
-import io.github.kotlinmania.starlark.docs.extractRawStarlarkDocstring
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import io.github.kotlinmania.starlark.typing.DefParam
-import io.github.kotlinmania.starlark.typing.DefParamKind
-import io.github.kotlinmania.starlark.typing.DefParamIndices
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.ParamIsRequired
-import io.github.kotlinmania.starlark.values.AtomicFrozenRefOption
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.ValueLike
-import io.github.kotlinmania.starlark.values.toValue
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
@@ -150,7 +82,6 @@ import io.github.kotlinmania.starlark_kotlin.values.Trace
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
 import io.github.kotlinmania.starlark_kotlin.values.Freeze
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/Def.kt
 
 // ---- DefError ----
 
@@ -447,7 +378,7 @@ internal class DefInfo(
                 signatureSpan = FrozenFileSpan.default(),
                 parameterCaptures = emptyList(),
                 ty = Ty.any(),
-                codemap = FrozenRef(CodeMap.new("", "")),
+                codemap = FrozenRef(CodeMap("", "")),
                 docstring = null,
                 used = emptyList(),
                 parent = emptyList(),

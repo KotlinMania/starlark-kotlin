@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/freeze/Bounds.kt
-// port-lint: source tests/derive/freeze/bounds.rs
-package io.github.kotlinmania.starlark.tests.derive.freeze
-=======
 // port-lint: tests tests/derive/freeze/bounds.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/freeze/Bounds.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

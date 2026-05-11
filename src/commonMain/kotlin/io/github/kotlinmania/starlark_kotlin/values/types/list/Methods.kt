@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Methods.kt
-// port-lint: source values/types/list/methods.rs
-package io.github.kotlinmania.starlark.values.types.list
-=======
 // port-lint: source src/values/types/list/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Methods.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -341,14 +336,11 @@ internal fun clear(thisValue: Value): Result<NoneType> {
  * `extend` fails if `x` is not iterable, or if the list L is frozen or has
  * active iterators.
  *
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Methods.kt
-=======
  * In Rust, the `other` parameter is typed as
  * `ValueOfUnchecked<StarlarkIter<Value>>` to allow the type checker to
  * verify the argument is iterable. In Kotlin, we accept a plain [Value]
  * and perform the iterable check at runtime via [Value.iterate].
  *
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Methods.kt
  * ```starlark
  * x = []
  * x.extend([1, 2, 3])

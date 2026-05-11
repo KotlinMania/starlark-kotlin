@@ -1,18 +1,9 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Types.kt
-// port-lint: source analysis/types.rs
-package io.github.kotlinmania.starlark.analysis
-
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-=======
 // port-lint: source src/analysis/types.rs
 package io.github.kotlinmania.starlark_kotlin.analysis
 
 import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Types.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -162,7 +153,6 @@ class EvalMessage(
             message: Any,
             fullError: Any,
         ): EvalMessage {
-            val original = span.sourceSpan()
             val resolvedSpan = span.resolve()
             return EvalMessage(
                 path = span.description,
@@ -171,11 +161,7 @@ class EvalMessage(
                 name = "error",
                 description = message.toString(),
                 fullErrorWithSpan = fullError.toString(),
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/analysis/Types.kt
-                original = original,
-=======
                 original = null, // span.source_span() not yet available
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/analysis/Types.kt
             )
         }
     }

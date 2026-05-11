@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Runtime.kt
-// port-lint: source tests/runtime.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests tests/runtime.rs
 package io.github.kotlinmania.starlark_kotlin.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Runtime.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -71,25 +66,18 @@ assert_eq(y, str(x))
             override fun toString(): String = "Dealloc"
         }
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Runtime.kt
-        fun mk(): Result<StarlarkAny<Dealloc>> = Result.success(StarlarkAny.new(Dealloc()))
-
-        fun globals(builder: GlobalsBuilder) {
-            builder.setFunction("mk") { _, _ -> mk() }
-=======
         // #[starlark_module]
         // fn globals(builder: &mut GlobalsBuilder)
         fun globalsFunctions(builder: GlobalsBuilder) {
             builder.setFunction("mk") { _, _ ->
                 Result.success(StarlarkAny.new(Dealloc()))
             }
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Runtime.kt
         }
 
         count.store(0)
         val a = Assert()
         a.disableGc()
-        a.globalsAdd(::globals)
+        a.globalsAdd(::globalsFunctions)
         a.module("test", "x = [mk(), mk()]\ndef y(): return mk()")
         a.pass(
             """
@@ -110,18 +98,6 @@ r = [y(), mk()]
         // #[starlark_module]
         // fn measure_stack(builder: &mut GlobalsBuilder)
         val depthCounter = AtomicInt(0)
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Runtime.kt
-        fun stackDepth(): Result<String> {
-            // We don't have direct stack-pointer access here, so we import a
-            // monotonic counter as a proxy to verify that the evaluator
-            // does not grow the stack unboundedly across loop iterations.
-            val depth = depthCounter.fetchAndAdd(1)
-            return Result.success(depth.toString())
-        }
-
-        fun measureStack(builder: GlobalsBuilder) {
-            builder.setFunction("stack_depth") { _, _ -> stackDepth() }
-=======
         fun measureStackFunctions(builder: GlobalsBuilder) {
             builder.setFunction("stack_depth") { _, _ ->
                 // In Kotlin multiplatform we don't have direct stack pointer access.
@@ -130,11 +106,10 @@ r = [y(), mk()]
                 val depth = depthCounter.fetchAndAdd(1)
                 Result.success(depth.toString())
             }
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Runtime.kt
         }
 
         val a = Assert()
-        a.globalsAdd(::measureStack)
+        a.globalsAdd(::measureStackFunctions)
         val s = a.pass(
             """
 for i in range(1001):
@@ -165,28 +140,20 @@ v1 + " " + v100 + " " + v1000
     @Test
     fun testGarbageCollectHappens() {
         // GC is meant to be "not observable", but if we break it, we want this test to fail
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Runtime.kt
-        fun currentUsage(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Int> =
-            Result.success(eval.heap().allocatedBytes())
-=======
         // #[starlark_module]
         // fn helpers(builder: &mut GlobalsBuilder)
         fun helpersFunctions(builder: GlobalsBuilder) {
             builder.setFunction("current_usage") { _, eval ->
                 Result.success(eval.heap().allocatedBytes())
             }
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Runtime.kt
 
-        fun isGcDisabled(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> =
-            Result.success(eval.disableGc)
-
-        fun helpers(builder: GlobalsBuilder) {
-            builder.setFunction("current_usage") { _, eval -> currentUsage(eval) }
-            builder.setFunction("is_gc_disabled") { _, eval -> isGcDisabled(eval) }
+            builder.setFunction("is_gc_disabled") { _, eval ->
+                Result.success(eval.disableGc)
+            }
         }
 
         val a = Assert()
-        a.globalsAdd(::helpers)
+        a.globalsAdd(::helpersFunctions)
 
         // Approach is to keep doing something expensive, and we want to see the memory usage decrease.
         val code = buildString {

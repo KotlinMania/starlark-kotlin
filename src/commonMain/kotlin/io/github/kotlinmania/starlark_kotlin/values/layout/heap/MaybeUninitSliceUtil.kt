@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/MaybeUninitSliceUtil.kt
-// port-lint: source values/layout/heap/maybe_uninit_slice_util.rs
-package io.github.kotlinmania.starlark.values.layout.heap.maybeuninitsliceutil
-=======
 // port-lint: source src/values/layout/heap/maybe_uninit_slice_util.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.maybe_uninit_slice_util
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/MaybeUninitSliceUtil.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,6 +22,9 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.maybe_uninit_sl
 /**
  * Populate a slice (array) with values from iterator, handle exceptions by writing
  * provided fallback value.
+ *
+ * In Kotlin, arrays are always initialized, so MaybeUninit is modeled as Array<T?>.
+ * The fallback write-on-panic semantics are preserved using try/finally.
  */
 internal inline fun <reified T> maybeUninitWriteFromExactSizeIter(
     slice: Array<T?>,

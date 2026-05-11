@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/Extra.kt
-// port-lint: source stdlib/extra.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: source src/stdlib/extra.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Extra.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/SpecialParams.kt
-// port-lint: source tests/derive/module/special_params.rs
-package io.github.kotlinmania.starlark.tests.derive.module
-=======
 // port-lint: tests tests/derive/module/special_params.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/SpecialParams.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -31,15 +26,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStr
 // #[starlark_module]
 // fn functions(builder: &mut GlobalsBuilder)
 private fun functions(builder: GlobalsBuilder) {
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/SpecialParams.kt
-    fun nonStandardHeapName(heap: String, starlarkHeap: io.github.kotlinmania.starlark.values.layout.heap.Heap): Result<io.github.kotlinmania.starlark.values.layout.Value> =
-        Result.success(starlarkHeap.allocStrConcat(heap, "!").toValue())
-
-=======
     // fn non_standard_heap_name(heap: &str, starlark_heap: Heap) -> Result<StringValue>
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/SpecialParams.kt
     builder.setFunction("non_standard_heap_name") { args, eval ->
-        nonStandardHeapName(args.positional<String>(0), eval.heap())
+        val heapParam = args.positional<String>(0)
+        val starlarkHeap = eval.heap()
+        Result.success(starlarkHeap.allocStrConcat(heapParam, "!").toValue())
     }
 }
 

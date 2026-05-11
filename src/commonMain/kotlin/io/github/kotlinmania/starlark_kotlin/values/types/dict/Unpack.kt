@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Unpack.kt
-// port-lint: source values/types/dict/unpack.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/unpack.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Unpack.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

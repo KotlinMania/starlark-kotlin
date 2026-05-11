@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Tuple.kt
-// port-lint: source typing/tuple.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/tuple.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Tuple.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -46,9 +41,11 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 sealed class TyTuple : Comparable<TyTuple> {
 
     /** `tuple[T0, T1, T2]` -- a tuple with specific element types. */
+    // Elems(Arc<[Ty]>)
     data class Elems(val elems: List<Ty>) : TyTuple()
 
     /** `tuple[T, ...]` -- a tuple where all elements have the same type. */
+    // Of(ArcTy)
     data class Of(val item: ArcTy) : TyTuple()
 
     // pub(crate) fn get(&self, i: usize) -> Option<&Ty>

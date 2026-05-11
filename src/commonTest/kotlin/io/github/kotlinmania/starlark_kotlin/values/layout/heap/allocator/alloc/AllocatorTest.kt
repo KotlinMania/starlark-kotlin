@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/AllocatorTest.kt
-// port-lint: source values/layout/heap/allocator/alloc/allocator.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
-=======
 // port-lint: tests src/values/layout/heap/allocator/alloc/allocator.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/AllocatorTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

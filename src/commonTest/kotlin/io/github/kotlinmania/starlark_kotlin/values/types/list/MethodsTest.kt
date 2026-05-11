@@ -1,12 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/bc/ForStmt.kt
-// port-lint: source tests/bc/for_stmt.rs
-package io.github.kotlinmania.starlark.tests.bc
-
-import kotlin.test.Test
-=======
 // port-lint: tests src/values/types/list/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/MethodsTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

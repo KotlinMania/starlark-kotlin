@@ -1,7 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/profile/Aggregated.kt
-// port-lint: source values/layout/heap/profile/aggregated.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile
-=======
 // port-lint: source src/values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile
 
@@ -23,7 +19,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.flamegraph.Fla
 import io.github.kotlinmania.starlark_kotlin.util.ArcStr
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.RawPointer
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/profile/Aggregated.kt
 
 
 /*
@@ -172,7 +167,7 @@ internal class StackCollector(
     override fun callEnter(function: Value, time: ProfilerInstant) {
         val lt = lastTime
         if (lt != null) {
-            current.last().data.timeX2 = current.last().data.timeX2 + time.durationSince(lt)
+            current.last().data.timeX2 += time.durationSince(lt)
             current.last().data.callsX2 += 1
         }
 
@@ -189,7 +184,7 @@ internal class StackCollector(
     override fun callExit(time: ProfilerInstant) {
         val lt = lastTime
         if (lt != null) {
-            current.last().data.timeX2 = current.last().data.timeX2 + time.durationSince(lt)
+            current.last().data.timeX2 += time.durationSince(lt)
         }
         current.removeAt(current.lastIndex)
         lastTime = time

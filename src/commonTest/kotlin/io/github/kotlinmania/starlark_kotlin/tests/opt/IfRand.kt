@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/opt/IfRand.kt
-// port-lint: source tests/opt/if_rand.rs
-package io.github.kotlinmania.starlark.tests.opt
-=======
 // port-lint: tests tests/opt/if_rand.rs
 package io.github.kotlinmania.starlark_kotlin.tests.opt
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/opt/IfRand.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -56,30 +51,19 @@ private class CountCalls : AnyLifetime {
 // fn bool_fns(globals: &mut GlobalsBuilder)
 private fun boolFns(builder: GlobalsBuilder) {
     /** Return `true` and record side effect. */
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/opt/IfRand.kt
-    fun `true`(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> {
-=======
     // fn r#true(eval: &mut Evaluator) -> anyhow::Result<bool>
     builder.setFunction("true") { _, eval ->
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/opt/IfRand.kt
         val calls = eval.extra as CountCalls
         calls.calls += 1
-        return Result.success(true)
+        Result.success(true)
     }
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/opt/IfRand.kt
-    fun `false`(eval: io.github.kotlinmania.starlark.eval.runtime.Evaluator): Result<Boolean> {
-=======
     // fn r#false(eval: &mut Evaluator) -> anyhow::Result<bool>
     builder.setFunction("false") { _, eval ->
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/opt/IfRand.kt
         val calls = eval.extra as CountCalls
         calls.calls += 1
-        return Result.success(false)
+        Result.success(false)
     }
-
-    builder.setFunction("true") { _, eval -> `true`(eval) }
-    builder.setFunction("false") { _, eval -> `false`(eval) }
 }
 
 // #[derive(Display, Debug, Copy, Clone, Dupe)]

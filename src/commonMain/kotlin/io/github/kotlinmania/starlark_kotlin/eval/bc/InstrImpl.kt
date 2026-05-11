@@ -1,15 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/InstrImpl.kt
-// port-lint: source eval/bc/instr_impl.rs
-package io.github.kotlinmania.starlark.eval.bc
-
-import io.github.kotlinmania.starlark.eval.bc.InstrControl
-import io.github.kotlinmania.starlark.eval.bc.BcInstr
-import io.github.kotlinmania.starlark.values.toValue
-import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.StarlarkError
-=======
 // port-lint: source src/eval/bc/instr_impl.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
 
@@ -20,7 +8,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/InstrImpl.kt
 // Types from values.layout
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
@@ -100,15 +87,9 @@ import kotlin.reflect.KClass
 private fun asStarlarkError(t: Throwable): StarlarkError =
     if (t is StarlarkError) t else StarlarkError(t.message ?: "", t)
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/InstrImpl.kt
-internal fun addSpanToExprError(e: Throwable, span: FrameSpan, eval: Evaluator): EvalException =
-    EvalException.newAnyhow(e, span.span.span(), span.span.file().value)
-internal fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
-=======
 fun addSpanToExprError(e: Throwable, span: FrameSpan, eval: Evaluator): EvalException =
     EvalException(e.message ?: "")
 fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/InstrImpl.kt
     result
 fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
     v0.add(v1, heap)

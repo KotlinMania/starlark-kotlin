@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/util/NonStaticTypeId.kt
-// port-lint: source util/non_static_type_id.rs
-package io.github.kotlinmania.starlark.util.nonstatictypeid
-=======
 // port-lint: source src/util/non_static_type_id.rs
 package io.github.kotlinmania.starlark_kotlin.util.non_static_type_id
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/util/NonStaticTypeId.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

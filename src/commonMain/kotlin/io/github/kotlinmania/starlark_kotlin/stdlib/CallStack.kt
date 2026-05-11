@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/CallStack.kt
-// port-lint: source stdlib/call_stack.rs
-package io.github.kotlinmania.starlark.stdlib
-=======
 // port-lint: source src/stdlib/call_stack.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/CallStack.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -26,26 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.stdlib
 
 /** Implementation of `call_stack` function. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/CallStack.kt
-import io.github.kotlinmania.starlarksyntax.callstack.CallStack
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.environment.Methods
-import io.github.kotlinmania.starlark.environment.MethodsBuilder
-import io.github.kotlinmania.starlark.environment.MethodsStatic
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.namedOptional
-import io.github.kotlinmania.starlark.eval.runtime.positional
-import io.github.kotlinmania.starlark.values.AllocValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.types.none.NoneOr
-import io.github.kotlinmania.starlark.values.types.none.allocValue
-import io.github.kotlinmania.starlark.assert.Assert
-=======
 import io.github.kotlinmania.starlark_kotlin.CallStack
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
@@ -61,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplexN
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneOr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.allocValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/CallStack.kt
 
 /** A frame of the call-stack. */
 internal data class StackFrame(

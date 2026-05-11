@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Macros.kt
-// port-lint: source macros.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: source src/macros.rs
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Macros.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -36,9 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.ValueLike
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Macros.kt
-/** Reduce boilerplate when making types instances of ComplexValue. */
-=======
 /**
  * Reduce boilerplate when making types instances of ComplexValue.
  *
@@ -50,7 +42,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
  * at runtime via the type registry.
  */
 // macro_rules! starlark_complex_value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Macros.kt
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
     frozenType: KClass<out StarlarkValue>,
@@ -67,9 +58,6 @@ fun <T : StarlarkValue> starlarkComplexValue(
     )
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Macros.kt
-/** Similar to starlarkComplexValue but fromValue returns Either<unfrozen, frozen>. */
-=======
 /**
  * Similar to starlark_complex_value but from_value returns Either<unfrozen, frozen>.
  *
@@ -77,7 +65,6 @@ fun <T : StarlarkValue> starlarkComplexValue(
  * that returns Either<&Self, &FrozenX> instead of coercing to unfrozen.
  */
 // macro_rules! starlark_complex_values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Macros.kt
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
     frozenType: KClass<F>,
@@ -97,15 +84,12 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
 /**
  * A macro reducing boilerplate defining Starlark values which are simple - they
  * aren't mutable and can't contain references to other Starlark values.
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Macros.kt
-=======
  *
  * In Rust, this macro generates AllocValue, AllocFrozenValue, UnpackValue,
  * StarlarkTypeRepr, and from_value implementations for simple value types.
  *
  * In Kotlin, we use a registration function that wires up the same capabilities
  * at runtime via the type registry.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Macros.kt
  */
 // macro_rules! starlark_simple_value
 fun <T : StarlarkValue> starlarkSimpleValue(
@@ -219,12 +203,8 @@ data class SimpleValueEntry<T : StarlarkValue>(
     val fromValue: (Value) -> T?,
 )
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Macros.kt
-/** A general-purpose enum for an alternative between two types. */
-=======
 /** Either type used by starlark_complex_values for from_value return. */
 // (corresponds to either::Either in Rust)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Macros.kt
 sealed class Either<out L, out R> {
     data class Left<out L>(val value: L) : Either<L, Nothing>()
     data class Right<out R>(val value: R) : Either<Nothing, R>()

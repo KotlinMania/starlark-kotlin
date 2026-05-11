@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Slots.kt
-// port-lint: source eval/runtime/slots.rs
-package io.github.kotlinmania.starlark.eval.runtime
-=======
 // port-lint: source src/eval/runtime/slots.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Slots.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

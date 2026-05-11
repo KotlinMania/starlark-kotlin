@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/thinboxslicefrozenvalue/ThinBoxTest.kt
-// port-lint: source values/thinBoxSliceFrozenValue/thin_box.rs
-package io.github.kotlinmania.starlark.values.thinboxslicefrozenvalue
-=======
 // port-lint: tests src/values/thin_box_slice_frozen_value/thin_box.rs
 package io.github.kotlinmania.starlark_kotlin.values.thin_box_slice_frozen_value
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/thin_box_slice_frozen_value/ThinBoxTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

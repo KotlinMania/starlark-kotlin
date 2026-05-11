@@ -1,9 +1,5 @@
 // port-lint: source debug.rs
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Debug.kt
-package io.github.kotlinmania.starlark.debug
-=======
 package io.github.kotlinmania.starlark_kotlin.debug
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Debug.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -11,11 +7,7 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Debug.kt
- * you may not import this file except in compliance with the License.
-=======
  * you may not use this file except in compliance with the License.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Debug.kt
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -27,11 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.debug
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/debug/Debug.kt
-/**
- * Provides debug-related functionality and utilities.
- */
-=======
 /** Provides debug-related functionality and utilities. */
 // mod adapter;
 private object adapter
@@ -40,4 +27,3 @@ private object evaluate
 // mod inspect;
 private object inspect
 // pub use adapter::*;
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/debug/Debug.kt

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/tuple/ValueTest.kt
-// port-lint: source tests:src/values/types/tuple/value.rs
-package io.github.kotlinmania.starlark.values.types.tuple
-=======
 // port-lint: tests src/values/types/tuple/value.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values.types.tuple
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/tuple/ValueTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

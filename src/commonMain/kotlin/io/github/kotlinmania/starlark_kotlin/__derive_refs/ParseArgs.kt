@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/deriverefs/ParseArgs.kt
-// port-lint: source __derive_refs/parse_args.rs
-package io.github.kotlinmania.starlark.deriverefs
-=======
 // port-lint: source src/__derive_refs/parse_args.rs
 package io.github.kotlinmania.starlark_kotlin.__derive_refs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/__derive_refs/ParseArgs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -14,8 +14,8 @@ Usage:
 
 Example:
     python tools/generate_stubs.py tmp/starlark/src \
-        src/commonMain/kotlin/io/github/kotlinmania/starlark \
-        io.github.kotlinmania.starlark
+        src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin \
+        io.github.kotlinmania.starlark_kotlin
 """
 
 import os

@@ -1,9 +1,5 @@
 // port-lint: source ../starlark_syntax/src/syntax/grammar_util.rs
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarUtil.kt
-package io.github.kotlinmania.starlark.syntax.parser
-=======
 package io.github.kotlinmania.starlark_kotlin.syntax.parser
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarUtil.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -25,22 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.parser
 
 /** Code called by the parser to handle complex cases not handled by the grammar. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/parser/GrammarUtil.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.syntax.ast.*
-import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
-import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
-import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
-import io.github.kotlinmania.starlark.typing.CallArgsUnpack
-import io.github.kotlinmania.starlark.values.types.string.FormatConv
-import io.github.kotlinmania.starlark.values.types.string.FormatParser
-import io.github.kotlinmania.starlark.values.types.string.FormatToken
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Pos
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
@@ -55,7 +35,6 @@ import io.github.kotlinmania.starlark_kotlin.typing.CallArgsUnpack
 import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatConv
 import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatParser
 import io.github.kotlinmania.starlark_kotlin.values.types.string.FormatToken
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/parser/GrammarUtil.kt
 
 // #[derive(Debug, thiserror::Error)]
 // enum GrammarUtilError

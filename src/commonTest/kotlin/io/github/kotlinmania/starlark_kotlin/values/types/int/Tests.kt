@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/types/int/Tests.kt
-// port-lint: source values/types/int/tests.rs
-package io.github.kotlinmania.starlark.values.types.int
-=======
 // port-lint: tests src/values/types/int/tests.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/Tests.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

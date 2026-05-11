@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/MacroSupport.kt
-// port-lint: source typing/macro_support.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/macro_support.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/MacroSupport.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

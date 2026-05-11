@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/fuzz/fuzztargets/Starlark.kt
-// port-lint: source ../fuzz/fuzz_targets/starlark.rs
-package io.github.kotlinmania.starlark.fuzz.fuzztargets
-=======
 // port-lint: source fuzz/fuzz_targets/starlark.rs
 package io.github.kotlinmania.starlark_kotlin.fuzz.fuzz_targets
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/fuzz/fuzz_targets/Starlark.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Comparison.kt
-// port-lint: source values/comparison.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: source src/values/comparison.rs
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Comparison.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/int/Globals.kt
-// port-lint: source values/types/int/globals.rs
-package io.github.kotlinmania.starlark.values.types.int
-=======
 // port-lint: source src/values/types/int/globals.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.int
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/int/Globals.kt
 
 import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark_kotlin.typing.Ty

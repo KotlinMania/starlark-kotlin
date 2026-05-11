@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/module/TypeAnnotation.kt
-// port-lint: source tests/derive/module/type_annotation.rs
-package io.github.kotlinmania.starlark.tests.derive.module
-=======
 // port-lint: tests tests/derive/module/type_annotation.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.module
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/module/TypeAnnotation.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

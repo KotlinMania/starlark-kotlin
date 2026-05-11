@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Uncategorized.kt
-// port-lint: source tests/uncategorized.rs
-package io.github.kotlinmania.starlark.tests
-=======
 // port-lint: tests tests/uncategorized.rs
 package io.github.kotlinmania.starlark_kotlin.tests
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Uncategorized.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -332,17 +327,13 @@ xs[1] += 1
         // #[starlark_module]
         // fn module(build: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
-            fun select(arg: Value, heap: Heap): Result<Value> {
-                val iter = arg.iterate(heap).getOrThrow()
-                val ints = mutableListOf<Int>()
-                for (v in iter) { ints.add(v.unpackI32() ?: throw Exception("expected int")) }
-                return Result.success(heap.alloc(Select(ints)))
-            }
-
             builder.setFunction("select") { args, eval ->
                 val arg = args.positionalAll().firstOrNull()
                     ?: return@setFunction Result.failure<Value>(Exception("expected list"))
-                select(arg, eval.heap())
+                val iter = arg.iterate(eval.heap()).getOrThrow()
+                val ints = mutableListOf<Int>()
+                for (v in iter) { ints.add(v.unpackI32() ?: throw Exception("expected int")) }
+                Result.success<Value>(eval.heap().alloc(Select(ints)))
             }
         }
 
@@ -439,20 +430,15 @@ assert_eq(names[str], "str")
             }
         }
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Uncategorized.kt
-        fun rustFailure(): Result<NoneType> {
-            return fail3().fold(
-                onSuccess = { Result.success(NoneType) },
-                onFailure = { Result.failure(Exception("rust failure", it)) },
-            )
-        }
-
-=======
         // #[starlark_module]
         // fn module(builder: &mut GlobalsBuilder)
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Uncategorized.kt
         fun moduleFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("rust_failure") { _, _ -> rustFailure() }
+            builder.setFunction("rust_failure") { _, _ ->
+                fail3().onFailure {
+                    return@setFunction Result.failure<Any>(Exception("rust failure", it))
+                }
+                Result.success<Any>(NoneType)
+            }
         }
 
         val a = Assert()
@@ -660,7 +646,7 @@ add3(8)""",
     }
 
     @Test
-    fun testGetattrDidYouMeanBuiltin() {
+    fun testGetAttrDidYouMeanBuiltin() {
         Assert.fail(
             "[].appen",
             "Object of type `list` has no attribute `appen`, did you mean `append`?",
@@ -668,7 +654,7 @@ add3(8)""",
     }
 
     @Test
-    fun testGetattrDidYouMeanCustom() {
+    fun testGetAttrDidYouMeanCustom() {
         Assert.fail(
             "noop(struct(grey=1)).gray",
             "Object of type `struct` has no attribute `gray`, did you mean `grey`?",
@@ -807,15 +793,12 @@ bar(["a","b","c"])
             }
         }
 
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/Uncategorized.kt
-        fun wrapper(heap: Heap): Result<Value> = Result.success(heap.allocComplex(Wrapper()))
-
-=======
         // #[starlark_module]
         // fn module(builder: &mut GlobalsBuilder)
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/Uncategorized.kt
         fun moduleFunctions(builder: GlobalsBuilder) {
-            builder.setFunction("wrapper") { _, eval -> wrapper(eval.heap()) }
+            builder.setFunction("wrapper") { _, eval ->
+                Result.success(eval.heap().allocComplex(Wrapper()))
+            }
         }
 
         val a = Assert()

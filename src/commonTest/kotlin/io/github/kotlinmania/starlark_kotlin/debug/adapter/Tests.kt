@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/debug/adapter/tests/Tests.kt
-// port-lint: source debug/adapter/tests.rs
-package io.github.kotlinmania.starlark.debug.adapter.tests
-=======
 // port-lint: tests src/debug/adapter/tests.rs
 package io.github.kotlinmania.starlark_kotlin.debug.adapter_impl
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/debug/adapter/Tests.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

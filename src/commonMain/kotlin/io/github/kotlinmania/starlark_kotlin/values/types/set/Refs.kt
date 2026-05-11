@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Refs.kt
-// port-lint: source values/types/set/refs.rs
-package io.github.kotlinmania.starlark.values.types.set
-=======
 // port-lint: source src/values/types/set/refs.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Refs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,22 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.set
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Refs.kt
-import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.util.refcell.Ref
-import io.github.kotlinmania.starlark.util.refcell.RefCell
-import io.github.kotlinmania.starlark.util.refcell.RefMut
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.UnpackValue
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark.values.SetType
-import io.github.kotlinmania.starlarkmap.smallset.SmallSet
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
-=======
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
 import io.github.kotlinmania.starlark_kotlin.values.UnpackValue
@@ -50,13 +29,12 @@ import io.github.kotlinmania.starlark_kotlin.values.SetType
 import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueStarlarkTypeRepr
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Refs.kt
 
 /**
  * Define the set type.
  */
 class SetRef internal constructor(
-    internal val aref: Either<Ref<SetData>, SetData>
+    internal val aref: Either<BorrowedSetData, SetData>
 ) {
     companion object {
         /**
@@ -74,7 +52,7 @@ class SetRef internal constructor(
  */
 fun SetRef.clone(): SetRef {
     return when (val ref = this.aref) {
-        is Either.Left -> SetRef(Either.Left(ref.value.ptrRead()))
+        is Either.Left -> SetRef(Either.Left(ref.value.clone()))
         is Either.Right -> SetRef(Either.Right(ref.value))
     }
 }
@@ -85,7 +63,7 @@ fun SetRef.clone(): SetRef {
  */
 val SetRef.content: SmallSet<Value>
     get() = when (val ref = aref) {
-        is Either.Left -> ref.value.value.content
+        is Either.Left -> ref.value.data.content
         is Either.Right -> ref.value.content
     }
 
@@ -94,7 +72,7 @@ val SetRef.content: SmallSet<Value>
  * Corresponds to accessing methods through Deref in Rust.
  */
 fun SetRef.iterHashed(): Sequence<Hashed<Value>> = when (val ref = aref) {
-    is Either.Left -> ref.value.value.iterHashed()
+    is Either.Left -> ref.value.data.iterHashed()
     is Either.Right -> ref.value.iterHashed()
 }
 
@@ -103,7 +81,7 @@ fun SetRef.iterHashed(): Sequence<Hashed<Value>> = when (val ref = aref) {
  * Corresponds to accessing methods through Deref in Rust.
  */
 fun SetRef.containsHashed(key: Hashed<Value>): Boolean = when (val ref = aref) {
-    is Either.Left -> ref.value.value.containsHashed(key)
+    is Either.Left -> ref.value.data.containsHashed(key)
     is Either.Right -> ref.value.containsHashed(key)
 }
 
@@ -111,7 +89,7 @@ fun SetRef.containsHashed(key: Hashed<Value>): Boolean = when (val ref = aref) {
  * Mutably borrowed `Set`.
  */
 class SetMut internal constructor(
-    internal val aref: RefMut<SetData>
+    internal val aref: BorrowedMutSetData
 ) {
     companion object {
         /**
@@ -188,9 +166,6 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
 private fun coerceSetData(data: FrozenSetData): SetData =
     SetData(data.content as SmallSet<Value>)
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Refs.kt
-
-=======
 /**
  * Either type for representing one of two possible values.
  * Corresponds to Rust's `either::Either`.
@@ -249,4 +224,3 @@ class BorrowedSetData(val data: SetData) {
  * Corresponds to Rust's `RefMut<SetData>`.
  */
 class BorrowedMutSetData(val data: SetData)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Refs.kt

@@ -1,9 +1,5 @@
 // port-lint: source ../starlark_syntax/src/golden_test_template.rs
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/goldentesttemplate/GoldenTestTemplate.kt
-package io.github.kotlinmania.starlark.goldentesttemplate
-=======
 package io.github.kotlinmania.starlark_kotlin.golden_test_template
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/golden_test_template/GoldenTestTemplate.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -37,9 +33,6 @@ private fun makeGolden(output: String): String {
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/goldentesttemplate/GoldenTestTemplate.kt
-/** Common code for golden tests. */
-=======
 /**
  * Common code for golden tests.
  *
@@ -49,18 +42,14 @@ private fun makeGolden(output: String): String {
  * In the Kotlin port, the actual file I/O needs platform-specific implementation.
  * For now, this validates the output format and stores it for comparison.
  */
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/golden_test_template/GoldenTestTemplate.kt
 fun goldenTestTemplate(goldenRelPath: String, output: String) {
     require(goldenRelPath.startsWith("src/")) { "Golden path must start with src/" }
     require(goldenRelPath.contains(".golden")) { "Golden path must contain .golden" }
 
     @Suppress("UNUSED_VARIABLE")
     val outputWithPrefix = makeGolden(output)
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/goldentesttemplate/GoldenTestTemplate.kt
-=======
 
     // File I/O will be implemented when the test runner is set up.
     // The Rust version reads CARGO_MANIFEST_DIR and compares/writes golden files.
     // In Kotlin/Native, this will use platform.posix file operations.
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/golden_test_template/GoldenTestTemplate.kt
 }

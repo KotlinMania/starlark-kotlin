@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/TimeFlame.kt
-// port-lint: source eval/runtime/profile/time_flame.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile
-=======
 // port-lint: source src/eval/runtime/profile/time_flame.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/TimeFlame.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -258,7 +253,7 @@ private class Stacks(
     ) {
         while (frames.hasNext()) {
             val (frame, time) = frames.next()
-            this.time = this.time + time.durationSince(lastTime[0])
+            this.time += time.durationSince(lastTime[0])
             lastTime[0] = time
             when (frame) {
                 is Frame.Pop -> return

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/typing/MacroRefs.kt
-// port-lint: source values/typing/macro_refs.rs
-package io.github.kotlinmania.starlark.values.typing
-=======
 // port-lint: source src/values/typing/macro_refs.rs
 package io.github.kotlinmania.starlark_kotlin.values.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/typing/MacroRefs.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

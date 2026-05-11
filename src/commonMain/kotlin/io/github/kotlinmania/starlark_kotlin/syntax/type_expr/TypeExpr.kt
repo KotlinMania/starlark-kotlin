@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/typeexpr/TypeExpr.kt
-// port-lint: source ../starlark_syntax/src/syntax/type_expr.rs
-package io.github.kotlinmania.starlark.syntax.typeexpr
-=======
 // port-lint: source starlark_syntax/src/syntax/type_expr.rs
 package io.github.kotlinmania.starlark_kotlin.syntax.type_expr
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/type_expr/TypeExpr.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,17 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax.type_expr
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/typeexpr/TypeExpr.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.BinOp
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlarksyntax.diagnostic.WithDiagnostic
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
@@ -45,7 +29,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.typing.WithDiagnostic
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/type_expr/TypeExpr.kt
 
 // #[derive(Debug, thiserror::Error)]
 // pub enum TypeExprUnpackError

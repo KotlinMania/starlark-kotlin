@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/profile/AllocCounts.kt
-// port-lint: source values/layout/heap/profile/alloc_counts.rs
-package io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts
-=======
 // port-lint: source src/values/layout/heap/profile/alloc_counts.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.profile.alloc_counts
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/profile/AllocCounts.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

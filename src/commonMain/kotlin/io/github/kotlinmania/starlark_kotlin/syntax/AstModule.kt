@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/AstModule.kt
-// port-lint: source ../starlark_syntax/src/syntax/module.rs
-package io.github.kotlinmania.starlark.syntax
-=======
 // port-lint: source src/syntax/module.rs
 package io.github.kotlinmania.starlark_kotlin.syntax
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/AstModule.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,28 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.syntax
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/AstModule.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
-import io.github.kotlinmania.starlark.syntax.ast.DefP
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
-import io.github.kotlinmania.starlark.syntax.ast.BinOp
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.syntax.ast.ForP
-import io.github.kotlinmania.starlark.syntax.ast.AssignP
-import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.syntax.lexer.Lexer
-import io.github.kotlinmania.starlark.syntax.parser.Parser
-import io.github.kotlinmania.starlark.syntax.state.ParserState
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
 import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
@@ -68,7 +41,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.lexer.Lexer
 import io.github.kotlinmania.starlark_kotlin.syntax.parser.Parser
 import io.github.kotlinmania.starlark_kotlin.syntax.state.ParserState
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/AstModule.kt
 
 class AstLoad(
     val span: FileSpan,
@@ -90,13 +62,6 @@ class AstModule(
     val codemap: CodeMap,
     var statement: AstStmt,
     val dialect: Dialect,
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/AstModule.kt
-    /**
-     * Opt-in typecheck.
-     * Specified with a `typecheck` directive in the source.
-     */
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/AstModule.kt
     val typecheck: Boolean
 ) {
     // fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool)
@@ -104,7 +69,7 @@ class AstModule(
         AstModuleParts(codemap, statement, dialect, typecheck)
     companion object {
         fun parse(filename: String, content: String, dialect: Dialect): Result<AstModule> {
-            val codemap = CodeMap.new(filename, content)
+            val codemap = CodeMap(filename, content)
             val lexer = Lexer(content, dialect, codemap)
             val parserState = ParserState(dialect, codemap, mutableListOf())
             return try {
@@ -114,11 +79,7 @@ class AstModule(
                 } else {
                     Result.success(AstModule(codemap, statement, dialect, false))
                 }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/AstModule.kt
-            } catch (e: io.github.kotlinmania.starlarksyntax.evalexception.EvalException) {
-=======
             } catch (e: io.github.kotlinmania.starlark_kotlin.typing.EvalException) {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/AstModule.kt
                 Result.failure(e)
             }
         }
@@ -213,7 +174,7 @@ private fun rewriteExpr(expr: AstExpr, replace: Map<String, String>): AstExpr {
         is ExprP.Op<AstNoPayload> -> {
             val func = replace[node.op.toSymbol()]
             if (func != null) {
-                // Replace a binary operation with a function call: `func(lhs, rhs)`.
+                // Replace: Op(lhs, op, rhs) -> Call(Identifier(func), [lhs, rhs])
                 val lhs = rewriteExpr(node.lhs, replace)
                 val rhs = rewriteExpr(node.rhs, replace)
                 ExprP.Call<AstNoPayload>(
@@ -349,23 +310,5 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
         is StmtP.Pass<*> -> node
         else -> node
     }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/syntax/AstModule.kt
-    return Spanned(rewritten, stmt.span)
-}
-
-private fun <IAP> rewriteDef(
-    node: StmtP.Def<AstNoPayload, IAP>,
-    replace: Map<String, String>,
-): StmtP.Def<AstNoPayload, IAP> {
-    val def = node.def
-    return StmtP.Def(DefP(
-        name = def.name,
-        params = def.params,
-        returnType = def.returnType,
-        body = rewriteStmt(def.body, replace),
-        payload = def.payload,
-    ))
-=======
     return Spanned(rewritten as StmtP<AstNoPayload>, stmt.span)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/syntax/AstModule.kt
 }

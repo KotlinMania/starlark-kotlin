@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Stmt.kt
-// port-lint: source eval/runtime/profile/stmt.rs
-package io.github.kotlinmania.starlark.eval.runtime.profile
-=======
 // port-lint: source src/eval/runtime/profile/stmt.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Stmt.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,21 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime.profile
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Stmt.kt
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMapId as CodeMapId
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMaps as CodeMaps
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpan as FileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Pos as Pos
-import io.github.kotlinmania.starlarksyntax.codemap.ResolvedFileSpan as ResolvedFileSpan
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.FileSpanRef as FileSpanRef
-import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
-import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
-import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileDataImpl
-import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
-=======
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMapId
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMaps
@@ -52,7 +32,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.csv.CsvWriter
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.data.ProfileDataImpl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.profile.mode.ProfileMode
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Stmt.kt
 
 // pub(crate) struct StmtProfilerType
 internal object StmtProfilerType : ProfilerType<StmtProfileData> {
@@ -198,7 +177,7 @@ internal data class StmtProfileData(
             val (count, time) = value
             // EMPTY represents the first time special-case
             if (fileSpan.file.id() != CodeMapId.EMPTY) {
-                totalTime = totalTime + time
+                totalTime += time
                 totalCount += count
                 items.add(Item(span = fileSpan, time = time, count = count))
             }
@@ -310,105 +289,3 @@ internal class StmtProfile private constructor(
         )
     }
 }
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/profile/Stmt.kt
-
-// --- Tests ---
-
-internal fun testCoverage() {
-    // Test requires full evaluator infrastructure (Module, Evaluator, AstModule, etc.)
-    // which depends on many other modules. The test logic is preserved here
-    // for when those dependencies are fully ported.
-    /*
-    Module.withTempHeap { module ->
-        val eval = Evaluator(module)
-
-        val ast = AstModule.parse(
-            "cov.star",
-            """
-def xx(x):
-    return noop(x)
-
-xx(*[1])
-xx(*[2])
-""",
-            Dialect.AllOptionsInternal,
-        ).getOrThrow()
-        eval.enableProfile(ProfileMode.Coverage)
-        val globals = GlobalsBuilder.standard()
-        testFunctions(globals)
-        eval.evalModule(ast, globals.build())
-
-        val coverage = eval.coverage()
-            .map { it.toString() }
-            .sorted()
-        check(
-            coverage == listOf(
-                "cov.star:2:1-5:1",
-                "cov.star:3:5-19",
-                "cov.star:5:1-9",
-                "cov.star:6:1-9",
-            )
-        )
-    }
-    */
-}
-
-internal fun testEmpty() {
-    val a = StmtProfile.new()
-    a.enable()
-    val data = a.gen()
-    data.genCsv()
-}
-
-internal fun testMerge() {
-    val x = CodeMap.new("x.star", "def a(): pass")
-    val y = CodeMap.new("y.star", "def b(): pass")
-    val z = CodeMap.new("z.star", "def c(): pass")
-
-    val allFiles = CodeMaps()
-    allFiles.add(x)
-    allFiles.add(y)
-    allFiles.add(z)
-
-    val a = StmtProfile.new()
-    a.enable()
-    a.beforeStmt(FileSpanRef(
-        file = x,
-        span = Span(Pos(1), Pos(2)),
-    ))
-    a.beforeStmt(FileSpanRef(
-        file = y,
-        span = Span(Pos(2), Pos(4)),
-    ))
-    val aData = a.gen()
-
-    val b = StmtProfile.new()
-    b.enable()
-    b.beforeStmt(FileSpanRef(
-        file = y,
-        span = Span(Pos(2), Pos(4)),
-    ))
-    b.beforeStmt(FileSpanRef(
-        file = z,
-        span = Span(Pos(3), Pos(5)),
-    ))
-    val bData = b.gen()
-
-    val merged = ProfileData.merge(listOf(aData, bData)).profile
-    check(merged is ProfileDataImpl.Statement)
-    val mergedData = (merged).data
-
-    val expected = StmtProfileData(
-        stmts = mutableMapOf(
-            FileSpan(file = x, span = Span(Pos(1), Pos(2))) to
-                Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS.toULong())),
-            FileSpan(file = y, span = Span(Pos(2), Pos(4))) to
-                Pair(2, SmallDuration.fromMillis((ProfilerInstant.TEST_TICK_MILLIS * 2).toULong())),
-            FileSpan(file = z, span = Span(Pos(3), Pos(5))) to
-                Pair(1, SmallDuration.fromMillis(ProfilerInstant.TEST_TICK_MILLIS.toULong())),
-        ),
-    )
-    check(mergedData == expected)
-}
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/profile/Stmt.kt

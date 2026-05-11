@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/trace/Enums.kt
-// port-lint: source tests/derive/trace/enums.rs
-package io.github.kotlinmania.starlark.tests.derive.trace
-=======
 // port-lint: tests tests/derive/trace/enums.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/trace/Enums.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

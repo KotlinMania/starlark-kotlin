@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Structs.kt
-// port-lint: source typing/structs.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/structs.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Structs.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -19,24 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Arguments.kt
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlarkmap.smallset.SmallSet
-import io.github.kotlinmania.starlarkmap.StarlarkHashValue
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.coerce
-import io.github.kotlinmania.starlark.values.StarlarkIterator
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.Either
-import io.github.kotlinmania.starlark.values.types.dict.Dict
-import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.layout.ValueLike
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
@@ -54,7 +36,6 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark_kotlin.Error as StarlarkError
 import io.github.kotlinmania.starlark_kotlin.ErrorKind
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Arguments.kt
 
 // #[derive(Debug, Clone, Error)]
 // pub(crate) enum FunctionError
@@ -682,14 +663,9 @@ private fun rare(
 
 private fun DictRef.dict(): Dict {
     return when (val ref = aref) {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/Arguments.kt
-        is Either.Left -> ref.value.value
-        is Either.Right -> ref.value
-=======
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
         else -> throw IllegalStateException("Unexpected DictEither: $ref")
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/Arguments.kt
     }
 }
 

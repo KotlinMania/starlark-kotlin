@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/ValueOfUncheckedTest.kt
-// port-lint: source tests:src/values/valueOfUnchecked.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: tests src/values/value_of_unchecked.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/ValueOfUncheckedTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

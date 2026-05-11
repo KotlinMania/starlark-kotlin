@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/derive/trace/Statics.kt
-// port-lint: source tests/derive/trace/statics.rs
-package io.github.kotlinmania.starlark.tests.derive.trace
-=======
 // port-lint: tests tests/derive/trace/statics.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.trace
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/trace/Statics.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

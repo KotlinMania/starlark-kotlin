@@ -1,32 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/oracle/Ctx.kt
-// port-lint: source typing/oracle/ctx.rs
-package io.github.kotlinmania.starlark.typing.oracle
-
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.BinOp
-import io.github.kotlinmania.starlark.typing.ArcTy
-import io.github.kotlinmania.starlark.typing.InternalError
-import io.github.kotlinmania.starlark.typing.Param
-import io.github.kotlinmania.starlark.typing.ParamIsRequired
-import io.github.kotlinmania.starlark.typing.ParamMode
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyBasic
-import io.github.kotlinmania.starlark.typing.TyCallArgs
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.TyCustom
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.typing.TyTuple
-import io.github.kotlinmania.starlark.typing.TypingBinOp
-import io.github.kotlinmania.starlark.typing.TypingError
-import io.github.kotlinmania.starlark.typing.TypingNoContextError
-import io.github.kotlinmania.starlark.typing.TypingOrInternalError
-import io.github.kotlinmania.starlark.values.types.list.ListType
-
-=======
 // port-lint: source src/typing/oracle/ctx.rs
 package io.github.kotlinmania.starlark_kotlin.typing.oracle
 
@@ -63,7 +34,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.list.ListType
 // In the Kotlin port, TyStarlarkValue provides named factory methods instead:
 //   TyStarlarkValue.list(), .dict(), .tuple(), .set()
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/oracle/Ctx.kt
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -352,7 +322,7 @@ class TypingOracleCtx(
             if (result.isSuccess) {
                 successful.add(result.getOrThrow())
             } else {
-                errors.add(TypingError.newAnyhow(result.exceptionOrNull() ?: Exception("call error"), span, codemap))
+                errors.add(TypingError.fromEvalException(EvalException(result.exceptionOrNull()?.message ?: "")))
             }
         }
 

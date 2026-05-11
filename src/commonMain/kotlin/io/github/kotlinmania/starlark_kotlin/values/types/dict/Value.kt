@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Value.kt
-// port-lint: source values/types/dict/value.rs
-package io.github.kotlinmania.starlark.values.types.dict
-=======
 // port-lint: source src/values/types/dict/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.dict
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Value.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,34 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.values.types.dict
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Value.kt
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
-import io.github.kotlinmania.starlark.environment.Methods
-import io.github.kotlinmania.starlark.environment.MethodsStatic
-import io.github.kotlinmania.starlark.util.refcell.RefCell
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.freeze
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
-import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.toValue
-import io.github.kotlinmania.starlarkmap.Equivalent
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
 import io.github.kotlinmania.starlark_kotlin.environment.Methods
@@ -78,9 +45,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.typed.FrozenStringVal
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark_kotlin.values.toValue
 import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Value.kt
 import kotlin.reflect.KClass
-import io.github.kotlinmania.starlark.Either
 
 // #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
 // pub(crate) struct DictGen<T>(pub(crate) T);
@@ -89,7 +54,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
     // impl Freeze for DictGen<RefCell<Dict<'v>>>
     @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-        val mutableSelf = this as DictGen<RefCell<Dict>>
+        val mutableSelf = this as DictGen<AtomicRef<Dict>>
         return mutableSelf.freezeDict(freezer) as Result<StarlarkValue>
     }
 
@@ -224,7 +189,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
             for ((k, v) in rhsDictVal.iterHashed()) {
                 clonedContent.insertHashed(k, v)
             }
-            return Result.success(heap.allocComplex(DictGen(RefCell(Dict.new(clonedContent)))))
+            return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(clonedContent)))))
         }
 
         val items = SmallMap.withCapacity<Value, Value>(innerVal.content().len())
@@ -235,7 +200,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         for ((k, v) in rhsDictVal.iterHashed()) {
             items.insertHashed(k, v)
         }
-        return Result.success(heap.allocComplex(DictGen(RefCell(Dict.new(items)))))
+        return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
     }
 
     override fun typecheckerTy(): Ty? = Ty.anyDict()
@@ -271,14 +236,9 @@ class Dict(
         fun isDictType(x: KClass<*>): Boolean =
             x == DictGen::class
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Value.kt
-        internal fun fromValueUncheckedMut(x: Value): RefCell<Dict> {
-            val dict = x.downcastRefUnchecked<DictGen<RefCell<Dict>>>()
-=======
         fun fromValueUncheckedMut(x: Value): AtomicRef<Dict> {
             @Suppress("UNCHECKED_CAST")
             val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict>>>()
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Value.kt
             return dict.inner
         }
     }
@@ -358,7 +318,7 @@ class Dict(
 
     /** Remove given key from the dictionary. */
     fun removeHashed(key: Hashed<Value>): Value? =
-        content.shiftRemoveHashedByValue(key.asRef())
+        content.shiftRemoveHashed(key.asRef())
 
     /** Remove all elements from the dictionary. */
     fun clear() {
@@ -367,7 +327,7 @@ class Dict(
 }
 
 fun Dict.allocValue(heap: Heap): Value =
-    heap.allocComplex(DictGen(RefCell(this)))
+    heap.allocComplex(DictGen(AtomicRef(this)))
 
 // #[derive(Clone, Default, Debug, ProvidesStaticType, Allocative)]
 class FrozenDictData(
@@ -415,16 +375,10 @@ data class ValueStr(val str: String) : Equivalent<Value> {
     override fun equivalent(key: Value): Boolean = key.unpackStr() == str
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Value.kt
-/** Freeze implementation for DictGen<RefCell<Dict>> (mutable dict). */
-internal fun DictGen<RefCell<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
-    val frozenContent = this.inner.borrow().value.content.freeze(
-=======
 /** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
 fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
     val frozenContent = freezeSmallMap(
         this.inner.value.content,
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Value.kt
         freezer,
         { v, f -> v.freeze(f) },
         { v, f -> v.freeze(f) },
@@ -443,29 +397,21 @@ interface DictLike {
     fun setAt(index: Hashed<Value>, value: Value): Result<Unit>
 }
 
-internal class RefCellDictLike(private val cell: RefCell<Dict>) : DictLike {
-    override fun content(): SmallMap<Value, Value> = cell.borrow().value.content
+class RefCellDictLike(private val cell: AtomicRef<Dict>) : DictLike {
+    override fun content(): SmallMap<Value, Value> = cell.value.content
 
     override fun iterStart() {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/dict/Value.kt
-        cell.borrow()
-    }
-
-    override fun iterStop() {
-        cell.releaseBorrow()
-=======
         // In Rust: mem::forget(self.borrow())
     }
 
     override fun iterStop() {
         // In Rust: unleak_borrow(self)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/dict/Value.kt
     }
 
-    override fun contentUnchecked(): SmallMap<Value, Value> = cell.borrow().value.content
+    override fun contentUnchecked(): SmallMap<Value, Value> = cell.value.content
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> = try {
-        cell.borrow().value.content.insertHashed(index, value)
+        cell.value.content.insertHashed(index, value)
         Result.success(Unit)
     } catch (_: Exception) {
         Result.failure(ValueError.MutationDuringIteration)
@@ -520,6 +466,11 @@ internal fun <K, V> fmtKeyedContainer(
     }
     builder.append(end)
     return builder.toString()
+}
+
+class AtomicRef<T>(var value: T) {
+    fun borrow(): Ref<T> = Ref(value)
+    fun tryBorrowMut(): RefMut<T>? = RefMut(value)
 }
 
 internal fun hashStringValue(s: String): Int = s.hashCode()

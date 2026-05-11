@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Parse.kt
-// port-lint: source docs/parse.rs
-package io.github.kotlinmania.starlark.docs
-=======
 // port-lint: source src/docs/parse.rs
 package io.github.kotlinmania.starlark_kotlin.docs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Parse.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,15 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.docs
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Parse.kt
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
-import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-=======
 import io.github.kotlinmania.starlark_kotlin.typing.Ty
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
@@ -41,7 +27,6 @@ import io.github.kotlinmania.starlark_kotlin.syntax.ast.Expr
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Parse.kt
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
 // #[derive(Copy, Clone, Dupe)]
@@ -71,41 +56,6 @@ enum class DocStringKind {
     Starlark,
 
     /**
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Parse.kt
-     * Docstrings used with `starlarkModule` in the host language.
-     *
-     * These are the documentation strings written as KDoc (`/&#42;&#42; ... &#42;/`) on the
-     * module/object definition, and the functions/attributes within it. It supports
-     * a section `# Arguments` and `# Returns`, and removes some lines from code
-     * blocks that are valid for host-language documentation but not useful for people
-     * using these functions via Starlark. An example might be something like:
-     *
-     * ```kotlin
-     * /&#42;&#42;
-     *  &#42; These are where the module/object level docs go.
-     *  &#42;/
-     * fun addSomeValue(builder: MethodsBuilder) {
-     *     /&#42;&#42;
-     *      &#42; attr1 is an attribute that does nothing interesting.
-     *      &#42;/
-     *     // builder.attribute("attr1") { thisValue: Value -> "attr1" }
-     *
-     *     /&#42;&#42;
-     *      &#42; Copies a string.
-     *      &#42;
-     *      &#42; This is where details would be, if this were
-     *      &#42; a more interesting function.
-     *      &#42;
-     *      &#42; # Arguments
-     *      &#42; - `s`: This is the string that is returned.
-     *      &#42;
-     *      &#42; # Returns
-     *      &#42; A copy of the original string.
-     *      &#42;/
-     *     // builder.method("copyString") { thisValue: Value, s: String -> s }
-     * }
-     * ```
-=======
      * Docstrings used with `#[starlark_module]` in rust / `@StarlarkModule` in Kotlin.
      *
      * These are the documentation strings prefixed by `///` on
@@ -113,7 +63,6 @@ enum class DocStringKind {
      * a section `# Arguments`, and `# Returns`, and removes some lines from code
      * blocks that are valid for KDoc/rustdoc, but not useful for people using these
      * functions via starlark.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Parse.kt
      */
     Rust,
 }

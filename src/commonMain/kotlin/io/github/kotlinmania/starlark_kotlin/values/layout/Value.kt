@@ -33,75 +33,6 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // our val_ref requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-import io.github.kotlinmania.starlarkmap.Hashed
-import io.github.kotlinmania.starlarkmap.StarlarkHashValue
-import io.github.kotlinmania.starlarkmap.StarlarkHasher
-import io.github.kotlinmania.starlark.docs.DocItem
-import io.github.kotlinmania.starlark.typing.Ty
-import io.github.kotlinmania.starlark.typing.TyCallable
-import io.github.kotlinmania.starlark.typing.ParamIsRequired
-import io.github.kotlinmania.starlark.typing.ParamSpec
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.ValueError
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.AValue
-import io.github.kotlinmania.starlark.values.layout.AValueImpl
-import io.github.kotlinmania.starlark.values.layout.FrozenPointer
-import io.github.kotlinmania.starlark.values.layout.Pointer
-import io.github.kotlinmania.starlark.values.layout.RawPointer
-import io.github.kotlinmania.starlark.values.layout.ValueLifetimeless
-import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark.values.types.int.PointerI32
-import io.github.kotlinmania.starlark.values.types.int.InlineInt
-import io.github.kotlinmania.starlark.values.types.num.NumRef
-import io.github.kotlinmania.starlark.values.types.int.StarlarkIntRef
-import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
-import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.StarlarkIterator
-import io.github.kotlinmania.starlark.values.stackGuard
-import io.github.kotlinmania.starlark.values.reprStackPush
-import io.github.kotlinmania.starlark.values.jsonStackPush
-import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark.values.demand.requestValueImpl
-import io.github.kotlinmania.starlark.eval.compiler.DefGen
-import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
-import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-import io.github.kotlinmania.starlark.eval.runtime.params.spec.asValue
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.values.types.NativeFunction
-import io.github.kotlinmania.starlark.values.types.BoundMethodGen
-import io.github.kotlinmania.starlark.values.types.list.FrozenListData
-import io.github.kotlinmania.starlark.values.types.dict.FrozenDictRef
-import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
-import io.github.kotlinmania.starlark.values.types.range.Range
-import io.github.kotlinmania.starlark.values.types.record.RecordGen
-import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
-import io.github.kotlinmania.starlark.values.types.enumeration.enumtype.EnumTypeGen
-import io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen
-import io.github.kotlinmania.starlark.values.types.structs.StructGen
-import io.github.kotlinmania.starlark.any.ProvidesStaticType
-import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
-import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
-import io.github.kotlinmania.starlark.CoerceKey
-import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.util.ArcStr
-import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
-import io.github.kotlinmania.starlark.values.types.none.VALUE_NONE
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.types.bool.VALUE_FALSE_TRUE
-import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
-=======
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHasher
@@ -171,7 +102,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.none.VALUE_NONE
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.types.bool.VALUE_FALSE_TRUE
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.str_.allocStrConcat
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt
 // VALUE_EMPTY_STRING is in the same package (values.layout) via StaticString.kt
 import io.github.kotlinmania.starlark_kotlin.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark_kotlin.values.types.list.VALUE_EMPTY_FROZEN_LIST
@@ -534,7 +464,7 @@ class Value internal constructor(
     }
 
     /**
-     * Obtain the underlying String if it is a string.
+     * Obtain the underlying `str` if it is a string.
      */
     // pub fn unpack_str(self) -> Option<&'v str>
     fun unpackStr(): String? {
@@ -542,7 +472,7 @@ class Value internal constructor(
     }
 
     /**
-     * Obtain the underlying String if it is a string, otherwise return an error for users.
+     * Obtain the underlying `str` if it is a string, otherwise return an error for users.
      */
     // pub fn unpack_str_err(self) -> crate::Result<&'v str>
     fun unpackStrErr(): Result<String> {
@@ -614,10 +544,6 @@ class Value internal constructor(
     // pub(crate) unsafe fn downcast_ref_unchecked<T: StarlarkValue<'v>>(self) -> &'v T
     @Suppress("UNCHECKED_CAST")
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-        check(getRef().downcastRef<T>() != null)
-=======
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt
         if (PointerI32.typeIsPointerI32<T>()) {
             return PointerI32.fromRawInt(ptr.unpackIntValue()) as T
         }
@@ -1447,37 +1373,7 @@ class Value internal constructor(
     // This is equivalent to toRepr().
     override fun toString(): String = toRepr()
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-    /**
-     * Equivalent of Rust Display fmt for [Value].
-     *
-     * Writes the Starlark `repr()` form into [collector], including cycle handling.
-     */
-    fun fmt(collector: StringBuilder) {
-        collectRepr(collector)
-    }
-
-    /**
-     * Equivalent of Rust Debug fmt for [Value].
-     */
-    fun fmt(collector: StringBuilder, debug: Boolean) {
-        if (debug) {
-            collector.append(debugValue("Value", this))
-        } else {
-            fmt(collector)
-        }
-    }
-
-    /**
-     * Equivalent of Rust PartialEq eq for [Value].
-     */
-    fun eq(other: Value): Boolean {
-        return equals(other).getOrDefault(false)
-    }
-
-=======
     // impl PartialEq for Value<'v>
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Value) return false
@@ -1833,35 +1729,7 @@ class FrozenValue internal constructor(
         return toValue().compare(other)
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-    /**
-     * Equivalent of Rust Display fmt for [FrozenValue].
-     */
-    fun fmt(collector: StringBuilder) {
-        toValue().fmt(collector)
-    }
-
-    /**
-     * Equivalent of Rust Debug fmt for [FrozenValue].
-     */
-    fun fmt(collector: StringBuilder, debug: Boolean) {
-        if (debug) {
-            collector.append(debugValue("FrozenValue", Value.newFrozen(this)))
-        } else {
-            fmt(collector)
-        }
-    }
-
-    /**
-     * Equivalent of Rust PartialEq eq for [FrozenValue].
-     */
-    fun eq(other: FrozenValue): Boolean {
-        return toValue().eq(other.toValue())
-    }
-
-=======
     // impl Display for FrozenValue
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt
     override fun toString(): String {
         return toValue().toString()
     }
@@ -1974,12 +1842,6 @@ interface ValueLike : ValueLifetimeless {
     /**
      * Get hash value.
      */
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-    fun getHashed(): Result<Hashed<Self>> {
-        val hash = toValue().unpackStarlarkStr()?.getHashValue()
-            ?: toValue().getHash().getOrElse { return Result.failure(it) }
-        return Result.success(Hashed.newUnchecked(hash, this as Self))
-=======
     // fn get_hashed(self) -> crate::Result<Hashed<Self>>
     fun getHashed(): Result<Hashed<out ValueLike>> {
         val v = toValue()
@@ -1994,7 +1856,6 @@ interface ValueLike : ValueLifetimeless {
             return Result.failure(e)
         }
         return Result.success(Hashed.newUnchecked(hash, this))
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt
     }
 
     /**
@@ -2055,8 +1916,6 @@ interface ValueLike : ValueLifetimeless {
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Value.kt
-=======
 // impl Sealed for Value<'v> {}
 // impl ValueLifetimeless for Value<'v> {}
 // impl Sealed for FrozenValue {}
@@ -2067,4 +1926,3 @@ interface ValueLike : ValueLifetimeless {
 // See: VALUE_NONE (NoneType.kt), VALUE_FALSE_TRUE (bool/Value.kt),
 // VALUE_EMPTY_STRING (StaticString.kt), VALUE_EMPTY_TUPLE (tuple/Value.kt),
 // VALUE_EMPTY_FROZEN_LIST (list/Value.kt), VALUE_EMPTY_FROZEN_DICT (dict/Value.kt)
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Value.kt

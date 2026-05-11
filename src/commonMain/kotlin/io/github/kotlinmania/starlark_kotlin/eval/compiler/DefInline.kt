@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/compiler/DefInline.kt
-// port-lint: source eval/compiler/def_inline.rs
-package io.github.kotlinmania.starlark.eval.compiler
-=======
 // port-lint: source src/eval/compiler/def_inline.rs
 package io.github.kotlinmania.starlark_kotlin.eval.compiler
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/compiler/DefInline.kt
 
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.args.ArgsCompiledValue
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan

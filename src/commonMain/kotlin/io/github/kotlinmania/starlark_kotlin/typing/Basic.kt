@@ -1,16 +1,8 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Basic.kt
-// port-lint: source typing/basic.rs
-package io.github.kotlinmania.starlark.typing
-import io.github.kotlinmania.starlark.values.types.string.StarlarkStr
-import io.github.kotlinmania.starlark.values.types.none.NoneType
-import io.github.kotlinmania.starlark.values.typing.TypingAny
-=======
 // port-lint: source src/typing/basic.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingAny
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Basic.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

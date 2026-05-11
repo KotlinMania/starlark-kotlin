@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/docs/Multipage.kt
-// port-lint: source docs/multipage.rs
-package io.github.kotlinmania.starlark.docs
-=======
 // port-lint: source src/docs/multipage.rs
 package io.github.kotlinmania.starlark_kotlin.docs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/docs/Multipage.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/pagable/VtableRegistryTest.kt
-// port-lint: source tests:src/pagable/vtableRegistry.rs
-package io.github.kotlinmania.starlark.pagable
-=======
 // port-lint: tests src/pagable/vtable_registry.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.pagable
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/pagable/VtableRegistryTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Unpack.kt
-// port-lint: source values/types/list/unpack.rs
-package io.github.kotlinmania.starlark.values.types.list
-=======
 // port-lint: source src/values/types/list/unpack.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.list
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Unpack.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -71,15 +66,12 @@ data class UnpackList<T>(
  * Attempts to unpack a [Value] as a list, then unpacks each element
  * using the provided element unpacker.
  *
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/list/Unpack.kt
-=======
  * Corresponds to Rust's `impl UnpackValue<'v> for UnpackList<T>`.
  *
  * The error type in Rust is `<T as UnpackValue>::Error`, i.e. the
  * element unpacker's error type is propagated. In Kotlin we use
  * `Result<UnpackList<T>?>` with standard `Throwable` errors.
  *
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/list/Unpack.kt
  * @param T The target type for each list element.
  * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */

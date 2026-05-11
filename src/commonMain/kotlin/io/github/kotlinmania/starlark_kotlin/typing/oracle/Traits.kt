@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/oracle/Traits.kt
-// port-lint: source typing/oracle/traits.rs
-package io.github.kotlinmania.starlark.typing.oracle
-=======
 // port-lint: source src/typing/oracle/traits.rs
 package io.github.kotlinmania.starlark_kotlin.typing.oracle
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/oracle/Traits.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

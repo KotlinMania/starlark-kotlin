@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Owned.kt
-// port-lint: source values/owned.rs
-package io.github.kotlinmania.starlark.values.owned
-=======
 // port-lint: source src/values/owned.rs
 package io.github.kotlinmania.starlark_kotlin.values.owned
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Owned.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

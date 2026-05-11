@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/string/Methods.kt
-// port-lint: source values/types/string/methods.rs
-package io.github.kotlinmania.starlark.values.types.string
-=======
 // port-lint: source src/values/types/string/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.string
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/string/Methods.kt
 
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.typed.StringValue
@@ -1038,7 +1033,7 @@ internal fun rstrip(
  * splitting at occurrences of the delimiter string `sep`.
  *
  * Consecutive occurrences of `sep` are considered to delimit empty
- * strings, so `'food'.split('o')` returns `['f', '', 'd']`.
+ * strings, so `'food'.split('o')` returns `['f', '', D_']`.
  * Splitting an empty string with a specified separator returns `['']`.
  * If `sep` is the empty string, `split` fails.
  *
@@ -1156,9 +1151,9 @@ internal fun splitlines(
  * # starlark::assert::all_true(r#"
  * "filename.sky".startswith("filename") == True
  * "filename.sky".startswith("sky") == False
- * 'abc'.startswith(('a', 'A')) == True
- * 'ABC'.startswith(('a', 'A')) == True
- * 'def'.startswith(('a', 'A')) == False
+ * 'abc'.startswith(('a', A_')) == True
+ * 'ABC'.startswith(('a', A_')) == True
+ * 'def'.startswith(('a', A_')) == False
  * # "#);
  * ```
  */

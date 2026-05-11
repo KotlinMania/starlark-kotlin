@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Methods.kt
-// port-lint: source values/types/set/methods.rs
-package io.github.kotlinmania.starlark.values.types.set
-=======
 // port-lint: source src/values/types/set/methods.rs
 package io.github.kotlinmania.starlark_kotlin.values.types.set
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Methods.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -93,7 +88,7 @@ private sealed class SetFromValue {
     }
 
     fun containsHashed(value: Hashed<Value>): Boolean {
-        return get().containsHashedByValue(value)
+        return get().containsHashed(value)
     }
 }
 
@@ -336,7 +331,7 @@ internal fun setMethods(builder: MethodsBuilder) {
 
 internal fun clear(thisValue: Value): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    thisSet.aref.value.clear()
+    thisSet.aref.data.clear()
     return Result.success(NoneType)
 }
 
@@ -444,7 +439,7 @@ internal fun symmetricDifference(
 
     for (elem in otherSet.get().iter()) {
         val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-        if (!thisSet.content.containsHashedByValue(hashed.asRef())) {
+        if (!thisSet.content.containsHashed(hashed.asRef())) {
             data.addHashed(hashed)
         }
     }
@@ -467,7 +462,7 @@ internal fun add(
 ): Result<NoneType> {
     val thisSet = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    thisSet.aref.value.addHashed(hashed)
+    thisSet.aref.data.addHashed(hashed)
     return Result.success(NoneType)
 }
 
@@ -492,15 +487,15 @@ internal fun update(
         return Result.success(NoneType)
     }
 
-    if (thisSet.aref.value.content.isEmpty()) {
+    if (thisSet.aref.data.content.isEmpty()) {
         val otherSet = SetFromValue.fromValue(other, heap)
             .getOrElse { return Result.failure(it) }
         val newContent = otherSet.intoSet()
-        thisSet.aref.value.content.addAll(newContent.iterHashed().asIterable())
+        thisSet.aref.data.content.addAll(newContent.iterHashed().asIterable())
     } else {
         for (elem in other.iterate(heap).getOrElse { return Result.failure(it) }) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-            thisSet.aref.value.addHashed(hashed)
+            thisSet.aref.data.addHashed(hashed)
         }
     }
 
@@ -537,7 +532,7 @@ internal fun remove(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    return if (set.aref.value.removeHashed(hashed.asRef())) {
+    return if (set.aref.data.removeHashed(hashed.asRef())) {
         Result.success(NoneType)
     } else {
         Result.failure(ValueError.KeyNotFound("`$value` not found in `$thisValue`"))
@@ -574,7 +569,7 @@ internal fun discard(
 ): Result<NoneType> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
     val hashed = value.getHashed().getOrElse { return Result.failure(it) }
-    set.aref.value.removeHashed(hashed.asRef())
+    set.aref.data.removeHashed(hashed.asRef())
     return Result.success(NoneType)
 }
 
@@ -600,13 +595,13 @@ internal fun discard(
  */
 internal fun pop(thisValue: Value): Result<Value> {
     val set = SetMut.fromValue(thisValue).getOrElse { return Result.failure(it) }
-    val content = set.aref.value.content
+    val content = set.aref.data.content
     return if (content.isEmpty()) {
         Result.failure(ValueError.KeyNotFound("pop from an empty set"))
     } else {
         // Pop the last element - get it then remove it
         val last = content.iterHashed().last()
-        content.shiftRemoveHashedByValue(last)
+        content.shiftRemoveHashed(last)
         Result.success(last.key())
     }
 }
@@ -671,7 +666,7 @@ internal fun issuperset(
             return Result.success(false)
         }
         for (hashed in otherSetRef.content.iterHashed()) {
-            if (!thisSet.content.containsHashedByValue(hashed.copied())) {
+            if (!thisSet.content.containsHashed(hashed.copied())) {
                 return Result.success(false)
             }
         }
@@ -679,7 +674,7 @@ internal fun issuperset(
         val iter = other.iterate(heap).getOrElse { return Result.failure(it) }
         for (elem in iter) {
             val hashed = elem.getHashed().getOrElse { return Result.failure(it) }
-            if (!thisSet.content.containsHashedByValue(hashed)) {
+            if (!thisSet.content.containsHashed(hashed)) {
                 return Result.success(false)
             }
         }

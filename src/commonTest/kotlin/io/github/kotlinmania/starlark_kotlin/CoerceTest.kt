@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/CoerceTest.kt
-// port-lint: tests coerce.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: tests src/coerce.rs
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/CoerceTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

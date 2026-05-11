@@ -1,10 +1,5 @@
-<<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/TestsModule.kt
-// port-lint: source tests.rs
-package io.github.kotlinmania.starlark.tests
-========
 // port-lint: source src/cast.rs
 package io.github.kotlinmania.starlark_kotlin.cast
->>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Cast.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,14 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.cast
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/TestsModule.kt
-/**
- * Test module entrypoint in the upstream Rust crate.
- *
- * In Kotlin, the individual tests are mapped one-to-one from `tests/*.rs` into this package.
- */
-
-========
 /** Convert a reference to a usize-like integer (identity hash). */
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun ptrToUsize(x: Any): Int {
@@ -57,4 +44,3 @@ internal inline fun <T> ptrLifetime(x: T): T {
 internal inline fun <From, To> transmute(value: From): To {
     return value as To
 }
->>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Cast.kt

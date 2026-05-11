@@ -1,11 +1,6 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Hint.kt
-// port-lint: source hint.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: source src/stdlib/funcs.rs
 @file:Suppress("unused")
 package io.github.kotlinmania.starlark_kotlin.stdlib.funcs
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/Funcs.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

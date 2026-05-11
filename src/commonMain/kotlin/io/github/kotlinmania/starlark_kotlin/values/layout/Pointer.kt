@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Pointer.kt
-// port-lint: source values/layout/pointer.rs
-package io.github.kotlinmania.starlark.values.layout
-=======
 // port-lint: source src/values/layout/pointer.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Pointer.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -347,33 +342,5 @@ internal class FrozenPointer private constructor(
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/Pointer.kt
-/**
- * Runtime regression guard verifying [FrozenPointer] handed out in one scope
- * continues to point at the same underlying [RawPointer] when it crosses
- * coroutine boundaries. Throws if the value loses identity across the
- * round-trip.
- */
-internal fun testLifetimeCovariant() {
-    kotlinx.coroutines.runBlocking {
-        val original = FrozenPointer.newInt(42)
-        val expectedRaw = original.raw().ptrValue()
-
-        val channel = kotlinx.coroutines.channels.Channel<FrozenPointer>(1)
-        val received = this.async(kotlinx.coroutines.Dispatchers.Default) {
-            val p = channel.receive()
-            p.raw().ptrValue()
-        }
-        this.launch(kotlinx.coroutines.Dispatchers.Default) { channel.send(original) }
-        val actualRaw = received.await()
-        channel.close()
-
-        check(expectedRaw == actualRaw) {
-            "FrozenPointer did not survive Channel round-trip: expected=$expectedRaw actual=$actualRaw"
-        }
-    }
-}
-=======
 // #[cfg(test)] #[test] fn test_int_tag()
 // Tests are in commonTest, not here.
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/Pointer.kt

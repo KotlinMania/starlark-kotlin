@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/VisitSpan.kt
-// port-lint: source eval/runtime/visit_span.rs
-package io.github.kotlinmania.starlark.eval.runtime
-=======
 // port-lint: source src/eval/runtime/visit_span.rs
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/VisitSpan.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,19 +19,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.runtime
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/runtime/VisitSpan.kt
-import io.github.kotlinmania.starlark.eval.compiler.CompareOp
-import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.typing.DefParamIndices
-import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
-import io.github.kotlinmania.starlark.typing.DefRegularParamMode
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-=======
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.CompareOp
 import io.github.kotlinmania.starlark_kotlin.values.Tuple4
 import io.github.kotlinmania.starlark_kotlin.values.FrozenRef
@@ -49,7 +31,6 @@ import io.github.kotlinmania.starlark_kotlin.collections.symbol.Symbol
 import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.typing.DefRegularParamMode
 import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValueTyped
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/runtime/VisitSpan.kt
 
 /** Visitor for code spans in the IR. */
 internal interface VisitSpanMut {
@@ -112,6 +93,16 @@ internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut> Triple<A, B,
     first.visitSpans(visitor)
     second.visitSpans(visitor)
     third.visitSpans(visitor)
+}
+
+/** VisitSpanMut for 4-tuple — visits all elements. */
+internal fun <A : VisitSpanMut, B : VisitSpanMut, C : VisitSpanMut, D : VisitSpanMut> Tuple4<A, B, C, D>.visitSpansMut(
+    visitor: (FrameSpan) -> FrameSpan,
+) {
+    first.visitSpans(visitor)
+    second.visitSpans(visitor)
+    third.visitSpans(visitor)
+    fourth.visitSpans(visitor)
 }
 
 /** VisitSpanMut for [MutableList] (Vec) — visits each element. */

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Interface.kt
-// port-lint: source typing/interface.rs
-package io.github.kotlinmania.starlark.typing
-=======
 // port-lint: source src/typing/interface.rs
 package io.github.kotlinmania.starlark_kotlin.typing
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Interface.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

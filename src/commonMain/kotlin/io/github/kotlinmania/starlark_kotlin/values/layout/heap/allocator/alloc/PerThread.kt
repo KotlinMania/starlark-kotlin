@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/PerThread.kt
-// port-lint: source values/layout/heap/allocator/alloc/per_thread.rs
-package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
-=======
 // port-lint: source src/values/layout/heap/allocator/alloc/per_thread.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/PerThread.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,18 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/PerThread.kt
-import io.github.kotlinmania.starlark.values.layout.AlignedSize
-import io.github.kotlinmania.threadlocal.ThreadLocal
-import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
-import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunkpart.ChunkPart
-import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
-=======
 import io.github.kotlinmania.starlark_kotlin.values.layout.AlignedSize
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk.Chunk
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.allocator.alloc.chunk_part.ChunkPart
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.arena.MIN_ALLOC
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/PerThread.kt
 
 /**
  * Minimum usable cached allocation.
@@ -86,19 +73,12 @@ internal class PerThreadChunkCache {
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/layout/heap/allocator/alloc/PerThread.kt
-/** Allocator chunk cache. */
-private val PER_THREAD_ALLOCATOR: ThreadLocal<PerThreadChunkCache> = ThreadLocal()
-
-private fun perThreadAllocator(): PerThreadChunkCache = PER_THREAD_ALLOCATOR.getOr { PerThreadChunkCache() }
-=======
 /**
  * Allocator chunk cache.
  * In Rust: `thread_local! { static PER_THREAD_ALLOCATOR: RefCell<PerThreadChunkCache> }`
  * In Kotlin with coroutines, this is a shared cache instance.
  */
 private val PER_THREAD_ALLOCATOR: PerThreadChunkCache = PerThreadChunkCache()
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/layout/heap/allocator/alloc/PerThread.kt
 
 /**
  * Compute next chunk size based on chunk count.
@@ -119,7 +99,7 @@ internal fun threadLocalAllocAtLeast(
     len: AlignedSize,
     chunkCountInBump: Int,
 ): ChunkPart {
-    val chunk = perThreadAllocator().fetch(len)
+    val chunk = PER_THREAD_ALLOCATOR.fetch(len)
         ?: run {
             val nextSize = nextChunkSize(chunkCountInBump) - Chunk.HEADER_SIZE
             val allocLen = maxOf(len, nextSize)
@@ -142,6 +122,6 @@ internal fun threadLocalRelease(chunk: ChunkPart) {
         // better return it to malloc.
         return
     } else {
-        perThreadAllocator().store(chunk)
+        PER_THREAD_ALLOCATOR.store(chunk)
     }
 }

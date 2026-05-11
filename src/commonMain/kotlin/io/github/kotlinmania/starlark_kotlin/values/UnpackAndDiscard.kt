@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/UnpackAndDiscard.kt
-// port-lint: source values/unpack_and_discard.rs
-package io.github.kotlinmania.starlark.values.unpackanddiscard
-=======
 // port-lint: source src/values/unpack_and_discard.rs
 package io.github.kotlinmania.starlark_kotlin.values.unpack_and_discard
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/UnpackAndDiscard.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/pagable/Error.kt
-// port-lint: source pagable/error.rs
-package io.github.kotlinmania.starlark.pagable
-=======
 // port-lint: source src/pagable/error.rs
 package io.github.kotlinmania.starlark_kotlin.pagable
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/pagable/Error.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

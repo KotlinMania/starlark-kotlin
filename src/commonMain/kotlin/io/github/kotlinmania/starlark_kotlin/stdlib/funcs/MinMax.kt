@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/stdlib/funcs/MinMax.kt
-// port-lint: source stdlib/funcs/min_max.rs
-package io.github.kotlinmania.starlark.stdlib.funcs.minmax
-=======
 // port-lint: source src/stdlib/funcs/min_max.rs
 package io.github.kotlinmania.starlark_kotlin.stdlib.funcs.min_max
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/stdlib/funcs/MinMax.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

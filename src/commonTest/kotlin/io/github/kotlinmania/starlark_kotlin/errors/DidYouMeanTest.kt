@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/errors/DidYouMeanTest.kt
-// port-lint: source tests:src/errors/didYouMean.rs
-package io.github.kotlinmania.starlark.errors
-=======
 // port-lint: tests src/errors/did_you_mean.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.errors
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/errors/DidYouMeanTest.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

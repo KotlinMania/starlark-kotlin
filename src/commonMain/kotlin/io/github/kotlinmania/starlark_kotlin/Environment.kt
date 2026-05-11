@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/Environment.kt
-// port-lint: source environment.rs
-package io.github.kotlinmania.starlark
-=======
 // port-lint: source src/environment.rs
 package io.github.kotlinmania.starlark_kotlin
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/Environment.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

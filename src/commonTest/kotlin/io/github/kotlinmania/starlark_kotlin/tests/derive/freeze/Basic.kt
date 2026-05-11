@@ -1,12 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/tests/bc/Isinstance.kt
-// port-lint: source tests/bc/isinstance.rs
-package io.github.kotlinmania.starlark.tests.bc
-
-import kotlin.test.Test
-=======
 // port-lint: tests tests/derive/freeze/basic.rs
 package io.github.kotlinmania.starlark_kotlin.tests.derive.freeze
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/tests/derive/freeze/Basic.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

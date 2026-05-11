@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Bytecode.kt
-// port-lint: source eval/bc/bytecode.rs
-package io.github.kotlinmania.starlark.eval.bc
-=======
 // port-lint: source src/eval/bc/bytecode.rs
 package io.github.kotlinmania.starlark_kotlin.eval.bc
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Bytecode.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -26,15 +21,6 @@ package io.github.kotlinmania.starlark_kotlin.eval.bc
 
 /** Unsorted/core interpreter stuff. */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Bytecode.kt
-import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
-import io.github.kotlinmania.starlark.eval.bc.InstrControl
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark.eval.runtime.EvaluationCallbacks
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-import io.github.kotlinmania.starlark.typing.StarlarkError
-import io.github.kotlinmania.starlark.values.layout.Value
-=======
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.InstrControl
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
@@ -42,7 +28,6 @@ import io.github.kotlinmania.starlark_kotlin.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark_kotlin.typing.EvalException
 import io.github.kotlinmania.starlark_kotlin.typing.StarlarkError
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Bytecode.kt
 
 /** Ready to execute bytecode. */
 // #[derive(Default)]
@@ -114,9 +99,6 @@ class Bc(
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/eval/bc/Bytecode.kt
-/** Execute one instruction by dispatching on the opcode. */
-=======
 /**
  * Execute one instruction by dispatching on the opcode.
  *
@@ -125,7 +107,6 @@ class Bc(
  * instruction argument from the buffer and call the appropriate handler.
  */
 // fn step<'v, 'b, EC: EvaluationCallbacks>(eval: &mut Evaluator, ec: &mut EC, frame: BcFramePtr, ip: BcPtrAddr) -> InstrControl
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/eval/bc/Bytecode.kt
 private fun step(
     eval: Evaluator,
     ec: EvaluationCallbacks,
@@ -144,7 +125,12 @@ private fun step(
     return dispatchInstruction(opcode, eval, frame, ip, arg)
 }
 
-/** Dispatch an instruction by opcode. */
+/**
+ * Dispatch an instruction by opcode.
+ *
+ * This is the Kotlin equivalent of the Rust proc-macro generated dispatch.
+ * Each opcode maps to a specific instruction implementation.
+ */
 private fun dispatchInstruction(
     opcode: BcOpcode,
     eval: Evaluator,

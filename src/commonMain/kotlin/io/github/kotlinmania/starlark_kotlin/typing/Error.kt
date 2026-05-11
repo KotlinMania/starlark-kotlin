@@ -1,12 +1,3 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-// port-lint: source typing/error.rs
-package io.github.kotlinmania.starlark.typing
-
-import io.github.kotlinmania.starlarksyntax.codemap.Span as Span
-import io.github.kotlinmania.starlarksyntax.codemap.CodeMap as CodeMap
-import io.github.kotlinmania.starlarksyntax.diagnostic.WithDiagnostic
-import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
-=======
 // port-lint: source src/typing/error.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
@@ -20,7 +11,6 @@ package io.github.kotlinmania.starlark_kotlin.typing
 
 import io.github.kotlinmania.starlark_kotlin.codemap.Span
 import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -40,11 +30,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
  * limitations under the License.
  */
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-// CLEANUP NEEDED: StarlarkError is a stubby duplicate of upstream `starlark_syntax/src/error.rs`.
-// The proper port (`class Error`) lives in starlark-syntax-kotlin's `error/Error.kt`.
-// Callers should be migrated to that, then this stub deleted.
-=======
 // Kotlin: EvalException is defined in starlark_syntax in Rust.
 // We define it here for now.
 class EvalException(override val message: String, cause: Throwable? = null) : Exception(message, cause) {
@@ -88,16 +73,12 @@ class EvalException(override val message: String, cause: Throwable? = null) : Ex
     }
 }
 
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
 open class StarlarkError(message: String, cause: Throwable? = null) : Exception(message, cause) {
     fun intoInternalError(): StarlarkError {
         return StarlarkError("Internal: $message", cause)
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-/** Internal error, bug in the typechecker. */
-=======
 
 class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
     fun <R> map(f: (T) -> R): WithDiagnostic<R> {
@@ -108,7 +89,6 @@ class WithDiagnostic<T>(val value: T, val span: Span, val codemap: CodeMap) {
 /// Internal error, bug in the typechecker.
 // #[derive(Debug)]
 // pub struct InternalError(EvalException);
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
 class InternalError(private val exception: EvalException) : Exception(exception.message, exception) {
     // impl InternalError
     companion object {
@@ -116,8 +96,8 @@ class InternalError(private val exception: EvalException) : Exception(exception.
         // pub(crate) fn msg(message: impl Display, span: Span, codemap: &CodeMap) -> InternalError
         fun msg(message: Any, span: Span, codemap: CodeMap): InternalError {
             return InternalError(
-                EvalException.newAnyhow(
-                    Exception(message.toString()),
+                EvalException.new(
+                    StarlarkError(message.toString()),
                     span,
                     codemap
                 )
@@ -127,13 +107,11 @@ class InternalError(private val exception: EvalException) : Exception(exception.
         // #[cold]
         // pub(crate) fn from_diagnostic(d: WithDiagnostic<impl Display>) -> InternalError
         fun fromDiagnostic(d: WithDiagnostic<Any>): InternalError {
-            val fileSpan = d.span()!!
+            val internal = d.map { m ->
+                StarlarkError(m.toString())
+            }
             return InternalError(
-                EvalException.newAnyhow(
-                    Exception(d.inner().toString()),
-                    fileSpan.span,
-                    fileSpan.file,
-                )
+                EvalException.new(internal.value, internal.span, internal.codemap)
             )
         }
 
@@ -147,17 +125,13 @@ class InternalError(private val exception: EvalException) : Exception(exception.
         // pub(crate) fn from_error(e: crate::Error, span: Span, codemap: &CodeMap) -> InternalError
         fun fromError(e: StarlarkError, span: Span, codemap: CodeMap): InternalError {
             val internalErr = e.intoInternalError()
-            return InternalError(EvalException.newAnyhow(internalErr, span, codemap))
+            return InternalError(EvalException.new(internalErr, span, codemap))
         }
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-    fun intoError(): Exception {
-=======
     // #[cold]
     // pub(crate) fn into_error(self) -> crate::Error
     fun intoError(): StarlarkError {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
         return exception.intoError()
     }
 
@@ -188,7 +162,7 @@ class TypingError(private val exception: EvalException) {
         // #[cold]
         // pub(crate) fn new(error: crate::Error, span: Span, codemap: &CodeMap) -> TypingError
         fun new(error: StarlarkError, span: Span, codemap: CodeMap): TypingError {
-            return TypingError(EvalException.newAnyhow(error, span, codemap))
+            return TypingError(EvalException.new(error, span, codemap))
         }
 
         // #[cold]
@@ -204,13 +178,9 @@ class TypingError(private val exception: EvalException) {
         }
     }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-    fun intoError(): Exception {
-=======
     // #[cold]
     // pub(crate) fn into_error(self) -> crate::Error
     fun intoError(): StarlarkError {
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
         return exception.intoError()
     }
 
@@ -225,13 +195,6 @@ class TypingError(private val exception: EvalException) {
 // pub struct TypingNoContextError;
 object TypingNoContextError : Exception("typing error (no context)")
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-/**
- * Either a typing error or an internal error.
- * * Typing error means, types are not compatible.
- * * Internal error means, bug in the typechecker.
- */
-=======
 /// Either a typing error or an internal error.
 /// * Typing error means, types are not compatible.
 /// * Internal error means, bug in the typechecker.
@@ -239,7 +202,6 @@ object TypingNoContextError : Exception("typing error (no context)")
 //     Typing(TypingError),
 //     Internal(InternalError),
 // }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
 sealed class TypingOrInternalError : Exception() {
     class Typing(val error: TypingError) : TypingOrInternalError()
     class Internal(val error: InternalError) : TypingOrInternalError()
@@ -252,13 +214,10 @@ sealed class TypingOrInternalError : Exception() {
     }
 }
 
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/Error.kt
-=======
 // pub enum TypingNoContextOrInternalError {
 //     Typing,
 //     Internal(InternalError),
 // }
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/Error.kt
 sealed class TypingNoContextOrInternalError : Exception() {
     data object Typing : TypingNoContextOrInternalError()
     class Internal(val error: InternalError) : TypingNoContextOrInternalError()

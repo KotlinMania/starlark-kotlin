@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/collections/MaybeUninitBackport.kt
-// port-lint: source collections/maybe_uninit_backport.rs
-package io.github.kotlinmania.starlark.collections
-=======
 // port-lint: source src/collections/maybe_uninit_backport.rs
 package io.github.kotlinmania.starlark_kotlin.collections
->>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/collections/MaybeUninitBackport.kt
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

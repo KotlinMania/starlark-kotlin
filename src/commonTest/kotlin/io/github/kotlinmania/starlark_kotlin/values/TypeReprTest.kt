@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/commonTest/kotlin/io/github/kotlinmania/starlark/values/TypeReprTest.kt
-// port-lint: source tests:src/values/typeRepr.rs
-package io.github.kotlinmania.starlark.values
-=======
 // port-lint: tests src/values/type_repr.rs (tests)
 package io.github.kotlinmania.starlark_kotlin.values
->>>>>>> origin/main:src/commonTest/kotlin/io/github/kotlinmania/starlark_kotlin/values/TypeReprTest.kt
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
