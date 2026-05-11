@@ -146,7 +146,7 @@ internal fun testInlineInto() {
     val frozenHeap = FrozenHeap()
 
     fun makeSpan(heap: FrozenHeap, text: String): FrameSpan {
-        val codemap = CodeMap("$text.bzl", text)
+        val codemap = CodeMap.new("$text.bzl", text)
         val codemapRef = heap.allocAny(codemap)
         return FrameSpan(
             span = FrozenFileSpan.new(codemapRef, codemapRef.value.fullSpan()),

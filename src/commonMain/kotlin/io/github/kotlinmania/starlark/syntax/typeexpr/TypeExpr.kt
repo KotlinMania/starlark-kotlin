@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
-import io.github.kotlinmania.starlark.typing.WithDiagnostic
+import io.github.kotlinmania.starlarksyntax.diagnostic.WithDiagnostic
 
 sealed class TypeExprUnpackError(message: String) : Exception(message) {
     class InvalidType(val type_: String) : TypeExprUnpackError("$type_ expression is not allowed in type expression")

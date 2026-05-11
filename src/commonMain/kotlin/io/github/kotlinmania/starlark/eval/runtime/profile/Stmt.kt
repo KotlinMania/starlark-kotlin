@@ -307,9 +307,9 @@ internal fun testEmpty() {
 }
 
 internal fun testMerge() {
-    val x = CodeMap("x.star", "def a(): pass")
-    val y = CodeMap("y.star", "def b(): pass")
-    val z = CodeMap("z.star", "def c(): pass")
+    val x = CodeMap.new("x.star", "def a(): pass")
+    val y = CodeMap.new("y.star", "def b(): pass")
+    val z = CodeMap.new("z.star", "def c(): pass")
 
     val allFiles = CodeMaps()
     allFiles.add(x)

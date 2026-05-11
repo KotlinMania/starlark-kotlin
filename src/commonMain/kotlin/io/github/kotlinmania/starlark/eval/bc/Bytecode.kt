@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.eval.bc.BcFramePtr
 import io.github.kotlinmania.starlark.eval.bc.InstrControl
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.EvaluationCallbacks
-import io.github.kotlinmania.starlark.typing.EvalException
+import io.github.kotlinmania.starlarksyntax.evalexception.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
 

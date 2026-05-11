@@ -37,7 +37,7 @@ data class FrozenFileSpan private constructor(
 
     companion object {
 
-        private val EMPTY_CODEMAP: CodeMap = CodeMap("", "")
+        private val EMPTY_CODEMAP: CodeMap = CodeMap.new("", "")
 
         val DEFAULT: FrozenFileSpan = newUnchecked(FrozenRef(EMPTY_CODEMAP), Span.DEFAULT)
 

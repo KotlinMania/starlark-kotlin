@@ -38,7 +38,7 @@ private class Out(
      */
     fun appendTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end)
+        check(pos <= codemap.fullSpan().end())
         out.append(codemap.sourceSpan(Span(this.pos, pos)))
         this.pos = pos
     }
@@ -49,7 +49,7 @@ private class Out(
      */
     fun skipTo(pos: Pos) {
         check(this.pos <= pos)
-        check(pos <= codemap.fullSpan().end)
+        check(pos <= codemap.fullSpan().end())
         this.pos = pos
     }
 
@@ -58,8 +58,8 @@ private class Out(
      *
      */
     fun skipSpan(span: Span) {
-        appendTo(span.begin)
-        skipTo(span.end)
+        appendTo(span.begin())
+        skipTo(span.end())
     }
 }
 

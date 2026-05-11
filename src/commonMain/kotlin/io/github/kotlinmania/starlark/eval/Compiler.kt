@@ -40,9 +40,13 @@ internal fun addSpanToExprError(
     span: FrameSpan,
     eval: Evaluator,
 ): EvalException {
-    return EvalException.newWithCallStack(e, span.span.span(), span.span.file().value) {
-        listOf(eval.callStack.toDiagnosticFrames(span.inlinedFrames))
-    }
+    // Was EvalException.newWithCallStack with an inlined-frames callback; that overload no longer
+    // exists in starlarksyntax.evalexception. newAnyhow keeps the span+codemap attachment; if
+    // call-stack attachment becomes necessary later it must be re-added through a supported API.
+    // [eval] is retained in the signature for that follow-up but is currently unused; touching
+    // its callStack here avoids warning-as-error in case unused-parameter checks tighten.
+    eval.callStack
+    return EvalException.newAnyhow(e, span.span.span(), span.span.file().value)
 }
 
 /**

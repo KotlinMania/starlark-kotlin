@@ -59,8 +59,8 @@ internal class UnusedLoad(
 
 /** Check if there are `@unused` markers on the lines with the given span. */
 private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
-    val beginLine = span.file.findLine(span.span.begin)
-    val endLine = span.file.findLine(span.span.end)
+    val beginLine = span.file.findLine(span.span.begin())
+    val endLine = span.file.findLine(span.span.end())
     for (lineNo in beginLine..endLine) {
         val line = span.file.sourceLine(lineNo)
         if (line.endsWith("@unused") || line.contains("@unused ")) {

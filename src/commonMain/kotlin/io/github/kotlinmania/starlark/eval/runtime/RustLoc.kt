@@ -31,7 +31,7 @@ private val NATIVE_FULL_SPAN = Span(Pos(0), Pos(NATIVE_SOURCE.length))
 /// Initialize `loc` to `FrozenRef<FrameSpan>` with file and line number.
 // Kotlin has no macros, so callers pass file/line/column explicitly.
 internal fun rustLoc(file: String, line: Int, column: Int = 0): FrozenRef<FrameSpan> {
-    val codeMap = CodeMap("$file:$line:$column", NATIVE_SOURCE)
+    val codeMap = CodeMap.new("$file:$line:$column", NATIVE_SOURCE)
     val frozenFileSpan = FrozenFileSpan.newUnchecked(FrozenRef.new(codeMap), NATIVE_FULL_SPAN)
     val frameSpan = FrameSpan.new(frozenFileSpan)
     return FrozenRef.new(frameSpan)

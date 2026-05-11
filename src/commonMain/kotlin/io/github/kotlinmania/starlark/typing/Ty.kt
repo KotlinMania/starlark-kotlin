@@ -408,7 +408,7 @@ class Ty private constructor(
         expectedReturnType: Ty,
     ): Boolean {
         val oracle = TypingOracleCtx(
-            codemap = CodeMap("", ""),
+            codemap = CodeMap.new("", ""),
         )
         val ret = oracle.validateCall(
             Span.DEFAULT,
@@ -433,7 +433,7 @@ class Ty private constructor(
      */
     internal fun checkIntersects(other: Ty): Result<Boolean> {
         val oracle = TypingOracleCtx(
-            codemap = CodeMap("", ""),
+            codemap = CodeMap.new("", ""),
         )
         return oracle.intersects(this, other)
     }

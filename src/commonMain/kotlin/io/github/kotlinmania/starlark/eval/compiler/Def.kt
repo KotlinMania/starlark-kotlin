@@ -378,7 +378,7 @@ internal class DefInfo(
                 signatureSpan = FrozenFileSpan.default(),
                 parameterCaptures = emptyList(),
                 ty = Ty.any(),
-                codemap = FrozenRef(CodeMap("", "")),
+                codemap = FrozenRef(CodeMap.new("", "")),
                 docstring = null,
                 used = emptyList(),
                 parent = emptyList(),

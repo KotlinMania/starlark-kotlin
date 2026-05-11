@@ -121,7 +121,7 @@ object Parser {
         val span = if (lookahead != null) {
             Span(Pos(lookahead.first), Pos(lookahead.third))
         } else {
-            Span(Pos(parserState.codemap.fullSpan().end.value), Pos(parserState.codemap.fullSpan().end.value))
+            Span(Pos(parserState.codemap.fullSpan().end().value), Pos(parserState.codemap.fullSpan().end().value))
         }
         return EvalException.new(StarlarkError(msg), span, parserState.codemap)
     }
