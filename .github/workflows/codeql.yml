@@ -75,7 +75,7 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      - name: Compile every Kotlin target for CodeQL extraction
+      - name: Compile Android + JS + Wasm Kotlin targets for CodeQL extraction
         if: matrix.build-mode == 'manual'
         shell: bash
         # `compileAndroidMain` is the canonical scannable target: the
