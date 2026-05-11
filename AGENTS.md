@@ -33,7 +33,7 @@ Every ported Kotlin file **must** start with a provenance marker:
 
 ```kotlin
 // port-lint: source <relative-path-to-rust-file>
-package io.github.kotlinmania.starlark.<module>
+package io.github.kotlinmania.starlark_kotlin.<module>
 
 // Rest of file...
 ```
@@ -41,13 +41,13 @@ package io.github.kotlinmania.starlark.<module>
 Examples:
 ```kotlin
 // port-lint: source src/environment/module.rs
-package io.github.kotlinmania.starlark.environment
+package io.github.kotlinmania.starlark_kotlin.environment
 
 // port-lint: source src/values/layout.rs
-package io.github.kotlinmania.starlark.values
+package io.github.kotlinmania.starlark_kotlin.values
 
 // port-lint: source src/eval/runtime/evaluator.rs
-package io.github.kotlinmania.starlark.eval.runtime
+package io.github.kotlinmania.starlark_kotlin.eval.runtime
 ```
 
 **Path Format:** The path should be relative to `tmp/starlark/` (the Rust source root). So for a file at `tmp/starlark/src/values/layout.rs`, use `src/values/layout.rs`.
@@ -125,7 +125,7 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 ### Naming Conventions
 
 - **Files:** Match Rust file names but use PascalCase for Kotlin files (e.g., `module.rs` → `Module.kt`)
-- **Packages:** Mirror Rust crate structure (e.g., `starlark::environment` → `io.github.kotlinmania.starlark.environment`)
+- **Packages:** Mirror Rust crate structure (e.g., `starlark::environment` → `io.github.kotlinmania.starlark_kotlin.environment`)
 - **Types:** PascalCase (same as Rust)
 - **Functions/Variables:** camelCase (Rust snake_case → Kotlin camelCase)
 - **Constants:** UPPER_SNAKE_CASE (same as Rust)
@@ -186,23 +186,54 @@ This preserves the original Rust copyright while adding the maintainer's copyrig
 ./gradlew jvmTest
 ```
 
-### Workflow (No Swarm Tasks)
+### Task Management Workflow (REQUIRED)
 
-This repo is **not** using the `ast_distance` swarm/task-assignment system. Do not create or depend on `tasks.json`.
+**⚠️ IMPORTANT: Use the task system - DO NOT port files randomly!**
 
-Use `ast_distance` directly for analysis and verification:
+The project uses a task assignment system to coordinate parallel porting work and prevent conflicts.
+
+#### Getting Your Next Task
 
 ```bash
-# Analyze overall porting progress
-./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
-
-# Check similarity of a specific file
-./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
-
-# Find missing files ranked by importance (if supported by your ast_distance build)
-./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
+./tools/ast_distance/ast_distance --assign tasks.json <your-agent-id>
 ```
+
+This will:
+1. Assign you the highest-priority unassigned task
+2. Show you the source file path and target path
+3. Output complete porting instructions
+4. Lock the task to prevent other agents from taking it
+
+#### Completing a Task
+
+After porting a file:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json <source_qualified_name>
+```
+
+Example:
+```bash
+./tools/ast_distance/ast_distance --complete tasks.json layout.value
+```
+
+#### Releasing a Task (if blocked)
+
+If you cannot complete a task:
+```bash
+./tools/ast_distance/ast_distance --release tasks.json <source_qualified_name>
+```
+
+#### Viewing Task Status
+
+```bash
+./tools/ast_distance/ast_distance --tasks tasks.json
+```
+
+Shows pending, assigned, and completed tasks with priority rankings.
+
+#### ⚠️ WARNING: Do NOT Re-Initialize Tasks
+
+**NEVER run `--init-tasks` if `tasks.json` already exists!** This will overwrite all task assignments and progress. The task file is already initialized and managed.
 
 ### Tracking Progress
 
@@ -213,7 +244,7 @@ Use the built-in AST distance tool:
 ./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
 
 # Check similarity of specific files
-./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
+./tools/ast_distance/ast_distance tmp/starlark/src/values/layout.rs rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
 
 # Find missing files ranked by importance
 ./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin

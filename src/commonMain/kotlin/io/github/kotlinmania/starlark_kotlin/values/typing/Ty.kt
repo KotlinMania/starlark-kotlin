@@ -1,0 +1,33 @@
+// port-lint: source src/values/typing/ty.rs
+package io.github.kotlinmania.starlark_kotlin.values.typing.ty
+
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.typing.TyBasic
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+
+/** Type of type. */
+// #[derive(Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
+// pub enum AbstractType {}
+// An uninhabited enum in Rust — no instances can be created.
+// In Kotlin, represented as a sealed class with no subclasses.
+sealed class AbstractType : StarlarkValue {
+    // #[starlark_value(type = "type")]
+    override val TYPE: kotlin.String get() = "type"
+    override val HAS_eval_type: Boolean get() = true
+
+    override fun getTypeStarlarkRepr(): Ty = Companion.starlarkTypeRepr()
+
+    // fn eval_type(&self) -> Option<Ty>
+    // This is unreachable, but this function is needed
+    // so `TyStarlarkValue` could think this is a type.
+    override fun evalType(): Ty? {
+        error("AbstractType is uninhabited")
+    }
+
+    override fun toString(): kotlin.String = "type"
+
+    companion object {
+        // fn get_type_starlark_repr() -> Ty
+        fun starlarkTypeRepr(): Ty = Ty.basic(TyBasic.Type)
+    }
+}

@@ -41,14 +41,14 @@
 Every file MUST start with:
 ```kotlin
 // port-lint: source <path-from-tmp/starlark>
-package io.github.kotlinmania.starlark.<module>
+package io.github.kotlinmania.starlark_kotlin.<module>
 ```
 
 ### 4. Verify Quality Before Completing
 ```bash
 ./tools/ast_distance/ast_distance \
   tmp/starlark/<source>.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark/<target>.kt kotlin
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/<target>.kt kotlin
 ```
 **Target: ≥ 0.85 similarity**
 

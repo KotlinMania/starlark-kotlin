@@ -139,17 +139,21 @@ public:
         int depth1 = tree1->depth();
         int depth2 = tree2->depth();
 
-        // Size similarity (normalized)
         int max_size = std::max(size1, size2);
+        int max_depth = std::max(depth1, depth2);
+        // Guard tiny/empty trees: avoid 0/0 -> NaN which later poisons scoring.
+        // Empty bodies can happen for tiny stubs, empty blocks, or normalization artifacts.
+        if (max_size == 0 && max_depth == 0) return 1.0f;
+
+        // Size similarity (normalized)
         float size_sim = (max_size == 0)
             ? 1.0f
-            : (1.0f - std::abs(size1 - size2) / static_cast<float>(max_size));
+            : 1.0f - std::abs(size1 - size2) / static_cast<float>(max_size);
 
         // Depth similarity
-        int max_depth = std::max(depth1, depth2);
         float depth_sim = (max_depth == 0)
             ? 1.0f
-            : (1.0f - std::abs(depth1 - depth2) / static_cast<float>(max_depth));
+            : 1.0f - std::abs(depth1 - depth2) / static_cast<float>(max_depth);
 
         // Combine
         return 0.5f * size_sim + 0.5f * depth_sim;
@@ -161,7 +165,7 @@ public:
      *
      * WARNING: This metric cannot distinguish real code from placeholder stubs.
      * A file of `fun x() = null` scores the same as `fun computeHash() = ...`.
-     * Use function_parameter_body_cosine_similarity() for Rust -> Kotlin port reports.
+     * Use combined_similarity_with_content() for real porting assessment.
      */
     static float combined_similarity(Tree* tree1, Tree* tree2,
                                      float hist_weight = 0.5f,
@@ -194,26 +198,11 @@ public:
             Tree* tree1, Tree* tree2,
             const IdentifierStats& ids1, const IdentifierStats& ids2) {
 
-        auto finite_or_zero = [](float v) -> float {
-            return std::isfinite(v) ? v : 0.0f;
-        };
-
-        // Empty-body heuristic:
-        //
-        // Some real Rust code (e.g. marker traits, `Trace` impls for scalars/atomics) has
-        // legitimately empty function bodies. When *both* sides contain no identifiers in the
-        // body, identifier-dominant scoring incorrectly drives similarity toward 0.
-        //
-        // In that case, fall back to pure shape similarity for the body.
-        if (ids1.canonical_freq.empty() && ids2.canonical_freq.empty()) {
-            return finite_or_zero(combined_similarity(tree1, tree2));
-        }
-
-        float id_cosine = finite_or_zero(ids1.canonical_cosine_similarity(ids2));
-        float id_jaccard = finite_or_zero(ids1.canonical_jaccard_similarity(ids2));
-        float hist_sim = finite_or_zero(histogram_cosine_similarity(tree1, tree2));
-        float jaccard_sim = finite_or_zero(node_type_jaccard(tree1, tree2));
-        float struct_sim = finite_or_zero(structure_similarity(tree1, tree2));
+        float id_cosine = ids1.canonical_cosine_similarity(ids2);
+        float id_jaccard = ids1.canonical_jaccard_similarity(ids2);
+        float hist_sim = histogram_cosine_similarity(tree1, tree2);
+        float jaccard_sim = node_type_jaccard(tree1, tree2);
+        float struct_sim = structure_similarity(tree1, tree2);
 
         float base =
             0.50f * id_cosine +
@@ -247,7 +236,7 @@ public:
         // changing the AST "shape" much. When the structural signal is already strong
         // and identifier cosine is still reasonably high, allow histogram similarity
         // to lift the score above the identifier-dominant baseline.
-        if (id_cosine >= 0.80f && hist_sim >= 0.85f && struct_sim >= 0.75f && jaccard_sim >= 0.50f) {
+        if (id_cosine >= 0.80f && hist_sim >= 0.86f && struct_sim >= 0.75f && jaccard_sim >= 0.50f) {
             base = std::max(base, hist_sim);
         }
 
@@ -313,31 +302,6 @@ public:
     }
 
     /**
-     * Strict function comparison used for transliteration reports.
-     *
-     * The caller supplies a synthetic tree containing only the function
-     * parameters and body, plus identifiers extracted from those same regions.
-     * This deliberately avoids whole-file shape rescue: if the implementation
-     * and parameters do not line up, the file score must fall.
-     */
-    static float function_parameter_body_cosine_similarity(
-            Tree* tree1, Tree* tree2,
-            const IdentifierStats& ids1, const IdentifierStats& ids2) {
-        auto finite_or_zero = [](float v) -> float {
-            return std::isfinite(v) ? v : 0.0f;
-        };
-
-        float ast_cosine = finite_or_zero(histogram_cosine_similarity(tree1, tree2));
-
-        if (ids1.canonical_freq.empty() && ids2.canonical_freq.empty()) {
-            return ast_cosine;
-        }
-
-        float identifier_cosine = finite_or_zero(ids1.canonical_cosine_similarity(ids2));
-        return 0.70f * identifier_cosine + 0.30f * ast_cosine;
-    }
-
-    /**
      * Maximum nodes for full edit distance. Beyond this, use strided sampling.
      * 2000 × 2000 two-row DP = 16KB — safe everywhere.
      */
@@ -370,21 +334,6 @@ public:
         return prev[m];
     }
 
-    static std::vector<Tree*> collect_postorder_sample(Tree* tree, int stride, int reserve_hint) {
-        std::vector<Tree*> nodes;
-        nodes.reserve(static_cast<size_t>(std::max(1, reserve_hint)));
-
-        int index = 0;
-        tree->traverse_postorder([&](Tree* n) {
-            if (index % stride == 0) {
-                nodes.push_back(n);
-            }
-            index++;
-        });
-
-        return nodes;
-    }
-
     /**
      * Tree edit distance with OOM protection.
      *
@@ -393,23 +342,25 @@ public:
      * Two-row DP keeps memory at O(min(n,m)) regardless.
      */
     static int tree_edit_distance(Tree* tree1, Tree* tree2) {
-        int full_n = tree1->size();
-        int full_m = tree2->size();
+        std::vector<Tree*> nodes1, nodes2;
+        tree1->traverse_postorder([&nodes1](Tree* n) { nodes1.push_back(n); });
+        tree2->traverse_postorder([&nodes2](Tree* n) { nodes2.push_back(n); });
+
+        int full_n = static_cast<int>(nodes1.size());
+        int full_m = static_cast<int>(nodes2.size());
 
         if (full_n <= MAX_EDIT_DISTANCE_NODES && full_m <= MAX_EDIT_DISTANCE_NODES) {
-            auto nodes1 = collect_postorder_sample(tree1, 1, full_n);
-            auto nodes2 = collect_postorder_sample(tree2, 1, full_m);
             return edit_distance_dp(nodes1, nodes2);
         }
 
+        // Strided sampling
         int stride1 = (full_n + MAX_EDIT_DISTANCE_NODES - 1) / MAX_EDIT_DISTANCE_NODES;
         int stride2 = (full_m + MAX_EDIT_DISTANCE_NODES - 1) / MAX_EDIT_DISTANCE_NODES;
         int stride = std::max(stride1, stride2);
 
-        auto s1 = collect_postorder_sample(
-            tree1, stride, (full_n + stride - 1) / stride);
-        auto s2 = collect_postorder_sample(
-            tree2, stride, (full_m + stride - 1) / stride);
+        std::vector<Tree*> s1, s2;
+        for (int i = 0; i < full_n; i += stride) s1.push_back(nodes1[i]);
+        for (int i = 0; i < full_m; i += stride) s2.push_back(nodes2[i]);
 
         return edit_distance_dp(s1, s2) * stride;
     }

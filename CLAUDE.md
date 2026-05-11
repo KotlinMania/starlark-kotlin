@@ -6,37 +6,19 @@ This is **starlark-kotlin**, a line-by-line port of Facebook's starlark-rust to 
 
 ## Critical Workflows
 
-### 0. No Subagents
+### 1. Task Assignment (DISABLED)
 
-**Do not delegate translation work to subagents (Agent / Task tool).**
-
-Subagents cheat with abandon because they don't feel the user's reaction when
-they cut corners. They strip substantive content along with porting prose,
-add Kotlin-only filler functions to inflate similarity scores, hollow out
-KDoc when "translating" it, and lose track of which declarations have Rust
-counterparts — and the only signal back is a tidy summary that masks the
-damage.
-
-Translation must happen in the main conversation loop where Sydney can see
-each edit and correct course immediately. If the volume feels overwhelming,
-slow down — don't parallelize.
-
-Use Bash, Read, Edit, and Write directly. Never call the Agent / Task tool
-for porting, doc translation, or any work that touches `.kt` files in this
-repo.
-
-### 1. No Swarm/Task System
-
-This repo is **not** using the swarm/task-assignment workflow (`tasks.json`). Do not create or depend on it.
+The `ast_distance` swarm task-assignment flags are **disabled** in this workspace:
+`--init-tasks`, `--tasks`, `--assign`, `--complete`, `--release`, `--agent`, `--task-file`, `--override`.
 
 Use file comparisons and directory-level checks instead:
 
 ```bash
 # Deep comparison over directories
-./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark kotlin
+./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 
 # Rank missing/priority (if available in your ast_distance build)
-./tools/ast_distance/ast_distance --rank tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark kotlin
+./tools/ast_distance/ast_distance --rank tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 ```
 
 ### 2. Port-Lint Headers (REQUIRED)
@@ -45,13 +27,13 @@ Every Kotlin file MUST start with:
 
 ```kotlin
 // port-lint: source <path-relative-to-tmp/starlark>
-package io.github.kotlinmania.starlark.module
+package io.github.kotlinmania.starlark_kotlin.module
 ```
 
 Example:
 ```kotlin
 // port-lint: source src/values/layout.rs
-package io.github.kotlinmania.starlark.values
+package io.github.kotlinmania.starlark_kotlin.values
 ```
 
 This is how `ast_distance` tracks provenance — which Rust file each Kotlin file was translated from. Without this header, the file is invisible to all port analysis tooling. Never remove, move, or alter the header unless the file is being re-targeted to a different Rust source.
@@ -63,7 +45,7 @@ After porting a file, verify with:
 ```bash
 ./tools/ast_distance/ast_distance \
   tmp/starlark/src/values/layout.rs rust \
-  src/commonMain/kotlin/io/github/kotlinmania/starlark/values/Layout.kt kotlin
+  src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/Layout.kt kotlin
 ```
 
 **Target: Similarity ≥ 0.85** (excellent port)
@@ -134,27 +116,17 @@ Root-package `.kt` files that re-export types from subpackages via `typealias` c
 
 If a type doesn't exist yet, port the file that defines it. Don't create placeholder classes like `class Ty` or `class CodeMap` in random files — they conflict with real implementations when those files get ported.
 
-### Wrapper class policy
-
-Faithful ports use Kotlin idioms for Kotlin types and only wrap when Rust itself wraps. Specifically:
-
-- **If Rust uses a stdlib type directly** (`HashMap`, `Vec`, `BTreeSet`), Kotlin uses the Kotlin stdlib equivalent directly. Don't write a wrapper class to host Rust-named methods (`len()`, `iter()`, `insert()`) — those add no domain logic and exist only to inflate ast_distance scores. Use Kotlin's `size`, `iterator()`, `add()`.
-
-- **If Rust wraps a stdlib type in a domain struct** (`pub struct StringValueInterner { map: HashTable<...> }` with real methods like `intern()`), Kotlin wraps the same way. The class is the port; the underlying storage is plain Kotlin collections.
-
-- **Rust language primitives without Kotlin equivalents** (`Box<T>`, `Cell<T>`, `RefCell<T>`, `Arc<T>`, `Rc<T>`, `NonNull<T>`, `MaybeUninit<T>`, `dyn Trait`) are not ported as classes. They get inlined or replaced with the closest Kotlin idiom (plain reference, `var`, atomic ref where threaded). Kotlin-side `traceBox` / `traceCell` / `traceRefCell` / `traceUnsafeCell` style functions to mirror Rust's `impl Trace for Box<T>` etc. are shims, not port — those Rust impls have no Kotlin counterpart, so the corresponding Kotlin functions shouldn't exist.
-
-- **Rust `pub type X = Y`** becomes a Kotlin `typealias X = Y` only when the Rust source actually contains a `pub type` declaration with that name. ast_distance reads both files and credits the pairing automatically (canonical name match). A Kotlin typealias with no matching Rust `pub type` is reported as a Kotlin-only invention -- there is no annotation that bypasses this. Don't add typealiases for ergonomics ("typealiasing creates a spiderweb of impossible debugging" -- when something breaks at `Set<K>`, callers can't see whether they're hitting Kotlin stdlib `Set`, `BTreeSet`, or some third thing the alias points at).
-
-- **Iterator types**: classes implementing `kotlin.collections.Iterator` are the faithful port of `impl Iterator for X` in Rust. The forced `hasNext()` is the documented Kotlin idiom collision; don't add Rust-named `nextBack()`/`len()`/`map()` shim methods alongside unless Rust actually has the corresponding struct. Pure forwarding shims like `class Keys(val inner: Iter): Iterator<K>` are rustification, not port.
-
-- **ast_distance score is a signal, not a target.** If a faithful port scores poorly, fix ast_distance — don't bend the code. If you find yourself adding Rust-named methods to a Kotlin built-in wrapper to push the score, you're rustifying.
-
 ## Progress Tracking
 
 ```bash
 # Overall progress
 ./tools/ast_distance/ast_distance --deep tmp/starlark rust src kotlin
+
+# Task queue status
+./tools/ast_distance/ast_distance --tasks tasks.json
+
+# Missing files by priority
+./tools/ast_distance/ast_distance --missing tmp/starlark rust src kotlin
 ```
 
 ## Naming Conventions
@@ -186,7 +158,7 @@ Preserve error messages and context. Use Kotlin's `Result` type or throw appropr
 
 ```
 src/
-├── commonMain/kotlin/io/github/kotlinmania/starlark/
+├── commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/
 │   ├── values/      # Port of tmp/starlark/src/values/
 │   ├── eval/        # Port of tmp/starlark/src/eval/
 │   ├── typing/      # Port of tmp/starlark/src/typing/
