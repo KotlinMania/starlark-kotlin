@@ -1,0 +1,48 @@
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/CallArgs.kt
+// port-lint: source typing/call_args.rs
+package io.github.kotlinmania.starlark.typing
+=======
+// port-lint: source src/typing/call_args.rs
+package io.github.kotlinmania.starlark_kotlin.typing
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/CallArgs.kt
+
+/*
+ * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/typing/CallArgs.kt
+import io.github.kotlinmania.starlarksyntax.codemap.Spanned as Spanned
+=======
+import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/typing/CallArgs.kt
+
+// pub struct TyCallArgs<'a> {
+//     pub(crate) pos: Vec<Spanned<Ty>>,
+//     pub(crate) named: Vec<Spanned<(&'a str, Ty)>>,
+//     pub(crate) args: Option<Spanned<Ty>>,
+//     pub(crate) kwargs: Option<Spanned<Ty>>,
+// }
+/**
+ * Function call arguments with type information.
+ */
+class TyCallArgs(
+    internal val pos: List<Spanned<Ty>>,
+    internal val named: List<Spanned<Pair<String, Ty>>>,
+    /** In starlark, `*args` always come after all positional and named arguments. */
+    internal val args: Spanned<Ty>? = null,
+    internal val kwargs: Spanned<Ty>? = null,
+)

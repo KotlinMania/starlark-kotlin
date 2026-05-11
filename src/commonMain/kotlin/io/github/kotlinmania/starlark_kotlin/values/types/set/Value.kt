@@ -1,0 +1,514 @@
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+// port-lint: source values/types/set/value.rs
+package io.github.kotlinmania.starlark.values.types.set
+=======
+// port-lint: source src/values/types/set/value.rs
+package io.github.kotlinmania.starlark_kotlin.values.types.set
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+
+/*
+ * Copyright 2019 The Starlark in Rust Authors.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) 2025 Sydney Renee, The Solace Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+import io.github.kotlinmania.starlarkmap.Hashed
+import io.github.kotlinmania.starlarkmap.smallset.SmallSet
+import io.github.kotlinmania.starlark.environment.Methods
+import io.github.kotlinmania.starlark.environment.MethodsStatic
+import io.github.kotlinmania.starlark.util.refcell.RefCell
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.ValueError
+import io.github.kotlinmania.starlark.values.freeze
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+=======
+import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark_kotlin.environment.Methods
+import io.github.kotlinmania.starlark_kotlin.environment.MethodsStatic
+import io.github.kotlinmania.starlark_kotlin.typing.Ty
+import io.github.kotlinmania.starlark_kotlin.values.ComplexValue
+import io.github.kotlinmania.starlark_kotlin.values.Freeze
+import io.github.kotlinmania.starlark_kotlin.values.layout.Freezer
+import io.github.kotlinmania.starlark_kotlin.values.StarlarkValue
+import io.github.kotlinmania.starlark_kotlin.values.layout.FrozenValue
+import io.github.kotlinmania.starlark_kotlin.values.Trace
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
+import io.github.kotlinmania.starlark_kotlin.values.freezeSmallSet
+import io.github.kotlinmania.starlark_kotlin.values.layout.Value
+import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+
+/**
+ * Generic set wrapper.
+ *
+ * Transparent wrapper around the inner set implementation.
+ * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
+ */
+// #[derive(Clone, Default, Trace, Debug, ProvidesStaticType, Allocative)]
+// pub(crate) struct SetGen<T>(pub(crate) T);
+data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> {
+
+    // impl Freeze for SetGen<RefCell<SetData>>
+    @Suppress("UNCHECKED_CAST")
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+        val innerVal = inner
+        if (innerVal is RefCell<*>) {
+            val borrowedValue = innerVal.borrow().value
+            check(borrowedValue is SetData) {
+                "SetGen<RefCell<*>> inner must wrap SetData, got ${borrowedValue!!::class}"
+            }
+            val frozenContent = borrowedValue.content
+                .freeze<Value, FrozenValue>(freezer) { v: Value -> v.freeze(freezer) }
+                .getOrElse { return Result.failure(it) }
+            return Result.success(SetGen(FrozenSetData(frozenContent)))
+        }
+        // Already frozen.
+        if (innerVal is FrozenSetData) return Result.success(this as StarlarkValue)
+        return Result.failure(IllegalStateException("Unexpected SetGen inner: ${innerVal!!::class}"))
+=======
+        val mutableSelf = this as MutableSet
+        return mutableSelf.freeze(freezer) as Result<StarlarkValue>
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+    }
+    override val TYPE: String get() = SET_TYPE
+    override val HAS_iterate: Boolean get() = true
+    override val HAS_equals: Boolean get() = true
+
+    override fun trace(tracer: Tracer) {
+        val innerVal = inner
+        if (innerVal is Trace) {
+            innerVal.trace(tracer)
+        }
+    }
+
+    private fun setLike(): SetLike = inner as SetLike
+
+    // #[starlark_value(type = "set")]
+    // impl StarlarkValue for SetGen<T>
+
+    // fn length(&self) -> crate::Result<i32>
+    override fun length(): Result<Int> =
+        Result.success(setLike().content().len())
+
+    // fn is_in(&self, other: Value<'v>) -> crate::Result<bool>
+    override fun isIn(other: Value): Result<Boolean> {
+        return try {
+            val hashed = other.getHashed().getOrThrow()
+            Result.success(setLike().content().containsHashedByValue(hashed.asRef()))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
+    }
+
+    // fn equals(&self, other: Value<'v>) -> crate::Result<bool>
+    override fun equals(other: Value): Result<Boolean> {
+        val otherSet = SetRef.unpackValueOpt(other)
+            ?: return Result.success(false)
+        return Result.success(equalsSmallSet(setLike().content(), otherSet.content))
+    }
+
+    // fn get_methods() -> Option<&'static Methods>
+    override fun getMethods(): Methods? = setMethods()
+
+    // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+        setLike().iterStart()
+        return Result.success(me)
+    }
+
+    // unsafe fn iter_size_hint(&self, index: usize) -> (usize, Option<usize>)
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
+        check(index <= setLike().content().len())
+        val rem = setLike().content().len() - index
+        return Pair(rem, rem)
+    }
+
+    // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
+    override fun iterNext(index: Int, heap: Heap): Value? {
+        return setLike().contentUnchecked().iter().drop(index).firstOrNull()
+    }
+
+    // unsafe fn iter_stop(&self)
+    override fun iterStop() {
+        setLike().iterStop()
+    }
+
+    // fn to_bool(&self) -> bool
+    override fun toBool(): Boolean =
+        !setLike().content().isEmpty()
+
+    // fn bit_or(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun bitOr(rhs: Value, heap: Heap): Result<Value> {
+        return try {
+            // Unlike in `union` it is not possible to `|` `set` and iterable. This is due python semantics.
+            val rhsSet = SetRef.unpackValueOpt(rhs)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "|", rhs)
+
+            if (setLike().content().isEmpty()) {
+                return Result.success(copySetData(rhsSet.content).allocValue(heap))
+            }
+
+            val items = copySmallSet(setLike().content())
+            for (h in rhsSet.iterHashed()) {
+                items.insertHashed(h)
+            }
+            Result.success(SetData().apply { content.addAll(items.iterHashed().asIterable()) }.allocValue(heap))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
+    }
+
+    // fn bit_and(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun bitAnd(rhs: Value, heap: Heap): Result<Value> {
+        return try {
+            val rhsSet = SetRef.unpackValueOpt(rhs)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "&", rhs)
+
+            if (setLike().content().isEmpty()) {
+                return Result.success(SetData().allocValue(heap))
+            }
+
+            val items = SmallSet<Value>()
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+            for (h in otherSet.iterHashed()) {
+                if (setLike().content().containsHashedByValue(h.asRef())) {
+=======
+            for (h in rhsSet.iterHashed()) {
+                if (setLike().content().containsHashed(h.asRef())) {
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+                    items.insertHashedUniqueUnchecked(h)
+                }
+            }
+
+            Result.success(SetData().apply { content.addAll(items.iterHashed().asIterable()) }.allocValue(heap))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
+    }
+
+    // fn bit_xor(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun bitXor(rhs: Value, heap: Heap): Result<Value> {
+        return try {
+            val rhsSet = SetRef.unpackValueOpt(rhs)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "^", rhs)
+
+            if (rhsSet.content.isEmpty()) {
+                return Result.success(copySetData(setLike().content()).allocValue(heap))
+            }
+
+            val data = SetData()
+            for (elem in setLike().content().iterHashed()) {
+                if (!rhsSet.containsHashed(elem.copied())) {
+                    data.addHashedUniqueUnchecked(elem.copied())
+                }
+            }
+
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+            for (hashed in otherSet.iterHashed()) {
+                if (!setLike().content().containsHashedByValue(hashed.asRef())) {
+=======
+            for (hashed in rhsSet.iterHashed()) {
+                if (!setLike().content().containsHashed(hashed.asRef())) {
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+                    data.addHashed(hashed)
+                }
+            }
+            Result.success(data.allocValue(heap))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
+    }
+
+    // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun sub(rhs: Value, heap: Heap): Result<Value> {
+        return try {
+            val rhsSet = SetRef.unpackValueOpt(rhs)
+                ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)
+
+            if (setLike().content().isEmpty()) {
+                return Result.success(SetData().allocValue(heap))
+            }
+
+            if (rhsSet.content.isEmpty()) {
+                return Result.success(copySetData(setLike().content()).allocValue(heap))
+            }
+
+            val data = SetData()
+
+            for (elem in setLike().content().iterHashed()) {
+                if (!rhsSet.containsHashed(elem.copied())) {
+                    data.addHashed(elem.copied())
+                }
+            }
+            Result.success(data.allocValue(heap))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
+    }
+
+    // fn typechecker_ty(&self) -> Option<Ty>
+    override fun typecheckerTy(): Ty? = Ty.anySet()
+
+    // fn get_type_starlark_repr() -> Ty
+    override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
+
+    // impl Display for SetGen<T>
+    override fun toString(): String {
+        return fmtContainer("set([", "])", setLike().content().iter())
+    }
+}
+
+private const val SET_TYPE: String = "set"
+
+/**
+ * Define the mutable set type.
+ *
+ * Corresponds to Rust's `SetData`.
+ */
+class SetData internal constructor(
+    /** The data stored by the set. */
+    val content: SmallSet<Value>,
+) {
+    constructor() : this(SmallSet())
+
+    fun clear() {
+        content.clear()
+    }
+
+    /**
+     * Iterate through the values in the set.
+     */
+    fun iter(): Sequence<Value> {
+        return content.iter()
+    }
+
+    /**
+     * Iterate through the values in the set, but retaining the hash of the values.
+     */
+    fun iterHashed(): Sequence<Hashed<Value>> {
+        return content.iterHashed().map { it.copied() }
+    }
+
+    /**
+     * Check if the set contains a hashed element.
+     */
+    fun containsHashed(key: Hashed<Value>): Boolean {
+        return content.containsHashedByValue(key.asRef())
+    }
+
+    fun addHashed(value: Hashed<Value>): Boolean {
+        return content.insertHashed(value)
+    }
+
+    fun addHashedUniqueUnchecked(value: Hashed<Value>) {
+        content.insertHashedUniqueUnchecked(value)
+    }
+
+    fun removeHashed(value: Hashed<Value>): Boolean {
+        return content.shiftRemoveHashedByValue(value)
+    }
+}
+
+/**
+ * Define the frozen set type.
+ *
+ * Corresponds to Rust's `FrozenSetData`.
+ */
+class FrozenSetData(
+    /** The data stored by the set. The values must all be hashable values. */
+    val content: SmallSet<FrozenValue> = SmallSet()
+)
+
+/** Mutable set type alias. */
+typealias MutableSet = SetGen<RefCell<SetData>>
+
+/** Frozen set type alias. */
+typealias FrozenSet = SetGen<FrozenSetData>
+
+/**
+ * AllocValue implementation for SetData.
+ */
+fun SetData.allocValue(heap: Heap): Value {
+    return heap.allocComplex(SetGen(RefCell(this)))
+}
+
+/**
+ * StarlarkTypeRepr implementation for SetData.
+ */
+fun SetData.starlarkTypeRepr(): Ty {
+    return Ty.anySet()
+}
+
+/**
+ * Freeze implementation for MutableSet.
+ */
+fun MutableSet.freeze(freezer: Freezer): Result<FrozenSet> {
+    val contentResult = freezeSmallSet(
+        this.inner.borrow().data.content,
+        freezer,
+    ) { v, f -> v.freeze(f) }
+    if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
+    return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
+}
+
+/**
+ * Get set methods.
+ */
+fun setMethods(): Methods? {
+    return RES.methods(::setMethodsImpl)
+}
+
+private val RES = MethodsStatic()
+
+/** Delegate to the set methods registration in Methods.kt. */
+private fun setMethodsImpl(builder: io.github.kotlinmania.starlark_kotlin.environment.MethodsBuilder) {
+    setMethods(builder)
+}
+
+/**
+ * Trait for set-like operations.
+ *
+ * Corresponds to Rust's `SetLike` trait.
+ */
+interface SetLike {
+    fun content(): SmallSet<Value>
+
+    // These functions are unsafe for the same reason
+    // StarlarkValue iterator functions are unsafe.
+    fun iterStart()
+    fun contentUnchecked(): SmallSet<Value>
+    fun iterStop()
+}
+
+internal class RefCellSetDataSetLike(private val cell: RefCell<SetData>) : SetLike {
+    override fun content(): SmallSet<Value> {
+        return cell.borrow().value.content
+    }
+
+    override fun iterStart() {
+<<<<<<< HEAD:src/commonMain/kotlin/io/github/kotlinmania/starlark/values/types/set/Value.kt
+=======
+        // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
+        // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
+>>>>>>> origin/main:src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin/values/types/set/Value.kt
+        cell.borrow()
+    }
+
+    override fun iterStop() {
+        cell.releaseBorrow()
+    }
+
+    override fun contentUnchecked(): SmallSet<Value> {
+        return cell.borrow().value.content
+    }
+}
+
+/**
+ * SetLike implementation for FrozenSetData.
+ */
+class FrozenSetDataSetLike(private val data: FrozenSetData) : SetLike {
+    @Suppress("UNCHECKED_CAST")
+    override fun content(): SmallSet<Value> {
+        return data.content as SmallSet<Value>
+    }
+
+    override fun iterStart() {
+        // No-op for frozen data
+    }
+
+    override fun iterStop() {
+        // No-op for frozen data
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun contentUnchecked(): SmallSet<Value> {
+        return data.content as SmallSet<Value>
+    }
+}
+
+// impl Serialize for SetGen<T>
+fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
+
+// Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).
+// Note: registerAvalueSimpleFrozen!(FrozenSet) - to be implemented in registration system
+
+/**
+ * Format a container with start/end delimiters and comma-separated items.
+ * Corresponds to Rust's `display_container::fmt_container`.
+ */
+private fun <T> fmtContainer(
+    start: String,
+    end: String,
+    iter: Sequence<T>,
+): String {
+    val builder = StringBuilder()
+    builder.append(start)
+    var first = true
+    for (item in iter) {
+        if (!first) builder.append(", ")
+        builder.append(item.toString())
+        first = false
+    }
+    builder.append(end)
+    return builder.toString()
+}
+
+/**
+ * Compare two SmallSets for equality by checking containment in both directions.
+ * Corresponds to Rust's `equals_small_set`.
+ */
+private fun <K> equalsSmallSet(xs: SmallSet<K>, ys: SmallSet<K>): Boolean {
+    if (xs.len() != ys.len()) {
+        return false
+    }
+    for (x in xs.iter()) {
+        if (!ys.contains(x)) {
+            return false
+        }
+    }
+    return true
+}
+
+/**
+ * Create a new SetData as a copy of an existing SmallSet<Value>.
+ */
+private fun copySetData(source: SmallSet<Value>): SetData {
+    val data = SetData()
+    data.content.addAll(source.iterHashed().asIterable())
+    return data
+}
+
+/**
+ * Create a shallow copy of a SmallSet by reinserting all hashed entries.
+ */
+private fun <T> copySmallSet(source: SmallSet<T>): SmallSet<T> {
+    val copy = SmallSet<T>()
+    copy.addAll(source.iterHashed().asIterable())
+    return copy
+}

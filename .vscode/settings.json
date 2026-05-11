@@ -1,0 +1,8 @@
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.customInstructionsInSystemMessage": true,
+  "chat.mcp.enabled": true,
+  "chat.mcp.access": "all",
+  "chat.mcp.autostart": "newAndOutdated"
+}
+
