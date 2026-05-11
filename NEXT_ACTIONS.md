@@ -79,6 +79,86 @@ Critical missing files (>10 dependencies):
    - Path: `tests/derive/unpack_value.rs`
    - Essential for 51 other files
 
+### 416. util
+
+- **Target:** `util.Util [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 417. derive.freeze
+
+- **Target:** `derive.Freeze [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 418. collections
+
+- **Target:** `collections.Collections [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 419. derive.trace
+
+- **Target:** `derive.Trace [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 420. docs.tests
+
+- **Target:** `tests.TestsModule [STUB] [PROVENANCE-FALLBACK]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only by basename: `tests.rs` vs expected `docs/tests.rs`
+- **Proposed provenance header:** `// port-lint: source docs/tests.rs` (current: `// port-lint: source tests.rs`)
+- **Lint issues:** 1
+
+### 421. heap.branding
+
+- **Target:** `heap.Branding [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 422. errors
+
+- **Target:** `errors.Errors [STUB]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 0.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
 ## Success Criteria
 
 For each file to be considered "complete":

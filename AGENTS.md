@@ -1,35 +1,98 @@
-# Starlark Kotlin Port - Agent Guidelines
+# Agent guide - starlark-kotlin
 
-This file contains guidelines for AI agents and human contributors working on the starlark-kotlin port.
+This file is the quick-reference operating contract for starlark-kotlin. The longer
+project story lives in `CLAUDE.md`, `README.md`, and any repo-local notes. Read
+those before editing. This guide captures the workspace-wide porting discipline
+that must not drift: Kotlin stays Kotlin, source comments stay Kotlin-facing,
+and required port inventory is done with `ast_distance` when the repo ships it.
 
-## Project Context
+## What this repo is
 
-This is a **line-by-line transliteration port** of [facebook/starlark-rust](https://github.com/facebook/starlark-rust) to Kotlin Multiplatform. The goal is semantic parity with the Rust implementation while providing idiomatic Kotlin APIs.
+starlark-kotlin is a Kotlin Multiplatform port of the upstream Rust crate or module
+[`impl Iterator for X`](./README.md). Upstream Rust is the behavioral oracle while the
+repo is still in parity mode. Never edit `tmp/` or any fetched upstream source
+to make the port easier.
 
-## General Porting Principles
+No JVM-only dependencies, no `java.*` / `javax.*`, no shortcuts through
+established JVM libraries, and no replacing a Cargo dependency with an unrelated
+Kotlin library when a `*-kotlin` sibling port exists or should exist.
 
-### 1. Semantic Parity (The "Dishonest Code" Rule)
+## Project phase
 
-- **Port the intent and behavior**, not just syntax
-- Rust's traits often carry specific formatting contracts, behavioral expectations, or performance characteristics
-- Do **not** oversimplify implementations if the original code performed non-trivial work
-- Example: Rust's `Display` trait implementations often handle formatting, ANSI codes, truncation - replicate this logic in Kotlin's `toString()` or helper methods
+Check the repo before choosing a workflow.
 
-### 2. Research First
+- **If `tools/ast_distance/` exists:** the repo is still in parity/porting
+  mode. Drift measurement is required, not optional. Use the repo's
+  `tools/ast_distance` binary/script to identify missing files, missing
+  functions, provenance/header drift, and cheat-detection failures before
+  choosing work and again at file or phase boundaries. Do not chase similarity
+  scores in the middle of translating a half-read file, and never Rustify
+  Kotlin to appease the tool.
+- **If `tools/ast_distance/` does not exist:** the repo has matured past the
+  structural-port phase and is optimizing for idiomatic Kotlin. Work like a
+  Kotlin maintainer: preserve behavior and public API intent, improve Kotlin
+  shape when appropriate, and use the repo's tests/docs as the gate. Do not
+  reintroduce Rust-shaped code or comments.
 
-- **Do not guess** at the behavior of Rust functions, traits, or types
-- Look up official Rust documentation when uncertain
-- Rust's type system and traits carry subtle behaviors (buffering, blocking, formatting state, ownership) that aren't obvious from signatures
+## Required workflow in parity mode
 
-### 3. Line-by-Line Transliteration
+1. Read `CLAUDE.md`, `README.md`, this file, and any repo-local status files.
+2. Confirm the upstream Rust source is present under the `tmp/` path named by
+   `CLAUDE.md` or `.ast_distance_config.json`. Fetch it using the repo's helper
+   if needed. Never edit it.
+3. If `tools/ast_distance/` exists, run the repo's `ast_distance --deep`
+   workflow before picking work. Use it as the required inventory for unported
+   files/functions and provenance drift.
+4. Pick bottom-up work: dependencies before consumers, leaves before roots.
+5. Read the whole upstream `.rs` file before typing. If the file is too large,
+   split the turn into "read" and "write"; never start from a half-read file.
+6. Keep the mapping one Rust file -> one Kotlin file unless the upstream file is
+   pure `mod.rs` re-export glue covered by the `mod.rs` rules below.
+7. Translate top-to-bottom in upstream order. Preserve declaration order.
+8. Translate comments and docs as content. See "Source comments and KDoc."
+9. Leave hard files visible; do not fill holes with stubs.
+10. After a file lands, run the relevant compile/test gate and, when available,
+    `ast_distance` again.
 
-- Maintain file structure and organization from the Rust codebase
-- Port modules to packages with equivalent naming (snake_case → camelCase for functions/variables, but preserve file/package structure)
-- Preserve comments and documentation (translate to KDoc format)
+## Required workflow in mature Kotlin mode
 
-### 4. Provenance Markers (REQUIRED)
+1. Read the repo-local docs and tests first.
+2. Make idiomatic Kotlin changes that preserve behavior and public API intent.
+3. Remove stale Rust-shaped scaffolding when it is no longer part of the repo's
+   Kotlin design.
+4. Keep comments Kotlin-facing. Historical Rust notes belong in docs, not source
+   comments, unless the repo explicitly keeps a provenance ledger.
+5. Run the repo's normal Gradle/test gates.
 
-Every ported Kotlin file **must** start with a provenance marker:
+## Source comments and KDoc
+
+Comments are content. They are part of the port, not decoration.
+
+- Preserve upstream module docs, KDoc-equivalent sections, inline notes, safety
+  notes, panic/error docs, and upstream TODO/FIXME items by translating them.
+- **No Rust in comments:** KDoc and `//` comments must describe the Kotlin API
+  in Kotlin terms. Translate Rust syntax inside comments to Kotlin equivalents:
+  `Vec<T>` -> `List<T>`, `Option<&str>` -> `String?`, `Self::foo()` -> `foo()`,
+  `snake_case` function names -> `lowerCamelCase`, Rust lifetimes disappear,
+  `cfg(test)` / `#[derive(...)]` become prose when relevant.
+- **Do not Rustify Kotlin:** this is a translation direction, not a renaming
+  scheme. Never rename Kotlin files, packages, functions, locals, parameters,
+  or identifiers to `snake_case` to match upstream. Kotlin source stays Kotlin.
+- **No porting narratives in source:** do not add comments explaining Kotlin
+  workarounds, "Rust vs Kotlin" rationale, ast_distance strategy, or translation
+  decisions. Put those in `CLAUDE.md`, `NEXT_ACTIONS.md`, commit messages, or
+  review notes.
+- Source comments should be upstream comments translated into Kotlin-facing API
+  names/signatures, plus required provenance/license headers and required
+  migration ledgers such as the `mod.rs` ledger below.
+- If `ast_distance` zeros a file because Rust syntax leaked into Kotlin source
+  code or comments, treat that as a literal instruction to make the Kotlin
+  source Kotlin-native.
+
+## Provenance headers
+
+In parity mode, every Kotlin file translated from a Rust source file starts with
+the repo's `port-lint` source header before the package line:
 
 ```kotlin
 // port-lint: source <relative-path-to-rust-file>
@@ -37,6 +100,27 @@ package io.github.kotlinmania.starlark_kotlin.<module>
 
 // Rest of file...
 ```
+
+Use the path convention from `CLAUDE.md` or `.ast_distance_config.json`. Do not
+invent absolute upstream paths. If a repo requires an attribution line after the
+`port-lint` header, preserve it exactly.
+
+For files with no single Rust counterpart, use `// port-lint: ignore` only when
+repo docs allow it, and add the shortest possible upstream-derived or ledger
+note. Do not use ignored files as a place for translation rationale.
+
+## Naming
+
+The translation direction is always Rust -> Kotlin.
+
+| Thing | Kotlin form |
+|---|---|
+| Files and types | `PascalCase` |
+| Functions, properties, parameters, locals | `lowerCamelCase` |
+| Interfaces | `PascalCase`, no `I` prefix |
+| `const val`, enum entries, true constants | `SCREAMING_SNAKE_CASE` allowed |
+| Type parameters | `T`, `K`, `V`, or meaningful `PascalCase` when clearer |
+| Packages | lowercase, no underscores, no camelCase |
 
 Examples:
 ```kotlin
@@ -50,45 +134,36 @@ package io.github.kotlinmania.starlark_kotlin.values
 package io.github.kotlinmania.starlark_kotlin.eval.runtime
 ```
 
-**Path Format:** The path should be relative to `tmp/starlark/` (the Rust source root). So for a file at `tmp/starlark/src/values/layout.rs`, use `src/values/layout.rs`.
+Do not tighten the whole Kotlin interface to `T : Comparable<T>`. Do not make
+the method abstract just to satisfy Kotlin. Do not use runtime comparable casts
+that turn Rust compile-time bounds into Kotlin runtime crashes.
 
-This enables the AST distance tool to track porting progress and verify completeness.
-
-### 5. Copyright Headers
-
-**REQUIRED:** Every ported Kotlin file must include this copyright header immediately after the port-lint header:
+Translate the default to an extension function whose own type parameter carries
+the bound:
 
 ```kotlin
-// port-lint: source <path>
-package <package-name>
+interface RangeBounds<T> {
+    fun startBound(): Bound<T>
+    fun endBound(): Bound<T>
+}
 
-/*
- * Copyright 2019 The Starlark in Rust Authors.
- * Copyright (c) Facebook, Inc. and its affiliates.
- * Copyright (c) 2025 Sydney Renee, The Solace Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+fun <T : Comparable<T>> RangeBounds<T>.isEmpty(): Boolean {
+    // translated default body
+}
 ```
 
-This preserves the original Rust copyright while adding the maintainer's copyright for the Kotlin port.
+Concrete implementations that specialize the default provide a same-named
+member function without `override`; Kotlin member resolution mirrors Rust's
+per-impl specialization of a default method.
 
-### 6. Documentation
+When both comparator-aware and natural-order paths are needed, put the heavy
+logic in an unbounded overload that takes a comparator explicitly, then add a
+bounded one-line natural-order overload:
 
-- Translate Rust doc comments (`///`, `//!`) to KDoc format
-- Preserve examples, code blocks, and explanatory text
-- Update references to Rust-specific concepts (e.g., "this trait" → "this interface")
-- Add KDoc for public APIs
+```kotlin
+internal fun <K, Q> search(key: Q, compare: (K, Q) -> Int): Hit {
+    // heavy lifting
+}
 
 ### 7. TODO Policy (IMPORTANT)
 
@@ -286,30 +361,81 @@ Use the built-in AST distance tool:
 
 ## Dependencies
 
-This port uses minimal dependencies:
+Approved common dependencies, when the repo already uses or needs them:
 
-- `kotlinx-coroutines-core` - Async/concurrency
-- `kotlinx-serialization` - Serialization (if needed)
-- `kotlinx-collections-immutable` - Persistent collections
-- `kotlinx-datetime` - Date/time handling
+- `kotlinx-coroutines-core`
+- `kotlinx-serialization-core`
+- `kotlinx-serialization-json`
+- `kotlinx-collections-immutable`
+- `kotlinx-datetime`
+- `kotlinx-io`
+- `com.ionspin.kotlin:bignum` only when numeric behavior requires it
+- `io.github.kotlinmania:*-kotlin` sibling ports for Rust transitive deps
 
-Add new dependencies only when necessary and document the rationale.
+Add a dependency only when stdlib plus approved siblings cannot reproduce the
+behavior, and only after confirming it publishes artifacts for every target this
+repo ships. If the Rust crate has no KMP equivalent, port that crate instead of
+leaving a TODO or using a JVM-only shortcut.
 
-## Platform-Specific Code
+## Forbidden
 
-When porting platform-specific Rust code:
+- Rust syntax leaking into Kotlin code or comments.
+- Rustifying Kotlin names, files, packages, or API shape to improve similarity.
+- `@Suppress(...)` unless a repo-local doc already records a narrow, reviewed
+  invariant that Kotlin cannot encode. New suppressions require discussion.
+- `TODO()`, `error("not implemented")`, empty shells, fake implementations, or
+  placeholder bodies.
+- Re-export `typealias` bridges for upstream `mod.rs` glue.
+- `import kotlin.jvm.*`, `java.*`, or `javax.*` from shared/common source.
+- JVM-only annotations such as `@JvmName`, `@JvmStatic`, `@JvmField`, or
+  `@JvmOverloads` in common code.
+- Repo-wide source rewrites with global `sed`/`perl`/`find -exec`. Source edits
+  are task-scoped and reviewed.
+- Bulk-editing source comments. Comment changes are intentional translation
+  work and must be reviewed as such.
+- Subagent-driven `.kt` edits. Translation happens in the main loop so mistakes
+  are visible immediately.
 
-- Use `expect`/`actual` declarations for platform differences
-- Place common code in `commonMain`
-- Platform-specific implementations in `<platform>Main` (e.g., `jvmMain`, `nativeMain`)
+## Tests and gates
 
-## References
+Use the repo's documented Gradle tasks. Common gates include:
 
-- [Starlark Spec](https://github.com/bazelbuild/starlark/blob/master/spec.md)
-- [Starlark Rust Docs](https://docs.rs/starlark/)
-- [Kotlin Multiplatform Docs](https://kotlinlang.org/docs/multiplatform.html)
-- [Parent Port Guidelines](../codex-kotlin/AGENTS.md) - for general Rust→Kotlin porting patterns
+```bash
+./gradlew test
+./gradlew macosArm64Test
+./gradlew linuxX64Test
+./gradlew jsNodeTest
+./gradlew wasmJsNodeTest
+```
 
-## Questions?
+In parity repos with `tools/ast_distance/`, also run the repo's deep scan, for
+example:
 
-For questions about porting strategy or architecture decisions, open an issue or discussion on the GitHub repository.
+```bash
+./tools/ast_distance/ast_distance --deep <upstream-root> rust <kotlin-source-root> kotlin
+```
+
+The exact paths come from `.ast_distance_config.json`, `CLAUDE.md`, or existing
+repo scripts. Use this scan as a progress dashboard for missing files/functions,
+header drift, and cheat detection. A file is not done merely because a
+similarity score looks good; it is done when the behavior is ported and the
+relevant tests pass.
+
+Port tests too. Rust `#[test]` becomes Kotlin `@Test`. Test utilities needed by
+ported upstream tests belong in `src/commonTest`, not `commonMain`, unless the
+upstream behavior is truly public runtime behavior.
+
+## Scope and commits
+
+- More than about five source files in one change is usually too much; stop and
+  ask unless the user explicitly requested a mechanical sweep.
+- Commit at file or coherent phase boundaries.
+- Commit messages are clear and human: no AI branding, no "Generated with"
+  footers, no robot attribution, no `Co-Authored-By` lines unless the human asks.
+
+## When unsure
+
+Read upstream again. Read the repo-local `CLAUDE.md` again. If a construct is
+not covered here, add the rule to project docs with the translation you chose.
+The goal is not to make Kotlin look like Rust; the goal is to preserve behavior
+while moving steadily toward Kotlin that Kotlin developers can maintain.
