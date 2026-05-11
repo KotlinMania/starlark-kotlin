@@ -34,7 +34,8 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 // Rust: #[derive(Clone, Copy, Dupe, derive_more::Display, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
 // Rust: #[serde(transparent)]
 // Rust: pub struct InlineInt(i32)
-data class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
+@JvmInline
+value class InlineInt internal constructor(private val value: Int) : Comparable<InlineInt> {
 
     // Rust: impl Debug for InlineInt
     // fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
