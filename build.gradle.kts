@@ -8,8 +8,8 @@ import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnRootEnvSpec
 
 plugins {
-    kotlin("multiplatform") version "2.3.20"
-    kotlin("plugin.serialization") version "2.3.20"
+    kotlin("multiplatform") version "2.3.21"
+    kotlin("plugin.serialization") version "2.3.21"
     id("com.android.kotlin.multiplatform.library") version "8.6.0"
     id("com.vanniktech.maven.publish") version "0.30.0"
 }
