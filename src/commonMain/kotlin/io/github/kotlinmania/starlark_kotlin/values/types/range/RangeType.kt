@@ -29,7 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocS
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
 
-value class NonZeroI32 private constructor(val value: Int) {
+data class NonZeroI32 private constructor(val value: Int) {
     companion object {
         fun new(value: Int): NonZeroI32? =
             if (value != 0) NonZeroI32(value) else null

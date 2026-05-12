@@ -22,7 +22,7 @@ package io.github.kotlinmania.starlark_kotlin.collections
 /**
  * A hash value.
  */
-value class StarlarkHashValue private constructor(
+data class StarlarkHashValue private constructor(
     private val value: UInt,
 ) {
     companion object {
