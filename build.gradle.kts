@@ -83,6 +83,9 @@ kotlin {
     watchosArm64 {
         binaries.framework { baseName = "Starlark"; xcf.add(this) }
     }
+    watchosDeviceArm64 {
+        binaries.framework { baseName = "Starlark"; xcf.add(this) }
+    }
     watchosSimulatorArm64 {
         binaries.framework { baseName = "Starlark"; xcf.add(this) }
     }
