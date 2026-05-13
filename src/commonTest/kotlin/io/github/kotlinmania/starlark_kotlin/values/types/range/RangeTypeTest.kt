@@ -131,8 +131,9 @@ internal class RangeTypeTest {
                 )
             }
         }
-        assertTrue(error.message!!.contains("Integer overflow in multiplication"), error.message!!)
-        assertTrue(error.message!!.contains("${2} * ${Int.MAX_VALUE}"), error.message!!)
+        val message = error.message!!
+        assertTrue(message.contains("Integer overflow in multiplication"), message)
+        assertTrue(message.contains("${2} * ${Int.MAX_VALUE}"), message)
     }
 
     @Test
@@ -147,7 +148,8 @@ internal class RangeTypeTest {
                 )
             }
         }
-        assertTrue(error.message!!.contains("Integer overflow in addition"), error.message!!)
-        assertTrue(error.message!!.contains("2 + ${Int.MAX_VALUE - 1}"), error.message!!)
+        val message = error.message!!
+        assertTrue(message.contains("Integer overflow in addition"), message)
+        assertTrue(message.contains("2 + ${Int.MAX_VALUE - 1}"), message)
     }
 }
