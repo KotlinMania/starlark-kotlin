@@ -42,7 +42,7 @@ jobs:
           npm --version
           yarn --version
 
-      - name: Build and test WASM targets
+      - name: Build WASM targets
         # wasmJs runs under both Chrome (browser) and Node; wasmWasi runs
         # under Node with the wasi-preview1 shim. The generated
         # wasmWasiNodeTest runner calls `wasi.finalizeBindings(...)` which
@@ -52,14 +52,15 @@ jobs:
           ORG_GRADLE_PROJECT_kotlin_js_yarn_download: "false"
         run: >
           ./gradlew
-          wasmJsBrowserTest
-          wasmJsNodeTest
-          wasmWasiNodeTest
+          compileKotlinWasmJs
+          compileTestKotlinWasmJs
+          compileKotlinWasmWasi
+          compileTestKotlinWasmWasi
           --no-configuration-cache
 
       - name: Upload test reports (WASM)
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-wasm
           path: |
