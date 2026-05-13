@@ -270,13 +270,13 @@ private fun Int.checkedMul(other: Int): Int =
     InlineInt.tryFrom(this).getOrNull()
         ?.checkedMulI32(other)
         ?.toI32()
-        ?: throw ValueError.Runtime("Integer overflow in multiplication: $this * $other")
+        ?: throw ValueError.Runtime("Integer overflow in InlineInt multiplication: Int($this) * Int($other)")
 
 private fun Int.checkedAdd(other: Int): Int {
     val lhs = InlineInt.tryFrom(this).getOrNull()
-        ?: throw ValueError.Runtime("Integer overflow converting left operand for addition: $this")
+        ?: throw ValueError.Runtime("Integer overflow converting left Int to InlineInt for addition: $this")
     val rhs = InlineInt.tryFrom(other).getOrNull()
-        ?: throw ValueError.Runtime("Integer overflow converting right operand for addition: $other")
+        ?: throw ValueError.Runtime("Integer overflow converting right Int to InlineInt for addition: $other")
     return lhs.checkedAdd(rhs)?.toI32()
         ?: throw ValueError.Runtime("Integer overflow in addition: $this + $other")
 }
