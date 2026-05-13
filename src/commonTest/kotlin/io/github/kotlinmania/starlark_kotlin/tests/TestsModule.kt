@@ -22,5 +22,5 @@ package io.github.kotlinmania.starlark_kotlin.tests
 /**
  * Test module entrypoint in the upstream Rust crate.
  *
- * In Kotlin, the individual tests are mapped one-to-one from tests/*.rs into this package.
+ * In Kotlin, the individual tests are mapped one-to-one from `tests/<wildcard>.rs` into this package.
  */

@@ -25,7 +25,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.1.0
 
-      - name: Build and test iOS targets + XCFramework
+      - name: Build iOS targets + XCFramework
         # The XCFramework name is derived per-repo from the
         # `XCFramework("<Name>")` declaration in build.gradle.kts so this
         # workflow stays portable across the kotlinmania workspace.
@@ -40,7 +40,9 @@ jobs:
             compileKotlinIosArm64 \
             compileKotlinIosSimulatorArm64 \
             compileKotlinIosX64 \
-            iosSimulatorArm64Test \
+            compileTestKotlinIosArm64 \
+            compileTestKotlinIosSimulatorArm64 \
+            compileTestKotlinIosX64 \
             "assemble${XCF_NAME}XCFramework" \
             --no-configuration-cache
 

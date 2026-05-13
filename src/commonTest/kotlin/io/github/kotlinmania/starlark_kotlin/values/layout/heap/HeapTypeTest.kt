@@ -1,5 +1,5 @@
 // port-lint: source tests:src/values/layout/heap/heap_type.rs
-package io.github.kotlinmania.starlark.values.layout.heap
+package io.github.kotlinmania.starlark_kotlin.values.layout.heap
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
