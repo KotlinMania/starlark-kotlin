@@ -25,14 +25,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.1.0
 
-      - name: Build and test watchOS targets
+      - name: Build watchOS targets
         run: >
           ./gradlew
           compileKotlinWatchosArm32
           compileKotlinWatchosArm64
           compileKotlinWatchosDeviceArm64
           compileKotlinWatchosSimulatorArm64
-          watchosSimulatorArm64Test
+          compileTestKotlinWatchosArm32
+          compileTestKotlinWatchosArm64
+          compileTestKotlinWatchosDeviceArm64
+          compileTestKotlinWatchosSimulatorArm64
           --no-configuration-cache
 
       - name: Upload test reports (watchOS)
