@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.types.range
  */
 
 import io.github.kotlinmania.starlark_kotlin.assert.Assert
+import io.github.kotlinmania.starlark_kotlin.values.ValueError
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
@@ -27,6 +28,8 @@ import io.github.kotlinmania.starlark_kotlin.values.types.bigint.unpackInt
 import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 private fun range(start: Int, stop: Int, step: Int): Range =
     Range(start, stop, NonZeroI32.new(step)!!)
@@ -114,5 +117,37 @@ internal class RangeTypeTest {
             InlineInt.MAX.toString(),
             "len(range(${InlineInt.MIN}, -1))",
         )
+    }
+
+    @Test
+    fun testSliceStepOverflowIncludesOperationContext() {
+        val error = assertFailsWith<ValueError.Runtime> {
+            Heap.temp { heap ->
+                range(0, Int.MAX_VALUE, Int.MAX_VALUE).slice(
+                    start = null,
+                    stop = null,
+                    stride = 2.allocValue(heap),
+                    heap = heap
+                )
+            }
+        }
+        assertTrue(error.message!!.contains("Integer overflow in multiplication"), error.message!!)
+        assertTrue(error.message!!.contains("${2} * ${Int.MAX_VALUE}"), error.message!!)
+    }
+
+    @Test
+    fun testSliceStopOverflowIncludesAdditionContext() {
+        val error = assertFailsWith<ValueError.Runtime> {
+            Heap.temp { heap ->
+                range(2, Int.MAX_VALUE, Int.MAX_VALUE - 1).slice(
+                    start = null,
+                    stop = null,
+                    stride = null,
+                    heap = heap
+                )
+            }
+        }
+        assertTrue(error.message!!.contains("Integer overflow in addition"), error.message!!)
+        assertTrue(error.message!!.contains("2 + ${Int.MAX_VALUE - 1}"), error.message!!)
     }
 }
