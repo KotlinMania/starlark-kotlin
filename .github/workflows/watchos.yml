@@ -30,11 +30,9 @@ jobs:
           ./gradlew
           compileKotlinWatchosArm32
           compileKotlinWatchosArm64
-          compileKotlinWatchosDeviceArm64
           compileKotlinWatchosSimulatorArm64
           compileTestKotlinWatchosArm32
           compileTestKotlinWatchosArm64
-          compileTestKotlinWatchosDeviceArm64
           compileTestKotlinWatchosSimulatorArm64
           --no-configuration-cache
 
