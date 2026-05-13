@@ -132,8 +132,8 @@ internal class RangeTypeTest {
             }
         }
         val message = error.message!!
-        assertTrue(message.contains("Integer overflow in multiplication"), message)
-        assertTrue(message.contains("${2} * ${Int.MAX_VALUE}"), message)
+        assertTrue(message.contains("Integer overflow in InlineInt multiplication"), message)
+        assertTrue(message.contains("Int(2) * Int(${Int.MAX_VALUE})"), message)
     }
 
     @Test
