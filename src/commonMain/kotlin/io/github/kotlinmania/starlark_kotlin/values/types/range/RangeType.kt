@@ -28,6 +28,7 @@ import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
 import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark_kotlin.values.types.int.InlineInt
 
 data class NonZeroI32 private constructor(val value: Int) {
     companion object {
@@ -173,6 +174,11 @@ data class Range(
         val len = length().getOrElse { return Result.failure(it) }
         val (sliceStart, sliceStop, sliceStep) = convertSliceIndices(len, start, stop, stride)
             .getOrElse { return Result.failure(it) }
+
+        val newStepValue = sliceStep.checkedMul(this.step.get())
+        val newStep = NonZeroI32.new(newStepValue)
+            ?: return Result.failure(ValueError.IntegerOverflow)
+
         return Result.success(heap.allocSimple(Range(
             start = this.start
                 .checkedAdd(
@@ -183,9 +189,7 @@ data class Range(
                 .checkedAdd(
                     sliceStop.checkedMul(this.step.get())
                 ),
-            step = NonZeroI32.new(
-                sliceStep.checkedMul(this.step.get())
-            )!!
+            step = newStep
         )))
     }
 
@@ -262,14 +266,14 @@ data class Range(
     }
 }
 
-private fun Int.checkedMul(other: Int): Int {
-    val result = this.toLong() * other.toLong()
-    if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) throw ValueError.IntegerOverflow
-    return result.toInt()
-}
+private fun Int.checkedMul(other: Int): Int =
+    InlineInt.tryFrom(this).getOrNull()
+        ?.checkedMulI32(other)
+        ?.toI32()
+        ?: throw ValueError.IntegerOverflow
 
 private fun Int.checkedAdd(other: Int): Int {
-    val result = this.toLong() + other.toLong()
-    if (result < Int.MIN_VALUE || result > Int.MAX_VALUE) throw ValueError.IntegerOverflow
-    return result.toInt()
+    val lhs = InlineInt.tryFrom(this).getOrNull() ?: throw ValueError.IntegerOverflow
+    val rhs = InlineInt.tryFrom(other).getOrNull() ?: throw ValueError.IntegerOverflow
+    return lhs.checkedAdd(rhs)?.toI32() ?: throw ValueError.IntegerOverflow
 }

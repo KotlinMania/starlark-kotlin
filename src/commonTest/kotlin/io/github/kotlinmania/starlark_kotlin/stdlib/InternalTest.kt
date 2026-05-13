@@ -1,5 +1,5 @@
 // port-lint: source tests:src/stdlib/internal.rs
-package io.github.kotlinmania.starlark.stdlib
+package io.github.kotlinmania.starlark_kotlin.stdlib
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
