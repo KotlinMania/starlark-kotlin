@@ -32,13 +32,25 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 private fun range(start: Int, stop: Int, step: Int): Range =
-    Range(start, stop, NonZeroI32.new(step)!!)
+    Range(
+        start,
+        stop,
+        requireNotNull(NonZeroI32.new(step)) { "range step must be non-zero, got $step" },
+    )
 
 private fun rangeStartStop(start: Int, stop: Int): Range = range(start, stop, 1)
 
 private fun rangeStop(stop: Int): Range = rangeStartStop(0, stop)
 
 internal class RangeTypeTest {
+    @Test
+    fun testRangeRejectsZeroStep() {
+        val error = assertFailsWith<IllegalArgumentException> {
+            range(0, 1, 0)
+        }
+        assertEquals("range step must be non-zero, got 0", error.message)
+    }
+
     @Test
     fun testLengthStop() {
         assertEquals(0, rangeStop(0).length().getOrThrow())
@@ -84,7 +96,10 @@ internal class RangeTypeTest {
         Heap.temp { heap ->
             for (x in ranges) {
                 val iter = heap.allocSimple(x).iterate(heap).getOrThrow()
-                val full = iter.asSequence().map { it.unpackInt().getOrThrow()!! }.toList()
+                val full = iter.asSequence().map {
+                    val unpacked = it.unpackInt().getOrThrow()
+                    requireNotNull(unpacked) { "Expected unpackInt() to produce a non-null Int" }
+                }.toList()
                 iter.close()
                 assertEquals(x.length().getOrThrow(), full.size)
                 for ((index, value) in full.withIndex()) {
