@@ -42,13 +42,13 @@ jobs:
           npm --version
           yarn --version
 
-      - name: Build JS targets
+      - name: Build and test JS targets
         env:
           ORG_GRADLE_PROJECT_kotlin_js_yarn_download: "false"
         run: >
           ./gradlew
-          compileKotlinJs
-          compileTestKotlinJs
+          jsBrowserTest
+          jsNodeTest
           --no-configuration-cache
 
       - name: Upload test reports (JS)

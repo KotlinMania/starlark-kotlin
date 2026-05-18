@@ -25,11 +25,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.1.0
 
-      - name: Build macOS targets
+      - name: Build and test macOS targets
         run: >
           ./gradlew
           compileKotlinMacosArm64
-          compileTestKotlinMacosArm64
+          macosArm64Test
           --no-configuration-cache
 
       - name: Upload test reports (macOS)

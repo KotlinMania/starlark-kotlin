@@ -1,11 +1,7 @@
-/target/
-Cargo.lock
-*.wasm
-rust-source/
-
 # Kotlin/Gradle build artifacts
 build/
 .gradle/
+.kotlin/
 *.class
 *.jar
 *.war
@@ -13,31 +9,27 @@ build/
 
 # Keep the Gradle wrapper jar checked in so CI can run `./gradlew`.
 !gradle/wrapper/gradle-wrapper.jar
+
+# IDE
 .idea/
 *.iml
 out/
-tmp/
 
-# AST distance tool reports
+# Upstream Rust source — clone freshly when porting begins
+tmp/
+!tmp/.gitkeep
+
+# AST distance reports and binaries
 port_status_report.md
 high_priority_ports.md
-ast_distance_starlark_strict_output.txt
-
-# AST distance agent state and lock files
+ast_distance_*.txt
 .cache/
 *.lock
-/tools/ast_distance/.cache/
-tools/ast_distance/.cache/clangd/index/ast_parser.hpp.DD5C3ECD834566A8.idx
-tools/ast_distance/.cache/clangd/index/codebase.hpp.0742434D40FFFBAA.idx
-tools/ast_distance/.cache/clangd/index/main.cpp.C8D925A5B54393A9.idx
-tools/ast_distance/.cache/clangd/index/porting_utils.hpp.49E25ACE8EBAAF7F.idx
-tools/ast_distance/.cache/clangd/index/similarity.hpp.ECBAAA89CD6460F4.idx
 kotlin-js-store/*
+!kotlin-js-store/package.json
 !kotlin-js-store/yarn.lock
 !kotlin-js-store/wasm/
 !kotlin-js-store/wasm/yarn.lock
-
-# AST distance compiled binary (CMake output, rebuild from source)
 tools/ast_distance/ast_distance
 tools/ast_distance/build/
 
@@ -48,8 +40,10 @@ java_pid*.hprof
 # macOS Finder metadata
 .DS_Store
 
-# Python bytecode caches
+# Python bytecode
 __pycache__/
 *.pyc
-/.android-sdk/.knownPackages
+
+# Android SDK
 /.android-sdk/
+local.properties
