@@ -1,4 +1,4 @@
-// port-lint: source src/values/layout/value.rs
+// port-lint: source values/layout/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
@@ -20,7 +20,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
  */
 
 // Possible optimisations:
-// Avoid the Box duplication
+// Avoid duplicate heap storage
 // Encode Int in the pointer too
 
 // We use pointer tagging on the bottom two bits:
@@ -30,7 +30,7 @@ package io.github.kotlinmania.starlark_kotlin.values.layout
 // 10 => this is a None
 //
 // We don't use pointer tagging for Int (although we'd like to), because
-// our val_ref requires a pointer to the value. We need to put that pointer
+// our value reference requires a pointer to the value. We need to put that pointer
 // somewhere. The solution is to have a separate value storage vs vtable.
 
 import io.github.kotlinmania.starlark_kotlin.collections.Hashed
@@ -109,11 +109,6 @@ import io.github.kotlinmania.starlark_kotlin.values.types.dict.VALUE_EMPTY_FROZE
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
-// #[derive(Debug, thiserror::Error)]
-// enum ValueValueError {
-//     #[error("Expected value of type `{0}` but got `{1}`")]
-//     WrongType(&'static str, String),
-// }
 private class ValueValueError {
     class WrongType(val expectedType: String, val actualType: String) :
         Exception("Expected value of type `$expectedType` but got `$actualType`")
@@ -125,9 +120,6 @@ private class ValueValueError {
  * @property integerType The name of the target integer type.
  * @property value The string representation of the value that was too big.
  */
-// #[derive(thiserror::Error, Debug)]
-// #[error("Integer value is too big to fit in {integer_type}: {value}")]
-// pub(crate) struct IntegerTooBigError { ... }
 class IntegerTooBigError(
     val integerType: String,
     val value: String,
@@ -136,24 +128,13 @@ class IntegerTooBigError(
 /**
  * Cycle detected when serializing value to JSON.
  */
-// #[derive(Debug, thiserror::Error)]
-// #[error("Cycle detected when serializing value of type `{0}` to JSON")]
-// struct ToJsonCycleError(&'static str);
 private class ToJsonCycleError(val typeName: String) :
     Exception("Cycle detected when serializing value of type `$typeName` to JSON")
 
-// fn debug_value(typ: &str, v: Value, f: &mut fmt::Formatter) -> fmt::Result
 private fun debugValue(typ: String, v: Value): String {
     // When value is being moved during GC or freeze,
     // `Value` pointee is not a proper value, but a GC-related information.
     // Regular operations like `.toRepr()` crash, but `Debug` should work.
-    // In Rust:
-    //   if let Some(x) = v.0.unpack_ptr() {
-    //       if let AValueOrForwardUnpack::Forward(fwd) = x.unpack() {
-    //           return f.debug_tuple(typ).field(&fwd).finish();
-    //       }
-    //   }
-    //   f.debug_tuple(typ).field(v.get_ref().as_debug()).finish()
     val ptrOpt = v.ptr.unpackPtrOpt()
     if (ptrOpt != null) {
         try {
@@ -167,14 +148,11 @@ private fun debugValue(typ: String, v: Value): String {
 }
 
 /**
- * A Starlark value. The lifetime argument `'v` in Rust corresponds to the [Heap] it is stored on.
- * In Kotlin, lifetime management is handled by the garbage collector.
+ * A Starlark value stored on a [Heap].
  *
  * Many of the methods simply forward to the underlying [StarlarkValue].
  * The [toString] method is equivalent to the `repr()` function in Starlark.
  */
-// #[derive(Clone_, Copy_, Dupe_, ProvidesStaticType, Allocative)]
-// pub struct Value<'v>(pub(crate) Pointer<'v>);
 class Value internal constructor(
     internal val ptr: Pointer,
 ) : ValueLike {
@@ -182,7 +160,6 @@ class Value internal constructor(
         /**
          * Create a new [Value] from an [AValueHeader] pointer.
          */
-        // pub(crate) fn new_ptr(x: &'v AValueHeader, is_str: bool) -> Self
         internal fun newPtr(x: AValueHeader, isStr: Boolean): Value {
             return Value(Pointer.newUnfrozen(x.index, isStr))
         }
@@ -190,7 +167,6 @@ class Value internal constructor(
         /**
          * Create a new [Value] from an [AValueHeader], querying whether it's a string.
          */
-        // pub(crate) fn new_ptr_query_is_str(x: &'v AValueHeader) -> Self
         internal fun newPtrQueryIsStr(x: AValueHeader): Value {
             val isString = x.vtable.isStr
             return newPtr(x, isString)
@@ -199,15 +175,13 @@ class Value internal constructor(
         /**
          * Create a new [Value] from an [AValueRepr].
          */
-        // pub(crate) fn new_repr<T: AValue<'v>>(x: &'v AValueRepr<AValueImpl<'v, T>>) -> Self
         internal fun <T : AValue> newRepr(x: AValueRepr<AValueImpl<T>>): Value {
             return newPtr(x.header, x.header.vtable.isStr)
         }
 
         /**
-         * Create a new [Value] from a raw usize with string tag.
+         * Create a new [Value] from a raw pointer word with string tag.
          */
-        // pub(crate) unsafe fn new_ptr_usize_with_str_tag(x: usize) -> Self
         internal fun newPtrUsizeWithStrTag(x: Long): Value {
             return Value(Pointer.newUnfrozenUsizeWithStrTag(x))
         }
@@ -215,8 +189,6 @@ class Value internal constructor(
         /**
          * Create a new int for testing purposes.
          */
-        // #[cfg(test)]
-        // pub(crate) fn testing_new_int(x: i32) -> Self
         internal fun testingNewInt(x: Int): Value {
             return FrozenValue.testingNewInt(x).toValue()
         }
@@ -224,7 +196,6 @@ class Value internal constructor(
         /**
          * Create a new `None` value.
          */
-        // pub fn new_none() -> Self
         fun newNone(): Value {
             return FrozenValue.newNone().toValue()
         }
@@ -232,7 +203,6 @@ class Value internal constructor(
         /**
          * Create a new boolean value.
          */
-        // pub fn new_bool(x: bool) -> Self
         fun newBool(x: Boolean): Value {
             return FrozenValue.newBool(x).toValue()
         }
@@ -240,7 +210,6 @@ class Value internal constructor(
         /**
          * Create a new integer value.
          */
-        // pub(crate) fn new_int(x: InlineInt) -> Self
         internal fun newInt(x: InlineInt): Value {
             return FrozenValue.newInt(x).toValue()
         }
@@ -248,7 +217,6 @@ class Value internal constructor(
         /**
          * Create a new blank string value.
          */
-        // pub(crate) fn new_empty_string() -> Self
         internal fun newEmptyString(): Value {
             return FrozenValue.newEmptyString().toValue()
         }
@@ -256,16 +224,14 @@ class Value internal constructor(
         /**
          * Create a new empty tuple value.
          */
-        // pub(crate) fn new_empty_tuple() -> Self
         internal fun newEmptyTuple(): Value {
             return FrozenValue.newEmptyTuple().toValue()
         }
 
         /**
-         * Turn a [FrozenValue] into a [Value]. See the safety warnings on
+         * Turn a [FrozenValue] into a [Value]. See the ownership notes on
          * `OwnedFrozenValue`.
          */
-        // pub fn new_frozen(x: FrozenValue) -> Self
         fun newFrozen(x: FrozenValue): Value {
             // Safe if every FrozenValue must have had a reference added to its heap first.
             // That property is NOT statically checked.
@@ -275,39 +241,31 @@ class Value internal constructor(
         /**
          * Convert from [FrozenValue] (ValueLike factory method).
          */
-        // impl ValueLike for Value: fn from_frozen_value(v: FrozenValue) -> Self
         fun fromFrozenValue(v: FrozenValue): Value = v.toValue()
     }
 
     /**
-     * Cast the lifetime of this value. In Kotlin there are no lifetimes,
-     * so this is effectively a no-op identity function.
+     * Return this value with the same runtime identity.
      */
-    // pub(crate) unsafe fn cast_lifetime<'w>(self) -> Value<'w>
-    @Suppress("NOTHING_TO_INLINE")
-    internal inline fun castLifetime(): Value = this
+    internal fun castLifetime(): Value = this
 
     /**
      * Produce a [Value] regardless of the type you are starting with.
      * For [Value], simply returns itself.
      */
-    // impl ValueLike for Value: fn to_value(self) -> Value<'v> { self }
     override fun toValue(): Value = this
 
     /**
      * Obtain the underlying [FrozenValue] from inside the [Value], if it is one.
      */
-    // pub fn unpack_frozen(self) -> Option<FrozenValue>
     fun unpackFrozen(): FrozenValue? {
         return if (ptr.isUnfrozen()) {
             null
         } else {
-            // SAFETY: We've just checked the value is frozen.
             unpackFrozenUnchecked()
         }
     }
 
-    // unsafe fn unpack_frozen_unchecked(self) -> FrozenValue
     private fun unpackFrozenUnchecked(): FrozenValue {
         return FrozenValue(ptr.castLifetime().toFrozenPointerUnchecked())
     }
@@ -315,7 +273,6 @@ class Value internal constructor(
     /**
      * Is this value `None`.
      */
-    // pub fn is_none(self) -> bool
     fun isNone(): Boolean {
         return ptrEq(newNone())
     }
@@ -323,7 +280,6 @@ class Value internal constructor(
     /**
      * Obtain the underlying numerical value, if it is one.
      */
-    // pub(crate) fn unpack_num(self) -> Option<NumRef<'v>>
     internal fun unpackNum(): NumRef? {
         val int = StarlarkIntRef.unpack(this)
         if (int != null) {
@@ -340,7 +296,6 @@ class Value internal constructor(
      * Unpack this value as an integer of type [Long], or return an error if it's too big.
      * Returns `null` if the value is not an integer at all.
      */
-    // pub(crate) fn unpack_integer<I>(self) -> crate::Result<Option<I>>
     internal fun <I> unpackIntegerImpl(
         integerType: String,
         tryFromI32: (Int) -> I?,
@@ -393,7 +348,6 @@ class Value internal constructor(
     /**
      * Obtain the underlying `bool` if it is a boolean.
      */
-    // pub fn unpack_bool(self) -> Option<bool>
     fun unpackBool(): Boolean? {
         return if (ptrEq(newBool(true))) {
             true
@@ -408,7 +362,6 @@ class Value internal constructor(
      * Obtain the underlying integer if it fits in an `Int`.
      * Note floats are not considered integers, i.e. `unpackI32` for `1.0` will return `null`.
      */
-    // pub fn unpack_i32(self) -> Option<i32>
     fun unpackI32(): Int? {
         return if (InlineInt.smallerThanI32()) {
             StarlarkIntRef.unpack(this)?.toI32()
@@ -420,7 +373,6 @@ class Value internal constructor(
     /**
      * Unpack inline integer value.
      */
-    // pub(crate) fn unpack_inline_int(self) -> Option<InlineInt>
     internal fun unpackInlineInt(): InlineInt? {
         return ptr.unpackInt()?.let { InlineInt(it) }
     }
@@ -428,10 +380,8 @@ class Value internal constructor(
     /**
      * Unpack int value as a FrozenValueTyped PointerI32.
      */
-    // pub(crate) fn unpack_int_value(self) -> Option<FrozenValueTyped<'static, PointerI32>>
     internal fun unpackIntValue(): FrozenValueTyped<PointerI32>? {
         return if (unpackInlineInt() != null) {
-            // SAFETY: We've just checked the value is an int.
             FrozenValueTyped.newUnchecked(unpackFrozenUnchecked())
         } else {
             null
@@ -441,20 +391,17 @@ class Value internal constructor(
     /**
      * Check if this value is a string.
      */
-    // pub(crate) fn is_str(self) -> bool
     internal fun isStr(): Boolean {
         return ptr.isStr()
     }
 
     /**
-     * Like [unpackStr], but gives a pointer to a boxed [StarlarkStr].
-     * Mostly useful for when you want to convert the string to a `dyn` trait, but can't
-     * form a `dyn` of an unsized type.
+     * Like [unpackStr], but gives access to the stored [StarlarkStr].
+     * Mostly useful for when you want the object-level string representation.
      *
-     * Unstable and likely to be removed in future, as the presence of the `Box` is
+     * Unstable and likely to be removed in future, as the storage wrapper is
      * not a guaranteed part of the API.
      */
-    // pub fn unpack_starlark_str(self) -> Option<&'v StarlarkStr>
     fun unpackStarlarkStr(): StarlarkStr? {
         return if (isStr()) {
             getRef().downcastRef<StarlarkStr>()
@@ -466,7 +413,6 @@ class Value internal constructor(
     /**
      * Obtain the underlying `str` if it is a string.
      */
-    // pub fn unpack_str(self) -> Option<&'v str>
     fun unpackStr(): String? {
         return unpackStarlarkStr()?.asStr()
     }
@@ -474,7 +420,6 @@ class Value internal constructor(
     /**
      * Obtain the underlying `str` if it is a string, otherwise return an error for users.
      */
-    // pub fn unpack_str_err(self) -> crate::Result<&'v str>
     fun unpackStrErr(): Result<String> {
         val s = unpackStr()
         return if (s != null) {
@@ -491,7 +436,6 @@ class Value internal constructor(
     /**
      * Get a pointer to an [AValue].
      */
-    // pub(crate) fn get_ref(self) -> AValueDyn<'v>
     @PublishedApi
     internal fun getRef(): AValueDyn {
         return if (ptr.unpackIsInt()) {
@@ -510,7 +454,6 @@ class Value internal constructor(
     /**
      * Get the full reference including the value itself.
      */
-    // fn get_ref_full(self) -> AValueDynFull<'v>
     private fun getRefFull(): AValueDynFull {
         return AValueDynFull(getRef(), this)
     }
@@ -518,7 +461,6 @@ class Value internal constructor(
     /**
      * Get the vtable for this value.
      */
-    // pub(crate) fn vtable(self) -> &'static AValueVTable
     internal fun vtable(): AValueVTable {
         return if (ptr.unpackIsInt()) {
             PointerI32.vtable()
@@ -539,10 +481,8 @@ class Value internal constructor(
     }
 
     /**
-     * Downcast without checking the value type.
+     * Downcast after the caller has already checked the value type.
      */
-    // pub(crate) unsafe fn downcast_ref_unchecked<T: StarlarkValue<'v>>(self) -> &'v T
-    @Suppress("UNCHECKED_CAST")
     internal inline fun <reified T : StarlarkValue> downcastRefUnchecked(): T {
         if (PointerI32.typeIsPointerI32<T>()) {
             return PointerI32.fromRawInt(ptr.unpackIntValue()) as T
@@ -553,7 +493,6 @@ class Value internal constructor(
     /**
      * Get the hash value for this value.
      */
-    // pub(crate) fn get_hash(self) -> crate::Result<StarlarkHashValue>
     internal fun getHash(): Result<StarlarkHashValue> {
         return getRef().getHash()
     }
@@ -569,7 +508,6 @@ class Value internal constructor(
      * The result can be impacted by optimisations such as hash-consing, copy-on-write, partial
      * evaluation etc.
      */
-    // pub fn ptr_eq(self, other: Value) -> bool
     fun ptrEq(other: Value): Boolean {
         return ptr.ptrEq(other.ptr)
     }
@@ -583,7 +521,6 @@ class Value internal constructor(
      * 2. If two [Value]s have [ValueIdentity] that compare equal, then [Value.ptrEq] and
      *    [Value.equals] will also consider them to be equal.
      */
-    // pub fn identity(self) -> ValueIdentity<'v>
     fun identity(): ValueIdentity {
         return ValueIdentity.new(this)
     }
@@ -595,7 +532,6 @@ class Value internal constructor(
      * For external users, `Value.identity` returns an opaque `ValueIdentity` that makes fewer
      * guarantees.
      */
-    // pub(crate) fn ptr_value(self) -> RawPointer
     internal fun ptrValue(): RawPointer {
         return ptr.raw()
     }
@@ -603,7 +539,6 @@ class Value internal constructor(
     /**
      * `type(x)`.
      */
-    // pub fn get_type(self) -> &'static str
     fun getType(): String {
         return vtable().typeName
     }
@@ -611,7 +546,6 @@ class Value internal constructor(
     /**
      * `bool(x)`.
      */
-    // pub fn to_bool(self) -> bool
     fun toBool(): Boolean {
         // Fast path for the common case
         val b = unpackBool()
@@ -625,7 +559,6 @@ class Value internal constructor(
     /**
      * `x[index]`.
      */
-    // pub fn at(self, index: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun at(index: Value, heap: Heap): Result<Value> {
         return getRef().at(index, heap)
     }
@@ -633,7 +566,6 @@ class Value internal constructor(
     /**
      * `x[start:stop:stride]`.
      */
-    // pub fn slice(self, ...) -> crate::Result<Value<'v>>
     fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> {
         return getRef().slice(start, stop, stride, heap)
     }
@@ -641,7 +573,6 @@ class Value internal constructor(
     /**
      * `len(x)`.
      */
-    // pub fn length(self) -> crate::Result<i32>
     fun length(): Result<Int> {
         return getRef().length()
     }
@@ -649,7 +580,6 @@ class Value internal constructor(
     /**
      * `other in x`.
      */
-    // pub fn is_in(self, other: Value<'v>) -> crate::Result<bool>
     fun isIn(other: Value): Result<Boolean> {
         return getRef().isIn(other)
     }
@@ -657,7 +587,6 @@ class Value internal constructor(
     /**
      * `+x`.
      */
-    // pub fn plus(self, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun plus(heap: Heap): Result<Value> {
         return getRef().plus(heap)
     }
@@ -665,7 +594,6 @@ class Value internal constructor(
     /**
      * `-x`.
      */
-    // pub fn minus(self, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun minus(heap: Heap): Result<Value> {
         return getRef().minus(heap)
     }
@@ -673,7 +601,6 @@ class Value internal constructor(
     /**
      * `x - other`.
      */
-    // pub fn sub(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun sub(other: Value, heap: Heap): Result<Value> {
         return getRef().sub(other, heap)
     }
@@ -681,7 +608,6 @@ class Value internal constructor(
     /**
      * `x * other`.
      */
-    // pub fn mul(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun mul(other: Value, heap: Heap): Result<Value> {
         return when (val result = getRef().mul(other, heap)) {
             null -> when (val rresult = other.getRef().rmul(this, heap)) {
@@ -695,7 +621,6 @@ class Value internal constructor(
     /**
      * `x % other`.
      */
-    // pub fn percent(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun percent(other: Value, heap: Heap): Result<Value> {
         return getRef().percent(other, heap)
     }
@@ -703,7 +628,6 @@ class Value internal constructor(
     /**
      * `x / other`.
      */
-    // pub fn div(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun div(other: Value, heap: Heap): Result<Value> {
         return getRef().div(other, heap)
     }
@@ -711,7 +635,6 @@ class Value internal constructor(
     /**
      * `x // other`.
      */
-    // pub fn floor_div(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun floorDiv(other: Value, heap: Heap): Result<Value> {
         return getRef().floorDiv(other, heap)
     }
@@ -719,7 +642,6 @@ class Value internal constructor(
     /**
      * `x & other`.
      */
-    // pub fn bit_and(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bitAnd(other: Value, heap: Heap): Result<Value> {
         return getRef().bitAnd(other, heap)
     }
@@ -727,7 +649,6 @@ class Value internal constructor(
     /**
      * `x | other`.
      */
-    // pub fn bit_or(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bitOr(other: Value, heap: Heap): Result<Value> {
         return getRef().bitOr(other, heap)
     }
@@ -735,7 +656,6 @@ class Value internal constructor(
     /**
      * `x ^ other`.
      */
-    // pub fn bit_xor(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bitXor(other: Value, heap: Heap): Result<Value> {
         return getRef().bitXor(other, heap)
     }
@@ -743,7 +663,6 @@ class Value internal constructor(
     /**
      * `~x`.
      */
-    // pub fn bit_not(self, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun bitNot(heap: Heap): Result<Value> {
         return getRef().bitNot(heap)
     }
@@ -751,7 +670,6 @@ class Value internal constructor(
     /**
      * `x << other`.
      */
-    // pub fn left_shift(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun leftShift(other: Value, heap: Heap): Result<Value> {
         return getRef().leftShift(other, heap)
     }
@@ -759,7 +677,6 @@ class Value internal constructor(
     /**
      * `x >> other`.
      */
-    // pub fn right_shift(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun rightShift(other: Value, heap: Heap): Result<Value> {
         return getRef().rightShift(other, heap)
     }
@@ -767,7 +684,6 @@ class Value internal constructor(
     /**
      * Invoke with a call stack location.
      */
-    // pub(crate) fn invoke_with_loc(self, location, args, eval) -> crate::Result<Value<'v>>
     internal fun invokeWithLoc(
         location: FrozenRef<FrameSpan>?,
         args: Arguments,
@@ -783,8 +699,6 @@ class Value internal constructor(
      *
      * For now it only returns parameter spec for `def` and `lambda`.
      */
-    // pub fn parameters_spec(self) -> Option<&'v ParametersSpec<Value<'v>>>
-    @Suppress("UNCHECKED_CAST")
     fun parametersSpec(): ParametersSpec<Value>? {
         val def = downcastRef<Def>()
         if (def != null) {
@@ -792,8 +706,6 @@ class Value internal constructor(
         }
         val frozenDef = downcastRef<FrozenDef>()
         if (frozenDef != null) {
-            // In Rust this is a transmute from ParametersSpec<FrozenValue> to ParametersSpec<Value>.
-            // In Kotlin with type erasure, an unchecked cast is equivalent.
             return frozenDef.parameters as ParametersSpec<Value>
         }
         return null
@@ -802,7 +714,6 @@ class Value internal constructor(
     /**
      * Invoke self with given arguments.
      */
-    // pub(crate) fn invoke(self, args, eval) -> crate::Result<Value<'v>>
     override fun invoke(
         args: Arguments,
         eval: Evaluator,
@@ -813,7 +724,6 @@ class Value internal constructor(
     /**
      * Invoke a function with only positional arguments.
      */
-    // pub(crate) fn invoke_pos(self, pos, eval) -> crate::Result<Value<'v>>
     internal fun invokePos(
         pos: List<Value>,
         eval: Evaluator,
@@ -825,7 +735,6 @@ class Value internal constructor(
     /**
      * Check if this value is callable.
      */
-    // fn check_callable(self) -> crate::Result<()>
     private fun checkCallable(): Result<Unit> {
         if (!vtable().hasInvoke) {
             return Result.failure(
@@ -843,7 +752,6 @@ class Value internal constructor(
      *
      * This operation is expensive.
      */
-    // pub fn check_callable_with<'a>(self, pos, named, args, kwargs, ret) -> crate::Result<()>
     fun checkCallableWith(
         pos: Iterable<Ty>,
         named: Iterable<Pair<String, Ty>>,
@@ -856,7 +764,6 @@ class Value internal constructor(
         return checkCallableWithImpl(posList, namedList, args, kwargs, ret)
     }
 
-    // fn check_callable_with_impl<'a>(self, pos, named, args, kwargs, ret) -> crate::Result<()>
     private fun checkCallableWithImpl(
         pos: List<Ty>,
         named: List<Pair<String, Ty>>,
@@ -909,7 +816,6 @@ class Value internal constructor(
     /**
      * `type(x)` as a [FrozenStringValue].
      */
-    // pub fn get_type_value(self) -> FrozenStringValue
     fun getTypeValue(): FrozenStringValue {
         return vtable().typeValue()
     }
@@ -917,7 +823,6 @@ class Value internal constructor(
     /**
      * See documentation of [StarlarkTypeId].
      */
-    // pub(crate) fn starlark_type_id(self) -> StarlarkTypeId
     internal fun starlarkTypeId(): StarlarkTypeId {
         return vtable().starlarkTypeId
     }
@@ -925,7 +830,6 @@ class Value internal constructor(
     /**
      * The literal string that a user would need to use this in type annotations.
      */
-    // pub(crate) fn get_type_starlark_repr(self) -> Ty
     internal fun getTypeStarlarkRepr(): Ty {
         return vtable().typeStarlarkRepr()
     }
@@ -934,7 +838,6 @@ class Value internal constructor(
      * Add two [Value]s together. Will first try using `add`,
      * before falling back to `radd`.
      */
-    // pub fn add(self, other: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun add(other: Value, heap: Heap): Result<Value> {
         // Fast special case for ints.
         val ls = unpackInlineInt()
@@ -976,12 +879,10 @@ class Value internal constructor(
     /**
      * Convert a value to a [FrozenValue] using a supplied [Freezer].
      */
-    // pub fn freeze(self, freezer: &Freezer) -> Result<FrozenValue>
     override fun freeze(freezer: Freezer): Result<FrozenValue> {
         return freezer.freeze(this)
     }
 
-    // ValueLike impl
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v.toValue()
 
@@ -989,7 +890,6 @@ class Value internal constructor(
      * Implement the `str()` function - converts a string value to itself,
      * otherwise uses `repr()`.
      */
-    // pub fn to_str(self) -> String
     fun toStr(): String {
         return unpackStr() ?: toRepr()
     }
@@ -997,7 +897,6 @@ class Value internal constructor(
     /**
      * Implement the `repr()` function.
      */
-    // pub fn to_repr(self) -> String
     fun toRepr(): String {
         val s = StringBuilder()
         collectRepr(s)
@@ -1007,7 +906,6 @@ class Value internal constructor(
     /**
      * Name to use when displaying this value in the call stack.
      */
-    // pub(crate) fn name_for_call_stack(self) -> String
     internal fun nameForCallStack(): String {
         return getRef().nameForCallStack(this)
     }
@@ -1017,28 +915,21 @@ class Value internal constructor(
      *
      * Return an error if the value or any contained value does not support conversion to JSON.
      */
-    // pub fn to_json(self) -> anyhow::Result<String>
     fun toJson(): Result<String> {
-        // In Rust: serde_json::to_string(&self).map_err(|e| anyhow::anyhow!(e))
         return serializeImpl()
     }
 
     /**
      * Convert the value to a JSON value object.
      */
-    // pub fn to_json_value(self) -> anyhow::Result<serde_json::Value>
     fun toJsonValue(): Result<Any> {
-        // In Rust: serde_json::to_value(self).map_err(|e| anyhow::anyhow!(e))
         return serializeImpl()
     }
 
-    // impl Serialize for Value<'v>
-    // fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
     internal fun serializeImpl(): Result<String> {
         val guard = jsonStackPush(this)
         return if (guard.isSuccess) {
             try {
-                // In Rust: erased_serde::serialize(self.get_ref().as_serialize(), s)
                 Result.success(toRepr())
             } finally {
                 guard.getOrThrow().close()
@@ -1051,7 +942,6 @@ class Value internal constructor(
     /**
      * Forwards to [StarlarkValue.setAttr].
      */
-    // pub fn set_attr(self, attribute: &str, alloc_value: Value<'v>) -> crate::Result<()>
     fun setAttr(attribute: String, allocValue: Value): Result<Unit> {
         return getRef().setAttr(attribute, allocValue)
     }
@@ -1059,7 +949,6 @@ class Value internal constructor(
     /**
      * Forwards to [StarlarkValue.setAt].
      */
-    // pub fn set_at(self, index: Value<'v>, alloc_value: Value<'v>) -> crate::Result<()>
     fun setAt(index: Value, allocValue: Value): Result<Unit> {
         return getRef().setAt(index, allocValue)
     }
@@ -1067,7 +956,6 @@ class Value internal constructor(
     /**
      * Forwards to [StarlarkValue.documentation].
      */
-    // pub fn documentation(self) -> DocItem
     fun documentation(): DocItem {
         return getRef().documentation()
     }
@@ -1075,7 +963,6 @@ class Value internal constructor(
     /**
      * Produce an iterable from a value.
      */
-    // pub fn iterate(self, heap: Heap<'v>) -> crate::Result<StarlarkIterator<'v>>
     fun iterate(heap: Heap): Result<StarlarkIterator> {
         return getRef().iterate(this, heap).map { iter ->
             StarlarkIterator.new(iter, heap)
@@ -1085,7 +972,6 @@ class Value internal constructor(
     /**
      * Get the [Hashed] version of this [Value].
      */
-    // pub fn get_hashed(self) -> crate::Result<Hashed<Self>>
     override fun getHashed(): Result<Hashed<Value>> {
         val str = unpackStarlarkStr()
         val hash = try {
@@ -1104,7 +990,6 @@ class Value internal constructor(
      * Are two values equal. If the values are of different types it will
      * return `false`. It will only error if there is excessive recursion.
      */
-    // pub fn equals(self, other: Value<'v>) -> crate::Result<bool>
     override fun equals(other: Value): Result<Boolean> {
         return if (ptrEq(other)) {
             Result.success(true)
@@ -1113,7 +998,6 @@ class Value internal constructor(
         }
     }
 
-    // fn equals_not_ptr_eq(self, other: Value<'v>) -> crate::Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
         try {
             stackGuard()
@@ -1126,7 +1010,6 @@ class Value internal constructor(
     /**
      * How are two values comparable. For values of different types will return error.
      */
-    // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     override fun compare(other: Value): Result<Int> {
         try {
             stackGuard()
@@ -1143,7 +1026,6 @@ class Value internal constructor(
      * Plan is to make this return a data type at some point in the future, possibly
      * move on to `StarlarkValue` and include data from members.
      */
-    // pub fn describe(self, name: &str) -> String
     fun describe(name: String): String {
         return if (getType() == FUNCTION_TYPE) {
             "def ${toRepr().replace(" = ...", " = None")}: pass"
@@ -1156,7 +1038,6 @@ class Value internal constructor(
      * Call `exportAs` on the underlying value, but only if the type is mutable.
      * Otherwise, does nothing.
      */
-    // pub fn export_as(self, variable_name: &str, eval: &mut Evaluator) -> crate::Result<()>
     fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         return getRef().exportAs(variableName, eval)
     }
@@ -1164,7 +1045,6 @@ class Value internal constructor(
     /**
      * Return the attribute with the given name.
      */
-    // pub fn get_attr(self, attribute: &str, heap: Heap<'v>) -> crate::Result<Option<Value<'v>>>
     fun getAttr(attribute: String, heap: Heap): Result<Value?> {
         val aref = getRef()
         val methods = aref.vtable().methods()
@@ -1184,7 +1064,6 @@ class Value internal constructor(
     /**
      * Like `getAttr` but return an error if the attribute is not available.
      */
-    // pub fn get_attr_error(self, attribute: &str, heap: Heap<'v>) -> crate::Result<Value<'v>>
     fun getAttrError(attribute: String, heap: Heap): Result<Value> {
         val v = try {
             getAttr(attribute, heap).getOrThrow()
@@ -1202,7 +1081,6 @@ class Value internal constructor(
      * Query whether an attribute exists on a type. Should be equivalent to whether
      * [getAttr] succeeds, but potentially more efficient.
      */
-    // pub fn has_attr(self, attribute: &str, heap: Heap<'v>) -> bool
     fun hasAttr(attribute: String, heap: Heap): Boolean {
         val aref = getRef()
         val methods = aref.vtable().methods()
@@ -1218,7 +1096,6 @@ class Value internal constructor(
      * Get a list of all the attributes this function supports, used to implement the
      * `dir()` function.
      */
-    // pub fn dir_attr(self) -> Vec<String>
     fun dirAttr(): List<String> {
         val aref = getRef()
         val methods = aref.vtable().methods()
@@ -1236,7 +1113,6 @@ class Value internal constructor(
     /**
      * Request a value provided by [StarlarkValue.provide].
      */
-    // pub fn request_value<T: AnyLifetime<'v>>(self) -> Option<T>
     inline fun <reified T : Any> requestValue(): T? {
         return requestValueImpl(this)
     }
@@ -1246,21 +1122,120 @@ class Value internal constructor(
      *
      * If the value is too large, it may be truncated.
      */
-    // pub fn to_string_for_type_error(self) -> String
     fun toStringForTypeError(): String {
-        return displayForTypeError()
+        return displayForTypeError().toString()
     }
 
-    // fn display_for_type_error(self) -> impl Display + 'v
-    private fun displayForTypeError(): String {
-        // fn split_at_safe(s: &str, index: usize) -> (&str, &str)
-        fun splitAtSafe(s: String, index: Int): Pair<String, String> {
-            // In Kotlin strings are always valid character sequences
-            val safeIndex = index.coerceIn(0, s.length)
-            return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
-        }
+    private fun displayForTypeError(): DisplayWithTypeImpl {
+        return DisplayWithTypeImpl(this)
+    }
 
-        var repr = toRepr()
+    /**
+     * Downcast to a specific [StarlarkValue] type.
+     */
+    // Note: internal because this inline function accesses internal members.
+    // All callers are within the same module.
+    internal inline fun <reified T : StarlarkValue> downcastRef(): T? {
+        if (T::class == StarlarkStr::class) {
+            return if (isStr()) {
+                getRef().downcastRef<StarlarkStr>() as? T
+            } else {
+                null
+            }
+        }
+        if (PointerI32.typeIsPointerI32<T>()) {
+            return if (unpackInlineInt() != null) {
+                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
+            } else {
+                null
+            }
+        }
+        return getRef().downcastRef<T>()
+    }
+
+    // ValueLike interface requires non-reified KClass version
+    override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
+        if (clazz == StarlarkStr::class) {
+            if (!isStr()) return null
+        }
+        if (clazz == PointerI32::class) {
+            return if (unpackInlineInt() != null) {
+                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
+            } else {
+                null
+            }
+        }
+        val ref = getRef()
+        return if (clazz.isInstance(ref)) {
+            ref as T
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Collect repr into a collector, handling cycles.
+     */
+    override fun collectRepr(collector: StringBuilder) {
+        val guard = reprStackPush(this)
+        if (guard.isSuccess) {
+            try {
+                getRef().collectRepr(collector)
+            } finally {
+                guard.getOrThrow().close()
+            }
+        } else {
+            getRef().collectReprCycle(collector)
+        }
+    }
+
+    /**
+     * Write hash value.
+     */
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
+        return getRef().writeHash(hasher)
+    }
+
+    /**
+     * Collect str into a collector.
+     */
+    override fun collectStr(collector: StringBuilder) {
+        val s = unpackStr()
+        if (s != null) {
+            collector.append(s)
+        } else {
+            collectRepr(collector)
+        }
+    }
+
+    fun fmt(): String = toString()
+
+    override fun toString(): String = toRepr()
+
+    fun eq(other: Value): Boolean {
+        return equals(other).getOrDefault(false)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Value) return false
+        return eq(other)
+    }
+
+    override fun hashCode(): Int {
+        return ptr.raw().hashCode()
+    }
+
+    fun debug(): String {
+        return debugValue("Value", this)
+    }
+}
+
+private class DisplayWithTypeImpl(
+    private val value: Value,
+) {
+    override fun toString(): String {
+        var repr = value.toRepr()
         val maxLen = 60
 
         if (repr.length > maxLen && repr.toList().size > maxLen) {
@@ -1278,137 +1253,23 @@ class Value internal constructor(
             }
         }
 
-        return "${getType()} (repr: $repr)"
-    }
-
-    /**
-     * Downcast to a specific [StarlarkValue] type.
-     */
-    // fn downcast_ref<T: StarlarkValue<'v>>(self) -> Option<&'v T>
-    // Note: internal because this inline function accesses internal members.
-    // All callers are within the same module.
-    internal inline fun <reified T : StarlarkValue> downcastRef(): T? {
-        if (T::class == StarlarkStr::class) {
-            return if (isStr()) {
-                // SAFETY: we just checked this is string, and requested type is string.
-                @Suppress("UNCHECKED_CAST")
-                getRef().downcastRef<StarlarkStr>() as? T
-            } else {
-                null
-            }
-        }
-        if (PointerI32.typeIsPointerI32<T>()) {
-            return if (unpackInlineInt() != null) {
-                @Suppress("UNCHECKED_CAST")
-                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
-            } else {
-                null
-            }
-        }
-        return getRef().downcastRef<T>()
-    }
-
-    // ValueLike interface requires non-reified KClass version
-    override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
-        if (clazz == StarlarkStr::class) {
-            if (!isStr()) return null
-        }
-        if (clazz == PointerI32::class) {
-            return if (unpackInlineInt() != null) {
-                @Suppress("UNCHECKED_CAST")
-                PointerI32.fromRawInt(ptr.unpackIntValue()) as? T
-            } else {
-                null
-            }
-        }
-        val ref = getRef()
-        return if (clazz.isInstance(ref)) {
-            @Suppress("UNCHECKED_CAST")
-            ref as T
-        } else {
-            null
-        }
-    }
-
-    /**
-     * Collect repr into a collector, handling cycles.
-     */
-    // fn collect_repr(self, collector: &mut String)
-    override fun collectRepr(collector: StringBuilder) {
-        val guard = reprStackPush(this)
-        if (guard.isSuccess) {
-            try {
-                getRef().collectRepr(collector)
-            } finally {
-                guard.getOrThrow().close()
-            }
-        } else {
-            getRef().collectReprCycle(collector)
-        }
-    }
-
-    /**
-     * Write hash value.
-     */
-    // fn write_hash(self, hasher: &mut StarlarkHasher) -> crate::Result<()>
-    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
-        return getRef().writeHash(hasher)
-    }
-
-    /**
-     * Collect str into a collector.
-     */
-    // fn collect_str(self, collector: &mut String)
-    override fun collectStr(collector: StringBuilder) {
-        val s = unpackStr()
-        if (s != null) {
-            collector.append(s)
-        } else {
-            collectRepr(collector)
-        }
-    }
-
-    // impl Display for Value<'_>
-    // In Rust, Display for Value reuses repr (strings display with quotes).
-    // This is equivalent to toRepr().
-    override fun toString(): String = toRepr()
-
-    // impl PartialEq for Value<'v>
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Value) return false
-        return equals(other).getOrDefault(false)
-    }
-
-    // impl Eq for Value<'_>
-    override fun hashCode(): Int {
-        return ptr.raw().hashCode()
-    }
-
-    // impl Debug for Value<'_>
-    fun debug(): String {
-        return debugValue("Value", this)
+        return "${value.getType()} (repr: $repr)"
     }
 }
 
-// unsafe impl<'v> Coerce<Value<'v>> for Value<'v> {}
-// unsafe impl<'v> CoerceKey<Value<'v>> for Value<'v> {}
-// unsafe impl<'v> Coerce<Value<'v>> for FrozenValue {}
-// unsafe impl<'v> CoerceKey<Value<'v>> for FrozenValue {}
-// Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
+private fun splitAtSafe(s: String, index: Int): Pair<String, String> {
+    val safeIndex = index.coerceIn(0, s.length)
+    return Pair(s.substring(0, safeIndex), s.substring(safeIndex))
+}
 
-// impl Default for Value<'_>
 fun Value.Companion.default(): Value = Value.newNone()
 
-// impl Default for FrozenValue
 fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
 
-// impl Equivalent<FrozenValue> for Value<'_>
 fun Value.equivalent(key: FrozenValue): Boolean {
     return key.equals(this).getOrThrow()
 }
 
-// impl Equivalent<Value<'_>> for FrozenValue
 fun FrozenValue.equivalent(key: Value): Boolean {
     return this.equals(key).getOrThrow()
 }
@@ -1417,13 +1278,11 @@ fun FrozenValue.equivalent(key: Value): Boolean {
  * A [Value] that can never be changed. Can be converted back to a [Value] with [toValue].
  *
  * A [FrozenValue] exists on a `FrozenHeap`, which in turn can be kept
- * alive by a `FrozenHeapRef`. If the frozen heap gets dropped
+ * alive by a `FrozenHeapRef`. If the owning heap is released
  * while a [FrozenValue] from it still exists, the program will probably crash, so be careful
  * when working directly with [FrozenValue]s. See the type `OwnedFrozenValue`
- * for a little bit more safety.
+ * for a little bit more ownership protection.
  */
-// #[derive(Clone, Copy, Dupe, ProvidesStaticType, Allocative)]
-// pub struct FrozenValue(pub(crate) FrozenPointer<'static>);
 class FrozenValue internal constructor(
     internal val ptr: FrozenPointer,
 ) : ValueLike {
@@ -1431,7 +1290,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new [FrozenValue] from an [AValueHeader] pointer.
          */
-        // pub(crate) fn new_ptr(x: &'static AValueHeader, is_str: bool) -> Self
         internal fun newPtr(x: AValueHeader, isStr: Boolean): FrozenValue {
             return FrozenValue(FrozenPointer.newFrozen(x.index, isStr))
         }
@@ -1439,16 +1297,14 @@ class FrozenValue internal constructor(
         /**
          * Create a new [FrozenValue] from an [AValueHeader], querying whether it's a string.
          */
-        // pub(crate) fn new_ptr_query_is_str(x: &'static AValueHeader) -> Self
         internal fun newPtrQueryIsStr(x: AValueHeader): FrozenValue {
             val isString = x.vtable.isStr
             return newPtr(x, isString)
         }
 
         /**
-         * Create a new [FrozenValue] from a raw usize with string tag.
+         * Create a new [FrozenValue] from a raw pointer word with string tag.
          */
-        // pub(crate) fn new_ptr_usize_with_str_tag(x: usize) -> Self
         internal fun newPtrUsizeWithStrTag(x: Long): FrozenValue {
             return FrozenValue(FrozenPointer.newFrozenUsizeWithStrTag(x))
         }
@@ -1456,7 +1312,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new value representing `None` in Starlark.
          */
-        // pub fn new_none() -> Self
         fun newNone(): FrozenValue {
             return VALUE_NONE.toFrozenValue()
         }
@@ -1464,7 +1319,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new boolean in Starlark.
          */
-        // pub fn new_bool(x: bool) -> Self
         fun newBool(x: Boolean): FrozenValue {
             // Implemented by indexing into a static so that
             // the compiler makes this function branchless.
@@ -1474,7 +1328,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new int in Starlark.
          */
-        // pub(crate) fn new_int(x: InlineInt) -> Self
         internal fun newInt(x: InlineInt): FrozenValue {
             return FrozenValue(FrozenPointer.newInt(x.toI32()))
         }
@@ -1482,8 +1335,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new int for testing purposes.
          */
-        // #[cfg(test)]
-        // pub(crate) fn testing_new_int(x: i32) -> Self
         internal fun testingNewInt(x: Int): FrozenValue {
             return newInt(InlineInt.tryFrom(x).getOrThrow())
         }
@@ -1491,7 +1342,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new empty string.
          */
-        // pub(crate) fn new_empty_string() -> Self
         internal fun newEmptyString(): FrozenValue {
             return VALUE_EMPTY_STRING.unpack()
         }
@@ -1499,7 +1349,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new empty tuple.
          */
-        // pub(crate) fn new_empty_tuple() -> Self
         internal fun newEmptyTuple(): FrozenValue {
             return VALUE_EMPTY_TUPLE.toFrozenValue()
         }
@@ -1507,7 +1356,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new empty list.
          */
-        // pub fn new_empty_list() -> Self
         fun newEmptyList(): FrozenValue {
             return VALUE_EMPTY_FROZEN_LIST.toFrozenValue()
         }
@@ -1515,7 +1363,6 @@ class FrozenValue internal constructor(
         /**
          * Create a new empty dict.
          */
-        // pub fn new_empty_dict() -> Self
         fun newEmptyDict(): FrozenValue {
             return VALUE_EMPTY_FROZEN_DICT.toFrozenValue()
         }
@@ -1524,14 +1371,12 @@ class FrozenValue internal constructor(
          * Convert from [FrozenValue] (ValueLike factory method).
          * For FrozenValue, simply returns itself.
          */
-        // impl ValueLike for FrozenValue: fn from_frozen_value(v: FrozenValue) -> Self { v }
         fun fromFrozenValue(v: FrozenValue): FrozenValue = v
     }
 
     /**
      * Get the underlying raw pointer.
      */
-    // pub(crate) fn ptr_value(self) -> RawPointer
     internal fun ptrValue(): RawPointer {
         return ptr.raw()
     }
@@ -1539,7 +1384,6 @@ class FrozenValue internal constructor(
     /**
      * Is a value a Starlark `None`.
      */
-    // pub fn is_none(self) -> bool
     fun isNone(): Boolean {
         return toValue().isNone()
     }
@@ -1547,7 +1391,6 @@ class FrozenValue internal constructor(
     /**
      * Return the `bool` if the value is a boolean, otherwise `null`.
      */
-    // pub fn unpack_bool(self) -> Option<bool>
     fun unpackBool(): Boolean? {
         return toValue().unpackBool()
     }
@@ -1556,7 +1399,6 @@ class FrozenValue internal constructor(
      * Obtain the underlying integer if it fits in an `Int`.
      * Note floats are not considered integers, i.e. `unpackI32` for `1.0` will return `null`.
      */
-    // pub fn unpack_i32(self) -> Option<i32>
     fun unpackI32(): Int? {
         return toValue().unpackI32()
     }
@@ -1564,7 +1406,6 @@ class FrozenValue internal constructor(
     /**
      * Unpack inline integer value.
      */
-    // pub(crate) fn unpack_inline_int(self) -> Option<InlineInt>
     internal fun unpackInlineInt(): InlineInt? {
         return toValue().unpackInlineInt()
     }
@@ -1572,18 +1413,15 @@ class FrozenValue internal constructor(
     /**
      * Check if this value is a string.
      */
-    // pub(crate) fn is_str(self) -> bool
     internal fun isStr(): Boolean {
         return toValue().isStr()
     }
 
     /**
-     * The resulting `str` is alive as long as the `FrozenHeap` is,
-     * but we don't have that lifetime available to us. Therefore,
-     * we cheat a little, and use the lifetime of the `FrozenValue`.
-     * Because of this cheating, we don't expose it outside Starlark.
+     * The resulting string is alive as long as the `FrozenHeap` is,
+     * but we do not expose the owning heap handle here.
+     * Because of this, we don't expose it outside Starlark.
      */
-    // pub(crate) fn unpack_str<'v>(&'v self) -> Option<&'v str>
     internal fun unpackStr(): String? {
         return toValue().unpackStr()
     }
@@ -1591,7 +1429,6 @@ class FrozenValue internal constructor(
     /**
      * Convert a [FrozenValue] back to a [Value].
      */
-    // pub fn to_value<'v>(self) -> Value<'v>
     override fun toValue(): Value {
         return Value.newFrozen(this)
     }
@@ -1600,7 +1437,6 @@ class FrozenValue internal constructor(
      * Is this type builtin? We perform certain optimizations only on builtin types
      * because we know they have well defined semantics.
      */
-    // pub(crate) fn is_builtin(self) -> bool
     internal fun isBuiltin(): Boolean {
         // The list is not comprehensive, this is fine.
         // If some type is not listed here, some optimizations won't work for this type.
@@ -1625,7 +1461,6 @@ class FrozenValue internal constructor(
      * Can `invoke` be called on this object speculatively?
      * (E.g. at compiled time when all the arguments are known.)
      */
-    // pub(crate) fn speculative_exec_safe(self) -> bool
     internal fun speculativeExecSafe(): Boolean {
         val nf = FrozenValueTyped.new<NativeFunction>(this)
         if (nf != null) {
@@ -1641,11 +1476,10 @@ class FrozenValue internal constructor(
     /**
      * `self == b` is `ptrEq`.
      */
-    // pub(crate) fn eq_is_ptr_eq(self) -> bool
     internal fun eqIsPtrEq(): Boolean {
-        // Note `int` is not `ptr_eq` because `int` can be equal to `float`.
+        // Note `int` is not `ptrEq` because `int` can be equal to `float`.
 
-        // If a value does not override equality, it is `ptr_eq`.
+        // If a value does not override equality, it is `ptrEq`.
         if (!toValue().getRef().vtable().hasEquals) {
             return true
         }
@@ -1665,7 +1499,6 @@ class FrozenValue internal constructor(
     /**
      * Downcast to given type.
      */
-    // pub fn downcast_frozen_ref<T: StarlarkValue<'static>>(self) -> Option<FrozenRef<'static, T>>
     internal inline fun <reified T : StarlarkValue> downcastFrozenRef(): FrozenRef<T>? {
         val value = toValue().downcastRef<T>() ?: return null
         return FrozenRef(value)
@@ -1674,7 +1507,6 @@ class FrozenValue internal constructor(
     /**
      * Downcast to string.
      */
-    // pub fn downcast_frozen_str(self) -> Option<FrozenRef<'static, str>>
     fun downcastFrozenStr(): FrozenRef<String>? {
         val value = toValue().unpackStr() ?: return null
         return FrozenRef(value)
@@ -1683,7 +1515,6 @@ class FrozenValue internal constructor(
     /**
      * Note: see docs about `Value.unpackStarlarkStr` about instability.
      */
-    // pub fn downcast_frozen_starlark_str(self) -> Option<FrozenRef<'static, StarlarkStr>>
     fun downcastFrozenStarlarkStr(): FrozenRef<StarlarkStr>? {
         val value = toValue().unpackStarlarkStr() ?: return null
         return FrozenRef(value)
@@ -1692,7 +1523,6 @@ class FrozenValue internal constructor(
     /**
      * Compare this frozen value with a mutable value for equality.
      */
-    // (from impl Equivalent)
     override fun equals(other: Value): Result<Boolean> {
         return toValue().equals(other)
     }
@@ -1700,7 +1530,6 @@ class FrozenValue internal constructor(
     /**
      * Collect repr into a collector, handling cycles.
      */
-    // impl ValueLike for FrozenValue: fn collect_repr(self, collector: &mut String)
     override fun collectRepr(collector: StringBuilder) {
         toValue().collectRepr(collector)
     }
@@ -1708,7 +1537,6 @@ class FrozenValue internal constructor(
     /**
      * Collect str into a collector.
      */
-    // impl ValueLike for FrozenValue: fn collect_str(self, collector: &mut String)
     override fun collectStr(collector: StringBuilder) {
         toValue().collectStr(collector)
     }
@@ -1716,7 +1544,6 @@ class FrozenValue internal constructor(
     /**
      * Write hash value.
      */
-    // impl ValueLike for FrozenValue: fn write_hash(self, hasher: &mut StarlarkHasher)
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         return toValue().writeHash(hasher)
     }
@@ -1724,38 +1551,39 @@ class FrozenValue internal constructor(
     /**
      * How are two values comparable. For values of different types will return error.
      */
-    // impl ValueLike for FrozenValue: fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     override fun compare(other: Value): Result<Int> {
         return toValue().compare(other)
     }
 
-    // impl Display for FrozenValue
+    fun fmt(): String = toString()
+
     override fun toString(): String {
         return toValue().toString()
     }
 
-    // impl Debug for FrozenValue
     fun debug(): String {
         return debugValue("FrozenValue", Value.newFrozen(this))
     }
 
-    // impl PartialEq for FrozenValue
+    fun eq(other: FrozenValue): Boolean {
+        return toValue().eq(other.toValue())
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FrozenValue) return false
-        return toValue() == other.toValue()
+        return eq(other)
     }
 
-    // impl Eq for FrozenValue
     override fun hashCode(): Int {
         return ptr.raw().hashCode()
     }
 
-    // ValueLike impl
 
     override fun fromFrozenValue(v: FrozenValue): ValueLike = v
 
-    override fun freeze(@Suppress("unused") freezer: Freezer): Result<FrozenValue> {
+    override fun freeze(freezer: Freezer): Result<FrozenValue> {
+        freezer.hashCode()
         return Result.success(this)
     }
 
@@ -1772,28 +1600,24 @@ class FrozenValue internal constructor(
     }
 }
 
-// impl Serialize for Value<'v>
-// fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
-// In Rust, the Serialize impl uses json_stack_push for cycle detection,
-// then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
+internal fun testSendSync() {
+    val value: FrozenValue = FrozenValue.newNone()
+    check(value.toValue().unpackFrozen() == value)
+}
+
+internal fun testingNewInt(x: Int): Value {
+    return Value.testingNewInt(x)
+}
+
 // The cycle detection logic is in Value.serializeImpl().
 fun Value.serialize(): Result<String> = serializeImpl()
 
-// impl Serialize for FrozenValue
-// fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
-// Rust: self.to_value().serialize(s)
 fun FrozenValue.serialize(): Result<String> = toValue().serialize()
 
-// impl<'v> StarlarkTypeRepr for Value<'v>
-// type Canonical = <FrozenValue as StarlarkTypeRepr>::Canonical;
-// fn starlark_type_repr() -> Ty { FrozenValue::starlark_type_repr() }
 object ValueStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = FrozenValueStarlarkTypeRepr.starlarkTypeRepr()
 }
 
-// impl StarlarkTypeRepr for FrozenValue
-// type Canonical = Self;
-// fn starlark_type_repr() -> Ty { Ty::any() }
 object FrozenValueStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.any()
 }
@@ -1801,34 +1625,29 @@ object FrozenValueStarlarkTypeRepr : StarlarkTypeRepr {
 /**
  * Abstract over [Value] and [FrozenValue].
  *
- * The methods on this trait are those required to implement containers,
+ * The methods on this interface are those required to implement containers,
  * allowing implementations of `ComplexValue` to be agnostic of their contained type.
  * For details about each function, see the documentation for [Value],
  * which provides the same functions (and more).
  */
-// pub trait ValueLike<'v>
 interface ValueLike : ValueLifetimeless {
     /**
      * `StringValue` or `FrozenStringValue`.
      */
-    // type String: StringValueLike<'v>;
 
     /**
      * Produce a [Value] regardless of the type you are starting with.
      */
-    // fn to_value(self) -> Value<'v>;
     fun toValue(): Value
 
     /**
      * Convert from [FrozenValue].
      */
-    // fn from_frozen_value(v: FrozenValue) -> Self;
     fun fromFrozenValue(v: FrozenValue): ValueLike
 
     /**
      * Call this value as a function with given arguments.
      */
-    // fn invoke(self, args, eval) -> crate::Result<Value<'v>>
     fun invoke(args: Arguments, eval: Evaluator): Result<Value> {
         return toValue().invoke(args, eval)
     }
@@ -1836,13 +1655,11 @@ interface ValueLike : ValueLifetimeless {
     /**
      * Hash the value.
      */
-    // fn write_hash(self, hasher: &mut StarlarkHasher) -> crate::Result<()>;
     fun writeHash(hasher: StarlarkHasher): Result<Unit>
 
     /**
      * Get hash value.
      */
-    // fn get_hashed(self) -> crate::Result<Hashed<Self>>
     fun getHashed(): Result<Hashed<out ValueLike>> {
         val v = toValue()
         val str = v.unpackStarlarkStr()
@@ -1861,13 +1678,11 @@ interface ValueLike : ValueLifetimeless {
     /**
      * `repr(x)`.
      */
-    // fn collect_repr(self, collector: &mut String);
     fun collectRepr(collector: StringBuilder)
 
     /**
      * `str(x)`.
      */
-    // fn collect_str(self, collector: &mut String)
     fun collectStr(collector: StringBuilder) {
         val s = toValue().unpackStr()
         if (s != null) {
@@ -1882,27 +1697,23 @@ interface ValueLike : ValueLifetimeless {
      *
      * This operation can only return error on stack overflow.
      */
-    // fn equals(self, other: Value<'v>) -> crate::Result<bool>;
     fun equals(other: Value): Result<Boolean>
 
     /**
      * `x <=> other`.
      */
-    // fn compare(self, other: Value<'v>) -> crate::Result<Ordering>;
     fun compare(other: Value): Result<Int>
 
     /**
      * Get a reference to underlying data or `null`
      * if contained object has different type than requested.
      */
-    // fn downcast_ref<T: StarlarkValue<'v>>(self) -> Option<&'v T>;
     fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T?
 
     /**
      * Get a reference to underlying data or error
      * if contained object has different type than requested.
      */
-    // fn downcast_ref_err<T: StarlarkValue<'v>>(self) -> crate::Result<&'v T>
     fun <T : StarlarkValue> downcastRefErr(clazz: KClass<T>): Result<T> {
         val v = downcastRef(clazz)
         return if (v != null) {
@@ -1915,12 +1726,6 @@ interface ValueLike : ValueLifetimeless {
         }
     }
 }
-
-// impl Sealed for Value<'v> {}
-// impl ValueLifetimeless for Value<'v> {}
-// impl Sealed for FrozenValue {}
-// impl ValueLifetimeless for FrozenValue {}
-// Kotlin: Sealed/marker traits not needed; implemented via interface inheritance.
 
 // Static value references are imported from their defining modules.
 // See: VALUE_NONE (NoneType.kt), VALUE_FALSE_TRUE (bool/Value.kt),

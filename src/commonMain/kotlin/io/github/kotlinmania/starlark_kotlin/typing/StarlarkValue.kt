@@ -1,4 +1,4 @@
-// port-lint: source src/typing/starlark_value.rs
+// port-lint: source typing/starlark_value.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*
@@ -42,14 +42,12 @@ private sealed class TyStarlarkValueError : Exception() {
     }
 }
 
-// This is a bit suboptimal for binary size:
-// we have two vtable instances for each type: this one, and the one within `AValue` vtable.
+// This is a bit suboptimal for binary size: each known type has both a value vtable
+// and this type-checker vtable.
 
 /**
  * VTable holding type-level information for a [TyStarlarkValue].
  *
- * In Rust this stores a static reference to type name, the `StarlarkValueVTable`,
- * and `StarlarkTypeId` fields for canonical type checking.
  * In Kotlin we store the type name, capability flags, and function references
  * for type-level dispatch.
  */
@@ -57,8 +55,7 @@ private class TyStarlarkValueVTable(
     val typeName: String,
     val starlarkTypeId: StarlarkTypeId? = null,
     /**
-     * `starlark_type_id` is the canonical type id.
-     * `starlark_type_id_check` is the canonical-of-canonical check.
+     * The primary type id is canonical; the check id validates canonical-of-canonical wiring.
      */
     val starlarkTypeIdCheck: StarlarkTypeId? = starlarkTypeId,
     // Capability flags mirroring Rust's StarlarkValueVTable HAS_* constants.
@@ -81,9 +78,7 @@ private class TyStarlarkValueVTable(
 /**
  * Pre-built vtables for known Starlark types.
  *
- * In Rust this is `TyStarlarkValueVTableGet<'v, T: StarlarkValue<'v>>` which uses
- * const generics to extract vtable data at compile time. In Kotlin we pre-build
- * vtables for all known types and provide a lookup mechanism.
+ * Kotlin pre-builds vtables for known types and provides a lookup mechanism.
  */
 private object TyStarlarkValueVTableGet {
     val INT_VTABLE = TyStarlarkValueVTable(
@@ -167,20 +162,26 @@ class TyStarlarkValue private constructor(
     private val vtable: TyStarlarkValueVTable,
 ) : Comparable<TyStarlarkValue> {
 
-    // -- Debug --
-    // Rust: impl Debug for TyStarlarkValue
     internal fun debugString(): String {
         return "TyStarlarkValue { type_name: \"${vtable.typeName}\", .. }"
     }
 
-    // -- Display --
-    // Rust: impl Display for TyStarlarkValue { fn fmt ... }
-    override fun toString(): String {
+    internal fun fmt(debug: Boolean): String {
+        return if (debug) debugString() else fmt()
+    }
+
+    fun fmt(): String {
         return fmtWithConfig(TypeRenderConfig.Default)
     }
 
-    // -- PartialEq / Eq --
-    // Rust: compares starlark_type_id
+    override fun toString(): String {
+        return fmt()
+    }
+
+    fun eq(other: TyStarlarkValue): Boolean {
+        return equals(other)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TyStarlarkValue) return false
@@ -193,16 +194,24 @@ class TyStarlarkValue private constructor(
         }
     }
 
-    // -- Hash --
-    // Rust: hashes type_name because type id is not stable
-    override fun hashCode(): Int {
+    fun hash(): Int {
         return vtable.typeName.hashCode()
     }
 
-    // -- Ord --
-    // Rust: compares type_name lexicographically
-    override fun compareTo(other: TyStarlarkValue): Int {
+    override fun hashCode(): Int {
+        return hash()
+    }
+
+    fun partialCmp(other: TyStarlarkValue): Int {
+        return cmp(other)
+    }
+
+    fun cmp(other: TyStarlarkValue): Int {
         return vtable.typeName.compareTo(other.vtable.typeName)
+    }
+
+    override fun compareTo(other: TyStarlarkValue): Int {
+        return cmp(other)
     }
 
     // Cannot have this check in constructor where it belongs because new() needs to be lightweight.
@@ -337,7 +346,6 @@ class TyStarlarkValue private constructor(
     /**
      * Validate that this type is callable.
      *
-     * In Rust: `fn validate_call(self, span: Span, oracle: TypingOracleCtx) -> Result<Ty, TypingError>`
      * Returns [Ty.any] if callable, error if not.
      */
     internal fun validateCall(
@@ -402,9 +410,8 @@ class TyStarlarkValue private constructor(
         /**
          * Create a type instance from a type name.
          *
-         * In Rust: `pub const fn new<'v, T: StarlarkValue<'v>>() -> TyStarlarkValue`
-         * In Kotlin, since `StarlarkValue.TYPE` is an instance property and we cannot
-         * extract it from a KClass alone, callers pass the type name string directly.
+         * Kotlin callers pass the type name string directly because the type marker
+         * is exposed through value instances rather than through a common class key.
          */
         fun new(typeName: String): TyStarlarkValue {
             return TyStarlarkValue(TyStarlarkValueVTableGet.forType(typeName))

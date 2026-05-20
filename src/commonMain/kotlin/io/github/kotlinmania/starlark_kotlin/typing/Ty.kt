@@ -70,9 +70,12 @@ data class Approximation(
             )
         }
     }
-    override fun toString(): String {
+
+    fun fmt(): String {
         return "Approximation: $category = ${format(message)}"
     }
+
+    override fun toString(): String = fmt()
 }
 
 /**
@@ -471,7 +474,9 @@ data class Ty private constructor(
     /** Display with a custom configuration, returning a [TyDisplay] wrapper. */
     fun displayWith(config: TypeRenderConfig): TyDisplay = TyDisplay(this, config)
 
-    override fun toString(): String = fmtWithConfig(TypeRenderConfig.Default)
+    fun fmt(): String = fmtWithConfig(TypeRenderConfig.Default)
+
+    override fun toString(): String = fmt()
 
     override fun compareTo(other: Ty): Int {
         val left = alternatives.asSlice()
@@ -506,7 +511,9 @@ class TyDisplay(
     private val ty: Ty,
     private val config: TypeRenderConfig,
 ) {
-    override fun toString(): String = ty.fmtWithConfig(config)
+    fun fmt(): String = ty.fmtWithConfig(config)
+
+    override fun toString(): String = fmt()
 }
 
 /**

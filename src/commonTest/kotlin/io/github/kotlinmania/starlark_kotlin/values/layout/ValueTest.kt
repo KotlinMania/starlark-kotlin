@@ -1,4 +1,4 @@
-// port-lint: tests src/values/layout/value.rs (tests)
+// port-lint: tests values/layout/value.rs
 package io.github.kotlinmania.starlark_kotlin.values.layout
 
 /*
@@ -40,8 +40,6 @@ import kotlin.test.assertTrue
 
 class ValueTest {
 
-    // #[test]
-    // fn test_downcast_ref()
     @Test
     fun testDowncastRef() {
         Heap.temp { heap ->
@@ -68,8 +66,6 @@ class ValueTest {
         }
     }
 
-    // #[test]
-    // fn test_unpack_i32()
     @Test
     fun testUnpackI32() {
         Heap.temp { heap ->
@@ -78,16 +74,12 @@ class ValueTest {
         }
     }
 
-    // #[test]
-    // fn test_unpack_frozen()
     @Test
     fun testUnpackFrozen() {
         assertNotNull(Value.newNone().unpackFrozen())
         assertNotNull(Value.testingNewInt(10).unpackFrozen())
     }
 
-    // #[test]
-    // fn test_unpack_bigint()
     @Test
     fun testUnpackBigInt() {
         Heap.temp { heap ->
@@ -100,9 +92,7 @@ class ValueTest {
         }
     }
 
-    // #[test]
-    // fn test_to_json_value()
-    // Note: This test requires assert::pass which evaluates Starlark code.
+        // Note: This test requires Assert.pass, which evaluates Starlark code.
     // The JSON serialization in Kotlin currently uses repr() as fallback,
     // so we test the basic mechanism rather than exact JSON output.
     @Test
@@ -112,8 +102,6 @@ class ValueTest {
         assertTrue(json.isSuccess, "toJson should succeed")
     }
 
-    // #[test]
-    // fn test_display_for_type_error()
     @Test
     fun testDisplayForTypeError() {
         assertEquals(
@@ -121,7 +109,6 @@ class ValueTest {
             Value.newNone().toStringForTypeError(),
         )
 
-        // Rust: heap.alloc(AllocList(0..12345))
         // In Kotlin, allocate each int individually then create the list.
         Heap.temp { heap ->
             val items = (0 until 12345).map { i -> i.intAllocValue(heap) }
@@ -139,8 +126,6 @@ class ValueTest {
         }
     }
 
-    // #[test]
-    // fn test_check_callable_with_none()
     @Test
     fun testCheckCallableWithNone() {
         val result = Value.newNone()
@@ -153,8 +138,6 @@ class ValueTest {
         )
     }
 
-    // #[test]
-    // fn test_check_callable_with_good_function()
     @Test
     fun testCheckCallableWithGoodFunction() {
         val g = Globals.standard()
