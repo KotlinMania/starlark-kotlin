@@ -625,6 +625,9 @@ private fun formatInstrArg(arg: Any?, endArg: BcInstrEndArg?): String {
         is Pair<*, *> -> {
             "${formatInstrArg(arg.first, endArg)} ${formatInstrArg(arg.second, endArg)}"
         }
+        is SlotRangeTargetArg -> {
+            "${formatInstrArg(arg.values, endArg)} ${formatInstrArg(arg.target, endArg)}"
+        }
         is List<*> -> {
             arg.joinToString(" ") { formatInstrArg(it, endArg) }
         }
