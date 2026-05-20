@@ -1,4 +1,4 @@
-// port-lint: source src/typing/ty.rs
+// port-lint: source typing/ty.rs
 package io.github.kotlinmania.starlark_kotlin.typing
 
 /*
@@ -29,8 +29,7 @@ import io.github.kotlinmania.starlark_kotlin.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark_kotlin.values.layout.Value
 import io.github.kotlinmania.starlark_kotlin.values.typing.TypingNever
 
-// Rust: format!("{val:?}") / write!(f, "{val:?}") style debug formatting.
-// We only implement what this file needs: stable-ish escaping for strings.
+// Debug-style formatting with stable string escaping for this file's diagnostics.
 private fun format(value: Any?): String {
     return when (value) {
         null -> "null"
@@ -56,8 +55,6 @@ private fun format(value: Any?): String {
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
  */
-// #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-// pub struct Approximation
 data class Approximation(
     /** The category of the approximation, e.g. `"Unknown type"`. */
     val category: String,
@@ -66,7 +63,6 @@ data class Approximation(
 ) {
     companion object {
         /** Create a new [Approximation]. */
-        // pub fn new(category: &'static str, message: impl Debug) -> Self
         fun new(category: String, message: Any): Approximation {
             return Approximation(
                 category = category,
@@ -74,8 +70,6 @@ data class Approximation(
             )
         }
     }
-
-    // impl Display for Approximation
     override fun toString(): String {
         return "Approximation: $category = ${format(message)}"
     }
@@ -90,7 +84,6 @@ data class Approximation(
  * This is different handling of union types than in TypeScript for example;
  * TypeScript would consider such expression to be an error.
  *
- * Corresponds to Rust's `Ty` struct.
  */
 data class Ty private constructor(
     /**
@@ -198,17 +191,13 @@ data class Ty private constructor(
             basic(TyBasic.StarlarkValue(value))
 
         /** Typechecker type of value. */
-        // pub fn of_value(value: Value) -> Ty
         fun ofValue(value: Value): Ty {
             return value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
         }
 
         /**
          * Create a type from native callable components.
-         *
-         * Corresponds to Rust's `Ty::from_native_callable_components`.
          */
-        // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
         internal fun fromNativeCallableComponents(
             comp: NativeCallableComponents,
             asType: Ty?,
@@ -230,7 +219,6 @@ data class Ty private constructor(
                 return any()
             }
 
-            // fn next_skip_never<I: Iterator<Item = Ty>>(iter: &mut I) -> Option<Ty>
             fun nextSkipNever(iter: Iterator<Ty>): Ty? {
                 for (x in iter) {
                     if (!x.isNever()) {
@@ -499,8 +487,6 @@ data class Ty private constructor(
 
 /**
  * Configuration for rendering types.
- *
- * Corresponds to Rust's `TypeRenderConfig` enum.
  */
 sealed class TypeRenderConfig {
     /** Uses the default rendering configuration. */
@@ -515,8 +501,6 @@ sealed class TypeRenderConfig {
 
 /**
  * Helper for displaying a [Ty] with a specific render configuration.
- *
- * Corresponds to Rust's `TyDisplay<'a>`.
  */
 class TyDisplay(
     private val ty: Ty,
@@ -527,8 +511,6 @@ class TyDisplay(
 
 /**
  * Try to merge adjacent elements in a list.
- *
- * Corresponds to Rust's `merge_adjacent` function.
  */
 private fun <T> mergeAdjacent(
     xs: List<T>,
