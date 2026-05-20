@@ -41,6 +41,7 @@ import io.github.kotlinmania.starlark_kotlin.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark_kotlin.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark_kotlin.eval.bc.ArrayIndex2Arg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.BcInstrSlowArg
+import io.github.kotlinmania.starlark_kotlin.eval.bc.SlotRangeTargetArg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.SliceArg
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.markDefinitelyAssignedAfter as markDefinitelyAssignedAfterCompr
 import io.github.kotlinmania.starlark_kotlin.eval.bc.compiler.compr.writeBc as comprWriteBc
@@ -262,7 +263,7 @@ private fun writeDict(
                     bc2.writeInstrExplicit(
                         "InstrDictNPop",
                         BcInstrSlowArg(span, keySpans),
-                        kvs to target,
+                        SlotRangeTargetArg(kvs, target),
                     )
                 }
             }
@@ -350,7 +351,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
         }
         is ExprCompiled.TupleExpr -> {
             writeExprs(expr.elements, bc) { xs, bc2 ->
-                bc2.writeInstr("InstrTupleNPop", span, xs to target)
+                bc2.writeInstr("InstrTupleNPop", span, SlotRangeTargetArg(xs, target))
             }
         }
         is ExprCompiled.ListExpr -> {
@@ -361,7 +362,7 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                 bc.writeInstr("InstrListOfConsts", span, content to target)
             } else {
                 writeExprs(expr.elements, bc) { xs, bc2 ->
-                    bc2.writeInstr("InstrListNPop", span, xs to target)
+                    bc2.writeInstr("InstrListNPop", span, SlotRangeTargetArg(xs, target))
                 }
             }
         }

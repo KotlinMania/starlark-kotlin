@@ -263,6 +263,24 @@ object InstrStoreModuleImpl : InstrNoFlowImpl {
 
 data class UnpackArg(val source: BcSlotIn, val targets: List<BcSlotOut>)
 
+private fun Any.toUnpackArg(): UnpackArg {
+    if (this is UnpackArg) {
+        return this
+    }
+    check(this is Pair<*, *>) { "InstrUnpack argument must be UnpackArg" }
+    val source = first
+    val targets = second
+    check(source is BcSlotIn) { "InstrUnpack source must be BcSlotIn" }
+    check(targets is List<*>) { "InstrUnpack targets must be a list" }
+    return UnpackArg(
+        source = source,
+        targets = targets.map {
+            check(it is BcSlotOut) { "InstrUnpack target must be BcSlotOut" }
+            it
+        },
+    )
+}
+
 object InstrUnpackImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
@@ -270,11 +288,7 @@ object InstrUnpackImpl : InstrNoFlowImpl {
         ip: BcPtrAddr,
         arg: Any,
     ): kotlin.Result<Unit> {
-        val (source, targets) = if (arg is UnpackArg) arg else {
-            @Suppress("UNCHECKED_CAST")
-            val p = arg as Pair<BcSlotIn, List<BcSlotOut>>
-            UnpackArg(p.first, p.second)
-        }
+        val (source, targets) = arg.toUnpackArg()
         val v = frame.getBcSlot(source)
         val nvl = v.length()
         if (nvl.isFailure) return kotlin.Result.failure(nvl.exceptionOrNull()!!)
@@ -807,6 +821,11 @@ object InstrLenImpl : InstrUnOpImpl {
 
 // --- Tuple/List/Dict Construction ---
 
+data class SlotRangeTargetArg(
+    val values: BcSlotInRange,
+    val target: BcSlotOut,
+)
+
 object InstrTupleNPopImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
@@ -814,7 +833,7 @@ object InstrTupleNPopImpl : InstrNoFlowImpl {
         ip: BcPtrAddr,
         arg: Any,
     ): kotlin.Result<Unit> {
-        val (values, target) = arg as Pair<BcSlotInRange, BcSlotOut>
+        val (values, target) = arg as SlotRangeTargetArg
         val items = frame.getBcSlotRange(values)
         val value = eval.heap().allocTuple(items)
         frame.setBcSlot(target, value)
@@ -829,7 +848,7 @@ object InstrListNPopImpl : InstrNoFlowImpl {
         ip: BcPtrAddr,
         arg: Any,
     ): kotlin.Result<Unit> {
-        val (values, target) = arg as Pair<BcSlotInRange, BcSlotOut>
+        val (values, target) = arg as SlotRangeTargetArg
         val items = frame.getBcSlotRange(values)
         val value = eval.heap().allocList(items)
         frame.setBcSlot(target, value)
@@ -876,7 +895,7 @@ object InstrDictNPopImpl : InstrNoFlowImpl {
         ip: BcPtrAddr,
         arg: Any,
     ): kotlin.Result<Unit> {
-        val (npops, target) = arg as Pair<BcSlotInRange, BcSlotOut>
+        val (npops, target) = arg as SlotRangeTargetArg
         val items = frame.getBcSlotRange(npops)
         check(items.size % 2 == 0)
         val dict = SmallMap.withCapacity<Value, Value>(items.size / 2)

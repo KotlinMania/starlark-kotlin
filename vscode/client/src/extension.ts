@@ -21,7 +21,7 @@ import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
 
 let client: LanguageClient;
 
@@ -31,7 +31,7 @@ interface AdditionalClientSettings {
 
 /// Get a setting at the path, or throw an error if it's not set.
 function requireSetting<T>(path: string): T {
-    const ret: T = vscode.workspace.getConfiguration().get(path);
+    const ret = vscode.workspace.getConfiguration().get<T>(path);
     if (ret == undefined) {
         throw new Error(`Setting "${path}" was not configured`)
     }
@@ -89,7 +89,7 @@ export function activate(context: ExtensionContext) {
     );
 
     const path: string = requireSetting("starlark.lspPath");
-    const args: [string] = requireSetting("starlark.lspArguments");
+    const args: string[] = requireSetting("starlark.lspArguments");
 
     // Otherwise to spawn the server
     let serverOptions: ServerOptions = { command: path, args: args };
