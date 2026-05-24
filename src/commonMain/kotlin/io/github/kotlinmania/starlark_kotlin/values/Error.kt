@@ -39,10 +39,6 @@ sealed class ValueError(override val message: String) : Exception(message) {
 
     data object IntegerOverflow : ValueError("Integer overflow")
 
-    data class Runtime(
-        val details: String,
-    ) : ValueError(details)
-
     data object NegativeShiftCount : ValueError("Negative shift count")
 
     data object IncorrectParameterType : ValueError("Type of parameters mismatch")
