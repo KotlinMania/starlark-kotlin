@@ -1,8 +1,18 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
+// The `macosArm64` path segment below is intentional, not a host-arch bug.
+// Kotlin/Native's `macosX64` target is deprecated upstream, and the Swift
+// Export pipeline's canonical macOS slice is `macosArm64`. The CI workflow
+// at `.github/workflows/swift.yml` runs on `macos-26` (an Apple-Silicon
+// image) and pins `ARCHS: arm64`, so the embed task always lands its SPM
+// package under `build/SPMPackage/macosArm64/Debug`. Local `swift test`
+// runs against this harness therefore require an Apple-Silicon macOS host.
 let package = Package(
     name: "SwiftTestHarness",
+    platforms: [
+        .macOS(.v14),
+    ],
     dependencies: [
         .package(name: "Starlark", path: "../build/SPMPackage/macosArm64/Debug")
     ],
@@ -26,10 +36,19 @@ let package = Package(
                 // `<repo>/build/swift-test/libStarlark.a` when the
                 // embed task runs with the macOS Xcode-style environment
                 // variables (see .github/workflows/swift.yml).
-                .unsafeFlags([
-                    "-L", "../build/swift-test",
-                    "-lStarlark",
-                ]),
+                //
+                // Scoped to `.macOS` because `libStarlark.a` only exists for
+                // the macOS slice; on any other host the `-L` / `-l` pair
+                // would produce a confusing "library not found" error well
+                // before the actual unsupported-platform diagnostic from
+                // SwiftPM about the `.macOS(.v14)` platforms pin above.
+                .unsafeFlags(
+                    [
+                        "-L", "../build/swift-test",
+                        "-lStarlark",
+                    ],
+                    .when(platforms: [.macOS])
+                ),
             ]
         ),
     ]

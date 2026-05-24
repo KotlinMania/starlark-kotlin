@@ -190,7 +190,13 @@ git show --stat automation/swift-export-rollout
 
 Must list at minimum:
 
-- `build.gradle.kts` modified (1 insertion if multi-line iosSimulatorArm64 form, 4 insertions and 1 deletion if single-line form)
+- `build.gradle.kts` modified — both `iosSimulatorArm64` and `iosX64`
+  framework binaries flipped to `isStatic = true`. Exact diffstat depends
+  on the upstream framework-block form: ~2 insertions if both targets
+  already used the multi-line block form, or ~8 insertions and 2
+  deletions if both still used the single-line form. Mixed forms land
+  in between. The hard requirement is that *both* targets carry
+  `isStatic = true` after the change.
 - `.github/workflows/swift.yml` new
 - `.github/workflows/ci.yml` modified (4-line addition)
 - `swift-test-harness/Package.swift` new
@@ -327,9 +333,12 @@ ran before opening this PR — is checked in at the repo root as
 
 ## What this PR changes
 
-- `build.gradle.kts` — `iosSimulatorArm64` framework binary now has
-  `isStatic = true` so the Swift Export SPM bridge can link against
-  it.
+- `build.gradle.kts` — both `iosSimulatorArm64` and `iosX64` framework
+  binaries now have `isStatic = true`. The simulator fat-framework
+  assembly task (`assembleDebugIosSimulatorFatFrameworkFor*XCFramework`)
+  refuses to mix one static and one dynamic slice, so flipping just
+  `iosSimulatorArm64` and leaving `iosX64` dynamic fails the build —
+  both must carry `isStatic = true`.
 - `.github/workflows/swift.yml` (new) — `workflow_call:` platform
   workflow that sets the full Xcode-style environment, runs
   `./gradlew embedSwiftExportForXcode`, then runs `swift test` from
