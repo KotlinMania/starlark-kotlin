@@ -24,7 +24,7 @@ See parent project `codex-kotlin/AGENTS.md` for complete porting guidelines.
 Use the AST distance tool from codex-kotlin to track progress:
 
 ```bash
-../codex-kotlin/tools/ast_distance/ast_distance --deep rust-source rust src kotlin
+/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --deep rust-source rust src kotlin
 ```
 
 ## Building
