@@ -4,7 +4,7 @@ This is a line-by-line transliteration port of [facebook/starlark-rust](https://
 
 ## Structure
 
-- `rust-source/` - Vendored Rust source files for reference (gitignored)
+- `tmp/` - Vendored Rust source files for reference
 - `src/` - Kotlin port organized to mirror Rust crate structure
 - `build.gradle.kts` - Kotlin Multiplatform build configuration
 
@@ -24,7 +24,7 @@ See parent project `codex-kotlin/AGENTS.md` for complete porting guidelines.
 Use the AST distance tool from codex-kotlin to track progress:
 
 ```bash
-/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --deep rust-source rust src kotlin
+./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 ```
 
 ## Building
