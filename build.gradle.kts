@@ -185,8 +185,11 @@ kotlin {
         languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
     }
 
+    val warningsAsErrors: Boolean =
+        providers.gradleProperty("warningsAsErrors").orNull?.toBooleanStrictOrNull() ?: true
+
     compilerOptions {
-        allWarningsAsErrors.set(true)
+        allWarningsAsErrors.set(warningsAsErrors)
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
