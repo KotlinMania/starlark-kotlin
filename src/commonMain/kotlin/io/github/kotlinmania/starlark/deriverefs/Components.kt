@@ -31,16 +31,13 @@ import io.github.kotlinmania.starlark.eval.runtime.params.PARAM_FMT_OPTIONAL
 import io.github.kotlinmania.starlark.typing.Ty
 
 /** A wrapper for the parameters to `GlobalsBuilder::set_function` and `MethodBuilder::set_method` */
-// pub struct NativeCallableComponents
 class NativeCallableComponents(
     val speculativeExecSafe: Boolean,
     val rustDocstring: String?,
     val paramSpec: NativeCallableParamSpec,
     val returnType: Ty,
 ) {
-    // fn doc_params(&self) -> DocParams
     private fun docParams(): DocParams {
-        // fn doc_param(p: &NativeCallableParam) -> DocParam
         fun docParam(p: NativeCallableParam): DocParam =
             DocParam(
                 name = p.name,
@@ -63,7 +60,6 @@ class NativeCallableComponents(
         )
     }
 
-    // pub(crate) fn into_docs(self, as_type: Option<(Ty, DocType)>) -> DocItem
     internal fun intoDocs(asType: Pair<Ty, DocType>?): DocItem {
         val funcDocs =
             DocFunction.fromDocstring(

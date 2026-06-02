@@ -21,10 +21,6 @@ package io.github.kotlinmania.starlark.deriverefs
 
 import io.github.kotlinmania.starlark.Error as StarlarkError
 
-// pub trait InvokeMacroError {
-//     fn into_starlark_error(self) -> crate::Error;
-// }
-
 /**
  * Trait used to convert error returned from native function into [StarlarkError].
  *
@@ -34,8 +30,6 @@ import io.github.kotlinmania.starlark.Error as StarlarkError
 interface InvokeMacroError {
     fun intoStarlarkError(): StarlarkError
 }
-
-// impl InvokeMacroError for anyhow::Error
 
 /**
  * Default conversion: wraps any [Throwable] as a native [StarlarkError].

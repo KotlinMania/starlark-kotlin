@@ -27,17 +27,6 @@ package io.github.kotlinmania.starlark.deriverefs
  *  `starlark::derive_refs::foo`.
  */
 
-// Submodules:
-// pub mod components    -> derive_refs.components (Components.kt)
-// pub mod invoke_macro_error -> derive_refs.invoke_macro_error (InvokeMacroError.kt)
-// pub mod param_spec    -> derive_refs.param_spec (ParamSpec.kt)
-// pub mod parse_args    -> derive_refs.parse_args (ParseArgs.kt)
-// pub mod sig           -> derive_refs.sig (Sig.kt)
-
-// Re-exports for vtable registration macro.
-// pub use crate::values::layout::avalues::simple::AValueSimple;
-// pub use crate::values::layout::vtable::AValueVTable;
-
 /**
  * Re-exports for derive macro references.
  *
@@ -52,8 +41,4 @@ package io.github.kotlinmania.starlark.deriverefs
  * In Rust: `pub mod serde { pub use serde::{Serialize, Serializer, ser::Error}; }`
  * In Kotlin: these would be available via kotlinx.serialization imports.
  */
-internal object DeriveRefsSerde {
-    // pub use serde::Serialize;
-    // pub use serde::Serializer;
-    // pub use serde::ser::Error;
-}
+internal object DeriveRefsSerde

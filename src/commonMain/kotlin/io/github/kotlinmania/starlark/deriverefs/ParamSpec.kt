@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.typing.unpackArgsItemTy
 import io.github.kotlinmania.starlark.typing.unpackKwargsValueTy
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 
-// pub enum NativeCallableParamDefaultValue
 sealed class NativeCallableParamDefaultValue {
     /** Value is used for documentation only, not when the function is called. */
     data class Value(
@@ -36,9 +35,6 @@ sealed class NativeCallableParamDefaultValue {
     data object Optional : NativeCallableParamDefaultValue()
 }
 
-// pub struct NativeCallableParam
-// Type of `ty`:
-// for `*args` is the type of the element, and for `**kwargs` is the type of the value.
 // `required == null` means the parameter is required.
 class NativeCallableParam(
     name: String,
@@ -48,12 +44,6 @@ class NativeCallableParam(
     val name: String = name
     val ty: Ty = ty
     val required: NativeCallableParamDefaultValue? = required
-
-    // impl NativeCallableParam
-
-    // pub fn args(name: &'static str, param_ty: Ty) -> NativeCallableParam
-    // pub fn kwargs(name: &'static str, param_ty: Ty) -> NativeCallableParam
-    // fn is_required(&self) -> ParamIsRequired
 
     internal fun isRequired(): ParamIsRequired =
         when (required) {
@@ -78,7 +68,6 @@ class NativeCallableParam(
     }
 }
 
-// pub struct NativeCallableParamSpec
 class NativeCallableParamSpec(
     val posOnly: List<NativeCallableParam>,
     val posOrNamed: List<NativeCallableParam>,
@@ -86,10 +75,7 @@ class NativeCallableParamSpec(
     val namedOnly: List<NativeCallableParam>,
     val kwargs: NativeCallableParam?,
 ) {
-    // impl NativeCallableParamSpec
-
     /** For a function accepting raw `&Arguments`. */
-    // pub fn for_arguments() -> NativeCallableParamSpec
     companion object {
         fun forArguments(): NativeCallableParamSpec =
             NativeCallableParamSpec(
@@ -101,7 +87,6 @@ class NativeCallableParamSpec(
             )
     }
 
-    // pub(crate) fn param_spec(&self) -> ParamSpec
     internal fun paramSpec(): ParamSpec =
         ParamSpec.newParts(
             posOnly = posOnly.map { p -> Pair(p.isRequired(), p.ty) },
