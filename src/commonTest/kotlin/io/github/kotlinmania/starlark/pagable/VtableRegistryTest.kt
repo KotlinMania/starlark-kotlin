@@ -21,9 +21,6 @@ package io.github.kotlinmania.starlark.pagable
 
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
 import kotlin.test.Test
 import kotlin.test.assertEquals
