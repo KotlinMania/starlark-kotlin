@@ -297,6 +297,10 @@ class ListData(
         return Result.success(Unit)
     }
 
+    fun setAtUnchecked(i: Int, v: Value) {
+        content[i] = v
+    }
+
     fun incIterCount() {
         iterCount++
     }

@@ -140,7 +140,7 @@ class EnumTypeGen internal constructor(
     override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         args.noNamedArgs().getOrElse { return Result.failure(it) }
         val v = args.positional1(eval.heap()).getOrElse { return Result.failure(it) }
-        return Result.success(construct(v))
+        return runCatching { construct(v) }
     }
 
     override fun getAttr(attribute: String, heap: Heap): Value? = elements().get(ValueStr(attribute))

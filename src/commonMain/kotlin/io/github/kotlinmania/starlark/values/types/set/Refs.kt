@@ -30,6 +30,10 @@ import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+<<<<<<< HEAD
+=======
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+>>>>>>> origin/main
 
 /**
  * Define the set type.
@@ -184,10 +188,13 @@ class RefCell(
     private var value: SetData,
 ) : SetLike,
     Trace {
+<<<<<<< HEAD
     override fun trace(tracer: Tracer) {
         value.trace(tracer)
     }
 
+=======
+>>>>>>> origin/main
     private var borrowCount = 0
     private var mutBorrowCount = 0
 
@@ -226,6 +233,18 @@ class RefCell(
 
     override fun iterStop() {
         releaseBorrow()
+    }
+
+    override fun trace(tracer: Tracer) {
+        val oldSet = value.content
+        val newSet = SmallSet<Value>()
+        for (item in oldSet.iterHashed()) {
+            val holder = ValueHolder(item.key())
+            tracer.trace(holder)
+            newSet.insertHashed(Hashed.newUnchecked(item.hash(), holder.value))
+        }
+        value.content.clear()
+        value.content.addAll(newSet.iterHashed().asIterable())
     }
 }
 

@@ -32,6 +32,10 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+<<<<<<< HEAD
+=======
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
+>>>>>>> origin/main
 import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
@@ -80,6 +84,7 @@ internal object AValueTuple : AValue {
         return Result.success(fv)
     }
 
+<<<<<<< HEAD
     override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
         @Suppress("UNCHECKED_CAST")
         val tuple = repr.payload as TupleGen<Value>
@@ -97,6 +102,21 @@ internal object AValueTuple : AValue {
 
         r.fill(TupleGen(newContent))
         return v
+=======
+    @Suppress("UNCHECKED_CAST")
+    override fun heapCopy(tracer: Tracer): Value {
+        val repr = tracer.currentRepr ?: error("Missing currentRepr")
+        val tuple = repr.payload as TupleGen<Value>
+        return heapCopyImpl(tuple, tracer) { v, t ->
+            val tg = v as TupleGen<Value>
+            val content = tg.contentMut()
+            for (i in content.indices) {
+                val holder = ValueHolder(content[i])
+                t.trace(holder)
+                content[i] = holder.value
+            }
+        }
+>>>>>>> origin/main
     }
 
     override fun unpack(): StarlarkValue = TupleGen<Value>(emptyList())

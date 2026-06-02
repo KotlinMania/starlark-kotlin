@@ -61,7 +61,12 @@ internal object AValueArray : AValue {
         error("arrays should not be frozen")
     }
 
+<<<<<<< HEAD
     override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
+=======
+    override fun heapCopy(tracer: Tracer): Value {
+        val repr = tracer.currentRepr ?: error("Missing currentRepr")
+>>>>>>> origin/main
         val array = repr.payload as Array
         check(array.capacity() != 0) { "empty array is allocated statically" }
 
@@ -72,7 +77,11 @@ internal object AValueArray : AValue {
         val content = array.contentMut()
 
         val (v, r, _) = tracer.reserveWithExtra<AValueArray>(content.size)
+<<<<<<< HEAD
         AValueHeader.overwriteWithForward(repr, ForwardPtr.newUnfrozen(v))
+=======
+        tracer.overwriteWithForward(v)
+>>>>>>> origin/main
 
         // Trace all values in the content.
         (content as Trace).trace(tracer)

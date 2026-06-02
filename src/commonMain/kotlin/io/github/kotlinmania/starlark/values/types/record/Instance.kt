@@ -87,6 +87,18 @@ class RecordGen internal constructor(
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
+    override fun trace(tracer: Tracer) {
+        val typHolder = ValueHolder(typ)
+        tracer.trace(typHolder)
+        typ = typHolder.value
+
+        values = values.map { v ->
+            val holder = ValueHolder(v)
+            tracer.trace(holder)
+            holder.value
+        }
+    }
+
     companion object {
         /** `type(x)` for records. */
         const val TYPE: String = "record"

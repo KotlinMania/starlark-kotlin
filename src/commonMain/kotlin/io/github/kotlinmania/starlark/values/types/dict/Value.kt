@@ -61,10 +61,16 @@ data class DictGen<T>(
     override val HAS_equals: Boolean get() = true
 
     override fun trace(tracer: Tracer) {
-        // DictGen delegates tracing to its inner value if it implements Trace
+        println("[DEBUG_TRACE_DICTGEN] DictGen.trace innerVal=$inner innerVal_class=${inner?.let{it::class.simpleName}}")
         val innerVal = inner
         if (innerVal is Trace) {
             innerVal.trace(tracer)
+        } else if (innerVal is AtomicRef<*>) {
+            val v = innerVal.value
+            println("[DEBUG_TRACE_DICTGEN] DictGen.trace innerVal is AtomicRef, v=$v v_class=${v?.let{it::class.simpleName}}")
+            if (v is Trace) {
+                v.trace(tracer)
+            }
         }
     }
 
@@ -125,6 +131,11 @@ data class DictGen<T>(
     override fun at(index: Value, heap: Heap): Result<Value> {
         val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
+        println("[DEBUG_DICT] Lookup index toRepr=${index.toRepr()} hashed_hash=${hashed.hash()} key_class=${hashed.key()::class.simpleName} key_identity=${System.identityHashCode(hashed.key())} ptr_idx=${hashed.key().ptr.unpackPtrOpt()}")
+        for (entry in innerVal.content().entries) {
+            val ek = entry.key
+            println("[DEBUG_DICT] Entry key toRepr=${ek.key().toRepr()} hashed_hash=${ek.hash()} key_class=${ek.key()::class.simpleName} key_identity=${System.identityHashCode(ek.key())} ptr_idx=${ek.key().ptr.unpackPtrOpt()} equals_key=${ek.key() == hashed.key()} equals_hash=${ek.hash() == hashed.hash()}")
+        }
         val v =
             innerVal.content().getHashedByValue(hashed)
                 ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
@@ -240,16 +251,17 @@ class Dict(
     }
 
     override fun trace(tracer: Tracer) {
-        // Trace all keys and values in the content map.
-        // In Rust, #[derive(Trace)] on DictGen walks the SmallMap entries.
-        // We need to update each Value through a ValueHolder.
+        println("[DEBUG_TRACE_DICT] Dict.trace content_size=${content.len()}")
         for (entry in content.entries) {
+            val keyBefore = entry.key.key()
             val keyHolder = ValueHolder(entry.key.key())
             tracer.trace(keyHolder)
             entry.key = Hashed.newUnchecked(entry.key.hash(), keyHolder.value)
             val valueHolder = ValueHolder(entry.value)
             tracer.trace(valueHolder)
             entry.value = valueHolder.value
+            entry.key = Hashed.newUnchecked(entry.key.hash(), keyHolder.value)
+            println("[DEBUG_TRACE_DICT] Dict.trace entry key_before_ptr=${keyBefore.ptr.unpackPtrOpt()} key_after_ptr=${entry.key.key().ptr.unpackPtrOpt()}")
         }
     }
 

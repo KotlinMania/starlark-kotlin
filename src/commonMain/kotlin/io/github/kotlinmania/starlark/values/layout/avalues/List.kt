@@ -26,6 +26,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
@@ -87,6 +88,7 @@ internal object AValueList : AValue {
         return Result.success(fv)
     }
 
+<<<<<<< HEAD
     override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
         @Suppress("UNCHECKED_CAST")
         val list = repr.payload as ListGen<ListData>
@@ -104,6 +106,21 @@ internal object AValueList : AValue {
 
         r.fill(ListGen(ListData.new(newContent)))
         return v
+=======
+    @Suppress("UNCHECKED_CAST")
+    override fun heapCopy(tracer: Tracer): Value {
+        val repr = tracer.currentRepr ?: error("Missing currentRepr")
+        val list = repr.payload as ListGen<ListData>
+        return heapCopyImpl(list, tracer) { v, t ->
+            val l = v as ListGen<ListData>
+            val content = l.data.content()
+            for (i in content.indices) {
+                val holder = ValueHolder(content[i])
+                t.trace(holder)
+                l.data.setAtUnchecked(i, holder.value)
+            }
+        }
+>>>>>>> origin/main
     }
 
     override fun unpack(): StarlarkValue = ListGen(ListData())
