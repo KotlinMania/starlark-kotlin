@@ -120,6 +120,7 @@ private object TyStarlarkValueVTableGet {
         TyStarlarkValueVTable(
             typeName = "NoneType",
             starlarkTypeId = StarlarkTypeId.ofCanonical(NoneType::class),
+            hasEvalType = true,
         )
     val LIST_VTABLE =
         TyStarlarkValueVTable(
@@ -282,6 +283,9 @@ class TyStarlarkValue private constructor(
     }
 
     internal fun binOp(op: TypingBinOp, rhs: TyBasic): Result<Ty> {
+        if (op == TypingBinOp.BitOr && vtable.hasEvalType) {
+            return Result.success(Ty.any())
+        }
         val ty = vtable.binOpTy(op, rhs)
         return if (ty != null) {
             Result.success(ty)

@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/incompatible.rs
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -32,6 +33,8 @@ import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
+
 
 sealed class Incompatibility : LintWarning {
     /** Type check should be written differently. */
@@ -153,8 +156,8 @@ private fun matchBadTypeEquality(
                             codemap,
                             x.span,
                             Incompatibility.IncompatibleTypeCheck(
-                                x.toString(),
-                                "${(e.lhs as AstExpr).node}${e.op}type($replacement)",
+                                x.toSourceString(),
+                                "${(e.lhs as AstExpr).toSourceString()}${e.op.toSourceString()}type($replacement)",
                             ),
                         ),
                     )
@@ -177,7 +180,7 @@ internal fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompati
         matchBadTypeEquality(codemap, x, types, res)
         x.visitExprChildren { check(codemap, it, types, res) }
     }
-    module.statement.visitStmtChildrenExpr { check(module.codemap, it, types, res) }
+    module.statement.visitExprs { check(module.codemap, it, types, res) }
 }
 
 // Go implementation of Starlark disallows duplicate top-level assignments,

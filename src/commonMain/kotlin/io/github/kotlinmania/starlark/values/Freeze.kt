@@ -252,9 +252,6 @@ fun <T, TFrozen> SmallSet<T>.freeze(
     return Result.success(new)
 }
 
-/** Freeze implementation for [Value]. Delegates to [Freezer.freeze]. */
-fun Value.freeze(freezer: Freezer): FreezeResult<FrozenValue> = freezer.freeze(this)
-
 /** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
 fun FrozenValue.freeze(_freezer: Freezer): FreezeResult<FrozenValue> = Result.success(this)
 

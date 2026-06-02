@@ -101,6 +101,7 @@ internal class ChunkChain private constructor(
     /** Split current chunk in the chain at the given offset. */
     fun splitAt(offset: AlignedSize): Pair<ChunkChain, ChunkPart> {
         val currentChunk = this.chunk
+        val currentHeader = this.header
         // Take ownership: clear our chunk.
         this.chunk = null
         this.header = null
@@ -118,13 +119,13 @@ internal class ChunkChain private constructor(
         return if (before.len() == HEADER_SIZE) {
             // This branch is only taken in tests of ChunkChain,
             // because real allocator never finishes with an empty last chunk part.
-            val prevChain = header?.prev ?: default()
+            val prevChain = currentHeader?.prev ?: default()
             Pair(prevChain, after)
         } else {
             Pair(
                 ChunkChain(
                     chunk = before,
-                    header = header,
+                    header = currentHeader,
                 ),
                 after,
             )

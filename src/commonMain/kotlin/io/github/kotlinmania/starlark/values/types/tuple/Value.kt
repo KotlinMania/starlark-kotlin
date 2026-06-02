@@ -174,7 +174,11 @@ val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
     AllocStaticSimple.alloc(TupleGen(emptyList()))
 
 /** Downcast a value to a tuple. */
-fun TupleGen.Companion.fromValue(value: Value): Tuple? = value.downcastRef<Tuple>()
+fun TupleGen.Companion.fromValue(value: Value): Tuple? {
+    val raw = value.downcastRef<TupleGen<*>>() ?: return null
+    val mapped = raw.content().map { (it as ValueLike).toValue() }
+    return TupleGen(mapped)
+}
 
 // Serialize support for TupleGen
 fun <V> TupleGen<V>.serialize(): List<V> = content()

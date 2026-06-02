@@ -49,10 +49,11 @@ data class DictGen<T>(
 ) : ComplexValue,
     Trace,
     Freeze<StarlarkValue> {
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-        val mutableSelf = this as DictGen<AtomicRef<Dict>>
-        return mutableSelf.freezeDict(freezer) as Result<StarlarkValue>
+        val dict =
+            (inner as? AtomicRef<*>)?.value as? Dict
+                ?: return Result.failure(IllegalStateException("Expected mutable dict storage"))
+        return freezeDictData(dict, freezer).map { it }
     }
 
     override val TYPE: String get() = Dict.TYPE
@@ -68,12 +69,11 @@ data class DictGen<T>(
     }
 
     override fun toString(): String =
-        when (inner) {
-            is DictLike -> {
-                @Suppress("UNCHECKED_CAST")
-                fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
+        when (val innerVal = inner.asDictLike()) {
+            null -> super.toString()
+            else -> {
+                fmtKeyedContainer("{", "}", ": ", innerVal.content().iter())
             }
-            else -> super.toString()
         }
 
     // --- StarlarkValue implementation (mirrors Rust's #[starlark_value] impl) ---
@@ -81,8 +81,8 @@ data class DictGen<T>(
     override fun getMethods(): Methods? = getDictMethods()
 
     override fun collectRepr(collector: StringBuilder) {
-        val innerVal = inner
-        if (innerVal is DictLike) {
+        val innerVal = inner.asDictLike()
+        if (innerVal != null) {
             // Fast path as repr() for dicts is quite hot
             collector.append('{')
             for ((i, entry) in innerVal.content().iter().withIndex()) {
@@ -105,8 +105,8 @@ data class DictGen<T>(
     }
 
     override fun toBool(): Boolean {
-        val innerVal = inner
-        return if (innerVal is DictLike) {
+        val innerVal = inner.asDictLike()
+        return if (innerVal != null) {
             !innerVal.content().isEmpty()
         } else {
             true
@@ -114,15 +114,16 @@ data class DictGen<T>(
     }
 
     override fun equals(other: Value): Result<Boolean> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return Result.success(false)
+        val innerVal = inner.asDictLike() ?: return Result.success(false)
         val otherDict = dictRefFromValue(other) ?: return Result.success(false)
-        return equalsSmallMap(innerVal.content(), otherDict) { x, y -> x.equals(y) }
+        return io.github.kotlinmania.starlark.values.equalsSmallMap<Exception, Value, Value, Value>(
+            innerVal.content(),
+            getDictFromRef(otherDict).content,
+        ) { x, y -> x.equals(y) }
     }
 
     override fun at(index: Value, heap: Heap): Result<Value> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
+        val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         val v =
             innerVal.content().getHashedByValue(hashed)
@@ -131,48 +132,39 @@ data class DictGen<T>(
     }
 
     override fun length(): Result<Int> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "len()")
+        val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "len()")
         return Result.success(innerVal.content().len())
     }
 
     override fun isIn(other: Value): Result<Boolean> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "in")
+        val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "in")
         val hashed = other.getHashed().getOrElse { return Result.failure(it) }
         return Result.success(innerVal.content().getHashedByValue(hashed) != null)
     }
 
     override fun iterate(me: Value, heap: Heap): Result<Value> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "(iter)")
+        val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "(iter)")
         innerVal.iterStart()
         return Result.success(me)
     }
 
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return Pair(0, null)
+        val innerVal = inner.asDictLike() ?: return Pair(0, null)
         val rem = innerVal.content().len() - index
         return Pair(rem, rem)
     }
 
     override fun iterNext(index: Int, heap: Heap): Value? {
-        val innerVal = inner
-        if (innerVal !is DictLike) return null
+        val innerVal = inner.asDictLike() ?: return null
         return innerVal.contentUnchecked().keys().elementAtOrNull(index)
     }
 
     override fun iterStop() {
-        val innerVal = inner
-        if (innerVal is DictLike) {
-            innerVal.iterStop()
-        }
+        inner.asDictLike()?.iterStop()
     }
 
     override fun setAt(index: Value, newValue: Value): Result<Unit> {
-        val innerVal = inner
-        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue)
+        val innerVal = inner.asDictLike() ?: return Result.failure(ValueError.CannotMutateImmutableValue)
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         return innerVal.setAt(hashed, newValue)
     }
@@ -212,7 +204,7 @@ data class DictGen<T>(
 
     override fun tryFreezeDirectly(freezer: Freezer): Result<FrozenValue>? {
         val innerVal = inner
-        if (innerVal is DictLike && innerVal.content().isEmpty()) {
+        if (innerVal.asDictLike()?.content()?.isEmpty() == true) {
             return Result.success(VALUE_EMPTY_FROZEN_DICT.toFrozenValue())
         }
         return null
@@ -237,10 +229,13 @@ class Dict(
         fun isDictType(x: KClass<*>): Boolean =
             x == DictGen::class
 
-        fun fromValueUncheckedMut(x: Value): AtomicRef<Dict> {
-            @Suppress("UNCHECKED_CAST")
-            val dict = x.downcastRefUnchecked<DictGen<AtomicRef<Dict>>>()
-            return dict.inner
+        fun fromValueUncheckedMut(x: Value): Dict {
+            val dict = x.downcastRefUnchecked<DictGen<*>>()
+            val inner = dict.inner
+            check(inner is AtomicRef<*>)
+            val mutable = inner.value
+            check(mutable is Dict)
+            return mutable
         }
     }
 
@@ -299,13 +294,15 @@ class Dict(
 
     /** Try to coerce all keys to strings. */
     internal fun downcastRefKeyString(): SmallMap<StringValue, Value>? {
-        for (key in content.keys()) {
-            if (!key.isStr()) {
-                return null
-            }
+        val result = SmallMap.withCapacity<StringValue, Value>(content.len())
+        for ((key, value) in content.iterHashed()) {
+            val stringKey = StringValue.new(key.key()) ?: return null
+            result.insertHashedUniqueUnchecked(
+                Hashed.newUnchecked(key.hash(), stringKey),
+                value,
+            )
         }
-        @Suppress("UNCHECKED_CAST")
-        return content as SmallMap<StringValue, Value>
+        return result
     }
 
     /** Reserve capacity to insert [additional] elements without reallocating. */
@@ -357,6 +354,32 @@ class FrozenDictData(
         }
 }
 
+internal fun FrozenDictData.toValueMap(): SmallMap<Value, Value> {
+    val result = SmallMap.withCapacity<Value, Value>(content.len())
+    for ((key, value) in content.iterHashed()) {
+        result.insertHashedUniqueUnchecked(
+            Hashed.newUnchecked(key.hash(), key.key().toValue()),
+            value.toValue(),
+        )
+    }
+    return result
+}
+
+private fun Any?.asDictLike(): DictLike? =
+    when (this) {
+        is DictLike -> this
+        is FrozenDictData -> FrozenDictDataDictLike(this)
+        is AtomicRef<*> -> {
+            val dict = value
+            if (dict is Dict) {
+                RefCellDictLike(this)
+            } else {
+                null
+            }
+        }
+        else -> null
+    }
+
 /** Alias is used in `StarlarkDocs` derive. */
 typealias FrozenDict = DictGen<FrozenDictData>
 
@@ -382,15 +405,30 @@ data class ValueStr(
 
 /** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
 fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
+    val content = freezeDictContent(inner.value, freezer).getOrElse { return Result.failure(it) }
+    return Result.success(DictGen(FrozenDictData(content)))
+}
+
+private fun freezeDictData(
+    dict: Dict,
+    freezer: Freezer,
+): Result<DictGen<FrozenDictData>> {
+    val content = freezeDictContent(dict, freezer).getOrElse { return Result.failure(it) }
+    return Result.success(DictGen(FrozenDictData(content)))
+}
+
+private fun freezeDictContent(
+    dict: Dict,
+    freezer: Freezer,
+): Result<SmallMap<FrozenValue, FrozenValue>> {
     val frozenContent =
         freezeSmallMap(
-            this.inner.value.content,
+            dict.content,
             freezer,
             { v, f -> v.freeze(f) },
             { v, f -> v.freeze(f) },
         )
-    val content = frozenContent.getOrElse { return Result.failure(it) }
-    return Result.success(DictGen(FrozenDictData(content)))
+    return Result.success(frozenContent.getOrElse { return Result.failure(it) })
 }
 
 interface DictLike {
@@ -408,9 +446,13 @@ interface DictLike {
 }
 
 class RefCellDictLike(
-    private val cell: AtomicRef<Dict>,
+    private val cell: AtomicRef<*>,
 ) : DictLike {
-    override fun content(): SmallMap<Value, Value> = cell.value.content
+    private fun dict(): Dict =
+        cell.value as? Dict
+            ?: error("not a mutable dict")
+
+    override fun content(): SmallMap<Value, Value> = dict().content
 
     override fun iterStart() {
         // In Rust: mem::forget(self.borrow())
@@ -420,11 +462,11 @@ class RefCellDictLike(
         // In Rust: unleak_borrow(self)
     }
 
-    override fun contentUnchecked(): SmallMap<Value, Value> = cell.value.content
+    override fun contentUnchecked(): SmallMap<Value, Value> = dict().content
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
         try {
-            cell.value.content.insertHashed(index, value)
+            dict().content.insertHashed(index, value)
             Result.success(Unit)
         } catch (_: Exception) {
             Result.failure(ValueError.MutationDuringIteration)
@@ -434,17 +476,15 @@ class RefCellDictLike(
 class FrozenDictDataDictLike(
     private val data: FrozenDictData,
 ) : DictLike {
-    @Suppress("UNCHECKED_CAST")
     override fun content(): SmallMap<Value, Value> =
-        data.content as SmallMap<Value, Value>
+        data.toValueMap()
 
     override fun iterStart() {}
 
     override fun iterStop() {}
 
-    @Suppress("UNCHECKED_CAST")
     override fun contentUnchecked(): SmallMap<Value, Value> =
-        data.content as SmallMap<Value, Value>
+        data.toValueMap()
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
         Result.failure(ValueError.CannotMutateImmutableValue)
@@ -493,9 +533,3 @@ class AtomicRef<T>(
 }
 
 internal fun hashStringValue(s: String): Int = s.hashCode()
-
-internal fun <K, V> equalsSmallMap(
-    a: SmallMap<K, V>,
-    b: Any?,
-    comparator: (V, V) -> Result<Boolean>,
-): Result<Boolean> = Result.success(a == b)

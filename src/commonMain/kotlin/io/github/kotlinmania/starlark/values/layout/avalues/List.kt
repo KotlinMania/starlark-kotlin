@@ -26,6 +26,9 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -54,6 +57,33 @@ internal object AValueList : AValue {
         // In the full implementation, this is called via vtable dispatch
         // with the actual StarlarkValue. The object form uses unpack() as placeholder.
         error("heapFreeze should be dispatched via vtable with actual value")
+    }
+
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        @Suppress("UNCHECKED_CAST")
+        val list = repr.payload as ListGen<ListData>
+        val content = list.data.content()
+
+        if (content.isEmpty()) {
+            val fv = VALUE_EMPTY_FROZEN_LIST.toFrozenValue()
+            AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+            return Result.success(fv)
+        }
+
+        val (fv, r) = freezer.reserve<AValueFrozenList>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+
+        val frozenContent = mutableListOf<FrozenValue>()
+        for (elem in content) {
+            val frozenElem = freezer.freeze(elem).getOrElse { return Result.failure(it) }
+            frozenContent.add(frozenElem)
+        }
+
+        r.fill(ListGen(FrozenListData.new(frozenContent)))
+        return Result.success(fv)
     }
 
     override fun heapCopy(tracer: Tracer): Value {

@@ -265,7 +265,7 @@ class ParamSpec private constructor(
         val namedOnlyEnd = kwargsIndex ?: params.size
 
         return ParamSpecSplit(
-            posOnly = params.subList(posOnlyRange.first, posOnlyRange.last + 1.coerceAtMost(params.size)),
+            posOnly = if (posOnlyRange.isEmpty()) emptyList() else params.subList(posOnlyRange.first, (posOnlyRange.last + 1).coerceAtMost(params.size)),
             posOrNamed = if (posOrNamedRange.isEmpty()) emptyList() else params.subList(posOrNamedRange.first, posOrNamedRange.last + 1),
             args = argsIndex?.let { params[it] },
             namedOnly = if (namedOnlyStart >= namedOnlyEnd) emptyList() else params.subList(namedOnlyStart, namedOnlyEnd),

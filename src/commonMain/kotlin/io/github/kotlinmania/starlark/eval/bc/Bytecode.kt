@@ -21,6 +21,8 @@ package io.github.kotlinmania.starlark.eval.bc
 
 /** Unsorted/core interpreter stuff. */
 
+import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.eval.compiler.addSpanToExprError
 import io.github.kotlinmania.starlark.eval.runtime.EvaluationCallbacks
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.EvalException
@@ -90,10 +92,6 @@ class Bc(
 
 /**
  * Execute one instruction by dispatching on the opcode.
- *
- * In Rust, this uses generic dispatch via BcOpcodeHandler trait and proc-macro
- * generated code. In Kotlin, we dispatch using the opcode to look up the
- * instruction argument from the buffer and call the appropriate handler.
  */
 private fun step(
     eval: Evaluator,
@@ -115,9 +113,6 @@ private fun step(
 
 /**
  * Dispatch an instruction by opcode.
- *
- * This is the Kotlin equivalent of the Rust proc-macro generated dispatch.
- * Each opcode maps to a specific instruction implementation.
  */
 private fun dispatchInstruction(
     opcode: BcOpcode,
@@ -136,7 +131,8 @@ private fun dispatchInstruction(
                 if (result.exceptionOrNull() is StarlarkError) {
                     result.exceptionOrNull() as StarlarkError
                 } else {
-                    StarlarkError(result.exceptionOrNull()?.message ?: "", result.exceptionOrNull())
+                    val failure = result.exceptionOrNull()!!
+                    StarlarkError(failure.starlarkErrorMessage(), failure)
                 },
             )
         }
@@ -236,6 +232,12 @@ private fun dispatchInstruction(
         BcOpcode.End -> InstrEnd.run(eval, frame, ip, arg as BcInstrEndArg)
     }
 }
+
+private fun Throwable.starlarkErrorMessage(): String =
+    when (this) {
+        is Error -> toString()
+        else -> message ?: toString()
+    }
 
 // In the bytecode writer, Iter/Continue args are stored as List<Any?> (matching Rust's tuple
 // layout in the instruction buffer). Convert to the typed data classes at the dispatch site.

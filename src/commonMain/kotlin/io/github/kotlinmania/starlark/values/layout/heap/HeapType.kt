@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
@@ -32,8 +33,10 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.simple
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
@@ -169,6 +172,13 @@ class Heap internal constructor(
         return Pair(vt, Unit)
     }
 
+    private fun <A : AValue> allocRawNoDrop(x: AValueImpl<A>): ValueTyped<StarlarkValue> {
+        val arena = owned.arena.borrow()
+        val v = arena.allocNoDrop(x)
+        val value = Value.newPtr(v.header, v.header.vtable.isStr)
+        return ValueTyped.newUnchecked(value)
+    }
+
     internal fun allocStrInit(
         len: Int,
         hash: StarlarkHashValue,
@@ -268,12 +278,14 @@ class Heap internal constructor(
                 maybeDrop = NeedsDrop(),
             ),
         )
-        this.allocComplexNoFreeze(
+        val noDropEnter =
             CallEnter<NoDrop>(
                 function = function,
                 time = time,
                 maybeDrop = NoDrop(),
-            ),
+            )
+        this.allocRawNoDrop(
+            AValueImpl.new(noDropEnter, AValueComplexNoFreeze(noDropEnter)),
         )
     }
 
@@ -285,11 +297,13 @@ class Heap internal constructor(
                 maybeDrop = NeedsDrop(),
             ),
         )
-        this.allocSimple(
+        val noDropExit =
             CallExit<NoDrop>(
                 time = time,
                 maybeDrop = NoDrop(),
-            ),
+            )
+        this.allocRawNoDrop(
+            simple(noDropExit),
         )
     }
 }
@@ -399,12 +413,13 @@ class FrozenHeap internal constructor(
      * Port of `FrozenHeap::alloc_str_intern`.
      */
     fun allocStrIntern(s: String): FrozenStringValue {
-        // Simplified interning: just allocate the string.
-        // A full implementation would use an interner to deduplicate.
-        val hash = StarlarkHashValue.new(s)
-        val bytes = s.encodeToByteArray()
-        return allocStrInit(bytes.size, hash) { dst ->
-            bytes.copyInto(dst)
+        val hashed = io.github.kotlinmania.starlark.collections.Hashed.new(s)
+        return stringInterner()
+            .intern(hashed) {
+            val bytes = s.encodeToByteArray()
+            allocStrInit(bytes.size, hashed.hash) { dst ->
+                bytes.copyInto(dst)
+            }
         }
     }
 

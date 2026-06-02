@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AstParameterP
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
+import io.github.kotlinmania.starlark.syntax.ast.TypeExprPayload
 import io.github.kotlinmania.starlark.typing.Interface
 import io.github.kotlinmania.starlark.typing.Ty
 
@@ -52,11 +53,16 @@ internal data class CstTypeExprPayload(
     var compilerTy: Ty? = null,
     /** Populated during lightweight evaluation for the lint type checker. */
     var typecheckerTy: Ty? = null,
-)
+) : TypeExprPayload
 
 internal typealias CstExpr = AstExprP<CstPayload>
 
-internal typealias CstTypeExpr = Spanned<TypeExprP<CstPayload, CstTypeExprPayload>>
+internal typealias CstTypeExpr = Spanned<TypeExprP<CstPayload>>
+
+internal val CstTypeExpr.cstPayload: CstTypeExprPayload
+    get() =
+        node.payload as? CstTypeExprPayload
+            ?: error("compiler type expression missing compiler payload")
 
 internal typealias CstAssignTarget = AstAssignTargetP<CstPayload>
 

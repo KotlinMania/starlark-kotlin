@@ -2,9 +2,14 @@
 package io.github.kotlinmania.starlark.values.types.string
 
 import io.github.kotlinmania.starlark.collections.StringPool
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
 import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
@@ -101,15 +106,37 @@ sealed class StringOrTuple {
     ) : StringOrTuple()
 }
 
-/**
- * Register string methods.
- *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
- */
 internal fun stringMethods(builder: MethodsBuilder) {
-    // In Rust, the #[starlark_module] macro generates the registration code.
-    // Register each string method on the builder.
+    val components =
+        NativeCallableComponents(
+            speculativeExecSafe = false,
+            rustDocstring = null,
+            paramSpec = NativeCallableParamSpec.forArguments(),
+            returnType = Ty.any(),
+        )
+
+    fun setStringMethod(
+        name: String,
+        f: (String) -> Result<String>,
+    ) {
+        builder.setMethod(
+            name = name,
+            components = components,
+            sig = ParametersSpec.withCapacity<FrozenValue>(name).finish(),
+            f = { eval, thisValue, _, _ ->
+                val thisStr =
+                    StringValue.new(thisValue)
+                        ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+                f(thisStr.asStr()).map { eval.heap().allocStr(it) }
+            },
+        )
+    }
+
     builder.setDocstring("Methods for the `string` type.")
+    setStringMethod("capitalize", ::capitalize)
+    setStringMethod("lower", ::lower)
+    setStringMethod("title", ::title)
+    setStringMethod("upper", ::upper)
 }
 
 /**

@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/performance.rs
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.syntax.ast.ExprP

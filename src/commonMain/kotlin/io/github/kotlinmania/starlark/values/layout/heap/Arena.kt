@@ -55,7 +55,7 @@ private fun vtableForValue(
             if (avalue != null) {
                 return@freeze avalue.heapFreeze(repr, freezer)
             }
-            val sv = p.valueRef<StarlarkValue>()
+            val sv = p.starlarkValue()
             val direct = tryFreezeDirectly(sv, freezer)
             if (direct != null) {
                 if (direct.isSuccess) {
@@ -70,7 +70,7 @@ private fun vtableForValue(
             Result.success(fv)
         },
         heapCopyFn = { p, tracer ->
-            val sv = p.valueRef<StarlarkValue>()
+            val sv = p.starlarkValue()
             heapCopyImpl(sv, tracer) { _, _ -> }
         },
         starlarkValue = value,
@@ -170,6 +170,19 @@ internal class Arena {
         return repr
     }
 
+    /** Allocate a type `T` into the arena for values without finalization. */
+    fun <T : AValue> allocNoDrop(x: AValueImpl<T>): AValueRepr<StarlarkValue> {
+        val header = AValueHeader(vtableForValue(x.value, x.avalue))
+        val repr =
+            AValueRepr(
+                header = header,
+                payload = x.value,
+            )
+        val entry = AValueOrForward.Header(repr.header)
+        nonDrop.add(entry)
+        return repr
+    }
+
     /** Allocate a type `T` plus `extra` bytes. */
     fun <T : AValue> allocExtra(x: AValueImpl<T>): AValueRepr<StarlarkValue> = alloc(x)
 
@@ -200,8 +213,9 @@ internal class Arena {
                             AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                         )
                     },
-                    heapFreezeFn = { _, _, freezer ->
+                    heapFreezeFn = { repr, _, freezer ->
                         val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
+                        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
                         Result.success(fv.toFrozenValue())
                     },
                     heapCopyFn = { _, tracer ->

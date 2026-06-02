@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/flow.rs
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -34,6 +35,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
 
 /** The filename associated with this [FileSpan]. */
 internal val FileSpan.description: String
@@ -55,6 +57,8 @@ class LintT<T>(
     val location: FileSpan,
     val problem: T,
 ) {
+    override fun toString(): String = "$location: $problem"
+
     companion object {
         fun <T> new(codemap: CodeMap, span: Span, problem: T): LintT<T> = LintT(codemap.fileSpan(span), problem)
     }
@@ -364,7 +368,7 @@ internal fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
                             LintT.new(
                                 codemap,
                                 nxt.span,
-                                FlowIssue.Unreachable(nxt.node.toString().trim()),
+                                FlowIssue.Unreachable(nxt.toSourceString().trim()),
                             ),
                         )
                     }

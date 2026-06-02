@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.types.set
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -54,6 +55,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
         name = "set",
         asType = Ty.starlarkValue(TyStarlarkValue.set()),
         speculativeExecSafe = true,
+        specialBuiltinFunction = SpecialBuiltinFunction.Set,
     ) { callArgs, eval ->
         val heap: Heap = eval.heap()
         val set =

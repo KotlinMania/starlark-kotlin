@@ -1,4 +1,5 @@
 // port-lint: tests src/docs/tests/rustdocs.rs
+@file:Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
 package io.github.kotlinmania.starlark.docs.tests
 
 /*

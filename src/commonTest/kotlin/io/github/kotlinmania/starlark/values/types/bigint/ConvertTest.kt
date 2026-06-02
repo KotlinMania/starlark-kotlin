@@ -40,12 +40,7 @@ class ConvertTest {
             }
 
             globals.setFunction("takes_i32") { args, _ ->
-                val v = args.positional<Long>(0)
-                if (v < Int.MIN_VALUE || v > Int.MAX_VALUE) {
-                    Result.failure(Exception("Integer value is too big to fit in i32: $v"))
-                } else {
-                    takesI32(v.toInt())
-                }
+                takesI32(args.positional<Int>(0))
             }
 
             globals.setFunction("takes_i64") { args, _ ->

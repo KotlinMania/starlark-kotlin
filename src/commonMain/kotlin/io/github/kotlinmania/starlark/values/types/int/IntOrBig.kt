@@ -194,11 +194,15 @@ fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
 sealed class StarlarkIntRef {
     data class Small(
         val value: InlineInt,
-    ) : StarlarkIntRef()
+    ) : StarlarkIntRef() {
+        override fun toString(): String = value.toString()
+    }
 
     data class Big(
         val value: StarlarkBigInt,
-    ) : StarlarkIntRef()
+    ) : StarlarkIntRef() {
+        override fun toString(): String = value.toString()
+    }
 
     fun toOwned(): StarlarkInt =
         when (this) {
@@ -512,7 +516,7 @@ sealed class StarlarkIntRef {
             value.unpackInlineInt()?.let { return Small(it) }
             // StarlarkBigInt doesn't implement StarlarkValue yet, so we can't use
             // downcastRef. Access the raw underlying ptr instead.
-            val rawPtr = value.getRef().value.ptr
+            val rawPtr = value.getRef().value.starlarkValue()
             if (rawPtr is StarlarkBigInt) return Big(rawPtr)
             return null
         }

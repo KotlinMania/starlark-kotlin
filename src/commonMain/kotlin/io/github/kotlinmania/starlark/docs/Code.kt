@@ -187,7 +187,7 @@ fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): Strin
     }
 
     if (kwargs != null) {
-        parts.add("**${fmtParam(kwargs!!, renderConfig)}")
+        parts.add("**${fmtParam(kwargs, renderConfig)}")
     }
 
     return if (indent != null) {

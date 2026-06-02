@@ -308,7 +308,7 @@ class Value internal constructor(
 
     internal fun unpackInteger(): Result<Long?> =
         unpackIntegerImpl(
-            integerType = "Long",
+            integerType = "i64",
             tryFromI32 = { i32 -> i32.toLong() },
             tryFromBigInt = { bigInt ->
                 try {
@@ -438,7 +438,7 @@ class Value internal constructor(
      * from a different package (e.g. ValueOf.unpackValueImpl).
      */
     @PublishedApi
-    internal fun getUnderlyingPtr(): Any = getRef().value.ptr
+    internal fun getUnderlyingPtr(): StarlarkValue = getRef().value.starlarkValue()
 
     /**
      * Downcast without checking the value type.

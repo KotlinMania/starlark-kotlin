@@ -62,7 +62,7 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
                 mutableClass: KClass<T>,
                 frozenClass: KClass<F>,
             ): ValueTypedComplex<T, F>? {
-                val raw = value.getRef().value.ptr
+                val raw = value.getRef().value.starlarkValue()
                 return if (mutableClass.isInstance(raw) || frozenClass.isInstance(raw)) {
                     ValueTypedComplex(value, mutableClass, frozenClass)
                 } else {
@@ -103,14 +103,14 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
         /** Downcast a Value to T using its stored KClass, via the AValueDyn raw pointer. */
         @Suppress("UNCHECKED_CAST")
         private fun downcastMutable(): T? {
-            val raw = value.getRef().value.ptr
+            val raw = value.getRef().value.starlarkValue()
             return if (mutableClass.isInstance(raw)) raw as T else null
         }
 
         /** Downcast a Value to F using its stored KClass, via the AValueDyn raw pointer. */
         @Suppress("UNCHECKED_CAST")
         private fun downcastFrozen(): F? {
-            val raw = value.getRef().value.ptr
+            val raw = value.getRef().value.starlarkValue()
             return if (frozenClass.isInstance(raw)) raw as F else null
         }
 
@@ -168,7 +168,7 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
                 frozenFv
                     .toValue()
                     .getRef()
-                    .value.ptr
+                    .value.starlarkValue()
             if (!frozenClass.isInstance(raw)) {
                 return Result.failure(
                     FreezeError.new(

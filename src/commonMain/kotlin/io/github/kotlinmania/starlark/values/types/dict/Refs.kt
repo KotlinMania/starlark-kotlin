@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.values.types.dict
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
@@ -37,7 +36,6 @@ sealed class Either<out L, out R> {
     ) : Either<Nothing, R>()
 }
 
-// / Borrowed `Dict`.
 class DictRef internal constructor(
     internal val aref: Either<Ref<Dict>, Dict>,
 )
@@ -48,13 +46,11 @@ fun DictRef.clone(): DictRef =
         is Either.Right -> DictRef(Either.Right(ref.value))
     }
 
-// / Downcast the value to a dict.
-@Suppress("UNCHECKED_CAST")
 fun dictRefFromValue(x: Value): DictRef? =
     if (x.unpackFrozen() != null) {
         x
             .downcastRef<DictGen<FrozenDictData>>()
-            ?.let { DictRef(Either.Right(Dict(it.inner.content as SmallMap<Value, Value>))) }
+            ?.let { DictRef(Either.Right(Dict(it.inner.toValueMap()))) }
     } else {
         val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return null
         DictRef(Either.Left(ptr.inner.borrow()))
@@ -73,33 +69,36 @@ fun DictRef.iter(): Sequence<Pair<Value, Value>> =
         is Either.Right -> ref.value.iter()
     }
 
-// / Mutably borrowed `Dict`.
 class DictMut(
-    // / Mutable reference to the dict
     val aref: RefMut<Dict>,
 )
 
-// / Downcast the value to a mutable dict reference.
 fun dictMutFromValue(x: Value): Result<DictMut> {
     class NotDictError(
         typeName: String,
     ) : Exception("Value is not dict, value type: `$typeName`")
 
+    val dictGen = x.downcastRef<DictGen<*>>()
     fun error(x: Value): Throwable =
-        if (x.downcastRef<DictGen<FrozenDictData>>() != null) {
+        if (dictGen?.inner is FrozenDictData) {
             ValueError.CannotMutateImmutableValue
         } else {
             NotDictError(x.getType())
         }
 
-    val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
-    return when (val borrowed = ptr.inner.tryBorrowMut()) {
-        null -> Result.failure(ValueError.MutationDuringIteration)
-        else -> Result.success(DictMut(borrowed))
-    }
+    val inner = dictGen?.inner
+    val dict =
+        if (inner is AtomicRef<*>) {
+            inner.value as? Dict
+        } else {
+            null
+        }
+
+    if (dict == null) return Result.failure(error(x))
+    val borrowed = RefMut(dict)
+    return Result.success(DictMut(borrowed))
 }
 
-// / Reference to frozen `Dict`.
 class FrozenDictRef internal constructor(
     private val dict: FrozenDictData,
 ) {

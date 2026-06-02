@@ -491,6 +491,11 @@ class Evaluator(
         isCancelled = isCanceled
     }
 
+    internal fun addCallStackDiagnostics(e: Error): Error {
+        e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
+        return e
+    }
+
     /**
      * Called to add an entry to the call stack, by the function being invoked.
      * Called for all types of function, including those written in Kotlin.
@@ -498,20 +503,20 @@ class Evaluator(
     internal fun <R> withCallStack(
         function: Value,
         span: FrozenRef<FrameSpan>?,
-        within: (Evaluator) -> R,
-    ): R {
-        fun addDiagnostics(e: Error): Error {
-            // Make sure we capture the call_stack before popping things off it
-            e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
-            return e
-        }
-
+        within: (Evaluator) -> Result<R>,
+    ): Result<R> {
         callStack.push(function, span)
         // Must always call .pop regardless
         try {
-            return within(this)
+            val result = within(this)
+            val failure = result.exceptionOrNull()
+            return if (failure is Error) {
+                Result.failure(addCallStackDiagnostics(failure))
+            } else {
+                result
+            }
         } catch (e: Error) {
-            throw addDiagnostics(e)
+            throw addCallStackDiagnostics(e)
         } finally {
             callStack.pop()
         }

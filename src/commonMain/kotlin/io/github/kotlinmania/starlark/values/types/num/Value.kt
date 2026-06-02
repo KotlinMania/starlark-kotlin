@@ -228,7 +228,7 @@ sealed class NumRef {
                 null ->
                     Result.failure(
                         IllegalArgumentException(
-                            "Type of parameters mismatch, expected `int | float`, actual `$value`",
+                            "Type of parameters mismatch, expected `float | int`, actual `${value.toStringForTypeError()}`",
                         ),
                     )
                 else -> Result.success(num)

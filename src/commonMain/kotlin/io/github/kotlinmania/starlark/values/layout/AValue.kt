@@ -78,7 +78,7 @@ interface AValue {
 
     /** Freeze this value with access to the owning representation for forward-pointer writes. */
     fun heapFreeze(
-        repr: AValueRepr<StarlarkValue>,
+        repr: AValueRepr<*>,
         freezer: Freezer,
     ): Result<FrozenValue> = heapFreeze(freezer)
 

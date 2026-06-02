@@ -82,7 +82,7 @@ internal class AValueComplex<T>(
     }
 
     override fun heapFreeze(
-        repr: AValueRepr<StarlarkValue>,
+        repr: AValueRepr<*>,
         freezer: Freezer,
     ): Result<FrozenValue> {
         val direct = tryFreezeDirectly(value, freezer)

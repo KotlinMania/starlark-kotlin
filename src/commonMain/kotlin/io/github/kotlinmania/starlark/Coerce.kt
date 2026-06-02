@@ -1,4 +1,4 @@
-// port-lint: source src/coerce.rs
+@file:Suppress("UNCHECKED_CAST")
 package io.github.kotlinmania.starlark
 
 import io.github.kotlinmania.starlark.collections.SmallMap

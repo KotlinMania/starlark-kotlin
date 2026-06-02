@@ -127,7 +127,7 @@ fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.fro
  */
 fun Value.unpackUInt(): Result<UInt?> =
     unpackIntegerImpl(
-        integerType = "UInt",
+        integerType = "u32",
         tryFromI32 = { i32 -> if (i32 >= 0) i32.toUInt() else null },
         tryFromBigInt = { bigInt ->
             try {
@@ -145,7 +145,7 @@ fun Value.unpackUInt(): Result<UInt?> =
  */
 fun Value.unpackULong(): Result<ULong?> =
     unpackIntegerImpl(
-        integerType = "ULong",
+        integerType = "u64",
         tryFromI32 = { i32 -> if (i32 >= 0) i32.toULong() else null },
         tryFromBigInt = { bigInt ->
             try {
@@ -168,7 +168,7 @@ fun Value.unpackLong(): Result<Long?> = unpackInteger()
  */
 fun Value.unpackInt(): Result<Int?> =
     unpackIntegerImpl(
-        integerType = "Int",
+        integerType = "i32",
         tryFromI32 = { i32 -> i32 },
         tryFromBigInt = { bigInt ->
             try {

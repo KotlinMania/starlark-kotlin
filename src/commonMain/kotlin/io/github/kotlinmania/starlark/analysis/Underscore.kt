@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/underscore.rs
+@file:Suppress("UNCHECKED_CAST")
 package io.github.kotlinmania.starlark.analysis
 
 /*

@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnFileLoader
 import io.github.kotlinmania.starlark.stdlib.PrintHandler
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocList
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -54,6 +55,13 @@ private fun Error.eprint() {
         println(this)
     }
 }
+
+private fun Throwable.asStarlarkError(): Error? =
+    when (this) {
+        is Error -> this
+        is StarlarkError -> cause?.asStarlarkError()
+        else -> null
+    }
 
 private fun mkEnvironment(): GlobalsBuilder = GlobalsBuilder.extended().with(::testFunctions)
 
@@ -339,7 +347,7 @@ class Assert(
                     error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
                 } else {
                     val e = result.exceptionOrNull()!!
-                    e as? Error ?: Error.newOther(e)
+                    e.asStarlarkError() ?: Error.newOther(e)
                 }
         }
 

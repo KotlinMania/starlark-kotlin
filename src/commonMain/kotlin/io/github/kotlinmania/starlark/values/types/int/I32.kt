@@ -51,7 +51,7 @@ fun unpackValueI32(value: Value): Result<Int?> {
         return Result.failure(
             IntegerTooBigError(
                 value = int.toString(),
-                integerType = "Int",
+                integerType = "i32",
             ),
         )
     }

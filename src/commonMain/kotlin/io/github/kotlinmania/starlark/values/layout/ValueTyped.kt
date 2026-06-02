@@ -70,7 +70,7 @@ class ValueTyped<T : StarlarkValue>(
 
     /** Get the reference to the pointed value. */
     @Suppress("UNCHECKED_CAST")
-    fun asRef(): T = value.getRef().value.ptr as T
+    fun asRef(): T = value.getRef().value.starlarkValue() as T
 
     /** Compute the hash value. */
     fun hashed(): Result<Hashed<ValueTyped<T>>> {
@@ -146,7 +146,7 @@ class FrozenValueTyped<T : StarlarkValue>(
         frozenValue
             .toValue()
             .getRef()
-            .value.ptr as T
+            .value.starlarkValue() as T
 
     internal fun asFrozenRef(): FrozenRef<T> = FrozenRef.new(asRef())
 

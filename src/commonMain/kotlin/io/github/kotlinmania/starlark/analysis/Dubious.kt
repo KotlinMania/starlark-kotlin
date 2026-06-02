@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/dubious.rs
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
 package io.github.kotlinmania.starlark.analysis
 
 import io.github.kotlinmania.starlark.codemap.CodeMap
@@ -12,6 +13,7 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -142,7 +144,7 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
                                 LintT.new(
                                     codemap,
                                     old,
-                                    Dubious.DuplicateKey(key.toString(), codemap.fileSpan(pos)),
+                                    Dubious.DuplicateKey(key.toSourceString(), codemap.fileSpan(pos)),
                                 ),
                             )
                         }

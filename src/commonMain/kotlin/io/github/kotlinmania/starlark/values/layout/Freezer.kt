@@ -60,7 +60,7 @@ class Freezer internal constructor(
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val value = value.ptr.unpackPtrOpt()!!
         val header = AValueHeader.fromIndex(value)
-        val repr = header.asRepr<StarlarkValue>()
+        val repr = header.asRepr()
         val unpacked: AValueOrForwardUnpack =
             if (repr.overwritten != null) {
                 AValueOrForwardUnpack.Forward(repr.overwritten!!)

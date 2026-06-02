@@ -33,6 +33,8 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -49,19 +51,20 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
             typeName = "string",
             isStr = true,
             memorySizeFn = { ptr ->
-                val str = ptr.valueRef<StarlarkStr>()
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 val byteLen = str.len()
                 ValueAllocSize.new(
                     AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                 )
             },
-            heapFreezeFn = { _, ptr, freezer ->
-                val str = ptr.valueRef<StarlarkStr>()
+            heapFreezeFn = { repr, ptr, freezer ->
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
+                AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
                 Result.success(fv.toFrozenValue())
             },
             heapCopyFn = { ptr, tracer ->
-                val str = ptr.valueRef<StarlarkStr>()
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 tracer.allocStr(str.asStr())
             },
             starlarkValue =
@@ -102,6 +105,16 @@ internal class StarlarkStrAValue(
         return Result.success(fv.toFrozenValue())
     }
 
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        val s = str.asStr()
+        val fv = freezer.frozenHeap().allocStrIntern(s)
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
+        return Result.success(fv.toFrozenValue())
+    }
+
     override fun heapCopy(tracer: Tracer): Value {
         val s = str.asStr()
         return tracer.allocStr(s)
@@ -123,9 +136,11 @@ fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     if (constant != null) {
         return constant
     }
-    val bytes = s.key.encodeToByteArray()
-    return allocStrInit(bytes.size, s.hash) { dst ->
-        bytes.copyInto(dst)
+    return stringInterner().intern(s) {
+        val bytes = s.key.encodeToByteArray()
+        allocStrInit(bytes.size, s.hash) { dst ->
+            bytes.copyInto(dst)
+        }
     }
 }
 
@@ -148,10 +163,12 @@ fun Heap.allocStrIntern(x: String): StringValue {
     if (constant != null) {
         return constant.toStringValue()
     }
-    val hash = StarlarkHashValue.new(x)
-    val bytes = x.encodeToByteArray()
-    return allocStrInit(bytes.size, hash) { dst ->
-        bytes.copyInto(dst)
+    val hashed = Hashed.new(x)
+    return stringInterner().intern(hashed) {
+        val bytes = x.encodeToByteArray()
+        allocStrInit(bytes.size, hashed.hash) { dst ->
+            bytes.copyInto(dst)
+        }
     }
 }
 

@@ -34,6 +34,7 @@ import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimpleTypedStatic
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
@@ -82,6 +83,16 @@ class Methods internal constructor(
     internal fun names(): List<String> = members.keys().map { it.asStr() }
 
     internal fun members(): Iterator<Pair<String, FrozenValue>> = members.iter().map { (k, v) -> Pair(k.asStr(), v.toFrozenValue()) }.iterator()
+
+    internal fun methodMembers(): Iterator<Pair<String, FrozenValueTyped<NativeMethod>>> =
+        members
+            .iter()
+            .mapNotNull { (k, v) ->
+                when (v) {
+                    is UnboundValue.Method -> Pair(k.asStr(), v.method)
+                    is UnboundValue.Attr -> null
+                }
+            }.iterator()
 
     /** Fetch the documentation. */
     fun documentation(ty: Ty): DocType {

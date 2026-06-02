@@ -291,9 +291,9 @@ object GrammarUtil {
         TypeExprUnpackP.unpack<AstNoPayload, Unit>(x, state.codemap)
 
         return x.map { node ->
-            TypeExprP<AstNoPayload, Unit>(
+            TypeExprP(
                 expr = Spanned(node, x.span),
-                payload = Unit,
+                payload = AstNoTypeExprPayload,
             )
         }
     }

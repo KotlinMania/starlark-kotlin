@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.types.tuple
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -46,6 +47,7 @@ internal fun registerTuple(globals: GlobalsBuilder) {
         asType =
             io.github.kotlinmania.starlark.typing.Ty
                 .anyTuple(),
+        specialBuiltinFunction = SpecialBuiltinFunction.Tuple,
     ) { args: Arguments, eval: Evaluator ->
         val heap = eval.heap()
         val a = args.optionalPositional<Value>(0)

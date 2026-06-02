@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark.values.types.list
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyCallArgs
@@ -114,7 +115,11 @@ internal fun registerList(globals: GlobalsBuilder) {
     // If no argument is provided, it returns an empty list.
     // If an iterable is provided, its elements are collected into a new list.
     // If the argument is already a list, its contents are copied efficiently.
-    globals.setFunction("list", asType = Ty.anyList()) { args, eval ->
+    globals.setFunction(
+        "list",
+        asType = Ty.anyList(),
+        specialBuiltinFunction = SpecialBuiltinFunction.List,
+    ) { args, eval ->
         val heap = eval.heap()
         val a = args.optional1(heap).getOrThrow()
         listBuiltin(a, heap).getOrThrow()

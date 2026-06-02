@@ -24,7 +24,7 @@ package io.github.kotlinmania.starlark.values.layout
  * Special value which holds a reference to actual value.
  * This is used to implement variable capture by nested functions.
  *
- * [Value] holding [ValueCaptured] is equivalent to `Box<Option<Value>>`.
+ * [Value] holding [ValueCaptured] behaves like an optional captured slot.
  */
 
 import io.github.kotlinmania.starlark.values.ComplexValue
@@ -75,8 +75,7 @@ internal class ValueCaptured private constructor(
             if (payload != null) {
                 val result = payload!!.freeze(freezer)
                 if (result.isFailure) {
-                    @Suppress("UNCHECKED_CAST")
-                    return result as Result<FrozenValueCaptured>
+                    return Result.failure(result.exceptionOrNull()!!)
                 }
                 result.getOrThrow()
             } else {
