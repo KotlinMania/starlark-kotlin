@@ -20,12 +20,12 @@ package io.github.kotlinmania.starlark.values.types.tuple
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Register the `tuple` builtin function.

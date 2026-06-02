@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.layout
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDefPostFreeze
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.FrozenRef
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap

@@ -1,5 +1,6 @@
 // port-lint: source src/analysis/names.rs
 @file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -69,7 +70,7 @@ sealed class NameWarning : LintWarning {
         val name: String,
     ) : NameWarning()
 
-    override fun toString(): String =
+    final override fun toString(): String =
         when (this) {
             is UnusedLoad -> "Unused `load` of `$name`"
             is UnusedAssign -> "Unused assignment of `$name`"

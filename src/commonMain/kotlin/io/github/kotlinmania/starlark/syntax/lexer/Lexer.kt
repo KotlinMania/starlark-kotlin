@@ -139,10 +139,11 @@ class Lexer(
                     tabs = 0
                     val commentStart = pos
                     pos++ // skip '#'
-                    while (pos < source.length && source[pos] != '\n') pos++
+                    while (pos < source.length && source[pos] != '\n' && source[pos] != '\r') pos++
                     // Comment token (content excludes leading '#')
-                    val commentText = source.substring(commentStart + 1, pos).trimEnd('\r')
+                    val commentText = source.substring(commentStart + 1, pos)
                     buffer.addLast(Triple(commentStart, Token.Comment(commentText), pos))
+                    if (pos < source.length && source[pos] == '\r') pos++
                     if (pos < source.length && source[pos] == '\n') {
                         // Don't consume the newline, let the main loop handle it
                     }
@@ -744,6 +745,8 @@ class Lexer(
             return next
         }
     }
+
+    fun nextIncludingComments(): Lexeme? = produceNext()
 
     /**
      * Produce the next token or null if at EOF.

@@ -1,5 +1,6 @@
 // port-lint: tests src/eval/compiler/scope/tests.rs
 @file:Suppress("UNCHECKED_CAST", "USELESS_CAST", "CAST_NEVER_SUCCEED")
+
 package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*

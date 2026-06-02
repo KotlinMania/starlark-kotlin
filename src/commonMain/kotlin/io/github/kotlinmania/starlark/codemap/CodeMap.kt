@@ -75,7 +75,7 @@ class CodeMap(
     }
 
     val lines: List<Pos>
-    private val _id: CodeMapId = CodeMapId.next()
+    private val codeMapId: CodeMapId = CodeMapId.next()
 
     init {
         val linePositions = mutableListOf(Pos(0))
@@ -90,7 +90,7 @@ class CodeMap(
     }
 
     /** Only used internally for profiling optimisations. */
-    fun id(): CodeMapId = _id
+    fun id(): CodeMapId = codeMapId
 
     fun fullSpan(): Span = Span(Pos(0), Pos(source.length))
 
@@ -111,6 +111,17 @@ class CodeMap(
     }
 
     fun lineSpan(line: Int): Span = lineSpanOpt(line) ?: throw IllegalArgumentException("Line $line out of bounds")
+
+    fun lineSpanTrimNewline(line: Int): Span {
+        var span = lineSpan(line)
+        if (sourceSpan(span).endsWith('\n')) {
+            span = Span(span.begin, span.end - 1)
+        }
+        if (sourceSpan(span).endsWith('\r')) {
+            span = Span(span.begin, span.end - 1)
+        }
+        return span
+    }
 
     fun sourceLine(line: Int): String = sourceSpan(lineSpan(line)).trimEnd('\r', '\n')
 
@@ -137,10 +148,10 @@ class CodeMap(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CodeMap) return false
-        return _id == other._id
+        return codeMapId == other.codeMapId
     }
 
-    override fun hashCode(): Int = _id.hashCode()
+    override fun hashCode(): Int = codeMapId.hashCode()
 
     override fun toString(): String = "CodeMap(\"$filename\")"
 }

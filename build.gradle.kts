@@ -58,7 +58,6 @@ val commonOptIns =
         "kotlinx.serialization.ExperimentalSerializationApi",
     )
 
-
 // ============================================================================
 // Android SDK installer
 // ----------------------------------------------------------------------------
@@ -367,6 +366,9 @@ tasks.withType<AbstractTestTask>().configureEach {
         showStackTraces = true
         showStandardStreams = true
     }
+    if (name.contains("BrowserTest")) {
+        failOnNoDiscoveredTests.set(false)
+    }
 }
 
 // ============================================================================
@@ -402,7 +404,23 @@ ktlint {
     }
     filter {
         exclude("**/build/**")
+        exclude("src/**/syntax/parser/Grammar.kt")
+        exclude("src/**/syntax/parser/GrammarReducers.kt")
         include("**/src/**/kotlin/**")
+    }
+}
+
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask>().configureEach {
+    exclude {
+        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
+            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
+    }
+}
+
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintFormatTask>().configureEach {
+    exclude {
+        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
+            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
     }
 }
 

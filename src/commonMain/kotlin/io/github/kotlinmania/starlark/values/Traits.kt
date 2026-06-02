@@ -57,7 +57,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-
 /**
  * A trait for values which are more complex - because they are either mutable,
  * or contain references to other values.

@@ -55,8 +55,8 @@ import io.github.kotlinmania.starlark.values.types.NativeFunc
 import io.github.kotlinmania.starlark.values.types.NativeFuncFn
 import io.github.kotlinmania.starlark.values.types.NativeFunction
 import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
-import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bool.allocValue
 import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
@@ -405,11 +405,13 @@ class GlobalsBuilder private constructor(
                 name = name,
                 speculativeExecSafe = speculativeExecSafe,
                 asType = asType,
-                ty = ty ?: if (asType != null) {
-                    Ty.ctorFunction(asType, ParamSpec.any(), asType)
-                } else {
-                    Ty.function(ParamSpec.any(), Ty.any())
-                },
+                ty =
+                    ty
+                        ?: if (asType != null) {
+                            Ty.ctorFunction(asType, ParamSpec.any(), asType)
+                        } else {
+                            Ty.function(ParamSpec.any(), Ty.any())
+                        },
                 docs = DocItem.Member(DocMember.Function(DocFunction())),
                 specialBuiltinFunction = specialBuiltinFunction,
             ),
@@ -441,7 +443,7 @@ class GlobalsBuilder private constructor(
                 else ->
                     return Result.failure(
                         IllegalArgumentException(
-                            "Cannot convert native function result of type ${result::class.qualifiedName} to Starlark value",
+                            "Cannot convert native function result of type ${result::class.simpleName} to Starlark value",
                         ),
                     )
             },

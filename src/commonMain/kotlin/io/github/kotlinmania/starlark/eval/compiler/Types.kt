@@ -30,10 +30,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.cstPayload
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstTypeExprP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
 import io.github.kotlinmania.starlark.typing.EvalException

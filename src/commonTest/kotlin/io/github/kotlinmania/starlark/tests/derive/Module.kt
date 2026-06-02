@@ -20,4 +20,3 @@ package io.github.kotlinmania.starlark.tests.derive
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-

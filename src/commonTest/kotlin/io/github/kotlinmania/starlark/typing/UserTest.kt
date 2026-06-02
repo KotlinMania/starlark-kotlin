@@ -25,10 +25,6 @@ import kotlin.test.Test
 // Test types: In Rust these use #[derive] macros and #[starlark_value].
 // Here we define minimal stubs to capture the test structure.
 
-
-
-
-
 class UserTest {
     @Test
     fun testIntersectWithAbstractType() {

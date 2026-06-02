@@ -32,10 +32,11 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
     globals.setFunction(
         "eval_type",
         speculativeExecSafe = true,
-        ty = Ty.function(
-            ParamSpec.posOnly(listOf(Ty.basic(TyBasic.Type))),
-            Ty.basic(TyBasic.Type),
-        ),
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.basic(TyBasic.Type))),
+                Ty.basic(TyBasic.Type),
+            ),
     ) { args: Arguments, eval: Evaluator ->
         val ty = args.positional1(eval.heap()).getOrThrow()
         TypeCompiled.new(ty, eval.heap()).toInner()
@@ -61,10 +62,11 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      */
     globals.setFunction(
         "isinstance",
-        ty = Ty.function(
-            ParamSpec.posOnly(listOf(Ty.any(), Ty.basic(TyBasic.Type))),
-            Ty.bool(),
-        ),
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.any(), Ty.basic(TyBasic.Type))),
+                Ty.bool(),
+            ),
     ) { args: Arguments, eval: Evaluator ->
         val positional = args.positional(2, eval.heap()).getOrThrow()
         val value = positional[0]

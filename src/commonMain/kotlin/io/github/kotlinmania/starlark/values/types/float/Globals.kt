@@ -1,7 +1,5 @@
 // port-lint: source src/values/types/float/globals.rs
 package io.github.kotlinmania.starlark.values.types.float
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.typing.Ty
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,6 +19,8 @@ import io.github.kotlinmania.starlark.typing.Ty
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 import io.github.kotlinmania.starlark.values.types.string.stringRepr
 

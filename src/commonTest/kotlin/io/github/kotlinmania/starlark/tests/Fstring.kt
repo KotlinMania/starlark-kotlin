@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
 
-
 private fun passAssert(): Assert {
     val a = Assert()
     a.dialect(Dialect.AllOptionsInternal)
@@ -105,7 +104,6 @@ internal fun testFstringConv() {
     passAssert().isTrue("""x = 'a'; f"{x!s}" == 'a'""")
     passAssert().isTrue("""x = 'a'; f"{x!r}" == '"a"'""")
 }
-
 
 private fun fstringGoldenTestWithDialect(testName: String, text: String, dialect: Dialect) {
     val a = Assert()

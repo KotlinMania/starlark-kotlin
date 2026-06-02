@@ -1,14 +1,28 @@
 package io.github.kotlinmania.starlark.syntax.parser
 
 import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.syntax.ast.*
+import io.github.kotlinmania.starlark.syntax.ast.Argument
+import io.github.kotlinmania.starlark.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark.syntax.ast.AstArgument
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstFString
+import io.github.kotlinmania.starlark.syntax.ast.AstFloat
+import io.github.kotlinmania.starlark.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstInt
+import io.github.kotlinmania.starlark.syntax.ast.AstParameter
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstString
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark.syntax.ast.Clause
+import io.github.kotlinmania.starlark.syntax.ast.Comma
+import io.github.kotlinmania.starlark.syntax.ast.Expr
+import io.github.kotlinmania.starlark.syntax.ast.ForClause
+import io.github.kotlinmania.starlark.syntax.ast.Parameter
+import io.github.kotlinmania.starlark.syntax.ast.Stmt
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
-
-/** Marker for nested Option<> handling where nullability flattening in Kotlin loses state. */
-
-class Comma
 
 sealed class GrammarSymbol {
     data class Variant0(

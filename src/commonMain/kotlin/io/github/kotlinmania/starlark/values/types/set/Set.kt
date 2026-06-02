@@ -20,11 +20,11 @@ package io.github.kotlinmania.starlark.values.types.set
  */
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Register the `set` builtin function.

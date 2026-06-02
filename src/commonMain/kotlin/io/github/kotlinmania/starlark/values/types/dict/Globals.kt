@@ -21,13 +21,13 @@ package io.github.kotlinmania.starlark.values.types.dict
 
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }

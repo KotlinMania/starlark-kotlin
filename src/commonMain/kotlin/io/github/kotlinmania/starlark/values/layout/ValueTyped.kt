@@ -146,7 +146,8 @@ class FrozenValueTyped<T : StarlarkValue>(
         frozenValue
             .toValue()
             .getRef()
-            .value.starlarkValue() as T
+            .value
+            .starlarkValue() as T
 
     internal fun asFrozenRef(): FrozenRef<T> = FrozenRef.new(asRef())
 

@@ -252,18 +252,17 @@ class Heap internal constructor(
     }
 
     private fun garbageCollectInternal(f: (Tracer) -> Unit) {
-        // Must rewrite all Value's so they point at the new heap.
-        // Take the arena out of the heap to make sure nobody allocates in it,
-        // but hold the reference until the GC is done.
-        @Suppress("UNUSED_VARIABLE")
-        val _arena = owned.arena.take()
-
-        val tracer =
-            Tracer(
-                arena = Arena(),
-            )
-        f(tracer)
-        owned.arena.set(tracer.arena)
+        val retainedArena = owned.arena.take()
+        try {
+            val tracer =
+                Tracer(
+                    arena = Arena(),
+                )
+            f(tracer)
+            owned.arena.set(tracer.arena)
+        } finally {
+            retainedArena.finish()
+        }
     }
 
     /** Obtain a summary of how much memory is currently allocated by this heap. */
@@ -408,19 +407,18 @@ class FrozenHeap internal constructor(
     /** Allocate a value and return FrozenValueOfUnchecked of it. */
     fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
 
-    /**
-     * Allocate an interned string. Returns a FrozenStringValue.
-     * Port of `FrozenHeap::alloc_str_intern`.
-     */
+    /** Allocate an interned string. Returns a FrozenStringValue. */
     fun allocStrIntern(s: String): FrozenStringValue {
-        val hashed = io.github.kotlinmania.starlark.collections.Hashed.new(s)
+        val hashed =
+            io.github.kotlinmania.starlark.collections.Hashed
+                .new(s)
         return stringInterner()
             .intern(hashed) {
-            val bytes = s.encodeToByteArray()
-            allocStrInit(bytes.size, hashed.hash) { dst ->
-                bytes.copyInto(dst)
+                val bytes = s.encodeToByteArray()
+                allocStrInit(bytes.size, hashed.hash) { dst ->
+                    bytes.copyInto(dst)
+                }
             }
-        }
     }
 
     /**

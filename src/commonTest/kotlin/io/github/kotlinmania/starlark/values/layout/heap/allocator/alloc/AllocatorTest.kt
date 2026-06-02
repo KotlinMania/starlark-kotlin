@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.C
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AllocatorTest {
     // / AValueHeader::ALIGN = 8 in Rust

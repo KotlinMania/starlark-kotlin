@@ -146,11 +146,7 @@ interface TypeMatcherAlloc<R> {
 
     /** `A | None`. */
     fun noneOrStarlarkValue(ty: TyStarlarkValue): R =
-        when {
-            ty.isStr() -> alloc(IsAnyOfTwo(IsNone, IsStr))
-            ty.isInt() -> alloc(IsAnyOfTwo(IsNone, IsInt))
-            else -> alloc(IsAnyOfTwo(IsNone, StarlarkTypeIdMatcher.new(ty)))
-        }
+        alloc(IsAnyOfTwo(IsNone, ty.matcher(TypeMatcherBoxAlloc)))
 
     /** `A | None`. */
     fun noneOrBasic(ty: TyBasic): R =
@@ -174,11 +170,7 @@ interface TypeMatcherAlloc<R> {
 
     /** `list[Item]`. */
     fun listOfStarlarkValue(item: TyStarlarkValue): R =
-        if (item.isStr()) {
-            listOfMatcher(IsStr)
-        } else {
-            listOfMatcher(StarlarkTypeIdMatcher.new(item))
-        }
+        listOfMatcher(item.matcher(TypeMatcherBoxAlloc))
 
     /** `list[Item]`. */
     fun listOfBasic(item: TyBasic): R =
@@ -213,12 +205,7 @@ interface TypeMatcherAlloc<R> {
 
     /** `dict[Key, Value]`. */
     fun dictOfStarlarkValueToSomething(k: TyStarlarkValue, v: Ty): R =
-        if (k.isStr()) {
-            // Optimize matchers for common types like `dict[str, something]`.
-            dictOfMatcher(IsStr, TypeMatcherBoxAlloc.ty(v))
-        } else {
-            dictOfMatcher(StarlarkTypeIdMatcher.new(k), TypeMatcherBoxAlloc.ty(v))
-        }
+        dictOfMatcher(k.matcher(TypeMatcherBoxAlloc), TypeMatcherBoxAlloc.ty(v))
 
     /** `dict[Key, Value]`. */
     fun dictOf(k: Ty, v: Ty): R =
@@ -245,11 +232,7 @@ interface TypeMatcherAlloc<R> {
 
     /** `set[Item]`. */
     fun setOfStarlarkValue(item: TyStarlarkValue): R =
-        if (item.isStr()) {
-            setOfMatcher(IsStr)
-        } else {
-            setOfMatcher(StarlarkTypeIdMatcher.new(item))
-        }
+        setOfMatcher(item.matcher(TypeMatcherBoxAlloc))
 
     /** `set[Item]`. */
     fun setOfBasic(item: TyBasic): R =

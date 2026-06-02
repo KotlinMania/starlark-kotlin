@@ -1,10 +1,5 @@
 // port-lint: source src/analysis/performance.rs
-@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
 package io.github.kotlinmania.starlark.analysis
-
-import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,8 +19,12 @@ import io.github.kotlinmania.starlark.syntax.ast.AstExpr
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
 
 internal sealed class Performance : LintWarning {
     data class DictWithoutStarStar(
@@ -78,7 +77,7 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
                     codemap,
                     x.span,
                     Performance.DictWithoutStarStar(
-                        x.toString(),
+                        x.node.toSourceString(),
                         "dict(${kwArg.node})",
                     ),
                 ),
@@ -107,8 +106,14 @@ private fun matchInefficientBoolCheck(
     val arg = (argAst.node as ArgumentP.Positional<*>).expr.node
 
     when (arg) {
-        is ExprP.ListExpr<*>, is ExprP.Dict<*> -> {
-        }
+        is ExprP.ListComprehension<*>, is ExprP.DictComprehension<*> ->
+            res.add(
+                LintT.new(
+                    codemap,
+                    x.span,
+                    Performance.EagerAndInefficientBoolCheck(funcIdent),
+                ),
+            )
         is ExprP.Call<*> -> {
             val innerFunc = arg.expr.node
             if (innerFunc is ExprP.Identifier<*, *>) {
@@ -119,7 +124,7 @@ private fun matchInefficientBoolCheck(
                             codemap,
                             x.span,
                             Performance.InefficientBoolCheck(
-                                x.toString(),
+                                x.node.toSourceString(),
                                 innerIdent,
                             ),
                         ),

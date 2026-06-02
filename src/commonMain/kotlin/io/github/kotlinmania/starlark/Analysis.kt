@@ -73,4 +73,4 @@ fun AstModule.lint(globals: Set<String>? = null): List<Lint> =
         addAll(namesLint(this@lint, globals).map { it.erase() })
         addAll(lintPerformance(this@lint).map { it.erase() })
         addAll(underscoreLint(this@lint).map { it.erase() })
-    }
+    }.filter { issue -> !isSuppressed(issue.shortName, issue.location.span) }

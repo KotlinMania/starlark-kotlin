@@ -47,7 +47,7 @@ internal fun <T> LintT<T>.erase(): Lint where T : LintWarning =
         shortName = this.problem.shortName(),
         severity = this.problem.severity(),
         problem = this.problem.toString(),
-        original = "", // LintT in flow.kt lacks `original`; will be filled when unified
+        original = this.location.sourceSpan(),
     )
 
 /** A standardised set of severities. */

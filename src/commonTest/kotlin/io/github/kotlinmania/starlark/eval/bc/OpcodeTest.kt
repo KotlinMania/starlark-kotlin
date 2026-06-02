@@ -1,5 +1,6 @@
 // port-lint: tests src/eval/bc/opcode.rs
 @file:Suppress("USELESS_CAST")
+
 package io.github.kotlinmania.starlark.eval.bc
 
 /*

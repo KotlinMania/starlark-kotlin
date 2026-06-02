@@ -3,10 +3,10 @@
 
 package io.github.kotlinmania.starlark.eval.bc
 
+import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
-import io.github.kotlinmania.starlark.Error
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.compiler.AssignError
 import io.github.kotlinmania.starlark.eval.compiler.DefInfo

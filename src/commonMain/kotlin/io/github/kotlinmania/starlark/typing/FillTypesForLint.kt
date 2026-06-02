@@ -8,9 +8,11 @@ import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.Slot
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
@@ -26,16 +28,14 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.ForP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentPayload
-import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -442,8 +442,8 @@ private class GlobalTypesBuilder(
         return unknownTy(span)
     }
 
-    fun fromTypeExprImpl(x: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>): Ty {
-        return when (val node = x.node) {
+    fun fromTypeExprImpl(x: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>): Ty =
+        when (val node = x.node) {
             is TypeExprUnpackP.Ellipsis -> {
                 approximations.add(Approximation.new("Ellipsis cannot be used as type", x))
                 Ty.any()
@@ -484,7 +484,7 @@ private class GlobalTypesBuilder(
                             onFailure = { e ->
                                 approximations.add(Approximation.new("Getitem failed", x))
                                 Ty.any()
-                            }
+                            },
                         )
                     }
                 } else {
@@ -512,7 +512,7 @@ private class GlobalTypesBuilder(
                             onFailure = { e ->
                                 approximations.add(Approximation.new("Getitem2 failed", x))
                                 Ty.any()
-                            }
+                            },
                         )
                     } else if (Constants.get().fnTuple?.let { a.ptrEq(it.value.toValue()) } == true) {
                         val i0 = fromTypeExprImpl(node.i0)
@@ -534,7 +534,7 @@ private class GlobalTypesBuilder(
                                 onFailure = { e ->
                                     approximations.add(Approximation.new("Getitem2 failed", x))
                                     Ty.any()
-                                }
+                                },
                             )
                         }
                     } else if (Constants.get().typingCallable?.let { a.ptrEq(it.value.toValue()) } == true) {
@@ -559,7 +559,7 @@ private class GlobalTypesBuilder(
                                 onFailure = { e ->
                                     approximations.add(Approximation.new("Getitem2 failed", x))
                                     Ty.any()
-                                }
+                                },
                             )
                         }
                     } else {
@@ -572,7 +572,6 @@ private class GlobalTypesBuilder(
                 }
             }
         }
-    }
 
     fun tyExpr(expr: CstTypeExpr): Ty {
         val x = TypeExprUnpackP.unpack<CstPayload, CstIdentPayload>(expr.node.expr, ctx.codemap)

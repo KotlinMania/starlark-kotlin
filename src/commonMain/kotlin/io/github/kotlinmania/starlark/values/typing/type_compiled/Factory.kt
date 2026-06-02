@@ -1,8 +1,9 @@
 // port-lint: source src/values/typing/type_compiled/factory.rs
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyCustom
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,9 +22,6 @@ import io.github.kotlinmania.starlark.typing.Ty
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// TypeMatcherAlloc<R> is defined in Alloc.kt (same package)
-import io.github.kotlinmania.starlark.typing.TyCustom
 
 /** Allocate a `Ty` with a `TypeMatcher` in starlark heap as `TypeCompiled`. */
 class TypeCompiledFactory(

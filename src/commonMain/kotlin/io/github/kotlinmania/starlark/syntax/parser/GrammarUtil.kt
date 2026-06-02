@@ -25,7 +25,31 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Pos
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
-import io.github.kotlinmania.starlark.syntax.ast.*
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AssignOp
+import io.github.kotlinmania.starlark.syntax.ast.AssignP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstArgument
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstFString
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstNoTypeExprPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstString
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
+import io.github.kotlinmania.starlark.syntax.ast.Comma
+import io.github.kotlinmania.starlark.syntax.ast.Expr
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.FStringP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
+import io.github.kotlinmania.starlark.syntax.ast.LoadP
+import io.github.kotlinmania.starlark.syntax.ast.Stmt
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.TypeExprP
 import io.github.kotlinmania.starlark.syntax.dialect.DialectTypes
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.state.ParserState
@@ -75,10 +99,8 @@ object GrammarUtil {
                 is ExprP.Dot -> AssignTargetP.Dot(expr.expr, expr.field)
                 is ExprP.Index -> AssignTargetP.Index(expr.expr, expr.index)
                 is ExprP.Identifier<*, *> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val ident = expr.ident as AstIdent
                     AssignTargetP.Identifier(
-                        ident.map { s ->
+                        expr.ident.map { s ->
                             AssignIdentP<AstNoPayload, Unit>(
                                 ident = s.ident,
                                 payload = Unit,
@@ -171,14 +193,13 @@ object GrammarUtil {
             return checkLoad0(module, parserState)
         }
 
-        @Suppress("UNCHECKED_CAST")
         val loadArgs =
             args.map { (localTheir, comma) ->
                 val (local, their) = localTheir
                 LoadArgP(
                     local = local,
                     their = their,
-                    comma = comma as Spanned<io.github.kotlinmania.starlark.syntax.ast.Comma>?,
+                    comma = comma,
                 )
             } +
                 if (last != null) {

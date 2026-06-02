@@ -8,14 +8,18 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.none.NoneOr
+import io.github.kotlinmania.starlark.values.types.tuple.TupleRef
+import io.github.kotlinmania.starlark.values.toValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -115,15 +119,27 @@ internal fun stringMethods(builder: MethodsBuilder) {
             returnType = Ty.any(),
         )
 
-    fun setStringMethod(
+    fun setMethod(
         name: String,
-        f: (String) -> Result<String>,
+        sig: ParametersSpec<FrozenValue>,
+        f: (Evaluator, Value, Arguments) -> Result<Value>,
     ) {
         builder.setMethod(
             name = name,
             components = components,
+            sig = sig,
+            f = { eval, thisValue, _, args -> f(eval, thisValue, args) },
+        )
+    }
+
+    fun setStringMethod(
+        name: String,
+        f: (String) -> Result<String>,
+    ) {
+        setMethod(
+            name = name,
             sig = ParametersSpec.withCapacity<FrozenValue>(name).finish(),
-            f = { eval, thisValue, _, _ ->
+            f = { eval, thisValue, _ ->
                 val thisStr =
                     StringValue.new(thisValue)
                         ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
@@ -137,6 +153,394 @@ internal fun stringMethods(builder: MethodsBuilder) {
     setStringMethod("lower", ::lower)
     setStringMethod("title", ::title)
     setStringMethod("upper", ::upper)
+
+    setMethod(
+        "elems",
+        ParametersSpec.withCapacity<FrozenValue>("elems").finish(),
+    ) { eval, thisValue, _ ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for elems"))
+        elems(thisStr, eval.heap())
+    }
+
+    setMethod(
+        "codepoints",
+        ParametersSpec.withCapacity<FrozenValue>("codepoints").finish(),
+    ) { eval, thisValue, _ ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for codepoints"))
+        codepoints(thisStr, eval.heap())
+    }
+
+    setMethod(
+        "count",
+        ParametersSpec.newParts(
+            functionName = "count",
+            posOnly = listOf(
+                Pair("needle", ParametersSpecParam.Required),
+                Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for count"))
+        val needle = args.positional<Value>(0).unpackStr()
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for count"))
+        fun noneOrI32(v: Value?): NoneOr<Int> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
+            return NoneOr.Other(i)
+        }
+        val start = noneOrI32(args.optionalPositional<Value>(1))
+        val end = noneOrI32(args.optionalPositional<Value>(2))
+        count(thisStr.asStr(), needle, start, end).map { it.toValue() }
+    }
+
+    setMethod(
+        "endswith",
+        ParametersSpec.newParts(
+            functionName = "endswith",
+            posOnly = listOf(Pair("suffix", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for endswith"))
+        val suffixVal = args.positional<Value>(0)
+        val suffix = unpackStringOrTuple(suffixVal)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for endswith"))
+        endswith(thisStr.asStr(), suffix).map { it.toValue() }
+    }
+
+    setMethod(
+        "startswith",
+        ParametersSpec.newParts(
+            functionName = "startswith",
+            posOnly = listOf(Pair("prefix", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { _, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for startswith"))
+        val prefixVal = args.positional<Value>(0)
+        val prefix = unpackStringOrTuple(prefixVal)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for startswith"))
+        startswith(thisStr.asStr(), prefix).map { it.toValue() }
+    }
+
+    fun setFindMethod(
+        name: String,
+        f: (String, String, NoneOr<Int>, NoneOr<Int>) -> Result<Int>,
+    ) {
+        setMethod(
+            name,
+            ParametersSpec.newParts(
+                functionName = name,
+                posOnly = listOf(
+                    Pair("needle", ParametersSpecParam.Required),
+                    Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
+                posOrNamed = emptyList(),
+                args = false,
+                namedOnly = emptyList(),
+                kwargs = false,
+            ),
+        ) { _, thisValue, args ->
+            val thisStr = StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val needle = args.positional<Value>(0).unpackStr()
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
+            fun noneOrI32(v: Value?): NoneOr<Int> {
+                if (v == null || v.isNone()) return NoneOr.None
+                val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
+                return NoneOr.Other(i)
+            }
+            val start = noneOrI32(args.optionalPositional<Value>(1))
+            val end = noneOrI32(args.optionalPositional<Value>(2))
+            f(thisStr.asStr(), needle, start, end).map { it.toValue() }
+        }
+    }
+
+    setFindMethod("find", ::find)
+    setFindMethod("index", ::index)
+    setFindMethod("rfind", ::rfind)
+    setFindMethod("rindex", ::rindex)
+
+    setMethod(
+        "format",
+        ParametersSpec.newParts(
+            functionName = "format",
+            posOnly = emptyList(),
+            posOrNamed = emptyList(),
+            args = true,
+            namedOnly = emptyList(),
+            kwargs = true,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for format"))
+        format(thisStr.asStr(), args, eval).map { it.toValue() }
+    }
+
+    fun setIsMethod(
+        name: String,
+        f: (String) -> Result<Boolean>,
+    ) {
+        setMethod(
+            name = name,
+            sig = ParametersSpec.withCapacity<FrozenValue>(name).finish(),
+            f = { _, thisValue, _ ->
+                val thisStr =
+                    StringValue.new(thisValue)
+                        ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+                f(thisStr.asStr()).map { it.toValue() }
+            },
+        )
+    }
+
+    setIsMethod("isalnum", ::isalnum)
+    setIsMethod("isalpha", ::isalpha)
+    setIsMethod("isdigit", ::isdigit)
+    setIsMethod("islower", ::islower)
+    setIsMethod("isspace", ::isspace)
+    setIsMethod("istitle", ::istitle)
+    setIsMethod("isupper", ::isupper)
+
+    setMethod(
+        "join",
+        ParametersSpec.newParts(
+            functionName = "join",
+            posOnly = listOf(Pair("elements", ParametersSpecParam.Required)),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for join"))
+        val elements = args.positional<Value>(0)
+        join(thisStr.asStr(), elements, eval.heap())
+    }
+
+    fun setStripMethod(
+        name: String,
+        f: (StringValue, String?, Heap) -> Result<StringValue>,
+    ) {
+        setMethod(
+            name,
+            ParametersSpec.newParts(
+                functionName = name,
+                posOnly = listOf(Pair("chars", ParametersSpecParam.Defaulted(FrozenValue.newNone()))),
+                posOrNamed = emptyList(),
+                args = false,
+                namedOnly = emptyList(),
+                kwargs = false,
+            ),
+        ) { eval, thisValue, args ->
+            val thisStr = StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val charsVal = args.optionalPositional<Value>(0)
+            val chars = if (charsVal == null || charsVal.isNone()) null else charsVal.unpackStr()
+            f(thisStr, chars, eval.heap()).map { it.toValue() }
+        }
+    }
+
+    setStripMethod("lstrip", ::lstrip)
+    setStripMethod("rstrip", ::rstrip)
+    setStripMethod("strip", ::strip)
+
+    fun setPartitionMethod(
+        name: String,
+        f: (StringValue, StringValue, Heap) -> Result<Triple<StringValue, StringValue, StringValue>>,
+    ) {
+        setMethod(
+            name,
+            ParametersSpec.newParts(
+                functionName = name,
+                posOnly = listOf(Pair("needle", ParametersSpecParam.Required)),
+                posOrNamed = emptyList(),
+                args = false,
+                namedOnly = emptyList(),
+                kwargs = false,
+            ),
+        ) { eval, thisValue, args ->
+            val thisStr = StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val needleValue = args.positional<Value>(0)
+            val needle = StringValue.new(needleValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
+            f(thisStr, needle, eval.heap()).map { triple ->
+                eval.heap().allocTuple(listOf(triple.first.toValue(), triple.second.toValue(), triple.third.toValue()))
+            }
+        }
+    }
+
+    setPartitionMethod("partition", ::partition)
+    setPartitionMethod("rpartition", ::rpartition)
+
+    setMethod(
+        "replace",
+        ParametersSpec.newParts(
+            functionName = "replace",
+            posOnly = listOf(
+                Pair("old", ParametersSpecParam.Required),
+                Pair("new", ParametersSpecParam.Required),
+                Pair("count", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for replace"))
+        val old = args.positional<Value>(0).unpackStr()
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for old"))
+        val new = args.positional<Value>(1).unpackStr()
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for new"))
+        val countVal = args.optionalPositional<Value>(2)
+        val count = if (countVal == null || countVal.isNone()) null else countVal.unpackI32()
+        replace(thisStr, old, new, count, eval.heap()).map { it.toValue() }
+    }
+
+    setMethod(
+        "rsplit",
+        ParametersSpec.newParts(
+            functionName = "rsplit",
+            posOnly = listOf(
+                Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for rsplit"))
+        fun noneOrStr(v: Value?): NoneOr<String> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val s = v.unpackStr() ?: throw IllegalArgumentException("Expected string or None")
+            return NoneOr.Other(s)
+        }
+        fun noneOrI32(v: Value?): NoneOr<Int> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
+            return NoneOr.Other(i)
+        }
+        val sep = noneOrStr(args.optionalPositional<Value>(0))
+        val maxsplit = noneOrI32(args.optionalPositional<Value>(1))
+        rsplit(thisStr.asStr(), sep, maxsplit, eval.heap())
+    }
+
+    setMethod(
+        "split",
+        ParametersSpec.newParts(
+            functionName = "split",
+            posOnly = listOf(
+                Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+            ),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for split"))
+        fun noneOrStr(v: Value?): NoneOr<String> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val s = v.unpackStr() ?: throw IllegalArgumentException("Expected string or None")
+            return NoneOr.Other(s)
+        }
+        fun noneOrI32(v: Value?): NoneOr<Int> {
+            if (v == null || v.isNone()) return NoneOr.None
+            val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
+            return NoneOr.Other(i)
+        }
+        val sep = noneOrStr(args.optionalPositional<Value>(0))
+        val maxsplit = noneOrI32(args.optionalPositional<Value>(1))
+        split(thisStr.asStr(), sep, maxsplit, eval.heap())
+    }
+
+    setMethod(
+        "splitlines",
+        ParametersSpec.newParts(
+            functionName = "splitlines",
+            posOnly = listOf(Pair("keepends", ParametersSpecParam.Defaulted(FrozenValue.newBool(false)))),
+            posOrNamed = emptyList(),
+            args = false,
+            namedOnly = emptyList(),
+            kwargs = false,
+        ),
+    ) { eval, thisValue, args ->
+        val thisStr = StringValue.new(thisValue)
+            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for splitlines"))
+        val keependsVal = args.optionalPositional<Value>(0)
+        val keepends = keependsVal?.unpackBool() ?: false
+        splitlines(thisStr.asStr(), keepends, eval.heap()).map { lines ->
+            eval.heap().allocListIter(lines.map { it.toValue() })
+        }
+    }
+
+    fun setRemoveMethod(
+        name: String,
+        f: (StringValue, String, Heap) -> Result<StringValue>,
+    ) {
+        setMethod(
+            name,
+            ParametersSpec.newParts(
+                functionName = name,
+                posOnly = listOf(Pair("affix", ParametersSpecParam.Required)),
+                posOrNamed = emptyList(),
+                args = false,
+                namedOnly = emptyList(),
+                kwargs = false,
+            ),
+        ) { eval, thisValue, args ->
+            val thisStr = StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val affix = args.positional<Value>(0).unpackStr()
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string affix for $name"))
+            f(thisStr, affix, eval.heap()).map { it.toValue() }
+        }
+    }
+
+    setRemoveMethod("removeprefix", ::removeprefix)
+    setRemoveMethod("removesuffix", ::removesuffix)
+}
+
+private fun unpackStringOrTuple(v: Value): StringOrTuple? {
+    val s = v.unpackStr()
+    if (s != null) {
+        return StringOrTuple.String(s)
+    }
+    val tuple = TupleRef.fromValue(v)
+    if (tuple != null) {
+        val items = mutableListOf<String>()
+        for (item in tuple.content()) {
+            val itemStr = item.unpackStr() ?: return null
+            items.add(itemStr)
+        }
+        return StringOrTuple.Tuple(items)
+    }
+    return null
 }
 
 /**

@@ -168,7 +168,8 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
                 frozenFv
                     .toValue()
                     .getRef()
-                    .value.starlarkValue()
+                    .value
+                    .starlarkValue()
             if (!frozenClass.isInstance(raw)) {
                 return Result.failure(
                     FreezeError.new(

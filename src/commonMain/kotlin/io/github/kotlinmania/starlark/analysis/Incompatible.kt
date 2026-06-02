@@ -1,5 +1,6 @@
 // port-lint: source src/analysis/incompatible.rs
 @file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -34,7 +35,6 @@ import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.ast.toSourceString
-
 
 sealed class Incompatibility : LintWarning {
     /** Type check should be written differently. */

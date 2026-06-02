@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.GlobalsStatic
 import io.github.kotlinmania.starlark.stdlib.breakpointGlobal
 import io.github.kotlinmania.starlark.stdlib.callStackGlobal
 import io.github.kotlinmania.starlark.stdlib.funcs.registerGlobals
@@ -21,8 +22,6 @@ import io.github.kotlinmania.starlark.values.types.record.registerRecord
 import io.github.kotlinmania.starlark.values.types.set.registerSet
 import io.github.kotlinmania.starlark.values.types.structs.registerStruct
 import io.github.kotlinmania.starlark.values.typing.registerTyping
-
-import io.github.kotlinmania.starlark.environment.GlobalsStatic
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.

@@ -26,22 +26,22 @@ import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.StarlarkIterator
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.values.typing.TypeType
+import io.github.kotlinmania.starlark.values.types.bigint.unpackLong
+import io.github.kotlinmania.starlark.values.types.bigint.unpackUInt
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark.values.types.bigint.unpackLong
-import io.github.kotlinmania.starlark.values.types.bigint.unpackUInt
 import io.github.kotlinmania.starlark.values.types.int.unpackValueI32
+import io.github.kotlinmania.starlark.values.typing.TypeType
 import io.github.kotlinmania.starlark.Error as StarlarkError
 import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 
@@ -651,8 +651,9 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
             Boolean::class -> v.toBool()
             ValueTyped::class -> ValueTyped.newUnchecked<StarlarkValue>(v)
             FrozenValueTyped::class -> {
-                val frozen = v.unpackFrozen()
-                    ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
+                val frozen =
+                    v.unpackFrozen()
+                        ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
                 FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)
             }
             TypeType::class ->

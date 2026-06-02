@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.values.types.list
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyCallArgs
@@ -33,6 +32,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Custom type function implementation for the `list` constructor.

@@ -1,5 +1,6 @@
 // port-lint: source src/eval/compiler/stmt.rs
 @file:Suppress("UNCHECKED_CAST")
+
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -41,7 +42,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentAssignPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.GC_THRESHOLD

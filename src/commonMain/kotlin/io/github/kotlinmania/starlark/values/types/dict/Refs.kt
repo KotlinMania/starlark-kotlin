@@ -79,6 +79,7 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
     ) : Exception("Value is not dict, value type: `$typeName`")
 
     val dictGen = x.downcastRef<DictGen<*>>()
+
     fun error(x: Value): Throwable =
         if (dictGen?.inner is FrozenDictData) {
             ValueError.CannotMutateImmutableValue

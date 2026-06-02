@@ -1,5 +1,6 @@
 // port-lint: source src/analysis/find_call_name.rs
 @file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
+
 package io.github.kotlinmania.starlark.analysis
 
 /*

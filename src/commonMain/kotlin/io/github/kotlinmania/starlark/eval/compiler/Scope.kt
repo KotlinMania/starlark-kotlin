@@ -36,8 +36,8 @@ import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.environment.MutableNames
 import io.github.kotlinmania.starlark.errors.didYouMean
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstDefPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignTarget
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstDefPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentAssignPayload
@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.ScopeResolverGlobals
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark.syntax.ast.AssignP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
@@ -59,10 +58,8 @@ import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.DefP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
-import io.github.kotlinmania.starlark.syntax.ast.ForP
 import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.LambdaP
-import io.github.kotlinmania.starlark.syntax.ast.LoadArgP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
