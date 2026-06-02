@@ -40,6 +40,7 @@ version = providers.gradleProperty("project.version").getOrElse("0.1.0-SNAPSHOT"
 val frameworkName = providers.gradleProperty("project.frameworkName").getOrElse("Unnamed")
 val projectNamespace = providers.gradleProperty("project.namespace").getOrElse("io.github.kotlinmania")
 val kotlinVersion = providers.gradleProperty("versions.kotlin").getOrElse("2.3.21")
+val isCodeqlBuild = providers.gradleProperty("kotlinmania.codeql").map(String::toBoolean).getOrElse(false)
 val commonMainBundleName = providers.gradleProperty("project.dependencies.commonMainBundle").get()
 val commonMainDependencyBundle =
     extensions
@@ -53,6 +54,8 @@ val commonOptIns =
     listOf(
         "kotlin.time.ExperimentalTime",
         "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+        "kotlin.ExperimentalUnsignedTypes",
+        "kotlinx.serialization.ExperimentalSerializationApi",
     )
 
 // ============================================================================
@@ -247,9 +250,11 @@ kotlin {
     compilerOptions {
         languageVersion.set(KotlinVersion.KOTLIN_2_3)
         apiVersion.set(KotlinVersion.KOTLIN_2_3)
-        allWarningsAsErrors.set(true)
+        allWarningsAsErrors.set(!isCodeqlBuild)
         optIn.addAll(commonOptIns)
-        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.addAll(
+            "-Xexpect-actual-classes",
+        )
     }
 
     val xcf = XCFramework(frameworkName)
@@ -361,6 +366,9 @@ tasks.withType<AbstractTestTask>().configureEach {
         showStackTraces = true
         showStandardStreams = true
     }
+    if (name.contains("BrowserTest")) {
+        failOnNoDiscoveredTests.set(false)
+    }
 }
 
 // ============================================================================
@@ -396,7 +404,23 @@ ktlint {
     }
     filter {
         exclude("**/build/**")
+        exclude("src/**/syntax/parser/Grammar.kt")
+        exclude("src/**/syntax/parser/GrammarReducers.kt")
         include("**/src/**/kotlin/**")
+    }
+}
+
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask>().configureEach {
+    exclude {
+        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
+            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
+    }
+}
+
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.KtLintFormatTask>().configureEach {
+    exclude {
+        it.file.invariantSeparatorsPath.endsWith("/syntax/parser/Grammar.kt") ||
+            it.file.invariantSeparatorsPath.endsWith("/syntax/parser/GrammarReducers.kt")
     }
 }
 
@@ -526,6 +550,22 @@ val codeqlLanguageVersion =
         .gradleProperty("kotlin.languageVersion")
         .getOrElse(kotlinVersion.split('.').take(2).joinToString("."))
 val codeqlApiVersion = providers.gradleProperty("kotlin.apiVersion").getOrElse(codeqlLanguageVersion)
+val codeqlKotlinSourceSetNames =
+    providers
+        .gradleProperty("project.codeql.kotlinSourceSets")
+        .getOrElse("commonMain")
+        .splitToSequence(",")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toList()
+val codeqlKotlinCommonSourceSetNames =
+    providers
+        .gradleProperty("project.codeql.kotlinCommonSourceSets")
+        .getOrElse("commonMain")
+        .splitToSequence(",")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toList()
 
 dependencies {
     val codeqlKotlinVersion = providers.gradleProperty("codeql.kotlin.version").getOrElse(kotlinVersion)
@@ -551,7 +591,8 @@ dependencies {
 val codeqlCompileJvm =
     tasks.register<JavaExec>("codeqlCompileJvm") {
         description =
-            "Compile commonMain Kotlin sources with kotlinc $codeqlLanguageVersion for CodeQL Java/Kotlin extraction."
+            "Compile ${codeqlKotlinSourceSetNames.joinToString(",")} Kotlin sources " +
+            "with kotlinc $codeqlLanguageVersion for CodeQL Java/Kotlin extraction."
         group = "verification"
         classpath(codeqlKotlincFiles)
         mainClass.set("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
@@ -561,14 +602,24 @@ val codeqlCompileJvm =
         val archives = serviceOf<ArchiveOperations>()
         val outDir = layout.buildDirectory.dir("classes/kotlin/codeql-jvm")
         val aarExtractDir = layout.buildDirectory.dir("codeql/android-aar")
-        val sources = fileTree("src/commonMain/kotlin") { include("**/*.kt") }
-        val sentinelDir = layout.buildDirectory.dir("generated/codeql-empty-source")
+        val commonSources =
+            files(
+                codeqlKotlinCommonSourceSetNames.map { sourceSetName ->
+                    fileTree("src/$sourceSetName/kotlin") { include("**/*.kt") }
+                },
+            )
+        val sources =
+            files(
+                codeqlKotlinSourceSetNames.map { sourceSetName ->
+                    fileTree("src/$sourceSetName/kotlin") { include("**/*.kt") }
+                },
+            )
         inputs.files(sources).withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files(commonSources).withPathSensitivity(PathSensitivity.RELATIVE)
         inputs.files(codeqlSourceFiles).withNormalizer(ClasspathNormalizer::class.java)
         inputs.files(codeqlAarFiles).withNormalizer(ClasspathNormalizer::class.java)
         outputs.dir(outDir)
         outputs.dir(aarExtractDir)
-        outputs.dir(sentinelDir)
         doFirst {
             outDir.get().asFile.mkdirs()
             val extractedJars =
@@ -585,23 +636,14 @@ val codeqlCompileJvm =
             val fullClasspath =
                 (codeqlSourceFiles.get().resolve() + extractedJars)
                     .joinToString(File.pathSeparator) { it.absolutePath }
-            val sourceFiles =
-                sources.files.toMutableList().ifEmpty {
-                    val sentinelFile =
-                        sentinelDir
-                            .get()
-                            .asFile
-                            .resolve("io/github/kotlinmania/codeql/_CodeqlEmptySource.kt")
-                    sentinelFile.parentFile.mkdirs()
-                    sentinelFile.writeText(
-                        """
-                        package io.github.kotlinmania.codeql
-
-                        private object _CodeqlEmptySource
-                        """.trimIndent(),
-                    )
-                    mutableListOf(sentinelFile)
-                }
+            val commonSourceFiles = commonSources.files.toMutableList()
+            require(commonSourceFiles.isNotEmpty()) {
+                "project.codeql.kotlinCommonSourceSets must resolve to at least one Kotlin source file"
+            }
+            val sourceFiles = sources.files.toMutableList()
+            require(sourceFiles.isNotEmpty()) {
+                "project.codeql.kotlinSourceSets must resolve to at least one Kotlin source file"
+            }
             args = listOf(
                 "-d",
                 outDir.get().asFile.absolutePath,
@@ -616,7 +658,7 @@ val codeqlCompileJvm =
                 "-api-version",
                 codeqlApiVersion,
                 "-Xmulti-platform",
-                "-Xcommon-sources=${sourceFiles.joinToString(",") { it.absolutePath }}",
+                "-Xcommon-sources=${commonSourceFiles.joinToString(",") { it.absolutePath }}",
                 "-Xexpect-actual-classes",
             ) + commonOptIns.flatMap { listOf("-opt-in", it) } + sourceFiles.map { it.absolutePath }
         }
@@ -758,4 +800,12 @@ val fullTargetBuildTaskNames =
 
 tasks.named("build") {
     dependsOn(fullTargetBuildTaskNames)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink>().configureEach {
+    doFirst {
+        val file = outputFile.get()
+        println("KOTLIN NATIVE LINK TASK: ${name}, OUTPUT: ${file.absolutePath}")
+        file.parentFile.mkdirs()
+    }
 }

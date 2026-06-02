@@ -1,4 +1,4 @@
-// port-lint: source tests:src/eval/runtime/profile/flamegraph.rs
+// port-lint: tests src/eval/runtime/profile/flamegraph.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*
@@ -7,7 +7,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * Copyright (c) 2025 Sydney Renee, The Solace Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not import this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -19,45 +19,58 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphData
+import io.github.kotlinmania.starlark.eval.runtime.profile.flamegraph.FlameGraphWriter
 import io.github.kotlinmania.starlark.util.ArcStr
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class FlamegraphTest {
-
+internal class FlamegraphTest {
     @Test
     fun testFlamegraphWriter() {
         val writer = FlameGraphWriter()
-        writer.write(listOf("aa", "bb"), 20UL)
+        writer.write(listOf("aa", "bb"), 20u)
         assertEquals("aa;bb 20\n", writer.finish())
     }
 
     @Test
     fun testFlamegraphData() {
         val data = FlameGraphData()
-        data.root().child(ArcStr.from("a")).add(10UL)
-        data.root().child(ArcStr.from("a")).child(ArcStr.from("b")).add(20UL)
-        data.root().child(ArcStr.from("a")).add(30UL)
-        val out = data.write()
-        assertEquals("a 40\na;b 20\n", out)
+        data.root().child(ArcStr.from("a")).add(10u)
+        data
+            .root()
+            .child(ArcStr.from("a"))
+            .child(ArcStr.from("b"))
+            .add(20u)
+        data.root().child(ArcStr.from("a")).add(30u)
+        val result = data.write()
+        assertEquals("a 40\na;b 20\n", result)
     }
 
     @Test
     fun testMerge() {
         val a = FlameGraphData()
-        a.root().add(10UL)
-        a.root().child(ArcStr.from("a")).add(100UL)
-        a.root().child(ArcStr.from("b")).child(ArcStr.from("c")).add(1000UL)
+        a.root().add(10u)
+        a.root().child(ArcStr.from("a")).add(100u)
+        a
+            .root()
+            .child(ArcStr.from("b"))
+            .child(ArcStr.from("c"))
+            .add(1000u)
         val b = FlameGraphData()
-        b.root().add(20UL)
-        b.root().child(ArcStr.from("a")).add(200UL)
+        b.root().add(20u)
+        b.root().child(ArcStr.from("a")).add(200u)
 
         val c = FlameGraphData.merge(listOf(a, b))
 
         val expected = FlameGraphData()
-        expected.root().add(30UL)
-        expected.root().child(ArcStr.from("a")).add(300UL)
-        expected.root().child(ArcStr.from("b")).child(ArcStr.from("c")).add(1000UL)
+        expected.root().add(30u)
+        expected.root().child(ArcStr.from("a")).add(300u)
+        expected
+            .root()
+            .child(ArcStr.from("b"))
+            .child(ArcStr.from("c"))
+            .add(1000u)
 
         assertEquals(expected, c)
     }

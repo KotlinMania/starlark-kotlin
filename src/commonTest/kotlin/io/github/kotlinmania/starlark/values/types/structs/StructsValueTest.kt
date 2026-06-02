@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/structs/value.rs
+// port-lint: tests src/values/types/structs/value.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*
@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class StructsValueTest {
-
     @Test
     fun testRepr() {
         Assert.eq("repr(struct(a=1, b=[]))", "'struct(a=1, b=[])'")

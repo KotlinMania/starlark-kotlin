@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/starlark_value_as_type.rs
+// port-lint: tests src/values/types/starlark_value_as_type.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -21,26 +21,36 @@ package io.github.kotlinmania.starlark.values.types
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
 import kotlin.test.Test
 
 class StarlarkValueAsTypeTest {
-
-    private class CompilerArgs(val value: String) : StarlarkValue, AllocValue {
+    private class CompilerArgs(
+        val value: String,
+    ) : StarlarkValue,
+        AllocValue {
         override val TYPE: String get() = "compiler_args"
+
         override fun toString(): String = value
+
+        override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
+
         override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
     }
 
     private fun compilerArgsGlobals(globals: GlobalsBuilder) {
         fun compilerArgs(x: String): Result<CompilerArgs> = Result.success(CompilerArgs(x))
 
-        globals.setConst("CompilerArgs", StarlarkValueAsType.new<CompilerArgs>())
-        globals.setFunction("compiler_args") { args, _ ->
-            compilerArgs(args.positional<String>(0))
+        globals.setConst("CompilerArgs", StarlarkValueAsType.new(CompilerArgs("")))
+        globals.setFunction("compiler_args") { args, eval ->
+            val arg = args.positionalAll()[0].unpackStrErr().getOrThrow()
+            compilerArgs(arg).map { it.allocValue(eval.heap()) }
         }
     }
 

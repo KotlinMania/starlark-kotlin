@@ -1,4 +1,4 @@
-// port-lint: source tests:src/util/rtabort.rs
+// port-lint: tests src/util/rtabort.rs
 package io.github.kotlinmania.starlark.util
 
 /*
@@ -22,7 +22,6 @@ package io.github.kotlinmania.starlark.util
 import kotlin.test.Test
 
 class RtabortTest {
-
     // Compile-time anchors mirroring upstream `fn _test_compiles_fixed_string` /
     // `fn _test_compiles_with_format_args` — each references rtabort with a
     // different argument shape so the signature compiles. They are never

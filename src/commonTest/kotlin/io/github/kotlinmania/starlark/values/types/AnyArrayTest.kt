@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/any_array.rs
+// port-lint: tests src/values/types/any_array.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -19,6 +19,8 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
@@ -26,7 +28,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AnyArrayTest {
-
     @Test
     fun testDrop() {
         // The Rust upstream relies on `Drop` impls to count deallocations on
@@ -37,26 +38,30 @@ class AnyArrayTest {
         val counter1 = AtomicInt(0)
         val counter2 = AtomicInt(0)
 
-        data class IncrementOnDrop(val counter: AtomicInt)
-
-        val heap = FrozenHeap.new()
-        val values = heap.allocAnySlice(
-            listOf(
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter2),
-                IncrementOnDrop(counter1),
-                IncrementOnDrop(counter2),
-            ),
+        data class IncrementOnDrop(
+            val counter: AtomicInt,
         )
 
-        assertEquals(5, values.size)
+        val heap = FrozenHeap.new()
+        val values =
+            heap.allocAnySlice(
+                listOf(
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter2),
+                    IncrementOnDrop(counter1),
+                    IncrementOnDrop(counter2),
+                ),
+            )
 
-        assertTrue(counter1 === values[0].counter)
-        assertTrue(counter1 === values[1].counter)
-        assertTrue(counter2 === values[2].counter)
-        assertTrue(counter1 === values[3].counter)
-        assertTrue(counter2 === values[4].counter)
+        val slice = values.asRef()
+        assertEquals(5, slice.size)
+
+        assertTrue(counter1 === slice[0].counter)
+        assertTrue(counter1 === slice[1].counter)
+        assertTrue(counter2 === slice[2].counter)
+        assertTrue(counter1 === slice[3].counter)
+        assertTrue(counter2 === slice[4].counter)
     }
 
     @Test

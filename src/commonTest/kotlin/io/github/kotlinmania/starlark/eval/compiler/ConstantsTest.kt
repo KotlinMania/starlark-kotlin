@@ -1,4 +1,4 @@
-// port-lint: source tests:src/eval/compiler/constants.rs
+// port-lint: tests src/eval/compiler/constants.rs
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -20,20 +20,20 @@ package io.github.kotlinmania.starlark.eval.compiler
  */
 
 import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConstantsTest {
-
     @Test
     fun testConstants() {
         assertEquals(
             Globals.standard().getFrozen("len")!!,
-            Constants.get().fnLen.value,
+            Constants.get().fnLen!!.value,
         )
         assertEquals(
             Globals.extendedInternal().getFrozen("len")!!,
-            Constants.get().fnLen.value,
+            Constants.get().fnLen!!.value,
         )
     }
 }

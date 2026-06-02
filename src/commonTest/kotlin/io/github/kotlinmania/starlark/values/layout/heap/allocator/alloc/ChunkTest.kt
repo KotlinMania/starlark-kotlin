@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/layout/heap/allocator/alloc/chunk.rs
+// port-lint: tests src/values/layout/heap/allocator/alloc/chunk.rs
 package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 /*
@@ -15,15 +15,15 @@ package io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc
 
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.Chunk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ChunkTest {
-
     @Test
     fun testNewIsEmpty() {
-        val chunk = Chunk()
+        val chunk = Chunk.default()
         assertTrue(chunk.isEmpty())
         assertEquals(AlignedSize.ZERO, chunk.len())
         assertEquals(0, chunk.refCount())
@@ -37,10 +37,9 @@ class ChunkTest {
             chunk.len(),
         )
         assertEquals(1, chunk.refCount())
-        val chunk2 = chunk.clone()
+        val chunk2 = chunk.duplicate()
         assertEquals(2, chunk.refCount())
-        // drop(chunk) — Kotlin GC subsumes; the structural assertion below
-        // verifies the clone independently retains its own refcount.
-        assertEquals(1, chunk2.refCount() - chunk.refCount() + 1)
+        chunk.release()
+        assertEquals(1, chunk2.refCount())
     }
 }

@@ -1,4 +1,4 @@
-// port-lint: source tests:src/typing/callable_param.rs
+// port-lint: tests src/typing/callable_param.rs
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -14,13 +14,12 @@ package io.github.kotlinmania.starlark.typing
  */
 
 import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.goldentesttemplate.goldenTestTemplate
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark.testutil.goldenTestTemplate
 import kotlin.test.Test
 
 class CallableParamTest {
-
     @Test
     fun testParamSpecDisplay() {
         val functions = """
@@ -41,11 +40,13 @@ def pos_only_d(x, /, *args, **kwargs): pass
             val test = rawTest.trim()
             if (test.isEmpty()) continue
 
-            val ast = AstModule.parse(
-                "test_param_spec_display.star",
-                test,
-                Dialect.AllOptionsInternal,
-            ).getOrThrow()
+            val ast =
+                AstModule
+                    .parse(
+                        "test_param_spec_display.star",
+                        test,
+                        Dialect.AllOptionsInternal,
+                    ).getOrThrow()
             val (errors, typemap, _, approximations) =
                 ast.typecheck(Globals.standard(), HashMap())
             errors.firstOrNull()?.let { error("Error: $it") }
@@ -57,7 +58,11 @@ def pos_only_d(x, /, *args, **kwargs): pass
             } else {
                 out.appendLine()
             }
-            out.append(test).append('\n').append(def).append('\n')
+            out
+                .append(test)
+                .append('\n')
+                .append(def)
+                .append('\n')
         }
 
         goldenTestTemplate(

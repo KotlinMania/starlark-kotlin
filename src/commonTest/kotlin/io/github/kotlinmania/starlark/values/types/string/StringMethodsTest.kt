@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/string/methods.rs
+// port-lint: tests src/values/types/string/methods.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -23,7 +23,6 @@ import io.github.kotlinmania.starlark.assert.Assert
 import kotlin.test.Test
 
 class StringMethodsTest {
-
     @Test
     fun testErrorCodes() {
         Assert.fail(""""bonbon".index("on", 2, 5)""", "not found in")

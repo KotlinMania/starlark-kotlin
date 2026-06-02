@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/string/dot_format.rs
+// port-lint: tests src/values/types/string/dot_format.rs
 package io.github.kotlinmania.starlark.values.types.string
 
 /*
@@ -20,17 +20,16 @@ package io.github.kotlinmania.starlark.values.types.string
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
-import io.github.kotlinmania.starlarkmap.smallmap.SmallMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DotFormatTest {
-
     private fun formatCaptureForTest(
         capture: String,
         conv: FormatConv,
@@ -44,13 +43,13 @@ class DotFormatTest {
     @Test
     fun testFormatCapture() {
         Heap.temp { heap ->
-            val originalArgs = listOf(heap.alloc("1"), heap.alloc("2"), heap.alloc("3"))
+            val originalArgs = listOf(heap.allocStr("1"), heap.allocStr("2"), heap.allocStr("3"))
             var args = FormatArgs.new(originalArgs.iterator())
             val kwargsMap = SmallMap.new<Value, Value>()
 
-            kwargsMap.insertHashed(heap.allocStr("a").getHashed().toValue(), heap.alloc("x"))
-            kwargsMap.insertHashed(heap.allocStr("b").getHashed().toValue(), heap.alloc("y"))
-            kwargsMap.insertHashed(heap.allocStr("c").getHashed().toValue(), heap.alloc("z"))
+            kwargsMap.insertHashed(heap.allocStr("a").getHashed().getOrThrow(), heap.allocStr("x"))
+            kwargsMap.insertHashed(heap.allocStr("b").getHashed().getOrThrow(), heap.allocStr("y"))
+            kwargsMap.insertHashed(heap.allocStr("c").getHashed().getOrThrow(), heap.allocStr("z"))
             val kwargs = Dict.new(kwargsMap)
             assertEquals(
                 "1",
