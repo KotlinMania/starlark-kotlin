@@ -1372,9 +1372,10 @@ class Value internal constructor(
             }
         }
         val ref = getRef()
-        return if (clazz.isInstance(ref)) {
+        val sv = ref.starlarkValue()
+        return if (clazz.isInstance(sv)) {
             @Suppress("UNCHECKED_CAST")
-            ref as Any as T
+            sv as T
         } else {
             null
         }

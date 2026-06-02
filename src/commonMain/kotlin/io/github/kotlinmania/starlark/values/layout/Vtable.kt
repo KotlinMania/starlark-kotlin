@@ -284,7 +284,7 @@ internal class AValueDyn(
         starlarkValue().provide(demand)
     }
 
-    private fun starlarkValue(): StarlarkValue = value.starlarkValue()
+    internal fun starlarkValue(): StarlarkValue = value.starlarkValue()
 
     override fun toString(): String = "AValueDyn(..)"
 }
@@ -299,7 +299,11 @@ internal class AValueDynFull(
         eval: Evaluator,
     ): Result<Value> {
         val sv: StarlarkValue = avalue.value.starlarkValue()
-        return sv.invoke(value, args, eval)
+        return try {
+            sv.invoke(value, args, eval)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
 

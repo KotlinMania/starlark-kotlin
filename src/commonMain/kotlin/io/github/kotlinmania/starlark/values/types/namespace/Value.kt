@@ -25,29 +25,101 @@ import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocModule
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.util.ArcStr
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.freezeSmallMap
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+
+internal fun interface NamespaceTraceValue<V> {
+    fun trace(
+        value: V,
+        tracer: Tracer,
+    ): V
+}
+
+internal fun interface NamespaceFreezeValue<V> {
+    fun freeze(
+        value: V,
+        freezer: Freezer,
+    ): Result<FrozenValue>
+}
 
 data class MaybeDocHiddenValue<V>(
-    val value: V,
+    var value: V,
     val docHidden: Boolean,
 )
 
 /** The return value of `namespace()` */
-data class NamespaceGen<V>(
+class NamespaceGen<V> internal constructor(
     val fields: SmallMap<String, MaybeDocHiddenValue<V>>,
-) : StarlarkValue {
+    private val traceValue: NamespaceTraceValue<V>? = null,
+    private val freezeValue: NamespaceFreezeValue<V>? = null,
+) : StarlarkValue,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenNamespace> {
     override val TYPE: String get() = "namespace"
 
     companion object {
-        fun <V> new(fields: SmallMap<String, MaybeDocHiddenValue<V>>): NamespaceGen<V> =
-            NamespaceGen(fields)
+        fun mutable(fields: SmallMap<String, MaybeDocHiddenValue<Value>>): Namespace =
+            NamespaceGen(
+                fields = fields,
+                traceValue =
+                    NamespaceTraceValue { value, tracer ->
+                        val holder = ValueHolder(value)
+                        tracer.trace(holder)
+                        holder.value
+                    },
+                freezeValue =
+                    NamespaceFreezeValue { value, freezer ->
+                        freezer.freeze(value)
+                    },
+            )
 
-        fun fromValue(value: Value): Namespace? =
+        fun frozen(fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>>): FrozenNamespace =
+            NamespaceGen(
+                fields = fields,
+                freezeValue =
+                    NamespaceFreezeValue { value, _ ->
+                        Result.success(value)
+                    },
+            )
+
+        fun fromValue(value: Value): NamespaceGen<*>? =
             value.downcastRef<Namespace>()
-                ?: value.downcastRef<FrozenNamespace>()?.let { coerceNamespace(it) }
+                ?: value.downcastRef<FrozenNamespace>()
+    }
+
+    override fun trace(tracer: Tracer) {
+        val traceValue = traceValue ?: return
+        for ((_, field) in fields) {
+            field.value = traceValue.trace(field.value, tracer)
+        }
+    }
+
+    override fun freeze(freezer: Freezer): Result<FrozenNamespace> {
+        val freezeValue =
+            freezeValue
+                ?: return Result.failure(IllegalStateException("Namespace fields cannot be frozen"))
+        val frozenFields =
+            freezeSmallMap(
+                fields,
+                freezer,
+                freezeKey = { key, _ -> Result.success(key) },
+                freezeValue = { field, currentFreezer ->
+                    freezeValue
+                        .freeze(field.value, currentFreezer)
+                        .map { MaybeDocHiddenValue(it, field.docHidden) }
+                },
+            ).getOrElse { return Result.failure(it) }
+        return Result.success(frozen(frozenFields))
     }
 
     fun get(key: String): V? =
@@ -68,7 +140,6 @@ data class NamespaceGen<V>(
     override fun getAttr(attribute: String, heap: Heap): Value? =
         getAttrHashed(Hashed.new(attribute), heap)
 
-    @Suppress("UNCHECKED_CAST")
     override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
         val v = fields.getHashedByValue(attribute) ?: return null
         return when (val raw = v.value) {
@@ -81,7 +152,6 @@ data class NamespaceGen<V>(
     override fun dirAttr(): List<String> =
         fields.keys().map { x -> x }.toList()
 
-    @Suppress("UNCHECKED_CAST")
     override fun documentation(): DocItem {
         val members = SmallMap.new<String, DocItem>()
         for ((k, v) in fields.iter()) {
@@ -110,7 +180,6 @@ data class NamespaceGen<V>(
             ),
         )
 
-    @Suppress("UNCHECKED_CAST")
     override fun typecheckerTy(): Ty {
         val result = mutableMapOf<ArcStr, Ty>()
         for ((name, mdv) in fields.iter()) {
@@ -133,10 +202,6 @@ data class NamespaceGen<V>(
     fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }
 }
-
-@Suppress("UNCHECKED_CAST")
-fun coerceNamespace(frozen: NamespaceGen<FrozenValue>): NamespaceGen<Value> =
-    frozen as NamespaceGen<Value>
 
 typealias FrozenNamespace = NamespaceGen<FrozenValue>
 typealias Namespace = NamespaceGen<Value>

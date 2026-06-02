@@ -501,7 +501,7 @@ class TyStarlarkValue private constructor(
                         rbinOpTy = base.rbinOpTy,
                         getMethods = base.getMethods,
                         attrTy = base.attrTy,
-                    )
+                    ),
                 )
             } else {
                 TyStarlarkValue(base)

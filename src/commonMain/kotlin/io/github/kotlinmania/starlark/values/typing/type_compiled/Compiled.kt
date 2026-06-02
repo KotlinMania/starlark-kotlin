@@ -7,6 +7,7 @@ import io.github.kotlinmania.starlark.environment.MethodsBuilder
 import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.demand.Demand
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -14,6 +15,8 @@ import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListRef
@@ -170,8 +173,14 @@ fun typeCompiledMethods(methods: MethodsBuilder) {
 /** Wrapper for a [Value] that acts like a runtime type matcher. */
 class TypeCompiled(
     /** Value is `TypeCompiledImplAsStarlarkValue`. */
-    private val inner: Value,
-) {
+    private var inner: Value,
+) : Trace {
+    override fun trace(tracer: Tracer) {
+        val holder = ValueHolder(inner)
+        tracer.trace(holder)
+        inner = holder.value
+    }
+
     internal fun uncheckedNew(value: Value): TypeCompiled = TypeCompiled(value)
 
     private fun downcast(): TypeCompiledDyn =

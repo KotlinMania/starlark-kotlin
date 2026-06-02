@@ -649,11 +649,39 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 v.unpackLong().getOrThrow()
                     ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
             Boolean::class -> v.toBool()
-            ValueTyped::class -> ValueTyped.newUnchecked<StarlarkValue>(v)
+            ValueTyped::class -> {
+                val valueClassifier =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                        ?.classifier as? kotlin.reflect.KClass<*>
+                if (valueClassifier != null && valueClassifier != StarlarkValue::class) {
+                    @Suppress("UNCHECKED_CAST")
+                    if (v.downcastRef(valueClassifier as kotlin.reflect.KClass<out StarlarkValue>) == null) {
+                        throw IllegalArgumentException("Expected value of type ${valueClassifier.simpleName}, got: ${v.toStringForTypeError()}")
+                    }
+                }
+                ValueTyped.newUnchecked<StarlarkValue>(v)
+            }
             FrozenValueTyped::class -> {
                 val frozen =
                     v.unpackFrozen()
                         ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
+                val frozenClassifier =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                        ?.classifier as? kotlin.reflect.KClass<*>
+                if (frozenClassifier != null && frozenClassifier != StarlarkValue::class) {
+                    @Suppress("UNCHECKED_CAST")
+                    if (frozen.downcastRef(frozenClassifier as kotlin.reflect.KClass<out StarlarkValue>) == null) {
+                        throw IllegalArgumentException("Expected frozen value of type ${frozenClassifier.simpleName}, got: ${v.toStringForTypeError()}")
+                    }
+                }
                 FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)
             }
             TypeType::class ->

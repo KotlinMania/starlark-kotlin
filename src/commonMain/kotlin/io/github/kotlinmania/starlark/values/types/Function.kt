@@ -40,6 +40,7 @@ import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
@@ -49,6 +50,8 @@ import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
@@ -240,9 +243,10 @@ internal class NativeAttribute(
 /** A wrapper for a method with a self object already bound. */
 internal class BoundMethodGen<V>(
     val method: FrozenValueTyped<NativeMethod>,
-    val thisValue: V,
+    var thisValue: V,
 ) : ComplexValue,
-    Freeze<BoundMethodGen<FrozenValue>> {
+    Freeze<BoundMethodGen<FrozenValue>>,
+    Trace {
     // Generated type aliases:
 
     override val TYPE: String get() = FUNCTION_TYPE
@@ -271,6 +275,15 @@ internal class BoundMethodGen<V>(
     override fun freeze(freezer: Freezer): Result<BoundMethodGen<FrozenValue>> {
         val frozenThis = freezer.freeze(thisAsValue()).getOrElse { return Result.failure<BoundMethodGen<FrozenValue>>(it) }
         return Result.success(BoundMethodGen(method, frozenThis))
+    }
+
+    override fun trace(tracer: Tracer) {
+        if (thisValue is Value) {
+            val holder = ValueHolder(thisValue as Value)
+            tracer.trace(holder)
+            @Suppress("UNCHECKED_CAST")
+            thisValue = holder.value as V
+        }
     }
 }
 

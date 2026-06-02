@@ -31,10 +31,10 @@ class OwnedRefFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     companion object {
         fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(value))
     }
@@ -86,10 +86,10 @@ class OwnedFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     companion object {
         fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedFrozenRef<T> = OwnedFrozenRef(owner = owner, value = FrozenRef.new(value))
     }

@@ -95,14 +95,11 @@ internal object AValueList : AValue {
         val (v, r) = tracer.reserve<AValueList>()
         AValueHeader.overwriteWithForward(repr, ForwardPtr.newUnfrozen(v))
 
-        println("LIST COPY: old ptr = ${repr.header.index}, new ptr = ${v.ptrValue()}")
         val newContent = content.toMutableList()
         for (i in newContent.indices) {
-            val oldVal = newContent[i]
-            val holder = ValueHolder(oldVal)
+            val holder = ValueHolder(newContent[i])
             tracer.trace(holder)
             newContent[i] = holder.value
-            println("LIST COPY ELEMENT $i: old = ${oldVal.ptrValue()}, new = ${newContent[i].ptrValue()}")
         }
 
         r.fill(ListGen(ListData.new(newContent)))

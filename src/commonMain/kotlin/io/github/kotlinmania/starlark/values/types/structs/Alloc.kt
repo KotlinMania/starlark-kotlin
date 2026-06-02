@@ -99,7 +99,7 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
         check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.allocComplex(StructGen(fields))
+    return heap.allocComplex(StructGen.mutable(fields))
 }
 
 /**
@@ -122,5 +122,5 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
         check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.allocSimple(StructGen(fields))
+    return heap.allocSimple(StructGen.frozen(fields))
 }

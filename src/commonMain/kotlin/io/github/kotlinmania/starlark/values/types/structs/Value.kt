@@ -28,12 +28,11 @@ import io.github.kotlinmania.starlark.docs.DocProperty
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStruct
 import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.FreezeResult
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.compareSmallMap
-import io.github.kotlinmania.starlark.values.equalsSmallMap
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -48,47 +47,78 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
  * either Value or FrozenValue in the Rust implementation. The lifetime parameter
  * 'v from Rust is handled through Kotlin's type system.
  */
-data class StructGen<V>(
+internal fun interface StructTraceField<V> {
+    fun trace(
+        value: V,
+        tracer: Tracer,
+    ): V
+}
+
+internal fun interface StructFreezeField<V> {
+    fun freeze(
+        value: V,
+        freezer: Freezer,
+    ): Result<FrozenValue>
+}
+
+class StructGen<V> internal constructor(
     /** The fields in a struct. */
     val fields: SmallMap<String, V>,
-) : io.github.kotlinmania.starlark.values.StarlarkValue, ComplexValue, Trace, Freeze<FrozenStruct> {
+    private val traceField: StructTraceField<V>? = null,
+    private val freezeField: StructFreezeField<V>? = null,
+) : io.github.kotlinmania.starlark.values.StarlarkValue,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenStruct> {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
     companion object {
         /** The result of calling `type()` on a struct. */
         const val TYPE: String = "struct"
+
+        fun mutable(fields: SmallMap<String, Value>): Struct =
+            StructGen(
+                fields = fields,
+                traceField =
+                    StructTraceField { value, tracer ->
+                        val holder = ValueHolder(value)
+                        tracer.trace(holder)
+                        holder.value
+                    },
+                freezeField =
+                    StructFreezeField { value, freezer ->
+                        freezer.freeze(value)
+                    },
+            )
+
+        fun frozen(fields: SmallMap<String, FrozenValue>): FrozenStruct =
+            StructGen(
+                fields = fields,
+                freezeField =
+                    StructFreezeField { value, _ ->
+                        Result.success(value)
+                    },
+            )
     }
 
-    @Suppress("UNCHECKED_CAST", "USELESS_IS_CHECK")
     override fun trace(tracer: Tracer) {
-        println("STRUCT TRACE: fields size = ${fields.len()}")
+        val traceField = traceField ?: return
         for (entry in fields.entries) {
-            val v = entry.value
-            if (v is Value) {
-                println("STRUCT TRACE FIELD: key=${entry.key.key()} value=$v isValue=true ptr=${v.ptrValue()}")
-                val holder = ValueHolder(v)
-                tracer.trace(holder)
-                entry.value = holder.value as V
-                println("STRUCT TRACE FIELD AFTER: key=${entry.key.key()} value=${entry.value} ptr=${(entry.value as Value).ptrValue()}")
-            } else {
-                println("STRUCT TRACE FIELD: key=${entry.key.key()} value=$v isValue=false")
-            }
+            entry.value = traceField.trace(entry.value, tracer)
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): FreezeResult<FrozenStruct> {
+        val freezeField =
+            freezeField
+                ?: return Result.failure(IllegalStateException("Struct fields cannot be frozen"))
         val frozenFields = SmallMap.withCapacity<String, FrozenValue>(fields.len())
         for ((k, v) in fields.iter()) {
-            val frozenVal = when (v) {
-                is Value -> freezer.freeze(v).getOrElse { return Result.failure(it) }
-                is FrozenValue -> v
-                else -> return Result.failure(IllegalArgumentException("Unexpected type in fields: ${v?.let { it::class.simpleName }}"))
-            }
+            val frozenVal = freezeField.freeze(v, freezer).getOrElse { return Result.failure(it) }
             frozenFields.insert(k, frozenVal)
         }
-        return Result.success(StructGen(frozenFields))
+        return Result.success(frozen(frozenFields))
     }
 
     /**
@@ -139,13 +169,18 @@ data class StructGen<V>(
 
     override fun equals(other: Value): Result<Boolean> {
         val otherStruct = Struct.fromValue(other) ?: return Result.success(false)
-
-        @Suppress("UNCHECKED_CAST")
-        val thisFields = fields as SmallMap<String, Value>
-        return equalsSmallMap<Exception, String, Value, Value>(
-            thisFields,
-            otherStruct.fields,
-        ) { x, y -> x.equals(y) }
+        if (fields.len() != otherStruct.fields.len()) {
+            return Result.success(false)
+        }
+        for ((key, value) in fields.iter()) {
+            val lhs = value.asValueOrNull() ?: return Result.success(false)
+            val rhs = otherStruct.fields.get(key) ?: return Result.success(false)
+            val equal = lhs.equals(rhs).getOrElse { return Result.failure(it) }
+            if (!equal) {
+                return Result.success(false)
+            }
+        }
+        return Result.success(true)
     }
 
     override fun compare(other: Value): Result<Int> {
@@ -153,10 +188,9 @@ data class StructGen<V>(
             Struct.fromValue(other)
                 ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
 
-        @Suppress("UNCHECKED_CAST")
-        val thisFields = fields as SmallMap<String, Value>
         return compareSmallMap<Exception, String, String, Value, Value>(
-            thisFields,
+            valueFieldsOrNull()
+                ?: return Result.failure(IllegalStateException("Unsupported value type in struct")),
             otherStruct.fields,
             key = { k: String -> k },
         ) { x, y -> x.compare(y) }
@@ -164,11 +198,7 @@ data class StructGen<V>(
 
     override fun getAttr(attribute: String, heap: Heap): Value? = getAttrHashed(Hashed.new(attribute), heap)
 
-    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? {
-        @Suppress("UNCHECKED_CAST")
-        val valueFields = fields as SmallMap<String, Value>
-        return valueFields.getHashedByValue(attribute)
-    }
+    override fun getAttrHashed(attribute: Hashed<String>, heap: Heap): Value? = fields.getHashedByValue(attribute)?.asValueOrNull()
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Must use unordered hash because equality is unordered,
@@ -182,10 +212,7 @@ data class StructGen<V>(
             // Hash the key's hash value into the entry hasher
             entryHasher.writeU32(hashedKey.hash().get())
             // Hash the value
-            @Suppress("UNCHECKED_CAST")
-            val value =
-                v as? Value ?: (v as? FrozenValue)?.toValue()
-                    ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
+            val value = v.asValueOrNull() ?: return Result.failure(IllegalStateException("Unsupported value type in struct"))
             value.writeHash(entryHasher).getOrElse { return Result.failure(it) }
             unorderedHasher.writeHash(entryHasher.finish())
         }
@@ -214,6 +241,21 @@ data class StructGen<V>(
      * Serialize to map format matching Rust serde implementation.
      */
     fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
+
+    private fun Any?.asValueOrNull(): Value? =
+        when (this) {
+            is Value -> this
+            is FrozenValue -> toValue()
+            else -> null
+        }
+
+    private fun valueFieldsOrNull(): SmallMap<String, Value>? {
+        val values = SmallMap.withCapacity<String, Value>(fields.len())
+        for ((key, value) in fields.iter()) {
+            values.insert(key, value.asValueOrNull() ?: return null)
+        }
+        return values
+    }
 }
 
 /**

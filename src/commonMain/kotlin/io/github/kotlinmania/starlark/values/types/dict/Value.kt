@@ -127,14 +127,7 @@ data class DictGen<T>(
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         val v =
             innerVal.content().getHashedByValue(hashed)
-                ?: run {
-                    println("DEBUG: KeyNotFound lookup for: index=$index (ptr=${index.ptr.raw()}), hash=${hashed.hash()}")
-                    println("DEBUG: Dictionary contents:")
-                    for ((k, valVal) in innerVal.content().iterHashed()) {
-                        println("  key=$k (ptr=${k.key().ptr.raw()}), hash=${k.hash()}, val=$valVal")
-                    }
-                    return Result.failure(ValueError.KeyNotFound(index.toRepr()))
-                }
+                ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
         return Result.success(v.toValue())
     }
 

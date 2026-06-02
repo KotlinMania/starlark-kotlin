@@ -83,7 +83,8 @@ fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: 
 // Real addAssign and bitOrAssign functions are imported from eval.compiler
 
 fun possibleGc(eval: Evaluator) {
-    io.github.kotlinmania.starlark.eval.compiler.possibleGc(eval)
+    io.github.kotlinmania.starlark.eval.compiler
+        .possibleGc(eval)
 }
 
 fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =

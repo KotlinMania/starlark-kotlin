@@ -110,6 +110,6 @@ internal fun registerStruct(builder: GlobalsBuilder) {
         for ((k, v) in namesMap.iter()) {
             fields.insert(k.asStr(), v)
         }
-        Result.success(Struct(fields))
+        Result.success(StructGen.mutable(fields))
     }
 }

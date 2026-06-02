@@ -220,6 +220,11 @@ class TyUser private constructor(
 
     override fun asName(): String = name
 
+    override fun intersects(other: TyCustomImpl): Boolean {
+        if (other !is TyUser) return false
+        return this == other
+    }
+
     override fun attribute(attr: String): Result<Ty> {
         // First try base methods.
         val methodResult = base.attrFromMethods(attr)

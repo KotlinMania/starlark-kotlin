@@ -139,7 +139,7 @@ internal class AValueComplexNoFreeze(
 }
 
 /** Allocate a [ComplexValue] on the [Heap]. */
-fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out StarlarkValue> {
+fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Trace, T : Freeze<out StarlarkValue> {
     check(!x.isSpecial())
     return allocRaw(AValueImpl.new(x, AValueComplex(x))).toValue()
 }
@@ -147,13 +147,14 @@ fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out St
 /** Allocate a [ComplexValue] of unknown static type on the [Heap]. */
 fun Heap.allocComplexAny(x: Any): Value {
     check(x is ComplexValue)
+    check(x is Trace)
     check(x is Freeze<*>)
+
     @Suppress("UNCHECKED_CAST")
-    fun <T> Heap.allocComplexHelper(v: Any): Value where T : ComplexValue, T : Freeze<out StarlarkValue> =
+    fun <T> Heap.allocComplexHelper(v: Any): Value where T : ComplexValue, T : Trace, T : Freeze<out StarlarkValue> =
         this.allocComplex(v as T)
     return allocComplexHelper<io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex<Any>>(x)
 }
-
 
 /** Allocate a value which can be traced (garbage collected), but cannot be frozen. */
 fun Heap.allocComplexNoFreeze(x: StarlarkValue): Value {

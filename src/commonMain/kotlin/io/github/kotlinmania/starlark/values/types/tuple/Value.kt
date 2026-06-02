@@ -32,28 +32,12 @@ import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.AllocStaticSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import io.github.kotlinmania.starlark.values.Trace
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /** Define the tuple type. See [Tuple] and [FrozenTuple] as the two aliases. */
 class TupleGen<V>(
     /** The data stored by the tuple. */
     private var content: List<V>,
-) : io.github.kotlinmania.starlark.values.StarlarkValue, Trace {
-    @Suppress("UNCHECKED_CAST")
-    override fun trace(tracer: Tracer) {
-        val list = content as? MutableList<V> ?: content.toMutableList()
-        for (i in list.indices) {
-            val elem = list[i]
-            if (elem is Value) {
-                val holder = ValueHolder(elem)
-                tracer.trace(holder)
-                list[i] = holder.value as V
-            }
-        }
-        content = list
-    }
+) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true

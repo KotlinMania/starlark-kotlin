@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
@@ -35,16 +33,16 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
-import io.github.kotlinmania.starlark.values.layout.heapCopy
-import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.simple
+import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
 import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
+import io.github.kotlinmania.starlark.values.layout.heapCopy
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
@@ -53,6 +51,8 @@ import io.github.kotlinmania.starlark.values.traceRecursiveGuardStacks
 import io.github.kotlinmania.starlark.values.types.string.intern.FrozenStringValueInterner
 import io.github.kotlinmania.starlark.values.types.string.intern.StringValueInterner
 import io.github.kotlinmania.starlark.values.valueof.ValueOf
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicInt
 import kotlin.math.max
 
 enum class HeapKind {
@@ -213,6 +213,7 @@ class Heap internal constructor(
         val value = Value.newPtr(header, true)
         return StringValue.newUnchecked(value)
     }
+
     fun allocStr(x: String): Value {
         val constant = constantString(x)
         if (constant != null) {
@@ -220,7 +221,9 @@ class Heap internal constructor(
         }
         val v = owned.arena.borrow().allocStr(x)
         return Value.newPtr(v, true)
-    }    /** Allocate a new value on a Heap. */
+    }
+
+    /** Allocate a new value on a Heap. */
     fun <T : AllocValue> alloc(x: T): Value = x.allocValue(this)
 
     /**
@@ -487,7 +490,6 @@ class FrozenFrozenHeap internal constructor(
 ) : AutoCloseable {
     private val refCount = AtomicInt(0)
 
-
     fun incRef() {
         refCount.fetchAndAdd(1)
     }
@@ -532,9 +534,7 @@ class FrozenHeapRef(
         inner?.incRef()
     }
 
-    fun clone(): FrozenHeapRef {
-        return FrozenHeapRef(inner)
-    }
+    fun clone(): FrozenHeapRef = FrozenHeapRef(inner)
 
     fun incRef() {
         inner?.incRef()
@@ -549,6 +549,7 @@ class FrozenHeapRef(
             inner?.close()
         }
     }
+
     /**
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.
@@ -643,18 +644,9 @@ class Tracer internal constructor(
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val header = AValueHeader.fromIndex(ptrIndex)
         val aValueOrForward = AValueOrForward.Header(header)
-        println("ADJUST: value=$value type=${value.getType()} ptrVal=${value.ptrValue()} index=${header.index} maxOldIndex=$maxOldIndex")
         return when (val unpacked = aValueOrForward.unpack()) {
-            is AValueOrForwardUnpack.Forward -> {
-                val dest = unpacked.forward.forwardPtr().unpackUnfrozenValue()
-                println("ADJUST FORWARDED: old=$value to new=$dest")
-                dest
-            }
-            is AValueOrForwardUnpack.Header -> {
-                val dest = unpacked.header.heapCopy(this)
-                println("ADJUST COPIED: old=$value to new=$dest")
-                dest
-            }
+            is AValueOrForwardUnpack.Forward -> unpacked.forward.forwardPtr().unpackUnfrozenValue()
+            is AValueOrForwardUnpack.Header -> unpacked.header.heapCopy(this)
         }
     }
 }

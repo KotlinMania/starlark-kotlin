@@ -41,7 +41,6 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.ComplexValue
-import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -64,8 +63,8 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bool.allocValue
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
-import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 import io.github.kotlinmania.starlark.values.types.string.allocValue
 import kotlin.concurrent.Volatile
 
@@ -262,7 +261,7 @@ class GlobalsBuilder private constructor(
         }
         setInner(
             name,
-            heap.allocSimple(FrozenNamespace.new(stringKeyFields)),
+            heap.allocSimple(NamespaceGen.frozen(stringKeyFields)),
             docHidden,
         )
     }

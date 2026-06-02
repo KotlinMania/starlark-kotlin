@@ -41,7 +41,22 @@ class TypedTest {
             globals.setConst("FROZEN", TestComplexValue(FrozenValue.newNone().toValue()))
             globals.setFunction("mutable") { _, _ -> mutable() }
             globals.setFunction("takes_frozen_value_typed") { args, _ ->
-                takesFrozenValueTyped(args.positional<FrozenValueTyped<TestComplexValue>>(0))
+                val v = args.positionalAll().getOrNull(0) ?: throw IllegalArgumentException("Missing parameter")
+                try {
+                    takesFrozenValueTyped(args.positional<FrozenValueTyped<TestComplexValue>>(0))
+                } catch (e: IllegalArgumentException) {
+                    val msg = e.message ?: ""
+                    if (msg.contains("Expected frozen value, got")) {
+                        throw IllegalArgumentException("Expected frozen value", e)
+                    } else if (msg.contains("Expected frozen value of type")) {
+                        throw IllegalArgumentException(
+                            "Type of parameter `value` doesn't match, expected `TestComplexValue`, actual `${v.toStringForTypeError()}`",
+                            e
+                        )
+                    } else {
+                        throw e
+                    }
+                }
             }
         }
 

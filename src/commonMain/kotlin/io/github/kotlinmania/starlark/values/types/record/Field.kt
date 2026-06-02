@@ -22,8 +22,13 @@ package io.github.kotlinmania.starlark.values.types.record
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
-import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /**
@@ -31,9 +36,11 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
  */
 // Kotlin: single class, no lifetime parameterization.
 class Field internal constructor(
-    internal val typ: TypeCompiled,
-    internal val default: Value?,
-) : StarlarkValue {
+    internal var typ: TypeCompiled,
+    internal var default: Value?,
+) : ComplexValue,
+    Freeze<Field>,
+    Trace {
     companion object {
         internal fun new(typ: TypeCompiled, default: Value?): Field = Field(typ = typ, default = default)
 
@@ -42,15 +49,36 @@ class Field internal constructor(
             value.downcastRef()
     }
 
+    override fun freeze(freezer: Freezer): Result<Field> {
+        val frozenTyp = typ.toFrozen(freezer.frozenHeap())
+        val frozenDefault =
+            if (default != null) {
+                freezer.freeze(default!!).getOrElse { return Result.failure(it) }
+            } else {
+                null
+            }
+        return Result.success(Field(frozenTyp, frozenDefault?.toValue()))
+    }
+
+    override fun trace(tracer: Tracer) {
+        typ.trace(tracer)
+        if (default != null) {
+            val holder = ValueHolder(default!!)
+            tracer.trace(holder)
+            default = holder.value
+        }
+    }
+
     internal fun ty(): Ty = typ.asTy()
 
     override val TYPE: String get() = "field"
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         typ.writeHash(hasher).getOrElse { return Result.failure(it) }
-        hasher.writeU8(if (default != null) 1u else 0u)
-        if (default != null) {
-            default.writeHash(hasher).getOrElse { return Result.failure(it) }
+        val def = default
+        hasher.writeU8(if (def != null) 1u else 0u)
+        if (def != null) {
+            def.writeHash(hasher).getOrElse { return Result.failure(it) }
         }
         return Result.success(Unit)
     }

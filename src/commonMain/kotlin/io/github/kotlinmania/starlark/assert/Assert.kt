@@ -269,6 +269,7 @@ class Assert(
         }
         modules.clear()
     }
+
     /**
      * Create a new assert object, which will by default use
      * extended dialect and all library extensions,

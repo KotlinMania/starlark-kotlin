@@ -182,10 +182,12 @@ sealed class Either<out L, out R> {
  */
 class RefCell(
     private var value: SetData,
-) : SetLike, Trace {
+) : SetLike,
+    Trace {
     override fun trace(tracer: Tracer) {
         value.trace(tracer)
     }
+
     private var borrowCount = 0
     private var mutBorrowCount = 0
 

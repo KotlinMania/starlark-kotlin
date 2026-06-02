@@ -66,9 +66,7 @@ internal fun reprStackPush(value: Value): Result<ReprStackGuard> {
 
 /** Push a value to the stack, return error if it is already on the stack. */
 internal fun jsonStackPush(value: Value): Result<JsonStackGuard> {
-    println("PUSH: value=${value} type=${value.getType()} ptrVal=${value.ptrValue()} stack=${jsonStack.iter().map { it.toString() }.toList()}")
     if (!jsonStack.insert(value.ptrValue())) {
-        println("CYCLE DETECTED: value=${value} type=${value.getType()}")
         return Result.failure(Exception(JsonCycle().toString()))
     }
     return Result.success(JsonStackGuard())

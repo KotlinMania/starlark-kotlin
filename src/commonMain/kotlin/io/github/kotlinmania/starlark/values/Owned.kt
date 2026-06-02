@@ -55,10 +55,10 @@ class OwnedFrozenValue(
     // Invariant: this FrozenValue must be kept alive by the `owner` field.
     @PublishedApi internal val value: FrozenValue,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     companion object {
         /** Create an [OwnedFrozenValue] in a new heap. */
         fun alloc(x: AllocFrozenValue): OwnedFrozenValue {
@@ -136,10 +136,10 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     private val owner: FrozenHeapRef,
     private val value: FrozenValueTyped<T>,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     /** Access the underlying value. */
     fun asRef(): T = value.asRef()
 

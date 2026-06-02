@@ -89,10 +89,10 @@ class FrozenModule internal constructor(
     /** Module evaluation duration. */
     internal val evalDuration: Duration,
 ) : AutoCloseable {
-
     override fun close() {
         heap.close()
     }
+
     /**
      * Convert items in [Globals] into a [FrozenModule].
      * This function can be used to implement starlark module

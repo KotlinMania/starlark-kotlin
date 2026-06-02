@@ -27,10 +27,13 @@ import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.freezeList
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
 import io.github.kotlinmania.starlark.values.types.record.recordtype.recordFields
@@ -76,10 +79,11 @@ private fun equalsSlice(
 /** An actual record. */
 // starlark_complex_value!(pub Record);
 class RecordGen internal constructor(
-    internal val typ: Value, // Must be RecordType
-    internal val values: List<Value>,
+    internal var typ: Value, // Must be RecordType
+    internal var values: List<Value>,
 ) : ComplexValue,
-    Freeze<RecordGen> {
+    Freeze<RecordGen>,
+    Trace {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
@@ -108,6 +112,20 @@ class RecordGen internal constructor(
                 values = frozenValues.map { it.toValue() },
             ),
         )
+    }
+
+    override fun trace(tracer: Tracer) {
+        val typHolder = ValueHolder(typ)
+        tracer.trace(typHolder)
+        typ = typHolder.value
+
+        val newValues = ArrayList<Value>(values.size)
+        for (v in values) {
+            val holder = ValueHolder(v)
+            tracer.trace(holder)
+            newValues.add(holder.value)
+        }
+        values = newValues
     }
 
     private fun getRecordType(): RecordTypeGen {
