@@ -112,7 +112,7 @@ sealed class ValueError(
 }
 
 /** Convert a [ValueError] to a starlark [io.github.kotlinmania.starlark.Error]. */
-fun ValueError.toStarlarkError(): Error = Error.newKind(ErrorKind.Value(this))
+internal fun ValueError.toStarlarkError(): Error = Error.newKind(ErrorKind.Value(this))
 
 internal sealed class ControlError(
     override val message: String,

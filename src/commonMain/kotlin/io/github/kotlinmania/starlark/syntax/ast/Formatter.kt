@@ -22,7 +22,7 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Formats BinOp to Starlark code representation. */
-fun BinOp.toSourceString(): String =
+internal fun BinOp.toSourceString(): String =
     when (this) {
         BinOp.Or -> " or "
         BinOp.And -> " and "
@@ -48,7 +48,7 @@ fun BinOp.toSourceString(): String =
     }
 
 /** Formats AssignOp to Starlark code representation. */
-fun AssignOp.toSourceString(): String =
+internal fun AssignOp.toSourceString(): String =
     when (this) {
         AssignOp.Add -> " += "
         AssignOp.Subtract -> " -= "
@@ -64,14 +64,14 @@ fun AssignOp.toSourceString(): String =
     }
 
 /** Formats TokenInt to Starlark code representation. */
-fun TokenInt.toSourceString(): String =
+internal fun TokenInt.toSourceString(): String =
     when (this) {
         is TokenInt.I32 -> value.toString()
         is TokenInt.BigInt -> value.toString()
     }
 
 /** Formats AstLiteral to Starlark code representation. */
-fun AstLiteral.toSourceString(): String =
+internal fun AstLiteral.toSourceString(): String =
     when (this) {
         is AstLiteral.Int -> value.node.toSourceString()
         is AstLiteral.Float -> value.node.toString()
@@ -97,7 +97,7 @@ fun AstLiteral.toSourceString(): String =
     }
 
 /** Formats ArgumentP to Starlark code representation. */
-fun <P : AstPayload> ArgumentP<P>.toSourceString(): String =
+internal fun <P : AstPayload> ArgumentP<P>.toSourceString(): String =
     when (this) {
         is ArgumentP.Positional -> expr.node.toSourceString()
         is ArgumentP.Named -> "${name.node} = ${expr.node.toSourceString()}"
@@ -106,7 +106,7 @@ fun <P : AstPayload> ArgumentP<P>.toSourceString(): String =
     }
 
 /** Formats ParameterP to Starlark code representation. */
-fun <P : AstPayload> ParameterP<P>.toSourceString(): String =
+internal fun <P : AstPayload> ParameterP<P>.toSourceString(): String =
     when (this) {
         is ParameterP.Slash -> "/"
         is ParameterP.Normal -> {
@@ -170,7 +170,7 @@ private fun <T> commaSeparatedFmt(list: List<T>, forTuple: Boolean, transform: (
 }
 
 /** Formats ExprP to Starlark code representation. */
-fun <P : AstPayload> ExprP<P>.toSourceString(): String =
+internal fun <P : AstPayload> ExprP<P>.toSourceString(): String =
     when (this) {
         is ExprP.Tuple -> "(" + commaSeparatedFmt(elements, true) { it.node.toSourceString() } + ")"
         is ExprP.Dot -> "${expr.node.toSourceString()}.${field.node}"
@@ -311,7 +311,7 @@ fun <P : AstPayload> ExprP<P>.toSourceString(): String =
     }
 
 /** Formats AssignTargetP to Starlark code representation. */
-fun <P : AstPayload> AssignTargetP<P>.toSourceString(): String =
+internal fun <P : AstPayload> AssignTargetP<P>.toSourceString(): String =
     when (this) {
         is AssignTargetP.Tuple -> "(" + commaSeparatedFmt(elements, true) { it.node.toSourceString() } + ")"
         is AssignTargetP.Dot -> "${expr.node.toSourceString()}.${field.node}"
@@ -320,7 +320,7 @@ fun <P : AstPayload> AssignTargetP<P>.toSourceString(): String =
     }
 
 /** Formats StmtP to Starlark code representation. */
-fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String =
+internal fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String =
     when (this) {
         is StmtP.Break -> "${tab}break\n"
         is StmtP.Continue -> "${tab}continue\n"
@@ -441,8 +441,8 @@ fun <P : AstPayload> StmtP<P>.toSourceString(tab: String = ""): String =
     }
 
 /** Formats Spanned<ExprP> to Starlark code representation. */
-fun <P : AstPayload> Spanned<ExprP<P>>.toSourceString(): String = node.toSourceString()
+internal fun <P : AstPayload> Spanned<ExprP<P>>.toSourceString(): String = node.toSourceString()
 
 /** Formats Spanned<StmtP> to Starlark code representation. */
-fun <P : AstPayload> Spanned<StmtP<P>>.toSourceString(tab: String = ""): String =
+internal fun <P : AstPayload> Spanned<StmtP<P>>.toSourceString(tab: String = ""): String =
     node.toSourceString(tab)

@@ -233,7 +233,7 @@ class UnorderedMap<K, V> internal constructor(
 }
 
 /** Get the entries in the map, sorted by natural key order. */
-fun <K : Comparable<K>, V> UnorderedMap<K, V>.entriesSorted(): List<Pair<K, V>> =
+internal fun <K : Comparable<K>, V> UnorderedMap<K, V>.entriesSorted(): List<Pair<K, V>> =
     entriesSortedWith(naturalOrder())
 
 /**

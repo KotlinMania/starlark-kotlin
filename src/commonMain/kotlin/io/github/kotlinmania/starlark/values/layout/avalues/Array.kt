@@ -119,7 +119,7 @@ private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> 
 }
 
 /** Allocate a slice in the frozen heap. */
-fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
+internal fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
     if (values.isEmpty()) {
         return FrozenRef(emptyList())
     } else if (values.size == 1) {

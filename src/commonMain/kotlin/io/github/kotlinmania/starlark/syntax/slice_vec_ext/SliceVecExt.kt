@@ -51,12 +51,12 @@ private fun <T> collectResult(items: List<Result<T>>): Result<List<T>> {
  *
  * Kotlin doesn't have slice traits, so these are provided as extension functions.
  */
-fun <T, B> List<T>.mapExt(f: (T) -> B): List<B> = this.map(f)
+internal fun <T, B> List<T>.mapExt(f: (T) -> B): List<B> = this.map(f)
 
 /**
  * A shorthand for `iter().map(f).collect::<Result<Vec<_>, _>>()`.
  */
-fun <T, B> List<T>.tryMap(f: (T) -> Result<B>): Result<List<B>> {
+internal fun <T, B> List<T>.tryMap(f: (T) -> Result<B>): Result<List<B>> {
     val mapped = ArrayList<Result<B>>(this.size)
     for (x in this) {
         mapped.add(f(x))
@@ -69,12 +69,12 @@ fun <T, B> List<T>.tryMap(f: (T) -> Result<B>): Result<List<B>> {
  *
  * Kotlin doesn't have ownership, so `into_*` variants are expressed as normal extensions.
  */
-fun <T, B> List<T>.intoMap(f: (T) -> B): List<B> = this.map(f)
+internal fun <T, B> List<T>.intoMap(f: (T) -> B): List<B> = this.map(f)
 
 /**
  * A shorthand for `into_iter().map(f).collect::<Result<Vec<_>, _>>()`.
  */
-fun <T, B> List<T>.intoTryMap(f: (T) -> Result<B>): Result<List<B>> {
+internal fun <T, B> List<T>.intoTryMap(f: (T) -> Result<B>): Result<List<B>> {
     if (this.isEmpty()) return Result.success(emptyList())
 
     val first = f(this[0])

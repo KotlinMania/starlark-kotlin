@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 /** Define the tuple type. See [Tuple] and [FrozenTuple] as the two aliases. */
-class TupleGen<V>(
+internal class TupleGen<V>(
     /** The data stored by the tuple. */
     private var content: List<V>,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue {
@@ -87,7 +87,7 @@ class TupleGen<V>(
     }
 
     override fun equals(other: Value): Result<Boolean> {
-        val otherTuple = TupleGen.fromValue(other) ?: return Result.success(false)
+        val otherTuple = Tuple.fromValue(other) ?: return Result.success(false)
         return equalsSlice<Exception, V, Value>(content(), otherTuple.content()) { x, y -> (x as ValueLike).equals(y) }
     }
 
@@ -163,22 +163,52 @@ class TupleGen<V>(
     override fun getTypeStarlarkRepr(): Ty = Ty.anyTuple()
 }
 
-/** Runtime type of unfrozen tuple. */
-typealias Tuple = TupleGen<Value>
+class Tuple internal constructor(
+    internal val delegate: TupleGen<Value>,
+) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
+    fun len(): Int = delegate.len()
+    fun content(): List<Value> = delegate.content()
+    fun contentMut(): MutableList<Value> = delegate.contentMut()
+    fun iter(): Iterator<Value> = delegate.iter()
+    override fun toString(): String = delegate.toString()
 
-/** Runtime type of frozen tuple. */
-typealias FrozenTuple = TupleGen<FrozenValue>
-
-/** The empty tuple, statically allocated. */
-val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
-    AllocStaticSimple.alloc(TupleGen(emptyList()))
-
-/** Downcast a value to a tuple. */
-fun TupleGen.Companion.fromValue(value: Value): Tuple? {
-    val raw = value.downcastRef<TupleGen<*>>() ?: return null
-    val mapped = raw.content().map { (it as ValueLike).toValue() }
-    return TupleGen(mapped)
+    companion object {
+        fun fromValue(value: Value): Tuple? {
+            val raw = tupleGenFromValue(value) ?: return null
+            val mapped = raw.content().map { (it as ValueLike).toValue() }
+            return Tuple(TupleGen(mapped))
+        }
+    }
 }
 
+class FrozenTuple internal constructor(
+    internal val delegate: TupleGen<FrozenValue>,
+) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
+    fun len(): Int = delegate.len()
+    fun content(): List<FrozenValue> = delegate.content()
+    fun iter(): Iterator<Value> = delegate.iter()
+    override fun toString(): String = delegate.toString()
+
+    companion object {
+        fun fromValue(value: Value): FrozenTuple? {
+            val raw = tupleGenFromValue(value) ?: return null
+            @Suppress("UNCHECKED_CAST")
+            return FrozenTuple(raw as TupleGen<FrozenValue>)
+        }
+    }
+}
+
+internal fun tupleGenFromValue(value: Value): TupleGen<*>? {
+    return value.downcastRef<Tuple>()?.delegate
+        ?: value.downcastRef<FrozenTuple>()?.delegate
+}
+
+/** The empty tuple, statically allocated. */
+internal val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
+    AllocStaticSimple.alloc(FrozenTuple(TupleGen(emptyList())))
+
+/** Downcast a value to a tuple. */
+internal fun TupleGen.Companion.fromValue(value: Value): Tuple? = Tuple.fromValue(value)
+
 // Serialize support for TupleGen
-fun <V> TupleGen<V>.serialize(): List<V> = content()
+internal fun <V> TupleGen<V>.serialize(): List<V> = content()

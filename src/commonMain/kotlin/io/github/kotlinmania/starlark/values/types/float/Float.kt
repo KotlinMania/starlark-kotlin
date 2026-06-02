@@ -267,15 +267,15 @@ data class StarlarkFloat(
     override fun typecheckerTy(): Ty = Ty.float()
 }
 
-fun Double.starlarkTypeRepr(): Ty = Ty.float()
+internal fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
+internal fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
+internal fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
-fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
+internal fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
     value.downcastRef<StarlarkFloat>()
 
-fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
+internal fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
     typecheckNumBinOp(NumTy.Float, op, rhs)

@@ -33,6 +33,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictGen
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
@@ -369,8 +370,10 @@ private fun allocFrozenJsonMapOnHeap(map: Map<String, FrozenValue>, heap: Frozen
         )
     }
     return heap.allocSimple(
-        DictGen(
-            FrozenDictData(sm),
+        FrozenDict(
+            DictGen(
+                FrozenDictData(sm),
+            ),
         ),
     )
 }

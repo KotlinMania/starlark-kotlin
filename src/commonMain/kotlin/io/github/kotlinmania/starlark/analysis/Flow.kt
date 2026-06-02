@@ -498,7 +498,7 @@ internal fun noEffect(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
 // ---------------------------------------------------------------------------
 
 /** Lint an [AstModule] for flow issues. */
-fun flowLint(module: AstModule): List<LintT<FlowIssue>> {
+internal fun flowLint(module: AstModule): List<LintT<FlowIssue>> {
     val res = mutableListOf<LintT<FlowIssue>>()
     stmt(module.codemap, module.statement, res)
     reachable(module.codemap, module.statement, res)

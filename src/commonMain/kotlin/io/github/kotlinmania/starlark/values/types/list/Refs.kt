@@ -57,14 +57,14 @@ class ListRef private constructor(
          * Corresponds to Rust's `ListRef::from_value`.
          */
         fun fromValue(x: Value): ListRef? {
-            if (x.unpackFrozen() != null) {
-                val gen = x.downcastRef<ListGen<*>>() ?: return null
-                val data = gen.data as? FrozenListData ?: return null
-                return new(data.content().map { it.toValue() })
+            val gen = listGenFromValue(x) ?: return null
+            val data = gen.data
+            return if (data is FrozenListData) {
+                new(data.content().map { it.toValue() })
+            } else if (data is ListData) {
+                new(data.content())
             } else {
-                val gen = x.downcastRef<ListGen<*>>() ?: return null
-                val data = gen.data as? ListData ?: return null
-                return new(data.content())
+                null
             }
         }
 
@@ -75,11 +75,7 @@ class ListRef private constructor(
          *
          * Corresponds to Rust's `ListRef::from_frozen_value`.
          */
-        fun fromFrozenValue(x: FrozenValue): ListRef? {
-            val gen = x.downcastRef<ListGen<*>>() ?: return null
-            val data = gen.data as? FrozenListData ?: return null
-            return new(data.content().map { it.toValue() })
-        }
+        fun fromFrozenValue(x: FrozenValue): ListRef? = fromValue(x.toValue())
     }
 
     /** List elements. */
@@ -161,7 +157,7 @@ class FrozenListRef private constructor(
          * Corresponds to Rust's `FrozenListRef::from_frozen_value`.
          */
         fun fromFrozenValue(x: FrozenValue): FrozenListRef? {
-            val gen = x.downcastRef<ListGen<*>>() ?: return null
+            val gen = listGenFromValue(x.toValue()) ?: return null
             val data = gen.data as? FrozenListData ?: return null
             return new(data.contentFrozen())
         }

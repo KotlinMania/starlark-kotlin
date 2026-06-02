@@ -37,4 +37,4 @@ interface InvokeMacroError {
  * Starlark native functions should not return generic exceptions;
  * this exists as a fallback for external integrations.
  */
-fun Throwable.intoStarlarkError(): StarlarkError = StarlarkError.newNative(this)
+internal fun Throwable.intoStarlarkError(): StarlarkError = StarlarkError.newNative(this)

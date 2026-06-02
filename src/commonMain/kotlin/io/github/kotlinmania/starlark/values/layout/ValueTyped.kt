@@ -41,8 +41,11 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.int.PointerI32
 
 /** [Value] wrapper which asserts contained value is of type `<T>`. */
-class ValueTyped<T : StarlarkValue>(
-    internal val value: Value,
+@PublishedApi
+internal class ValueTyped<T : StarlarkValue>
+@PublishedApi
+internal constructor(
+    @PublishedApi internal val value: Value,
 ) {
     companion object {
         /** Downcast. */
@@ -59,7 +62,8 @@ class ValueTyped<T : StarlarkValue>(
         }
 
         /** Construct typed value without checking the value is of type `<T>`. */
-        fun <T : StarlarkValue> newUnchecked(value: Value): ValueTyped<T> = ValueTyped(value)
+        @PublishedApi
+        internal fun <T : StarlarkValue> newUnchecked(value: Value): ValueTyped<T> = ValueTyped(value)
 
         internal fun <A : AValue, T : StarlarkValue> newRepr(repr: AValueRepr<AValueImpl<A>>): ValueTyped<T> =
             ValueTyped(Value.newRepr(repr))
@@ -100,8 +104,11 @@ class ValueTyped<T : StarlarkValue>(
 }
 
 /** [FrozenValue] wrapper which asserts contained value is of type `<T>`. */
-class FrozenValueTyped<T : StarlarkValue>(
-    private val frozenValue: FrozenValue,
+@PublishedApi
+internal class FrozenValueTyped<T : StarlarkValue>
+@PublishedApi
+internal constructor(
+    @PublishedApi internal val frozenValue: FrozenValue,
 ) {
     companion object {
         inline fun <reified T : StarlarkValue> isStr(): Boolean =
@@ -111,7 +118,8 @@ class FrozenValueTyped<T : StarlarkValue>(
             PointerI32.typeIsPointerI32<T>()
 
         /** Construct without checking type. */
-        fun <T : StarlarkValue> newUnchecked(value: FrozenValue): FrozenValueTyped<T> =
+        @PublishedApi
+        internal fun <T : StarlarkValue> newUnchecked(value: FrozenValue): FrozenValueTyped<T> =
             FrozenValueTyped(value)
 
         /** Downcast. */
@@ -167,43 +175,43 @@ class FrozenValueTyped<T : StarlarkValue>(
 }
 
 /** Extension for [ValueTyped] wrapping [StarlarkStr]. */
-fun ValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
+internal fun ValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
 
 /** Extension for [FrozenValueTyped] wrapping [StarlarkStr]. */
-fun FrozenValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
+internal fun FrozenValueTyped<StarlarkStr>.asStr(): String = asRef().asStr()
 
 /** [StarlarkTypeRepr] impl for [ValueTyped]. */
-fun <T : StarlarkValue> ValueTyped<T>.starlarkTypeRepr(): Ty =
+internal fun <T : StarlarkValue> ValueTyped<T>.starlarkTypeRepr(): Ty =
     asRef().typecheckerTy() ?: Ty.any()
 
 /** [AllocValue] impl for [ValueTyped]. */
-fun <T : StarlarkValue> ValueTyped<T>.allocValue(heap: Heap): Value = toValue()
+internal fun <T : StarlarkValue> ValueTyped<T>.allocValue(heap: Heap): Value = toValue()
 
 /** [StarlarkTypeRepr] impl for [FrozenValueTyped]. */
-fun <T : StarlarkValue> FrozenValueTyped<T>.starlarkTypeRepr(): Ty =
+internal fun <T : StarlarkValue> FrozenValueTyped<T>.starlarkTypeRepr(): Ty =
     asRef().typecheckerTy() ?: Ty.any()
 
 /** [AllocValue] impl for [FrozenValueTyped]. */
-fun <T : StarlarkValue> FrozenValueTyped<T>.allocValue(heap: Heap): Value = toFrozenValue().toValue()
+internal fun <T : StarlarkValue> FrozenValueTyped<T>.allocValue(heap: Heap): Value = toFrozenValue().toValue()
 
 /** [AllocFrozenValue] impl for [FrozenValueTyped]. */
-fun <T : StarlarkValue> FrozenValueTyped<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun <T : StarlarkValue> FrozenValueTyped<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     toFrozenValue()
 
 /** [AllocStringValue] impl for [StringValue]. */
-fun StringValue.allocStringValue(heap: Heap): StringValue = this
+internal fun StringValue.allocStringValue(heap: Heap): StringValue = this
 
 /** [AllocStringValue] impl for [FrozenStringValue]. */
-fun FrozenStringValue.allocStringValue(heap: Heap): StringValue = toStringValue()
+internal fun FrozenStringValue.allocStringValue(heap: Heap): StringValue = toStringValue()
 
 /** [AllocFrozenStringValue] impl for [FrozenStringValue]. */
-fun FrozenStringValue.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = this
+internal fun FrozenStringValue.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = this
 
 /**
  * [Trace] impl for [ValueTyped].
  * Traces the contained value and asserts the type is unchanged after tracing.
  */
-fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
+internal fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
     val holder = ValueHolder(value)
     tracer.trace(holder)
     // The underlying value field is internal, so we update via the holder
@@ -214,7 +222,7 @@ fun <T : StarlarkValue> ValueTyped<T>.trace(tracer: Tracer) {
  * [Trace] impl for [FrozenValueTyped].
  * Frozen values do not need tracing.
  */
-fun <T : StarlarkValue> FrozenValueTyped<T>.trace(
+internal fun <T : StarlarkValue> FrozenValueTyped<T>.trace(
     @Suppress("UNUSED_PARAMETER") tracer: Tracer,
 ) {
     // Nothing to do: frozen values are immutable and not subject to GC forwarding.
@@ -224,7 +232,7 @@ fun <T : StarlarkValue> FrozenValueTyped<T>.trace(
  * [Freeze] impl for [FrozenValueTyped].
  * Already frozen, returns self.
  */
-fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
+internal fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
     @Suppress("UNUSED_PARAMETER") freezer: Freezer,
 ): Result<FrozenValueTyped<T>> = Result.success(this)
 
@@ -232,7 +240,7 @@ fun <T : StarlarkValue> FrozenValueTyped<T>.freeze(
  * [Freeze] impl for [ValueTyped].
  * Freezes the contained value and wraps as [FrozenValueTyped].
  */
-fun <T : StarlarkValue> ValueTyped<T>.freeze(freezer: Freezer): Result<FrozenValueTyped<T>> {
+internal fun <T : StarlarkValue> ValueTyped<T>.freeze(freezer: Freezer): Result<FrozenValueTyped<T>> {
     val frozenValue = toValue().freeze(freezer)
     if (frozenValue.isFailure) return Result.failure(frozenValue.exceptionOrNull()!!)
     val fvt = FrozenValueTyped.newUnchecked<T>(frozenValue.getOrThrow())

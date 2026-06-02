@@ -35,8 +35,8 @@ import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.types.bigint.unpackLong
-import io.github.kotlinmania.starlark.values.types.bigint.unpackUInt
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToLongOrNull
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToUIntOrNull
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
@@ -514,7 +514,7 @@ class Arguments(
      */
     inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
 
-    inline fun <reified T : ComplexValue, reified F : StarlarkValue> positionalComplex(
+    internal inline fun <reified T : ComplexValue, reified F : StarlarkValue> positionalComplex(
         index: Int,
     ): ValueTypedComplex<T, F> =
         ValueTypedComplex.newErr<T, F>(full.pos[index]).getOrThrow()
@@ -647,10 +647,10 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 unpackValueI32(v).getOrThrow()
                     ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")
             UInt::class ->
-                v.unpackUInt().getOrThrow()
+                unpackValueToUIntOrNull(v)
                     ?: throw IllegalArgumentException("Expected UInt, got ${v.toStringForTypeError()}")
             Long::class ->
-                v.unpackLong().getOrThrow()
+                unpackValueToLongOrNull(v)
                     ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
             Boolean::class -> v.toBool()
             ValueTyped::class -> {

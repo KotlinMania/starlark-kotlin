@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/analysis.rs
 package io.github.kotlinmania.starlark
 
@@ -28,6 +29,7 @@ import io.github.kotlinmania.starlark.analysis.lintPerformance
 import io.github.kotlinmania.starlark.analysis.namesLint
 import io.github.kotlinmania.starlark.analysis.underscoreLint
 import io.github.kotlinmania.starlark.syntax.AstModule
+import kotlin.native.HiddenFromObjC
 
 /**
  * Linter.
@@ -56,16 +58,19 @@ import io.github.kotlinmania.starlark.syntax.AstModule
  *
  * Extension interface for [io.github.kotlinmania.starlark.syntax.AstModule] to support linting.
  */
+@HiddenFromObjC
 interface AstModuleLint {
     /**
      * Run a static linter over the module. If the complete set of global variables are known
      * they can be passed as the [globals] argument, resulting in name-resolution lint errors.
      * The precise checks run by the linter are not considered stable between versions.
      */
+    @HiddenFromObjC
     fun lint(globals: Set<String>? = null): List<Lint>
 }
 
-fun AstModule.lint(globals: Set<String>? = null): List<Lint> =
+@HiddenFromObjC
+internal fun AstModule.lint(globals: Set<String>? = null): List<Lint> =
     buildList {
         addAll(flowLint(this@lint).map { it.erase() })
         addAll(lintDubious(this@lint).map { it.erase() })

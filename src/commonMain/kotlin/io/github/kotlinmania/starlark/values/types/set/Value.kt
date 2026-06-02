@@ -44,7 +44,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
  * Transparent wrapper around the inner set implementation.
  * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
  */
-data class SetGen<T : SetLike>(
+internal data class SetGen<T : SetLike>(
     val inner: T,
 ) : ComplexValue,
     Trace,
@@ -298,26 +298,58 @@ internal fun FrozenSetData.valueContent(): SmallSet<Value> {
     return values
 }
 
-/** Mutable set type alias. */
-typealias MutableSet = SetGen<RefCell>
+class MutableSet internal constructor(
+    internal val delegate: SetGen<RefCell>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenSet> {
+    internal val inner: RefCell get() = delegate.inner
 
-/** Frozen set type alias. */
-typealias FrozenSet = SetGen<FrozenSetData>
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun freeze(freezer: Freezer): Result<FrozenSet> {
+        return delegate.freezeToFrozenSet(freezer)
+    }
+}
+
+class FrozenSet internal constructor(
+    internal val delegate: SetGen<FrozenSetData>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace {
+    val inner: FrozenSetData get() = delegate.inner
+
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+}
+
+internal fun setGenFromValue(value: Value): SetGen<*>? {
+    return value.downcastRef<MutableSet>()?.delegate
+        ?: value.downcastRef<FrozenSet>()?.delegate
+}
 
 /**
  * AllocValue implementation for SetData.
  */
-fun SetData.allocValue(heap: Heap): Value = heap.allocComplex(SetGen(RefCell(this)))
+internal fun SetData.allocValue(heap: Heap): Value = heap.allocComplex(MutableSet(SetGen(RefCell(this))))
 
 /**
  * StarlarkTypeRepr implementation for SetData.
  */
-fun SetData.starlarkTypeRepr(): Ty = Ty.anySet()
+internal fun SetData.starlarkTypeRepr(): Ty = Ty.anySet()
 
 /**
  * Freeze implementation for MutableSet.
  */
-fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
+internal fun SetGen<RefCell>.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
     val contentResult =
         freezeSmallSet(
             this.inner
@@ -326,13 +358,13 @@ fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
             freezer,
         ) { v, f -> v.freeze(f) }
     if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
-    return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
+    return Result.success(FrozenSet(SetGen(FrozenSetData(contentResult.getOrThrow()))))
 }
 
 /**
  * Get set methods.
  */
-fun setMethods(): Methods = RES.methods(::setMethodsImpl)
+internal fun setMethods(): Methods = RES.methods(::setMethodsImpl)
 
 private val RES = MethodsStatic()
 
@@ -358,7 +390,7 @@ interface SetLike {
     fun iterStop()
 }
 
-fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
+internal fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
 // Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).
 // Note: registerAvalueSimpleFrozen!(FrozenSet) - to be implemented in registration system

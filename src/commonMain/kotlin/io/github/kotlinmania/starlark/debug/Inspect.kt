@@ -41,7 +41,7 @@ internal fun toScopeNamesByLocalSlotId(x: Value): List<FrozenStringValue>? {
  * definitions. The precise number of variables may change over time due to optimisation. The only
  * legitimate use of this function is for debugging.
  */
-fun Evaluator.localVariables(): SmallMap<String, Value> = inspectLocalVariables(this) ?: inspectModuleVariables(this)
+internal fun Evaluator.localVariables(): SmallMap<String, Value> = inspectLocalVariables(this) ?: inspectModuleVariables(this)
 
 private fun inspectLocalVariables(eval: Evaluator): SmallMap<String, Value>? {
     // First we find the first entry on the call_stack which contains a Def (and thus has locals)

@@ -240,7 +240,7 @@ class EnumTypeGen internal constructor(
     companion object {
         private const val FUNCTION_TYPE = "function"
 
-        fun new(elements: List<StringValue>, heap: Heap): ValueTyped<EnumTypeGen> {
+        fun new(elements: List<StringValue>, heap: Heap): Value {
             val id = TypeInstanceId.gen()
             val elemMap = SmallMap.new<Value, Value>()
 
@@ -269,7 +269,7 @@ class EnumTypeGen internal constructor(
                 }
             }
 
-            return typValue
+            return typValue.toValue()
         }
     }
 }

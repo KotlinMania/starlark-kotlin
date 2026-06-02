@@ -238,14 +238,14 @@ sealed class StarlarkInt {
 }
 
 // Rust: impl AllocValue for StarlarkInt
-fun StarlarkInt.allocValue(heap: Heap): Value =
+internal fun StarlarkInt.allocValue(heap: Heap): Value =
     when (this) {
         is StarlarkInt.Small -> Value.newInt(value)
         is StarlarkInt.Big -> heap.allocSimple(value)
     }
 
 // Rust: impl AllocFrozenValue for StarlarkInt
-fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is StarlarkInt.Small -> FrozenValue.newInt(value)
         is StarlarkInt.Big -> heap.allocSimple(value)
@@ -598,7 +598,7 @@ sealed class StarlarkIntRef {
 }
 
 // Bitwise operators for StarlarkIntRef
-infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -608,7 +608,7 @@ infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() and other.toBig())
     }
 
-infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -618,7 +618,7 @@ infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() or other.toBig())
     }
 
-infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -628,7 +628,7 @@ infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() xor other.toBig())
     }
 
-operator fun StarlarkIntRef.not(): StarlarkInt =
+internal operator fun StarlarkIntRef.not(): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> StarlarkInt.Small(!value)
         // kotlin-bignum's BigInteger.not() does not implement two's complement NOT correctly.
@@ -636,28 +636,28 @@ operator fun StarlarkIntRef.not(): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(-(toBig() + BigInteger.ONE))
     }
 
-operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {
+internal operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {
     if (this is StarlarkIntRef.Small) {
         value.checkedNeg()?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(-toBig())
 }
 
-operator fun StarlarkIntRef.plus(other: StarlarkIntRef): StarlarkInt {
+internal operator fun StarlarkIntRef.plus(other: StarlarkIntRef): StarlarkInt {
     if (this is StarlarkIntRef.Small && other is StarlarkIntRef.Small) {
         value.checkedAdd(other.value)?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(toBig() + other.toBig())
 }
 
-operator fun StarlarkIntRef.minus(other: StarlarkIntRef): StarlarkInt {
+internal operator fun StarlarkIntRef.minus(other: StarlarkIntRef): StarlarkInt {
     if (this is StarlarkIntRef.Small && other is StarlarkIntRef.Small) {
         value.checkedSub(other.value)?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(toBig() - other.toBig())
 }
 
-operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
+internal operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> {
             value.checkedMulI32(rhs)?.let { return StarlarkInt.Small(it) }
@@ -666,9 +666,9 @@ operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(value.get() * BigInteger.fromInt(rhs))
     }
 
-operator fun Int.times(rhs: StarlarkIntRef): StarlarkInt = rhs * this
+internal operator fun Int.times(rhs: StarlarkIntRef): StarlarkInt = rhs * this
 
-operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
+internal operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> value.toI32() * other
         is StarlarkIntRef.Big ->
@@ -679,7 +679,7 @@ operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
     }
 
 // Extension for Int comparison with StarlarkIntRef
-operator fun Int.compareTo(other: StarlarkIntRef): Int {
+internal operator fun Int.compareTo(other: StarlarkIntRef): Int {
     // TODO(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
     return StarlarkInt.from(this).asRef().compareTo(other)
 }
@@ -687,7 +687,7 @@ operator fun Int.compareTo(other: StarlarkIntRef): Int {
 /**
  * Parse a StarlarkInt from a string.
  */
-fun String.toStarlarkInt(): Result<StarlarkInt> =
+internal fun String.toStarlarkInt(): Result<StarlarkInt> =
     runCatching {
         // Not very efficient, but only used in tests.
         StarlarkInt.from(BigInteger.parseString(this, 10))

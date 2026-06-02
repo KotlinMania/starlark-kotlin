@@ -32,10 +32,10 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 
 //         self.alloc_frozen_string_value(heap).to_frozen_value()
-fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue = this.allocFrozenStringValue(heap).toFrozenValue()
+internal fun String.allocFrozenValue(heap: FrozenHeap): FrozenValue = this.allocFrozenStringValue(heap).toFrozenValue()
 
 //         heap.alloc_str(self.as_str())
-fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.allocStrIntern(this)
+internal fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.allocStrIntern(this)
 
 //         self.alloc_frozen_string_value(heap).to_frozen_value()
 //         heap.alloc_str(self)
@@ -43,10 +43,10 @@ fun String.allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue = heap.al
 // extension functions above.
 
 //         self.alloc_string_value(heap).to_value()
-fun String.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
+internal fun String.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 //         heap.alloc_str(self.as_str())
-fun String.allocStringValue(heap: Heap): StringValue = StringValue.newUnchecked(heap.allocStr(this))
+internal fun String.allocStringValue(heap: Heap): StringValue = StringValue.newUnchecked(heap.allocStr(this))
 
 //
 //         String::starlark_type_repr()
@@ -58,10 +58,10 @@ object CharTypeRepr : StarlarkTypeRepr {
 }
 
 //         self.alloc_string_value(heap).to_value()
-fun Char.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
+internal fun Char.allocValue(heap: Heap): Value = this.allocStringValue(heap).toValue()
 
 //         heap.alloc_char(self)
-fun Char.allocStringValue(heap: Heap): StringValue {
+internal fun Char.allocStringValue(heap: Heap): StringValue {
     // Rust has heap.alloc_char(self). Kotlin Heap does not have allocChar,
     // so we convert to a single-character string and allocate that.
     return this.toString().allocStringValue(heap)

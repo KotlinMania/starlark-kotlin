@@ -59,7 +59,7 @@ class AstLoad(
     val symbols: Map<String, String>,
 )
 
-data class AstModuleParts(
+internal data class AstModuleParts(
     val codemap: CodeMap,
     val statement: AstStmt,
     val dialect: Dialect,
@@ -68,16 +68,16 @@ data class AstModuleParts(
 
 class AstModule(
     val codemap: CodeMap,
-    var statement: AstStmt,
+    internal var statement: AstStmt,
     val dialect: Dialect,
     val typecheck: Boolean,
     private val lintSuppressions: LintSuppressions = LintSuppressions.EMPTY,
 ) {
     fun codemap(): CodeMap = codemap
 
-    fun statement(): AstStmt = statement
+    internal fun statement(): AstStmt = statement
 
-    fun intoParts(): AstModuleParts =
+    internal fun intoParts(): AstModuleParts =
         AstModuleParts(codemap, statement, dialect, typecheck)
 
     companion object {
@@ -142,7 +142,7 @@ class AstModule(
     fun isSuppressed(issueShortName: String, issueSpan: Span): Boolean =
         lintSuppressions.isSuppressed(issueShortName, issueSpan)
 
-    fun loads(): List<AstLoad> {
+    internal fun loads(): List<AstLoad> {
         val loads = mutableListOf<AstLoad>()
 
         fun walk(ast: Spanned<StmtP<*>>) {
@@ -171,13 +171,13 @@ class AstModule(
         return loads
     }
 
-    fun replaceBinaryOperators(replace: Map<String, String>) {
+    internal fun replaceBinaryOperators(replace: Map<String, String>) {
         statement = rewriteStmt(statement, replace)
     }
 
     fun fileSpan(span: Span): FileSpan = codemap.fileSpan(span)
 
-    fun stmtLocations(): List<FileSpan> {
+    internal fun stmtLocations(): List<FileSpan> {
         val res = mutableListOf<FileSpan>()
 
         fun walk(ast: AstStmt) {

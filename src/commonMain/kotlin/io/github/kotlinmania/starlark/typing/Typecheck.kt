@@ -165,7 +165,7 @@ data class TypecheckResult(
 )
 
 /** Typecheck implementation for AstModule. */
-fun AstModule.typecheck(
+internal fun AstModule.typecheck(
     globals: Globals,
     loads: Map<String, Interface>,
 ): TypecheckResult {

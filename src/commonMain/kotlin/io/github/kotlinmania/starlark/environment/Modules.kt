@@ -129,7 +129,7 @@ class FrozenModule internal constructor(
      *
      * pub fn get_any_visibility(&self, name: &str) -> anyhow::Result<(OwnedFrozenValue, Visibility)>
      */
-    fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> =
+    internal fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> =
         getAnyVisibilityOption(name)?.let { Result.success(it) }
             ?: run {
                 val better = didYouMean(name, names().map { it.asStr() }.toList())
@@ -414,7 +414,7 @@ class Module internal constructor(
      *
      * pub fn names_and_visibilities(&self) -> impl Iterator<Item = (FrozenStringValue, Visibility)>
      */
-    fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = names.allNamesAndVisibilities()
+    internal fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = names.allNamesAndVisibilities()
 
     /** pub(crate) fn mutable_names(&self) -> &MutableNames */
     internal fun mutableNames(): MutableNames = names

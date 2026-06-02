@@ -37,14 +37,14 @@ import io.github.kotlinmania.starlark.values.types.dict.allocValue
  *
  * This function is called by generated code.
  */
-fun parseSignature(
+internal fun parseSignature(
     parser: ParametersSpec<FrozenValue>,
     args: Arguments,
     heap: Heap,
 ): Result<List<Value?>> = Result.success(parser.collectInto(parser.len(), args, heap))
 
 /** Parse positional-only arguments, required and optional. */
-fun parsePositional(
+internal fun parsePositional(
     args: Arguments,
     heap: Heap,
     requiredCount: Int,
@@ -54,7 +54,7 @@ fun parsePositional(
     return args.optional(requiredCount, optionalCount, heap)
 }
 
-fun parsePositionalKwargsAlloc(
+internal fun parsePositionalKwargsAlloc(
     args: Arguments,
     heap: Heap,
     requiredCount: Int,
@@ -70,21 +70,21 @@ fun parsePositionalKwargsAlloc(
 }
 
 /** Utility for checking a `this` parameter matches what you expect. */
-fun <T> checkThis(unpack: UnpackValue<T>, thisValue: Value): Result<T> = Result.success(unpack.unpackNamedParam(thisValue, "this"))
+internal fun <T> checkThis(unpack: UnpackValue<T>, thisValue: Value): Result<T> = Result.success(unpack.unpackNamedParam(thisValue, "this"))
 
 /** Utility for checking a required parameter matches what you expect. */
-fun <T> checkRequired(unpack: UnpackValue<T>, name: String, x: Value?): Result<T> {
+internal fun <T> checkRequired(unpack: UnpackValue<T>, name: String, x: Value?): Result<T> {
     val value = x ?: return Result.failure(ValueError.MissingRequired(name))
     return Result.success(unpack.unpackNamedParam(value, name))
 }
 
 /** Utility for checking an optional parameter matches what you expect. */
-fun <T> checkOptional(unpack: UnpackValue<T>, name: String, x: Value?): Result<T?> {
+internal fun <T> checkOptional(unpack: UnpackValue<T>, name: String, x: Value?): Result<T?> {
     if (x == null) return Result.success(null)
     return Result.success(unpack.unpackNamedParam(x, name))
 }
 
-fun <T> checkDefaulted(
+internal fun <T> checkDefaulted(
     unpack: UnpackValue<T>,
     name: String,
     x: Value?,
@@ -95,4 +95,4 @@ fun <T> checkDefaulted(
 }
 
 /** We already know the parameter is set, so we just unpack it. */
-fun <T> checkUnpack(unpack: UnpackValue<T>, name: String, x: Value): Result<T> = Result.success(unpack.unpackNamedParam(x, name))
+internal fun <T> checkUnpack(unpack: UnpackValue<T>, name: String, x: Value): Result<T> = Result.success(unpack.unpackNamedParam(x, name))

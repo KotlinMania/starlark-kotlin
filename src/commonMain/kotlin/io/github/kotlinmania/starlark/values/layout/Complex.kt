@@ -41,7 +41,8 @@ import kotlin.reflect.KClass
  * [F] (its frozen StarlarkValue counterpart). Both type parameters are reified where
  * needed via inline factory methods.
  */
-class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
+@PublishedApi
+internal class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
     @PublishedApi
     internal constructor(
         // Mutable: tracer.trace(&mut self.0) may update the pointer during GC.

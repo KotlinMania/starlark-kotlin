@@ -40,7 +40,7 @@ data class StructRef internal constructor(
         /**
          * Downcast a value to a struct reference.
          */
-        fun fromValue(value: Value): StructRef? = StructGen.fromValue(value)?.let { StructRef(it) }
+        fun fromValue(value: Value): StructRef? = structGenFromValue(value)?.let { StructRef(it) }
 
         internal fun isInstance(value: Value): Boolean {
             // debug_assert in Rust: StarlarkTypeId::of::<Struct>() == StarlarkTypeId::of::<FrozenStruct>()
@@ -69,7 +69,7 @@ data class FrozenStructRef internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, FrozenValue>> = struct.iter()
+    fun iter(): Sequence<Pair<String, FrozenValue>> = struct.delegate.iter()
 
     companion object {
         /**

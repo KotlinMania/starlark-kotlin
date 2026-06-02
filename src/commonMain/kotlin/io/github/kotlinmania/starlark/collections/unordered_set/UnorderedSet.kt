@@ -114,11 +114,11 @@ class UnorderedSet<T> internal constructor(
  * Get the entries in the set, sorted by [comparator].
  * Corresponds to Rust `entries_sorted(&self) -> Vec<&T>`.
  */
-fun <T> UnorderedSet<T>.entriesSortedWith(comparator: Comparator<in T>): List<T> =
+internal fun <T> UnorderedSet<T>.entriesSortedWith(comparator: Comparator<in T>): List<T> =
     iter().sortedWith(comparator).toList()
 
 /** Get the entries in the set, sorted by natural order. */
-fun <T : Comparable<T>> UnorderedSet<T>.entriesSorted(): List<T> =
+internal fun <T : Comparable<T>> UnorderedSet<T>.entriesSorted(): List<T> =
     entriesSortedWith(naturalOrder())
 
 /**

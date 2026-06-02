@@ -43,7 +43,7 @@ import kotlin.math.max
 import kotlin.reflect.KClass
 
 /** Generic list container, parameterized on the data type. */
-class ListGen<T>(
+internal class ListGen<T>(
     val data: T,
 ) : StarlarkValue,
     Trace {
@@ -204,7 +204,7 @@ class ListData(
 
         fun fromValueMut(x: Value): Result<ListData> {
             val gen =
-                x.downcastRef<ListGen<*>>()
+                listGenFromValue(x)
                     ?: return Result.failure(NotListError(x.getType()))
 
             val data = gen.data
@@ -219,14 +219,14 @@ class ListData(
         }
 
         fun fromValueUncheckedMut(x: Value): ListData {
-            val list = x.downcastRef<ListGen<*>>()!!
+            val list = listGenFromValue(x)!!
             val data = list.data as ListData
             check(data.checkCanMutate().isSuccess)
             return data
         }
 
         fun isListType(x: KClass<*>): Boolean =
-            x == ListGen::class
+            x == FrozenList::class || x == MutableStarlarkList::class
     }
 
     /** Return an error if there's at least one iterator over the list. */
@@ -345,18 +345,18 @@ class ListData(
     override fun toString(): String = displayList(content)
 }
 
-fun <T : AllocValue> List<T>.allocValue(heap: Heap): Value =
+internal fun <T : AllocValue> List<T>.allocValue(heap: Heap): Value =
     heap.allocListIter(this.map { it.allocValue(heap) })
 
-fun <T : AllocFrozenValue> List<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun <T : AllocFrozenValue> List<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     heap.allocList(this.map { it.allocFrozenValue(heap) })
 
 inline fun <reified V : StarlarkTypeRepr> sliceStarlarkTypeRepr(): Ty = Ty.anyList()
 
-fun <T : AllocValue> Array<T>.allocValue(heap: Heap): Value =
+internal fun <T : AllocValue> Array<T>.allocValue(heap: Heap): Value =
     heap.allocListIter(this.map { it.allocValue(heap) })
 
-fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     heap.allocList(this.map { it.allocFrozenValue(heap) })
 
 /**
@@ -375,7 +375,7 @@ class FrozenListData(
 
         /** Obtain the [FrozenListData] pointed at by a [FrozenValue]. */
         fun fromFrozenValue(x: FrozenValue): FrozenListData? {
-            val gen = x.downcastRef<ListGen<*>>() ?: return null
+            val gen = listGenFromValue(x.toValue()) ?: return null
             return gen.data as? FrozenListData
         }
     }
@@ -407,17 +407,53 @@ class FrozenListData(
     override fun toString(): String = displayList(content.map { it.toValue() })
 }
 
-fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
+internal fun FrozenListData.debugString(): String = "FrozenList(content=${content()})"
 
-/** Alias is used in `StarlarkDocs` derive. */
-typealias FrozenList = ListGen<FrozenListData>
+class FrozenList internal constructor(
+    internal val delegate: ListGen<FrozenListData>,
+) : StarlarkValue by delegate,
+    Trace {
+    val data: FrozenListData get() = delegate.data
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
 
-typealias MutableStarlarkList = ListGen<ListData>
+    override fun toString(): String = delegate.toString()
 
-val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
-    AllocStaticSimple.alloc(ListGen(FrozenListData.empty()))
+    companion object {
+        fun fromValue(value: Value): FrozenList? {
+            return value.downcastRef<FrozenList>()
+        }
+    }
+}
 
-fun ListGen<FrozenListData>.offsetOfContent(): Int = 0
+class MutableStarlarkList internal constructor(
+    internal val delegate: ListGen<ListData>,
+) : StarlarkValue by delegate,
+    Trace {
+    val data: ListData get() = delegate.data
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun toString(): String = delegate.toString()
+
+    companion object {
+        fun fromValue(value: Value): MutableStarlarkList? {
+            return value.downcastRef<MutableStarlarkList>()
+        }
+    }
+}
+
+internal val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
+    AllocStaticSimple.alloc(FrozenList(ListGen(FrozenListData.empty())))
+
+internal fun FrozenList.offsetOfContent(): Int = 0
+
+internal fun listGenFromValue(value: Value): ListGen<*>? {
+    return value.downcastRef<MutableStarlarkList>()?.delegate
+        ?: value.downcastRef<FrozenList>()?.delegate
+}
 
 // Error: Value is not list, value type: `{0}`
 private class NotListError(
@@ -487,7 +523,7 @@ internal class FrozenListDataListLike(
     override fun iterStop() { /* no-op for frozen lists */ }
 }
 
-fun ListGen<*>.display(): String = data.toString()
+internal fun ListGen<*>.display(): String = data.toString()
 
 internal fun displayList(xs: List<Value>): String =
     buildString {
@@ -503,15 +539,15 @@ private val LIST_METHODS_STATIC = MethodsStatic()
 
 fun listMethods(): Methods = LIST_METHODS_STATIC.methods(::listMethodsImpl)
 
-fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
+internal fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()
 
 // Heap extensions for list allocation
-fun Heap.allocList(content: List<Value>): Value = allocListIter(content)
+internal fun Heap.allocList(content: List<Value>): Value = allocListIter(content)
 
-fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = allocListIter(a + b)
+internal fun Heap.allocListConcat(a: List<Value>, b: List<Value>): Value = allocListIter(a + b)
 
 // -- isListType check
 fun isListType(value: Value): Boolean {
-    val gen = value.downcastRef<ListGen<*>>() ?: return false
+    val gen = listGenFromValue(value) ?: return false
     return gen.data is ListData || gen.data is FrozenListData
 }

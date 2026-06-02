@@ -118,7 +118,7 @@ private fun assertLessThan(a: Value, b: Value): Result<NoneType> {
  * How often we garbage collection _should_ be transparent to the tests,
  * so we run each test in three configurations.
  */
-enum class GcStrategy {
+internal enum class GcStrategy {
     /** Disable GC */
     Never,
 
@@ -247,7 +247,7 @@ internal fun testFunctions(builder: GlobalsBuilder) {
 }
 
 /** Environment in which to run assertion tests. */
-class Assert(
+internal class Assert(
     private var dialect: Dialect = Dialect.AllOptionsInternal.copy(),
     private val modules: MutableMap<String, FrozenModule> =
         mutableMapOf(
@@ -671,28 +671,28 @@ class Assert(
 // Rust module-level free functions, re-exported via `pub use assert::*`
 
 /** See [Assert.eq]. */
-fun eq(lhs: String, rhs: String) {
+internal fun eq(lhs: String, rhs: String) {
     Assert().eq(lhs, rhs)
 }
 
 /** See [Assert.fail]. */
-fun fail(program: String, msg: String): Error = Assert().fail(program, msg)
+internal fun fail(program: String, msg: String): Error = Assert().fail(program, msg)
 
 /** See [Assert.fails]. */
-fun fails(program: String, msgs: List<String>): Error = Assert().fails(program, msgs)
+internal fun fails(program: String, msgs: List<String>): Error = Assert().fails(program, msgs)
 
 /** See [Assert.isTrue]. */
-fun isTrue(program: String) {
+internal fun isTrue(program: String) {
     Assert().isTrue(program)
 }
 
 /** See [Assert.isFalse]. */
-fun isFalse(program: String) {
+internal fun isFalse(program: String) {
     Assert().isFalse(program)
 }
 
 /** See [Assert.allTrue]. */
-fun allTrue(expressions: String) {
+internal fun allTrue(expressions: String) {
     val a = Assert()
     // TODO(nga): fix and enable.
     a.disableStaticTypechecking()
@@ -700,7 +700,8 @@ fun allTrue(expressions: String) {
 }
 
 /** See [Assert.pass]. */
-fun pass(program: String): OwnedFrozenValue = Assert().pass(program)
+internal fun pass(program: String): OwnedFrozenValue = Assert().pass(program)
 
 /** See [Assert.passModule]. */
-fun passModule(program: String): FrozenModule = Assert().passModule(program)
+internal fun passModule(program: String): FrozenModule = Assert().passModule(program)
+

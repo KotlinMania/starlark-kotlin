@@ -61,7 +61,7 @@ data class AllocDict<D>(
 inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> allocDictStarlarkTypeRepr(): Ty =
     DictType.starlarkTypeRepr<K, V>()
 
-fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
+internal fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     where D : Iterable<Pair<K, V>>,
           K : AllocValue,
           V : AllocValue {
@@ -77,7 +77,7 @@ fun <D, K, V> AllocDict<D>.allocValue(heap: Heap): Value
     return Dict.new(map).allocValue(heap)
 }
 
-fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+internal fun <D, K, V> AllocDict<D>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where D : Iterable<Pair<K, V>>,
           K : AllocFrozenValue,
           V : AllocFrozenValue {

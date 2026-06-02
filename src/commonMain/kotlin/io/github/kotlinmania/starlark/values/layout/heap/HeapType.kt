@@ -148,7 +148,7 @@ class Heap internal constructor(
     }
 
     /** Similar to accessOwnedFrozenValue, but typed. */
-    fun <T : StarlarkValue> accessOwnedFrozenValueTyped(v: OwnedFrozenValueTyped<T>): ValueTyped<T> {
+    private fun <T : StarlarkValue> accessOwnedFrozenValueTyped(v: OwnedFrozenValueTyped<T>): ValueTyped<T> {
         addReference(v.owner())
         // Safe: We just added a reference to this heap.
         return v.valueTyped().toValueTyped()
@@ -235,7 +235,7 @@ class Heap internal constructor(
             ?: error("just allocated value must have the right type")
 
     /** Allocate a value and return ValueOfUnchecked of it. */
-    fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> = ValueOfUnchecked.new(alloc(x))
+    internal fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> = ValueOfUnchecked.new(alloc(x))
 
     /** Allocate a value and return ValueOf of it. */
     internal inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
@@ -436,7 +436,7 @@ class FrozenHeap internal constructor(
     fun <T : AllocFrozenValue> alloc(v: T): FrozenValue = v.allocFrozenValue(this)
 
     /** Allocate a value and return FrozenValueOfUnchecked of it. */
-    fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
+    internal fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
 
     /** Allocate an interned string. Returns a FrozenStringValue. */
     fun allocStrIntern(s: String): FrozenStringValue {

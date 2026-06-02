@@ -131,7 +131,7 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     override fun toString(): String = ty.toString()
 
     companion object {
-        fun <T : TypeMatcher> allocStatic(
+        internal fun <T : TypeMatcher> allocStatic(
             imp: T,
             ty: Ty,
         ): AllocStaticSimple<TypeCompiledImplAsStarlarkValue<T>> = AllocStaticSimple.alloc(TypeCompiledImplAsStarlarkValue(imp, ty))

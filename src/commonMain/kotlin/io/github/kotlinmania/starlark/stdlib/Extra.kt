@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictGen
 import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
 import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.list.listGenFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListLike
 import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
@@ -37,7 +38,8 @@ import io.github.kotlinmania.starlark.values.types.record.RecordGen
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
 import io.github.kotlinmania.starlark.values.types.set.SetRef
 import io.github.kotlinmania.starlark.values.types.set.content
-import io.github.kotlinmania.starlark.values.types.structs.StructGen
+import io.github.kotlinmania.starlark.values.types.structs.structGenFromValue
+import io.github.kotlinmania.starlark.values.types.tuple.tupleGenFromValue
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 /**
@@ -211,13 +213,13 @@ private fun formatStructContainer(
 }
 
 private fun toPrettyRepr(v: Value, indentLevel: Int): String {
-    val listGen = v.downcastRef<ListGen<*>>()
+    val listGen = listGenFromValue(v)
     if (listGen != null) {
         val content = (listGen.data as ListLike).content()
         return formatContainer("[", "]", content, indentLevel)
     }
 
-    val tupleGen = v.downcastRef<TupleGen<*>>()
+    val tupleGen = tupleGenFromValue(v)
     if (tupleGen != null) {
         val content = tupleGen.content().map { (it as ValueLike).toValue() }
         return formatContainer("(", ")", content, indentLevel)
@@ -250,7 +252,7 @@ private fun toPrettyRepr(v: Value, indentLevel: Int): String {
         return formatKeyedContainer("{", "}", ": ", content, indentLevel)
     }
 
-    val structGen = v.downcastRef<StructGen<*>>()
+    val structGen = structGenFromValue(v)
     if (structGen != null) {
         val content =
             structGen.fields

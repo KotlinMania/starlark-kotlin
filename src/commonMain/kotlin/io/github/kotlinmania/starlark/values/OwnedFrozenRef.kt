@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 /** A reference to a value stored in a frozen heap with a reference to the heap. */
 //     owner: &'f FrozenHeapRef,
 // Kotlin: GC handles lifetimes; owner kept for heap reference tracking.
-class OwnedRefFrozenRef<T : Any>(
+internal class OwnedRefFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
 ) : AutoCloseable {
@@ -82,7 +82,7 @@ class OwnedRefFrozenRef<T : Any>(
  * Usually constructed from an `OwnedFrozenValueTyped`.
  */
 //     owner: FrozenHeapRef,
-class OwnedFrozenRef<T : Any>(
+internal class OwnedFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
 ) : AutoCloseable {

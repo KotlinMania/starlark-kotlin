@@ -55,7 +55,7 @@ private fun indentTrimmed(s: String, prefix: String): String =
         }.trimEnd()
 
 /** Render this docstring as a "starlark" docstring. */
-fun DocString.renderAsCode(): String {
+internal fun DocString.renderAsCode(): String {
     val s =
         when (val d = this.details) {
             null -> this.summary
@@ -68,9 +68,9 @@ fun DocString.renderAsCode(): String {
  * Render the docstring as in `render_as_code`, but surround it in triple quotes,
  * a common convention in starlark docstrings.
  */
-fun DocString.renderAsQuotedCode(): String = "\"\"\"\n${renderAsCode()}\n\"\"\""
+internal fun DocString.renderAsQuotedCode(): String = "\"\"\"\n${renderAsCode()}\n\"\"\""
 
-fun DocModule.renderAsCode(): String {
+internal fun DocModule.renderAsCode(): String {
     var res = docs?.renderAsQuotedCode() ?: ""
     for ((k, v) in members) {
         val member = v.tryAsMemberWithCollapsedObject().getOrNull() ?: continue
@@ -125,7 +125,7 @@ private fun DocFunction.starlarkDocstring(): String? {
     }
 }
 
-fun DocFunction.renderAsCode(name: String): String {
+internal fun DocFunction.renderAsCode(name: String): String {
     val paramsOneLine = this.params.renderCode(null, TypeRenderConfig.Default)
 
     val params =
@@ -158,7 +158,7 @@ private fun DocParam.starlarkDocstring(maxIndentation: String): String? {
 }
 
 /** Render multiline if `indent` is `Some`. */
-fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): String {
+internal fun DocParams.renderCode(indent: String?, renderConfig: TypeRenderConfig): String {
     val parts = mutableListOf<String>()
 
     // Positional-only params
@@ -206,7 +206,7 @@ private fun fmtParam(p: DocParam, renderConfig: TypeRenderConfig): String {
 
 private fun DocReturn.starlarkDocstring(): String? = this.docs?.renderAsCode()
 
-fun DocProperty.renderAsCode(name: String): String {
+internal fun DocProperty.renderAsCode(name: String): String {
     val ds = this.docs?.renderAsQuotedCode()
     val t = this.typ
     return when {
@@ -217,7 +217,7 @@ fun DocProperty.renderAsCode(name: String): String {
     }
 }
 
-fun DocType.renderAsCode(name: String): String {
+internal fun DocType.renderAsCode(name: String): String {
     val summary =
         this.docs?.let {
             var s = it.renderAsQuotedCode()
@@ -250,7 +250,7 @@ fun DocType.renderAsCode(name: String): String {
     return "$memberDocs\n\n$exportedStruct".trim()
 }
 
-fun DocItem.renderAsCode(name: String): String =
+internal fun DocItem.renderAsCode(name: String): String =
     when (this) {
         is DocItem.Module -> this.module.renderAsCode()
         is DocItem.Type -> this.type.renderAsCode(name)

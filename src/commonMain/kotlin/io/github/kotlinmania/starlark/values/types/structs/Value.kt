@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/types/structs/value.rs
 package io.github.kotlinmania.starlark.values.types.structs
 
@@ -39,6 +40,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import kotlin.native.HiddenFromObjC
 
 /**
  * The result of calling `struct()`.
@@ -61,15 +63,12 @@ internal fun interface StructFreezeField<V> {
     ): Result<FrozenValue>
 }
 
-class StructGen<V> internal constructor(
+internal class StructGen<V> internal constructor(
     /** The fields in a struct. */
     val fields: SmallMap<String, V>,
     private val traceField: StructTraceField<V>? = null,
     private val freezeField: StructFreezeField<V>? = null,
-) : io.github.kotlinmania.starlark.values.StarlarkValue,
-    ComplexValue,
-    Trace,
-    Freeze<FrozenStruct> {
+) : io.github.kotlinmania.starlark.values.StarlarkValue {
     override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
@@ -78,38 +77,42 @@ class StructGen<V> internal constructor(
         const val TYPE: String = "struct"
 
         fun mutable(fields: SmallMap<String, Value>): Struct =
-            StructGen(
-                fields = fields,
-                traceField =
-                    StructTraceField { value, tracer ->
-                        val holder = ValueHolder(value)
-                        tracer.trace(holder)
-                        holder.value
-                    },
-                freezeField =
-                    StructFreezeField { value, freezer ->
-                        freezer.freeze(value)
-                    },
+            Struct(
+                StructGen(
+                    fields = fields,
+                    traceField =
+                        StructTraceField { value, tracer ->
+                            val holder = ValueHolder(value)
+                            tracer.trace(holder)
+                            holder.value
+                        },
+                    freezeField =
+                        StructFreezeField { value, freezer ->
+                            freezer.freeze(value)
+                        },
+                )
             )
 
         fun frozen(fields: SmallMap<String, FrozenValue>): FrozenStruct =
-            StructGen(
-                fields = fields,
-                freezeField =
-                    StructFreezeField { value, _ ->
-                        Result.success(value)
-                    },
+            FrozenStruct(
+                StructGen(
+                    fields = fields,
+                    freezeField =
+                        StructFreezeField { value, _ ->
+                            Result.success(value)
+                        },
+                )
             )
     }
 
-    override fun trace(tracer: Tracer) {
+    fun trace(tracer: Tracer) {
         val traceField = traceField ?: return
         for (entry in fields.entries) {
             entry.value = traceField.trace(entry.value, tracer)
         }
     }
 
-    override fun freeze(freezer: Freezer): FreezeResult<FrozenStruct> {
+    fun freeze(freezer: Freezer): Result<StructGen<FrozenValue>> {
         val freezeField =
             freezeField
                 ?: return Result.failure(IllegalStateException("Struct fields cannot be frozen"))
@@ -118,7 +121,15 @@ class StructGen<V> internal constructor(
             val frozenVal = freezeField.freeze(v, freezer).getOrElse { return Result.failure(it) }
             frozenFields.insert(k, frozenVal)
         }
-        return Result.success(frozen(frozenFields))
+        return Result.success(
+            StructGen(
+                fields = frozenFields,
+                freezeField =
+                    StructFreezeField { value, _ ->
+                        Result.success(value)
+                    },
+            )
+        )
     }
 
     /**
@@ -168,7 +179,7 @@ class StructGen<V> internal constructor(
     }
 
     override fun equals(other: Value): Result<Boolean> {
-        val otherStruct = Struct.fromValue(other) ?: return Result.success(false)
+        val otherStruct = structGenFromValue(other) ?: return Result.success(false)
         if (fields.len() != otherStruct.fields.len()) {
             return Result.success(false)
         }
@@ -187,7 +198,7 @@ class StructGen<V> internal constructor(
 
     override fun compare(other: Value): Result<Int> {
         val otherStruct =
-            Struct.fromValue(other)
+            structGenFromValue(other)
                 ?: return ValueError.unsupportedWith(TYPE, "cmp()", other)
 
         val otherFields =
@@ -245,9 +256,10 @@ class StructGen<V> internal constructor(
     /**
      * Serialize to map format matching Rust serde implementation.
      */
+    @HiddenFromObjC
     fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
 
-    private fun valueFieldsOrNull(): SmallMap<String, Value>? {
+    internal fun valueFieldsOrNull(): SmallMap<String, Value>? {
         val values = SmallMap.withCapacity<String, Value>(fields.len())
         for ((key, value) in fields.iter()) {
             values.insert(key, value.asStructValueOrNull() ?: return null)
@@ -256,28 +268,52 @@ class StructGen<V> internal constructor(
     }
 }
 
-/**
- * Extension for StructGen<FrozenValue> to iterate with frozen types.
- */
-fun StructGen<FrozenValue>.iterFrozen(): Sequence<Pair<String, FrozenValue>> = fields.iter()
+class Struct internal constructor(
+    internal val delegate: StructGen<Value>,
+) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenStruct> {
+    val fields: SmallMap<String, Value> get() = delegate.fields
 
-/**
- * Type alias for mutable Struct - corresponds to starlark_complex_value!(pub(crate) Struct)
- */
-typealias Struct = StructGen<Value>
+    fun iter(): Sequence<Pair<String, Value>> = delegate.iter()
 
-/**
- * Type alias for frozen struct.
- */
-typealias FrozenStruct = StructGen<FrozenValue>
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun freeze(freezer: Freezer): FreezeResult<FrozenStruct> {
+        val frozenGen = delegate.freeze(freezer).getOrElse { return Result.failure(it) }
+        return Result.success(FrozenStruct(frozenGen))
+    }
+
+    companion object {
+        fun fromValue(value: Value): Struct? = value.downcastRef<Struct>()
+    }
+}
+
+class FrozenStruct internal constructor(
+    internal val delegate: StructGen<FrozenValue>,
+) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
+    val fields: SmallMap<String, FrozenValue> get() = delegate.fields
+
+    fun iter(): Sequence<Pair<String, FrozenValue>> = delegate.iter()
+
+    override fun toString(): String = delegate.toString()
+
+    companion object {
+        fun fromValue(value: Value): FrozenStruct? = value.downcastRef<FrozenStruct>()
+    }
+}
 
 /**
  * Helper function to extract struct from a value.
  */
-fun StructGen.Companion.fromValue(value: Value): StructGen<*>? {
-    // Try to get as unfrozen struct first, then try frozen and coerce
-    return value.downcastRef<Struct>()
-        ?: value.downcastRef<FrozenStruct>()
+internal fun structGenFromValue(value: Value): StructGen<*>? {
+    return value.downcastRef<Struct>()?.delegate
+        ?: value.downcastRef<FrozenStruct>()?.delegate
 }
 
 internal fun Any?.asStructValueOrNull(): Value? =

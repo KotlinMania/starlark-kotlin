@@ -60,13 +60,13 @@ interface ProvidesStaticTypeSealed
 /**
  * Is the value of type [T].
  */
-inline fun <reified T> AnyLifetime.isType(): Boolean = this.staticTypeOf() == T::class
+internal inline fun <reified T> AnyLifetime.isType(): Boolean = this.staticTypeOf() == T::class
 
 /**
  * Downcast a reference to type [T], or return `null` if it is not the
  * right type.
  */
-inline fun <reified T> AnyLifetime.downcastRef(): T? {
+internal inline fun <reified T> AnyLifetime.downcastRef(): T? {
     if (!this.isType<T>()) return null
     return if (this is T) this else null
 }
@@ -75,7 +75,7 @@ inline fun <reified T> AnyLifetime.downcastRef(): T? {
  * Downcast a mutable reference to type [T], or return `null` if it is not
  * the right type.
  */
-inline fun <reified T> AnyLifetime.downcastMut(): T? {
+internal inline fun <reified T> AnyLifetime.downcastMut(): T? {
     if (!this.isType<T>()) return null
     return if (this is T) this else null
 }

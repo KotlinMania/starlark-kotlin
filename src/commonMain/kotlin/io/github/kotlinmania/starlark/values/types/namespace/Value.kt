@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/types/namespace/value.rs
 package io.github.kotlinmania.starlark.values.types.namespace
 
@@ -36,6 +37,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import kotlin.native.HiddenFromObjC
 
 internal fun interface NamespaceTraceValue<V> {
     fun trace(
@@ -57,19 +59,18 @@ data class MaybeDocHiddenValue<V>(
 )
 
 /** The return value of `namespace()` */
-class NamespaceGen<V> internal constructor(
+internal class NamespaceGen<V> internal constructor(
     val fields: SmallMap<String, MaybeDocHiddenValue<V>>,
     private val traceValue: NamespaceTraceValue<V>? = null,
     private val freezeValue: NamespaceFreezeValue<V>? = null,
 ) : StarlarkValue,
     ComplexValue,
-    Trace,
-    Freeze<FrozenNamespace> {
+    Trace {
     override val TYPE: String get() = "namespace"
 
     companion object {
         fun mutable(fields: SmallMap<String, MaybeDocHiddenValue<Value>>): Namespace =
-            NamespaceGen(
+            Namespace(NamespaceGen(
                 fields = fields,
                 traceValue =
                     NamespaceTraceValue { value, tracer ->
@@ -81,20 +82,20 @@ class NamespaceGen<V> internal constructor(
                     NamespaceFreezeValue { value, freezer ->
                         freezer.freeze(value)
                     },
-            )
+            ))
 
         fun frozen(fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>>): FrozenNamespace =
-            NamespaceGen(
+            FrozenNamespace(NamespaceGen(
                 fields = fields,
                 freezeValue =
                     NamespaceFreezeValue { value, _ ->
                         Result.success(value)
                     },
-            )
+            ))
 
         fun fromValue(value: Value): NamespaceGen<*>? =
-            value.downcastRef<Namespace>()
-                ?: value.downcastRef<FrozenNamespace>()
+            value.downcastRef<Namespace>()?.delegate
+                ?: value.downcastRef<FrozenNamespace>()?.delegate
     }
 
     override fun trace(tracer: Tracer) {
@@ -104,7 +105,7 @@ class NamespaceGen<V> internal constructor(
         }
     }
 
-    override fun freeze(freezer: Freezer): Result<FrozenNamespace> {
+    fun freeze(freezer: Freezer): Result<NamespaceGen<FrozenValue>> {
         val freezeValue =
             freezeValue
                 ?: return Result.failure(IllegalStateException("Namespace fields cannot be frozen"))
@@ -119,7 +120,7 @@ class NamespaceGen<V> internal constructor(
                         .map { MaybeDocHiddenValue(it, field.docHidden) }
                 },
             ).getOrElse { return Result.failure(it) }
-        return Result.success(frozen(frozenFields))
+        return Result.success(frozen(frozenFields).delegate)
     }
 
     fun get(key: String): V? =
@@ -199,12 +200,56 @@ class NamespaceGen<V> internal constructor(
         )
     }
 
+    @HiddenFromObjC
     fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }
 }
 
-typealias FrozenNamespace = NamespaceGen<FrozenValue>
-typealias Namespace = NamespaceGen<Value>
+class Namespace internal constructor(
+    internal val delegate: NamespaceGen<Value>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenNamespace> {
+    val fields: SmallMap<String, MaybeDocHiddenValue<Value>> get() = delegate.fields
+
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun freeze(freezer: Freezer): Result<FrozenNamespace> {
+        val frozenGen = delegate.freeze(freezer).getOrElse { return Result.failure(it) }
+        return Result.success(FrozenNamespace(frozenGen))
+    }
+
+    companion object {
+        fun fromValue(value: Value): Namespace? {
+            return value.downcastRef<Namespace>()
+        }
+    }
+}
+
+class FrozenNamespace internal constructor(
+    internal val delegate: NamespaceGen<FrozenValue>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace {
+    val fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>> get() = delegate.fields
+
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    companion object {
+        fun fromValue(value: Value): FrozenNamespace? {
+            return value.downcastRef<FrozenNamespace>()
+        }
+    }
+}
 
 private fun <K, V> fmtKeyedContainer(
     start: String,
