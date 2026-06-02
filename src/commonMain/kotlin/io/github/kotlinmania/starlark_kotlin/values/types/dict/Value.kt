@@ -119,7 +119,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         return equalsSmallMap(innerVal.content(), otherDict) { x, y -> x.equals(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
@@ -141,7 +141,7 @@ data class DictGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue>
         return Result.success(innerVal.content().getHashedByValue(hashed) != null)
     }
 
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         val innerVal = inner
         if (innerVal !is DictLike) return ValueError.unsupported(TYPE, "(iter)")
         innerVal.iterStart()

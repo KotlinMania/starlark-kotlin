@@ -151,12 +151,12 @@ open class PartialGen<V : Any, S : Any>(
     // #[starlark_value(type = FUNCTION_TYPE)]
     // impl StarlarkValue for PartialGen<V, S>
 
-    // fn name_for_call_stack(&self, _me: Value<'v>) -> String
+    // fn name_for_call_stack(&self, me: Value<'v>) -> String
     override fun nameForCallStack(me: Value): String = "partial"
 
-    // fn invoke(&self, _me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
+    // fn invoke(&self, me: Value, args: &Arguments, eval: &mut Evaluator) -> crate::Result<Value>
     override fun invoke(
-        _me: Value,
+        me: Value,
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {

@@ -45,9 +45,9 @@ internal data class StackFrame(
     val location: FileSpan?,
 ) : StarlarkValue, AllocValue, io.github.kotlinmania.starlark_kotlin.values.Trace {
 
-    override fun trace(_tracer: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer) {
+    override fun trace(tracer: io.github.kotlinmania.starlark_kotlin.values.layout.heap.Tracer) {
         // No Value fields to trace.
-        _tracer.hashCode()
+        tracer.hashCode()
     }
 
     override val TYPE: String get() = Companion.TYPE

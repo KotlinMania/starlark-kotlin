@@ -10,7 +10,7 @@ This is a Kotlin Multiplatform line-by-line transliteration port of Facebook's [
 
 ## About This Port
 
-This Kotlin Multiplatform port maintains the structure and semantics of the original Rust implementation while adapting idiomatically to Kotlin. The original Rust sources are vendored in `tmp/rust-source/` (gitignored) for reference during porting.
+This Kotlin Multiplatform port maintains the structure and semantics of the original Rust implementation while adapting idiomatically to Kotlin. The original Rust sources are vendored under `tmp/` for reference during porting.
 
 ### Porting Status
 
@@ -55,8 +55,7 @@ See [AGENTS.md](AGENTS.md) for detailed porting guidelines and conventions.
 Use the AST distance tool to track porting progress:
 
 ```bash
-# From parent codex-kotlin project
-tools/ast_distance/ast_distance --deep tmp/rust-source rust src kotlin
+./tools/ast_distance/ast_distance --deep tmp/starlark/src rust src/commonMain/kotlin/io/github/kotlinmania/starlark_kotlin kotlin
 ```
 
 ## Building

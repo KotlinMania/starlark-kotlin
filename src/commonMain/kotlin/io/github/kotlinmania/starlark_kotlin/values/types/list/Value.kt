@@ -96,7 +96,7 @@ class ListGen<T>(val data: T) : StarlarkValue {
         return compareSlice<Exception, Value, Value>(listLike().content(), otherRef.content()) { x, y -> x.compare(y) }
     }
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, listLike().content().size).getOrElse {
             return Result.failure(it)
         }
@@ -209,7 +209,7 @@ class ListData(
         return Result.success(Unit)
     }
 
-    private fun reserveAdditionalSlow(additional: Int, _heap: Heap) {
+    private fun reserveAdditionalSlow(additional: Int, heap: Heap) {
         val newCap = max(len() + additional, len() * 2)
         // Size of Array is 2 words and size of List is one word,
         // so allocating at least 4 words would not be too large waste.
@@ -416,7 +416,7 @@ internal class ListDataListLike(private val data: ListData) : ListLike {
         return me
     }
 
-    override fun iterSizeHint(_index: Int): Pair<Int, Int?> {
+    override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         error("Iteration is performed on Array")
     }
 
