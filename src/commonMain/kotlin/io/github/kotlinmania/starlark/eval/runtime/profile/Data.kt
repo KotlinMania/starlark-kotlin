@@ -39,88 +39,68 @@ import io.github.kotlinmania.starlark.eval.runtime.profile.heap.HeapSummaryRetai
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
 import io.github.kotlinmania.starlark.values.layout.heap.profile.AggregateHeapProfileInfo
 
-// #[derive(Debug, thiserror::Error)]
-// enum ProfileDataError
 sealed class ProfileDataError : Exception() {
-    // #[error("Empty profile list cannot be merged")]
     data object EmptyProfileList : ProfileDataError() {
         override val message: String get() = "Empty profile list cannot be merged"
     }
 
-    // #[error("Different profile modes in profile")]
     data object DifferentProfileModes : ProfileDataError() {
         override val message: String get() = "Different profile modes in profile"
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub(crate) enum ProfileDataImpl
 internal sealed class ProfileDataImpl {
-    // Bc(Box<BcProfileData>)
     data class Bc(
         val data: BcProfileData,
     ) : ProfileDataImpl()
 
-    // BcPairs(BcPairsProfileData)
     data class BcPairs(
         val data: BcPairsProfileData,
     ) : ProfileDataImpl()
 
-    // HeapRetained(Box<AggregateHeapProfileInfo>)
     data class HeapRetained(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
-    // HeapAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapAllocated(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
-    // HeapFlameRetained(Box<AggregateHeapProfileInfo>)
     data class HeapFlameRetained(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
-    // HeapFlameAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapFlameAllocated(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
-    // HeapSummaryRetained(Box<AggregateHeapProfileInfo>)
     data class HeapSummaryRetained(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
-    // HeapSummaryAllocated(Box<AggregateHeapProfileInfo>)
     data class HeapSummaryAllocated(
         val data: AggregateHeapProfileInfo,
     ) : ProfileDataImpl()
 
     /** Flame graph data is in milliseconds. */
-    // TimeFlameProfile(FlameGraphData)
     data class TimeFlameProfile(
         val data: FlameGraphData,
     ) : ProfileDataImpl()
 
-    // Statement(StmtProfileData)
     data class Statement(
         val data: StmtProfileData,
     ) : ProfileDataImpl()
 
-    // Coverage(StmtProfileData)
     data class Coverage(
         val data: StmtProfileData,
     ) : ProfileDataImpl()
 
-    // Typecheck(TypecheckProfileData)
     data class Typecheck(
         val data: TypecheckProfileData,
     ) : ProfileDataImpl()
 
-    // None
     data object None : ProfileDataImpl()
 
-    // pub(crate) fn profile_mode(&self) -> ProfileMode
     fun profileMode(): ProfileMode =
         when (this) {
             is Bc -> ProfileMode.Bytecode
@@ -140,18 +120,14 @@ internal sealed class ProfileDataImpl {
 }
 
 /** Collected profiling data. */
-// #[derive(Clone, Debug)]
-// pub struct ProfileData
 @ConsistentCopyVisibility
 data class ProfileData internal constructor(
     internal val profile: ProfileDataImpl,
 ) {
     /** Profile mode used to collect this data. */
-    // pub fn profile_mode(&self) -> ProfileMode
     fun profileMode(): ProfileMode = profile.profileMode()
 
     /** Generate a string with flamegraph profile data, depending on profile type. */
-    // pub fn gen_flame_data(&self) -> crate::Result<String>
     fun genFlameData(): String =
         when (val p = profile) {
             is ProfileDataImpl.TimeFlameProfile -> p.data.write()
@@ -163,7 +139,6 @@ data class ProfileData internal constructor(
         }
 
     /** Generate a string with csv profile data, depending on profile type. */
-    // pub fn gen_csv(&self) -> crate::Result<String>
     fun genCsv(): String =
         when (val p = profile) {
             is ProfileDataImpl.Bc -> p.data.genCsv()
@@ -181,7 +156,6 @@ data class ProfileData internal constructor(
 
     companion object {
         /** Merge profiles (aggregate). */
-        // pub fn merge(profiles: impl IntoIterator<Item = &'a ProfileData>) -> crate::Result<ProfileData>
         fun merge(profiles: Iterable<ProfileData>): ProfileData {
             val list = profiles.toList()
 

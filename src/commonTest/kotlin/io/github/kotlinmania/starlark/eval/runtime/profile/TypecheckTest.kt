@@ -1,4 +1,4 @@
-// port-lint: source tests:src/eval/runtime/profile/typecheck.rs
+// port-lint: tests src/eval/runtime/profile/typecheck.rs
 package io.github.kotlinmania.starlark.eval.runtime.profile
 
 /*

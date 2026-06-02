@@ -1,4 +1,4 @@
-// port-lint: tests src/values/types/bigint.rs (tests)
+// port-lint: tests src/values/types/bigint.rs
 package io.github.kotlinmania.starlark.values.types.bigint
 
 /*

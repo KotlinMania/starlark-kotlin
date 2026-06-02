@@ -175,7 +175,7 @@ data class DictGen<T>(
 
     override fun setAt(index: Value, newValue: Value): Result<Unit> {
         val innerVal = inner
-        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue())
+        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue)
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         return innerVal.setAt(hashed, newValue)
     }
@@ -433,7 +433,7 @@ class RefCellDictLike(
             cell.value.content.insertHashed(index, value)
             Result.success(Unit)
         } catch (_: Exception) {
-            Result.failure(ValueError.MutationDuringIteration())
+            Result.failure(ValueError.MutationDuringIteration)
         }
 }
 
@@ -453,7 +453,7 @@ class FrozenDictDataDictLike(
         data.content as SmallMap<Value, Value>
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
-        Result.failure(ValueError.CannotMutateImmutableValue())
+        Result.failure(ValueError.CannotMutateImmutableValue)
 }
 
 fun getDictMethods(): Methods = DICT_METHODS_STATIC.methods(::dictMethods)

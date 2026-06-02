@@ -1,4 +1,4 @@
-// port-lint: tests src/analysis/names.rs (tests)
+// port-lint: tests src/analysis/names.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

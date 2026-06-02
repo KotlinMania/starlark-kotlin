@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/layout/heap/heap_type.rs
+// port-lint: tests src/values/layout/heap/heap_type.rs
 package io.github.kotlinmania.starlark.values.layout.heap
 
 /*

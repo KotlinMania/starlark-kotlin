@@ -65,4 +65,3 @@ internal fun didYouMean(value: String, variants: Iterable<String>): String? {
         .minByOrNull { (_, dist) -> dist }
         ?.first
 }
-

@@ -1,4 +1,4 @@
-// port-lint: source tests:src/eval/runtime/rust_loc.rs
+// port-lint: tests src/eval/runtime/rust_loc.rs
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*

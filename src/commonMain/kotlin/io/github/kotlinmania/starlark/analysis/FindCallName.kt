@@ -126,8 +126,7 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
         is ExprP.Identifier<*, *> -> { /* leaf */ }
         is ExprP.Lambda<*, *> -> {
             lambda.params.forEach { param ->
-                val p = param.node
-                when (p) {
+                when (val p = param.node) {
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                         p.typ
                             ?.node
@@ -249,8 +248,7 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
         }
         is StmtP.Def<*, *> -> {
             s.def.params.forEach { param ->
-                val p = param.node
-                when (p) {
+                when (val p = param.node) {
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                         p.typ
                             ?.node

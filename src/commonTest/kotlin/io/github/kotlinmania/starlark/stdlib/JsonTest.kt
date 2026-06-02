@@ -1,4 +1,4 @@
-// port-lint: tests src/stdlib/json.rs (tests)
+// port-lint: tests src/stdlib/json.rs
 package io.github.kotlinmania.starlark.stdlib
 
 /*

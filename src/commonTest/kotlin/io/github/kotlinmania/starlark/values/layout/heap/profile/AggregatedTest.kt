@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/layout/heap/profile/aggregated.rs
+// port-lint: tests src/values/layout/heap/profile/aggregated.rs
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
@@ -20,10 +20,10 @@ package io.github.kotlinmania.starlark.values.layout.heap.profile
  */
 
 import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
-import io.github.kotlinmania.starlark.values.layout.heap.profile.summaryByFunction.HeapSummaryByFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 class AggregatedTest {
     private fun totalAllocCount(frame: StackFrame): Int =
         frame.allocs.total().count +
-            frame.callees.values.sumOf { c -> totalAllocCount(c) }
+            frame.callees.values().sumOf { c -> totalAllocCount(c) }
 
     @Test
     fun testStacksCollect() {
@@ -46,7 +46,7 @@ class AggregatedTest {
                 stacks.root.allocs.summary
                     .isEmpty(),
             )
-            assertEquals(1, stacks.root.callees.size)
+            assertEquals(1, stacks.root.callees.len())
             assertEquals(2, totalAllocCount(stacks.root))
         }
     }
@@ -62,19 +62,19 @@ class AggregatedTest {
 
             val frozenHeap = FrozenHeap.new()
             val freezer = Freezer(frozenHeap)
-            freezer.freeze(s0.toValue()).getOrThrow()
-            freezer.freeze(s1.toValue()).getOrThrow()
+            freezer.freeze(s0).getOrThrow()
+            freezer.freeze(s1).getOrThrow()
 
             val stacks = AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
             assertTrue(
                 stacks.root.allocs.summary
                     .isEmpty(),
             )
-            assertEquals(1, stacks.root.callees.size)
+            assertEquals(1, stacks.root.callees.len())
             // 3 allocated, 2 retained.
             assertEquals(
                 2,
-                stacks.root.callees.values
+                stacks.root.callees.values()
                     .first()
                     .allocs.summary["string"]!!
                     .count,
@@ -92,7 +92,7 @@ class AggregatedTest {
                 heap.recordCallExit()
                 val frozenHeap = FrozenHeap.new()
                 val freezer = Freezer(frozenHeap)
-                freezer.freeze(s.toValue()).getOrThrow()
+                freezer.freeze(s).getOrThrow()
 
                 AggregateHeapProfileInfo.collect(heap, HeapKind.Frozen)
             }
@@ -102,6 +102,6 @@ class AggregatedTest {
         assertEquals(1, summary.info().size)
         val (xxId, xxInfo) = summary.info()[0]
         assertEquals("xx", xxId.toString())
-        assertEquals(3, xxInfo.alloc["string"]!!.count)
+        assertEquals(3, xxInfo.allocations["string"]!!.count)
     }
 }

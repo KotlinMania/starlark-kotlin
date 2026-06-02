@@ -38,23 +38,23 @@ sealed class ValueError(
         val right: String,
     ) : ValueError("Operation `$op` not supported for types `$left` and `$right`")
 
-    data class DivisionByZero : ValueError("Cannot divide by zero")
+    data object DivisionByZero : ValueError("Cannot divide by zero")
 
-    data class IntegerOverflow : ValueError("Integer overflow")
+    data object IntegerOverflow : ValueError("Integer overflow")
 
     data class Runtime(
         val details: String,
     ) : ValueError(details)
 
-    data class NegativeShiftCount : ValueError("Negative shift count")
+    data object NegativeShiftCount : ValueError("Negative shift count")
 
-    data class IncorrectParameterType : ValueError("Type of parameters mismatch")
+    data object IncorrectParameterType : ValueError("Type of parameters mismatch")
 
     data class IncorrectParameterTypeNamed(
         val name: String,
     ) : ValueError("Type of parameter `$name` doesn't match")
 
-    data class MissingThis : ValueError("Missing this parameter")
+    data object MissingThis : ValueError("Missing this parameter")
 
     data class MissingRequired(
         val name: String,
@@ -68,9 +68,9 @@ sealed class ValueError(
         val key: String,
     ) : ValueError("Key `$key` was not found")
 
-    data class CannotMutateImmutableValue : ValueError("Immutable")
+    data object CannotMutateImmutableValue : ValueError("Immutable")
 
-    data class MutationDuringIteration :
+    data object MutationDuringIteration :
         ValueError("This operation mutates an iterable for an iterator while iterating.")
 
     data class NoAttr(
@@ -121,5 +121,5 @@ internal sealed class ControlError(
         val typeName: String,
     ) : ControlError("Value of type `$typeName` is not hashable")
 
-    data class TooManyRecursionLevel : ControlError("Too many recursion levels")
+    data object TooManyRecursionLevel : ControlError("Too many recursion levels")
 }

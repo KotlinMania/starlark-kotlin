@@ -57,9 +57,9 @@ sealed class TypingError(
         val typeName: String,
     ) : TypingError("Type `$typeName` is not a valid type annotation")
 
-    data class Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
+    data object Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
 
-    data class List : TypingError("`[X]` cannot be used as type, perhaps you meant `list[X]`")
+    data object List : TypingError("`[X]` cannot be used as type, perhaps you meant `list[X]`")
 
     /** The given type annotation does not exist, but the user might have forgotten quotes around it */
     class PerhapsYouMeant(
@@ -280,7 +280,7 @@ class TypeCompiled(
         private fun fromList(t: ListRef, heap: Heap): TypeCompiled {
             val content = t.content()
             return when {
-                content.isEmpty() || content.size == 1 -> throw TypingError.List()
+                content.isEmpty() || content.size == 1 -> throw TypingError.List
                 else -> {
                     // A union type, can match any
                     val ts = content.map { new(it, heap) }
@@ -338,10 +338,10 @@ class TypeCompiled(
 
 private fun invalidTypeAnnotation(ty: Value, heap: Heap): TypingError {
     if (dictRefFromValue(ty) != null) {
-        return TypingError.Dict()
+        return TypingError.Dict
     }
     if (ListRef.fromValue(ty) != null) {
-        return TypingError.List()
+        return TypingError.List
     }
     val attrResult = ty.getAttr("type", heap)
     if (attrResult.isSuccess) {

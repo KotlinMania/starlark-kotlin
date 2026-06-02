@@ -1,4 +1,4 @@
-// port-lint: source tests:src/analysis/dubious.rs
+// port-lint: tests src/analysis/dubious.rs
 package io.github.kotlinmania.starlark.analysis
 
 /*

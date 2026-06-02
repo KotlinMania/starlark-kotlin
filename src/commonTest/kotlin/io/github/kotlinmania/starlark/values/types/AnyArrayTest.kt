@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/any_array.rs
+// port-lint: tests src/values/types/any_array.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.types
  */
 
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -52,13 +53,14 @@ class AnyArrayTest {
                 ),
             )
 
-        assertEquals(5, values.size)
+        val slice = values.asRef()
+        assertEquals(5, slice.size)
 
-        assertTrue(counter1 === values[0].counter)
-        assertTrue(counter1 === values[1].counter)
-        assertTrue(counter2 === values[2].counter)
-        assertTrue(counter1 === values[3].counter)
-        assertTrue(counter2 === values[4].counter)
+        assertTrue(counter1 === slice[0].counter)
+        assertTrue(counter1 === slice[1].counter)
+        assertTrue(counter2 === slice[2].counter)
+        assertTrue(counter1 === slice[3].counter)
+        assertTrue(counter2 === slice[4].counter)
     }
 
     @Test

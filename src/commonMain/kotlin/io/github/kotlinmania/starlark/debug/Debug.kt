@@ -20,12 +20,3 @@ package io.github.kotlinmania.starlark.debug
  */
 
 /** Provides debug-related functionality and utilities. */
-// mod adapter;
-private object adapter
-
-// mod evaluate;
-private object evaluate
-
-// mod inspect;
-private object inspect
-// pub use adapter::*;

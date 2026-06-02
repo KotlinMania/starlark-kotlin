@@ -148,7 +148,7 @@ data class Range(
         if (i >= 0) {
             return Result.success(i)
         } else {
-            return Result.failure(ValueError.IntegerOverflow())
+            return Result.failure(ValueError.IntegerOverflow)
         }
     }
 
@@ -182,7 +182,7 @@ data class Range(
         val newStepValue = sliceStep.checkedMul(this.step.get())
         val newStep =
             NonZeroI32.new(newStepValue)
-                ?: return Result.failure(ValueError.IntegerOverflow())
+                ?: return Result.failure(ValueError.IntegerOverflow)
 
         return Result.success(
             heap.allocSimple(

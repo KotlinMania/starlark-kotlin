@@ -144,4 +144,3 @@ internal fun lintPerformance(module: AstModule): List<LintT<Performance>> {
     checkCallExpr(module, res)
     return res
 }
-

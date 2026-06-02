@@ -124,14 +124,14 @@ fun dictMutFromValue(x: Value): Result<DictMut> {
 
     fun error(x: Value): Throwable =
         if (x.downcastRef<DictGen<FrozenDictData>>() != null) {
-            ValueError.CannotMutateImmutableValue()
+            ValueError.CannotMutateImmutableValue
         } else {
             NotDictError(x.getType())
         }
 
     val ptr = x.downcastRef<DictGen<AtomicRef<Dict>>>() ?: return Result.failure(error(x))
     return when (val borrowed = ptr.inner.tryBorrowMut()) {
-        null -> Result.failure(ValueError.MutationDuringIteration())
+        null -> Result.failure(ValueError.MutationDuringIteration)
         else -> Result.success(DictMut(borrowed))
     }
 }

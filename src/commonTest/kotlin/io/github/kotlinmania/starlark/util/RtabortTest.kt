@@ -1,4 +1,4 @@
-// port-lint: source tests:src/util/rtabort.rs
+// port-lint: tests src/util/rtabort.rs
 package io.github.kotlinmania.starlark.util
 
 /*

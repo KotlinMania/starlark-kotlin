@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/num/value.rs
+// port-lint: tests src/values/types/num/value.rs
 package io.github.kotlinmania.starlark.values.types.num
 
 /*

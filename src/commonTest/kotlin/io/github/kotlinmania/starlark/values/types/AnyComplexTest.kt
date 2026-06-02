@@ -1,4 +1,4 @@
-// port-lint: source tests:src/values/types/any_complex.rs
+// port-lint: tests src/values/types/any_complex.rs
 package io.github.kotlinmania.starlark.values.types
 
 /*
@@ -15,12 +15,12 @@ package io.github.kotlinmania.starlark.values.types
 
 import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.Freezer
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.StringValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
-import io.github.kotlinmania.starlark.values.types.list.AllocList
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -42,18 +42,17 @@ class AnyComplexTest {
 
         Module.withTempHeap { module ->
             val data =
-                module.heap().alloc(
-                    StarlarkAnyComplex.new(
+                StarlarkAnyComplex
+                    .new(
                         UnfrozenData(
                             string = module.heap().allocStr("aaa"),
-                            other = module.heap().alloc(AllocList(listOf(1, 2))),
+                            other = module.heap().allocStr("other"),
                         ),
-                    ),
-                )
+                    ).allocValue(module.heap())
 
             assertEquals(
                 constFrozenString("aaa"),
-                StarlarkAnyComplex.getErr<UnfrozenData>(data).getOrThrow().string,
+                StarlarkAnyComplex.getErr<UnfrozenData>(data).string,
             )
 
             module.setExtraValue(data)
@@ -63,7 +62,7 @@ class AnyComplexTest {
             val frozenData = frozenModule.extraValue()!!
             assertEquals(
                 constFrozenString("aaa"),
-                StarlarkAnyComplex.getErr<FrozenData>(frozenData.toValue()).getOrThrow().string,
+                StarlarkAnyComplex.getErr<FrozenData>(frozenData.toValue()).string,
             )
         }
     }

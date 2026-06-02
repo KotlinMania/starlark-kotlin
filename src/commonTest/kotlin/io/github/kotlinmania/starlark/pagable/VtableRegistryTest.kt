@@ -1,4 +1,4 @@
-// port-lint: tests src/pagable/vtable_registry.rs (tests)
+// port-lint: tests src/pagable/vtable_registry.rs
 package io.github.kotlinmania.starlark.pagable
 
 /*

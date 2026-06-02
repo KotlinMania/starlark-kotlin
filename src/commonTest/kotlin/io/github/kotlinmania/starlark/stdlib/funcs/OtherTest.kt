@@ -1,4 +1,4 @@
-// port-lint: tests src/stdlib/funcs/other.rs (tests)
+// port-lint: tests src/stdlib/funcs/other.rs
 package io.github.kotlinmania.starlark.stdlib.funcs
 
 /*

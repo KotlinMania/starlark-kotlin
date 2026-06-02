@@ -105,7 +105,7 @@ class SetMut internal constructor(
          */
         internal fun error(x: Value): Throwable =
             if (x.downcastRef<SetGen<FrozenSetData>>() != null) {
-                ValueError.CannotMutateImmutableValue()
+                ValueError.CannotMutateImmutableValue
             } else {
                 NotSetError(x.getType())
             }
@@ -121,7 +121,7 @@ class SetMut internal constructor(
                     if (borrowed != null) {
                         Result.success(SetMut(borrowed))
                     } else {
-                        Result.failure(ValueError.MutationDuringIteration())
+                        Result.failure(ValueError.MutationDuringIteration)
                     }
                 }
             }

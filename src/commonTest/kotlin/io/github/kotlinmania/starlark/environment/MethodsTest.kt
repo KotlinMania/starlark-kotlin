@@ -1,4 +1,4 @@
-// port-lint: source tests:src/environment/methods.rs
+// port-lint: tests src/environment/methods.rs
 package io.github.kotlinmania.starlark.environment
 
 /*

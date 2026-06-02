@@ -61,6 +61,8 @@ class SmallMap<K, V> {
 
     fun isEmpty(): Boolean = map.isEmpty()
 
+    operator fun get(key: K): V? = map[key]
+
     companion object {
         fun <K, V> new(): SmallMap<K, V> = SmallMap()
     }

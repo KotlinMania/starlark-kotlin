@@ -92,7 +92,7 @@ internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<
     // but modified to be UTF8 string friendly.
     val i =
         index.unpackI32() ?: return Result.failure(
-            ValueError.IncorrectParameterType(),
+            ValueError.IncorrectParameterType,
         )
 
     val s = self.asStr()
@@ -138,7 +138,7 @@ internal fun starlarkStrSlice(
     if (stride != null && stride.unpackI32() != 1) {
         val strideVal =
             stride.unpackI32()
-                ?: return Result.failure(ValueError.IncorrectParameterType())
+                ?: return Result.failure(ValueError.IncorrectParameterType)
         val startVal = start?.unpackI32()
         val stopVal = stop?.unpackI32()
 
@@ -153,11 +153,11 @@ internal fun starlarkStrSlice(
     // No stride (or stride == 1)
     val startNone: Int? =
         start?.let {
-            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType())
+            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
         }
     val stopNone: Int? =
         stop?.let {
-            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType())
+            it.unpackI32() ?: return Result.failure(ValueError.IncorrectParameterType)
         }
 
     val startIdx = clampIndex(startNone ?: 0, len)

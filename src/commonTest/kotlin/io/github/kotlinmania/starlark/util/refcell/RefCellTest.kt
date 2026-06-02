@@ -1,4 +1,4 @@
-// port-lint: tests src/util/refcell.rs (tests)
+// port-lint: tests src/util/refcell.rs
 package io.github.kotlinmania.starlark.util.refcell
 
 /*

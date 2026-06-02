@@ -1,4 +1,4 @@
-// port-lint: tests src/values/layout/value.rs (tests)
+// port-lint: tests src/values/layout/value.rs
 package io.github.kotlinmania.starlark.values.layout
 
 /*

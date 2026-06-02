@@ -1,4 +1,4 @@
-// port-lint: tests src/errors/did_you_mean.rs (tests)
+// port-lint: tests src/errors/did_you_mean.rs
 package io.github.kotlinmania.starlark.errors
 
 /*
