@@ -138,7 +138,7 @@ private val PARAM_INDENTED_RE = Regex("""^(?:\s|$)""")
  * Extracts the docstring from a function or module body, iff the first
  * statement is a string literal.
  */
-fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstStmtP<P>): String? {
+internal fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(body: AstStmtP<P>): String? {
     val stmtNode = body.node
     if (stmtNode is StmtP.Statements) {
         val first = stmtNode.stmts.firstOrNull() ?: return null
@@ -205,7 +205,7 @@ private fun normalizeSummary(summary: String): String =
     }
 
 /** Do common work to parse a docstring (dedenting, splitting summary and details, etc). */
-fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String): DocString? {
+internal fun DocString.Companion.fromDocstring(kind: DocStringKind, userDocstring: String): DocString? {
     val trimmedDocs = userDocstring.trim()
     if (trimmedDocs.isEmpty()) {
         return null
@@ -364,7 +364,7 @@ internal fun DocString.parseAndRemoveSections(
  * @param returnType The return type.
  * @param rawDocstring The raw docstring to be parsed and potentially modified.
  */
-fun DocFunction.Companion.fromDocstring(
+internal fun DocFunction.Companion.fromDocstring(
     kind: DocStringKind,
     params: DocParams,
     returnType: Ty,

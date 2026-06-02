@@ -33,7 +33,7 @@ interface UnpackValueError {
 }
 
 /** [UnpackValueError] impl for [Error]. */
-fun Error.asUnpackValueError(): UnpackValueError =
+internal fun Error.asUnpackValueError(): UnpackValueError =
     object : UnpackValueError {
         override fun intoError(): Error = this@asUnpackValueError
     }
@@ -129,9 +129,16 @@ interface UnpackValue<T> : StarlarkTypeRepr {
             try {
                 unpackValue(value).getOrThrow()
             } catch (e: Exception) {
+                val detail = e.message
                 throw Error.newValue(
                     IllegalArgumentException(
-                        "Error unpacking value for parameter `$paramName` of type `${starlarkTypeRepr()}`",
+                        buildString {
+                            append("Error unpacking value for parameter `$paramName` of type `${starlarkTypeRepr()}`")
+                            if (!detail.isNullOrBlank()) {
+                                append(": ")
+                                append(detail)
+                            }
+                        },
                         e,
                     ),
                 )

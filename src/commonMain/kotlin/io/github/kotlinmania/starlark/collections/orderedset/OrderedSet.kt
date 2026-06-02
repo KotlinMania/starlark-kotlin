@@ -29,33 +29,27 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
  * Two [OrderedSet]s are equal only when they contain the same elements
  * in the same iteration order.
  */
-class OrderedSet<T> internal constructor(
+class OrderedSet<T : Comparable<T>> internal constructor(
     internal val inner: SmallSet<T>,
 ) : Iterable<T>,
     Comparable<OrderedSet<T>> {
     companion object {
         /** Create a new empty set. */
-        fun <T> new(): OrderedSet<T> = OrderedSet(SmallSet())
+        fun <T : Comparable<T>> new(): OrderedSet<T> = OrderedSet(SmallSet())
 
         /** Create a new empty set with the specified capacity. */
-        fun <T> withCapacity(capacity: Int): OrderedSet<T> =
+        fun <T : Comparable<T>> withCapacity(capacity: Int): OrderedSet<T> =
             OrderedSet(SmallSet.withCapacity(capacity))
 
-        /** Create a default (empty) [OrderedSet]. Corresponds to Rust `Default` impl. */
-        fun <T> default(): OrderedSet<T> = new()
+        /** Create a default empty [OrderedSet]. */
+        fun <T : Comparable<T>> default(): OrderedSet<T> = new()
 
-        /**
-         * Create an [OrderedSet] from an iterable.
-         * Corresponds to Rust `FromIterator` impl.
-         */
-        fun <T> fromIterator(iter: Iterable<T>): OrderedSet<T> =
+        /** Create an [OrderedSet] from an iterable. */
+        fun <T : Comparable<T>> fromIterator(iter: Iterable<T>): OrderedSet<T> =
             OrderedSet(SmallSet.fromIterator(iter))
 
-        /**
-         * Create an [OrderedSet] from a [SmallSet].
-         * Corresponds to Rust `From<SmallSet<T>>` impl.
-         */
-        fun <T> from(set: SmallSet<T>): OrderedSet<T> = OrderedSet(set)
+        /** Create an [OrderedSet] from a [SmallSet]. */
+        fun <T : Comparable<T>> from(set: SmallSet<T>): OrderedSet<T> = OrderedSet(set)
     }
 
     /** Get the number of elements in the set. */
@@ -64,19 +58,13 @@ class OrderedSet<T> internal constructor(
     /** Check if the set is empty. */
     fun isEmpty(): Boolean = inner.isEmpty()
 
-    /**
-     * Get an element from the set.
-     * Corresponds to Rust `get<Q>(&self, value: &Q) -> Option<&T>`.
-     */
+    /** Get an element from the set. */
     fun get(value: T): T? = inner.get(value)
 
     /** Get an element from the set using [Equivalent]. */
     fun <Q> get(value: Q): T? where Q : Equivalent<T> = inner.get(value)
 
-    /**
-     * Check if the set contains an element.
-     * Corresponds to Rust `contains<Q>(&self, value: &Q) -> bool`.
-     */
+    /** Check if the set contains an element. */
     fun contains(value: T): Boolean = inner.contains(value)
 
     /** Check if the set contains an element using [Equivalent]. */
@@ -85,19 +73,13 @@ class OrderedSet<T> internal constructor(
     /** Get an element by index. */
     fun getIndex(index: Int): T? = inner.getIndex(index)
 
-    /**
-     * Get the index of an element in the set.
-     * Corresponds to Rust `get_index_of<Q>(&self, value: &Q) -> Option<usize>`.
-     */
+    /** Get the index of an element in the set. */
     fun getIndexOf(value: T): Int? = inner.getIndexOf(value)
 
     /** Get the index of an element using [Equivalent]. */
     fun <Q> getIndexOf(value: Q): Int? where Q : Equivalent<T> = inner.getIndexOf(value)
 
-    /**
-     * Remove an element from the set and return it.
-     * Corresponds to Rust `take<Q>(&mut self, value: &Q) -> Option<T>`.
-     */
+    /** Remove an element from the set and return it. */
     fun take(value: T): T? = inner.take(value)
 
     /** Remove an element using [Equivalent] and return it. */
@@ -115,21 +97,16 @@ class OrderedSet<T> internal constructor(
     /**
      * Insert an element into the set.
      * Returns `true` iff the element was inserted (was not already present).
-     * Corresponds to Rust `insert(&mut self, value: T) -> bool`.
      */
     fun insert(value: T): Boolean = inner.insert(value)
 
-    /**
-     * Insert an element into the set assuming it is not already present.
-     * Corresponds to Rust `insert_unique_unchecked(&mut self, value: T)`.
-     */
+    /** Insert an element into the set assuming it is not already present. */
     fun insertUniqueUnchecked(value: T) = inner.insertUniqueUnchecked(value)
 
     /**
      * Insert an element if it is not already present in the set.
      * Returns `null` if inserted successfully, or an [OccupiedError]
      * containing the value that was not inserted and the existing element.
-     * Corresponds to Rust `try_insert` which returns `Result<(), OccupiedError<T>>`.
      */
     fun tryInsert(value: T): OccupiedError<T>? {
         val hashed = Hashed.new(value)
@@ -151,61 +128,44 @@ class OrderedSet<T> internal constructor(
     /** Clear the set. */
     fun clear() = inner.clear()
 
-    /**
-     * Sort the set.
-     * Corresponds to Rust `sort(&mut self) where T: Ord`.
-     */
-    fun sort() = inner.sort()
+    /** Sort the set. */
+    fun sortWith(comparator: Comparator<in T>) = inner.sortWith(comparator)
 
-    /**
-     * Iterate over the union of two sets.
-     * Corresponds to Rust `union<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a T>`.
-     */
+    /** Sort the set using natural order. */
+    fun sort() = sortWith(naturalOrder())
+
+    /** Iterate over the union of two sets. */
     fun union(other: OrderedSet<T>): Sequence<T> =
         inner.union(other.inner)
 
-    /**
-     * Reverse the iteration order of the set.
-     * Corresponds to Rust `reverse(&mut self)`.
-     */
+    /** Reverse the iteration order of the set. */
     fun reverse() = inner.reverse()
 
-    /**
-     * Extend the set with elements from an iterable.
-     * Corresponds to Rust `Extend<T>` impl.
-     */
+    /** Extend the set with elements from an iterable. */
     fun extend(iter: Iterable<T>) = inner.extend(iter)
 
-    /** Corresponds to Rust `IntoIterator` impl. */
     override fun iterator(): Iterator<T> = inner.iterator()
 
     /**
      * Ordered equality: two [OrderedSet]s are equal iff they contain the same elements
      * in the same iteration order.
-     * Corresponds to Rust `PartialEq` impl using `eq_ordered`.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OrderedSet<*>) return false
-        return inner.eqOrdered(@Suppress("UNCHECKED_CAST") (other.inner as SmallSet<T>))
+        return inner.eqOrdered(other.inner)
     }
 
-    /**
-     * Hash based on ordered iteration of elements.
-     * Corresponds to Rust `Hash` impl using `hash_ordered`.
-     */
+    /** Hash based on ordered iteration of elements. */
     override fun hashCode(): Int {
         var result = 1
         for (t in iter()) {
-            result = 31 * result + (t?.hashCode() ?: 0)
+            result = 31 * result + t.hashCode()
         }
         return result
     }
 
-    /**
-     * Compare two [OrderedSet]s lexicographically by their iteration order.
-     * Corresponds to Rust `PartialOrd` / `Ord` impls.
-     */
+    /** Compare two [OrderedSet]s lexicographically by their iteration order. */
     override fun compareTo(other: OrderedSet<T>): Int {
         val thisIter = iter().iterator()
         val otherIter = other.iter().iterator()
@@ -213,8 +173,7 @@ class OrderedSet<T> internal constructor(
             val t = thisIter.next()
             val o = otherIter.next()
 
-            @Suppress("UNCHECKED_CAST")
-            val cmp = (t as Comparable<T>).compareTo(o)
+            val cmp = t.compareTo(o)
             if (cmp != 0) return cmp
         }
         return when {
@@ -227,10 +186,7 @@ class OrderedSet<T> internal constructor(
     override fun toString(): String = iter().joinToString(", ", "{", "}")
 }
 
-/**
- * Error returned by [OrderedSet.tryInsert] when the element is already present.
- * Corresponds to Rust `OccupiedError` (a plain struct in Rust, not an error type).
- */
+/** Error returned by [OrderedSet.tryInsert] when the element is already present. */
 class OccupiedError<T>(
     /** The value that was not inserted. */
     val value: T,

@@ -51,7 +51,7 @@ import kotlin.time.TimeSource
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
  * [Module] as appropriate.
  */
-fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
+internal fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     val start = TimeSource.Monotonic.markNow()
 
     val (codemap, statement, dialect, typecheck) = ast.intoParts()
@@ -127,14 +127,14 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 
     moduleEnv.addEvalDuration(start.elapsedNow())
 
-    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
+    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
 
     // Return the result of evaluation
     return res.mapCatching { it }
 }
 
 /** Evaluate a function stored in a [Value], passing in `positional` and `named` arguments. */
-fun Evaluator.evalFunction(
+internal fun Evaluator.evalFunction(
     function: Value,
     positional: List<Value>,
     named: List<Pair<String, Value>>,
@@ -165,7 +165,7 @@ fun Evaluator.evalFunction(
             function.invoke(params, eval)
         }
 
-    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
+    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
 
     return res
 }

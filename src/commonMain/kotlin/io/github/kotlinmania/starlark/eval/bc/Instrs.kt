@@ -172,7 +172,7 @@ class BcInstrs private constructor(
     /**
      * Find the [BcInstrEndArg] from the `End` instruction, if present.
      *
-     * In Rust: `self.iter().find_map(|(ptr, _ip)| ptr.get_instr_checked::<InstrEnd>().map(|i| &i.arg))`
+     * In Rust: `self.iter().find_map(|(ptr, ip)| ptr.get_instr_checked::<InstrEnd>().map(|i| &i.arg))`
      */
     private fun endArg(): BcInstrEndArg? {
         for ((ptr, _) in iter()) {
@@ -365,7 +365,7 @@ class BcInstrs private constructor(
      */
     private fun fmtAppendArg(
         ptr: BcPtrAddr,
-        _ip: BcAddr,
+        ip: BcAddr,
         endArg: BcInstrEndArg?,
         sb: StringBuilder,
     ) {

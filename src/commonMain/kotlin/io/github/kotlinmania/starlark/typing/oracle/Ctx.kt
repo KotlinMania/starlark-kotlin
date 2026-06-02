@@ -157,7 +157,7 @@ class TypingOracleCtx(
                 mkErrorAsMaybeInternal(
                     got.span,
                     TypingOracleCtxError.IncompatibleType(
-                        got = got.toString(),
+                        got = got.node.toString(),
                         require = require.toString(),
                     ),
                 ),

@@ -99,13 +99,25 @@ class Error private constructor(
             Error(kind.intoInternalError(), fileSpan, callStackFrames)
         }
 
-    override fun toString(): String =
-        if (hasDiagnostic()) {
-            val spanStr = fileSpan?.let { " at $it" } ?: ""
-            "${kind}$spanStr"
-        } else {
-            kind.toString()
+    override fun toString(): String {
+        val kindText = kind.toString()
+        if (!hasDiagnostic()) {
+            return kindText
         }
+
+        val sb = StringBuilder()
+        if (callStackFrames.isNotEmpty()) {
+            sb.append(CallStack(callStackFrames))
+        }
+        if (kindText.isNotEmpty()) {
+            if (sb.isNotEmpty()) {
+                sb.appendLine()
+            }
+            sb.append(kindText)
+        }
+        fileSpan?.let { sb.append(" at $it") }
+        return sb.toString()
+    }
 }
 
 /** Truncate a source code snippet to a maximum character length. */

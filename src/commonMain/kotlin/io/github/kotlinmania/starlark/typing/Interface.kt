@@ -1,4 +1,6 @@
 // port-lint: source src/typing/interface.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -19,7 +21,10 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
+import kotlin.native.HiddenFromObjC
+
 /** Interface representing the types of all bindings in a module. */
+@HiddenFromObjC
 class Interface private constructor(
     private val bindings: Map<String, Ty>,
 ) {

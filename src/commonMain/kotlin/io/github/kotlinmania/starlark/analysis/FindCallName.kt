@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/find_call_name.rs
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -25,17 +26,19 @@ import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 /**
  * Find the location of a top level function call that has a kwarg `name`, and a string value
  * matching [name].
  */
-interface AstModuleFindCallName {
+internal interface AstModuleFindCallName {
     /**
      * Find the location of a top level function call that has a kwarg `name`, and a string value
      * matching [name].
@@ -52,7 +55,7 @@ interface AstModuleFindCallName {
  *
  * @see AstModuleFindCallName.findFunctionCallWithName
  */
-fun AstModule.findFunctionCallWithName(name: String): Span? {
+internal fun AstModule.findFunctionCallWithName(name: String): Span? {
     var ret: Span? = null
 
     fun visitExpr(node: AstExpr) {
@@ -100,117 +103,117 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
 /**
  * Visit immediate child expressions in an [ExprP] node.
  */
-internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
+internal fun ExprP<AstNoPayload>.visitChildExprs(f: (AstExpr) -> Unit) {
     when (this) {
-        is ExprP.Tuple<*> -> elements.forEach { f(it as AstExpr) }
-        is ExprP.Dot<*> -> f(expr as AstExpr)
-        is ExprP.Call<*> -> {
-            f(expr as AstExpr)
-            args.args.forEach { f(it.node.expr() as AstExpr) }
+        is ExprP.Tuple<AstNoPayload> -> elements.forEach(f)
+        is ExprP.Dot<AstNoPayload> -> f(expr)
+        is ExprP.Call<AstNoPayload> -> {
+            f(expr)
+            args.args.forEach { f(it.node.expr()) }
         }
-        is ExprP.Index<*> -> {
-            f(expr as AstExpr)
-            f(index as AstExpr)
+        is ExprP.Index<AstNoPayload> -> {
+            f(expr)
+            f(index)
         }
-        is ExprP.Index2<*> -> {
-            f(expr as AstExpr)
-            f(index0 as AstExpr)
-            f(index1 as AstExpr)
+        is ExprP.Index2<AstNoPayload> -> {
+            f(expr)
+            f(index0)
+            f(index1)
         }
-        is ExprP.Slice<*> -> {
-            f(expr as AstExpr)
-            (start as AstExpr?)?.let(f)
-            (stop as AstExpr?)?.let(f)
-            (step as AstExpr?)?.let(f)
+        is ExprP.Slice<AstNoPayload> -> {
+            f(expr)
+            start?.let(f)
+            stop?.let(f)
+            step?.let(f)
         }
-        is ExprP.Identifier<*, *> -> { /* leaf */ }
-        is ExprP.Lambda<*, *> -> {
+        is ExprP.Identifier<AstNoPayload, *> -> { /* leaf */ }
+        is ExprP.Lambda<AstNoPayload, *> -> {
             lambda.params.forEach { param ->
                 when (val p = param.node) {
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
+                    is ParameterP.Normal<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
-                        (p.defaultVal as AstExpr?)?.let(f)
+                            ?.let(f)
+                        p.defaultVal?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
+                    is ParameterP.Args<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
+                            ?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
+                    is ParameterP.KwArgs<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
+                            ?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>,
+                    is ParameterP.NoArgs<AstNoPayload>,
+                    is ParameterP.Slash<AstNoPayload>,
                     -> { /* no expr */ }
                 }
             }
-            f(lambda.body as AstExpr)
+            f(lambda.body)
         }
-        is ExprP.Literal<*> -> { /* leaf */ }
-        is ExprP.Not<*> -> f(expr as AstExpr)
-        is ExprP.Minus<*> -> f(expr as AstExpr)
-        is ExprP.Plus<*> -> f(expr as AstExpr)
-        is ExprP.BitNot<*> -> f(expr as AstExpr)
-        is ExprP.Op<*> -> {
-            f(lhs as AstExpr)
-            f(rhs as AstExpr)
+        is ExprP.Literal<AstNoPayload> -> { /* leaf */ }
+        is ExprP.Not<AstNoPayload> -> f(expr)
+        is ExprP.Minus<AstNoPayload> -> f(expr)
+        is ExprP.Plus<AstNoPayload> -> f(expr)
+        is ExprP.BitNot<AstNoPayload> -> f(expr)
+        is ExprP.Op<AstNoPayload> -> {
+            f(lhs)
+            f(rhs)
         }
-        is ExprP.If<*> -> {
-            f(cond as AstExpr)
-            f(v1 as AstExpr)
-            f(v2 as AstExpr)
+        is ExprP.If<AstNoPayload> -> {
+            f(cond)
+            f(v1)
+            f(v2)
         }
-        is ExprP.ListExpr<*> -> elements.forEach { f(it as AstExpr) }
-        is ExprP.Dict<*> ->
+        is ExprP.ListExpr<AstNoPayload> -> elements.forEach(f)
+        is ExprP.Dict<AstNoPayload> ->
             elements.forEach { (k, v) ->
-                f(k as AstExpr)
-                f(v as AstExpr)
+                f(k)
+                f(v)
             }
-        is ExprP.ListComprehension<*> -> {
+        is ExprP.ListComprehension<AstNoPayload> -> {
             visitForClauseExprs(forClause, f)
             clauses.forEach { visitClauseExprs(it, f) }
-            f(expr as AstExpr)
+            f(expr)
         }
-        is ExprP.DictComprehension<*> -> {
+        is ExprP.DictComprehension<AstNoPayload> -> {
             visitForClauseExprs(forClause, f)
             clauses.forEach { visitClauseExprs(it, f) }
-            f(key as AstExpr)
-            f(value as AstExpr)
+            f(key)
+            f(value)
         }
-        is ExprP.FString<*> -> {
-            fstring.node.expressions.forEach { f(it as AstExpr) }
+        is ExprP.FString<AstNoPayload> -> {
+            fstring.node.expressions.forEach(f)
         }
     }
 }
 
-internal fun <P : AstPayload> visitForClauseExprs(forClause: io.github.kotlinmania.starlark.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
+internal fun visitForClauseExprs(forClause: ForClauseP<AstNoPayload>, f: (AstExpr) -> Unit) {
     visitAssignTargetExprs(forClause.varTarget.node, f)
-    f(forClause.over as AstExpr)
+    f(forClause.over)
 }
 
-internal fun <P : AstPayload> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) -> Unit) {
+internal fun visitClauseExprs(clause: ClauseP<AstNoPayload>, f: (AstExpr) -> Unit) {
     when (clause) {
-        is ClauseP.For<*> -> visitForClauseExprs(clause.forClause, f)
-        is ClauseP.If<*> -> f(clause.cond as AstExpr)
+        is ClauseP.For<AstNoPayload> -> visitForClauseExprs(clause.forClause, f)
+        is ClauseP.If<AstNoPayload> -> f(clause.cond)
     }
 }
 
-internal fun <P : AstPayload> visitAssignTargetExprs(target: AssignTargetP<P>, f: (AstExpr) -> Unit) {
+internal fun visitAssignTargetExprs(target: AssignTargetP<AstNoPayload>, f: (AstExpr) -> Unit) {
     when (target) {
-        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitAssignTargetExprs(it.node, f) }
-        is AssignTargetP.Dot<*> -> f(target.expr as AstExpr)
-        is AssignTargetP.Index<*> -> {
-            f(target.expr as AstExpr)
-            f(target.index as AstExpr)
+        is AssignTargetP.Tuple<AstNoPayload> -> target.elements.forEach { visitAssignTargetExprs(it.node, f) }
+        is AssignTargetP.Dot<AstNoPayload> -> f(target.expr)
+        is AssignTargetP.Index<AstNoPayload> -> {
+            f(target.expr)
+            f(target.index)
         }
-        is AssignTargetP.Identifier<*, *> -> { /* leaf */ }
+        is AssignTargetP.Identifier<AstNoPayload, *> -> { /* leaf */ }
     }
 }
 
@@ -220,66 +223,66 @@ internal fun <P : AstPayload> visitAssignTargetExprs(target: AssignTargetP<P>, f
  */
 internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
     when (val s = node) {
-        is StmtP.Statements<*> -> s.stmts.forEach { (it as AstStmt).visitExprs(f) }
-        is StmtP.Expression<*> -> f(s.expr as AstExpr)
-        is StmtP.Return<*> -> (s.expr as AstExpr?)?.let(f)
-        is StmtP.Assign<*> -> {
+        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach { it.visitExprs(f) }
+        is StmtP.Expression<AstNoPayload> -> f(s.expr)
+        is StmtP.Return<AstNoPayload> -> s.expr?.let(f)
+        is StmtP.Assign<AstNoPayload> -> {
             visitAssignTargetExprs(s.assign.lhs.node, f)
-            s.assign.ty?.let { f(it.node.expr as AstExpr) }
-            f(s.assign.rhs as AstExpr)
+            s.assign.ty?.let { f(it.node.expr) }
+            f(s.assign.rhs)
         }
-        is StmtP.AssignModify<*> -> {
+        is StmtP.AssignModify<AstNoPayload> -> {
             visitAssignTargetExprs(s.lhs.node, f)
-            f(s.rhs as AstExpr)
+            f(s.rhs)
         }
-        is StmtP.If<*> -> {
-            f(s.cond as AstExpr)
-            (s.suite as AstStmt).visitExprs(f)
+        is StmtP.If<AstNoPayload> -> {
+            f(s.cond)
+            s.suite.visitExprs(f)
         }
-        is StmtP.IfElse<*> -> {
-            f(s.cond as AstExpr)
-            (s.suite1 as AstStmt).visitExprs(f)
-            (s.suite2 as AstStmt).visitExprs(f)
+        is StmtP.IfElse<AstNoPayload> -> {
+            f(s.cond)
+            s.suite1.visitExprs(f)
+            s.suite2.visitExprs(f)
         }
-        is StmtP.For<*> -> {
+        is StmtP.For<AstNoPayload> -> {
             visitAssignTargetExprs(s.forStmt.varTarget.node, f)
-            f(s.forStmt.over as AstExpr)
-            (s.forStmt.body as AstStmt).visitExprs(f)
+            f(s.forStmt.over)
+            s.forStmt.body.visitExprs(f)
         }
-        is StmtP.Def<*, *> -> {
+        is StmtP.Def<AstNoPayload, *> -> {
             s.def.params.forEach { param ->
                 when (val p = param.node) {
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
+                    is ParameterP.Normal<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
-                        (p.defaultVal as AstExpr?)?.let(f)
+                            ?.let(f)
+                        p.defaultVal?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
+                    is ParameterP.Args<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
+                            ?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
+                    is ParameterP.KwArgs<AstNoPayload> -> {
                         p.typ
                             ?.node
                             ?.expr
-                            ?.let { f(it as AstExpr) }
+                            ?.let(f)
                     }
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>,
+                    is ParameterP.NoArgs<AstNoPayload>,
+                    is ParameterP.Slash<AstNoPayload>,
                     -> { /* no expr */ }
                 }
             }
-            s.def.returnType?.let { f(it.node.expr as AstExpr) }
-            (s.def.body as AstStmt).visitExprs(f)
+            s.def.returnType?.let { f(it.node.expr) }
+            s.def.body.visitExprs(f)
         }
-        is StmtP.Load<*, *> -> { /* no expressions */ }
-        is StmtP.Break<*>,
-        is StmtP.Continue<*>,
-        is StmtP.Pass<*>,
+        is StmtP.Load<AstNoPayload, *> -> { /* no expressions */ }
+        is StmtP.Break<AstNoPayload>,
+        is StmtP.Continue<AstNoPayload>,
+        is StmtP.Pass<AstNoPayload>,
         -> { /* no expressions */ }
     }
 }
@@ -289,22 +292,22 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
  */
 internal fun AstStmt.visitStmtChildren(f: (AstStmt) -> Unit) {
     when (val s = node) {
-        is StmtP.Statements<*> -> s.stmts.forEach { f(it as AstStmt) }
-        is StmtP.If<*> -> f(s.suite as AstStmt)
-        is StmtP.IfElse<*> -> {
-            f(s.suite1 as AstStmt)
-            f(s.suite2 as AstStmt)
+        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach(f)
+        is StmtP.If<AstNoPayload> -> f(s.suite)
+        is StmtP.IfElse<AstNoPayload> -> {
+            f(s.suite1)
+            f(s.suite2)
         }
-        is StmtP.For<*> -> f(s.forStmt.body as AstStmt)
-        is StmtP.Def<*, *> -> f(s.def.body as AstStmt)
-        is StmtP.Expression<*>,
-        is StmtP.Return<*>,
-        is StmtP.Assign<*>,
-        is StmtP.AssignModify<*>,
-        is StmtP.Load<*, *>,
-        is StmtP.Break<*>,
-        is StmtP.Continue<*>,
-        is StmtP.Pass<*>,
+        is StmtP.For<AstNoPayload> -> f(s.forStmt.body)
+        is StmtP.Def<AstNoPayload, *> -> f(s.def.body)
+        is StmtP.Expression<AstNoPayload>,
+        is StmtP.Return<AstNoPayload>,
+        is StmtP.Assign<AstNoPayload>,
+        is StmtP.AssignModify<AstNoPayload>,
+        is StmtP.Load<AstNoPayload, *>,
+        is StmtP.Break<AstNoPayload>,
+        is StmtP.Continue<AstNoPayload>,
+        is StmtP.Pass<AstNoPayload>,
         -> { /* no child statements */ }
     }
 }

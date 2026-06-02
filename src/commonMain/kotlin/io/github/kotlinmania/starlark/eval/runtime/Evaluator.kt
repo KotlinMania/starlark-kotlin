@@ -1,4 +1,6 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/eval/runtime/evaluator.rs
+
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -75,6 +77,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
 import io.github.kotlinmania.starlark.values.types.NativeFunction
+import kotlin.native.HiddenFromObjC
 
 private sealed class EvaluatorError(
     override val message: String,
@@ -425,6 +428,7 @@ class Evaluator(
      * * some optimizer transformations may create incorrect spans
      * * some optimizer transformations may remove statements
      */
+    @HiddenFromObjC
     fun coverage(): Set<ResolvedFileSpan> {
         val pMode = profileOrInstrumentationMode
         if (pMode is ProfileOrInstrumentationMode.Profile && pMode.mode == ProfileMode.Coverage) {
@@ -491,6 +495,11 @@ class Evaluator(
         isCancelled = isCanceled
     }
 
+    internal fun addCallStackDiagnostics(e: Error): Error {
+        e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
+        return e
+    }
+
     /**
      * Called to add an entry to the call stack, by the function being invoked.
      * Called for all types of function, including those written in Kotlin.
@@ -498,20 +507,20 @@ class Evaluator(
     internal fun <R> withCallStack(
         function: Value,
         span: FrozenRef<FrameSpan>?,
-        within: (Evaluator) -> R,
-    ): R {
-        fun addDiagnostics(e: Error): Error {
-            // Make sure we capture the call_stack before popping things off it
-            e.setCallStack { callStack.toDiagnosticFrames(InlinedFrames()).frames }
-            return e
-        }
-
+        within: (Evaluator) -> Result<R>,
+    ): Result<R> {
         callStack.push(function, span)
         // Must always call .pop regardless
         try {
-            return within(this)
+            val result = within(this)
+            val failure = result.exceptionOrNull()
+            return if (failure is Error) {
+                Result.failure(addCallStackDiagnostics(failure))
+            } else {
+                result
+            }
         } catch (e: Error) {
-            throw addDiagnostics(e)
+            throw addCallStackDiagnostics(e)
         } finally {
             callStack.pop()
         }
@@ -533,24 +542,24 @@ class Evaluator(
     fun frozenHeap(): FrozenHeap = moduleEnv.frozenHeap()
 
     internal fun getSlotModule(slot: ModuleSlotId): Result<Value> {
-        fun error(eval: Evaluator, slot: ModuleSlotId): Error {
-            val name =
-                try {
-                    when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
-                        null ->
-                            eval.moduleEnv
-                                .mutableNames()
-                                .getSlot(slot)
-                                ?.asStr()
-                        else -> frozenModule.asRef().getSlotName(slot)?.asStr()
-                    }
-                } catch (e: Exception) {
-                    "<internal error: $e>"
-                } ?: "<unknown>"
-            return Error.newOther(
+        val name =
+            try {
+                when (val frozenModule = topFrameDefFrozenModule(false)) {
+                    null ->
+                        moduleEnv
+                            .mutableNames()
+                            .getSlot(slot)
+                            ?.asStr()
+                    else -> frozenModule.asRef().getSlotName(slot)?.asStr()
+                }
+            } catch (e: Exception) {
+                null
+            } ?: "<unknown>"
+
+        fun error(eval: Evaluator, slot: ModuleSlotId): Error =
+            Error.newOther(
                 EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
             )
-        }
 
         val value =
             when (val frozenModule = topFrameDefFrozenModule(false)) {

@@ -1,4 +1,6 @@
 // port-lint: tests src/docs/parse.rs
+@file:Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+
 package io.github.kotlinmania.starlark.docs
 
 /*

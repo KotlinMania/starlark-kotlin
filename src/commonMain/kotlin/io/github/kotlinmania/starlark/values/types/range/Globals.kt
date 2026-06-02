@@ -1,8 +1,5 @@
 // port-lint: source src/values/types/range/globals.rs
 package io.github.kotlinmania.starlark.values.types.range
-import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.eval.runtime.Arguments
-import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,14 +19,12 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
  * limitations under the License.
  */
 
-// Real types should be imported from their respective packages
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.Arguments
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 /**
  * Register range-related global functions.
- *
- * This is the Kotlin port of the Rust `#[starlark_module]` annotated function.
- * The macro in Rust generates code to register these globals; in Kotlin, we
- * implement this explicitly as a regular function.
  */
 internal fun registerRange(globals: GlobalsBuilder) {
     /**
@@ -57,16 +52,14 @@ internal fun registerRange(globals: GlobalsBuilder) {
      * passes `stop`. A call to `range` fails if the value of `step` is
      * zero.
      *
-     * ```
-     * # starlark::assert::all_true(r#"
+     * ```python
      * list(range(10))                         == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
      * list(range(3, 10))                      == [3, 4, 5, 6, 7, 8, 9]
      * list(range(3, 10, 2))                   == [3, 5, 7, 9]
      * list(range(10, 3, -2))                  == [10, 8, 6, 4]
-     * # "#);
      * ```
      */
-    globals.setFunction("range") { args: Arguments, _eval: Evaluator ->
+    globals.setFunction("range") { args: Arguments, eval: Evaluator ->
         val a1 = args.positional<Int>(0)
         val a2 = args.optionalPositional<Int>(1)
         val step = args.optionalPositional<Int>(2)

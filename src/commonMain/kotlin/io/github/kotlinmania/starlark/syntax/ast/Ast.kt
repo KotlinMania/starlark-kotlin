@@ -24,23 +24,23 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Payload types attached to AST nodes. */
-interface AstPayload {
-    // We don't really need `Clone` for any payload in Kotlin.
-    // In Kotlin we use generics directly or expect the implementation to provide the correct types.
-    // Since Kotlin doesn't have associated types, we'll parameterize or just use `Any?` for now,
-    // or properly type the nodes using generic type parameters.
-}
+interface AstPayload
+
+/** Payload attached to type-expression nodes. */
+interface TypeExprPayload
 
 /**
- * Default implementation of payload, which attaches `()` to nodes.
- * This payload is returned with AST by parser.
+ * Default implementation of payload returned by the parser.
  */
 object AstNoPayload : AstPayload
+
+/** Default type-expression payload returned by the parser. */
+object AstNoTypeExprPayload : TypeExprPayload
 
 class Comma
 
 typealias Expr = ExprP<AstNoPayload>
-typealias TypeExpr = TypeExprP<AstNoPayload, Unit>
+typealias TypeExpr = TypeExprP<AstNoPayload>
 typealias AssignTarget = AssignTargetP<AstNoPayload>
 typealias AssignIdent = AssignIdentP<AstNoPayload, Unit>
 typealias Ident = IdentP<AstNoPayload, Unit>
@@ -52,7 +52,7 @@ typealias Load = LoadP<AstNoPayload, Unit>
 typealias Stmt = StmtP<AstNoPayload>
 
 typealias AstExprP<P> = Spanned<ExprP<P>>
-typealias AstTypeExprP<P> = Spanned<TypeExprP<P, Unit>>
+typealias AstTypeExprP<P> = Spanned<TypeExprP<P>>
 typealias AstAssignTargetP<P> = Spanned<AssignTargetP<P>>
 typealias AstAssignIdentP<P, IAP> = Spanned<AssignIdentP<P, IAP>>
 typealias AstIdentP<P, IP> = Spanned<IdentP<P, IP>>
@@ -277,9 +277,9 @@ sealed class ExprP<P : AstPayload> {
     ) : ExprP<P>()
 }
 
-data class TypeExprP<P : AstPayload, TEP>(
+data class TypeExprP<P : AstPayload>(
     val expr: AstExprP<P>,
-    var payload: TEP,
+    var payload: TypeExprPayload,
 )
 
 sealed class AssignTargetP<P : AstPayload> {
@@ -416,6 +416,43 @@ data class FStringP<P : AstPayload>(
 )
 
 sealed class StmtP<P : AstPayload> {
+    fun visitTypeExprErrMut(f: (AstTypeExprP<P>) -> Unit) {
+        when (this) {
+            is Def<P, *> -> {
+                for (param in def.params) {
+                    when (val p = param.node) {
+                        is ParameterP.Normal<P> -> p.typ?.let(f)
+                        is ParameterP.Args<P> -> p.typ?.let(f)
+                        is ParameterP.KwArgs<P> -> p.typ?.let(f)
+                        is ParameterP.Slash<P>, is ParameterP.NoArgs<P> -> {}
+                    }
+                }
+                def.returnType?.let(f)
+                def.body.node.visitTypeExprErrMut(f)
+            }
+            is Assign<P> -> assign.ty?.let(f)
+            is Statements<P> -> {
+                for (stmt in stmts) {
+                    stmt.node.visitTypeExprErrMut(f)
+                }
+            }
+            is If<P> -> suite.node.visitTypeExprErrMut(f)
+            is IfElse<P> -> {
+                suite1.node.visitTypeExprErrMut(f)
+                suite2.node.visitTypeExprErrMut(f)
+            }
+            is For<P> -> forStmt.body.node.visitTypeExprErrMut(f)
+            is Break<P>,
+            is Continue<P>,
+            is Pass<P>,
+            is Return<P>,
+            is Expression<P>,
+            is AssignModify<P>,
+            is Load<P, *>,
+            -> {}
+        }
+    }
+
     class Break<P : AstPayload> : StmtP<P>()
 
     class Continue<P : AstPayload> : StmtP<P>()

@@ -11,7 +11,7 @@ expect class ReentrantLock() {
     fun unlock()
 }
 
-inline fun <T> ReentrantLock.withLock(action: () -> T): T {
+internal inline fun <T> ReentrantLock.withLock(action: () -> T): T {
     lock()
     try {
         return action()

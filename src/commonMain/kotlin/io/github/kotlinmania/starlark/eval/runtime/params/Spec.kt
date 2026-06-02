@@ -40,6 +40,8 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
@@ -257,13 +259,37 @@ class ParametersSpec<V>(
     /** Only used in error messages */
     internal val functionName: String,
     /** Parameters in the order they occur. */
-    internal val paramKinds: List<ParameterKind<V>>,
+    internal var paramKinds: List<ParameterKind<V>>,
     /** Parameter names in the order they occur. */
     internal val paramNames: List<String>,
     /** Mapping from name to index where the argument lives. */
     internal val names: SymbolMap<UInt>,
     internal val indices: DefParamIndices,
 ) {
+    fun trace(tracer: Tracer) {
+        val newKinds = mutableListOf<ParameterKind<V>>()
+        var changed = false
+        for (kind in paramKinds) {
+            if (kind is ParameterKind.Defaulted) {
+                val v = kind.value
+                if (v is Value) {
+                    val holder = ValueHolder(v)
+                    tracer.trace(holder)
+                    if (holder.value !== v) {
+                        @Suppress("UNCHECKED_CAST")
+                        newKinds.add(ParameterKind.Defaulted(holder.value as V))
+                        changed = true
+                        continue
+                    }
+                }
+            }
+            newKinds.add(kind)
+        }
+        if (changed) {
+            paramKinds = newKinds
+        }
+    }
+
     companion object {
         /** Create a new [`ParametersSpec`] with the given function name and an advance capacity hint. */
         internal fun <V> withCapacity(functionName: String, capacity: Int = 0): ParametersSpecBuilder<V> =
@@ -647,11 +673,11 @@ class ParametersSpec<V>(
                 is ParameterKind.Required -> {
                     val paramName = paramNames[index]
                     if (index < indices.numPositionalOnly.toInt()) {
-                        error("Missing positional-only parameter `$paramName` for call to `$functionName`")
+                        throw FunctionError.MissingParameter("Missing positional-only parameter `$paramName` for call to `$functionName`")
                     } else if (index >= indices.numPositional.toInt()) {
-                        error("Missing named-only parameter `$paramName` for call to `$functionName`")
+                        throw FunctionError.MissingParameter("Missing named-only parameter `$paramName` for call to `$functionName`")
                     } else {
-                        error("Missing parameter `$paramName` for call to `$functionName`")
+                        throw FunctionError.MissingParameter("Missing parameter `$paramName` for call to `$functionName`")
                     }
                 }
                 is ParameterKind.Defaulted -> {

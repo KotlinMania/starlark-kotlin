@@ -665,7 +665,7 @@ internal class DefGen<V>(
      * Values are either [Value] or [FrozenValue] pointing respectively to
      * `ValueCaptured` or `FrozenValueCaptured`.
      */
-    private val captured: List<V>,
+    private var captured: List<V>,
     /**
      * A reference to the module where the function is defined after the module has been frozen.
      * When the module is not frozen yet, this field contains `null`, and function's module
@@ -684,17 +684,23 @@ internal class DefGen<V>(
     FrozenDefPostFreeze {
     override fun toString(): String = parameters.signature()
 
-    // Trace implementation: trace all captured Value references.
+    // Trace implementation: trace all captured Value references and parameter defaults.
     override fun trace(tracer: Tracer) {
-        // In the unfrozen case, we need to trace captured values.
-        // The parameters also contain Values that need tracing.
-        // For the frozen case, there's nothing to trace.
+        // In the unfrozen case, we need to trace captured values and parameters.
         if (!frozen) {
+            val newCaptured = mutableListOf<V>()
             for (cap in captured) {
                 if (cap is Value) {
-                    tracer.trace(ValueHolder(cap))
+                    val holder = ValueHolder(cap)
+                    tracer.trace(holder)
+                    @Suppress("UNCHECKED_CAST")
+                    newCaptured.add(holder.value as V)
+                } else {
+                    newCaptured.add(cap)
                 }
             }
+            captured = newCaptured
+            parameters.trace(tracer)
         }
     }
 

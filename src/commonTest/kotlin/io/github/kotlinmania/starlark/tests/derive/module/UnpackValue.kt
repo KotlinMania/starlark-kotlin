@@ -100,9 +100,7 @@ private fun validateModule(builder: GlobalsBuilder) {
                     when (val nested = v.value) {
                         is Either.Left -> nested.value
                         is Either.Right -> nested.value.value.toRepr()
-                        else -> throw IllegalStateException("Unexpected Either: $nested")
                     }
-                else -> throw IllegalStateException("Unexpected Either: $v")
             }
         Result.success(result)
     }

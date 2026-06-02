@@ -27,6 +27,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
     val it = pair.iterate(heap).getOrElse { return Result.failure(it) }
@@ -73,7 +74,11 @@ private fun unpackPair(pair: Value, heap: Heap): Result<Pair<Value, Value>> {
  */
 internal fun registerDict(globals: GlobalsBuilder) {
     // Rust: #[starlark(as_type = FrozenDict, speculative_exec_safe, special_builtin_function = SpecialBuiltinFunction::Dict)]
-    globals.setFunction("dict", asType = Ty.starlarkValue(TyStarlarkValue.dict())) { args: Arguments, eval: Evaluator ->
+    globals.setFunction(
+        "dict",
+        asType = Ty.starlarkValue(TyStarlarkValue.dict()),
+        specialBuiltinFunction = SpecialBuiltinFunction.Dict,
+    ) { args: Arguments, eval: Evaluator ->
         // Dict is super hot, and has a slightly odd signature, so we can do a bunch of special cases on it.
         // In particular, we don't generate the kwargs if there are no positional arguments.
         // Therefore we make it take the raw Arguments.

@@ -2,6 +2,7 @@
 package io.github.kotlinmania.starlark
 
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.GlobalsStatic
 import io.github.kotlinmania.starlark.stdlib.breakpointGlobal
 import io.github.kotlinmania.starlark.stdlib.callStackGlobal
 import io.github.kotlinmania.starlark.stdlib.funcs.registerGlobals
@@ -47,6 +48,8 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
 
 // Submodules: breakpoint, call_stack, extra, funcs, internal, json, partial
 
+private val STANDARD_STATIC = GlobalsStatic()
+
 /**
  * Return the default global environment, it is not yet frozen so that a caller
  * can refine it.
@@ -54,7 +57,11 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
  * For example `standardEnvironment().freeze().child("test")` create a
  * child environment of this global environment that have been frozen.
  */
-internal fun standardEnvironment(): GlobalsBuilder = GlobalsBuilder.new().with { builder -> registerGlobals(builder) }
+internal fun standardEnvironment(): GlobalsBuilder {
+    val builder = GlobalsBuilder.new()
+    STANDARD_STATIC.populate({ b -> registerGlobals(b) }, builder)
+    return builder
+}
 
 /** The extra library definitions available in this Starlark implementation, but not in the standard. */
 enum class LibraryExtension {
@@ -140,28 +147,32 @@ enum class LibraryExtension {
         fun all(): List<LibraryExtension> = entries
     }
 
+    private val staticInstance: GlobalsStatic by lazy { GlobalsStatic() }
+
     /** Add a specific extension to a `GlobalsBuilder`. */
     fun add(builder: GlobalsBuilder) {
-        when (this) {
-            StructType -> registerStruct(builder)
-            NamespaceType -> registerNamespace(builder)
-            RecordType -> registerRecord(builder)
-            EnumType -> registerEnum(builder)
-            SetType -> registerSet(builder)
-            Map -> registerMap(builder)
-            Filter -> registerFilter(builder)
-            Partial -> partialStdlib(builder)
-            Debug -> registerDebug(builder)
-            Print -> registerPrint(builder)
-            Pprint -> registerPprint(builder)
-            Pstr -> registerPstr(builder)
-            Prepr -> registerPrepr(builder)
-            Breakpoint -> breakpointGlobal(builder)
-            Json -> registerJson(builder)
-            Typing -> registerTyping(builder)
-            Internal -> registerInternal(builder)
-            CallStack -> callStackGlobal(builder)
-        }
+        staticInstance.populate({ b ->
+            when (this) {
+                StructType -> registerStruct(b)
+                NamespaceType -> registerNamespace(b)
+                RecordType -> registerRecord(b)
+                EnumType -> registerEnum(b)
+                SetType -> registerSet(b)
+                Map -> registerMap(b)
+                Filter -> registerFilter(b)
+                Partial -> partialStdlib(b)
+                Debug -> registerDebug(b)
+                Print -> registerPrint(b)
+                Pprint -> registerPprint(b)
+                Pstr -> registerPstr(b)
+                Prepr -> registerPrepr(b)
+                Breakpoint -> breakpointGlobal(b)
+                Json -> registerJson(b)
+                Typing -> registerTyping(b)
+                Internal -> registerInternal(b)
+                CallStack -> callStackGlobal(b)
+            }
+        }, builder)
     }
 }
 

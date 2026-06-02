@@ -32,4 +32,4 @@ sealed class PagableError(
     ) : PagableError("Type `$typeId` was not registered for deserialization.")
 }
 
-fun PagableError.toError(): Error = Error.newKind(ErrorKind.Other(this))
+internal fun PagableError.toError(): Error = Error.newKind(ErrorKind.Other(this))

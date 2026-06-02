@@ -1,4 +1,6 @@
 // port-lint: source src/eval/compiler/stmt.rs
+@file:Suppress("UNCHECKED_CAST")
+
 package io.github.kotlinmania.starlark.eval.compiler
 
 /*
@@ -40,7 +42,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentAssignPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.GC_THRESHOLD
@@ -560,7 +561,9 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     val lhsRef = lhs.getRef()
     val lhsTy = lhsRef.vtable().staticTypeOfValue.get()
 
-    if (ListData.isListType(lhsTy)) {
+    if (io.github.kotlinmania.starlark.values.types.list
+            .isListType(lhs)
+    ) {
         val radd = rhs.getRef().radd(lhs, heap)
         if (radd != null) {
             return radd
@@ -810,7 +813,7 @@ private fun Compiler.stmtDirect(
                             frozenSignatureSpan,
                             defP.payload,
                             defP.params,
-                            defP.returnType as io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr?,
+                            defP.returnType,
                             defP.body,
                         )
                     }.getOrElse { return Result.failure(it) },
@@ -878,7 +881,7 @@ private fun Compiler.stmtDirect(
         is StmtP.Expression -> stmtExpr(node.expr)
         is StmtP.Assign -> {
             val rhs = this.expr(node.assign.rhs).getOrElse { return Result.failure(it) }
-            val ty = this.exprForType(node.assign.ty as io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr?)
+            val ty = this.exprForType(node.assign.ty)
             val lhs = assignTarget(node.assign.lhs).getOrElse { return Result.failure(it) }
             Result.success(
                 StmtsCompiled.one(

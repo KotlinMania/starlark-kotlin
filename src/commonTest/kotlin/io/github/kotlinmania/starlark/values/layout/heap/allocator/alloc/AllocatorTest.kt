@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.allocator.alloc.chunk.C
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AllocatorTest {
     // / AValueHeader::ALIGN = 8 in Rust
@@ -34,16 +33,12 @@ class AllocatorTest {
     @Test
     fun testSmall() {
         val allocator = ChunkAllocator()
-        val p0 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(3 * ALIGN)))
-        val p1 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(4 * ALIGN)))
-        val p2 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(5 * ALIGN)))
-        // Verify allocations returned offsets.
-        assertTrue(p0 is Int)
-        assertTrue(p1 is Int)
-        assertTrue(p2 is Int)
+        val p0 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(3 * ALIGN))) as Int
+        val p1 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(4 * ALIGN))) as Int
+        val p2 = allocator.alloc(ValueAllocSize.new(AlignedSize.newBytes(5 * ALIGN))) as Int
         // Verify contiguous allocation: p1 - p0 = 3*ALIGN, p2 - p1 = 4*ALIGN
-        assertEquals(3 * ALIGN, (p1 as Int) - (p0 as Int))
-        assertEquals(4 * ALIGN, (p2 as Int) - (p1 as Int))
+        assertEquals(3 * ALIGN, p1 - p0)
+        assertEquals(4 * ALIGN, p2 - p1)
 
         val chunks = allocator.iterAllocatedChunksRev().toList()
         assertEquals(1, chunks.size)

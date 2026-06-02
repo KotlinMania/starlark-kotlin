@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * Generic set wrapper.
@@ -43,15 +44,16 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
  * Transparent wrapper around the inner set implementation.
  * Corresponds to Rust's `SetGen<T>` with `#[repr(transparent)]`.
  */
-data class SetGen<T>(
+internal data class SetGen<T : SetLike>(
     val inner: T,
 ) : ComplexValue,
     Trace,
     Freeze<StarlarkValue> {
-    @Suppress("UNCHECKED_CAST")
     override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-        val mutableSelf = this as MutableSet
-        return mutableSelf.freezeToFrozenSet(freezer).map { it as StarlarkValue }
+        val mutableInner =
+            inner as? RefCell
+                ?: return Result.failure(ValueError.CannotMutateImmutableValue)
+        return SetGen(mutableInner).freezeToFrozenSet(freezer).map { it as StarlarkValue }
     }
 
     override val TYPE: String get() = SET_TYPE
@@ -65,15 +67,13 @@ data class SetGen<T>(
         }
     }
 
-    private fun setLike(): SetLike = inner as SetLike
-
     override fun length(): Result<Int> =
-        Result.success(setLike().content().len())
+        Result.success(inner.content().len())
 
     override fun isIn(other: Value): Result<Boolean> =
         try {
             val hashed = other.getHashed().getOrThrow()
-            Result.success(setLike().content().containsHashed(hashed.asRef()))
+            Result.success(inner.content().containsHashed(hashed.asRef()))
         } catch (e: Throwable) {
             Result.failure(e)
         }
@@ -82,35 +82,35 @@ data class SetGen<T>(
         val otherSet =
             SetRef.unpackValueOpt(other)
                 ?: return Result.success(false)
-        return Result.success(equalsSmallSet(setLike().content(), otherSet.content))
+        return Result.success(equalsSmallSet(inner.content(), otherSet.content))
     }
 
     override fun getMethods(): Methods? = setMethods()
 
     override fun iterate(me: Value, heap: Heap): Result<Value> {
-        setLike().iterStart()
+        inner.iterStart()
         return Result.success(me)
     }
 
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
-        check(index <= setLike().content().len())
-        val rem = setLike().content().len() - index
+        check(index <= inner.content().len())
+        val rem = inner.content().len() - index
         return Pair(rem, rem)
     }
 
     override fun iterNext(index: Int, heap: Heap): Value? =
-        setLike()
+        inner
             .contentUnchecked()
             .iter()
             .drop(index)
             .firstOrNull()
 
     override fun iterStop() {
-        setLike().iterStop()
+        inner.iterStop()
     }
 
     override fun toBool(): Boolean =
-        !setLike().content().isEmpty()
+        !inner.content().isEmpty()
 
     override fun bitOr(other: Value, heap: Heap): Result<Value> {
         return try {
@@ -119,11 +119,11 @@ data class SetGen<T>(
                 SetRef.unpackValueOpt(other)
                     ?: return ValueError.unsupportedWith(SET_TYPE, "|", other)
 
-            if (setLike().content().isEmpty()) {
+            if (inner.content().isEmpty()) {
                 return Result.success(copySetData(rhsSet.content).allocValue(heap))
             }
 
-            val items = copySmallSet(setLike().content())
+            val items = copySmallSet(inner.content())
             for (h in rhsSet.iterHashed()) {
                 items.insertHashed(h)
             }
@@ -139,13 +139,13 @@ data class SetGen<T>(
                 SetRef.unpackValueOpt(other)
                     ?: return ValueError.unsupportedWith(SET_TYPE, "&", other)
 
-            if (setLike().content().isEmpty()) {
+            if (inner.content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
             }
 
             val items = SmallSet<Value>()
             for (h in rhsSet.iterHashed()) {
-                if (setLike().content().containsHashed(h.asRef())) {
+                if (inner.content().containsHashed(h.asRef())) {
                     items.insertHashedUniqueUnchecked(h)
                 }
             }
@@ -163,18 +163,18 @@ data class SetGen<T>(
                     ?: return ValueError.unsupportedWith(SET_TYPE, "^", other)
 
             if (rhsSet.content.isEmpty()) {
-                return Result.success(copySetData(setLike().content()).allocValue(heap))
+                return Result.success(copySetData(inner.content()).allocValue(heap))
             }
 
             val data = SetData()
-            for (elem in setLike().content().iterHashed()) {
+            for (elem in inner.content().iterHashed()) {
                 if (!rhsSet.containsHashed(elem.copied())) {
                     data.addHashedUniqueUnchecked(elem.copied())
                 }
             }
 
             for (hashed in rhsSet.iterHashed()) {
-                if (!setLike().content().containsHashed(hashed.asRef())) {
+                if (!inner.content().containsHashed(hashed.asRef())) {
                     data.addHashed(hashed)
                 }
             }
@@ -190,17 +190,17 @@ data class SetGen<T>(
                 SetRef.unpackValueOpt(other)
                     ?: return ValueError.unsupportedWith(SET_TYPE, "-", other)
 
-            if (setLike().content().isEmpty()) {
+            if (inner.content().isEmpty()) {
                 return Result.success(SetData().allocValue(heap))
             }
 
             if (rhsSet.content.isEmpty()) {
-                return Result.success(copySetData(setLike().content()).allocValue(heap))
+                return Result.success(copySetData(inner.content()).allocValue(heap))
             }
 
             val data = SetData()
 
-            for (elem in setLike().content().iterHashed()) {
+            for (elem in inner.content().iterHashed()) {
                 if (!rhsSet.containsHashed(elem.copied())) {
                     data.addHashed(elem.copied())
                 }
@@ -215,7 +215,7 @@ data class SetGen<T>(
 
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
 
-    override fun toString(): String = fmtContainer("set([", "])", setLike().content().iter())
+    override fun toString(): String = fmtContainer("set([", "])", inner.content().iter())
 }
 
 private const val SET_TYPE: String = "set"
@@ -228,7 +228,16 @@ private const val SET_TYPE: String = "set"
 class SetData internal constructor(
     /** The data stored by the set. */
     val content: SmallSet<Value>,
-) {
+) : Trace {
+    override fun trace(tracer: Tracer) {
+        for (i in content.entries.indices) {
+            val entry = content.entries[i]
+            val key = entry.key()
+            val holder = ValueHolder(key)
+            tracer.trace(holder)
+            content.entries[i] = Hashed.newUnchecked(entry.hash(), holder.value)
+        }
+    }
     constructor() : this(SmallSet())
 
     fun clear() {
@@ -267,28 +276,77 @@ class SetData internal constructor(
 class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
     val content: SmallSet<FrozenValue> = SmallSet(),
-)
+) : SetLike {
+    override fun content(): SmallSet<Value> = valueContent()
 
-/** Mutable set type alias. */
-typealias MutableSet = SetGen<RefCell<SetData>>
+    override fun iterStart() {
+    }
 
-/** Frozen set type alias. */
-typealias FrozenSet = SetGen<FrozenSetData>
+    override fun iterStop() {
+    }
+
+    override fun contentUnchecked(): SmallSet<Value> = valueContent()
+}
+
+internal fun FrozenSetData.valueContent(): SmallSet<Value> {
+    val values = SmallSet.withCapacity<Value>(content.len())
+    for (entry in content.iterHashed()) {
+        values.insertHashedUniqueUnchecked(
+            Hashed.newUnchecked(entry.hash(), entry.key().toValue()),
+        )
+    }
+    return values
+}
+
+class MutableSet internal constructor(
+    internal val delegate: SetGen<RefCell>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace,
+    Freeze<FrozenSet> {
+    internal val inner: RefCell get() = delegate.inner
+
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun freeze(freezer: Freezer): Result<FrozenSet> = delegate.freezeToFrozenSet(freezer)
+}
+
+class FrozenSet internal constructor(
+    internal val delegate: SetGen<FrozenSetData>,
+) : StarlarkValue by delegate,
+    ComplexValue,
+    Trace {
+    val inner: FrozenSetData get() = delegate.inner
+
+    override fun toString(): String = delegate.toString()
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+}
+
+internal fun setGenFromValue(value: Value): SetGen<*>? =
+    value.downcastRef<MutableSet>()?.delegate
+        ?: value.downcastRef<FrozenSet>()?.delegate
 
 /**
  * AllocValue implementation for SetData.
  */
-fun SetData.allocValue(heap: Heap): Value = heap.allocComplex(SetGen(RefCell(this)))
+internal fun SetData.allocValue(heap: Heap): Value = heap.allocComplex(MutableSet(SetGen(RefCell(this))))
 
 /**
  * StarlarkTypeRepr implementation for SetData.
  */
-fun SetData.starlarkTypeRepr(): Ty = Ty.anySet()
+internal fun SetData.starlarkTypeRepr(): Ty = Ty.anySet()
 
 /**
  * Freeze implementation for MutableSet.
  */
-fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
+internal fun SetGen<RefCell>.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
     val contentResult =
         freezeSmallSet(
             this.inner
@@ -297,13 +355,13 @@ fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
             freezer,
         ) { v, f -> v.freeze(f) }
     if (contentResult.isFailure) return Result.failure(contentResult.exceptionOrNull()!!)
-    return Result.success(SetGen(FrozenSetData(contentResult.getOrThrow())))
+    return Result.success(FrozenSet(SetGen(FrozenSetData(contentResult.getOrThrow()))))
 }
 
 /**
  * Get set methods.
  */
-fun setMethods(): Methods = RES.methods(::setMethodsImpl)
+internal fun setMethods(): Methods = RES.methods(::setMethodsImpl)
 
 private val RES = MethodsStatic()
 
@@ -329,49 +387,7 @@ interface SetLike {
     fun iterStop()
 }
 
-/**
- * SetLike implementation for RefCell<SetData>.
- */
-class RefCellSetDataSetLike(
-    private val cell: RefCell<SetData>,
-) : SetLike {
-    override fun content(): SmallSet<Value> = cell.borrow().data.content
-
-    override fun iterStart() {
-        // In Rust, mem::forget(self.borrow()) leaks a borrow to prevent mutation during iteration.
-        // In Kotlin, the RefCell tracks borrow count; we increment it without releasing.
-        cell.borrow()
-    }
-
-    override fun iterStop() {
-        cell.releaseBorrow()
-    }
-
-    override fun contentUnchecked(): SmallSet<Value> = cell.borrow().data.content
-}
-
-/**
- * SetLike implementation for FrozenSetData.
- */
-class FrozenSetDataSetLike(
-    private val data: FrozenSetData,
-) : SetLike {
-    @Suppress("UNCHECKED_CAST")
-    override fun content(): SmallSet<Value> = data.content as SmallSet<Value>
-
-    override fun iterStart() {
-        // No-op for frozen data
-    }
-
-    override fun iterStop() {
-        // No-op for frozen data
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun contentUnchecked(): SmallSet<Value> = data.content as SmallSet<Value>
-}
-
-fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
+internal fun SetGen<out SetLike>.serialize(): List<Value> = inner.content().iter().toList()
 
 // Register vtable for FrozenSet (special type not handled by #[starlark_value] macro, because V is not ValueLike).
 // Note: registerAvalueSimpleFrozen!(FrozenSet) - to be implemented in registration system

@@ -1,4 +1,6 @@
 // port-lint: tests src/eval/compiler/scope/tests.rs
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST", "CAST_NEVER_SUCCEED")
+
 package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*
@@ -202,7 +204,6 @@ private fun splitParam(param: ParameterP<CstPayload>): Triple<CstAssignIdent?, C
                 null,
             )
         is ParameterP.NoArgs<*>, is ParameterP.Slash<*> -> Triple(null, null, null)
-        else -> Triple(null, null, null)
     }
 
 /** Visit lvalues in an assign target (port of AssignTargetP::visit_lvalue). */
@@ -283,7 +284,7 @@ private fun visitExprChildren(expr: CstExpr, f: (CstExpr) -> Unit) {
             f(dc.key)
             f(dc.value)
         }
-        is ExprP.FString<*> -> (node.fstring as FStringP<CstPayload>).expressions.forEach { f(it as CstExpr) }
+        is ExprP.FString<*> -> (node.fstring as Any as FStringP<CstPayload>).expressions.forEach { f(it as CstExpr) }
     }
 }
 

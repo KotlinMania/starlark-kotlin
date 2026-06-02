@@ -25,6 +25,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Register the `tuple` builtin function.
@@ -46,6 +47,7 @@ internal fun registerTuple(globals: GlobalsBuilder) {
         asType =
             io.github.kotlinmania.starlark.typing.Ty
                 .anyTuple(),
+        specialBuiltinFunction = SpecialBuiltinFunction.Tuple,
     ) { args: Arguments, eval: Evaluator ->
         val heap = eval.heap()
         val a = args.optionalPositional<Value>(0)

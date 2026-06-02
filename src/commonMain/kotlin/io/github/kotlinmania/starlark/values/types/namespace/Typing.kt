@@ -1,4 +1,6 @@
 // port-lint: source src/values/types/namespace/typing.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
@@ -33,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import kotlin.native.HiddenFromObjC
 
 internal object NamespaceMatcher : TypeMatcher {
     override fun matches(value: Value): Boolean =
@@ -77,7 +80,8 @@ internal object TyNamespaceFunction : TyCustomFunctionImpl {
     }
 }
 
-data class TyNamespace(
+@HiddenFromObjC
+internal data class TyNamespace(
     val fields: Map<ArcStr, Ty>,
     /** `true` if there might be additional fields not captured above,
      *  `false` if this struct has no extra members. */

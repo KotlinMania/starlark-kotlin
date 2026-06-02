@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.types.int
  */
 
 import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
 import io.github.kotlinmania.starlark.values.layout.Value
 
@@ -51,9 +52,15 @@ fun unpackValueI32(value: Value): Result<Int?> {
         return Result.failure(
             IntegerTooBigError(
                 value = int.toString(),
-                integerType = "Int",
+                integerType = "i32",
             ),
         )
     }
     return Result.success(null)
+}
+
+object I32UnpackValue : UnpackValue<Int> {
+    override fun starlarkTypeRepr(): Ty = Ty.int()
+
+    override fun unpackValueImpl(value: Value): Result<Int?> = unpackValueI32(value)
 }

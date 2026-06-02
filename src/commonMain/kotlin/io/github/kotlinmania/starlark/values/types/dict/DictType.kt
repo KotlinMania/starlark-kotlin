@@ -40,13 +40,16 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
 
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value,
-): Result<DictType<K, V>?> =
-    when (val result = UnpackDictEntries.unpackValue<K, V>(value)) {
-        null -> Result.success(null)
-        else ->
-            result.map { entries ->
-                if (entries != null) DictType.instance<K, V>() else null
-            }
+): Result<DictType<K, V>?> {
+    val result = UnpackDictEntries.unpackValue<K, V>(value)
+    if (result.isFailure) return Result.failure(result.exceptionOrNull()!!)
+    val entries = result.getOrThrow()
+    return if (entries != null) {
+        Result.success(DictType.instance<K, V>())
+    } else {
+        Result.success(null)
     }
+}
 
-fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty = Ty.any()
+@PublishedApi
+internal fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty = Ty.any()

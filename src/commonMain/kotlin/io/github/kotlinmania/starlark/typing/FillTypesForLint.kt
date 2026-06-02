@@ -8,12 +8,15 @@ import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.Slot
+import io.github.kotlinmania.starlark.eval.compiler.constants.Constants
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstAssignIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.cstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
@@ -25,10 +28,13 @@ import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.ForP
 import io.github.kotlinmania.starlark.syntax.ast.LoadP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis
+import io.github.kotlinmania.starlark.values.types.list.allocList
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /*
@@ -93,7 +99,7 @@ private class GlobalTypesBuilder(
         return GlobalValue.any()
     }
 
-    fun call(_f: CstExpr, _args: CallArgsP<CstPayload>): GlobalValue = GlobalValue.any()
+    fun call(f: CstExpr, args: CallArgsP<CstPayload>): GlobalValue = GlobalValue.any()
 
     fun exprIdent(ident: CstIdent): GlobalValue {
         val resolved = ident.node.payload ?: throw internalError(ident.span, "unresolved ident")
@@ -362,7 +368,7 @@ private class GlobalTypesBuilder(
             }
         }
 
-        val result = getTyExprOpt(def.returnType as CstTypeExpr?)
+        val result = getTyExprOpt(def.returnType)
         val paramSpec = ParamSpec.newParts(posOnly, posOrName, args, nameOnly, kwargs)
         assignIdentValue(def.name as CstAssignIdent, GlobalValue.ty(Ty.function(paramSpec, result)))
     }
@@ -436,33 +442,155 @@ private class GlobalTypesBuilder(
         return unknownTy(span)
     }
 
-    // TypeExprUnpackP is not yet ported as a Kotlin type.
-    // This function currently cannot be fully implemented until TypeExprUnpackP is ported.
-    // For now we provide a stub that returns Ty.any() with an approximation.
-    fun fromTypeExprImpl(x: Spanned<*>): Ty {
-        approximations.add(Approximation.new("TypeExprUnpackP not yet ported", x))
-        return Ty.any()
-    }
+    fun fromTypeExprImpl(x: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>): Ty =
+        when (val node = x.node) {
+            is TypeExprUnpackP.Ellipsis -> {
+                approximations.add(Approximation.new("Ellipsis cannot be used as type", x))
+                Ty.any()
+            }
+            is TypeExprUnpackP.List -> {
+                approximations.add(Approximation.new("List literal [...] cannot be used as type", x))
+                Ty.any()
+            }
+            is TypeExprUnpackP.Tuple -> {
+                Ty.tuple(node.xs.map { fromTypeExprImpl(it) })
+            }
+            is TypeExprUnpackP.Union -> {
+                Ty.unions(node.xs.map { fromTypeExprImpl(it) })
+            }
+            is TypeExprUnpackP.Path -> {
+                pathTy(node.path.first, node.path.rem)
+            }
+            is TypeExprUnpackP.Index -> {
+                val a = exprIdent(node.ident).value
+                if (a != null) {
+                    if (Constants.get().fnList?.let { a.ptrEq(it.value.toValue()) } != true &&
+                        Constants.get().fnSet?.let { a.ptrEq(it.value.toValue()) } != true
+                    ) {
+                        approximations.add(Approximation.new("Not list", x))
+                        Ty.any()
+                    } else {
+                        val i = fromTypeExprImpl(node.index)
+                        val iCompiled = TypeCompiled.fromTy(i, heap)
+                        a.getRef().at(iCompiled.toInner(), heap).fold(
+                            onSuccess = { t ->
+                                try {
+                                    TypeCompiled.new(t, heap).asTy()
+                                } catch (e: Exception) {
+                                    approximations.add(Approximation.new("TypeCompiled.new failed", x))
+                                    Ty.any()
+                                }
+                            },
+                            onFailure = { e ->
+                                approximations.add(Approximation.new("Getitem failed", x))
+                                Ty.any()
+                            },
+                        )
+                    }
+                } else {
+                    approximations.add(Approximation.new("Not global", x))
+                    Ty.any()
+                }
+            }
+            is TypeExprUnpackP.Index2 -> {
+                val a = evalPath(node.path.node.first, node.path.node.rem)
+                if (a != null) {
+                    if (Constants.get().fnDict?.let { a.ptrEq(it.value.toValue()) } == true) {
+                        val i0 = fromTypeExprImpl(node.i0)
+                        val i1 = fromTypeExprImpl(node.i1)
+                        val r0 = TypeCompiled.fromTy(i0, heap).toInner()
+                        val r1 = TypeCompiled.fromTy(i1, heap).toInner()
+                        a.getRef().at2(r0, r1, heap).fold(
+                            onSuccess = { t ->
+                                try {
+                                    TypeCompiled.new(t, heap).asTy()
+                                } catch (e: Exception) {
+                                    approximations.add(Approximation.new("TypeCompiled.new failed", x))
+                                    Ty.any()
+                                }
+                            },
+                            onFailure = { e ->
+                                approximations.add(Approximation.new("Getitem2 failed", x))
+                                Ty.any()
+                            },
+                        )
+                    } else if (Constants.get().fnTuple?.let { a.ptrEq(it.value.toValue()) } == true) {
+                        val i0 = fromTypeExprImpl(node.i0)
+                        val nodeI1 = node.i1.node
+                        if (nodeI1 !is TypeExprUnpackP.Ellipsis) {
+                            approximations.add(Approximation.new("Expecting ellipsis in tuple[x, ...]", x))
+                            Ty.any()
+                        } else {
+                            val r0 = TypeCompiled.fromTy(i0, heap).toInner()
+                            a.getRef().at2(r0, Ellipsis.newValue().toValue(), heap).fold(
+                                onSuccess = { t ->
+                                    try {
+                                        TypeCompiled.new(t, heap).asTy()
+                                    } catch (e: Exception) {
+                                        approximations.add(Approximation.new("TypeCompiled.new failed", x))
+                                        Ty.any()
+                                    }
+                                },
+                                onFailure = { e ->
+                                    approximations.add(Approximation.new("Getitem2 failed", x))
+                                    Ty.any()
+                                },
+                            )
+                        }
+                    } else if (Constants.get().typingCallable?.let { a.ptrEq(it.value.toValue()) } == true) {
+                        val nodeI0 = node.i0.node
+                        if (nodeI0 !is TypeExprUnpackP.List) {
+                            approximations.add(Approximation.new("Expecting list in Callable[[...], ...]", x))
+                            Ty.any()
+                        } else {
+                            val args = nodeI0.items.map { TypeCompiled.fromTy(fromTypeExprImpl(it), heap).toInner() }
+                            val argsList = heap.allocList(args)
+                            val ret = fromTypeExprImpl(node.i1)
+                            val retCompiled = TypeCompiled.fromTy(ret, heap).toInner()
+                            a.getRef().at2(argsList, retCompiled, heap).fold(
+                                onSuccess = { t ->
+                                    try {
+                                        TypeCompiled.new(t, heap).asTy()
+                                    } catch (e: Exception) {
+                                        approximations.add(Approximation.new("TypeCompiled.new failed", x))
+                                        Ty.any()
+                                    }
+                                },
+                                onFailure = { e ->
+                                    approximations.add(Approximation.new("Getitem2 failed", x))
+                                    Ty.any()
+                                },
+                            )
+                        }
+                    } else {
+                        approximations.add(Approximation.new("Not dict or tuple", x))
+                        Ty.any()
+                    }
+                } else {
+                    approximations.add(Approximation.new("Not global", x))
+                    Ty.any()
+                }
+            }
+        }
 
     fun tyExpr(expr: CstTypeExpr): Ty {
-        // TypeExprUnpackP.unpack not yet available
-        // When TypeExprUnpackP is ported, this should be:
-        //   val x = TypeExprUnpackP.unpack(expr.node.expr, ctx.codemap)
-        //   return fromTypeExprImpl(x)
-        return Ty.any()
+        val x = TypeExprUnpackP.unpack<CstPayload, CstIdentPayload>(expr.node.expr, ctx.codemap)
+        return fromTypeExprImpl(x)
     }
 
     fun getTyExpr(expr: CstTypeExpr): Ty =
-        expr.node.payload.typecheckerTy
+        expr.cstPayload.typecheckerTy
             ?: throw internalError(expr.span, "type not set")
 
     fun getTyExprOpt(expr: CstTypeExpr?): Ty = if (expr == null) Ty.any() else getTyExpr(expr)
 
     fun fillTypes(stmt: CstStmt) {
-        // stmt.visit_type_expr_err_mut is not available yet.
-        // When it is ported, this should iterate over all type expressions
-        // in the statement and set their typecheckerTy payload.
-        // For now, this is a no-op since we can't traverse type expressions.
+        stmt.node.visitTypeExprErrMut { typeExpr ->
+            val payload = typeExpr.cstPayload
+            if (payload.typecheckerTy == null) {
+                payload.typecheckerTy = tyExpr(typeExpr)
+            }
+        }
     }
 
     fun topLevelStmt(stmt: CstStmt) {
@@ -475,7 +603,7 @@ private class GlobalTypesBuilder(
 
 // Helper to unpack def params (mirrors Rust's DefParams::unpack)
 @Suppress("UNCHECKED_CAST")
-private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<DefParam> {
+private fun unpackDefParams(params: List<io.github.kotlinmania.starlark.syntax.ast.AstParameterP<CstPayload>>, codemap: CodeMap): List<DefParam> {
     // States mirror Rust's DefParams::unpack
     // 0=Normal, 1=SeenSlash, 2=SeenStar, 3=SeenStarStar
     val argset = mutableSetOf<String>()
@@ -488,7 +616,7 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
         run {
             val slashIdx =
                 params.indexOfFirst {
-                    it.node is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*>
+                    it.node is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<CstPayload>
                 }
             when {
                 slashIdx < 0 -> 0
@@ -507,8 +635,8 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
         val span = p.span
 
         // Check for duplicate parameter names
-        val paramNode = p.node as? io.github.kotlinmania.starlark.syntax.ast.ParameterP<*>
-        val ident = paramNode?.ident()
+        val paramNode = p.node
+        val ident = paramNode.ident()
         if (ident != null) {
             val name = (ident as CstAssignIdent).node.ident
             if (!argset.add(name)) {
@@ -517,7 +645,7 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
         }
 
         when (val param = p.node) {
-            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<CstPayload> -> {
                 if (state >= 3) {
                     throw EvalException.parserError("Parameter after kwargs", span, codemap)
                 }
@@ -537,12 +665,12 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
                 result.add(
                     DefParam(
                         param.name as CstAssignIdent,
-                        DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
-                        param.typ as CstTypeExpr?,
+                        DefParamKind.Regular(mode, param.defaultVal),
+                        param.typ,
                     ),
                 )
             }
-            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
                         "Args parameter after another args or kwargs parameter",
@@ -560,13 +688,13 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
                 }
                 indexOfStar = i
             }
-            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<CstPayload> -> {
                 if (state >= 1) {
                     throw EvalException.parserError("Multiple `/` in parameters", span, codemap)
                 }
                 state = 1
             }
-            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
                         "Args parameter after another args or kwargs parameter",
@@ -575,14 +703,14 @@ private fun unpackDefParams(params: List<Spanned<*>>, codemap: CodeMap): List<De
                     )
                 }
                 state = 2
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ))
             }
-            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
+            is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<CstPayload> -> {
                 if (state >= 3) {
                     throw EvalException.parserError("Multiple kwargs dictionary in parameters", span, codemap)
                 }
                 state = 3
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ))
             }
         }
     }

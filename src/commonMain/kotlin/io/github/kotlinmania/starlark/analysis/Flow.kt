@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/flow.rs
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -23,17 +24,16 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.FileSpan
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.codemap.Span
-import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
-import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
 
 /** The filename associated with this [FileSpan]. */
 internal val FileSpan.description: String
@@ -55,6 +55,8 @@ class LintT<T>(
     val location: FileSpan,
     val problem: T,
 ) {
+    override fun toString(): String = "$location: $problem"
+
     companion object {
         fun <T> new(codemap: CodeMap, span: Span, problem: T): LintT<T> = LintT(codemap.fileSpan(span), problem)
     }
@@ -74,14 +76,14 @@ interface LintWarning {
 /** Visit immediate child statements of this [AstStmt]. */
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
     when (val s = this.node) {
-        is StmtP.Statements -> s.stmts.forEach(visitor)
-        is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
-        is StmtP.If -> visitor(s.suite)
-        is StmtP.IfElse -> {
+        is StmtP.Statements<AstNoPayload> -> s.stmts.forEach(visitor)
+        is StmtP.Def<AstNoPayload, *> -> visitor(s.def.body)
+        is StmtP.If<AstNoPayload> -> visitor(s.suite)
+        is StmtP.IfElse<AstNoPayload> -> {
             visitor(s.suite1)
             visitor(s.suite2)
         }
-        is StmtP.For -> visitor(s.forStmt.body as AstStmt)
+        is StmtP.For<AstNoPayload> -> visitor(s.forStmt.body)
         else -> {}
     }
 }
@@ -89,25 +91,25 @@ private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
 /** Visit immediate child expressions of this [AstExpr]. */
 private fun AstExpr.visitExpr(visitor: (AstExpr) -> Unit) {
     when (val e = this.node) {
-        is ExprP.Call -> {
+        is ExprP.Call<AstNoPayload> -> {
             visitor(e.expr)
             for (arg in e.args.args) {
                 visitor(arg.node.expr())
             }
         }
-        is ExprP.If -> {
+        is ExprP.If<AstNoPayload> -> {
             visitor(e.cond)
             visitor(e.v1)
             visitor(e.v2)
         }
-        is ExprP.Tuple -> e.elements.forEach { visitor(it) }
-        is ExprP.ListExpr -> e.elements.forEach { visitor(it) }
-        is ExprP.Dict ->
+        is ExprP.Tuple<AstNoPayload> -> e.elements.forEach { visitor(it) }
+        is ExprP.ListExpr<AstNoPayload> -> e.elements.forEach { visitor(it) }
+        is ExprP.Dict<AstNoPayload> ->
             e.elements.forEach { (k, v) ->
                 visitor(k)
                 visitor(v)
             }
-        is ExprP.Lambda<*, *> -> visitor(e.lambda.body as AstExpr)
+        is ExprP.Lambda<AstNoPayload, *> -> visitor(e.lambda.body)
         else -> {}
     }
 }
@@ -198,8 +200,8 @@ sealed class FlowIssue : LintWarning {
 private fun returns(x: AstStmt): List<Pair<Span, AstExpr?>> {
     fun f(x: AstStmt, res: MutableList<Pair<Span, AstExpr?>>) {
         when (val s = x.node) {
-            is StmtP.Return -> res.add(Pair(x.span, s.expr))
-            is StmtP.Def<*, *> -> {} // Do not descend
+            is StmtP.Return<AstNoPayload> -> res.add(Pair(x.span, s.expr))
+            is StmtP.Def<AstNoPayload, *> -> {} // Do not descend
             else -> x.visitStmt { f(it, res) }
         }
     }
@@ -218,8 +220,7 @@ private fun isFail(x: AstExpr): Boolean {
     if (e !is ExprP.Call) return false
     val func = e.expr.node
     if (func !is ExprP.Identifier<*, *>) return false
-    val name = (func.ident as Spanned<*>).node as? IdentP<*, *> ?: return false
-    return name.ident == "fail"
+    return func.ident.node.ident == "fail"
 }
 
 // ---------------------------------------------------------------------------
@@ -247,13 +248,13 @@ private fun hasEffect(x: AstExpr): Boolean =
 
 private fun finalReturn(x: AstStmt): Boolean {
     return when (val s = x.node) {
-        is StmtP.Return -> true
-        is StmtP.Expression -> isFail(s.expr)
-        is StmtP.Statements -> {
+        is StmtP.Return<AstNoPayload> -> true
+        is StmtP.Expression<AstNoPayload> -> isFail(s.expr)
+        is StmtP.Statements<AstNoPayload> -> {
             val last = s.stmts.lastOrNull() ?: return false
             finalReturn(last)
         }
-        is StmtP.IfElse -> {
+        is StmtP.IfElse<AstNoPayload> -> {
             finalReturn(s.suite1) && finalReturn(s.suite2)
         }
         else -> false
@@ -268,8 +269,7 @@ private fun requireReturnExpression(retType: AstTypeExpr?): Span? {
     if (retType == null) return null
     val e = retType.node.expr.node
     if (e is ExprP.Identifier<*, *>) {
-        val name = (e.ident as Spanned<*>).node as? IdentP<*, *>
-        if (name != null && name.ident == "None") return null
+        if (e.ident.node.ident == "None") return null
     }
     return retType.span
 }
@@ -278,8 +278,8 @@ private fun requireReturnExpression(retType: AstTypeExpr?): Span? {
 // helpers
 // ---------------------------------------------------------------------------
 
-/** Extract the identifier string from a [Spanned] wrapping an [AssignIdentP]. */
-private fun defName(spanned: Spanned<AssignIdentP<out AstPayload, *>>): String = spanned.node.ident
+/** Extract the identifier string from an assignment identifier. */
+private fun defName(spanned: AstAssignIdentP<AstNoPayload, *>): String = spanned.node.ident
 
 // ---------------------------------------------------------------------------
 // checkStmt
@@ -287,14 +287,14 @@ private fun defName(spanned: Spanned<AssignIdentP<out AstPayload, *>>): String =
 
 private fun checkStmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     when (val s = x.node) {
-        is StmtP.Def<*, *> -> {
+        is StmtP.Def<AstNoPayload, *> -> {
             val def = s.def
-            val body = def.body as AstStmt
+            val body = def.body
             val rets = returns(body)
 
             // Do I require my return statements to have an expression
             val requireExpression =
-                requireReturnExpression(def.returnType as AstTypeExpr?)
+                requireReturnExpression(def.returnType)
                     ?: rets.firstOrNull { it.second != null }?.first
             if (requireExpression != null) {
                 if (!finalReturn(body)) {
@@ -350,9 +350,9 @@ internal fun stmt(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue
  */
 internal fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>): Boolean {
     return when (val s = x.node) {
-        is StmtP.Break, is StmtP.Continue, is StmtP.Return -> true
-        is StmtP.Expression -> isFail(s.expr)
-        is StmtP.Statements -> {
+        is StmtP.Break, is StmtP.Continue, is StmtP.Return<AstNoPayload> -> true
+        is StmtP.Expression<AstNoPayload> -> isFail(s.expr)
+        is StmtP.Statements<AstNoPayload> -> {
             val iter = s.stmts.iterator()
             while (iter.hasNext()) {
                 val current = iter.next()
@@ -364,7 +364,7 @@ internal fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
                             LintT.new(
                                 codemap,
                                 nxt.span,
-                                FlowIssue.Unreachable(nxt.node.toString().trim()),
+                                FlowIssue.Unreachable(nxt.toSourceString().trim()),
                             ),
                         )
                     }
@@ -375,7 +375,7 @@ internal fun reachable(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
             }
             false
         }
-        is StmtP.IfElse -> {
+        is StmtP.IfElse<AstNoPayload> -> {
             val abort1 = reachable(codemap, s.suite1, res)
             val abort2 = reachable(codemap, s.suite2, res)
             abort1 && abort2
@@ -405,16 +405,16 @@ internal fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
                 if (isLoop) {
                     res.add(LintT.new(codemap, x.span, FlowIssue.RedundantContinue))
                 }
-            is StmtP.Return ->
+            is StmtP.Return<AstNoPayload> ->
                 if (s.expr == null && !isLoop) {
                     res.add(LintT.new(codemap, x.span, FlowIssue.RedundantReturn))
                 }
-            is StmtP.Statements ->
+            is StmtP.Statements<AstNoPayload> ->
                 if (s.stmts.isNotEmpty()) {
                     check(isLoop, codemap, s.stmts.last(), res)
                 }
-            is StmtP.If -> check(isLoop, codemap, s.suite, res)
-            is StmtP.IfElse -> {
+            is StmtP.If<AstNoPayload> -> check(isLoop, codemap, s.suite, res)
+            is StmtP.IfElse<AstNoPayload> -> {
                 check(isLoop, codemap, s.suite1, res)
                 check(isLoop, codemap, s.suite2, res)
             }
@@ -424,8 +424,8 @@ internal fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
 
     fun f(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
         when (val s = x.node) {
-            is StmtP.For -> check(true, codemap, s.forStmt.body, res)
-            is StmtP.Def<*, *> -> check(false, codemap, s.def.body as AstStmt, res)
+            is StmtP.For<AstNoPayload> -> check(true, codemap, s.forStmt.body, res)
+            is StmtP.Def<AstNoPayload, *> -> check(false, codemap, s.def.body, res)
             else -> {}
         }
         // We always want to look inside everything for other types of violation
@@ -443,7 +443,7 @@ internal fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<
     // accumulate all statements at the top-level
     fun topStatements(x: AstStmt, stmts: MutableList<AstStmt>) {
         when (val s = x.node) {
-            is StmtP.Statements -> {
+            is StmtP.Statements<AstNoPayload> -> {
                 for (child in s.stmts) {
                     topStatements(child, stmts)
                 }
@@ -459,12 +459,12 @@ internal fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<
     var allowLoads = true
     for (s in stmts) {
         when (val node = s.node) {
-            is StmtP.Load<*, *> -> {
+            is StmtP.Load<AstNoPayload, *> -> {
                 if (!allowLoads) {
                     res.add(LintT.new(codemap, s.span, FlowIssue.MisplacedLoad))
                 }
             }
-            is StmtP.Expression -> {
+            is StmtP.Expression<AstNoPayload> -> {
                 val expr = node.expr
                 val exprNode = expr.node
                 // Still allow loads after a literal string (probably documentation)
@@ -485,7 +485,7 @@ internal fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<
 
 internal fun noEffect(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
     when (val s = x.node) {
-        is StmtP.Expression ->
+        is StmtP.Expression<AstNoPayload> ->
             if (!hasEffect(s.expr)) {
                 res.add(LintT.new(codemap, s.expr.span, FlowIssue.NoEffect))
             }
@@ -498,7 +498,7 @@ internal fun noEffect(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowI
 // ---------------------------------------------------------------------------
 
 /** Lint an [AstModule] for flow issues. */
-fun flowLint(module: AstModule): List<LintT<FlowIssue>> {
+internal fun flowLint(module: AstModule): List<LintT<FlowIssue>> {
     val res = mutableListOf<LintT<FlowIssue>>()
     stmt(module.codemap, module.statement, res)
     reachable(module.codemap, module.statement, res)

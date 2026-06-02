@@ -29,7 +29,7 @@ class SmallMap<K, V> internal constructor(
     internal val entries: ArrayList<Entry<K, V>>,
 ) {
     internal data class Entry<K, V>(
-        val key: Hashed<K>,
+        var key: Hashed<K>,
         var value: V,
     )
 

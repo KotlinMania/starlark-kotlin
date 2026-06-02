@@ -173,12 +173,11 @@ class UnorderedMap<K, V> internal constructor(
     fun valuesUnordered(): Sequence<V> = table.values.asSequence()
 
     /**
-     * Get the entries in the map, sorted by key.
+     * Get the entries in the map, sorted by key using [comparator].
      * Corresponds to Rust `entries_sorted(&self) -> Vec<(&K, &V)>`.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun entriesSorted(): List<Pair<K, V>> =
-        entriesUnordered().sortedWith(compareBy { it.first as Comparable<Any> }).toList()
+    fun entriesSortedWith(comparator: Comparator<in K>): List<Pair<K, V>> =
+        entriesUnordered().sortedWith(compareBy(comparator) { it.first }).toList()
 
     /**
      * Convert into a [HashMap].
@@ -232,6 +231,10 @@ class UnorderedMap<K, V> internal constructor(
 
     override fun toString(): String = table.toString()
 }
+
+/** Get the entries in the map, sorted by natural key order. */
+internal fun <K : Comparable<K>, V> UnorderedMap<K, V>.entriesSorted(): List<Pair<K, V>> =
+    entriesSortedWith(naturalOrder())
 
 /**
  * Reference to an entry in a [UnorderedMap].

@@ -305,7 +305,7 @@ internal fun renderDocType(
  * Used by LSP.
  * It will not render the type signatures with link to types.
  */
-fun renderDocItemNoLink(name: String, item: DocItem): String =
+internal fun renderDocItemNoLink(name: String, item: DocItem): String =
     renderDocItem(
         name,
         item,
@@ -315,7 +315,7 @@ fun renderDocItemNoLink(name: String, item: DocItem): String =
         ),
     )
 
-fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String =
+internal fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String =
     when (item) {
         is DocItem.Module ->
             renderMembers(
@@ -345,14 +345,14 @@ fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): Stri
     }
 
 /** Used by LSP. */
-fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): String =
+internal fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): String =
     when (item) {
         is DocMember.Function -> renderFunction(name, item.function, true, renderConfig)
         is DocMember.Property -> renderProperty(name, item.property, renderConfig)
     }
 
 /** Used by LSP. */
-fun renderDocParam(starredName: String, item: DocParam): String = renderFunctionParameters(listOf(Pair(starredName, item))) ?: ""
+internal fun renderDocParam(starredName: String, item: DocParam): String = renderFunctionParameters(listOf(Pair(starredName, item))) ?: ""
 
 /**
  * Any functions with more parameters than this will have
@@ -407,7 +407,7 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
             """<pre class="language-python"><code>$contents</code></pre>"""
     }
 
-fun DocModule.renderMarkdownPageForMultipageRender(
+internal fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,
 ): String =
@@ -423,7 +423,7 @@ fun DocModule.renderMarkdownPageForMultipageRender(
         renderConfig,
     )
 
-fun DocType.renderMarkdownPageForMultipageRender(
+internal fun DocType.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,
 ): String = renderDocType(name, "$name.", this, renderConfig)

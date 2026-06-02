@@ -52,9 +52,11 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
+import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
 /**
  * A trait for values which are more complex - because they are either mutable,
@@ -107,9 +109,7 @@ interface StarlarkValue {
      * Like TYPE, but returns a reusable FrozenStringValue
      * pointer to it.
      */
-    fun getTypeValueStatic(): FrozenStringValue {
-        error("getTypeValueStatic must be implemented by StarlarkValue implementations")
-    }
+    fun getTypeValueStatic(): FrozenStringValue = constFrozenString(TYPE)
 
     /**
      * Return a string that is the representation of a type that a user would use in
@@ -397,7 +397,17 @@ interface StarlarkValue {
     fun bitAnd(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "&", other)
 
     /** Bitwise `|` operator. */
-    fun bitOr(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "|", other)
+    fun bitOr(other: Value, heap: Heap): Result<Value> {
+        val thisEval = this.evalType()
+        if (thisEval != null) {
+            return runCatching {
+                val thisCompiled = TypeCompiled.fromTy(thisEval, heap)
+                val otherCompiled = TypeCompiled.new(other, heap)
+                TypeCompiled.typeAnyOfTwo(thisCompiled, otherCompiled, heap).toInner()
+            }
+        }
+        return ValueError.unsupportedWith(TYPE, "|", other)
+    }
 
     /** Bitwise `^` operator. */
     fun bitXor(other: Value, heap: Heap): Result<Value> = ValueError.unsupportedWith(TYPE, "^", other)

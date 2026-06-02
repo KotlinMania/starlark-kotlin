@@ -1,5 +1,5 @@
-// port-lint: source src/values/types/record/instance.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+// port-lint: source src/values/types/record/instance.rs
 
 package io.github.kotlinmania.starlark.values.types.record
 
@@ -29,10 +29,13 @@ import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.freezeList
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
 import io.github.kotlinmania.starlark.values.types.record.recordtype.recordFields
@@ -79,11 +82,26 @@ private fun equalsSlice(
 /** An actual record. */
 // starlark_complex_value!(pub Record);
 class RecordGen internal constructor(
-    internal val typ: Value, // Must be RecordType
-    internal val values: List<Value>,
+    internal var typ: Value, // Must be RecordType
+    internal var values: List<Value>,
 ) : ComplexValue,
-    Freeze<RecordGen> {
+    Freeze<RecordGen>,
+    Trace {
+    override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
+
+    override fun trace(tracer: Tracer) {
+        val typHolder = ValueHolder(typ)
+        tracer.trace(typHolder)
+        typ = typHolder.value
+
+        values =
+            values.map { v ->
+                val holder = ValueHolder(v)
+                tracer.trace(holder)
+                holder.value
+            }
+    }
 
     companion object {
         /** `type(x)` for records. */
@@ -157,7 +175,7 @@ class RecordGen internal constructor(
     override fun typecheckerTy(): Ty = getRecordType().instanceTy()
 
     @HiddenFromObjC
-    internal fun serialize(): Map<String, Value> = iter().toMap()
+    fun serialize(): Map<String, Value> = iter().toMap()
 }
 
 /** Type alias for unfrozen record. */

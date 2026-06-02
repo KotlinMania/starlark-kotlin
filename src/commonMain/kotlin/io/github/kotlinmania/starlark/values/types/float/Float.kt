@@ -171,7 +171,7 @@ data class StarlarkFloat(
             // According to the spec, all NaN values compare equal to each other,
             // but greater than any non-NaN float value.
             return if (!a.isNaN() && !b.isNaN()) {
-                a.compareTo(b)
+                if (a == b) 0 else a.compareTo(b)
             } else {
                 a.isNaN().compareTo(b.isNaN())
             }
@@ -267,15 +267,15 @@ data class StarlarkFloat(
     override fun typecheckerTy(): Ty = Ty.float()
 }
 
-fun Double.starlarkTypeRepr(): Ty = Ty.float()
+internal fun Double.starlarkTypeRepr(): Ty = Ty.float()
 
-fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
+internal fun Double.allocValue(heap: Heap): Value = heap.alloc(StarlarkFloat(this))
 
-fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
+internal fun Double.allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.alloc(StarlarkFloat(this))
 
 /** Allows only a float - an int will not be accepted. */
-fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
+internal fun StarlarkFloat.Companion.unpackValueImpl(value: Value): StarlarkFloat? =
     value.downcastRef<StarlarkFloat>()
 
-fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
+internal fun StarlarkFloat.Companion.binOpTy(op: TypingBinOp, rhs: TyBasic): Ty? =
     typecheckNumBinOp(NumTy.Float, op, rhs)

@@ -26,13 +26,22 @@ import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
+import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.StarlarkIterator
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToLongOrNull
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToUIntOrNull
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
+import io.github.kotlinmania.starlark.values.types.int.unpackValueI32
+import io.github.kotlinmania.starlark.values.typing.TypeType
 import io.github.kotlinmania.starlark.Error as StarlarkError
 import io.github.kotlinmania.starlark.values.types.dict.Either as DictEither
 
@@ -64,6 +73,10 @@ sealed class FunctionError(
 
     data object KwArgsIsNotDict :
         FunctionError("The argument provided for **kwargs is not a dictionary")
+
+    data class MissingParameter(
+        val msg: String,
+    ) : FunctionError(msg)
 
     //     if min == max {min.to_string()} else {format!("between {min} and {max}")})]
     data class WrongNumberOfArgs(
@@ -308,8 +321,15 @@ class Arguments(
     internal fun names(): Result<Dict> {
         val mapResult = namesMap()
         if (mapResult.isFailure) return Result.failure(mapResult.exceptionOrNull()!!)
-        @Suppress("UNCHECKED_CAST")
-        return Result.success(Dict.new(mapResult.getOrThrow() as SmallMap<Value, Value>))
+        val names = mapResult.getOrThrow()
+        val values = SmallMap.withCapacity<Value, Value>(names.len())
+        for ((key, value) in names.iterHashed()) {
+            values.insertHashedUniqueUnchecked(
+                Hashed.newUnchecked(key.hash(), key.key().toValue()),
+                value,
+            )
+        }
+        return Result.success(Dict.new(values))
     }
 
     /**
@@ -462,10 +482,8 @@ class Arguments(
     /**
      * Get a single positional argument by 0-based index, unpacking it to type [T].
      * Supports [Value], [String], [Int], and [Boolean] directly.
-     * For other types performs an unchecked cast of the underlying [Value].
      * When T is inferred as [Value] (default), returns the raw [Value].
      */
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> positional(index: Int): T {
         val v = full.pos[index]
         return unpackValueAs<T>(v)
@@ -475,7 +493,6 @@ class Arguments(
      * Get an optional positional argument by 0-based index, unpacking it to type [T],
      * or null if the index is out of range.
      */
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> optionalPositional(index: Int): T? {
         val v = full.pos.getOrNull(index) ?: return null
         return unpackValueAs<T>(v)
@@ -485,7 +502,6 @@ class Arguments(
      * Get an optional named argument by name, unpacking it to type [T],
      * or null if the argument is not present.
      */
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> optionalNamed(name: String): T? {
         val idx = full.names.names().indexOfFirst { it.second.asStr() == name }
         if (idx < 0) return null
@@ -496,8 +512,12 @@ class Arguments(
      * Get an optional named argument by name, unpacking it to type [T],
      * or null if the argument is not present. Alias for [optionalNamed].
      */
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
+
+    internal inline fun <reified T : ComplexValue, reified F : StarlarkValue> positionalComplex(
+        index: Int,
+    ): ValueTypedComplex<T, F> =
+        ValueTypedComplex.newErr<T, F>(full.pos[index]).getOrThrow()
 
     companion object {
         fun default(): Arguments = Arguments()
@@ -613,22 +633,69 @@ private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? =
 
 // Tests are in commonTest, not here.
 
-/**
- * Unpack a [Value] to type [T]. Used by [Arguments] convenience accessors.
- * Handles [Value], [String], [Int], and [Boolean] directly.
- * For other types performs an unchecked cast of the underlying [Value].
- */
-@Suppress("UNCHECKED_CAST")
+/** Unpack a value to type [T]. */
 @PublishedApi
-internal inline fun <reified T> unpackValueAs(v: Value): T =
-    when (T::class) {
-        Value::class -> v as T
-        String::class -> v.unpackStrErr().getOrThrow() as T
-        Int::class ->
-            (
-                v.unpackI32()
+internal inline fun <reified T> unpackValueAs(v: Value): T {
+    val unpacked: Any? =
+        when (T::class) {
+            Value::class -> v
+            StringValue::class ->
+                StringValue.new(v)
+                    ?: throw IllegalArgumentException("Expected StringValue, got ${v.toStringForTypeError()}")
+            String::class -> v.unpackStrErr().getOrThrow()
+            Int::class ->
+                unpackValueI32(v).getOrThrow()
                     ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")
-            ) as T
-        Boolean::class -> v.toBool() as T
-        else -> v as T
+            UInt::class ->
+                unpackValueToUIntOrNull(v)
+                    ?: throw IllegalArgumentException("Expected UInt, got ${v.toStringForTypeError()}")
+            Long::class ->
+                unpackValueToLongOrNull(v)
+                    ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
+            Boolean::class -> v.toBool()
+            ValueTyped::class -> {
+                val valueTypeArg =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                val valueClassifier = valueTypeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (valueClassifier != null) {
+                    if (!v.matchesStarlarkType(valueClassifier)) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${valueClassifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                    }
+                }
+                ValueTyped.newUnchecked<StarlarkValue>(v)
+            }
+            FrozenValueTyped::class -> {
+                val frozen =
+                    v.unpackFrozen()
+                        ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
+                val frozenTypeArg =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                val frozenClassifier = frozenTypeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (frozenClassifier != null) {
+                    if (!frozen.matchesStarlarkType(frozenClassifier)) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${frozenClassifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                    }
+                }
+                FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)
+            }
+            TypeType::class ->
+                TypeType.unpackValue(v)
+                    ?: throw IllegalArgumentException("Expected TypeType, got: ${v.toStringForTypeError()}")
+            ValueTypedComplex::class ->
+                throw IllegalArgumentException("ValueTypedComplex arguments require positionalComplex with mutable and frozen types")
+            else -> v.downcastRef(StarlarkValue::class)!!
+        }
+
+    if (unpacked is T) {
+        return unpacked
     }
+    throw IllegalArgumentException("Expected ${T::class.simpleName}, got ${v.toStringForTypeError()}")
+}

@@ -66,7 +66,7 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     override fun allocValue(heap: Heap): Value = Value.newNone()
 
     //         serializer.serialize_none()
-    internal fun serialize(serializer: Any): Result<Unit> {
+    fun serialize(serializer: Any): Result<Unit> {
         // serializer.serialize_none()
         (serializer as kotlinx.serialization.encoding.Encoder).encodeNull()
         return Result.success(Unit)

@@ -32,20 +32,20 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 // SmallMap
 
 /** AllocValue for SmallMap<K, V>. */
-fun <K : AllocValue, T : AllocValue> SmallMap<K, T>.allocValue(heap: Heap): Value =
+internal fun <K : AllocValue, T : AllocValue> SmallMap<K, T>.allocValue(heap: Heap): Value =
     AllocDict(this.iter().asIterable()).allocValue(heap)
 
 /** AllocFrozenValue for SmallMap<K, V>. */
-fun <K : AllocFrozenValue, V : AllocFrozenValue> SmallMap<K, V>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun <K : AllocFrozenValue, V : AllocFrozenValue> SmallMap<K, V>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** AllocValue for &SmallMap<K, V>. */
-fun <K, T> SmallMap<K, T>.allocValueRef(heap: Heap): Value
+internal fun <K, T> SmallMap<K, T>.allocValueRef(heap: Heap): Value
     where K : StarlarkTypeRepr, K : AllocValue, T : StarlarkTypeRepr, T : AllocValue =
     AllocDict(this.iter().asIterable()).allocValue(heap)
 
 /** AllocFrozenValue for &SmallMap<K, V>. */
-fun <K, V> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
+internal fun <K, V> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
     where K : StarlarkTypeRepr, K : AllocFrozenValue, V : StarlarkTypeRepr, V : AllocFrozenValue =
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
@@ -82,22 +82,22 @@ object SmallMapUnpackValue {
 // BTreeMap (sorted map in Kotlin)
 
 /** AllocValue for BTreeMap<K, V>. */
-fun <K, T> Map<K, T>.allocValueBTreeMap(heap: Heap): Value
+internal fun <K, T> Map<K, T>.allocValueBTreeMap(heap: Heap): Value
     where K : Comparable<K>, K : AllocValue, T : AllocValue =
     AllocDict(this.entries.map { (k, v) -> k to v }).allocValue(heap)
 
 /** AllocFrozenValue for BTreeMap<K, V>. */
-fun <K, V> Map<K, V>.allocFrozenValueBTreeMap(heap: FrozenHeap): FrozenValue
+internal fun <K, V> Map<K, V>.allocFrozenValueBTreeMap(heap: FrozenHeap): FrozenValue
     where K : Comparable<K>, K : AllocFrozenValue, V : AllocFrozenValue =
     AllocDict(this.entries.map { (k, v) -> k to v }).allocFrozenValue(heap)
 
 /** AllocValue for &BTreeMap<K, V>. */
-fun <K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap): Value
+internal fun <K, T> Map<K, T>.allocValueBTreeMapRef(heap: Heap): Value
     where K : Comparable<K>, K : StarlarkTypeRepr, K : AllocValue, T : StarlarkTypeRepr, T : AllocValue =
     AllocDict(this.entries.map { (k, v) -> k to v }).allocValue(heap)
 
 /** AllocFrozenValue for &BTreeMap<K, V>. */
-fun <K, V> Map<K, V>.allocFrozenValueBTreeMapRef(heap: FrozenHeap): FrozenValue
+internal fun <K, V> Map<K, V>.allocFrozenValueBTreeMapRef(heap: FrozenHeap): FrozenValue
     where K : Comparable<K>, K : StarlarkTypeRepr, K : AllocFrozenValue, V : StarlarkTypeRepr, V : AllocFrozenValue =
     AllocDict(this.entries.map { (k, v) -> k to v }).allocFrozenValue(heap)
 

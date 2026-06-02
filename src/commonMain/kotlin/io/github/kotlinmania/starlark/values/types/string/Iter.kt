@@ -12,6 +12,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.int.allocValue
@@ -41,7 +42,7 @@ import kotlin.reflect.KClass
 //     string: V::String,
 //     produce_char: bool,
 internal class StringIterableGen(
-    val string: StringValue,
+    var string: StringValue,
     val produceChar: Boolean, // if not char, then int
 ) : ComplexValue,
     Trace,
@@ -74,11 +75,10 @@ internal class StringIterableGen(
         return Result.success(StringIterableGen(frozenStr.toStringValue(), produceChar))
     }
 
-    override fun trace(
-        @Suppress("unused") tracer: Tracer,
-    ) {
-        // In Rust, Trace is derived. The StringValue's inner Value
-        // would be traced. Since Kotlin's GC handles memory, this is a no-op.
+    override fun trace(tracer: Tracer) {
+        val holder = ValueHolder(string.toValue())
+        tracer.trace(holder)
+        string = StringValue.newUnchecked(holder.value)
     }
 }
 

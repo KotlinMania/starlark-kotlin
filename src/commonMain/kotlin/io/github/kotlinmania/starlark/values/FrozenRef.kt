@@ -102,9 +102,9 @@ class FrozenRef<T> internal constructor(
     ): Result<FrozenRef<T>> = Result.success(this)
 }
 
-fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
+internal fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
-fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
+internal fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
 /** `Atomic<Option<FrozenRef<T>>>`. */
 @OptIn(ExperimentalAtomicApi::class)

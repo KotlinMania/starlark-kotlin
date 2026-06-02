@@ -42,7 +42,23 @@ data class StarlarkHashValue private constructor(
                 is Long -> hasher.writeU64(key.toULong())
                 is ULong -> hasher.writeU64(key)
                 is ByteArray -> hasher.write(key)
-                is String -> hasher.write(key.encodeToByteArray())
+                is String -> {
+                    hasher.write(key.encodeToByteArray())
+                    hasher.writeU8(0xffu)
+                }
+                is io.github.kotlinmania.starlark.values.layout.typed.StringValueLike -> {
+                    hasher.write(key.asStrValue().encodeToByteArray())
+                    hasher.writeU8(0xffu)
+                }
+                is io.github.kotlinmania.starlark.values.layout.ValueLike -> {
+                    val v = key.toValue()
+                    val str = v.unpackStarlarkStr()
+                    return if (str != null) {
+                        str.getHash().getOrThrow()
+                    } else {
+                        v.getHash().getOrThrow()
+                    }
+                }
                 is StarlarkHashable -> key.writeHash(hasher)
                 else -> hasher.writeU32(key.hashCode())
             }

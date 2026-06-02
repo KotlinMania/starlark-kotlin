@@ -76,10 +76,8 @@ class StarlarkAny<T>(
 }
 
 /** Allocate any value in the frozen heap. */
-fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> {
-    @Suppress("UNCHECKED_CAST")
-    return this
+internal fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> =
+    this
         .allocSimpleTypedStatic(StarlarkAny.new(value))
         .asFrozenRef()
         .map { r -> r.inner }
-}

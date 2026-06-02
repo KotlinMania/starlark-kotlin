@@ -7,7 +7,7 @@ import io.github.kotlinmania.starlark.syntax.ast.*
 import io.github.kotlinmania.starlark.syntax.lexer.*
 import io.github.kotlinmania.starlark.syntax.state.ParserState
 
-fun <T> T.ast(begin: Int, end: Int): Spanned<T> = Spanned(this, Span(Pos(begin), Pos(end)))
+internal fun <T> T.ast(begin: Int, end: Int): Spanned<T> = Spanned(this, Span(Pos(begin), Pos(end)))
 
 /** Pop a symbol from the stack and unwrap the GrammarSymbol to its inner value. */
 private fun MutableList<Triple<Int, GrammarSymbol, Int>>.popUnwrap(): Triple<Int, Any?, Int> {

@@ -26,23 +26,30 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.types.array.Array
+import io.github.kotlinmania.starlark.values.types.list.FrozenList
 import io.github.kotlinmania.starlark.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark.values.types.list.ListData
 import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.list.MutableStarlarkList
 import io.github.kotlinmania.starlark.values.types.list.VALUE_EMPTY_FROZEN_LIST
 
 internal fun listAvalue(
     content: ValueTyped<Array>,
 ): AValueImpl<AValueList> {
     val listData = ListData.new(content.asRef().content().toMutableList())
-    return AValueImpl.new(ListGen(listData), AValueList)
+    return AValueImpl.new(MutableStarlarkList(ListGen(listData)), AValueList)
 }
 
-internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> = AValueImpl.new(ListGen(FrozenListData.new(content)), AValueFrozenList)
+internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> = AValueImpl.new(FrozenList(ListGen(FrozenListData.new(content))), AValueFrozenList)
 
 /** AValue implementation for mutable lists. */
 internal object AValueList : AValue {
@@ -56,18 +63,57 @@ internal object AValueList : AValue {
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
-        error("heapCopy should be dispatched via vtable with actual value")
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        @Suppress("UNCHECKED_CAST")
+        val list = repr.payload as MutableStarlarkList
+        val content = list.data.content()
+
+        if (content.isEmpty()) {
+            val fv = VALUE_EMPTY_FROZEN_LIST.toFrozenValue()
+            AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+            return Result.success(fv)
+        }
+
+        val (fv, r) = freezer.reserve<AValueFrozenList>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+
+        val frozenContent = mutableListOf<FrozenValue>()
+        for (elem in content) {
+            val frozenElem = freezer.freeze(elem).getOrElse { return Result.failure(it) }
+            frozenContent.add(frozenElem)
+        }
+
+        r.fill(FrozenList(ListGen(FrozenListData.new(frozenContent))))
+        return Result.success(fv)
     }
 
-    override fun unpack(): StarlarkValue = ListGen(ListData())
+    @Suppress("UNCHECKED_CAST")
+    override fun heapCopy(
+        tracer: Tracer,
+    ): Value {
+        val list = tracer.currentRepr!!.payload as MutableStarlarkList
+        return heapCopyImpl(list, tracer) { v, t ->
+            val l = v as MutableStarlarkList
+            val content = l.data.content()
+            for (i in content.indices) {
+                val holder = ValueHolder(content[i])
+                t.trace(holder)
+                l.data.setAtUnchecked(i, holder.value)
+            }
+        }
+    }
+
+    override fun unpack(): StarlarkValue = MutableStarlarkList(ListGen(ListData()))
 }
 
 /** AValue implementation for frozen lists. */
 internal object AValueFrozenList : AValue {
     override fun extraLen(value: StarlarkValue): Int {
         @Suppress("UNCHECKED_CAST")
-        val list = value as ListGen<FrozenListData>
+        val list = value as FrozenList
         return list.data.len()
     }
 
@@ -81,13 +127,13 @@ internal object AValueFrozenList : AValue {
         error("shouldn't be copying frozen values")
     }
 
-    override fun unpack(): StarlarkValue = ListGen(FrozenListData.empty())
+    override fun unpack(): StarlarkValue = FrozenList(ListGen(FrozenListData.empty()))
 }
 
 // --- FrozenHeap list allocation extensions ---
 
 /** Allocate a list with the given elements on this heap. */
-fun FrozenHeap.allocList(elems: List<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocList(elems: List<FrozenValue>): FrozenValue {
     if (elems.isEmpty()) {
         return VALUE_EMPTY_FROZEN_LIST.toFrozenValue()
     }
@@ -95,7 +141,7 @@ fun FrozenHeap.allocList(elems: List<FrozenValue>): FrozenValue {
     return allocRaw(frozenListAvalue(elems)).toFrozenValue()
 }
 
-fun FrozenHeap.allocListIter(elems: Iterable<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocListIter(elems: Iterable<FrozenValue>): FrozenValue {
     val list = elems.toList()
     return allocList(list)
 }
@@ -103,25 +149,25 @@ fun FrozenHeap.allocListIter(elems: Iterable<FrozenValue>): FrozenValue {
 // --- Heap list allocation extensions ---
 
 /** Allocate a list with the given elements (from a slice/array). */
-fun Heap.allocListFromSlice(elems: kotlin.Array<Value>): Value {
+internal fun Heap.allocListFromSlice(elems: kotlin.Array<Value>): Value {
     val array = allocArray(elems.size)
     array.asRef().extendFromSlice(elems.toList())
     return allocRaw(listAvalue(array)).toValue()
 }
 
 /** Allocate a list with the given elements. */
-fun Heap.allocListIter(elems: Iterable<Value>): Value {
+internal fun Heap.allocListIter(elems: Iterable<Value>): Value {
     val result = tryAllocListIter(elems.map { Result.success(it) })
     return result.getOrThrow()
 }
 
 /** Allocate a list with the given elements. */
-fun Heap.tryAllocListIter(
+internal fun Heap.tryAllocListIter(
     elems: Iterable<Result<Value>>,
 ): Result<Value> {
     val array = allocArray(0)
     val listData = ListData.new(array.asRef().content().toMutableList())
-    val listGen = ListGen(listData)
+    val listGen = MutableStarlarkList(ListGen(listData))
     for (elem in elems) {
         val v = elem.getOrElse { return Result.failure(it) }
         listData.push(v, this)
@@ -130,7 +176,7 @@ fun Heap.tryAllocListIter(
 }
 
 /** Allocate a list by concatenating two slices. */
-fun Heap.allocListConcatSlices(a: kotlin.Array<Value>, b: kotlin.Array<Value>): Value {
+internal fun Heap.allocListConcatSlices(a: kotlin.Array<Value>, b: kotlin.Array<Value>): Value {
     val array = allocArray(a.size + b.size)
     array.asRef().extendFromSlice(a.toList())
     array.asRef().extendFromSlice(b.toList())

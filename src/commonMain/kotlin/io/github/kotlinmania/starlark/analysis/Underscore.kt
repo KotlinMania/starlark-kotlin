@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/underscore.rs
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -20,11 +21,11 @@ package io.github.kotlinmania.starlark.analysis
  */
 
 import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
-import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
@@ -67,71 +68,6 @@ internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
     return res
 }
 
-// Visit immediate child statements of this AstStmt (local helper).
-private fun AstStmt.visitStmtU(visitor: (AstStmt) -> Unit) {
-    when (val s = this.node) {
-        is StmtP.Statements -> s.stmts.forEach { visitor(it) }
-        is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
-        is StmtP.If -> visitor(s.suite)
-        is StmtP.IfElse -> {
-            visitor(s.suite1)
-            visitor(s.suite2)
-        }
-        is StmtP.For -> visitor(s.forStmt.body)
-        else -> {}
-    }
-}
-
-// Visit immediate child expressions of this AstExpr (local helper).
-private fun AstExpr.visitExprU(visitor: (AstExpr) -> Unit) {
-    when (val e = this.node) {
-        is ExprP.Call -> {
-            visitor(e.expr)
-            for (arg in e.args.args) {
-                visitor(arg.node.expr())
-            }
-        }
-        is ExprP.If -> {
-            visitor(e.cond)
-            visitor(e.v1)
-            visitor(e.v2)
-        }
-        is ExprP.Tuple -> e.elements.forEach { visitor(it) }
-        is ExprP.ListExpr -> e.elements.forEach { visitor(it) }
-        is ExprP.Dict ->
-            e.elements.forEach { (k, v) ->
-                visitor(k)
-                visitor(v)
-            }
-        is ExprP.Lambda<*, *> -> visitor(e.lambda.body as AstExpr)
-        else -> {}
-    }
-}
-
-// Visit immediate child expressions of this AstStmt (local helper).
-private fun AstStmt.visitStmtExprU(visitor: (AstExpr) -> Unit) {
-    when (val s = this.node) {
-        is StmtP.Expression -> visitor(s.expr)
-        is StmtP.Return -> s.expr?.let(visitor)
-        is StmtP.Statements -> s.stmts.forEach { it.visitStmtExprU(visitor) }
-        is StmtP.Def<*, *> -> (s.def.body as AstStmt).visitStmtExprU(visitor)
-        is StmtP.If -> {
-            visitor(s.cond)
-            s.suite.visitStmtExprU(visitor)
-        }
-        is StmtP.IfElse -> {
-            visitor(s.cond)
-            s.suite1.visitStmtExprU(visitor)
-            s.suite2.visitStmtExprU(visitor)
-        }
-        is StmtP.For -> {
-            visitor(s.forStmt.over)
-            s.forStmt.body.visitStmtExprU(visitor)
-        }
-        else -> {}
-    }
-}
-
 /** There's no reason to make a def or lambda and give it an underscore name not at the top level. */
 private fun inappropriateUnderscore(
     codemap: CodeMap,
@@ -142,35 +78,35 @@ private fun inappropriateUnderscore(
     // Is this value allowed as an assignment to a boring identifier - just tuple of vars and var.
     fun isAllowed(x: AstExpr): Boolean =
         when (val e = x.node) {
-            is ExprP.Tuple<*> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
-            is ExprP.Identifier<*, *> -> true
+            is ExprP.Tuple<AstNoPayload> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
+            is ExprP.Identifier<AstNoPayload, *> -> true
             else -> false
         }
 
     when (val s = x.node) {
-        is StmtP.Def<*, *> -> {
+        is StmtP.Def<AstNoPayload, *> -> {
             val name = s.def.name
-            val nameIdent = (name as Spanned<*>).node as AssignIdentP<*, *>
+            val nameIdent = name.node
             if (!top && nameIdent.ident.startsWith('_')) {
                 res.add(
                     LintT.new(
                         codemap,
-                        (name as Spanned<*>).span,
+                        name.span,
                         UnderscoreWarning.UnderscoreDefinition(nameIdent.ident),
                     ),
                 )
             }
-            inappropriateUnderscore(codemap, s.def.body as AstStmt, false, res)
+            inappropriateUnderscore(codemap, s.def.body, false, res)
         }
         // Stmt::Assign(assign) if !top =>
-        is StmtP.Assign<*> ->
+        is StmtP.Assign<AstNoPayload> ->
             if (!top) {
                 val assign = s.assign
-                val lhsNode = (assign.lhs as Spanned<*>).node
+                val lhsNode = assign.lhs.node
                 if (lhsNode is AssignTargetP.Identifier<*, *>) {
-                    val identSpanned = lhsNode.ident as Spanned<*>
-                    val assignIdent = identSpanned.node as AssignIdentP<*, *>
-                    if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs as AstExpr)) {
+                    val identSpanned = lhsNode.ident
+                    val assignIdent = identSpanned.node
+                    if (assignIdent.ident.startsWith('_') && !isAllowed(assign.rhs)) {
                         res.add(
                             LintT.new(
                                 codemap,
@@ -182,7 +118,7 @@ private fun inappropriateUnderscore(
                 }
             }
         else ->
-            x.visitStmtU { child ->
+            x.visitStmtChildren { child ->
                 inappropriateUnderscore(codemap, child, top, res)
             }
     }
@@ -197,47 +133,37 @@ private fun useIgnored(
     // We are ok with using things that were defined at the top level, but not nested.
     fun rootDefinitions(x: AstStmt, defs: MutableSet<String>) {
         when (val s = x.node) {
-            is StmtP.Assign<*> -> {
-                val lhsNode = (s.assign.lhs as Spanned<*>).node
-
-                fun visitLvalue(target: Any?) {
-                    when (target) {
-                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
-                        is AssignTargetP.Identifier<*, *> -> {
-                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
-                            defs.add(assignIdent.ident)
-                        }
-                        else -> {}
+            is StmtP.Assign<AstNoPayload> -> {
+                fun visitLvalue(target: AstAssignTarget) {
+                    when (val targetNode = target.node) {
+                        is AssignTargetP.Tuple<AstNoPayload> -> targetNode.elements.forEach { visitLvalue(it) }
+                        is AssignTargetP.Identifier<AstNoPayload, *> -> defs.add(targetNode.ident.node.ident)
+                        is AssignTargetP.Dot<AstNoPayload>,
+                        is AssignTargetP.Index<AstNoPayload>,
+                        -> {}
                     }
                 }
-                visitLvalue(lhsNode)
+                visitLvalue(s.assign.lhs)
             }
-            is StmtP.AssignModify<*> -> {
-                val lhsNode = (s.lhs as Spanned<*>).node
-
-                fun visitLvalue(target: Any?) {
-                    when (target) {
-                        is AssignTargetP.Tuple<*> -> target.elements.forEach { visitLvalue((it as Spanned<*>).node) }
-                        is AssignTargetP.Identifier<*, *> -> {
-                            val assignIdent = (target.ident as Spanned<*>).node as AssignIdentP<*, *>
-                            defs.add(assignIdent.ident)
-                        }
-                        else -> {}
+            is StmtP.AssignModify<AstNoPayload> -> {
+                fun visitLvalue(target: AstAssignTarget) {
+                    when (val targetNode = target.node) {
+                        is AssignTargetP.Tuple<AstNoPayload> -> targetNode.elements.forEach { visitLvalue(it) }
+                        is AssignTargetP.Identifier<AstNoPayload, *> -> defs.add(targetNode.ident.node.ident)
+                        is AssignTargetP.Dot<AstNoPayload>,
+                        is AssignTargetP.Index<AstNoPayload>,
+                        -> {}
                     }
                 }
-                visitLvalue(lhsNode)
+                visitLvalue(s.lhs)
             }
-            is StmtP.Def<*, *> -> {
-                val nameIdent = (s.def.name as Spanned<*>).node as AssignIdentP<*, *>
-                defs.add(nameIdent.ident)
-            }
-            is StmtP.Load<*, *> -> {
+            is StmtP.Def<AstNoPayload, *> -> defs.add(s.def.name.node.ident)
+            is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
-                    val localIdent = (arg.local as Spanned<*>).node as AssignIdentP<*, *>
-                    defs.add(localIdent.ident)
+                    defs.add(arg.local.node.ident)
                 }
             }
-            else -> x.visitStmtU { child -> rootDefinitions(child, defs) }
+            else -> x.visitStmtChildren { child -> rootDefinitions(child, defs) }
         }
     }
 
@@ -250,11 +176,9 @@ private fun useIgnored(
         res: MutableList<LintT<UnderscoreWarning>>,
     ) {
         when (val e = x.node) {
-            is ExprP.Identifier<*, *> -> {
-                val identSpanned = e.ident as Spanned<*>
-
-                @Suppress("UNCHECKED_CAST")
-                val ident = (identSpanned.node as io.github.kotlinmania.starlark.syntax.ast.IdentP<*, *>).ident
+            is ExprP.Identifier<AstNoPayload, *> -> {
+                val identSpanned = e.ident
+                val ident = identSpanned.node.ident
                 if (isIgnored(ident) && ident !in roots) {
                     res.add(
                         LintT.new(
@@ -265,13 +189,13 @@ private fun useIgnored(
                     )
                 }
             }
-            else -> x.visitExprU { child -> checkExpr(codemap, child, roots, res) }
+            else -> x.node.visitChildExprs { child -> checkExpr(codemap, child, roots, res) }
         }
     }
 
     val roots = mutableSetOf<String>()
     rootDefinitions(x, roots)
-    x.visitStmtExprU { child -> checkExpr(codemap, child, roots, res) }
+    x.visitExprs { child -> checkExpr(codemap, child, roots, res) }
 }
 
 // Tests are in commonTest, not here.

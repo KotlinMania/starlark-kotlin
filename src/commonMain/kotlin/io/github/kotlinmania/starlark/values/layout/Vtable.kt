@@ -40,20 +40,20 @@ import kotlin.reflect.KClass
 /**
  * Untyped raw pointer to StarlarkValue without vtable.
  *
- * In Kotlin, this wraps an Any reference instead of a raw pointer.
+ * In Kotlin, this wraps a strongly typed value reference instead of a raw pointer.
  */
 class StarlarkValueRawPtr(
     /** The underlying value reference. */
-    val ptr: Any,
+    private val ptr: StarlarkValue,
 ) {
     companion object {
-        fun newHeader(header: Any): StarlarkValueRawPtr = StarlarkValueRawPtr(header)
+        fun newHeader(header: StarlarkValue): StarlarkValueRawPtr = StarlarkValueRawPtr(header)
 
         internal fun newPointerI32(ptr: PointerI32): StarlarkValueRawPtr = StarlarkValueRawPtr(ptr)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> valueRef(): T = ptr as T
+    @PublishedApi
+    internal fun starlarkValue(): StarlarkValue = ptr
 }
 
 /**
@@ -71,7 +71,7 @@ class AValueVTable(
     // AValue
     val isStr: Boolean,
     internal val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
-    internal val heapFreezeFn: (AValueRepr<StarlarkValue>, StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
+    internal val heapFreezeFn: (AValueRepr<*>, StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
     internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
     // StarlarkValue dispatch
     internal val starlarkValue: StarlarkValue,
@@ -84,8 +84,8 @@ class AValueVTable(
     val hasIterate: Boolean = false,
     val hasEquals: Boolean = false,
     // Display/Debug
-    private val displayFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },
-    private val debugFn: (StarlarkValueRawPtr) -> String = { it.ptr.toString() },
+    private val displayFn: (StarlarkValueRawPtr) -> String = { it.starlarkValue().toString() },
+    private val debugFn: (StarlarkValueRawPtr) -> String = { it.starlarkValue().toString() },
 ) {
     companion object {
         internal fun newBlackHole(blackHole: BlackHole = BlackHole(ValueAllocSize(AlignedSize(0u)))): AValueVTable =
@@ -164,18 +164,18 @@ class AValueVTable(
  */
 internal class AValueDyn(
     internal val value: StarlarkValueRawPtr,
-    private val _vtable: AValueVTable,
+    private val backingVtable: AValueVTable,
 ) {
-    fun vtable(): AValueVTable = _vtable
+    fun vtable(): AValueVTable = backingVtable
 
-    fun memorySize(): ValueAllocSize = _vtable.memorySizeFn(value)
+    fun memorySize(): ValueAllocSize = backingVtable.memorySizeFn(value)
 
     fun heapFreeze(
-        repr: AValueRepr<StarlarkValue>,
+        repr: AValueRepr<*>,
         freezer: Freezer,
-    ): Result<FrozenValue> = _vtable.heapFreezeFn(repr, value, freezer)
+    ): Result<FrozenValue> = backingVtable.heapFreezeFn(repr, value, freezer)
 
-    fun heapCopy(tracer: Tracer): Value = _vtable.heapCopyFn(value, tracer)
+    fun heapCopy(tracer: Tracer): Value = backingVtable.heapCopyFn(value, tracer)
 
     fun documentation(): DocItem = starlarkValue().documentation()
 
@@ -284,7 +284,7 @@ internal class AValueDyn(
         starlarkValue().provide(demand)
     }
 
-    private fun starlarkValue(): StarlarkValue = value.valueRef()
+    internal fun starlarkValue(): StarlarkValue = value.starlarkValue()
 
     override fun toString(): String = "AValueDyn(..)"
 }
@@ -298,8 +298,12 @@ internal class AValueDynFull(
         args: Arguments,
         eval: Evaluator,
     ): Result<Value> {
-        val sv: StarlarkValue = avalue.value.valueRef()
-        return sv.invoke(value, args, eval)
+        val sv: StarlarkValue = avalue.value.starlarkValue()
+        return try {
+            sv.invoke(value, args, eval)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
 

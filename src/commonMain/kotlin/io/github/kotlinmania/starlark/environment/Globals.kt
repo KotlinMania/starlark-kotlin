@@ -19,6 +19,8 @@ package io.github.kotlinmania.starlark.environment
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.ErrorKind
 import io.github.kotlinmania.starlark.LibraryExtension
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
@@ -33,26 +35,43 @@ import io.github.kotlinmania.starlark.docs.DocType
 import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.standardEnvironment
+import io.github.kotlinmania.starlark.stdlib.funcs.other.StarlarkFailError
+import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
+import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexAny
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeapRef
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.types.NativeFunc
 import io.github.kotlinmania.starlark.values.types.NativeFuncFn
 import io.github.kotlinmania.starlark.values.types.NativeFunction
 import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
-import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.types.bool.allocValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
+import io.github.kotlinmania.starlark.values.types.string.allocValue
 import kotlin.concurrent.Volatile
 
-/** Type alias matching Rust: `type GlobalValue = MaybeDocHiddenValue<'static, FrozenValue>` */
+/** Stored global value, optionally hidden from generated documentation. */
 internal typealias GlobalValue = MaybeDocHiddenValue<FrozenValue>
 
 /**
@@ -74,7 +93,7 @@ class Globals internal constructor(
          * Create a [Globals] following the
          * [Starlark standard](https://github.com/bazelbuild/starlark/blob/master/spec.md#built-in-constants-and-functions).
          */
-        fun standard(): Globals = GlobalsBuilder.standard().build()
+        fun standard(): Globals = STANDARD
 
         /**
          * Create a [Globals] combining those functions in the Starlark standard plus
@@ -83,10 +102,14 @@ class Globals internal constructor(
          * This function is public to use in the `starlark` binary,
          * but users of starlark should list the extensions they want explicitly.
          */
-        fun extendedInternal(): Globals = GlobalsBuilder.extended().build()
+        fun extendedInternal(): Globals = EXTENDED_INTERNAL
 
         /** Empty globals. */
         private val EMPTY: Globals by lazy { GlobalsBuilder.new().build() }
+
+        private val STANDARD: Globals by lazy { GlobalsBuilder.standard().build() }
+
+        private val EXTENDED_INTERNAL: Globals by lazy { GlobalsBuilder.extended().build() }
 
         /** Empty globals. */
         internal fun empty(): Globals = EMPTY
@@ -113,8 +136,7 @@ class Globals internal constructor(
     internal fun getOwned(name: String): OwnedFrozenValue? {
         val v = getFrozen(name) ?: return null
         // Safety: We know the heap this is allocated in.
-        // In Kotlin, FrozenHeapRef is already a reference type (no dupe needed).
-        return OwnedFrozenValue(heap(), v)
+        return OwnedFrozenValue(heap().clone(), v)
     }
 
     /** Get all the names defined in this environment. */
@@ -242,7 +264,7 @@ class GlobalsBuilder private constructor(
         }
         setInner(
             name,
-            heap.allocSimple(FrozenNamespace.new(stringKeyFields)),
+            heap.allocSimple(NamespaceGen.frozen(stringKeyFields)),
             docHidden,
         )
     }
@@ -299,6 +321,18 @@ class GlobalsBuilder private constructor(
                 is Long -> value.allocFrozenValue(heap)
                 is Boolean -> FrozenValue.newBool(value)
                 is String -> heap.allocStr(value).toFrozenValue()
+                is FrozenValue -> value
+                is Value -> {
+                    val frozen = value.unpackFrozen()
+                    if (frozen != null) {
+                        frozen
+                    } else {
+                        val freezer =
+                            io.github.kotlinmania.starlark.values.layout.Freezer
+                                .new(heap)
+                        freezer.freeze(value).getOrThrow()
+                    }
+                }
                 else -> error("setConst: unsupported value type ${value::class.simpleName}")
             }
         setInner(name, frozenValue, false)
@@ -324,7 +358,7 @@ class GlobalsBuilder private constructor(
 
     /**
      * Set a method. This function is usually called from code
-     * generated by `starlark_derive` and rarely needs to be called manually.
+     * generated by native binding helpers and rarely needs to be called manually.
      */
     fun setFunction(
         name: String,
@@ -358,12 +392,14 @@ class GlobalsBuilder private constructor(
      * Convenience overload: register a simple function by name with a lambda.
      * The lambda receives (Arguments, Evaluator) and the result is auto-wrapped.
      * The optional [asType] parameter associates the function with a type
-     * for type annotation purposes (corresponds to Rust's `#[starlark(as_type = T)]`).
+     * for type annotation purposes.
      */
     fun setFunction(
         name: String,
         speculativeExecSafe: Boolean = false,
         asType: Ty? = null,
+        ty: Ty? = null,
+        specialBuiltinFunction: SpecialBuiltinFunction? = null,
         f: (
             io.github.kotlinmania.starlark.eval.runtime.Arguments,
             io.github.kotlinmania.starlark.eval.runtime.Evaluator,
@@ -375,21 +411,10 @@ class GlobalsBuilder private constructor(
                 .finish()
         val nativeFn: NativeFuncFn = { eval, _, args ->
             try {
-                @Suppress("UNCHECKED_CAST")
                 val result = f(args, eval)
-                when (result) {
-                    is io.github.kotlinmania.starlark.values.layout.Value ->
-                        kotlin.Result.success(result)
-                    is kotlin.Result<*> ->
-                        result as kotlin.Result<io.github.kotlinmania.starlark.values.layout.Value>
-                    else ->
-                        kotlin.Result.success(
-                            io.github.kotlinmania.starlark.values.layout.Value
-                                .newNone(),
-                        )
-                }
+                autoWrapFunctionResult(result, eval.heap())
             } catch (e: Exception) {
-                kotlin.Result.failure(e)
+                kotlin.Result.failure(nativeFunctionError(e))
             }
         }
         set(
@@ -399,12 +424,100 @@ class GlobalsBuilder private constructor(
                 name = name,
                 speculativeExecSafe = speculativeExecSafe,
                 asType = asType,
-                ty = asType ?: Ty.any(),
+                ty =
+                    ty
+                        ?: if (asType != null) {
+                            Ty.ctorFunction(asType, ParamSpec.any(), asType)
+                        } else {
+                            Ty.function(ParamSpec.any(), Ty.any())
+                        },
                 docs = DocItem.Member(DocMember.Function(DocFunction())),
-                specialBuiltinFunction = null,
+                specialBuiltinFunction = specialBuiltinFunction,
             ),
         )
     }
+
+    private fun autoWrapFunctionResult(result: Any?, heap: Heap): Result<Value> {
+        if (result is Result<*>) {
+            val failure = result.exceptionOrNull()
+            if (failure != null) {
+                return Result.failure(failure)
+            }
+            return autoWrapFunctionResult(result.getOrNull(), heap)
+        }
+        if (result is Dict) {
+            return Result.success(result.allocValue(heap))
+        }
+        if (result is Map<*, *>) {
+            val sm = SmallMap.withCapacity<Value, Value>(result.size)
+            for ((k, v) in result) {
+                val wrappedKey = autoWrapFunctionResult(k, heap).getOrElse { return Result.failure(it) }
+                val hashedKey = wrappedKey.getHashed().getOrElse { return Result.failure(it) }
+                val wrappedValue = autoWrapFunctionResult(v, heap).getOrElse { return Result.failure(it) }
+                sm.insertHashed(hashedKey, wrappedValue)
+            }
+            return Result.success(Dict.new(sm).allocValue(heap))
+        }
+        if (result is Iterable<*>) {
+            val wrapped = mutableListOf<Value>()
+            for (item in result) {
+                val wrappedItem = autoWrapFunctionResult(item, heap).getOrElse { return Result.failure(it) }
+                wrapped.add(wrappedItem)
+            }
+            return Result.success(heap.allocListIter(wrapped))
+        }
+        if (result is Sequence<*>) {
+            val wrapped = mutableListOf<Value>()
+            for (item in result) {
+                val wrappedItem = autoWrapFunctionResult(item, heap).getOrElse { return Result.failure(it) }
+                wrapped.add(wrappedItem)
+            }
+            return Result.success(heap.allocListIter(wrapped))
+        }
+        return Result.success(
+            when (result) {
+                null -> Value.newNone()
+                is Value -> result
+                is FrozenValue -> result.toValue()
+                is StringValue -> result.toValue()
+                is FrozenStringValue -> result.toValue()
+                is AllocValue -> result.allocValue(heap)
+                is ComplexValue -> {
+                    if (result !is Trace) {
+                        return Result.failure(
+                            IllegalArgumentException(
+                                "Cannot convert non-traceable ComplexValue result of type ${result::class.simpleName} to Starlark value",
+                            ),
+                        )
+                    }
+                    if (result is Freeze<*>) {
+                        heap.allocComplexAny(result)
+                    } else {
+                        heap.allocComplexNoFreeze(result)
+                    }
+                }
+                is StarlarkValue -> heap.allocSimple(result)
+                is String -> result.allocValue(heap)
+                is Int -> result.allocValue(heap)
+                is Long -> result.allocValue(heap)
+                is Boolean -> result.allocValue(heap)
+                Unit -> Value.newNone()
+                else ->
+                    return Result.failure(
+                        IllegalArgumentException(
+                            "Cannot convert native function result of type ${result::class.simpleName} to Starlark value",
+                        ),
+                    )
+            },
+        )
+    }
+
+    private fun nativeFunctionError(e: Exception): Throwable =
+        when (e) {
+            is Error -> e
+            is StarlarkFailError -> Error.newKind(ErrorKind.Fail(e))
+            else -> e
+        }
 
     /** Heap where globals are allocated. Can be used to allocate additional values. */
     fun frozenHeap(): FrozenHeap = heap

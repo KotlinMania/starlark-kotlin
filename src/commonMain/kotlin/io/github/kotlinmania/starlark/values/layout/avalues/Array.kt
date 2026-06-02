@@ -58,8 +58,10 @@ internal object AValueArray : AValue {
         error("arrays should not be frozen")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
-        val array = unpack() as Array
+    override fun heapCopy(
+        tracer: Tracer,
+    ): Value {
+        val array = tracer.currentRepr!!.payload as Array
         check(array.capacity() != 0) { "empty array is allocated statically" }
 
         if (array.len() == 0) {
@@ -69,6 +71,7 @@ internal object AValueArray : AValue {
         val content = array.contentMut()
 
         val (v, r, _) = tracer.reserveWithExtra<AValueArray>(content.size)
+        tracer.overwriteWithForward(v)
 
         // Trace all values in the content.
         (content as Trace).trace(tracer)
@@ -98,7 +101,9 @@ internal class AValueAnyArray<T> : AValue {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
+    override fun heapCopy(
+        tracer: Tracer,
+    ): Value {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
@@ -114,7 +119,7 @@ private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> 
 }
 
 /** Allocate a slice in the frozen heap. */
-fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
+internal fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
     if (values.isEmpty()) {
         return FrozenRef(emptyList())
     } else if (values.size == 1) {

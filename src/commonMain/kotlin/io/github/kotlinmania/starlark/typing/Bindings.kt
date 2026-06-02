@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.cstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark.syntax.ast.AssignP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
@@ -123,7 +124,7 @@ private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codem
         }
 
         when (val param = p.node) {
-            is ParameterP.Normal<*> -> {
+            is ParameterP.Normal<CstPayload> -> {
                 if (state >= 3) {
                     throw EvalException.parserError("Parameter after kwargs", span, codemap)
                 }
@@ -143,12 +144,12 @@ private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codem
                 result.add(
                     DefParam(
                         param.name as CstAssignIdent,
-                        DefParamKind.Regular(mode, param.defaultVal as CstExpr?),
-                        param.typ as CstTypeExpr?,
+                        DefParamKind.Regular(mode, param.defaultVal),
+                        param.typ,
                     ),
                 )
             }
-            is ParameterP.NoArgs<*> -> {
+            is ParameterP.NoArgs<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
                         "Args parameter after another args or kwargs parameter",
@@ -166,13 +167,13 @@ private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codem
                 }
                 indexOfStar = i
             }
-            is ParameterP.Slash<*> -> {
+            is ParameterP.Slash<CstPayload> -> {
                 if (state >= 1) {
                     throw EvalException.parserError("Multiple `/` in parameters", span, codemap)
                 }
                 state = 1
             }
-            is ParameterP.Args<*> -> {
+            is ParameterP.Args<CstPayload> -> {
                 if (state >= 2) {
                     throw EvalException.parserError(
                         "Args parameter after another args or kwargs parameter",
@@ -181,14 +182,14 @@ private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codem
                     )
                 }
                 state = 2
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Args, param.typ))
             }
-            is ParameterP.KwArgs<*> -> {
+            is ParameterP.KwArgs<CstPayload> -> {
                 if (state >= 3) {
                     throw EvalException.parserError("Multiple kwargs dictionary in parameters", span, codemap)
                 }
                 state = 3
-                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ as CstTypeExpr?))
+                result.add(DefParam(param.name as CstAssignIdent, DefParamKind.Kwargs, param.typ))
             }
         }
     }
@@ -336,8 +337,8 @@ internal class BindingsCollect(
     private fun resolvedTy(expr: CstTypeExpr, typecheckMode: TypecheckMode, codemap: CodeMap): Ty {
         val ty =
             when (typecheckMode) {
-                TypecheckMode.Lint -> expr.node.payload.typecheckerTy
-                TypecheckMode.Compiler -> expr.node.payload.compilerTy
+                TypecheckMode.Lint -> expr.cstPayload.typecheckerTy
+                TypecheckMode.Compiler -> expr.cstPayload.compilerTy
             }
         return ty ?: throw InternalError.msg("Type must be populated earlier", expr.span, codemap)
     }
@@ -389,7 +390,7 @@ internal class BindingsCollect(
             bindings.types[resolvedBindingId(nameTy.first, codemap)] = nameTy.second
         }
         val params2 = ParamSpec.newParts(posOnly, posOrNamed, args, namedOnly, kwargs)
-        val retTy = resolveTyOpt(returnType as CstTypeExpr?, typecheckMode, codemap)
+        val retTy = resolveTyOpt(returnType, typecheckMode, codemap)
         bindings.types[resolvedBindingId(name as CstAssignIdent, codemap)] = Ty.function(params2, retTy)
         visitDefChildren(def) { x -> visit(x, retTy, typecheckMode, codemap) }
     }
@@ -402,7 +403,7 @@ internal class BindingsCollect(
                     is StmtP.Assign<*> -> {
                         val assignP = node.assign as AssignP<CstPayload>
                         if (assignP.ty != null) {
-                            val ty2 = resolvedTy(assignP.ty as CstTypeExpr, typecheckMode, codemap)
+                            val ty2 = resolvedTy(assignP.ty, typecheckMode, codemap)
                             bindings.checkType.add(Triple(assignP.ty.span, assignP.rhs, ty2))
                             if (assignP.lhs.node is AssignTargetP.Identifier<*, *>) {
                                 val id = (assignP.lhs.node as AssignTargetP.Identifier<CstPayload, *>).ident as CstAssignIdent
@@ -570,16 +571,15 @@ private fun visitDefChildren(def: DefP<CstPayload, *>, f: (Visit) -> Unit) {
     f(Visit.Stmt(def.body))
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun visitParamExprs(param: Spanned<ParameterP<CstPayload>>, f: (CstExpr) -> Unit) {
     when (val p = param.node) {
-        is ParameterP.Normal<*> -> {
-            (p.typ as CstTypeExpr?)?.let { f(it.node.expr) }
-            (p.defaultVal as CstExpr?)?.let { f(it) }
+        is ParameterP.Normal<CstPayload> -> {
+            p.typ?.let { f(it.node.expr) }
+            p.defaultVal?.let { f(it) }
         }
-        is ParameterP.Args<*> -> (p.typ as CstTypeExpr?)?.let { f(it.node.expr) }
-        is ParameterP.KwArgs<*> -> (p.typ as CstTypeExpr?)?.let { f(it.node.expr) }
-        is ParameterP.NoArgs<*>, is ParameterP.Slash<*> -> {}
+        is ParameterP.Args<CstPayload> -> p.typ?.let { f(it.node.expr) }
+        is ParameterP.KwArgs<CstPayload> -> p.typ?.let { f(it.node.expr) }
+        is ParameterP.NoArgs<CstPayload>, is ParameterP.Slash<CstPayload> -> {}
     }
 }
 

@@ -6,7 +6,7 @@ class ArcStr private constructor(
     private val inner: ArcOrStatic<String>,
 ) : Comparable<ArcStr> {
     companion object {
-        // / Create from static `str` without allocation.
+        /** Create from a static string without allocation. */
         fun newStatic(s: String): ArcStr = ArcStr(ArcOrStatic.newStatic(s))
 
         fun from(s: String): ArcStr =
@@ -17,7 +17,7 @@ class ArcStr private constructor(
             }
     }
 
-    // / Get the `str`.
+    /** Get the string. */
     fun asStr(): String = deref()
 
     fun deref(): String = inner.deref()
@@ -34,5 +34,5 @@ class ArcStr private constructor(
 
     override fun hashCode(): Int = inner.hashCode()
 
-    override fun compareTo(other: ArcStr): Int = inner.compareTo(other.inner)
+    override fun compareTo(other: ArcStr): Int = inner.deref().compareTo(other.inner.deref())
 }

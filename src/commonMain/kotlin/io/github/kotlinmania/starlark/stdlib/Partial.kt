@@ -32,16 +32,15 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.typed.StringValueLike
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
-import io.github.kotlinmania.starlark.values.types.dict.DictRef
-import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
-import io.github.kotlinmania.starlark.values.types.dict.iter
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
 import kotlin.collections.plus
@@ -50,42 +49,34 @@ import kotlin.text.iterator
 /** Construct a partial application. In almost all cases it is simpler to use a `lambda`. */
 fun partialStdlib(builder: GlobalsBuilder) {
     builder.setFunction("partial") { callArgs, eval ->
-        val func = callArgs.positional<Value>(0)
-        // Remaining positional args are collected as *args into a tuple
-        val args = eval.heap().allocTuple(callArgs.positionalAll().drop(1))
-        // kwargs dict
-        val kwargsValue = callArgs.full.kwargs
-        val kwargs: DictRef? =
-            if (kwargsValue != null) {
-                dictRefFromValue(
-                    kwargsValue,
-                )
-            } else {
-                null
-            }
+        val posIter = callArgs.positions(eval.heap()).getOrElse { return@setFunction Result.failure<Value>(it) }
+        if (!posIter.hasNext()) {
+            return@setFunction Result.failure<Value>(IllegalArgumentException("partial() missing required positional argument: func"))
+        }
+        val func = posIter.next()
+        val posList = mutableListOf<Value>()
+        while (posIter.hasNext()) {
+            posList.add(posIter.next())
+        }
+        val args = eval.heap().allocTuple(posList)
 
         check(
             TupleGen
                 .fromValue(args) != null,
         )
+        val kwargsMap = callArgs.namesMap().getOrElse { return@setFunction Result.failure<Value>(it) }
         val names = mutableListOf<Pair<Symbol, StringValue>>()
         val named = mutableListOf<Value>()
-        if (kwargs != null) {
-            for ((k, v) in kwargs.iter()) {
-                val sv =
-                    StringValue
-                        .new(k)!!
-                // We duplicate string here.
-                // If this becomes hot, we should do better.
-                names.add(
-                    Pair(
-                        Symbol
-                            .newHashed(sv.getHashedStr()),
-                        sv,
-                    ),
-                )
-                named.add(v)
-            }
+        for ((k, v) in kwargsMap.iterHashed()) {
+            val sv = k.key()
+            names.add(
+                Pair(
+                    Symbol
+                        .newHashed(sv.getHashedStr()),
+                    sv,
+                ),
+            )
+            named.add(v)
         }
         val namesIndex = HashMap<ULong, Int>()
         for ((i, entry) in names.withIndex()) {
@@ -105,11 +96,11 @@ fun partialStdlib(builder: GlobalsBuilder) {
 }
 
 /** Generic partial application value. */
-open class PartialGen<V : Any, S : Any>(
-    val func: V,
+open class PartialGen<V : ValueLike, S : StringValueLike>(
+    var func: V,
     // Always references a tuple.
-    val pos: V,
-    val named: List<V>,
+    var pos: V,
+    var named: List<V>,
     val names: List<Pair<Symbol, S>>,
     val namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : StarlarkValue,
@@ -117,19 +108,10 @@ open class PartialGen<V : Any, S : Any>(
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
 
-    fun posContent(): List<Value> {
-        @Suppress("UNCHECKED_CAST")
-        val posValue =
-            when (pos) {
-                is Value -> pos
-                is io.github.kotlinmania.starlark.values.layout.FrozenValue ->
-                    (pos as io.github.kotlinmania.starlark.values.layout.FrozenValue).toValue()
-                else -> return emptyList()
-            }
-        return TupleGen
-            .fromValue(posValue)
+    fun posContent(): List<Value> =
+        TupleGen
+            .fromValue(pos.toValue())
             ?.content() ?: emptyList()
-    }
 
     override fun toString(): String {
         val sb = StringBuilder()
@@ -146,15 +128,7 @@ open class PartialGen<V : Any, S : Any>(
             if (i != 0) sb.append(",")
             sb.append(kPair.first.asStr())
             sb.append(":")
-            @Suppress("UNCHECKED_CAST")
-            val value =
-                when (v) {
-                    is Value -> v
-                    is io.github.kotlinmania.starlark.values.layout.FrozenValue ->
-                        (v as io.github.kotlinmania.starlark.values.layout.FrozenValue).toValue()
-                    else -> v
-                }
-            sb.append(value)
+            sb.append(v.toValue())
         }
         sb.append("})")
         return sb.toString()
@@ -171,30 +145,9 @@ open class PartialGen<V : Any, S : Any>(
 
         val selfPos = posContent()
 
-        @Suppress("UNCHECKED_CAST")
-        val selfNamed =
-            named.map { v ->
-                when (v) {
-                    is Value -> v
-                    is io.github.kotlinmania.starlark.values.layout.FrozenValue ->
-                        (v as io.github.kotlinmania.starlark.values.layout.FrozenValue).toValue()
-                    else -> v as Value
-                }
-            }
+        val selfNamed = named.map { it.toValue() }
 
-        @Suppress("UNCHECKED_CAST")
-        val selfNames =
-            names.map { (sym, sv) ->
-                val strVal =
-                    when (sv) {
-                        is StringValue -> sv
-                        is FrozenStringValue ->
-                            StringValue
-                                .new((sv as FrozenStringValue).toValue())!!
-                        else -> sv as StringValue
-                    }
-                Pair(sym, strVal)
-            }
+        val selfNames = names.map { (sym, sv) -> Pair(sym, sv.toStringValue()) }
 
         // Check for duplicate named arguments
         for ((symbol, _) in args.full.names.names()) {
@@ -230,37 +183,36 @@ open class PartialGen<V : Any, S : Any>(
                 ),
             )
 
-        @Suppress("UNCHECKED_CAST")
-        val funcValue =
-            when (func) {
-                is Value -> func
-                is io.github.kotlinmania.starlark.values.layout.FrozenValue ->
-                    (func as io.github.kotlinmania.starlark.values.layout.FrozenValue).toValue()
-                else -> func as Value
-            }
-        return funcValue.invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
+        return func.toValue().invokeWithLoc(PARTIAL_RUST_LOC, params, eval)
     }
 
     override fun trace(tracer: Tracer) {
         // func, pos, and named may contain Value objects that need GC tracing.
         // names contain Symbols and StringValues which are identity-traced.
         if (func is Value) {
-            val holder =
-                ValueHolder(func as Value)
+            val holder = ValueHolder(func as Value)
             tracer.trace(holder)
+            @Suppress("UNCHECKED_CAST")
+            func = holder.value as V
         }
         if (pos is Value) {
-            val holder =
-                ValueHolder(pos as Value)
+            val holder = ValueHolder(pos as Value)
             tracer.trace(holder)
+            @Suppress("UNCHECKED_CAST")
+            pos = holder.value as V
         }
+        val newNamed = mutableListOf<V>()
         for (v in named) {
             if (v is Value) {
-                val holder =
-                    ValueHolder(v as Value)
+                val holder = ValueHolder(v)
                 tracer.trace(holder)
+                @Suppress("UNCHECKED_CAST")
+                newNamed.add(holder.value as V)
+            } else {
+                newNamed.add(v)
             }
         }
+        named = newNamed
     }
 }
 

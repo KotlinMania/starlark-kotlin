@@ -121,7 +121,7 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
  * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
  * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
  */
-fun <T> UnpackList<T>.intoList(): MutableList<T> = items
+internal fun <T> UnpackList<T>.intoList(): MutableList<T> = items
 
 /**
  * Extension for iterating an [UnpackList] by reference.
@@ -129,4 +129,4 @@ fun <T> UnpackList<T>.intoList(): MutableList<T> = items
  * Corresponds to Rust's `impl IntoIterator for &'a UnpackList<T>` where
  * `type Item = &'a T` and `type IntoIter = slice::Iter<'a, T>`.
  */
-fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()
+internal fun <T> UnpackList<T>.iterRef(): Iterator<T> = items.iterator()

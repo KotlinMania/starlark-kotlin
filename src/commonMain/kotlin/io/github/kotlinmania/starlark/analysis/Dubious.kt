@@ -4,12 +4,15 @@ package io.github.kotlinmania.starlark.analysis
 import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.FileSpan
 import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.toSourceString
 import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 
@@ -100,7 +103,7 @@ private sealed class DubiousKey {
     }
 }
 
-private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? =
+private fun toKey(x: Spanned<ExprP<out AstPayload>>): Pair<DubiousKey, Span>? =
     when (val node = x.node) {
         is ExprP.Literal ->
             when (val lit = node.literal) {
@@ -132,7 +135,7 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
         when (val node = x.node) {
             is ExprP.Dict<*> -> {
                 val seen = HashMap<DubiousKey, Span>()
-                for ((key, _) in node.elements as List<Pair<AstExpr, AstExpr>>) {
+                for ((key, _) in node.elements) {
                     val keyPair = toKey(key)
                     if (keyPair != null) {
                         val (keyId, pos) = keyPair
@@ -142,7 +145,7 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
                                 LintT.new(
                                     codemap,
                                     old,
-                                    Dubious.DuplicateKey(key.toString(), codemap.fileSpan(pos)),
+                                    Dubious.DuplicateKey(key.node.toSourceString(), codemap.fileSpan(pos)),
                                 ),
                             )
                         }
@@ -163,7 +166,7 @@ internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dub
     fun stmt(x: AstStmt, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
             is StmtP.Expression<*> ->
-                when (val exprNode = (node.expr as AstExpr).node) {
+                when (val exprNode = node.expr.node) {
                     is ExprP.Identifier<*, *> ->
                         results.add(
                             LintT.new(

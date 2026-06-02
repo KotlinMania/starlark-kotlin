@@ -80,7 +80,7 @@ interface FreezeErrorContext<T> : Sealed {
 sealed interface Sealed
 
 /** Extension to add context to a [Result]. */
-fun <T> Result<T>.freezeErrorContext(context: String): Result<T> =
+internal fun <T> Result<T>.freezeErrorContext(context: String): Result<T> =
     when {
         isSuccess -> this
         else -> {

@@ -25,7 +25,7 @@ class ComplexTest {
             return Result.success(unpacked.inner.unpackStr() ?: error("not a string"))
         }
         globals.setFunction("test_unpack") { args, eval ->
-            val v = args.positional<ValueTypedComplex<TestComplexValue, TestComplexValue>>(0)
+            val v = args.positionalComplex<TestComplexValue, TestComplexValue>(0)
             testUnpack(v).map { eval.heap().allocStr(it).toValue() }
         }
     }

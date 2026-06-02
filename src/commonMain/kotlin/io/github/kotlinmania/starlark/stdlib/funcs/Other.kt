@@ -31,6 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
+import io.github.kotlinmania.starlark.values.toStarlarkError
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bool.allocValue
 import io.github.kotlinmania.starlark.values.types.list.allocList
@@ -446,7 +447,14 @@ internal fun registerOther(globals: GlobalsBuilder) {
     }
 
     globals.setFunction("hash", speculativeExecSafe = true) { callArgs, eval ->
-        val a = callArgs.positional<String>(0)
+        val firstArg =
+            callArgs.positionalAll().getOrNull(0) ?: throw ValueError.MissingRequired("a").toStarlarkError()
+        val a =
+            firstArg.unpackStr() ?: throw io.github.kotlinmania.starlark.Error.newValue(
+                IllegalArgumentException(
+                    "Type of parameter `a` doesn't match, expected `string`, actual `${firstArg.toStringForTypeError()}`",
+                ),
+            )
         hash(a).allocValue(eval.heap())
     }
 

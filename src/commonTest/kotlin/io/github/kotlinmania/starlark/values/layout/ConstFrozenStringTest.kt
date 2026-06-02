@@ -19,22 +19,27 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.test.Test
 
 /** Test object for const_frozen_string. */
 internal class ConstFrozenStringTest {
     @Test
     fun testConstFrozenStringForShortStrings() {
-        // assert!(const_frozen_string!("a").to_value().ptr_eq(const_frozen_string!("a").to_value()));
-        check(constFrozenString("a") === constFrozenString("a"))
+        check(constFrozenString("a").toValue().ptrEq(constFrozenString("a").toValue()))
 
-        // Heap::temp(|heap| {
-        //     assert!(const_frozen_string!("a").to_value().ptr_eq(heap.alloc_str("a").to_value()));
-        // });
-        check(constFrozenString("a") === constFrozenString("a"))
+        Heap.temp { heap ->
+            check(constFrozenString("a").toValue().ptrEq(heap.allocStr("a").toValue()))
+        }
 
-        // assert!(const_frozen_string!("a").to_value().ptr_eq(frozen_heap.alloc_str("a").to_value()));
-        check(constFrozenString("a") === constFrozenString("a"))
+        val frozenHeap = FrozenHeap.new()
+        val ref = frozenHeap.intoRef()
+        try {
+            check(constFrozenString("a").toValue().ptrEq(frozenHeap.allocStrIntern("a").toValue()))
+        } finally {
+            (ref as kotlin.AutoCloseable).close()
+        }
     }
 
     @Test

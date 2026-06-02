@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems0
 import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems1
 import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleElems2
 import io.github.kotlinmania.starlark.values.typing.typecompiled.IsTupleOf
-import io.github.kotlinmania.starlark.values.typing.typecompiled.StarlarkTypeIdMatcher
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBox
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherBoxAlloc
@@ -101,25 +100,12 @@ sealed class TyTuple : Comparable<TyTuple> {
                     1 -> factory.alloc(IsTupleElems1(TypeMatcherBoxAlloc.ty(elems[0])))
                     // [x0, x1] => optimised 2-element path
                     2 -> {
-                        val x0 = elems[0]
-                        val x1 = elems[1]
-                        val sv0 = x0.isStarlarkValue()
-                        val sv1 = x1.isStarlarkValue()
-                        if (sv0 != null && sv1 != null) {
-                            factory.alloc(
-                                IsTupleElems2(
-                                    StarlarkTypeIdMatcher.new(sv0),
-                                    StarlarkTypeIdMatcher.new(sv1),
-                                ),
-                            )
-                        } else {
-                            factory.alloc(
-                                IsTupleElems2(
-                                    TypeMatcherBoxAlloc.ty(x0),
-                                    TypeMatcherBoxAlloc.ty(x1),
-                                ),
-                            )
-                        }
+                        factory.alloc(
+                            IsTupleElems2(
+                                TypeMatcherBoxAlloc.ty(elems[0]),
+                                TypeMatcherBoxAlloc.ty(elems[1]),
+                            ),
+                        )
                     }
                     // xs => general N-element path
                     else -> {
@@ -142,13 +128,8 @@ sealed class TyTuple : Comparable<TyTuple> {
                     // tuple[any, ...] is the same as just "tuple"
                     TyStarlarkValue.tuple().matcher(factory)
                 } else {
-                    val sv = item.toTy().isStarlarkValue()
-                    if (sv != null) {
-                        factory.alloc(IsTupleOf(StarlarkTypeIdMatcher.new(sv)))
-                    } else {
-                        val m = TypeMatcherBoxAlloc.ty(item.toTy())
-                        factory.alloc(IsTupleOf(m))
-                    }
+                    val m = TypeMatcherBoxAlloc.ty(item.toTy())
+                    factory.alloc(IsTupleOf(m))
                 }
             }
         }

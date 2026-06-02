@@ -84,7 +84,10 @@ class StarlarkStrNRepr internal constructor(
                         memorySizeFn = { _ ->
                             val byteLen = str.len()
                             ValueAllocSize.new(
-                                AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                                maxOf(
+                                    AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                                    io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC,
+                                ),
                             )
                         },
                         heapFreezeFn = { _, _, freezer ->

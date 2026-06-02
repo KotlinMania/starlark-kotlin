@@ -78,7 +78,7 @@ class FrozenTupleRef(
 
         // / Downcast a value to a tuple.
         fun fromFrozenValue(value: FrozenValue): FrozenTupleRef? {
-            val tuple = value.downcastRef<FrozenTuple>() ?: return null
+            val tuple = FrozenTuple.fromValue(value.toValue()) ?: return null
             return new(tuple.content())
         }
 

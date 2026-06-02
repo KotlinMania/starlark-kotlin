@@ -22,11 +22,22 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.values.layout.Value
 
 internal fun registerEvalType(globals: GlobalsBuilder) {
     /** Create a runtime type object which can be used to check if a value matches the given type. */
-    globals.setFunction("eval_type") { args: Arguments, eval: Evaluator ->
+    globals.setFunction(
+        "eval_type",
+        speculativeExecSafe = true,
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.basic(TyBasic.Type))),
+                Ty.basic(TyBasic.Type),
+            ),
+    ) { args: Arguments, eval: Evaluator ->
         val ty = args.positional1(eval.heap()).getOrThrow()
         TypeCompiled.new(ty, eval.heap()).toInner()
     }
@@ -49,7 +60,14 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
      * `L = eval_type(list); [isinstance(x, L) for x in y]`:
      * `eval_type()` converts `list` value into prepared type matcher.
      */
-    globals.setFunction("isinstance") { args: Arguments, eval: Evaluator ->
+    globals.setFunction(
+        "isinstance",
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.any(), Ty.basic(TyBasic.Type))),
+                Ty.bool(),
+            ),
+    ) { args: Arguments, eval: Evaluator ->
         val positional = args.positional(2, eval.heap()).getOrThrow()
         val value = positional[0]
         val ty = positional[1]

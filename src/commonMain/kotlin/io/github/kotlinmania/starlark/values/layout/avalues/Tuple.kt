@@ -25,16 +25,21 @@ import io.github.kotlinmania.starlark.values.layout.AValueImpl
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
-internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }), AValueTuple)
+internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(Tuple(TupleGen<Value>(MutableList(len) { Value.newNone() })), AValueTuple)
 
-internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }), AValueFrozenTuple)
+internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(FrozenTuple(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() })), AValueFrozenTuple)
 
 /** AValue implementation for mutable tuples. */
 internal object AValueTuple : AValue {
@@ -49,11 +54,48 @@ internal object AValueTuple : AValue {
         error("heapFreeze should be dispatched via vtable with actual value")
     }
 
-    override fun heapCopy(tracer: Tracer): Value {
-        error("heapCopy should be dispatched via vtable with actual value")
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        @Suppress("UNCHECKED_CAST")
+        val tuple = repr.payload as Tuple
+        val content = tuple.content()
+
+        if (content.isEmpty()) {
+            val fv = FrozenValue.newEmptyTuple()
+            AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+            return Result.success(fv)
+        }
+
+        val (fv, r) = freezer.reserve<AValueFrozenTuple>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+
+        val frozenContent = mutableListOf<FrozenValue>()
+        for (elem in content) {
+            val frozenElem = freezer.freeze(elem).getOrElse { return Result.failure(it) }
+            frozenContent.add(frozenElem)
+        }
+
+        r.fill(FrozenTuple(TupleGen(frozenContent)))
+        return Result.success(fv)
     }
 
-    override fun unpack(): StarlarkValue = TupleGen<Value>(emptyList())
+    @Suppress("UNCHECKED_CAST")
+    override fun heapCopy(tracer: Tracer): Value {
+        val tuple = tracer.currentRepr!!.payload as Tuple
+        return heapCopyImpl(tuple, tracer) { v, t ->
+            val tg = v as Tuple
+            val content = tg.contentMut()
+            for (i in content.indices) {
+                val holder = ValueHolder(content[i])
+                t.trace(holder)
+                content[i] = holder.value
+            }
+        }
+    }
+
+    override fun unpack(): StarlarkValue = Tuple(TupleGen<Value>(emptyList()))
 }
 
 /** AValue implementation for frozen tuples. */
@@ -73,35 +115,35 @@ internal object AValueFrozenTuple : AValue {
         error("shouldn't be copying frozen values")
     }
 
-    override fun unpack(): StarlarkValue = TupleGen<FrozenValue>(emptyList())
+    override fun unpack(): StarlarkValue = FrozenTuple(TupleGen<FrozenValue>(emptyList()))
 }
 
 /** Allocate a tuple with the given elements on this heap. */
-fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
     if (elems.isEmpty()) {
         return FrozenValue.newEmptyTuple()
     }
-    val avalue = AValueImpl.new(TupleGen(elems), AValueFrozenTuple)
+    val avalue = AValueImpl.new(FrozenTuple(TupleGen(elems)), AValueFrozenTuple)
     return allocRaw(avalue).toFrozenValue()
 }
 
 /** Allocate a tuple from an iterator of elements. */
-fun FrozenHeap.allocTupleIter(elems: Iterable<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocTupleIter(elems: Iterable<FrozenValue>): FrozenValue {
     val list = elems.toList()
     return allocTuple(list)
 }
 
 /** Allocate a tuple with the given elements. */
-fun Heap.allocTuple(elems: List<Value>): Value {
+internal fun Heap.allocTuple(elems: List<Value>): Value {
     if (elems.isEmpty()) {
         return Value.newEmptyTuple()
     }
-    val avalue = AValueImpl.new(TupleGen(elems), AValueTuple)
+    val avalue = AValueImpl.new(Tuple(TupleGen(elems)), AValueTuple)
     return allocRaw(avalue).toValue()
 }
 
 /** Allocate a tuple from an iterator of elements. */
-fun Heap.allocTupleIter(elems: Iterable<Value>): Value {
+internal fun Heap.allocTupleIter(elems: Iterable<Value>): Value {
     val list = elems.toList()
     return allocTuple(list)
 }

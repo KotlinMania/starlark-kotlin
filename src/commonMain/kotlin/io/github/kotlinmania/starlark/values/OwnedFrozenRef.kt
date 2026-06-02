@@ -27,10 +27,14 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 /** A reference to a value stored in a frozen heap with a reference to the heap. */
 //     owner: &'f FrozenHeapRef,
 // Kotlin: GC handles lifetimes; owner kept for heap reference tracking.
-class OwnedRefFrozenRef<T : Any>(
+internal class OwnedRefFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
-) {
+) : AutoCloseable {
+    override fun close() {
+        owner.close()
+    }
+
     companion object {
         fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(value))
     }
@@ -54,21 +58,21 @@ class OwnedRefFrozenRef<T : Any>(
     }
 
     /** Convert heap pointer to an owned one. */
-    fun toOwned(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner)
+    fun toOwned(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner.clone())
 
     /** Fallible map the reference to another one. */
     fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedRefFrozenRef<U>> =
         f(value.asRef()).map { u ->
-            OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(u))
+            OwnedRefFrozenRef(owner = owner.clone(), value = FrozenRef.new(u))
         }
 
     /** Apply a function to the underlying value. Projection operation. */
-    fun <U : Any> map(f: (T) -> U): OwnedRefFrozenRef<U> = OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(f(value.asRef())))
+    fun <U : Any> map(f: (T) -> U): OwnedRefFrozenRef<U> = OwnedRefFrozenRef(owner = owner.clone(), value = FrozenRef.new(f(value.asRef())))
 
     /** Optionally map the reference to another one. */
     fun <U : Any> tryMapOption(f: (T) -> U?): OwnedRefFrozenRef<U>? {
         val result = f(value.asRef()) ?: return null
-        return OwnedRefFrozenRef(owner = owner, value = FrozenRef.new(result))
+        return OwnedRefFrozenRef(owner = owner.clone(), value = FrozenRef.new(result))
     }
 }
 
@@ -78,33 +82,37 @@ class OwnedRefFrozenRef<T : Any>(
  * Usually constructed from an `OwnedFrozenValueTyped`.
  */
 //     owner: FrozenHeapRef,
-class OwnedFrozenRef<T : Any>(
+internal class OwnedFrozenRef<T : Any>(
     private val owner: FrozenHeapRef,
     private val value: FrozenRef<T>,
-) {
+) : AutoCloseable {
+    override fun close() {
+        owner.close()
+    }
+
     companion object {
         fun <T : Any> newUnchecked(value: T, owner: FrozenHeapRef): OwnedFrozenRef<T> = OwnedFrozenRef(owner = owner, value = FrozenRef.new(value))
     }
 
     /** Borrow. */
-    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner, value = value)
+    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef(owner = owner.clone(), value = value)
 
     /** Returns a reference to the underlying value. */
     fun asRef(): T = value.asRef()
 
     /** Converts `self` into a new reference that points at something reachable from the previous. */
-    fun <U : Any> map(f: (T) -> U): OwnedFrozenRef<U> = OwnedFrozenRef(owner = owner, value = value.map(f))
+    fun <U : Any> map(f: (T) -> U): OwnedFrozenRef<U> = OwnedFrozenRef(owner = owner.clone(), value = value.map(f))
 
     /** Fallible map the reference to another one. */
     fun <U : Any> tryMapResult(f: (T) -> Result<U>): Result<OwnedFrozenRef<U>> =
         value.tryMapResult(f).map { mapped ->
-            OwnedFrozenRef(owner = owner, value = mapped)
+            OwnedFrozenRef(owner = owner.clone(), value = mapped)
         }
 
     /** Optionally map the reference to another one. */
     fun <U : Any> tryMapOption(f: (T) -> U?): OwnedFrozenRef<U>? {
         val mapped = value.tryMapOption(f) ?: return null
-        return OwnedFrozenRef(owner = owner, value = mapped)
+        return OwnedFrozenRef(owner = owner.clone(), value = mapped)
     }
 
     /** Get a reference to the owning frozen heap. */

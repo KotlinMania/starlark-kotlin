@@ -63,7 +63,7 @@ class HeapTypeTest {
 
         globals.setFunction("append_x") { args, eval ->
             val str = args.positional<StringValue>(0)
-            appendX(str, eval.heap())
+            appendX(str, eval.heap()).map { it.toValue() }
         }
     }
 

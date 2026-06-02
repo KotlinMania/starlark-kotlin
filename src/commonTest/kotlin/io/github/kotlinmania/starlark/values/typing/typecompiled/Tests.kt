@@ -1,4 +1,6 @@
 // port-lint: tests src/values/typing/type_compiled/tests.rs
+@file:Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+
 package io.github.kotlinmania.starlark.values.typing.typecompiled
 
 /*

@@ -104,7 +104,7 @@ class EnumValueGen(
     }
 
     // self.value.serialize(serializer)
-    internal fun serialize(serializer: Any): Result<Any> {
+    fun serialize(serializer: Any): Result<Any> {
         // Delegates serialization to the inner value, passing through the serializer.
         val encoder = serializer as kotlinx.serialization.encoding.Encoder
         encoder.encodeString(value.toValue().toString())

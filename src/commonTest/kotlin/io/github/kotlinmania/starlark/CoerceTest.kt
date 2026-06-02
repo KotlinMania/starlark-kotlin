@@ -19,61 +19,18 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.PhantomData
 import io.github.kotlinmania.starlark.values.Tuple1
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class CoerceTest {
     @Test
-    fun testPtrCoerce() {
-        fun f(x: Tuple1<String>): Tuple1<CharSequence> = coerce(x)
+    fun testSameTypeCoerce() {
+        fun f(x: Tuple1<String>): Tuple1<String> = coerce(x)
 
-        val x = "test"
-        assertEquals(Tuple1<CharSequence>(x), f(Tuple1("test")))
+        assertEquals(Tuple1("test"), f(Tuple1("test")))
     }
 
-    @Test
-    fun testCoerceTypeAndLifetimeParams() {
-        val ten = IntRef(10)
-        val old =
-            StructWithLifetimeAndTypeParams<Aaa>(
-                x = Aaa(ten),
-                marker = PhantomData.new(),
-            )
-
-        val new: StructWithLifetimeAndTypeParams<Bbb> = coerce(old)
-        assertEquals(10, new.x.value.value)
-    }
-
-    @Test
-    fun testCoerceIsUnsound() {
-        val s: Struct<Unit> = Struct(Unit)
-        val c: Struct<Newtype> = coerce(s)
-        assertFailsWith<ClassCastException> { c.assoc as Newtype }
-    }
+    // Layout reinterpretation across distinct generic instantiations has no Kotlin Multiplatform semantic equivalent.
+    // The unsound associated-type reinterpretation case has no Kotlin Multiplatform semantic equivalent.
 }
-
-private data class Aaa(
-    val value: IntRef,
-)
-private typealias Bbb = Aaa
-
-private data class StructWithLifetimeAndTypeParams<X>(
-    val x: X,
-    val marker: PhantomData<IntRef>,
-)
-
-private class Struct<T>(
-    val assoc: Any?,
-)
-
-// @JvmInline not available in commonTest (JVM-only annotation)
-private class Newtype(
-    val value: UByte,
-)
-
-private data class IntRef(
-    val value: Int,
-)

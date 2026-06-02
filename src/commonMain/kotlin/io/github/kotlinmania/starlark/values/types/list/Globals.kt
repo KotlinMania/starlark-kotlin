@@ -32,6 +32,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Custom type function implementation for the `list` constructor.
@@ -114,7 +115,11 @@ internal fun registerList(globals: GlobalsBuilder) {
     // If no argument is provided, it returns an empty list.
     // If an iterable is provided, its elements are collected into a new list.
     // If the argument is already a list, its contents are copied efficiently.
-    globals.setFunction("list", asType = Ty.anyList()) { args, eval ->
+    globals.setFunction(
+        "list",
+        asType = Ty.anyList(),
+        specialBuiltinFunction = SpecialBuiltinFunction.List,
+    ) { args, eval ->
         val heap = eval.heap()
         val a = args.optional1(heap).getOrThrow()
         listBuiltin(a, heap).getOrThrow()

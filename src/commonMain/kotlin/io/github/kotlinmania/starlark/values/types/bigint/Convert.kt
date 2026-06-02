@@ -32,6 +32,7 @@ import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
@@ -55,69 +56,69 @@ internal object IntTypeReprCanonical : StarlarkTypeRepr {
 // --- UInt (u32) conversions ---
 
 /** impl StarlarkTypeRepr for u32 */
-object UIntTypeRepr : StarlarkTypeRepr {
+internal object UIntTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
 /** impl AllocValue for u32 */
-object UIntAllocValue : AllocValue {
+internal object UIntAllocValue : AllocValue {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 
     override fun allocValue(heap: Heap): Value = StarlarkInt.from(0u).allocValue(heap)
 }
 
 /** Allocate a UInt on a Starlark heap. */
-fun UInt.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
+internal fun UInt.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /** Allocate a UInt on a frozen Starlark heap. */
-fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
+internal fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- ULong (u64) conversions ---
 
 /** impl StarlarkTypeRepr for u64 */
-object ULongTypeRepr : StarlarkTypeRepr {
+internal object ULongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
 /** Allocate a ULong on a Starlark heap. */
-fun ULong.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
+internal fun ULong.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /** Allocate a ULong on a frozen Starlark heap. */
-fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
+internal fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- Long (i64) conversions ---
 
 /** impl StarlarkTypeRepr for i64 */
-object LongTypeRepr : StarlarkTypeRepr {
+internal object LongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
 /** Allocate a Long on a Starlark heap. */
-fun Long.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
+internal fun Long.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /** Allocate a Long on a frozen Starlark heap. */
-fun Long.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
+internal fun Long.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- Int (i32 / isize) conversions ---
 
 /** Allocate an Int on a Starlark heap. */
-fun Int.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
+internal fun Int.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /** Allocate an Int on a frozen Starlark heap. */
-fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
+internal fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- BigInteger (BigInt) conversions ---
 
 /** impl StarlarkTypeRepr for BigInt */
-object BigIntegerTypeRepr : StarlarkTypeRepr {
+internal object BigIntegerTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
 /** Allocate a BigInteger on a Starlark heap. */
-fun BigInteger.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
+internal fun BigInteger.allocValue(heap: Heap): Value = StarlarkInt.from(this).allocValue(heap)
 
 /** Allocate a BigInteger on a frozen Starlark heap. */
-fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
+internal fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.from(this).allocFrozenValue(heap)
 
 // --- UnpackValue implementations ---
 
@@ -125,9 +126,9 @@ fun BigInteger.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.fro
  * Unpack a UInt from a Starlark Value.
  * impl UnpackValue for u32
  */
-fun Value.unpackUInt(): Result<UInt?> =
+internal fun Value.unpackUInt(): Result<UInt?> =
     unpackIntegerImpl(
-        integerType = "UInt",
+        integerType = "u32",
         tryFromI32 = { i32 -> if (i32 >= 0) i32.toUInt() else null },
         tryFromBigInt = { bigInt ->
             try {
@@ -139,13 +140,16 @@ fun Value.unpackUInt(): Result<UInt?> =
         },
     )
 
+@PublishedApi
+internal fun unpackValueToUIntOrNull(v: Value): UInt? = v.unpackUInt().getOrNull()
+
 /**
  * Unpack a ULong from a Starlark Value.
  * impl UnpackValue for u64
  */
-fun Value.unpackULong(): Result<ULong?> =
+internal fun Value.unpackULong(): Result<ULong?> =
     unpackIntegerImpl(
-        integerType = "ULong",
+        integerType = "u64",
         tryFromI32 = { i32 -> if (i32 >= 0) i32.toULong() else null },
         tryFromBigInt = { bigInt ->
             try {
@@ -160,15 +164,24 @@ fun Value.unpackULong(): Result<ULong?> =
  * Unpack a Long from a Starlark Value.
  * impl UnpackValue for i64
  */
-fun Value.unpackLong(): Result<Long?> = unpackInteger()
+internal fun Value.unpackLong(): Result<Long?> = unpackInteger()
+
+@PublishedApi
+internal fun unpackValueToLongOrNull(v: Value): Long? = v.unpackLong().getOrNull()
+
+internal object I64UnpackValue : UnpackValue<Long> {
+    override fun starlarkTypeRepr(): Ty = Ty.int()
+
+    override fun unpackValueImpl(value: Value): Result<Long?> = value.unpackLong()
+}
 
 /**
  * Unpack an Int from a Starlark Value.
  * impl UnpackValue for isize / usize
  */
-fun Value.unpackInt(): Result<Int?> =
+internal fun Value.unpackInt(): Result<Int?> =
     unpackIntegerImpl(
-        integerType = "Int",
+        integerType = "i32",
         tryFromI32 = { i32 -> i32 },
         tryFromBigInt = { bigInt ->
             try {
@@ -183,7 +196,7 @@ fun Value.unpackInt(): Result<Int?> =
  * Unpack a BigInteger from a Starlark Value.
  * impl UnpackValue for BigInt
  */
-fun Value.unpackBigInteger(): Result<BigInteger?> {
+internal fun Value.unpackBigInteger(): Result<BigInteger?> {
     val intRef = StarlarkIntRef.unpackValueOpt(this) ?: return Result.success(null)
     return Result.success(
         when (intRef) {

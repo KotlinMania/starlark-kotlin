@@ -19,7 +19,11 @@ package io.github.kotlinmania.starlark.environment
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.docs.DocItem
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -51,5 +55,24 @@ class GlobalsTest {
                 .toList()
         assertEquals(1, memberKeys.size)
         assertEquals("x", memberKeys.single())
+    }
+
+    @Test
+    fun testSetFunctionWrapsTraceOnlyComplexValue() {
+        val assert = Assert()
+        assert.globalsAdd { globals ->
+            globals.setFunction("trace_only_complex") { _, _ ->
+                Result.success(TraceOnlyComplexValue)
+            }
+        }
+        assert.isTrue("str(trace_only_complex()) == \"trace_only_complex\"")
+    }
+
+    private object TraceOnlyComplexValue : ComplexValue, Trace {
+        override val TYPE: String get() = "trace_only_complex"
+
+        override fun trace(tracer: Tracer) {}
+
+        override fun toString(): String = TYPE
     }
 }

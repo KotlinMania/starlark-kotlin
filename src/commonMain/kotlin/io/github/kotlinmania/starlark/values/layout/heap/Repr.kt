@@ -56,10 +56,12 @@ class AValueHeader(
 
     companion object {
         /** Alignment of objects in Starlark heap (8 bytes for tag bits). */
-        const val ALIGN: Int = 8
+        val ALIGN: Int = 8
 
         /** Global counter for assigning aligned indices. */
         private var counter: Long = ALIGN.toLong()
+
+        fun currentCounter(): Long = lock.withLock { counter }
 
         /** Global registry mapping index -> AValueHeader. */
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()
@@ -95,14 +97,15 @@ class AValueHeader(
         //     me: *mut AValueRepr<T>,
         //     forward_ptr: ForwardPtr,
         // ) -> T
-        internal fun <T> overwriteWithForward(
-            me: AValueRepr<T>,
+        internal fun overwriteWithForward(
+            me: AValueRepr<*>,
             forwardPtr: ForwardPtr,
-        ): T {
+        ): StarlarkValue {
             val sz = me.header.unpack().memorySize()
             val payload = me.payload
             me.overwritten = AValueForward.new(forwardPtr, sz)
-            return payload
+            return payload as? StarlarkValue
+                ?: error("Expected StarlarkValue payload")
         }
     }
 
@@ -113,8 +116,7 @@ class AValueHeader(
         return StarlarkValueRawPtr(vtable.starlarkValue)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : StarlarkValue> payload(): T = payloadPtr().valueRef()
+    fun payload(): StarlarkValue = payloadPtr().starlarkValue()
 
     internal fun unpackValue(heapKind: HeapKind): Value =
         when (heapKind) {
@@ -124,14 +126,10 @@ class AValueHeader(
 
     internal fun unpack(): AValueDyn = AValueDyn(payloadPtr(), vtable)
 
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T> asRepr(): AValueRepr<T> {
-        // In Rust, this casts the header pointer to an AValueRepr pointer.
-        // In Kotlin, the AValueRepr that owns this header is looked up
-        // through the repr registry using the header's index.
+    internal fun asRepr(): AValueRepr<*> {
         val repr = reprRegistry[index]
         check(repr != null) { "asRepr: header index $index" }
-        return repr as AValueRepr<T>
+        return repr
     }
 
     private fun asAvalueOrForward(): AValueOrForward = AValueOrForward.Header(this)
@@ -265,7 +263,15 @@ internal sealed class AValueOrForward {
 
     fun unpack(): AValueOrForwardUnpack =
         when (this) {
-            is Header -> AValueOrForwardUnpack.Header(header)
+            is Header -> {
+                val repr = reprRegistry[header.index]
+                val forward = repr?.overwritten
+                if (forward != null) {
+                    AValueOrForwardUnpack.Forward(forward)
+                } else {
+                    AValueOrForwardUnpack.Header(header)
+                }
+            }
             is Forward -> AValueOrForwardUnpack.Forward(forward)
         }
 

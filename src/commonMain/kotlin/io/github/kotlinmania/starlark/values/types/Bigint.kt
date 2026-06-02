@@ -52,7 +52,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp as OracleTypingB
  * Rust: `struct StarlarkBigInt` with derives for Clone, Debug, Default, Display,
  * Ord, PartialOrd, Eq, PartialEq, Hash, Allocative.
  */
-class StarlarkBigInt private constructor(
+internal class StarlarkBigInt private constructor(
     /**
      * `value` is strictly either smaller than `Int.MIN_VALUE` or larger than `Int.MAX_VALUE`.
      * Many operation implementations depend on this fact.
@@ -142,7 +142,7 @@ class StarlarkBigInt private constructor(
      *
      * Rust: `fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>`
      */
-    internal fun serialize(): Any {
+    fun serialize(): Any {
         // Always serialize as a number, prefer i64 if it fits, otherwise u64
         val longVal =
             try {

@@ -24,6 +24,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 
 /**
  * Register the `set` builtin function.
@@ -54,6 +55,7 @@ internal fun registerSet(globals: GlobalsBuilder) {
         name = "set",
         asType = Ty.starlarkValue(TyStarlarkValue.set()),
         speculativeExecSafe = true,
+        specialBuiltinFunction = SpecialBuiltinFunction.Set,
     ) { callArgs, eval ->
         val heap: Heap = eval.heap()
         val set =

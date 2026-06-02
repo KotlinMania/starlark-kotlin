@@ -207,3 +207,24 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
 
     override fun allocValue(heap: Heap): Value = value
 }
+
+class StarlarkCallableCheckedUnpackValue<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
+    val paramSpec: P,
+    val returnTypeRepr: R,
+) : UnpackValue<StarlarkCallableChecked<P, R>> {
+    override fun starlarkTypeRepr(): Ty =
+        StarlarkCallable.starlarkTypeRepr(paramSpec, returnTypeRepr)
+
+    override fun unpackValueImpl(value: Value): Result<StarlarkCallableChecked<P, R>?> {
+        // Check it is a callable first.
+        if (!value.vtable().hasInvoke) {
+            return Result.success(null)
+        }
+
+        val ty = starlarkTypeRepr()
+
+        return Ty.ofValue(value).checkIntersects(ty).map { intersects ->
+            if (intersects) StarlarkCallableChecked(value) else null
+        }
+    }
+}

@@ -27,12 +27,9 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
+import io.github.kotlinmania.starlark.eval.compiler.scope.cstPayload
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
-import io.github.kotlinmania.starlark.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark.syntax.ast.AstTypeExprP
-import io.github.kotlinmania.starlark.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypeExprUnpackP
 import io.github.kotlinmania.starlark.syntax.typeexpr.TypePathP
 import io.github.kotlinmania.starlark.typing.EvalException
@@ -73,7 +70,7 @@ internal fun Compiler.exprForType(
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
 
-    val ty = expr.node.payload.compilerTy
+    val ty = expr.cstPayload.compilerTy
     if (ty == null) {
         // This is unreachable. But unfortunately we do not return error here.
         // Still make an error in panic to produce nice panic message.
@@ -224,7 +221,7 @@ private fun Compiler.evalExpr(
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
 ) {
-    val payload = typeExpr.node.payload
+    val payload = typeExpr.cstPayload
     if (payload.compilerTy != null) {
         throw EvalException.newAnyhow(
             StarlarkError("Type already initialized"),
@@ -241,33 +238,7 @@ private fun Compiler.populateTypesInTypeExpr(
 internal fun Compiler.populateTypesInStmt(
     stmt: CstStmt,
 ) {
-    @Suppress("UNCHECKED_CAST")
-    stmt.node.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr as CstTypeExpr) }
-}
-
-/**
- * Visit all type expressions in this statement.
- * Port of `StmtP::visit_type_expr_err_mut` from starlark_syntax uniplate.rs.
- */
-@Suppress("UNCHECKED_CAST")
-private fun <P : AstPayload> StmtP<P>.visitTypeExprErrMut(
-    f: (AstTypeExprP<P>) -> Unit,
-) {
-    when (this) {
-        is StmtP.Def<*, *> -> {
-            for (param in def.params) {
-                when (val p = param.node) {
-                    is ParameterP.Normal<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
-                    is ParameterP.Args<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
-                    is ParameterP.KwArgs<*> -> p.typ?.let { f(it as AstTypeExprP<P>) }
-                    is ParameterP.Slash<*>, is ParameterP.NoArgs<*> -> { /* no type */ }
-                }
-            }
-            (def.returnType as? AstTypeExprP<P>)?.let { f(it) }
-        }
-        is StmtP.Assign<*> -> {
-            (assign.ty as? AstTypeExprP<P>)?.let { f(it) }
-        }
-        else -> { /* no type expressions in other statements */ }
+    stmt.node.visitTypeExprErrMut { typeExpr ->
+        populateTypesInTypeExpr(typeExpr)
     }
 }

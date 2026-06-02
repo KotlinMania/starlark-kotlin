@@ -1,4 +1,6 @@
 // port-lint: tests src/values/types/range/range_type.rs
+@file:Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+
 package io.github.kotlinmania.starlark.values.types.range
 
 /*

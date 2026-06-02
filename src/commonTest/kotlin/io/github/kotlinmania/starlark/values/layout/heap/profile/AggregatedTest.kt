@@ -1,4 +1,6 @@
 // port-lint: tests src/values/layout/heap/profile/aggregated.rs
+@file:Suppress("USELESS_CAST")
+
 package io.github.kotlinmania.starlark.values.layout.heap.profile
 
 /*
@@ -102,7 +104,7 @@ class AggregatedTest {
         val summary = HeapSummaryByFunction.init(merge)
         assertEquals(1, summary.info().size)
         val (xxId, xxInfo) = summary.info()[0]
-        assertEquals("xx", xxId.toString())
+        assertEquals("xx", xxId)
         assertEquals(3, xxInfo.allocations["string"]!!.count)
     }
 }

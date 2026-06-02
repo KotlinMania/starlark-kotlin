@@ -1,4 +1,6 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/docs/multipage.rs
+
 package io.github.kotlinmania.starlark.docs
 
 /*
@@ -25,6 +27,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TyBasic
 import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
+import kotlin.native.HiddenFromObjC
 
 class RenderConfig(
     val typeConfig: TypeRenderConfig,
@@ -213,6 +216,7 @@ internal class MultipageRender(
  * [linkedTyMapper] is used to map the **type path** and **type name** to a linkable element
  * in the markdown.
  */
+@HiddenFromObjC
 fun renderMarkdownMultipage(
     modulesInfos: List<DocModuleInfo>,
     linkedTyMapper: ((String, String) -> String)?,

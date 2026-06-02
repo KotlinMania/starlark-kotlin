@@ -74,7 +74,7 @@ sealed class StarlarkInt {
         override fun toString(): String = value.toString()
     }
 
-    data class Big(
+    internal data class Big(
         val value: StarlarkBigInt,
     ) : StarlarkInt() {
         override fun toString(): String = value.toString()
@@ -104,18 +104,81 @@ sealed class StarlarkInt {
                 }
             }
 
+        private fun exactBigIntegerFromDouble(f: Double): BigInteger {
+            if (!f.isFinite()) {
+                throw StarlarkIntError.CannotRepresentAsExact(f)
+            }
+            val bits = f.toRawBits()
+            val sign = if ((bits shr 63) == 0L) 1 else -1
+            var exponent = ((bits shr 52) and 0x7FFL).toInt()
+            var significand = bits and 0xFFFFFFFFFFFFFL
+
+            if (exponent == 0) {
+                // Subnormal number
+                exponent = 1 - 1023
+            } else {
+                // Normal number
+                significand = significand or 0x10000000000000L // Add implicit leading 1
+                exponent = exponent - 1023
+            }
+
+            exponent -= 52
+
+            var bi = BigInteger.fromLong(significand)
+            if (exponent >= 0) {
+                bi = bi.shl(exponent)
+            } else {
+                val shift = -exponent
+                // If it has fractional bits, we check if they are zero
+                val divisor = BigInteger.fromInt(1).shl(shift)
+                val remainder = bi % divisor
+                if (remainder != BigInteger.ZERO) {
+                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                }
+                bi = bi.shr(shift)
+            }
+            return if (sign < 0) -bi else bi
+        }
+
         fun fromF64Exact(f: Double): Result<StarlarkInt> =
             runCatching {
+                if (f.isNaN() || f.isInfinite()) {
+                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                }
                 val i = InlineInt.tryFrom(f.toInt()).getOrElse { InlineInt.ZERO }
                 if (i.toF64() == f) {
                     Small(i)
                 } else {
-                    val bi = BigInteger.tryFromDouble(f, exactRequired = true)
-                    if (bi.doubleValue(exactRequired = false) == f) {
-                        from(bi)
-                    } else {
-                        throw StarlarkIntError.CannotRepresentAsExact(f)
+                    if (f == 0.0) {
+                        return@runCatching Small(InlineInt.ZERO)
                     }
+                    val bits = f.toBits()
+                    val sign = if ((bits ushr 63) == 0L) 1 else -1
+                    val exponent = ((bits ushr 52) and 0x7FFL).toInt()
+                    val mantissa = bits and 0xFFFFFFFFFFFFFL
+
+                    val bi =
+                        if (exponent == 0) {
+                            throw StarlarkIntError.CannotRepresentAsExact(f)
+                        } else {
+                            val significand = mantissa or 0x10000000000000L
+                            val unbiasedExponent = exponent - 1023
+                            val shift = 52 - unbiasedExponent
+                            if (shift <= 0) {
+                                BigInteger.fromLong(significand).shl(-shift)
+                            } else {
+                                if (shift > 52) {
+                                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                                }
+                                val mask = (1L shl shift) - 1
+                                if ((significand and mask) != 0L) {
+                                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                                }
+                                BigInteger.fromLong(significand ushr shift)
+                            }
+                        }
+                    val signedBi = if (sign < 0) -bi else bi
+                    from(signedBi)
                 }
             }
 
@@ -175,14 +238,14 @@ sealed class StarlarkInt {
 }
 
 // Rust: impl AllocValue for StarlarkInt
-fun StarlarkInt.allocValue(heap: Heap): Value =
+internal fun StarlarkInt.allocValue(heap: Heap): Value =
     when (this) {
         is StarlarkInt.Small -> Value.newInt(value)
         is StarlarkInt.Big -> heap.allocSimple(value)
     }
 
 // Rust: impl AllocFrozenValue for StarlarkInt
-fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is StarlarkInt.Small -> FrozenValue.newInt(value)
         is StarlarkInt.Big -> heap.allocSimple(value)
@@ -194,11 +257,23 @@ fun StarlarkInt.allocFrozenValue(heap: FrozenHeap): FrozenValue =
 sealed class StarlarkIntRef {
     data class Small(
         val value: InlineInt,
-    ) : StarlarkIntRef()
+    ) : StarlarkIntRef() {
+        override fun toString(): String = value.toString()
 
-    data class Big(
+        override fun equals(other: Any?): Boolean = super.equals(other)
+
+        override fun hashCode(): Int = super.hashCode()
+    }
+
+    internal data class Big(
         val value: StarlarkBigInt,
-    ) : StarlarkIntRef()
+    ) : StarlarkIntRef() {
+        override fun toString(): String = value.toString()
+
+        override fun equals(other: Any?): Boolean = super.equals(other)
+
+        override fun hashCode(): Int = super.hashCode()
+    }
 
     fun toOwned(): StarlarkInt =
         when (this) {
@@ -512,7 +587,7 @@ sealed class StarlarkIntRef {
             value.unpackInlineInt()?.let { return Small(it) }
             // StarlarkBigInt doesn't implement StarlarkValue yet, so we can't use
             // downcastRef. Access the raw underlying ptr instead.
-            val rawPtr = value.getRef().value.ptr
+            val rawPtr = value.getRef().value.starlarkValue()
             if (rawPtr is StarlarkBigInt) return Big(rawPtr)
             return null
         }
@@ -523,7 +598,7 @@ sealed class StarlarkIntRef {
 }
 
 // Bitwise operators for StarlarkIntRef
-infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -533,7 +608,7 @@ infix fun StarlarkIntRef.and(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() and other.toBig())
     }
 
-infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -543,7 +618,7 @@ infix fun StarlarkIntRef.or(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() or other.toBig())
     }
 
-infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
+internal infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small ->
             when (other) {
@@ -553,7 +628,7 @@ infix fun StarlarkIntRef.xor(other: StarlarkIntRef): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(toBig() xor other.toBig())
     }
 
-operator fun StarlarkIntRef.not(): StarlarkInt =
+internal operator fun StarlarkIntRef.not(): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> StarlarkInt.Small(!value)
         // kotlin-bignum's BigInteger.not() does not implement two's complement NOT correctly.
@@ -561,28 +636,28 @@ operator fun StarlarkIntRef.not(): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(-(toBig() + BigInteger.ONE))
     }
 
-operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {
+internal operator fun StarlarkIntRef.unaryMinus(): StarlarkInt {
     if (this is StarlarkIntRef.Small) {
         value.checkedNeg()?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(-toBig())
 }
 
-operator fun StarlarkIntRef.plus(other: StarlarkIntRef): StarlarkInt {
+internal operator fun StarlarkIntRef.plus(other: StarlarkIntRef): StarlarkInt {
     if (this is StarlarkIntRef.Small && other is StarlarkIntRef.Small) {
         value.checkedAdd(other.value)?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(toBig() + other.toBig())
 }
 
-operator fun StarlarkIntRef.minus(other: StarlarkIntRef): StarlarkInt {
+internal operator fun StarlarkIntRef.minus(other: StarlarkIntRef): StarlarkInt {
     if (this is StarlarkIntRef.Small && other is StarlarkIntRef.Small) {
         value.checkedSub(other.value)?.let { return StarlarkInt.Small(it) }
     }
     return StarlarkInt.from(toBig() - other.toBig())
 }
 
-operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
+internal operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> {
             value.checkedMulI32(rhs)?.let { return StarlarkInt.Small(it) }
@@ -591,9 +666,9 @@ operator fun StarlarkIntRef.times(rhs: Int): StarlarkInt =
         is StarlarkIntRef.Big -> StarlarkInt.from(value.get() * BigInteger.fromInt(rhs))
     }
 
-operator fun Int.times(rhs: StarlarkIntRef): StarlarkInt = rhs * this
+internal operator fun Int.times(rhs: StarlarkIntRef): StarlarkInt = rhs * this
 
-operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
+internal operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
     when (this) {
         is StarlarkIntRef.Small -> value.toI32() * other
         is StarlarkIntRef.Big ->
@@ -604,7 +679,7 @@ operator fun StarlarkIntRef.times(other: StarlarkIntRef): StarlarkInt =
     }
 
 // Extension for Int comparison with StarlarkIntRef
-operator fun Int.compareTo(other: StarlarkIntRef): Int {
+internal operator fun Int.compareTo(other: StarlarkIntRef): Int {
     // TODO(nga): this is inefficient if `i32` cannot fit in `InlineInt`.
     return StarlarkInt.from(this).asRef().compareTo(other)
 }
@@ -612,7 +687,7 @@ operator fun Int.compareTo(other: StarlarkIntRef): Int {
 /**
  * Parse a StarlarkInt from a string.
  */
-fun String.toStarlarkInt(): Result<StarlarkInt> =
+internal fun String.toStarlarkInt(): Result<StarlarkInt> =
     runCatching {
         // Not very efficient, but only used in tests.
         StarlarkInt.from(BigInteger.parseString(this, 10))

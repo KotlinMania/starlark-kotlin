@@ -1,4 +1,6 @@
 // port-lint: source src/typing/user.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -23,6 +25,7 @@ import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherAlloc
+import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeMatcherFactory as TypeMatcherFactoryBoxed
 
 private sealed class TyUserError(
@@ -50,7 +53,8 @@ private sealed class TyUserError(
 /**
  * Types of `[]` operator.
  */
-class TyUserIndex(
+@HiddenFromObjC
+internal class TyUserIndex(
     /** Type of index argument. */
     internal val index: Ty,
     /** Type of result. */
@@ -60,7 +64,8 @@ class TyUserIndex(
 /**
  * Fields of the struct.
  */
-data class TyUserFields(
+@HiddenFromObjC
+internal data class TyUserFields(
     /** Known fields. */
     val known: Map<String, Ty>,
     /**
@@ -109,7 +114,8 @@ data class TyUserFields(
 /**
  * Optional parameters to [TyUser.new].
  */
-class TyUserParams(
+@HiddenFromObjC
+internal class TyUserParams(
     /** Super types for this type (`base` is included in this list implicitly). */
     val supertypes: List<TyBasic> = emptyList(),
     /** Runtime type matcher for this type (use `TyStarlarkValue` matcher if not specified). */
@@ -131,7 +137,8 @@ class TyUserParams(
 /**
  * Type description for arbitrary type.
  */
-class TyUser private constructor(
+@HiddenFromObjC
+internal class TyUser private constructor(
     private val name: String,
     /** Base type for this custom type, e.g. generic record for record with known fields. */
     private val base: TyStarlarkValue,
@@ -219,6 +226,11 @@ class TyUser private constructor(
     // --- TyCustomImpl implementation ---
 
     override fun asName(): String = name
+
+    override fun intersects(other: TyCustomImpl): Boolean {
+        if (other !is TyUser) return false
+        return this == other
+    }
 
     override fun attribute(attr: String): Result<Ty> {
         // First try base methods.

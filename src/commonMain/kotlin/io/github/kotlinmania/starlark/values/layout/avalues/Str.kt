@@ -33,6 +33,8 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -49,19 +51,23 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
             typeName = "string",
             isStr = true,
             memorySizeFn = { ptr ->
-                val str = ptr.valueRef<StarlarkStr>()
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 val byteLen = str.len()
                 ValueAllocSize.new(
-                    AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                    maxOf(
+                        AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                        io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC,
+                    ),
                 )
             },
-            heapFreezeFn = { _, ptr, freezer ->
-                val str = ptr.valueRef<StarlarkStr>()
+            heapFreezeFn = { repr, ptr, freezer ->
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
+                AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
                 Result.success(fv.toFrozenValue())
             },
             heapCopyFn = { ptr, tracer ->
-                val str = ptr.valueRef<StarlarkStr>()
+                val str = ptr.starlarkValue() as? StarlarkStr ?: error("Expected string value")
                 tracer.allocStr(str.asStr())
             },
             starlarkValue =
@@ -102,6 +108,16 @@ internal class StarlarkStrAValue(
         return Result.success(fv.toFrozenValue())
     }
 
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        val s = str.asStr()
+        val fv = freezer.frozenHeap().allocStrIntern(s)
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
+        return Result.success(fv.toFrozenValue())
+    }
+
     override fun heapCopy(tracer: Tracer): Value {
         val s = str.asStr()
         return tracer.allocStr(s)
@@ -111,27 +127,29 @@ internal class StarlarkStrAValue(
 }
 
 /** Allocate a string on this heap. */
-fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
+internal fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
 
 /** Intern string. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue = allocStrHashed(Hashed.new(s))
 
 /** Allocate prehashed string. */
-fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
+internal fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     val constant = constantString(s.key)
     if (constant != null) {
         return constant
     }
-    val bytes = s.key.encodeToByteArray()
-    return allocStrInit(bytes.size, s.hash) { dst ->
-        bytes.copyInto(dst)
+    return stringInterner().intern(s) {
+        val bytes = s.key.encodeToByteArray()
+        allocStrInit(bytes.size, s.hash) { dst ->
+            bytes.copyInto(dst)
+        }
     }
 }
 
 /** Allocate a string on the heap. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-fun Heap.allocStr(x: String): StringValue {
+internal fun Heap.allocStr(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {
         return constant.toStringValue()
@@ -143,20 +161,22 @@ fun Heap.allocStr(x: String): StringValue {
 }
 
 /** Intern string. */
-fun Heap.allocStrIntern(x: String): StringValue {
+internal fun Heap.allocStrIntern(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {
         return constant.toStringValue()
     }
-    val hash = StarlarkHashValue.new(x)
-    val bytes = x.encodeToByteArray()
-    return allocStrInit(bytes.size, hash) { dst ->
-        bytes.copyInto(dst)
+    val hashed = Hashed.new(x)
+    return stringInterner().intern(hashed) {
+        val bytes = x.encodeToByteArray()
+        allocStrInit(bytes.size, hashed.hash) { dst ->
+            bytes.copyInto(dst)
+        }
     }
 }
 
 /** Allocate a string on the heap, based on two concatenated strings. */
-fun Heap.allocStrConcat(x: String, y: String): StringValue {
+internal fun Heap.allocStrConcat(x: String, y: String): StringValue {
     val s =
         when {
             x.isEmpty() -> y
@@ -174,7 +194,7 @@ fun Heap.allocStrConcat(x: String, y: String): StringValue {
 }
 
 /** Allocate a string on the heap, based on three concatenated strings. */
-fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
+internal fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
     when {
         x.isEmpty() -> allocStrConcat(y, z)
         y.isEmpty() -> allocStrConcat(x, z)

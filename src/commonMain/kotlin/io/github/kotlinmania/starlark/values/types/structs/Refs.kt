@@ -34,13 +34,13 @@ import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
  */
 @ConsistentCopyVisibility
 data class StructRef internal constructor(
-    private val struct: Struct,
+    private val struct: StructGen<*>,
 ) {
     companion object {
         /**
          * Downcast a value to a struct reference.
          */
-        fun fromValue(value: Value): StructRef? = StructGen.fromValue(value)?.let { StructRef(it) }
+        fun fromValue(value: Value): StructRef? = structGenFromValue(value)?.let { StructRef(it) }
 
         internal fun isInstance(value: Value): Boolean {
             // debug_assert in Rust: StarlarkTypeId::of::<Struct>() == StarlarkTypeId::of::<FrozenStruct>()
@@ -51,7 +51,12 @@ data class StructRef internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, Value>> = struct.iter()
+    fun iter(): Sequence<Pair<String, Value>> =
+        sequence {
+            for ((key, value) in struct.fields.iter()) {
+                yield(key to (value.asStructValueOrNull() ?: continue))
+            }
+        }
 }
 
 /**
@@ -64,7 +69,7 @@ data class FrozenStructRef internal constructor(
     /**
      * Iterate over struct fields.
      */
-    fun iter(): Sequence<Pair<String, FrozenValue>> = struct.iter()
+    fun iter(): Sequence<Pair<String, FrozenValue>> = struct.delegate.iter()
 
     companion object {
         /**

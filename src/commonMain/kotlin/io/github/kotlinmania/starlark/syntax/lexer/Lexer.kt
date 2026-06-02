@@ -139,10 +139,11 @@ class Lexer(
                     tabs = 0
                     val commentStart = pos
                     pos++ // skip '#'
-                    while (pos < source.length && source[pos] != '\n') pos++
+                    while (pos < source.length && source[pos] != '\n' && source[pos] != '\r') pos++
                     // Comment token (content excludes leading '#')
-                    val commentText = source.substring(commentStart + 1, pos).trimEnd('\r')
+                    val commentText = source.substring(commentStart + 1, pos)
                     buffer.addLast(Triple(commentStart, Token.Comment(commentText), pos))
+                    if (pos < source.length && source[pos] == '\r') pos++
                     if (pos < source.length && source[pos] == '\n') {
                         // Don't consume the newline, let the main loop handle it
                     }
@@ -188,7 +189,7 @@ class Lexer(
 
     // --- String parsing ---
 
-    private fun escapeChar(chars: CharIteratorWithPos, min: Int, max: Int, radix: Int): Char? {
+    private fun escapeChar(chars: CharIteratorWithPos, min: Int, max: Int, radix: Int): Int? {
         var value = 0
         var count = 0
         while (count < max) {
@@ -202,7 +203,17 @@ class Lexer(
             count++
             value = value * radix + digit
         }
-        return value.toChar()
+        return value
+    }
+
+    private fun appendCodePoint(res: StringBuilder, cp: Int) {
+        if (cp <= 0xFFFF) {
+            res.append(cp.toChar())
+        } else {
+            val offset = cp - 0x10000
+            res.append((0xD800 + (offset ushr 10)).toChar())
+            res.append((0xDC00 + (offset and 0x3FF)).toChar())
+        }
     }
 
     private fun escape(chars: CharIteratorWithPos, res: StringBuilder): Boolean {
@@ -222,21 +233,21 @@ class Lexer(
                 chars.next()
             }
             'x' -> {
-                val ch = escapeChar(chars, 2, 2, 16) ?: return false
-                res.append(ch)
+                val cp = escapeChar(chars, 2, 2, 16) ?: return false
+                appendCodePoint(res, cp)
             }
             'u' -> {
-                val ch = escapeChar(chars, 4, 4, 16) ?: return false
-                res.append(ch)
+                val cp = escapeChar(chars, 4, 4, 16) ?: return false
+                appendCodePoint(res, cp)
             }
             'U' -> {
-                val ch = escapeChar(chars, 8, 8, 16) ?: return false
-                res.append(ch)
+                val cp = escapeChar(chars, 8, 8, 16) ?: return false
+                appendCodePoint(res, cp)
             }
             in '0'..'7' -> {
                 chars.unnext(c)
-                val ch = escapeChar(chars, 1, 3, 8) ?: return false
-                res.append(ch)
+                val cp = escapeChar(chars, 1, 3, 8) ?: return false
+                appendCodePoint(res, cp)
             }
             '"', '\'', '\\' -> res.append(c)
             else -> {
@@ -744,6 +755,8 @@ class Lexer(
             return next
         }
     }
+
+    fun nextIncludingComments(): Lexeme? = produceNext()
 
     /**
      * Produce the next token or null if at EOF.

@@ -1,4 +1,5 @@
 // port-lint: source src/analysis/names.rs
+
 package io.github.kotlinmania.starlark.analysis
 
 /*
@@ -30,16 +31,17 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
 import io.github.kotlinmania.starlark.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark.syntax.ast.AstIdent
 import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
 import io.github.kotlinmania.starlark.syntax.ast.AstStmt
 import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
 import io.github.kotlinmania.starlark.syntax.ast.ClauseP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ForClauseP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
 import io.github.kotlinmania.starlark.syntax.ast.ParameterP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
@@ -68,7 +70,7 @@ sealed class NameWarning : LintWarning {
         val name: String,
     ) : NameWarning()
 
-    override fun toString(): String =
+    final override fun toString(): String =
         when (this) {
             is UnusedLoad -> "Unused `load` of `$name`"
             is UnusedAssign -> "Unused assignment of `$name`"
@@ -126,15 +128,9 @@ private enum class Assigned {
 
 private typealias AstStr = Spanned<String>
 
-private fun astStrFromIdent(x: AstIdent): AstStr {
-    // AstIdent = Spanned<IdentP<AstNoPayload, Unit>>, .node.ident is the string
-    return Spanned(x.node.ident, x.span)
-}
+private fun astStrFromIdent(x: Spanned<IdentP<AstNoPayload, *>>): AstStr = Spanned(x.node.ident, x.span)
 
-private fun astStrFromAssignIdent(x: AstAssignIdent): AstStr {
-    // AstAssignIdent = Spanned<AssignIdentP<AstNoPayload, Unit>>, .node.ident is the string
-    return Spanned(x.node.ident, x.span)
-}
+private fun astStrFromAssignIdent(x: Spanned<AssignIdentP<AstNoPayload, *>>): AstStr = Spanned(x.node.ident, x.span)
 
 /** When we see a control flow operator, how far does it apply? */
 private enum class Abort {
@@ -163,109 +159,46 @@ private fun isFail(x: AstExpr): Boolean {
 
 /** Visit all expression children of an assign target (e.g. index/dot exprs, not the lvalue itself). */
 private fun AstAssignTarget.visitAssignTargetExprChildren(visitor: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitAssignTargetExprChildren(visitor) }
-        is AssignTargetP.Index<*> -> {
-            visitor(t.expr as AstExpr)
-            visitor(t.index as AstExpr)
+        is AssignTargetP.Tuple<AstNoPayload> -> t.elements.forEach { it.visitAssignTargetExprChildren(visitor) }
+        is AssignTargetP.Index<AstNoPayload> -> {
+            visitor(t.expr)
+            visitor(t.index)
         }
-        is AssignTargetP.Dot<*> -> visitor(t.expr as AstExpr)
-        is AssignTargetP.Identifier<*, *> -> {} // no sub-expressions
+        is AssignTargetP.Dot<AstNoPayload> -> visitor(t.expr)
+        is AssignTargetP.Identifier<AstNoPayload, *> -> {}
     }
 }
 
 /** Visit all lvalue identifier leaves of an assign target. */
-private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
+private fun AstAssignTarget.visitLvalue(visitor: (Spanned<AssignIdentP<AstNoPayload, *>>) -> Unit) {
     when (val t = this.node) {
-        is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitLvalue(visitor) }
-        is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
-        is AssignTargetP.Index<*>, is AssignTargetP.Dot<*> -> {} // not a simple lvalue
+        is AssignTargetP.Tuple<AstNoPayload> -> t.elements.forEach { it.visitLvalue(visitor) }
+        is AssignTargetP.Identifier<AstNoPayload, *> -> visitor(t.ident)
+        is AssignTargetP.Index<AstNoPayload>,
+        is AssignTargetP.Dot<AstNoPayload>,
+        -> {}
     }
 }
 
 /** Visit all expression children of a parameter (default value, type annotation). */
 private fun ParameterP<AstNoPayload>.visitParameterExprChildren(visitor: (AstExpr) -> Unit) {
     when (this) {
-        is ParameterP.Normal -> {
-            typ?.let { visitor(it.node.expr as AstExpr) }
-            defaultVal?.let { visitor(it as AstExpr) }
+        is ParameterP.Normal<AstNoPayload> -> {
+            typ?.let { visitor(it.node.expr) }
+            defaultVal?.let(visitor)
         }
-        is ParameterP.Args -> typ?.let { visitor(it.node.expr as AstExpr) }
-        is ParameterP.KwArgs -> typ?.let { visitor(it.node.expr as AstExpr) }
-        is ParameterP.NoArgs, is ParameterP.Slash -> {}
+        is ParameterP.Args<AstNoPayload> -> typ?.let { visitor(it.node.expr) }
+        is ParameterP.KwArgs<AstNoPayload> -> typ?.let { visitor(it.node.expr) }
+        is ParameterP.NoArgs<AstNoPayload>,
+        is ParameterP.Slash<AstNoPayload>,
+        -> {}
     }
 }
 
 /** Visit all expression children of an AstExpr (recursing one level via the visitor). */
 private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
-    when (val e = this.node) {
-        is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.Dot<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Call<*> -> {
-            visitor(e.expr as AstExpr)
-            e.args.args.forEach { visitor(it.node.expr() as AstExpr) }
-        }
-        is ExprP.Index<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.index as AstExpr)
-        }
-        is ExprP.Index2<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.index0 as AstExpr)
-            visitor(e.index1 as AstExpr)
-        }
-        is ExprP.Slice<*> -> {
-            visitor(e.expr as AstExpr)
-            e.start?.let { visitor(it as AstExpr) }
-            e.stop?.let { visitor(it as AstExpr) }
-            e.step?.let { visitor(it as AstExpr) }
-        }
-        is ExprP.Not<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Minus<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Plus<*> -> visitor(e.expr as AstExpr)
-        is ExprP.BitNot<*> -> visitor(e.expr as AstExpr)
-        is ExprP.Op<*> -> {
-            visitor(e.lhs as AstExpr)
-            visitor(e.rhs as AstExpr)
-        }
-        is ExprP.If<*> -> {
-            visitor(e.cond as AstExpr)
-            visitor(e.v1 as AstExpr)
-            visitor(e.v2 as AstExpr)
-        }
-        is ExprP.ListExpr<*> -> e.elements.forEach { visitor(it as AstExpr) }
-        is ExprP.Dict<*> ->
-            e.elements.forEach { (k, v) ->
-                visitor(k as AstExpr)
-                visitor(v as AstExpr)
-            }
-        is ExprP.ListComprehension<*> -> {
-            visitor(e.expr as AstExpr)
-            visitor(e.forClause.over as AstExpr)
-            e.clauses.forEach { clause ->
-                when (clause) {
-                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
-                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
-                }
-            }
-        }
-        is ExprP.DictComprehension<*> -> {
-            visitor(e.key as AstExpr)
-            visitor(e.value as AstExpr)
-            visitor(e.forClause.over as AstExpr)
-            e.clauses.forEach { clause ->
-                when (clause) {
-                    is ClauseP.For<*> -> visitor(clause.forClause.over as AstExpr)
-                    is ClauseP.If<*> -> visitor(clause.cond as AstExpr)
-                }
-            }
-        }
-        is ExprP.FString<*> ->
-            e.fstring.node.expressions
-                .forEach { visitor(it as AstExpr) }
-        is ExprP.Identifier<*, *>, is ExprP.Lambda<*, *>, is ExprP.Literal -> {}
-    }
+    node.visitChildExprs(visitor)
 }
 
 /**
@@ -488,7 +421,7 @@ private class State(
         scopes.last().unbound.add(ident)
     }
 
-    fun setIdent(ident: AstAssignIdent, kind: Kind) {
+    fun setIdent(ident: Spanned<AssignIdentP<AstNoPayload, *>>, kind: Kind) {
         val astStr = astStrFromAssignIdent(ident)
         val scope = scopes.last()
         scope.set.add(Pair(astStr, kind))
@@ -505,8 +438,8 @@ private class State(
     fun comprehension(
         res1: AstExpr,
         res2: AstExpr?,
-        forClause: io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>,
-        clauses: List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>,
+        forClause: ForClauseP<AstNoPayload>,
+        clauses: List<ClauseP<AstNoPayload>>,
     ) {
         expr(forClause.over)
         enterScope()
@@ -530,23 +463,23 @@ private class State(
 
     fun expr(expr: AstExpr) {
         when (val e = expr.node) {
-            is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as AstIdent))
-            is ExprP.Lambda<*, *> -> {
+            is ExprP.Identifier<AstNoPayload, *> -> useIdent(astStrFromIdent(e.ident))
+            is ExprP.Lambda<AstNoPayload, *> -> {
                 for (p in e.lambda.params) {
-                    (p.node as ParameterP<AstNoPayload>).visitParameterExprChildren { x -> expr(x) }
+                    p.node.visitParameterExprChildren { x -> expr(x) }
                 }
                 enterScope()
                 for (p in e.lambda.params) {
-                    val pname = (p.node as ParameterP<AstNoPayload>).ident()
+                    val pname = p.node.ident()
                     if (pname != null) {
-                        setIdent(pname as AstAssignIdent, Kind.Argument)
+                        setIdent(pname, Kind.Argument)
                     }
                 }
-                expr(e.lambda.body as AstExpr)
+                expr(e.lambda.body)
                 exitScope()
             }
-            is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>)
-            is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.ListComprehension<AstNoPayload> -> comprehension(e.expr, null, e.forClause, e.clauses)
+            is ExprP.DictComprehension<AstNoPayload> -> comprehension(e.key, e.value, e.forClause, e.clauses)
             else -> expr.visitExprChildren { x -> expr(x) }
         }
     }
@@ -570,75 +503,77 @@ private class State(
 
     fun stmt(stmt: AstStmt) {
         when (val s = stmt.node) {
-            is StmtP.Expression -> {
+            is StmtP.Expression<AstNoPayload> -> {
                 expr(s.expr)
                 if (isFail(s.expr)) {
                     setAbort(Abort.Function)
                 }
             }
-            is StmtP.Return -> {
-                exprOpt(s.expr as AstExpr?)
+            is StmtP.Return<AstNoPayload> -> {
+                exprOpt(s.expr)
                 setAbort(Abort.Function)
             }
-            is StmtP.Assign -> {
-                typOpt(s.assign.ty as AstTypeExpr?)
-                expr(s.assign.rhs as AstExpr)
-                assign(s.assign.lhs as AstAssignTarget)
+            is StmtP.Assign<AstNoPayload> -> {
+                typOpt(s.assign.ty)
+                expr(s.assign.rhs)
+                assign(s.assign.lhs)
             }
-            is StmtP.AssignModify -> {
-                expr(s.rhs as AstExpr)
-                assignAsExpr(s.lhs as AstAssignTarget)
-                assign(s.lhs as AstAssignTarget)
+            is StmtP.AssignModify<AstNoPayload> -> {
+                expr(s.rhs)
+                assignAsExpr(s.lhs)
+                assign(s.lhs)
             }
-            is StmtP.Statements -> {
+            is StmtP.Statements<AstNoPayload> -> {
                 for (x in s.stmts) {
-                    stmt(x as AstStmt)
+                    stmt(x)
                 }
             }
-            is StmtP.If -> {
-                expr(s.cond as AstExpr)
-                branch({ me -> me.stmt(s.suite as AstStmt) }, { })
+            is StmtP.If<AstNoPayload> -> {
+                expr(s.cond)
+                branch({ me -> me.stmt(s.suite) }, { })
             }
-            is StmtP.IfElse -> {
-                expr(s.cond as AstExpr)
-                branch({ me -> me.stmt(s.suite1 as AstStmt) }, { me -> me.stmt(s.suite2 as AstStmt) })
+            is StmtP.IfElse<AstNoPayload> -> {
+                expr(s.cond)
+                branch({ me -> me.stmt(s.suite1) }, { me -> me.stmt(s.suite2) })
             }
-            is StmtP.For -> {
-                expr(s.forStmt.over as AstExpr)
+            is StmtP.For<AstNoPayload> -> {
+                expr(s.forStmt.over)
                 // Note this isn't 100% correct, as a for loop may set something the next iteration consumes
                 loops { me ->
-                    me.assign(s.forStmt.varTarget as AstAssignTarget)
-                    me.stmt(s.forStmt.body as AstStmt)
+                    me.assign(s.forStmt.varTarget)
+                    me.stmt(s.forStmt.body)
                 }
             }
-            is StmtP.Def<*, *> -> {
+            is StmtP.Def<AstNoPayload, *> -> {
                 for (p in s.def.params) {
-                    (p.node as ParameterP<AstNoPayload>).visitParameterExprChildren { e -> expr(e) }
+                    p.node.visitParameterExprChildren { e -> expr(e) }
                 }
-                typOpt(s.def.returnType as AstTypeExpr?)
-                setIdent(s.def.name as AstAssignIdent, Kind.Assign)
+                typOpt(s.def.returnType)
+                setIdent(s.def.name, Kind.Assign)
                 enterScope()
                 for (p in s.def.params) {
-                    val pname = (p.node as ParameterP<AstNoPayload>).ident()
+                    val pname = p.node.ident()
                     if (pname != null) {
-                        setIdent(pname as AstAssignIdent, Kind.Argument)
+                        setIdent(pname, Kind.Argument)
                     }
                 }
-                stmt(s.def.body as AstStmt)
+                stmt(s.def.body)
                 exitScope()
             }
             // These were handled by collecting the scopes
-            is StmtP.Load<*, *> -> {
+            is StmtP.Load<AstNoPayload, *> -> {
                 for (arg in s.loadStmt.args) {
-                    setIdent(arg.local as AstAssignIdent, Kind.Load)
+                    setIdent(arg.local, Kind.Load)
                 }
             }
             // These control flow operators can be ignored - either the code after is fine (no problem)
             // or in error (in which case you have useless code after flow control)
-            is StmtP.Break, is StmtP.Continue -> {
+            is StmtP.Break<AstNoPayload>,
+            is StmtP.Continue<AstNoPayload>,
+            -> {
                 setAbort(Abort.Loop)
             }
-            is StmtP.Pass -> {}
+            is StmtP.Pass<AstNoPayload> -> {}
         }
     }
 

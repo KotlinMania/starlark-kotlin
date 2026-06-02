@@ -1,4 +1,6 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/layout/value.rs
+
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -91,6 +93,7 @@ import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
+import kotlin.native.HiddenFromObjC
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
@@ -136,6 +139,14 @@ private fun debugValue(typ: String, v: Value): String {
             // Pointer is not a valid header (could be forward during GC)
             return "$typ(Forward($ptrOpt))"
         }
+    }
+    val listGen =
+        io.github.kotlinmania.starlark.values.types.list
+            .listGenFromValue(v)
+    if (listGen != null) {
+        val content = (listGen.data as io.github.kotlinmania.starlark.values.types.list.ListLike).content()
+        val contentStr = content.joinToString(", ") { debugValue("Value", it) }
+        return "$typ(ListGen(ListData { content: Cell { value: ValueTyped(Value(Array { len: ${content.size}, capacity: ${content.size}, iter_count: 0, content: [$contentStr] })) } }))"
     }
     return "$typ(${v.getRef().asDebug()})"
 }
@@ -308,7 +319,7 @@ class Value internal constructor(
 
     internal fun unpackInteger(): Result<Long?> =
         unpackIntegerImpl(
-            integerType = "Long",
+            integerType = "i64",
             tryFromI32 = { i32 -> i32.toLong() },
             tryFromBigInt = { bigInt ->
                 try {
@@ -438,7 +449,7 @@ class Value internal constructor(
      * from a different package (e.g. ValueOf.unpackValueImpl).
      */
     @PublishedApi
-    internal fun getUnderlyingPtr(): Any = getRef().value.ptr
+    internal fun getUnderlyingPtr(): StarlarkValue = getRef().value.starlarkValue()
 
     /**
      * Downcast without checking the value type.
@@ -838,17 +849,283 @@ class Value internal constructor(
         return serializeImpl()
     }
 
-    internal fun serializeImpl(): Result<String> {
-        val guard = jsonStackPush(this)
-        return if (guard.isSuccess) {
-            try {
-                // In Rust: erased_serde::serialize(self.get_ref().as_serialize(), s)
-                Result.success(toRepr())
-            } finally {
-                guard.getOrThrow().close()
+    internal fun serializeImpl(): Result<String> = toJsonStringImpl()
+
+    private fun escapeJsonString(s: String): String {
+        val sb = StringBuilder()
+        sb.append('"')
+        for (i in 0 until s.length) {
+            val c = s[i]
+            when (c) {
+                '\\' -> sb.append("\\\\")
+                '"' -> sb.append("\\\"")
+                '\b' -> sb.append("\\b")
+                '\u000c' -> sb.append("\\f")
+                '\n' -> sb.append("\\n")
+                '\r' -> sb.append("\\r")
+                '\t' -> sb.append("\\t")
+                else -> {
+                    val code = c.code
+                    if (code < 0x20) {
+                        sb.append("\\u")
+                        val hex = code.toString(16)
+                        for (j in 0 until (4 - hex.length)) {
+                            sb.append('0')
+                        }
+                        sb.append(hex)
+                    } else {
+                        sb.append(c)
+                    }
+                }
             }
-        } else {
-            Result.failure(ToJsonCycleError(getType()))
+        }
+        sb.append('"')
+        return sb.toString()
+    }
+
+    private fun toJsonStringImpl(): Result<String> {
+        if (isNone()) {
+            return Result.success("null")
+        }
+        val b = unpackBool()
+        if (b != null) {
+            return Result.success(b.toString())
+        }
+        val num = unpackNum()
+        if (num != null) {
+            return when (num) {
+                is NumRef.Int -> Result.success(num.value.toString())
+                is NumRef.Float -> {
+                    val d = num.value.value
+                    if (d.isInfinite() || d.isNaN()) {
+                        Result.failure(Exception("Cannot serialize non-finite float to JSON"))
+                    } else {
+                        Result.success(d.toString())
+                    }
+                }
+            }
+        }
+        val s = unpackStr()
+        if (s != null) {
+            return Result.success(escapeJsonString(s))
+        }
+
+        // Cycle check guard for container types
+        val guard = jsonStackPush(this)
+        if (!guard.isSuccess) {
+            return Result.failure(ToJsonCycleError(getType()))
+        }
+
+        try {
+            // Check list
+            val listGen =
+                io.github.kotlinmania.starlark.values.types.list
+                    .listGenFromValue(this)
+            if (listGen != null) {
+                val listLike = listGen.data as? io.github.kotlinmania.starlark.values.types.list.ListLike
+                val content = listLike?.content() ?: emptyList()
+                val sb = StringBuilder()
+                sb.append('[')
+                for (i in content.indices) {
+                    if (i > 0) sb.append(',')
+                    val serialized = content[i].toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append(']')
+                return Result.success(sb.toString())
+            }
+
+            // Check tuple
+            val tupleGen =
+                io.github.kotlinmania.starlark.values.types.tuple
+                    .tupleGenFromValue(this)
+            if (tupleGen != null) {
+                val content = tupleGen.content()
+                val sb = StringBuilder()
+                sb.append('[')
+                for (i in content.indices) {
+                    if (i > 0) sb.append(',')
+                    val item = (content[i] as? Value) ?: (content[i] as? FrozenValue)?.toValue()
+                    if (item == null) {
+                        return Result.failure(Exception("Unsupported tuple item type"))
+                    }
+                    val serialized = item.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append(']')
+                return Result.success(sb.toString())
+            }
+
+            // Check Dict
+            val dictGen =
+                io.github.kotlinmania.starlark.values.types.dict
+                    .dictGenFromValue(this)
+            if (dictGen != null) {
+                val entries =
+                    when (val inner = dictGen.inner) {
+                        is io.github.kotlinmania.starlark.values.types.dict.FrozenDictData -> {
+                            inner.content.iter().map { Pair(it.first.toValue(), it.second.toValue()) }
+                        }
+                        is io.github.kotlinmania.starlark.values.types.dict.AtomicRef<*> -> {
+                            val dict = inner.value as io.github.kotlinmania.starlark.values.types.dict.Dict
+                            dict.content.iter().map { Pair(it.first, it.second) }
+                        }
+                        else -> emptySequence()
+                    }
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in entries) {
+                    if (!first) sb.append(',')
+                    first = false
+                    val keyStr = k.unpackStr() ?: return Result.failure(Exception("Dict keys must be strings for JSON serialization"))
+                    sb.append(escapeJsonString(keyStr))
+                    sb.append(':')
+                    val serialized = v.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+
+            // Check Struct
+            val structVal = downcastRef<io.github.kotlinmania.starlark.values.types.structs.Struct>()
+            if (structVal != null) {
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in structVal.delegate.fields.iter()) {
+                    if (!first) sb.append(',')
+                    first = false
+                    sb.append(escapeJsonString(k))
+                    sb.append(':')
+                    val serialized = v.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+            val structFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.structs.FrozenStruct>()
+            if (structFrozen != null) {
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in structFrozen.delegate.fields.iter()) {
+                    if (!first) sb.append(',')
+                    first = false
+                    sb.append(escapeJsonString(k))
+                    sb.append(':')
+                    val serialized = v.toValue().toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+
+            // Check Namespace
+            val namespaceVal = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.Namespace>()
+            if (namespaceVal != null) {
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in namespaceVal.fields.iter()) {
+                    if (!first) sb.append(',')
+                    first = false
+                    sb.append(escapeJsonString(k))
+                    sb.append(':')
+                    val serialized = v.value.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+            val namespaceFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace>()
+            if (namespaceFrozen != null) {
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in namespaceFrozen.fields.iter()) {
+                    if (!first) sb.append(',')
+                    first = false
+                    sb.append(escapeJsonString(k))
+                    sb.append(':')
+                    val serialized =
+                        v.value
+                            .toValue()
+                            .toJsonStringImpl()
+                            .getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+
+            // Check Record
+            val record =
+                io.github.kotlinmania.starlark.values.types.record.RecordGen
+                    .fromValue(this)
+            if (record != null) {
+                val sb = StringBuilder()
+                sb.append('{')
+                var first = true
+                for ((k, v) in record.iter()) {
+                    if (!first) sb.append(',')
+                    first = false
+                    sb.append(escapeJsonString(k))
+                    sb.append(':')
+                    val serialized = v.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append('}')
+                return Result.success(sb.toString())
+            }
+
+            // Check Enum value
+            val enumValue = downcastRef<io.github.kotlinmania.starlark.values.types.enumeration.value.EnumValueGen>()
+            if (enumValue != null) {
+                return enumValue.value.toJsonStringImpl()
+            }
+
+            // Check Set
+            val setVal = downcastRef<io.github.kotlinmania.starlark.values.types.set.MutableSet>()
+            if (setVal != null) {
+                val sb = StringBuilder()
+                sb.append('[')
+                var first = true
+                val elements =
+                    setVal.inner
+                        .borrow()
+                        .data.content
+                        .iter()
+                for (item in elements) {
+                    if (!first) sb.append(',')
+                    first = false
+                    val serialized = item.toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append(']')
+                return Result.success(sb.toString())
+            }
+            val setFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.set.FrozenSet>()
+            if (setFrozen != null) {
+                val sb = StringBuilder()
+                sb.append('[')
+                var first = true
+                val elements = setFrozen.inner.content.iter()
+                for (item in elements) {
+                    if (!first) sb.append(',')
+                    first = false
+                    val serialized = item.toValue().toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    sb.append(serialized)
+                }
+                sb.append(']')
+                return Result.success(sb.toString())
+            }
+
+            // If none of the known types, throw error
+            return Result.failure(Exception("Value of type `${getType()}` is not serializable to JSON"))
+        } finally {
+            guard.getOrThrow().close()
         }
     }
 
@@ -1092,6 +1369,17 @@ class Value internal constructor(
         return getRef().downcastRef<T>()
     }
 
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean {
+        if (clazz == StarlarkStr::class) {
+            return isStr()
+        }
+        if (clazz == PointerI32::class) {
+            return unpackInlineInt() != null
+        }
+        return clazz.isInstance(getRef().starlarkValue())
+    }
+
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
         if (clazz == StarlarkStr::class) {
@@ -1106,9 +1394,10 @@ class Value internal constructor(
             }
         }
         val ref = getRef()
-        return if (clazz.isInstance(ref)) {
+        val sv = ref.starlarkValue()
+        return if (clazz.isInstance(sv)) {
             @Suppress("UNCHECKED_CAST")
-            ref as Any as T
+            sv as T
         } else {
             null
         }
@@ -1164,13 +1453,15 @@ class Value internal constructor(
 
 // Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
 
-fun Value.Companion.default(): Value = Value.newNone()
+internal fun Value.Companion.default(): Value = Value.newNone()
 
-fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
+internal fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
 
-fun Value.equivalent(key: FrozenValue): Boolean = key.equals(this).getOrThrow()
+@HiddenFromObjC
+internal fun Value.equivalent(key: FrozenValue): Boolean = key.equals(this).getOrThrow()
 
-fun FrozenValue.equivalent(key: Value): Boolean = this.equals(key).getOrThrow()
+@HiddenFromObjC
+internal fun FrozenValue.equivalent(key: Value): Boolean = this.equals(key).getOrThrow()
 
 /**
  * A [Value] that can never be changed. Can be converted back to a [Value] with [toValue].
@@ -1373,7 +1664,7 @@ class FrozenValue internal constructor(
     /**
      * Downcast to string.
      */
-    fun downcastFrozenStr(): FrozenRef<String>? {
+    internal fun downcastFrozenStr(): FrozenRef<String>? {
         val value = toValue().unpackStr() ?: return null
         return FrozenRef(value)
     }
@@ -1381,7 +1672,7 @@ class FrozenValue internal constructor(
     /**
      * Note: see docs about `Value.unpackStarlarkStr` about instability.
      */
-    fun downcastFrozenStarlarkStr(): FrozenRef<StarlarkStr>? {
+    internal fun downcastFrozenStarlarkStr(): FrozenRef<StarlarkStr>? {
         val value = toValue().unpackStarlarkStr() ?: return null
         return FrozenRef(value)
     }
@@ -1438,6 +1729,10 @@ class FrozenValue internal constructor(
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? = toValue().downcastRef(clazz)
 
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean =
+        toValue().matchesStarlarkType(clazz)
+
     /**
      * Downcast to a specific [StarlarkValue] type.
      */
@@ -1446,10 +1741,12 @@ class FrozenValue internal constructor(
 
 // then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
 // The cycle detection logic is in Value.serializeImpl().
-fun Value.serialize(): Result<String> = serializeImpl()
+@HiddenFromObjC
+internal fun Value.serialize(): Result<String> = serializeImpl()
 
 // Rust: self.to_value().serialize(s)
-fun FrozenValue.serialize(): Result<String> = toValue().serialize()
+@HiddenFromObjC
+internal fun FrozenValue.serialize(): Result<String> = toValue().serialize()
 
 object ValueStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = FrozenValueStarlarkTypeRepr.starlarkTypeRepr()

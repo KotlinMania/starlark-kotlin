@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
@@ -32,19 +33,26 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.simple
+import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Arena
 import io.github.kotlinmania.starlark.values.layout.heap.arena.ArenaVisitor
 import io.github.kotlinmania.starlark.values.layout.heap.arena.Reservation
 import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
+import io.github.kotlinmania.starlark.values.layout.heapCopy
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
 import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValueTyped
+import io.github.kotlinmania.starlark.values.traceRecursiveGuardStacks
 import io.github.kotlinmania.starlark.values.types.string.intern.FrozenStringValueInterner
 import io.github.kotlinmania.starlark.values.types.string.intern.StringValueInterner
 import io.github.kotlinmania.starlark.values.valueof.ValueOf
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicInt
 import kotlin.math.max
 
 enum class HeapKind {
@@ -90,13 +98,27 @@ class Heap internal constructor(
          */
         fun <R> temp(f: (Heap) -> R): R {
             val heap = OwnedHeap.new()
-            return f(Heap(heap))
+            try {
+                return f(Heap(heap))
+            } finally {
+                heap.arena.borrow().finish()
+                for (ref in heap.refs) {
+                    ref.close()
+                }
+            }
         }
 
         /** Like temp, but suspend. */
         suspend fun <R> tempAsync(f: suspend (Heap) -> R): R {
             val heap = OwnedHeap.new()
-            return f(Heap(heap))
+            try {
+                return f(Heap(heap))
+            } finally {
+                heap.arena.borrow().finish()
+                for (ref in heap.refs) {
+                    ref.close()
+                }
+            }
         }
     }
 
@@ -126,7 +148,7 @@ class Heap internal constructor(
     }
 
     /** Similar to accessOwnedFrozenValue, but typed. */
-    fun <T : StarlarkValue> accessOwnedFrozenValueTyped(v: OwnedFrozenValueTyped<T>): ValueTyped<T> {
+    private fun <T : StarlarkValue> accessOwnedFrozenValueTyped(v: OwnedFrozenValueTyped<T>): ValueTyped<T> {
         addReference(v.owner())
         // Safe: We just added a reference to this heap.
         return v.valueTyped().toValueTyped()
@@ -135,7 +157,7 @@ class Heap internal constructor(
     /** Add a dependency onto the provided frozen heap. */
     fun addReference(h: FrozenHeapRef) {
         if (!owned.refs.contains(h)) {
-            owned.refs.add(h)
+            owned.refs.add(h.clone())
         }
     }
 
@@ -169,6 +191,13 @@ class Heap internal constructor(
         return Pair(vt, Unit)
     }
 
+    private fun <A : AValue> allocRawNoDrop(x: AValueImpl<A>): ValueTyped<StarlarkValue> {
+        val arena = owned.arena.borrow()
+        val v = arena.allocNoDrop(x)
+        val value = Value.newPtr(v.header, v.header.vtable.isStr)
+        return ValueTyped.newUnchecked(value)
+    }
+
     internal fun allocStrInit(
         len: Int,
         hash: StarlarkHashValue,
@@ -186,6 +215,10 @@ class Heap internal constructor(
     }
 
     fun allocStr(x: String): Value {
+        val constant = constantString(x)
+        if (constant != null) {
+            return constant.toValue()
+        }
         val v = owned.arena.borrow().allocStr(x)
         return Value.newPtr(v, true)
     }
@@ -202,7 +235,7 @@ class Heap internal constructor(
             ?: error("just allocated value must have the right type")
 
     /** Allocate a value and return ValueOfUnchecked of it. */
-    fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> = ValueOfUnchecked.new(alloc(x))
+    internal fun <T : AllocValue> allocTypedUnchecked(x: T): ValueOfUnchecked<T> = ValueOfUnchecked.new(alloc(x))
 
     /** Allocate a value and return ValueOf of it. */
     internal inline fun <reified T> allocValueOf(x: T): ValueOf<T> where T : AllocValue, T : Any {
@@ -242,18 +275,26 @@ class Heap internal constructor(
     }
 
     private fun garbageCollectInternal(f: (Tracer) -> Unit) {
-        // Must rewrite all Value's so they point at the new heap.
-        // Take the arena out of the heap to make sure nobody allocates in it,
-        // but hold the reference until the GC is done.
-        @Suppress("UNUSED_VARIABLE")
-        val _arena = owned.arena.take()
-
-        val tracer =
-            Tracer(
-                arena = Arena(),
-            )
-        f(tracer)
-        owned.arena.set(tracer.arena)
+        val retainedArena = owned.arena.take()
+        var success = false
+        try {
+            val maxOldIndex = AValueHeader.currentCounter()
+            val tracer =
+                Tracer(
+                    arena = Arena(),
+                    maxOldIndex = maxOldIndex,
+                )
+            f(tracer)
+            traceRecursiveGuardStacks(tracer)
+            owned.arena.set(tracer.arena)
+            success = true
+        } finally {
+            if (!success) {
+                owned.arena.set(retainedArena)
+            } else {
+                retainedArena.finish()
+            }
+        }
     }
 
     /** Obtain a summary of how much memory is currently allocated by this heap. */
@@ -268,12 +309,14 @@ class Heap internal constructor(
                 maybeDrop = NeedsDrop(),
             ),
         )
-        this.allocComplexNoFreeze(
+        val noDropEnter =
             CallEnter<NoDrop>(
                 function = function,
                 time = time,
                 maybeDrop = NoDrop(),
-            ),
+            )
+        this.allocRawNoDrop(
+            AValueImpl.new(noDropEnter, AValueComplexNoFreeze(noDropEnter)),
         )
     }
 
@@ -285,11 +328,13 @@ class Heap internal constructor(
                 maybeDrop = NeedsDrop(),
             ),
         )
-        this.allocSimple(
+        val noDropExit =
             CallExit<NoDrop>(
                 time = time,
                 maybeDrop = NoDrop(),
-            ),
+            )
+        this.allocRawNoDrop(
+            simple(noDropExit),
         )
     }
 }
@@ -332,7 +377,6 @@ class FrozenHeap internal constructor(
     fun intoRef(): FrozenHeapRef = intoRefImpl(null)
 
     internal fun intoRefImpl(name: Any?): FrozenHeapRef {
-        arena.finish()
         if (arena.isEmpty() && refs.isEmpty()) {
             return FrozenHeapRef()
         } else {
@@ -357,7 +401,7 @@ class FrozenHeap internal constructor(
         }
 
         if (!refs.contains(heap)) {
-            refs.add(heap)
+            refs.add(heap.clone())
         }
     }
 
@@ -392,20 +436,24 @@ class FrozenHeap internal constructor(
     fun <T : AllocFrozenValue> alloc(v: T): FrozenValue = v.allocFrozenValue(this)
 
     /** Allocate a value and return FrozenValueOfUnchecked of it. */
-    fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
+    internal fun <T : AllocFrozenValue> allocTypedUnchecked(v: T): FrozenValueOfUnchecked<T> = FrozenValueOfUnchecked.new(v.allocFrozenValue(this))
 
-    /**
-     * Allocate an interned string. Returns a FrozenStringValue.
-     * Port of `FrozenHeap::alloc_str_intern`.
-     */
+    /** Allocate an interned string. Returns a FrozenStringValue. */
     fun allocStrIntern(s: String): FrozenStringValue {
-        // Simplified interning: just allocate the string.
-        // A full implementation would use an interner to deduplicate.
-        val hash = StarlarkHashValue.new(s)
-        val bytes = s.encodeToByteArray()
-        return allocStrInit(bytes.size, hash) { dst ->
-            bytes.copyInto(dst)
+        val constant = constantString(s)
+        if (constant != null) {
+            return constant
         }
+        val hashed =
+            io.github.kotlinmania.starlark.collections.Hashed
+                .new(s)
+        return stringInterner()
+            .intern(hashed) {
+                val bytes = s.encodeToByteArray()
+                allocStrInit(bytes.size, hashed.hash) { dst ->
+                    bytes.copyInto(dst)
+                }
+            }
     }
 
     /**
@@ -439,11 +487,34 @@ class FrozenFrozenHeap internal constructor(
     internal val arena: Arena,
     val refs: List<FrozenHeapRef>,
     val name: Any? = null,
-) {
+) : AutoCloseable {
+    private val refCount = AtomicInt(0)
+
+    fun incRef() {
+        refCount.fetchAndAdd(1)
+    }
+
+    fun decRef() {
+        val prev = refCount.fetchAndAdd(-1)
+        if (prev == 1) {
+            arena.finish()
+            for (ref in refs) {
+                ref.close()
+            }
+        } else if (prev < 1) {
+            refCount.store(0)
+        }
+    }
+
+    override fun close() {
+        decRef()
+    }
+
     override fun toString(): String {
         val bytes = arena.allocatedBytes()
-        val refCount = refs.size
-        return "FrozenHeap(bytes=$bytes, refs=$refCount)"
+        val refsCount = refs.size
+        val activeCount = refCount.load()
+        return "FrozenHeap(bytes=$bytes, refs=$refsCount, activeRefs=$activeCount)"
     }
 }
 
@@ -456,7 +527,29 @@ class FrozenHeapRef(
     // The Eq/Hash are by identity rather than value, since we produce unique values
     // given an underlying FrozenHeap.
     internal val inner: FrozenFrozenHeap? = null,
-) {
+) : AutoCloseable {
+    private val closed = AtomicBoolean(false)
+
+    init {
+        inner?.incRef()
+    }
+
+    fun clone(): FrozenHeapRef = FrozenHeapRef(inner)
+
+    fun incRef() {
+        inner?.incRef()
+    }
+
+    fun decRef() {
+        inner?.decRef()
+    }
+
+    override fun close() {
+        if (closed.compareAndSet(false, true)) {
+            inner?.close()
+        }
+    }
+
     /**
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.
@@ -502,7 +595,21 @@ class FrozenHeapRef(
 /** Used to perform garbage collection by Trace.trace. */
 class Tracer internal constructor(
     internal val arena: Arena = Arena(),
+    internal val maxOldIndex: Long,
 ) {
+    internal var currentRepr: AValueRepr<*>? = null
+
+    fun overwriteWithForward(v: Value) {
+        val repr = currentRepr
+        if (repr != null) {
+            AValueHeader.overwriteWithForward(
+                repr,
+                io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
+                    .newUnfrozen(v),
+            )
+        }
+    }
+
     /** Walk over a value during garbage collection. */
     fun trace(value: ValueHolder) {
         value.value = adjust(value.value)
@@ -543,13 +650,16 @@ class Tracer internal constructor(
             return value
         }
         val ptrIndex = value.ptr.unpackPtrOpt() ?: return value
+        if (ptrIndex >= maxOldIndex) {
+            return value
+        }
 
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val header = AValueHeader.fromIndex(ptrIndex)
         val aValueOrForward = AValueOrForward.Header(header)
         return when (val unpacked = aValueOrForward.unpack()) {
             is AValueOrForwardUnpack.Forward -> unpacked.forward.forwardPtr().unpackUnfrozenValue()
-            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapCopy(this)
+            is AValueOrForwardUnpack.Header -> unpacked.header.heapCopy(this)
         }
     }
 }

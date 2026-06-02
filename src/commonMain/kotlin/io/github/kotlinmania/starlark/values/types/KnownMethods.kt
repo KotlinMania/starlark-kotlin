@@ -57,20 +57,16 @@ private class KnownMethods(
             ) {
                 val tm = typeMethods!!
                 var hasAtLeastOneMethod = false
-                for ((name, member) in tm.members()) {
-                    // Take methods, ignore attributes.
-                    val method = FrozenValueTyped.new<NativeMethod>(member)
-                    if (method != null) {
-                        // First wins, e. g. `list.clear` is hit, and `dict.clear` is miss.
-                        methods.getOrPut(name) {
-                            KnownMethod(
-                                typeMethods = tm,
-                                method = method,
-                                imp = method.asRef().function,
-                            )
-                        }
-                        hasAtLeastOneMethod = true
+                for ((name, method) in tm.methodMembers()) {
+                    // First wins, e. g. `list.clear` is hit, and `dict.clear` is miss.
+                    methods.getOrPut(name) {
+                        KnownMethod(
+                            typeMethods = tm,
+                            method = method,
+                            imp = method.asRef().function,
+                        )
                     }
+                    hasAtLeastOneMethod = true
                 }
                 // Sanity check.
                 check(hasAtLeastOneMethod)

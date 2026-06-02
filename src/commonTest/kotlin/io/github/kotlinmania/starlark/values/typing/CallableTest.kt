@@ -23,12 +23,22 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.typing.ParamSpec
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.typing.callable.StarlarkCallableParamSpecNone
 import kotlin.test.Test
 
 private fun myModule(globals: GlobalsBuilder) {
-    globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
+    globals.setFunction(
+        name = "accept_f",
+        ty =
+            Ty.function(
+                ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(listOf(Ty.string())), Ty.int()))),
+                Ty.none(),
+            ),
+    ) { args: Arguments, eval: Evaluator ->
         Result.success(NoneType)
     }
 }
@@ -176,16 +186,40 @@ def test():
     @Test
     fun testCallableCheckedRuntime() {
         fun checkedModule(globals: GlobalsBuilder) {
-            globals.setFunction("accept_f") { _args: Arguments, _eval: Evaluator ->
+            globals.setFunction(
+                name = "accept_f",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(emptyList(), emptyList()), Ty.none()))),
+                        Ty.none(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
+                val v = args.positional1(eval.heap()).getOrThrow()
+                val unpacker = StarlarkCallableCheckedUnpackValue(StarlarkCallableParamSpecNone, NoneType)
+                unpacker.unpackNamedParam(v, "f")
                 Result.success(NoneType)
             }
 
-            globals.setFunction("good") { _args: Arguments, _eval: Evaluator ->
+            globals.setFunction(
+                name = "good",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(emptyList(), emptyList()),
+                        Ty.none(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
                 Result.success(NoneType)
             }
 
-            globals.setFunction("bad") { _args: Arguments, _eval: Evaluator ->
-                Result.success(10.allocValue(_eval.heap()))
+            globals.setFunction(
+                name = "bad",
+                ty =
+                    Ty.function(
+                        ParamSpec.posOnly(emptyList(), emptyList()),
+                        Ty.int(),
+                    ),
+            ) { args: Arguments, eval: Evaluator ->
+                Result.success(10.allocValue(eval.heap()))
             }
         }
 
@@ -202,7 +236,7 @@ def test():
 
 test()
         """,
-            "Type of parameter `_f` doesn't match",
+            "Type of parameter `f` doesn't match",
         )
     }
 }

@@ -24,15 +24,18 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.SetType
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * Define the set type.
  */
-class SetRef internal constructor(
+internal class SetRef internal constructor(
     internal val aref: Either<BorrowedSetData, SetData>,
 ) {
     companion object {
@@ -40,7 +43,7 @@ class SetRef internal constructor(
          * Unpack a [Value] into a [SetRef], or return null if not a set.
          * Matches the Rust `UnpackValue::unpack_value_opt` trait method.
          */
-        fun unpackValueOpt(value: Value): SetRef? =
+        internal fun unpackValueOpt(value: Value): SetRef? =
             SetRefUnpackValue.unpackValueImpl(value).getOrThrow()
     }
 }
@@ -49,7 +52,7 @@ class SetRef internal constructor(
  * Clone implementation for SetRef.
  * Corresponds to Rust's Clone impl which uses Ref::clone for Left case.
  */
-fun SetRef.clone(): SetRef =
+internal fun SetRef.clone(): SetRef =
     when (val ref = this.aref) {
         is Either.Left -> SetRef(Either.Left(ref.value.clone()))
         is Either.Right -> SetRef(Either.Right(ref.value))
@@ -59,7 +62,7 @@ fun SetRef.clone(): SetRef =
  * Access the underlying content (SmallSet).
  * Extension property that mimics Rust's Deref to access `aref.content`.
  */
-val SetRef.content: SmallSet<Value>
+internal val SetRef.content: SmallSet<Value>
     get() =
         when (val ref = aref) {
             is Either.Left -> ref.value.data.content
@@ -70,7 +73,7 @@ val SetRef.content: SmallSet<Value>
  * Iterate through the values in the set, retaining their hashes.
  * Corresponds to accessing methods through Deref in Rust.
  */
-fun SetRef.iterHashed(): Sequence<Hashed<Value>> =
+internal fun SetRef.iterHashed(): Sequence<Hashed<Value>> =
     when (val ref = aref) {
         is Either.Left -> ref.value.data.iterHashed()
         is Either.Right -> ref.value.iterHashed()
@@ -80,7 +83,7 @@ fun SetRef.iterHashed(): Sequence<Hashed<Value>> =
  * Check if the set contains a hashed element.
  * Corresponds to accessing methods through Deref in Rust.
  */
-fun SetRef.containsHashed(key: Hashed<Value>): Boolean =
+internal fun SetRef.containsHashed(key: Hashed<Value>): Boolean =
     when (val ref = aref) {
         is Either.Left -> ref.value.data.containsHashed(key)
         is Either.Right -> ref.value.containsHashed(key)
@@ -89,7 +92,7 @@ fun SetRef.containsHashed(key: Hashed<Value>): Boolean =
 /**
  * Mutably borrowed `Set`.
  */
-class SetMut internal constructor(
+internal class SetMut internal constructor(
     internal val aref: BorrowedMutSetData,
 ) {
     companion object {
@@ -104,7 +107,7 @@ class SetMut internal constructor(
          * Cold/inline(never) error path.
          */
         internal fun error(x: Value): Throwable =
-            if (x.downcastRef<SetGen<FrozenSetData>>() != null) {
+            if (x.downcastRef<FrozenSet>() != null) {
                 ValueError.CannotMutateImmutableValue
             } else {
                 NotSetError(x.getType())
@@ -114,7 +117,7 @@ class SetMut internal constructor(
          * Downcast the value to a mutable set reference.
          */
         internal fun fromValue(x: Value): Result<SetMut> =
-            when (val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()) {
+            when (val ptr = x.downcastRef<MutableSet>()) {
                 null -> Result.failure(error(x))
                 else -> {
                     val borrowed = ptr.inner.tryBorrowMut()
@@ -131,14 +134,14 @@ class SetMut internal constructor(
 /**
  * StarlarkTypeRepr implementation for SetRef.
  */
-object SetRefStarlarkTypeRepr : StarlarkTypeRepr {
+internal object SetRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = SetType(FrozenValueStarlarkTypeRepr).starlarkTypeRepr()
 }
 
 /**
  * UnpackValue implementation for SetRef.
  */
-object SetRefUnpackValue : UnpackValue<SetRef> {
+internal object SetRefUnpackValue : UnpackValue<SetRef> {
     override fun starlarkTypeRepr(): Ty = SetRefStarlarkTypeRepr.starlarkTypeRepr()
 
     override fun unpackValueImpl(value: Value): Result<SetRef?> {
@@ -146,31 +149,25 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
             if (value.unpackFrozen() != null) {
                 value
                     .unpackFrozen()!!
-                    .downcastRef<SetGen<FrozenSetData>>()
+                    .downcastRef<FrozenSet>()
                     ?.let { SetRef(Either.Right(coerceSetData(it.inner))) }
             } else {
                 value
-                    .downcastRef<SetGen<RefCell<SetData>>>()
+                    .downcastRef<MutableSet>()
                     ?.let { ptr -> SetRef(Either.Left(ptr.inner.borrow())) }
             }
         return Result.success(result)
     }
 }
 
-/**
- * Coerce a [FrozenSetData] to a [SetData] view.
- * Corresponds to Rust's `coerce(&x.0)` which zero-cost converts FrozenSetData to SetData
- * because FrozenValue can be treated as Value.
- */
-@Suppress("UNCHECKED_CAST")
 private fun coerceSetData(data: FrozenSetData): SetData =
-    SetData(data.content as SmallSet<Value>)
+    SetData(data.valueContent())
 
 /**
  * Either type for representing one of two possible values.
  * Corresponds to Rust's `either::Either`.
  */
-sealed class Either<out L, out R> {
+internal sealed class Either<out L, out R> {
     data class Left<out L>(
         val value: L,
     ) : Either<L, Nothing>()
@@ -184,54 +181,79 @@ sealed class Either<out L, out R> {
  * RefCell type for interior mutability.
  * Corresponds to Rust's `RefCell<T>`.
  */
-class RefCell<T>(
-    private var value: T,
-) {
+internal class RefCell(
+    private var value: SetData,
+) : SetLike,
+    Trace {
     private var borrowCount = 0
     private var mutBorrowCount = 0
 
-    fun borrow(): BorrowedSetData {
+    internal fun borrow(): BorrowedSetData {
         if (mutBorrowCount > 0) {
             throw IllegalStateException("Already mutably borrowed")
         }
         borrowCount++
-        @Suppress("UNCHECKED_CAST")
-        return BorrowedSetData(value as SetData)
+        return Borrowed(value)
     }
 
     /**
      * Release (unleak) a previously leaked borrow.
      * Corresponds to Rust's `unleak_borrow` which undoes `mem::forget(self.borrow())`.
      */
-    fun releaseBorrow() {
+    internal fun releaseBorrow() {
         check(borrowCount > 0) { "No borrow to release" }
         borrowCount--
     }
 
-    fun tryBorrowMut(): BorrowedMutSetData? {
+    internal fun tryBorrowMut(): BorrowedMutSetData? {
         if (borrowCount > 0 || mutBorrowCount > 0) {
             return null
         }
         mutBorrowCount++
-        @Suppress("UNCHECKED_CAST")
-        return BorrowedMutSetData(value as SetData)
+        return BorrowedMut(value)
+    }
+
+    override fun content(): SmallSet<Value> = borrow().data.content
+
+    override fun iterStart() {
+        borrow()
+    }
+
+    override fun contentUnchecked(): SmallSet<Value> = borrow().data.content
+
+    override fun iterStop() {
+        releaseBorrow()
+    }
+
+    override fun trace(tracer: Tracer) {
+        val oldSet = value.content
+        val newSet = SmallSet<Value>()
+        for (item in oldSet.iterHashed()) {
+            val holder = ValueHolder(item.key())
+            tracer.trace(holder)
+            newSet.insertHashed(Hashed.newUnchecked(item.hash(), holder.value))
+        }
+        value.content.clear()
+        value.content.addAll(newSet.iterHashed().asIterable())
     }
 }
 
 /**
- * Borrowed reference to SetData (immutable).
- * Corresponds to Rust's `Ref<SetData>`.
+ * Borrowed reference.
  */
-class BorrowedSetData(
-    val data: SetData,
+internal class Borrowed<T>(
+    val data: T,
 ) {
-    fun clone(): BorrowedSetData = BorrowedSetData(data)
+    fun clone(): Borrowed<T> = Borrowed(data)
 }
 
 /**
- * Mutably borrowed reference to SetData.
- * Corresponds to Rust's `RefMut<SetData>`.
+ * Mutably borrowed reference.
  */
-class BorrowedMutSetData(
-    val data: SetData,
+internal class BorrowedMut<T>(
+    val data: T,
 )
+
+internal typealias BorrowedSetData = Borrowed<SetData>
+
+internal typealias BorrowedMutSetData = BorrowedMut<SetData>
