@@ -52,7 +52,7 @@ internal class AValueBasic<T : StarlarkValue> : AValue {
         error("Basic types don't appear in the heap")
     }
 
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
+    override fun heapCopy(tracer: Tracer): Value {
         error("Basic types don't appear in the heap")
     }
 
@@ -91,7 +91,7 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
                     isStr = false,
                     memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
                     heapFreezeFn = { _, _, _ -> error("AllocStaticSimple: heapFreeze not supported") },
-                    heapCopyFn = { _, _, _ -> error("AllocStaticSimple: heapCopy not supported") },
+                    heapCopyFn = { _, _ -> error("AllocStaticSimple: heapCopy not supported") },
                     starlarkValue = value,
                     hasInvoke = value.HAS_invoke,
                     hasEvalType = value.HAS_eval_type,

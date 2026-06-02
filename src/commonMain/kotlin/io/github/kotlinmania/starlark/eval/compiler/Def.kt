@@ -687,18 +687,7 @@ internal class DefGen<V>(
     // Trace implementation: trace all captured Value references and parameter defaults.
     override fun trace(tracer: Tracer) {
         // In the unfrozen case, we need to trace captured values and parameters.
-        // For the frozen case, there's nothing to trace.
         if (!frozen) {
-<<<<<<< HEAD
-            @Suppress("UNCHECKED_CAST")
-            val capturedMut = captured as? MutableList<Value>
-            if (capturedMut != null) {
-                for (i in capturedMut.indices) {
-                    val cap = capturedMut[i]
-                    val holder = ValueHolder(cap)
-                    tracer.trace(holder)
-                    capturedMut[i] = holder.value
-=======
             val newCaptured = mutableListOf<V>()
             for (cap in captured) {
                 if (cap is Value) {
@@ -708,7 +697,6 @@ internal class DefGen<V>(
                     newCaptured.add(holder.value as V)
                 } else {
                     newCaptured.add(cap)
->>>>>>> origin/main
                 }
             }
             captured = newCaptured

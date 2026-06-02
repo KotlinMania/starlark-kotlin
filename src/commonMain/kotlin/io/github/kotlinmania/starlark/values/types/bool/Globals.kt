@@ -60,31 +60,21 @@ internal fun registerBool(globals: GlobalsBuilder) {
             io.github.kotlinmania.starlark.typing.Ty
                 .bool(),
         ty =
-<<<<<<< HEAD
-            io.github.kotlinmania.starlark.typing.Ty.ctorFunction(
-                io.github.kotlinmania.starlark.typing.Ty
-                    .bool(),
-                io.github.kotlinmania.starlark.typing.ParamSpec.posOnly(
-                    emptyList(),
-                    listOf(
-                        io.github.kotlinmania.starlark.typing.Ty
-                            .any(),
-                    ),
-                ),
-                io.github.kotlinmania.starlark.typing.Ty
-                    .bool(),
-            ),
-=======
             io.github.kotlinmania.starlark.typing.Ty
                 .ctorFunction(
-                    io.github.kotlinmania.starlark.typing.Ty.bool(),
+                    io.github.kotlinmania.starlark.typing.Ty
+                        .bool(),
                     io.github.kotlinmania.starlark.typing.ParamSpec.posOnly(
                         required = emptyList(),
-                        optional = listOf(io.github.kotlinmania.starlark.typing.Ty.any()),
+                        optional =
+                            listOf(
+                                io.github.kotlinmania.starlark.typing.Ty
+                                    .any(),
+                            ),
                     ),
-                    io.github.kotlinmania.starlark.typing.Ty.bool(),
+                    io.github.kotlinmania.starlark.typing.Ty
+                        .bool(),
                 ),
->>>>>>> origin/main
     ) { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Value>(0)
         Value.newBool(x?.toBool() ?: false)

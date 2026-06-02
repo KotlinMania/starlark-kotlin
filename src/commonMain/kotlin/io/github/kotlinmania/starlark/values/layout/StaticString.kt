@@ -95,7 +95,7 @@ class StarlarkStrNRepr internal constructor(
                             val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
                             Result.success(fv.toFrozenValue())
                         },
-                        heapCopyFn = { _, _, tracer ->
+                        heapCopyFn = { _, tracer ->
                             tracer.allocStr(str.asStr())
                         },
                         starlarkValue = str,

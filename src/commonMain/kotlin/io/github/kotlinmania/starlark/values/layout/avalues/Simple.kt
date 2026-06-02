@@ -70,7 +70,7 @@ class AValueSimple<T : StarlarkValue>(
         return Result.success(fv)
     }
 
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = heapCopyImpl(repr, inner, tracer) { _, _ -> }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(inner, tracer) { _, _ -> }
 
     override fun unpack(): StarlarkValue = inner
 }

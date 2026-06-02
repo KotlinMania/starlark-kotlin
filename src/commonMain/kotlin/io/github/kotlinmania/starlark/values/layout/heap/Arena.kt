@@ -35,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueList
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueTuple
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
@@ -109,21 +110,12 @@ private fun vtableForValue(
             r.fill(x)
             Result.success(fv)
         },
-<<<<<<< HEAD
-        heapCopyFn = { repr, p, tracer ->
-            if (resolvedAvalue != null) {
-                resolvedAvalue.heapCopy(repr, tracer)
-            } else {
-                val sv = p.starlarkValue()
-                heapCopyImpl(repr, sv, tracer) { _, _ -> }
-=======
         heapCopyFn = { p, tracer ->
-            if (avalue != null) {
-                avalue.heapCopy(tracer)
+            if (resolvedAvalue != null) {
+                resolvedAvalue.heapCopy(tracer)
             } else {
                 val sv = p.starlarkValue()
                 heapCopyImpl(sv, tracer) { _, _ -> }
->>>>>>> origin/main
             }
         },
         starlarkValue = value,
@@ -306,7 +298,7 @@ internal class Arena {
                         AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv.toFrozenValue()))
                         Result.success(fv.toFrozenValue())
                     },
-                    heapCopyFn = { _, _, tracer ->
+                    heapCopyFn = { _, tracer ->
                         tracer.allocStr(str.asStr())
                     },
                     starlarkValue = str,

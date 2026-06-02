@@ -552,24 +552,15 @@ class Evaluator(
                 null
             } ?: "<unknown>"
 
-        fun error(eval: Evaluator, slot: ModuleSlotId): Error {
-            return Error.newOther(
+        fun error(eval: Evaluator, slot: ModuleSlotId): Error =
+            Error.newOther(
                 EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
             )
-        }
 
         val value =
             when (val frozenModule = topFrameDefFrozenModule(false)) {
-                null -> {
-                    val v = moduleEnv.slots().getSlot(slot)
-                    println("[DEBUG_SLOT] getSlotModule slot=$slot name=$name val_repr=${v?.toRepr()} val_identity=${v?.let{System.identityHashCode(it)}} val_ptr_idx=${v?.ptr?.unpackPtrOpt()}")
-                    v
-                }
-                else -> {
-                    val fv = frozenModule.asRef().getSlot(slot)
-                    println("[DEBUG_SLOT] getSlotModule FROZEN slot=$slot name=$name val_repr=${fv?.toValue()?.toRepr()} val_ptr_idx=${fv?.ptr?.toPointer()?.unpackPtrOpt()}")
-                    fv?.let { Value.newFrozen(it) }
-                }
+                null -> moduleEnv.slots().getSlot(slot)
+                else -> frozenModule.asRef().getSlot(slot)?.let { Value.newFrozen(it) }
             }
         return if (value != null) {
             Result.success(value)

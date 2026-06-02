@@ -33,11 +33,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
-<<<<<<< HEAD
-=======
-import io.github.kotlinmania.starlark.values.layout.constantString
-import io.github.kotlinmania.starlark.values.layout.heapCopy
->>>>>>> origin/main
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
@@ -607,9 +602,14 @@ class Tracer internal constructor(
     fun overwriteWithForward(v: Value) {
         val repr = currentRepr
         if (repr != null) {
-            AValueHeader.overwriteWithForward(repr, io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr.newUnfrozen(v))
+            AValueHeader.overwriteWithForward(
+                repr,
+                io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
+                    .newUnfrozen(v),
+            )
         }
     }
+
     /** Walk over a value during garbage collection. */
     fun trace(value: ValueHolder) {
         value.value = adjust(value.value)

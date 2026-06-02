@@ -130,7 +130,7 @@ private object TestVTableFactory {
                     )
             },
             heapFreezeFn = { _: AValueRepr<*>, _: StarlarkValueRawPtr, _: Freezer -> error("test vtable") },
-            heapCopyFn = { _: AValueRepr<*>, _: StarlarkValueRawPtr, _: Tracer -> error("test vtable") },
+            heapCopyFn = { _, _ -> error("test vtable") },
             starlarkValue = object : io.github.kotlinmania.starlark.values.StarlarkValue {},
         )
 }

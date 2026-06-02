@@ -30,9 +30,6 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -61,13 +58,10 @@ internal object AValueArray : AValue {
         error("arrays should not be frozen")
     }
 
-<<<<<<< HEAD
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
-=======
-    override fun heapCopy(tracer: Tracer): Value {
-        val repr = tracer.currentRepr ?: error("Missing currentRepr")
->>>>>>> origin/main
-        val array = repr.payload as Array
+    override fun heapCopy(
+        tracer: Tracer,
+    ): Value {
+        val array = tracer.currentRepr!!.payload as Array
         check(array.capacity() != 0) { "empty array is allocated statically" }
 
         if (array.len() == 0) {
@@ -77,11 +71,7 @@ internal object AValueArray : AValue {
         val content = array.contentMut()
 
         val (v, r, _) = tracer.reserveWithExtra<AValueArray>(content.size)
-<<<<<<< HEAD
-        AValueHeader.overwriteWithForward(repr, ForwardPtr.newUnfrozen(v))
-=======
         tracer.overwriteWithForward(v)
->>>>>>> origin/main
 
         // Trace all values in the content.
         (content as Trace).trace(tracer)
@@ -111,7 +101,9 @@ internal class AValueAnyArray<T> : AValue {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value {
+    override fun heapCopy(
+        tracer: Tracer,
+    ): Value {
         error("AnyArray for now can only be allocated in FrozenHeap")
     }
 

@@ -45,8 +45,6 @@ import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
@@ -287,15 +285,6 @@ internal class BoundMethodGen<V>(
     override fun freeze(freezer: Freezer): Result<BoundMethodGen<FrozenValue>> {
         val frozenThis = freezer.freeze(thisAsValue()).getOrElse { return Result.failure<BoundMethodGen<FrozenValue>>(it) }
         return Result.success(BoundMethodGen(method, frozenThis))
-    }
-
-    override fun trace(tracer: Tracer) {
-        if (thisValue is Value) {
-            val holder = ValueHolder(thisValue as Value)
-            tracer.trace(holder)
-            @Suppress("UNCHECKED_CAST")
-            thisValue = holder.value as V
-        }
     }
 }
 

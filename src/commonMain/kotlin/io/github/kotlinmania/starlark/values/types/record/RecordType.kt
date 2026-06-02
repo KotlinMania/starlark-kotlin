@@ -42,8 +42,6 @@ import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueUnpackValue
 import io.github.kotlinmania.starlark.values.freezeSmallMap
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
@@ -82,17 +80,6 @@ class RecordTypeGen internal constructor(
     Trace {
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
-
-    override fun trace(tracer: Tracer) {
-        for ((_, field) in fields) {
-            val defaultVal = field.default
-            if (defaultVal != null) {
-                val holder = ValueHolder(defaultVal)
-                tracer.trace(holder)
-                field.default = holder.value
-            }
-        }
-    }
 
     override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 

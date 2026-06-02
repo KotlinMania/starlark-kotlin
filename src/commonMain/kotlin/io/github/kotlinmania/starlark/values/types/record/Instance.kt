@@ -92,11 +92,12 @@ class RecordGen internal constructor(
         tracer.trace(typHolder)
         typ = typHolder.value
 
-        values = values.map { v ->
-            val holder = ValueHolder(v)
-            tracer.trace(holder)
-            holder.value
-        }
+        values =
+            values.map { v ->
+                val holder = ValueHolder(v)
+                tracer.trace(holder)
+                holder.value
+            }
     }
 
     companion object {
@@ -124,20 +125,6 @@ class RecordGen internal constructor(
                 values = frozenValues.map { it.toValue() },
             ),
         )
-    }
-
-    override fun trace(tracer: Tracer) {
-        val typHolder = ValueHolder(typ)
-        tracer.trace(typHolder)
-        typ = typHolder.value
-
-        val newValues = ArrayList<Value>(values.size)
-        for (v in values) {
-            val holder = ValueHolder(v)
-            tracer.trace(holder)
-            newValues.add(holder.value)
-        }
-        values = newValues
     }
 
     private fun getRecordType(): RecordTypeGen {

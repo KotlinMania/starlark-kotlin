@@ -113,7 +113,7 @@ internal class AValueComplex(
         return Result.success(fv)
     }
 
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = heapCopyImpl(repr, value, tracer) { v, t -> (v as Trace).trace(t) }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
@@ -133,7 +133,7 @@ internal class AValueComplexNoFreeze(
             FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message),
         )
 
-    override fun heapCopy(repr: AValueRepr<*>, tracer: Tracer): Value = heapCopyImpl(repr, value, tracer) { v, t -> (v as Trace).trace(t) }
+    override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(value, tracer) { v, t -> (v as Trace).trace(t) }
 
     override fun unpack(): StarlarkValue = value
 }
