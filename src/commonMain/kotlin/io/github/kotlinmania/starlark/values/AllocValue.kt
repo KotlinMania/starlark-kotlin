@@ -92,9 +92,9 @@ interface AllocStringValue : AllocValue {
     fun allocStringValue(heap: Heap): StringValue
 }
 
-internal fun FrozenValue.allocValue(_heap: Heap): Value = this.toValue()
+internal fun FrozenValue.allocValue(heap: Heap): Value = this.toValue()
 
-internal fun Value.allocValue(_heap: Heap): Value = this
+internal fun Value.allocValue(heap: Heap): Value = this
 
 internal fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
     when (this) {
@@ -151,4 +151,4 @@ interface AllocFrozenStringValue : AllocFrozenValue {
     fun allocFrozenStringValue(heap: FrozenHeap): FrozenStringValue
 }
 
-internal fun FrozenValue.allocFrozenValue(_heap: FrozenHeap): FrozenValue = this
+internal fun FrozenValue.allocFrozenValue(heap: FrozenHeap): FrozenValue = this

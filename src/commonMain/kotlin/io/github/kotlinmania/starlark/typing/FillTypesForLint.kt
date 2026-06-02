@@ -99,7 +99,7 @@ private class GlobalTypesBuilder(
         return GlobalValue.any()
     }
 
-    fun call(_f: CstExpr, _args: CallArgsP<CstPayload>): GlobalValue = GlobalValue.any()
+    fun call(f: CstExpr, args: CallArgsP<CstPayload>): GlobalValue = GlobalValue.any()
 
     fun exprIdent(ident: CstIdent): GlobalValue {
         val resolved = ident.node.payload ?: throw internalError(ident.span, "unresolved ident")

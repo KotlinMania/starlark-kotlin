@@ -237,7 +237,10 @@ class ListData(
         return Result.success(Unit)
     }
 
-    private fun reserveAdditionalSlow(additional: Int, _heap: Heap) {
+    private fun reserveAdditionalSlow(
+        additional: Int,
+        @Suppress("UNUSED_PARAMETER") heap: Heap,
+    ) {
         val newCap = max(len() + additional, len() * 2)
         // Size of Array is 2 words and size of List is one word,
         // so allocating at least 4 words would not be too large waste.

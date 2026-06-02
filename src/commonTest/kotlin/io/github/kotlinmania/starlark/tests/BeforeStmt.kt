@@ -31,7 +31,7 @@ internal fun beforeStmt() {
     Module.withTempHeap { module ->
         val globals = Globals.new()
         var counter = 0
-        val beforeStmt = { _span: FileSpanRef, _continued: Boolean, _eval: Evaluator ->
+        val beforeStmt = { span: FileSpanRef, continued: Boolean, eval: Evaluator ->
             counter += 1
         }
 

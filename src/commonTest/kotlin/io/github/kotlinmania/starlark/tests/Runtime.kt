@@ -83,10 +83,10 @@ r = [y(), mk()]
 """,
             )
         // The three that were run in pass should have gone
-        (res as kotlin.AutoCloseable).close()
+        (res as AutoCloseable).close()
         assertEquals(3, count.load(), "Expected 3 deallocations")
         // Now the frozen ones should have gone too (after drop)
-        (a as kotlin.AutoCloseable).close()
+        (a as AutoCloseable).close()
         assertEquals(5, count.load(), "Expected 5 deallocations")
     }
 

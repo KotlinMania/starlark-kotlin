@@ -136,7 +136,7 @@ internal fun <T : Trace> Box<T>.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for () */
-internal fun Unit.trace(_tracer: Tracer) {
+internal fun Unit.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, T1: Trace<'v>> Trace<'v> for (T1,) */
@@ -179,83 +179,83 @@ internal fun Value.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for FrozenValue */
-internal fun FrozenValue.trace(_tracer: Tracer) {
+internal fun FrozenValue.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for String */
-internal fun String.trace(_tracer: Tracer) {
+internal fun String.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for usize */
-internal fun Usize.trace(_tracer: Tracer) {
+internal fun Usize.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for i32 */
-internal fun Int.trace(_tracer: Tracer) {
+internal fun Int.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for u32 */
-internal fun UInt.trace(_tracer: Tracer) {
+internal fun UInt.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for u64 */
-internal fun ULong.trace(_tracer: Tracer) {
+internal fun ULong.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for bool */
-internal fun Boolean.trace(_tracer: Tracer) {
+internal fun Boolean.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicBool */
-internal fun AtomicBool.trace(_tracer: Tracer) {
+internal fun AtomicBool.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicI8 */
-internal fun AtomicI8.trace(_tracer: Tracer) {
+internal fun AtomicI8.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicU8 */
-internal fun AtomicU8.trace(_tracer: Tracer) {
+internal fun AtomicU8.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicI16 */
-internal fun AtomicI16.trace(_tracer: Tracer) {
+internal fun AtomicI16.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicU16 */
-internal fun AtomicU16.trace(_tracer: Tracer) {
+internal fun AtomicU16.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicI32 */
-internal fun AtomicI32.trace(_tracer: Tracer) {
+internal fun AtomicI32.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicU32 */
-internal fun AtomicU32.trace(_tracer: Tracer) {
+internal fun AtomicU32.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicI64 */
-internal fun AtomicI64.trace(_tracer: Tracer) {
+internal fun AtomicI64.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicU64 */
-internal fun AtomicU64.trace(_tracer: Tracer) {
+internal fun AtomicU64.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicUsize */
-internal fun AtomicUsize.trace(_tracer: Tracer) {
+internal fun AtomicUsize.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for AtomicIsize */
-internal fun AtomicIsize.trace(_tracer: Tracer) {
+internal fun AtomicIsize.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v> Trace<'v> for std::time::Instant */
-internal fun Instant.trace(_tracer: Tracer) {
+internal fun Instant.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, T: ?Sized> Trace<'v> for marker::PhantomData<T> */
-internal fun <T> PhantomData<T>.trace(_tracer: Tracer) {
+internal fun <T> PhantomData<T>.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, T: Trace<'v>> Trace<'v> for Arc<Mutex<T>> */
@@ -264,13 +264,13 @@ internal fun <T : Trace> Arc<Mutex<T>>.trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, A, R> Trace<'v> for fn(A) -> R */
-internal fun <A, R> ((A) -> R).trace(_tracer: Tracer) {
+internal fun <A, R> ((A) -> R).trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, A, B, R> Trace<'v> for fn(A, B) -> R */
-internal fun <A, B, R> ((A, B) -> R).trace(_tracer: Tracer) {
+internal fun <A, B, R> ((A, B) -> R).trace(tracer: Tracer) {
 }
 
 /** unsafe impl<'v, A, B, C, R> Trace<'v> for fn(A, B, C) -> R */
-internal fun <A, B, C, R> ((A, B, C) -> R).trace(_tracer: Tracer) {
+internal fun <A, B, C, R> ((A, B, C) -> R).trace(tracer: Tracer) {
 }

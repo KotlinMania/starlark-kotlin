@@ -164,18 +164,18 @@ class AValueVTable(
  */
 internal class AValueDyn(
     internal val value: StarlarkValueRawPtr,
-    private val _vtable: AValueVTable,
+    private val backingVtable: AValueVTable,
 ) {
-    fun vtable(): AValueVTable = _vtable
+    fun vtable(): AValueVTable = backingVtable
 
-    fun memorySize(): ValueAllocSize = _vtable.memorySizeFn(value)
+    fun memorySize(): ValueAllocSize = backingVtable.memorySizeFn(value)
 
     fun heapFreeze(
         repr: AValueRepr<*>,
         freezer: Freezer,
-    ): Result<FrozenValue> = _vtable.heapFreezeFn(repr, value, freezer)
+    ): Result<FrozenValue> = backingVtable.heapFreezeFn(repr, value, freezer)
 
-    fun heapCopy(tracer: Tracer): Value = _vtable.heapCopyFn(value, tracer)
+    fun heapCopy(tracer: Tracer): Value = backingVtable.heapCopyFn(value, tracer)
 
     fun documentation(): DocItem = starlarkValue().documentation()
 

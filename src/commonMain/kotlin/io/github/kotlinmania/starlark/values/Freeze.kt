@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark.util.cell.UnsafeCell
 import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.util.scalar.Usize
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Value
 
 typealias FreezeResult<T> = Result<T>
 
@@ -129,27 +127,27 @@ interface Freeze<Frozen> {
 
 // --- small Rust-shape helpers (line-by-line ports) ---
 
-internal fun String.freeze(_freezer: Freezer): FreezeResult<String> = Result.success(this)
+internal fun String.freeze(freezer: Freezer): FreezeResult<String> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for String).
 fun freezeString(value: String, freezer: Freezer): FreezeResult<String> = value.freeze(freezer)
 
-internal fun Int.freeze(_freezer: Freezer): FreezeResult<Int> = Result.success(this)
+internal fun Int.freeze(freezer: Freezer): FreezeResult<Int> = Result.success(this)
 
-internal fun UInt.freeze(_freezer: Freezer): FreezeResult<UInt> = Result.success(this)
+internal fun UInt.freeze(freezer: Freezer): FreezeResult<UInt> = Result.success(this)
 
-internal fun Long.freeze(_freezer: Freezer): FreezeResult<Long> = Result.success(this)
+internal fun Long.freeze(freezer: Freezer): FreezeResult<Long> = Result.success(this)
 
-internal fun ULong.freeze(_freezer: Freezer): FreezeResult<ULong> = Result.success(this)
+internal fun ULong.freeze(freezer: Freezer): FreezeResult<ULong> = Result.success(this)
 
-internal fun Usize.freeze(_freezer: Freezer): FreezeResult<Usize> = Result.success(this)
+internal fun Usize.freeze(freezer: Freezer): FreezeResult<Usize> = Result.success(this)
 
-internal fun Boolean.freeze(_freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
+internal fun Boolean.freeze(freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for bool).
 fun freezeBoolean(value: Boolean, freezer: Freezer): FreezeResult<Boolean> = value.freeze(freezer)
 
-internal fun <T> PhantomData<T>.freeze(_freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
+internal fun <T> PhantomData<T>.freeze(freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
 
 internal fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
@@ -252,11 +250,8 @@ internal fun <T, TFrozen> SmallSet<T>.freeze(
     return Result.success(new)
 }
 
-/** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-internal fun FrozenValue.freeze(_freezer: Freezer): FreezeResult<FrozenValue> = Result.success(this)
-
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */
-internal fun Unit.freeze(_freezer: Freezer): FreezeResult<Unit> = Result.success(Unit)
+internal fun Unit.freeze(freezer: Freezer): FreezeResult<Unit> = Result.success(Unit)
 
 /** Freeze implementation for [Tuple1] (Rust 1-tuple `(A,)`). */
 internal fun <A, AFrozen> Tuple1<A>.freeze(
