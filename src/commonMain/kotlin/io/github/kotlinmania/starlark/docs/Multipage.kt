@@ -217,7 +217,7 @@ internal class MultipageRender(
  * in the markdown.
  */
 @HiddenFromObjC
-fun renderMarkdownMultipage(
+internal fun renderMarkdownMultipage(
     modulesInfos: List<DocModuleInfo>,
     linkedTyMapper: ((String, String) -> String)?,
     renderSignatureAtBottom: Boolean,

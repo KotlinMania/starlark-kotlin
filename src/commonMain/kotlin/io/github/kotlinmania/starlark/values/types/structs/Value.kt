@@ -258,7 +258,7 @@ internal class StructGen<V> internal constructor(
      * Serialize to map format matching Rust serde implementation.
      */
     @HiddenFromObjC
-    fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
+    internal fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
 
     internal fun valueFieldsOrNull(): SmallMap<String, Value>? {
         val values = SmallMap.withCapacity<String, Value>(fields.len())
