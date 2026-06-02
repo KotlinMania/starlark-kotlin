@@ -74,7 +74,7 @@ sealed class StarlarkInt {
         override fun toString(): String = value.toString()
     }
 
-    data class Big(
+    internal data class Big(
         val value: StarlarkBigInt,
     ) : StarlarkInt() {
         override fun toString(): String = value.toString()
@@ -265,7 +265,7 @@ sealed class StarlarkIntRef {
         override fun hashCode(): Int = super.hashCode()
     }
 
-    data class Big(
+    internal data class Big(
         val value: StarlarkBigInt,
     ) : StarlarkIntRef() {
         override fun toString(): String = value.toString()

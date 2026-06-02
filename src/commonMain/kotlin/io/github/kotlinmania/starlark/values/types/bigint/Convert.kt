@@ -56,12 +56,12 @@ internal object IntTypeReprCanonical : StarlarkTypeRepr {
 // --- UInt (u32) conversions ---
 
 /** impl StarlarkTypeRepr for u32 */
-object UIntTypeRepr : StarlarkTypeRepr {
+internal object UIntTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
 /** impl AllocValue for u32 */
-object UIntAllocValue : AllocValue {
+internal object UIntAllocValue : AllocValue {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 
     override fun allocValue(heap: Heap): Value = StarlarkInt.from(0u).allocValue(heap)
@@ -76,7 +76,7 @@ internal fun UInt.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.
 // --- ULong (u64) conversions ---
 
 /** impl StarlarkTypeRepr for u64 */
-object ULongTypeRepr : StarlarkTypeRepr {
+internal object ULongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
@@ -89,7 +89,7 @@ internal fun ULong.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt
 // --- Long (i64) conversions ---
 
 /** impl StarlarkTypeRepr for i64 */
-object LongTypeRepr : StarlarkTypeRepr {
+internal object LongTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
@@ -110,7 +110,7 @@ internal fun Int.allocFrozenValue(heap: FrozenHeap): FrozenValue = StarlarkInt.f
 // --- BigInteger (BigInt) conversions ---
 
 /** impl StarlarkTypeRepr for BigInt */
-object BigIntegerTypeRepr : StarlarkTypeRepr {
+internal object BigIntegerTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = intStarlarkTypeRepr()
 }
 
@@ -169,7 +169,7 @@ internal fun Value.unpackLong(): Result<Long?> = unpackInteger()
 @PublishedApi
 internal fun unpackValueToLongOrNull(v: Value): Long? = v.unpackLong().getOrNull()
 
-object I64UnpackValue : UnpackValue<Long> {
+internal object I64UnpackValue : UnpackValue<Long> {
     override fun starlarkTypeRepr(): Ty = Ty.int()
 
     override fun unpackValueImpl(value: Value): Result<Long?> = value.unpackLong()

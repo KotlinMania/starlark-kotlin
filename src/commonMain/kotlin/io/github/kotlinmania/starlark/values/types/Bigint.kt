@@ -52,7 +52,7 @@ import io.github.kotlinmania.starlark.typing.oracle.TypingBinOp as OracleTypingB
  * Rust: `struct StarlarkBigInt` with derives for Clone, Debug, Default, Display,
  * Ord, PartialOrd, Eq, PartialEq, Hash, Allocative.
  */
-class StarlarkBigInt private constructor(
+internal class StarlarkBigInt private constructor(
     /**
      * `value` is strictly either smaller than `Int.MIN_VALUE` or larger than `Int.MAX_VALUE`.
      * Many operation implementations depend on this fact.
