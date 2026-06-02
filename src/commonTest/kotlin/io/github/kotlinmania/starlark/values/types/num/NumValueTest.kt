@@ -111,7 +111,7 @@ class NumValueTest {
             NumRef.Float(StarlarkFloat(Double.POSITIVE_INFINITY)),
             NumRef.Float(StarlarkFloat(Double.POSITIVE_INFINITY)),
         )
-        assertEquals(
+        assertEquals<NumRef>(
             NumRef.Int(StarlarkIntRef.Small(InlineInt.testingNew(10))),
             NumRef.Float(StarlarkFloat(10.0)),
         )

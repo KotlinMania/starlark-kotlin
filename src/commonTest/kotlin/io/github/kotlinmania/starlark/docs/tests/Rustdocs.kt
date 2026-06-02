@@ -20,6 +20,10 @@ package io.github.kotlinmania.starlark.docs.tests
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableComponents
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParam
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamDefaultValue
+import io.github.kotlinmania.starlark.deriverefs.NativeCallableParamSpec
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
@@ -63,24 +67,170 @@ private class OutputTypeRepr :
 private fun globals(builder: GlobalsBuilder) {
     builder.set("Input", StarlarkValueAsType.new(InputTypeRepr()))
     builder.set("Output", StarlarkValueAsType.new(OutputTypeRepr()))
-    // TODO: Check rust - these aren't supposed to be empty I suspect.
-    builder.setFunction("simple") { args: Arguments, eval: Evaluator ->
+    val inputTy = Ty.starlarkValue(TyStarlarkValue.new("input"))
+    val outputTy = Ty.starlarkValue(TyStarlarkValue.new("output"))
+    val boolIntTupleTy = Ty.tuple(listOf(Ty.bool(), Ty.int()))
+    val noOp = { _: Evaluator, _: ParametersSpec<FrozenValue>, _: Arguments -> Result.success(Value.newNone()) }
+
+    fun param(
+        name: String,
+        ty: Ty,
+        required: NativeCallableParamDefaultValue? = null,
+    ): NativeCallableParam = NativeCallableParam(name, ty, required)
+
+    fun register(
+        name: String,
+        paramSpec: NativeCallableParamSpec,
+        runtimeSpec: ParametersSpec<FrozenValue>,
+        returnType: Ty,
+    ) {
+        builder.setFunction(
+            name = name,
+            components =
+                NativeCallableComponents(
+                    speculativeExecSafe = false,
+                    rustDocstring = null,
+                    paramSpec = paramSpec,
+                    returnType = returnType,
+                ),
+            sig = runtimeSpec,
+            asType = null,
+            ty = null,
+            specialBuiltinFunction = null,
+            f = noOp,
+        )
     }
 
-    builder.setFunction("default_arg") { args: Arguments, eval: Evaluator ->
-    }
+    fun spec(
+        name: String,
+        configure: io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecBuilder<FrozenValue>.() -> Unit,
+    ): ParametersSpec<FrozenValue> =
+        ParametersSpec
+            .withCapacity<FrozenValue>(name)
+            .apply(configure)
+            .finish()
 
-    builder.setFunction("args_kwargs") { args: Arguments, eval: Evaluator ->
-    }
+    register(
+        name = "simple",
+        paramSpec =
+            NativeCallableParamSpec(
+                posOnly = emptyList(),
+                posOrNamed =
+                    listOf(
+                        param("arg_int", Ty.int()),
+                        param("arg_bool", Ty.bool()),
+                        param("arg_vec", Ty.list(Ty.string())),
+                        param("arg_dict", Ty.dict(Ty.string(), boolIntTupleTy)),
+                    ),
+                args = null,
+                namedOnly = emptyList(),
+                kwargs = null,
+            ),
+        runtimeSpec =
+            spec("simple") {
+                noMorePositionalOnlyArgs()
+                required("arg_int")
+                required("arg_bool")
+                required("arg_vec")
+                required("arg_dict")
+            },
+        returnType = Ty.none(),
+    )
 
-    builder.setFunction("custom_types") { args: Arguments, eval: Evaluator ->
-    }
+    register(
+        name = "default_arg",
+        paramSpec =
+            NativeCallableParamSpec(
+                posOnly = emptyList(),
+                posOrNamed =
+                    listOf(
+                        param("arg1", Ty.any(), NativeCallableParamDefaultValue.Optional),
+                        param("arg2", Ty.any(), NativeCallableParamDefaultValue.Value(FrozenValue.newNone())),
+                    ),
+                args = null,
+                namedOnly = emptyList(),
+                kwargs = null,
+            ),
+        runtimeSpec =
+            spec("default_arg") {
+                noMorePositionalOnlyArgs()
+                optional("arg1")
+                defaulted("arg2", FrozenValue.newNone())
+            },
+        returnType = Ty.list(Ty.string()),
+    )
 
-    builder.setFunction("pos_named") { args: Arguments, eval: Evaluator ->
-    }
+    register(
+        name = "args_kwargs",
+        paramSpec =
+            NativeCallableParamSpec(
+                posOnly = emptyList(),
+                posOrNamed = emptyList(),
+                args = NativeCallableParam.args("args", Ty.any()),
+                namedOnly = emptyList(),
+                kwargs = NativeCallableParam.kwargs("kwargs", Ty.any()),
+            ),
+        runtimeSpec =
+            spec("args_kwargs") {
+                args()
+                kwargs()
+            },
+        returnType = Ty.none(),
+    )
 
-    builder.setFunction("with_arguments") { args: Arguments, eval: Evaluator ->
-    }
+    register(
+        name = "custom_types",
+        paramSpec =
+            NativeCallableParamSpec(
+                posOnly = emptyList(),
+                posOrNamed =
+                    listOf(
+                        param("arg1", Ty.string()),
+                        param("arg2", inputTy),
+                    ),
+                args = null,
+                namedOnly = emptyList(),
+                kwargs = null,
+            ),
+        runtimeSpec =
+            spec("custom_types") {
+                noMorePositionalOnlyArgs()
+                required("arg1")
+                required("arg2")
+            },
+        returnType = outputTy,
+    )
+
+    register(
+        name = "pos_named",
+        paramSpec =
+            NativeCallableParamSpec(
+                posOnly = emptyList(),
+                posOrNamed = listOf(param("arg1", Ty.int())),
+                args = null,
+                namedOnly = listOf(param("arg2", Ty.int())),
+                kwargs = null,
+            ),
+        runtimeSpec =
+            spec("pos_named") {
+                noMorePositionalOnlyArgs()
+                required("arg1")
+                noMorePositionalArgs()
+                required("arg2")
+            },
+        returnType = Ty.int(),
+    )
+
+    register(
+        name = "with_arguments",
+        paramSpec = NativeCallableParamSpec.forArguments(),
+        runtimeSpec =
+            spec("with_arguments") {
+                args()
+                kwargs()
+            },
+        returnType = Ty.int(),
+    )
 }
 
 /** Test that a Rust starlark_module produces the right documentation. */

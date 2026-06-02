@@ -19,22 +19,42 @@ package io.github.kotlinmania.starlark.values.types.list
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.values.UnpackValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.types.int.InlineInt
+import io.github.kotlinmania.starlark.values.types.int.InlineIntUnpackValue
+import io.github.kotlinmania.starlark.values.types.string.allocValue
+import io.github.kotlinmania.starlark.values.types.string.unpackValueImplOwnedString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+
+private object TestStringUnpackValue : UnpackValue<String> {
+    override fun starlarkTypeRepr(): Ty = Ty.string()
+
+    override fun unpackValueImpl(value: Value): Result<String?> = unpackValueImplOwnedString(value)
+}
 
 class UnpackTest {
     @Test
     fun testUnpack() {
         Heap.temp { heap ->
-            val v = heap.alloc(listOf("a", "b"))
+            val v =
+                heap.allocList(
+                    listOf(
+                        "a".allocValue(heap),
+                        "b".allocValue(heap),
+                    ),
+                )
             assertEquals(
                 listOf("a", "b"),
-                UnpackList.unpackValue<String>(v).getOrThrow()!!.items,
+                UnpackListUnpackValue(TestStringUnpackValue).unpackValue(v).getOrThrow()!!.items,
             )
-            assertNull(UnpackList.unpackValue<UInt>(v).getOrThrow())
-            assertNull(UnpackList.unpackValue<String>(heap.alloc(1)).getOrThrow())
+            assertNull(UnpackListUnpackValue(InlineIntUnpackValue).unpackValue(v).getOrThrow())
+            assertNull(UnpackListUnpackValue(TestStringUnpackValue).unpackValue(1.allocValue(heap)).getOrThrow())
         }
     }
 }

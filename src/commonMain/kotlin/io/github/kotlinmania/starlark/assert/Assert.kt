@@ -260,10 +260,7 @@ class Assert(
         dialect = Dialect.AllOptionsInternal.copy(),
         modules = mutableMapOf("asserts.star" to ASSERTS_STAR),
         globals = GLOBALS,
-        gcStrategy = null,
         setupEval = {},
-        printHandler = null,
-        staticTypechecking = true,
     )
 
     /** Disable garbage collection on the tests. */
@@ -310,7 +307,7 @@ class Assert(
         val modulesRef = modules.mapValues { it.value }
         val loader = ReturnFileLoader(modulesRef)
         val ast = AstModule.parse(path, program, dialect).getOrElse { return Result.failure(it) }
-        val gcAlways = { _span: FileSpanRef, continued: Boolean, eval: Evaluator ->
+        val gcAlways = { span: FileSpanRef, continued: Boolean, eval: Evaluator ->
             if (!continued) {
                 eval.triggerGc()
             }
@@ -342,11 +339,7 @@ class Assert(
                     error("starlark::assert::$func, didn't fail!\nCode:\n$program\nResult:\n$v\n")
                 } else {
                     val e = result.exceptionOrNull()!!
-                    if (e is Error) {
-                        e
-                    } else {
-                        Error.newOther(e)
-                    }
+                    e as? Error ?: Error.newOther(e)
                 }
         }
 

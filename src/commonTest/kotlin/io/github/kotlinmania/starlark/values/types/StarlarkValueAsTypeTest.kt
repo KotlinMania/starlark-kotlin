@@ -21,10 +21,13 @@ package io.github.kotlinmania.starlark.values.types
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
 import kotlin.test.Test
 
 class StarlarkValueAsTypeTest {
@@ -36,13 +39,15 @@ class StarlarkValueAsTypeTest {
 
         override fun toString(): String = value
 
+        override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
+
         override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
     }
 
     private fun compilerArgsGlobals(globals: GlobalsBuilder) {
         fun compilerArgs(x: String): Result<CompilerArgs> = Result.success(CompilerArgs(x))
 
-        globals.setConst("CompilerArgs", StarlarkValueAsType.new<CompilerArgs>())
+        globals.setConst("CompilerArgs", StarlarkValueAsType.new(CompilerArgs("")))
         globals.setFunction("compiler_args") { args, _ ->
             compilerArgs(args.positional<String>(0))
         }

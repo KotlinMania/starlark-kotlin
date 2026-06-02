@@ -19,7 +19,11 @@ package io.github.kotlinmania.starlark.values.types.tuple
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.bigint.allocValue
+import io.github.kotlinmania.starlark.values.types.string.allocValue
 import io.github.kotlinmania.starlark.values.types.tuple.unpack.UnpackTuple
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,13 +33,22 @@ class UnpackTest {
     @Test
     fun testUnpack() {
         Heap.temp { heap ->
-            val v = heap.alloc("a" to "b")
+            val v =
+                heap.allocTuple(
+                    listOf(
+                        "a".allocValue(heap),
+                        "b".allocValue(heap),
+                    ),
+                )
+            fun tupleFromValue(value: Any): List<Any>? =
+                (value as? Value)?.let { Tuple.fromValue(it)?.content() }
+
             assertEquals(
                 listOf("a", "b"),
-                UnpackTuple.unpackValue<String>(v).getOrThrow()!!.items,
+                UnpackTuple.unpackValueImpl(v, ::tupleFromValue) { (it as? Value)?.unpackStr() }!!.items,
             )
-            assertNull(UnpackTuple.unpackValue<UInt>(v).getOrThrow())
-            assertNull(UnpackTuple.unpackValue<String>(heap.alloc(1)).getOrThrow())
+            assertNull(UnpackTuple.unpackValueImpl(v, ::tupleFromValue) { (it as? Value)?.unpackInlineInt() })
+            assertNull(UnpackTuple.unpackValueImpl(1.allocValue(heap), ::tupleFromValue) { (it as? Value)?.unpackStr() })
         }
     }
 }

@@ -19,7 +19,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.constFrozenString
-import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +28,7 @@ class AnyComplexTest {
     @Test
     fun testAnyComplex() {
         class UnfrozenData(
-            val string: StringValue,
+            val string: Value,
             val other: Value,
         ) : Freeze<FrozenData> {
             override fun freeze(freezer: Freezer): Result<FrozenData> =
@@ -51,8 +51,11 @@ class AnyComplexTest {
                     ).allocValue(module.heap())
 
             assertEquals(
-                constFrozenString("aaa"),
-                StarlarkAnyComplex.getErr<UnfrozenData>(data).string,
+                "aaa",
+                StarlarkAnyComplex.getErr<StarlarkAnyComplex<*>>(data.downcastRefErr(StarlarkAnyComplex::class).getOrThrow()).value
+                    .let { it as UnfrozenData }
+                    .string
+                    .unpackStr(),
             )
 
             module.setExtraValue(data)
@@ -61,14 +64,18 @@ class AnyComplexTest {
 
             val frozenData = frozenModule.extraValue()!!
             assertEquals(
-                constFrozenString("aaa"),
-                StarlarkAnyComplex.getErr<FrozenData>(frozenData.toValue()).string,
+                constFrozenString("aaa").toFrozenValue(),
+                StarlarkAnyComplex.getErr<StarlarkAnyComplex<*>>(
+                    frozenData.toValue().downcastRefErr(StarlarkAnyComplex::class).getOrThrow(),
+                ).value
+                    .let { it as FrozenData }
+                    .string,
             )
         }
     }
 
     private class FrozenData(
-        val string: io.github.kotlinmania.starlark.values.layout.FrozenStringValue,
+        val string: FrozenValue,
         @Suppress("UNUSED") val other: FrozenValue,
     )
 }
