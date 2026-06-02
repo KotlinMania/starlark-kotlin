@@ -79,7 +79,7 @@ data class StarlarkBool internal constructor(
         }
     }
 
-    override fun typecheckerTy(): Ty? = Ty.bool()
+    override fun typecheckerTy(): Ty = Ty.bool()
 
     override fun getTypeStarlarkRepr(): Ty = Ty.bool()
 }

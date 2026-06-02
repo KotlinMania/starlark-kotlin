@@ -50,7 +50,7 @@ internal class TypingIterable :
     override fun toString(): String = TYPE_NAME
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = Ty.iter(Ty.any())
+    override fun evalType(): Ty = Ty.iter(Ty.any())
 
     override fun starlarkTypeRepr(): Ty = Ty.iter(Ty.any())
 

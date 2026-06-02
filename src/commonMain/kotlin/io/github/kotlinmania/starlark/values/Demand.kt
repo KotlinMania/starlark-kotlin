@@ -58,7 +58,7 @@ class Demand
 
         companion object {
             @PublishedApi
-            internal inline fun <reified T : Any> new(): Demand = Demand(typeIdOfT = T::class, option = null, filled = false)
+            internal inline fun <reified T : Any> new(): Demand = Demand(typeIdOfT = T::class)
         }
     }
 

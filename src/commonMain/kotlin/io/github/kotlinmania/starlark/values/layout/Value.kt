@@ -1500,10 +1500,7 @@ class FrozenValue internal constructor(
         }
         // Empty tuple is statically allocated.
         val tuple = Tuple.fromValue(toValue())
-        if (tuple != null && tuple.len() == 0) {
-            return true
-        }
-        return false
+        return tuple != null && tuple.len() == 0
     }
 
     /**

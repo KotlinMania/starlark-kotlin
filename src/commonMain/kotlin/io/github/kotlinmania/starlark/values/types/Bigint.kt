@@ -319,7 +319,7 @@ class StarlarkBigInt private constructor(
     }
 
     /** Returns the typechecker type. Rust: `fn typechecker_ty` */
-    override fun typecheckerTy(): Ty? = Ty.int()
+    override fun typecheckerTy(): Ty = Ty.int()
 }
 
 // #[cfg(test)] mod tests -- see BigintTest.kt in commonTest

@@ -174,10 +174,10 @@ data class StarlarkFloat(
         }
 
         internal fun floorDivImpl(a: Double, b: Double): Result<Double> =
-            if (b == 0.0) Result.failure(ValueError.DivisionByZero) else Result.success(floor(a / b))
+            if (b == 0.0) Result.failure(ValueError.DivisionByZero()) else Result.success(floor(a / b))
 
         internal fun percentImpl(a: Double, b: Double): Result<Double> {
-            if (b == 0.0) return Result.failure(ValueError.DivisionByZero)
+            if (b == 0.0) return Result.failure(ValueError.DivisionByZero())
             val r = a % b
             return if (r == 0.0) {
                 Result.success(0.0)
@@ -260,7 +260,7 @@ data class StarlarkFloat(
         return Result.success(NumRef.Float(this).compareTo(rhs))
     }
 
-    override fun typecheckerTy(): Ty? = Ty.float()
+    override fun typecheckerTy(): Ty = Ty.float()
 }
 
 // impl AllocValue for StarlarkFloat -- implemented via AllocValue interface on StarlarkFloat

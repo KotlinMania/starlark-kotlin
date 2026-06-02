@@ -57,9 +57,9 @@ sealed class TypingError(
         val typeName: String,
     ) : TypingError("Type `$typeName` is not a valid type annotation")
 
-    data object Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
+    data class Dict : TypingError("`{A: B}` cannot be used as type, perhaps you meant `dict[A, B]`")
 
-    data object List : TypingError("`[X]` cannot be used as type, perhaps you meant `list[X]`")
+    data class List : TypingError("`[X]` cannot be used as type, perhaps you meant `list[X]`")
 
     /** The given type annotation does not exist, but the user might have forgotten quotes around it */
     class PerhapsYouMeant(
@@ -108,14 +108,14 @@ class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
         demand.provideRefStatic(this)
     }
 
-    override fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> {
+    override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         // Hash::hash(&self.ty, hasher)
-        return kotlin.Result.success(Unit)
+        return Result.success(Unit)
     }
 
-    override fun evalType(): Ty? = ty
+    override fun evalType(): Ty = ty
 
-    override fun getMethods(): Methods? = MethodsStatic().methods(::typeCompiledMethods)
+    override fun getMethods(): Methods = MethodsStatic().methods(::typeCompiledMethods)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -190,8 +190,8 @@ class TypeCompiled(
      */
     internal fun isRuntimeWildcard(): Boolean = downcast().isRuntimeWildcardDyn()
 
-    private fun checkTypeError(value: Value, argName: String?): kotlin.Result<Unit> =
-        kotlin.Result.failure(
+    private fun checkTypeError(value: Value, argName: String?): Result<Unit> =
+        Result.failure(
             TypingError.TypeAnnotationMismatch(
                 value.toStr(),
                 value.getType(),
@@ -203,9 +203,9 @@ class TypeCompiled(
             ),
         )
 
-    internal fun checkType(value: Value, argName: String?): kotlin.Result<Unit> =
+    internal fun checkType(value: Value, argName: String?): Result<Unit> =
         if (matches(value)) {
-            kotlin.Result.success(Unit)
+            Result.success(Unit)
         } else {
             checkTypeError(value, argName)
         }
@@ -214,9 +214,9 @@ class TypeCompiled(
 
     fun toInner(): Value = inner
 
-    fun writeHash(hasher: StarlarkHasher): kotlin.Result<Unit> = inner.toValue().writeHash(hasher)
+    fun writeHash(hasher: StarlarkHasher): Result<Unit> = inner.toValue().writeHash(hasher)
 
-    fun typeEquals(other: TypeCompiled): kotlin.Result<Boolean> = inner.toValue().equals(other.inner.toValue())
+    fun typeEquals(other: TypeCompiled): Result<Boolean> = inner.toValue().equals(other.inner.toValue())
 
     /** Reallocate the type in a frozen heap. */
     fun toFrozen(heap: FrozenHeap): TypeCompiled {
@@ -266,7 +266,7 @@ class TypeCompiled(
             return TypeCompiledFactory.allocTy(ty, heap)
         }
 
-        internal fun typeAnyOf(ts: kotlin.collections.List<TypeCompiled>, heap: Heap): TypeCompiled {
+        internal fun typeAnyOf(ts: List<TypeCompiled>, heap: Heap): TypeCompiled {
             val ty = Ty.unions(ts.map { it.asTy() })
             return TypeCompiledFactory.allocTy(ty, heap)
         }
@@ -280,7 +280,7 @@ class TypeCompiled(
         private fun fromList(t: ListRef, heap: Heap): TypeCompiled {
             val content = t.content()
             return when {
-                content.isEmpty() || content.size == 1 -> throw TypingError.List
+                content.isEmpty() || content.size == 1 -> throw TypingError.List()
                 else -> {
                     // A union type, can match any
                     val ts = content.map { new(it, heap) }
@@ -338,10 +338,10 @@ class TypeCompiled(
 
 private fun invalidTypeAnnotation(ty: Value, heap: Heap): TypingError {
     if (dictRefFromValue(ty) != null) {
-        return TypingError.Dict
+        return TypingError.Dict()
     }
     if (ListRef.fromValue(ty) != null) {
-        return TypingError.List
+        return TypingError.List()
     }
     val attrResult = ty.getAttr("type", heap)
     if (attrResult.isSuccess) {

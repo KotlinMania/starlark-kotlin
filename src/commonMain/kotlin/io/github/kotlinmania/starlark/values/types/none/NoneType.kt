@@ -97,10 +97,10 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     override fun getTypeStarlarkRepr(): Ty = Ty.none()
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = Ty.none()
+    override fun typecheckerTy(): Ty = Ty.none()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = Ty.none()
+    override fun evalType(): Ty = Ty.none()
 
     // impl<'v> AllocValue<'v> for NoneType
     // fn alloc_value(self, _heap: Heap<'v>) -> Value<'v> { Value::new_none() }

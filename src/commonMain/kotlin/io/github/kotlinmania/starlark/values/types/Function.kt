@@ -153,7 +153,7 @@ internal class NativeFunction(
     override fun hasAttr(attribute: String, heap: Heap): Boolean = false
 
     // fn dir_attr(&self) -> Vec<String>
-    override fun dirAttr(): kotlin.collections.List<String> =
+    override fun dirAttr(): List<String> =
         if (asType != null) {
             listOf("type")
         } else {
@@ -164,7 +164,7 @@ internal class NativeFunction(
     override fun documentation(): DocItem = docs
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = ty
+    override fun typecheckerTy(): Ty = ty
 
     // fn at(&self, index: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
     override fun at(index: Value, heap: Heap): Result<Value> {
@@ -244,7 +244,7 @@ internal class NativeMethod(
     override fun documentation(): DocItem = docs
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = ty
+    override fun typecheckerTy(): Ty = ty
 }
 
 /**

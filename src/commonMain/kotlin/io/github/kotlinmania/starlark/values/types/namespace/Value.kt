@@ -93,7 +93,6 @@ data class NamespaceGen<V>(
         }
         return DocItem.Module(
             DocModule(
-                docs = null,
                 members = members,
             ),
         )
@@ -108,7 +107,7 @@ data class NamespaceGen<V>(
         )
 
     @Suppress("UNCHECKED_CAST")
-    override fun typecheckerTy(): Ty? {
+    override fun typecheckerTy(): Ty {
         val result = mutableMapOf<ArcStr, Ty>()
         for ((name, mdv) in fields.iter()) {
             val value =

@@ -193,8 +193,7 @@ class RecordTypeGen internal constructor(
                             field.typ.checkType(v, name).getOrThrow()
                             v
                         } else {
-                            val v: Value? = paramParser.nextOpt(ValueUnpackValue)
-                            when (v) {
+                            when (val v: Value? = paramParser.nextOpt(ValueUnpackValue)) {
                                 null -> field.default
                                 else -> {
                                     field.typ.checkType(v, name).getOrThrow()
@@ -215,7 +214,7 @@ class RecordTypeGen internal constructor(
     }
 
     // fn get_methods() -> Option<&'static Methods>
-    override fun getMethods(): Methods? = recordTypeMethodsStatic.methods(::recordTypeMethods)
+    override fun getMethods(): Methods = recordTypeMethodsStatic.methods(::recordTypeMethods)
 
     // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty? = tyRecordData()?.tyRecord

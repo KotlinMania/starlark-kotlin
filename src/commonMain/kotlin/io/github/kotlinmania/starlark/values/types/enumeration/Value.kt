@@ -88,7 +88,7 @@ class EnumValueGen(
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> = value.writeHash(hasher)
 
-    override fun getMethods(): Methods? {
+    override fun getMethods(): Methods {
         val res = MethodsStatic()
         return res.methods(::enumValueMethods)
     }

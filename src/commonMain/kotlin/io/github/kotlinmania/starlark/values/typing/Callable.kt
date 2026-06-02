@@ -58,7 +58,7 @@ internal class TypingCallable :
     override fun starlarkTypeRepr(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = StarlarkCallable.starlarkTypeRepr()
+    override fun evalType(): Ty = StarlarkCallable.starlarkTypeRepr()
 
     // fn at2(&self, param_types: Value<'v>, ret: Value<'v>, heap: Heap<'v>, _private: Private) -> crate::Result<Value<'v>>
     override fun at2(index0: Value, index1: Value, heap: Heap): Result<Value> =
@@ -102,7 +102,7 @@ internal class TypingCallableAt2(
     override fun toString(): String = callable.toString()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = Ty.basic(TyBasic.Callable(callable))
+    override fun evalType(): Ty = Ty.basic(TyBasic.Callable(callable))
 }
 
 /**

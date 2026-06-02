@@ -56,9 +56,8 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * In Kotlin, due to type erasure, an explicit [UnpackValue] instance is required.
      */
     fun <R> unpack(unpacker: UnpackValue<R>): R {
-        val v = value
         val asValue: Value =
-            when (v) {
+            when (val v = value) {
                 is Value -> v
                 is ValueLike -> v.toValue()
                 else -> throw IllegalStateException("Cannot convert to Value")
@@ -118,9 +117,8 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
 
     /** Freeze this value, producing a frozen equivalent. */
     fun freeze(freezer: Freezer): Result<ValueOfUncheckedGeneric<FrozenValue, T>> {
-        val v = value
         val frozen: FrozenValue =
-            when (v) {
+            when (val v = value) {
                 is Value -> v.freeze(freezer).getOrThrow()
                 is FrozenValue -> v
                 else -> throw IllegalStateException("Cannot freeze non-Value type")
@@ -130,9 +128,8 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
 
     /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
     fun toValue(): ValueOfUncheckedGeneric<Value, T> {
-        val v = value
         val asValue: Value =
-            when (v) {
+            when (val v = value) {
                 is Value -> v
                 is ValueLike -> v.toValue()
                 else -> throw IllegalStateException("Cannot convert to Value")

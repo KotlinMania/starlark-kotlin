@@ -110,7 +110,7 @@ class FrozenRef<T> internal constructor(
 }
 
 // impl PartialOrd for FrozenRef
-fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int? = value.compareTo(other.value)
+fun <T : Comparable<T>> FrozenRef<T>.partialCmp(other: FrozenRef<T>): Int = value.compareTo(other.value)
 
 // impl Ord for FrozenRef
 fun <T : Comparable<T>> FrozenRef<T>.cmp(other: FrozenRef<T>): Int = value.compareTo(other.value)

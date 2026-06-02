@@ -249,7 +249,7 @@ fun percent(format: String, value: Value): Result<String> {
                             is StarlarkIntRef.Small -> {
                                 val vi = intRef.value.toI32()
                                 val vp = kotlin.math.abs(vi)
-                                if (vi == kotlin.Int.MIN_VALUE) {
+                                if (vi == Int.MIN_VALUE) {
                                     res.append(I32_MIN_OCTAL)
                                 } else {
                                     if (vi < 0) res.append("-")
@@ -276,7 +276,7 @@ fun percent(format: String, value: Value): Result<String> {
                             is StarlarkIntRef.Small -> {
                                 val vi = intRef.value.toI32()
                                 val vp = kotlin.math.abs(vi)
-                                if (vi == kotlin.Int.MIN_VALUE) {
+                                if (vi == Int.MIN_VALUE) {
                                     res.append(I32_MIN_HEX)
                                 } else {
                                     if (vi < 0) res.append("-")
@@ -303,7 +303,7 @@ fun percent(format: String, value: Value): Result<String> {
                             is StarlarkIntRef.Small -> {
                                 val vi = intRef.value.toI32()
                                 val vp = kotlin.math.abs(vi)
-                                if (vi == kotlin.Int.MIN_VALUE) {
+                                if (vi == Int.MIN_VALUE) {
                                     res.append(I32_MIN_HEX.uppercase())
                                 } else {
                                     if (vi < 0) res.append("-")
@@ -408,9 +408,8 @@ fun percentSOne(
     return if (strValue != null) {
         Result.success(heap.allocStrConcat3(before, strValue.toString(), after))
     } else {
-        val tuple = Tuple.fromValue(arg)
         val one =
-            when (tuple) {
+            when (val tuple = Tuple.fromValue(arg)) {
                 null -> arg
                 else -> {
                     val content = tuple.content()

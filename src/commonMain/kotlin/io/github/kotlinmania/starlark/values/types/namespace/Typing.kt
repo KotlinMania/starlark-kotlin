@@ -88,7 +88,7 @@ data class TyNamespace(
     val extra: Boolean,
 ) : TyCustomImpl,
     Comparable<TyCustomImpl> {
-    override fun asName(): String? = "namespace"
+    override fun asName(): String = "namespace"
 
     override fun attribute(attr: String): Result<Ty> =
         when (val ty = fields[ArcStr.from(attr)]) {

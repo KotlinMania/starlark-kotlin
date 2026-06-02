@@ -46,7 +46,7 @@ internal class TypingAny :
     override fun starlarkTypeRepr(): Ty = Ty.any()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = Ty.any()
+    override fun evalType(): Ty = Ty.any()
 
     // impl AllocFrozenValue for TypingAny
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)

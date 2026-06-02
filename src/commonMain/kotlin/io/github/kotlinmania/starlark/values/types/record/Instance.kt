@@ -178,7 +178,7 @@ class RecordGen internal constructor(
     override fun dirAttr(): List<String> = getRecordFields().keys().toList()
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = getRecordType().instanceTy()
+    override fun typecheckerTy(): Ty = getRecordType().instanceTy()
 
     // impl Serialize for RecordGen
     // fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

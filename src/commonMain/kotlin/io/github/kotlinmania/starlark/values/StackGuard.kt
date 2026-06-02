@@ -69,7 +69,7 @@ private fun inc(): StackGuard {
 @OptIn(ExperimentalAtomicApi::class)
 private fun check() {
     if (unlikely(STACK_DEPTH.load() >= MAX_RECURSION)) {
-        throw ControlError.TooManyRecursionLevel
+        throw ControlError.TooManyRecursionLevel()
     }
 }
 

@@ -165,12 +165,12 @@ data class StructGen<V>(
         // <https://fb.workplace.com/groups/starlark/permalink/1463680027654154/> for some
         // additional discussion
         val typ = selfTy()
-        return DocItem.Member(DocMember.Property(DocProperty(docs = null, typ = typ)))
+        return DocItem.Member(DocMember.Property(DocProperty(typ = typ)))
     }
 
     override fun getTypeStarlarkRepr(): Ty = Ty.anyStruct()
 
-    override fun typecheckerTy(): Ty? = selfTy()
+    override fun typecheckerTy(): Ty = selfTy()
 
     /**
      * Serialize to map format matching Rust serde implementation.

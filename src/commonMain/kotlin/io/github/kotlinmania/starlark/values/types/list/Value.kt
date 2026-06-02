@@ -156,7 +156,7 @@ class ListGen<T>(
         return listLike().setAt(i, newValue)
     }
 
-    override fun typecheckerTy(): Ty? = Ty.anyList()
+    override fun typecheckerTy(): Ty = Ty.anyList()
 
     // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.anyList()
@@ -190,7 +190,7 @@ class ListData(
 
             val data = gen.data
             if (data is FrozenListData) {
-                return Result.failure(ValueError.CannotMutateImmutableValue)
+                return Result.failure(ValueError.CannotMutateImmutableValue())
             }
             if (data is ListData) {
                 data.checkCanMutate().getOrElse { return Result.failure(it) }
@@ -213,7 +213,7 @@ class ListData(
     /** Return an error if there's at least one iterator over the list. */
     fun checkCanMutate(): Result<Unit> {
         if (iterCount != 0) {
-            return Result.failure(ValueError.MutationDuringIteration)
+            return Result.failure(ValueError.MutationDuringIteration())
         }
         return Result.success(Unit)
     }
@@ -371,7 +371,7 @@ class FrozenListData(
     override fun content(): List<Value> = content.map { it.toValue() }
 
     override fun setAt(i: Int, v: Value): Result<Unit> =
-        Result.failure(ValueError.CannotMutateImmutableValue)
+        Result.failure(ValueError.CannotMutateImmutableValue())
 
     override fun newIter(me: Value): Value = me
 
@@ -460,7 +460,7 @@ internal class FrozenListDataListLike(
     override fun content(): List<Value> = data.content().map { it.toValue() }
 
     override fun setAt(i: Int, v: Value): Result<Unit> =
-        Result.failure(ValueError.CannotMutateImmutableValue)
+        Result.failure(ValueError.CannotMutateImmutableValue())
 
     override fun iterSizeHint(index: Int): Pair<Int, Int?> {
         check(index <= data.len())
@@ -495,7 +495,7 @@ internal fun displayList(xs: List<Value>): String =
 // pub(crate) fn list_methods() -> Option<&'static Methods>
 private val LIST_METHODS_STATIC = MethodsStatic()
 
-fun listMethods(): Methods? = LIST_METHODS_STATIC.methods(::listMethodsImpl)
+fun listMethods(): Methods = LIST_METHODS_STATIC.methods(::listMethodsImpl)
 
 // impl Serialize for ListGen<T>
 fun ListGen<out ListLike>.serialize(): List<Value> = data.content().toList()

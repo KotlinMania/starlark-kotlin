@@ -80,7 +80,7 @@ internal class StarlarkValueAsTypeStarlarkValue(
     override val HAS_eval_type: Boolean get() = true
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = tyFn()
+    override fun evalType(): Ty = tyFn()
 
     // fn documentation(&self) -> DocItem
     override fun documentation(): DocItem = docFn()
@@ -134,7 +134,6 @@ class StarlarkValueAsType<T : StarlarkTypeRepr>
                     DocItem.Member(
                         DocMember.Property(
                             DocProperty(
-                                docs = null,
                                 typ = AbstractType.starlarkTypeRepr(),
                             ),
                         ),

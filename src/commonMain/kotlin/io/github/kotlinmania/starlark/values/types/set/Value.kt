@@ -231,7 +231,7 @@ data class SetGen<T>(
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = Ty.anySet()
+    override fun typecheckerTy(): Ty = Ty.anySet()
 
     // fn get_type_starlark_repr() -> Ty
     override fun getTypeStarlarkRepr(): Ty = Ty.anySet()
@@ -325,7 +325,7 @@ fun MutableSet.freezeToFrozenSet(freezer: Freezer): Result<FrozenSet> {
 /**
  * Get set methods.
  */
-fun setMethods(): Methods? = RES.methods(::setMethodsImpl)
+fun setMethods(): Methods = RES.methods(::setMethodsImpl)
 
 private val RES = MethodsStatic()
 

@@ -33,7 +33,7 @@ private fun unpackIntErr(v: Value): Result<Int> {
         Result.success(i)
     } else {
         Result.failure(
-            ValueError.IncorrectParameterType,
+            ValueError.IncorrectParameterType(),
         )
     }
 }
@@ -80,7 +80,7 @@ internal fun convertIndex(v: Value, len: Int): Result<Int> {
         if (x < 0) {
             val added = len.toLong() + x.toLong()
             if (added < Int.MIN_VALUE || added > Int.MAX_VALUE) {
-                return Result.failure(ValueError.IntegerOverflow)
+                return Result.failure(ValueError.IntegerOverflow())
             }
             added.toInt()
         } else {

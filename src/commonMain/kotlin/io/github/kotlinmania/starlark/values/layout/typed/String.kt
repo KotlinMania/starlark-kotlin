@@ -144,7 +144,7 @@ class StarlarkStr(
     override fun percent(other: Value, heap: Heap): Result<Value> = starlarkStrPercent(this, other, heap)
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = Ty.string()
+    override fun typecheckerTy(): Ty = Ty.string()
 
     override fun toString(): String = value
 

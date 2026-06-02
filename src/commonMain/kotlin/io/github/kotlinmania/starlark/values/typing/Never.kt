@@ -45,7 +45,7 @@ internal class TypingNever :
     override fun starlarkTypeRepr(): Ty = Ty.never()
 
     // fn eval_type(&self) -> Option<Ty>
-    override fun evalType(): Ty? = Ty.never()
+    override fun evalType(): Ty = Ty.never()
 
     // impl AllocFrozenValue for TypingNever
     // fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue

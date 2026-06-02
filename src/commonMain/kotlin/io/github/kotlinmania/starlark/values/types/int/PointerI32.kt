@@ -305,5 +305,5 @@ private object PointerI32StarlarkValueAdapter : StarlarkValue {
 
     override fun isSpecial(): Boolean = true
 
-    override fun typecheckerTy(): Ty? = Ty.int()
+    override fun typecheckerTy(): Ty = Ty.int()
 }

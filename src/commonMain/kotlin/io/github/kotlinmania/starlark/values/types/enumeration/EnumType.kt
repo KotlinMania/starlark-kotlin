@@ -168,7 +168,7 @@ class EnumTypeGen internal constructor(
 
     override fun iterStop() {}
 
-    override fun getMethods(): Methods? = enumTypeMethodsStatic.methods(::enumTypeMethods)
+    override fun getMethods(): Methods = enumTypeMethodsStatic.methods(::enumTypeMethods)
 
     override fun evalType(): Ty? = tyEnumData()?.tyEnumValue
 

@@ -148,7 +148,7 @@ internal fun elems(
  * # "#);
  * ```
  */
-internal fun capitalize(thisStr: kotlin.String): Result<kotlin.String> {
+internal fun capitalize(thisStr: String): Result<String> {
     val result = StringBuilder(thisStr.length)
     for ((i, c) in thisStr.withIndex()) {
         if (i == 0) {
@@ -211,8 +211,8 @@ internal fun codepoints(
  * ```
  */
 internal fun count(
-    thisStr: kotlin.String,
-    needle: kotlin.String,
+    thisStr: String,
+    needle: String,
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
@@ -239,7 +239,7 @@ internal fun count(
  * ```
  */
 internal fun endswith(
-    thisStr: kotlin.String,
+    thisStr: String,
     suffix: StringOrTuple,
 ): Result<Boolean> =
     when (suffix) {
@@ -271,8 +271,8 @@ internal fun endswith(
  * ```
  */
 internal fun find(
-    thisStr: kotlin.String,
-    needle: kotlin.String,
+    thisStr: String,
+    needle: String,
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
@@ -342,7 +342,7 @@ internal fun find(
  * ```
  */
 internal fun format(
-    thisStr: kotlin.String,
+    thisStr: String,
     args: Arguments,
     eval: Evaluator,
 ): Result<StringValue> {
@@ -377,8 +377,8 @@ internal fun format(
  * ```
  */
 internal fun index(
-    thisStr: kotlin.String,
-    needle: kotlin.String,
+    thisStr: String,
+    needle: String,
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
@@ -415,7 +415,7 @@ internal fun index(
  * # "#);
  * ```
  */
-internal fun isalnum(thisStr: kotlin.String): Result<Boolean> {
+internal fun isalnum(thisStr: String): Result<Boolean> {
     if (thisStr.isEmpty()) {
         return Result.success(false)
     }
@@ -443,7 +443,7 @@ internal fun isalnum(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun isalpha(thisStr: kotlin.String): Result<Boolean> {
+internal fun isalpha(thisStr: String): Result<Boolean> {
     if (thisStr.isEmpty()) {
         return Result.success(false)
     }
@@ -471,7 +471,7 @@ internal fun isalpha(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun isdigit(thisStr: kotlin.String): Result<Boolean> {
+internal fun isdigit(thisStr: String): Result<Boolean> {
     if (thisStr.isEmpty()) {
         return Result.success(false)
     }
@@ -499,7 +499,7 @@ internal fun isdigit(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun islower(thisStr: kotlin.String): Result<Boolean> {
+internal fun islower(thisStr: String): Result<Boolean> {
     var result = false
     for (c in thisStr) {
         if (c.isUpperCase()) {
@@ -527,7 +527,7 @@ internal fun islower(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun isspace(thisStr: kotlin.String): Result<Boolean> {
+internal fun isspace(thisStr: String): Result<Boolean> {
     if (thisStr.isEmpty()) {
         return Result.success(false)
     }
@@ -557,7 +557,7 @@ internal fun isspace(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun istitle(thisStr: kotlin.String): Result<Boolean> {
+internal fun istitle(thisStr: String): Result<Boolean> {
     var lastSpace = true
     var result = false
 
@@ -597,7 +597,7 @@ internal fun istitle(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun isupper(thisStr: kotlin.String): Result<Boolean> {
+internal fun isupper(thisStr: String): Result<Boolean> {
     var result = false
     for (c in thisStr) {
         if (c.isLowerCase()) {
@@ -623,7 +623,7 @@ internal fun isupper(thisStr: kotlin.String): Result<Boolean> {
  * # "#);
  * ```
  */
-internal fun lower(thisStr: kotlin.String): Result<kotlin.String> = Result.success(thisStr.lowercase())
+internal fun lower(thisStr: String): Result<String> = Result.success(thisStr.lowercase())
 
 /**
  * [string.join](
@@ -645,7 +645,7 @@ internal fun lower(thisStr: kotlin.String): Result<kotlin.String> = Result.succe
  * ```
  */
 internal fun join(
-    thisStr: kotlin.String,
+    thisStr: String,
     toJoin: Value,
     heap: Heap,
 ): Result<Value> {
@@ -696,7 +696,7 @@ internal fun join(
  */
 internal fun lstrip(
     thisStr: StringValue,
-    chars: kotlin.String?,
+    chars: String?,
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
@@ -786,8 +786,8 @@ internal fun partition(
  */
 internal fun replace(
     thisStr: StringValue,
-    old: kotlin.String,
-    new: kotlin.String,
+    old: String,
+    new: String,
     count: Int?,
     heap: Heap,
 ): Result<StringValue> =
@@ -841,8 +841,8 @@ internal fun replace(
  * ```
  */
 internal fun rfind(
-    thisStr: kotlin.String,
-    needle: kotlin.String,
+    thisStr: String,
+    needle: String,
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
@@ -880,8 +880,8 @@ internal fun rfind(
  * ```
  */
 internal fun rindex(
-    thisStr: kotlin.String,
-    needle: kotlin.String,
+    thisStr: String,
+    needle: String,
     start: NoneOr<Int> = NoneOr.None,
     end: NoneOr<Int> = NoneOr.None,
 ): Result<Int> {
@@ -964,8 +964,8 @@ internal fun rpartition(
  * ```
  */
 internal fun rsplit(
-    thisStr: kotlin.String,
-    sep: NoneOr<kotlin.String> = NoneOr.None,
+    thisStr: String,
+    sep: NoneOr<String> = NoneOr.None,
     maxsplit: NoneOr<Int> = NoneOr.None,
     heap: Heap,
 ): Result<Value> {
@@ -1008,7 +1008,7 @@ internal fun rsplit(
  */
 internal fun rstrip(
     thisStr: StringValue,
-    chars: kotlin.String?,
+    chars: String?,
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
@@ -1060,8 +1060,8 @@ internal fun rstrip(
  * ```
  */
 internal fun split(
-    thisStr: kotlin.String,
-    sep: NoneOr<kotlin.String> = NoneOr.None,
+    thisStr: String,
+    sep: NoneOr<String> = NoneOr.None,
     maxsplit: NoneOr<Int> = NoneOr.None,
     heap: Heap,
 ): Result<Value> {
@@ -1110,7 +1110,7 @@ internal fun split(
  * ```
  */
 internal fun splitlines(
-    thisStr: kotlin.String,
+    thisStr: String,
     keepends: Boolean = false,
     heap: Heap,
 ): Result<List<StringValue>> {
@@ -1163,7 +1163,7 @@ internal fun splitlines(
  * ```
  */
 internal fun startswith(
-    thisStr: kotlin.String,
+    thisStr: String,
     prefix: StringOrTuple,
 ): Result<Boolean> =
     when (prefix) {
@@ -1188,7 +1188,7 @@ internal fun startswith(
  */
 internal fun strip(
     thisStr: StringValue,
-    chars: kotlin.String?,
+    chars: String?,
     heap: Heap,
 ): Result<StringValue> {
     val s = thisStr.asStr()
@@ -1222,7 +1222,7 @@ internal fun strip(
  * # "#);
  * ```
  */
-internal fun title(thisStr: kotlin.String): Result<kotlin.String> {
+internal fun title(thisStr: String): Result<String> {
     var lastSpace = true
     val result = StringBuilder(thisStr.length)
     for (c in thisStr) {
@@ -1255,7 +1255,7 @@ internal fun title(thisStr: kotlin.String): Result<kotlin.String> {
  * # "#);
  * ```
  */
-internal fun upper(thisStr: kotlin.String): Result<kotlin.String> = Result.success(thisStr.uppercase())
+internal fun upper(thisStr: String): Result<String> = Result.success(thisStr.uppercase())
 
 /**
  * [string.removeprefix](
@@ -1275,7 +1275,7 @@ internal fun upper(thisStr: kotlin.String): Result<kotlin.String> = Result.succe
  */
 internal fun removeprefix(
     thisStr: StringValue,
-    prefix: kotlin.String,
+    prefix: String,
     heap: Heap,
 ): Result<StringValue> {
     val x = thisStr.asStr()
@@ -1304,7 +1304,7 @@ internal fun removeprefix(
  */
 internal fun removesuffix(
     thisStr: StringValue,
-    suffix: kotlin.String,
+    suffix: String,
     heap: Heap,
 ): Result<StringValue> {
     val x = thisStr.asStr()
@@ -1319,7 +1319,7 @@ internal fun removesuffix(
 
 private data class StrIndices(
     val start: Int,
-    val haystack: kotlin.String,
+    val haystack: String,
 )
 
 // Port of starlark_syntax::convert_indices::convert_indices
@@ -1343,7 +1343,7 @@ private fun convertIndices(len: Int, start: Int?, end: Int?): Pair<Int, Int> {
 // Port of starlark_syntax::fast_string::convert_str_indices
 // In Kotlin, strings are already character-indexed (unlike Rust's byte-indexed strings),
 // so the heavy byte-level optimization from fast_string.rs is not needed.
-private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIndices? {
+private fun convertStrIndices(str: String, start: Int?, end: Int?): StrIndices? {
     val len = str.codePointCount()
     return when {
         // (None, None) => full string
@@ -1382,7 +1382,7 @@ private fun convertStrIndices(str: kotlin.String, start: Int?, end: Int?): StrIn
 }
 
 // Count Unicode code points in a string (handles surrogate pairs).
-private fun kotlin.String.codePointCount(): Int {
+private fun String.codePointCount(): Int {
     var count = 0
     var i = 0
     while (i < this.length) {
@@ -1398,7 +1398,7 @@ private fun kotlin.String.codePointCount(): Int {
 }
 
 // Convert a code point index to a UTF-16 char offset. Returns null if index is out of bounds.
-private fun codePointOffset(str: kotlin.String, codePointIndex: Int): Int? {
+private fun codePointOffset(str: String, codePointIndex: Int): Int? {
     var cpCount = 0
     var i = 0
     while (i < str.length && cpCount < codePointIndex) {
@@ -1414,7 +1414,7 @@ private fun codePointOffset(str: kotlin.String, codePointIndex: Int): Int? {
 }
 
 // Convert a code point index to a UTF-16 char offset, clamped to string length.
-private fun codePointOffsetClamped(str: kotlin.String, codePointIndex: Int): Int {
+private fun codePointOffsetClamped(str: String, codePointIndex: Int): Int {
     var cpCount = 0
     var i = 0
     while (i < str.length && cpCount < codePointIndex) {
@@ -1431,11 +1431,11 @@ private fun codePointOffsetClamped(str: kotlin.String, codePointIndex: Int): Int
 
 // Port of starlark_syntax::fast_string::len
 // Find the length of the string in characters (code points).
-private fun strLen(str: kotlin.String): Int = str.codePointCount()
+private fun strLen(str: String): Int = str.codePointCount()
 
 // Port of starlark_syntax::fast_string::count_matches
 // Find the number of times a needle occurs within a string, non-overlapping.
-private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
+private fun countMatches(haystack: String, needle: String): Int {
     if (needle.isEmpty()) return strLen(haystack) + 1
     var count = 0
     var startIndex = 0
@@ -1450,11 +1450,11 @@ private fun countMatches(haystack: kotlin.String, needle: kotlin.String): Int {
 
 // Port of starlark_syntax::fast_string::count_matches_byte
 // Find the number of times a needle byte/char occurs within a string.
-private fun countMatchesByte(haystack: kotlin.String, byte: Char): Int = haystack.count { it == byte }
+private fun countMatchesByte(haystack: String, byte: Char): Int = haystack.count { it == byte }
 
 // Delegate to the fully ported DotFormat.format function.
 private fun dotFormat(
-    format: kotlin.String,
+    format: String,
     args: Iterator<Value>,
     kwargs: io.github.kotlinmania.starlark.values.types.dict.Dict,
     stringPool: StringPool,
@@ -1471,12 +1471,12 @@ private fun asStr(value: Value): StringValue =
  * This wraps the [Heap.allocStr] member (which returns [Value]) with
  * [StringValue.newUnchecked] to produce the typed wrapper.
  */
-private fun allocStrValue(heap: Heap, x: kotlin.String): StringValue = StringValue.newUnchecked(heap.allocStr(x))
+private fun allocStrValue(heap: Heap, x: String): StringValue = StringValue.newUnchecked(heap.allocStr(x))
 
 /**
  * Allocate a list of strings on the heap, returning a [Value] representing the list.
  */
-private fun allocStringList(strings: List<kotlin.String>, heap: Heap): Value {
+private fun allocStringList(strings: List<String>, heap: Heap): Value {
     val values = strings.map { heap.allocStr(it) }
     return heap.allocListIter(values)
 }
@@ -1485,7 +1485,7 @@ private fun allocStringList(strings: List<kotlin.String>, heap: Heap): Value {
  * Replace the first [count] occurrences of [old] with [new] in [s].
  * Equivalent to Rust's `str::replacen`.
  */
-private fun replacen(s: kotlin.String, old: kotlin.String, new: kotlin.String, count: Int): kotlin.String {
+private fun replacen(s: String, old: String, new: String, count: Int): String {
     if (count == 0) return s
     val result = StringBuilder()
     var remaining = s

@@ -147,7 +147,6 @@ interface StarlarkValue {
         return DocItem.Member(
             DocMember.Property(
                 DocProperty(
-                    docs = null,
                     typ = ty,
                 ),
             ),
@@ -429,7 +428,7 @@ interface StarlarkValue {
     }
 
     /** Set the value at `index` with the new value. */
-    fun setAt(index: Value, newValue: Value): Result<Unit> = Result.failure(ValueError.CannotMutateImmutableValue)
+    fun setAt(index: Value, newValue: Value): Result<Unit> = Result.failure(ValueError.CannotMutateImmutableValue())
 
     /**
      * Set the attribute named `attribute` of the current value to

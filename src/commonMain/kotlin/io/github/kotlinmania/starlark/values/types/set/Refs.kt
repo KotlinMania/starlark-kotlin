@@ -105,7 +105,7 @@ class SetMut internal constructor(
          */
         internal fun error(x: Value): Throwable =
             if (x.downcastRef<SetGen<FrozenSetData>>() != null) {
-                ValueError.CannotMutateImmutableValue
+                ValueError.CannotMutateImmutableValue()
             } else {
                 NotSetError(x.getType())
             }
@@ -114,15 +114,14 @@ class SetMut internal constructor(
          * Downcast the value to a mutable set reference.
          */
         internal fun fromValue(x: Value): Result<SetMut> {
-            val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()
-            return when (ptr) {
+            return when (val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()) {
                 null -> Result.failure(error(x))
                 else -> {
                     val borrowed = ptr.inner.tryBorrowMut()
                     if (borrowed != null) {
                         Result.success(SetMut(borrowed))
                     } else {
-                        Result.failure(ValueError.MutationDuringIteration)
+                        Result.failure(ValueError.MutationDuringIteration())
                     }
                 }
             }

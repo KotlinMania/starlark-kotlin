@@ -48,7 +48,7 @@ class UnpackDictEntries<K, V>(
          * Returns null if the value is not a dict. Returns the [UnpackDictEntries] with
          * all key/value pairs unpacked, or null if any key or value fails type checking.
          */
-        fun <K : Any, V : Any> unpackValue(value: Value): Result<UnpackDictEntries<K, V>?>? {
+        fun <K : Any, V : Any> unpackValue(value: Value): Result<UnpackDictEntries<K, V>?> {
             val dict = dictRefFromValue(value) ?: return Result.success(null)
             val entries = mutableListOf<Pair<K, V>>()
             for ((k, v) in dict.iter()) {

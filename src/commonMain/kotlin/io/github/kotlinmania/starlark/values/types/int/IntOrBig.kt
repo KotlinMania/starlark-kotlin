@@ -51,15 +51,15 @@ sealed class StarlarkIntError : Exception() {
         override val message: String = "Modulo by zero: $a % $b"
     }
 
-    object LeftShiftOverflow : StarlarkIntError() {
+    class LeftShiftOverflow : StarlarkIntError() {
         override val message: String = "Integer overflow computing left shift"
     }
 
-    object LeftShiftNegative : StarlarkIntError() {
+    class LeftShiftNegative : StarlarkIntError() {
         override val message: String = "Negative left shift"
     }
 
-    object RightShiftNegative : StarlarkIntError() {
+    class RightShiftNegative : StarlarkIntError() {
         override val message: String = "Negative right shift"
     }
 }
@@ -395,7 +395,7 @@ sealed class StarlarkIntRef {
             }
 
             if (other.isNegative()) {
-                throw StarlarkIntError.LeftShiftNegative
+                throw StarlarkIntError.LeftShiftNegative()
             }
             if (this.isZero() || other.isZero()) {
                 return@runCatching this.toOwned()
@@ -403,11 +403,11 @@ sealed class StarlarkIntRef {
             if (other > 100_000) {
                 // Limit the size of the BigInt to avoid accidentally consuming
                 // too much memory. 100_000 is practically enough for most use cases.
-                throw StarlarkIntError.LeftShiftOverflow
+                throw StarlarkIntError.LeftShiftOverflow()
             }
 
             when (other) {
-                is Big -> throw StarlarkIntError.LeftShiftOverflow
+                is Big -> throw StarlarkIntError.LeftShiftOverflow()
                 is Small -> {
                     // No overflow, checked above.
                     val b = other.value.toU64()!!
@@ -431,7 +431,7 @@ sealed class StarlarkIntRef {
             }
 
             if (other.isNegative()) {
-                throw StarlarkIntError.RightShiftNegative
+                throw StarlarkIntError.RightShiftNegative()
             }
             if (this.isZero() || other.isZero()) {
                 return@runCatching this.toOwned()

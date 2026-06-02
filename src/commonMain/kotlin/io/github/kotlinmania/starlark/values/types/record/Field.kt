@@ -69,7 +69,7 @@ class Field internal constructor(
     }
 
     // fn typechecker_ty(&self) -> Option<Ty>
-    override fun typecheckerTy(): Ty? = Ty.starlarkValue(TyStarlarkValue.new("field"))
+    override fun typecheckerTy(): Ty = Ty.starlarkValue(TyStarlarkValue.new("field"))
 
     // impl Display for FieldGen
     override fun toString(): String =

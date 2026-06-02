@@ -59,9 +59,8 @@ internal fun registerSet(globals: GlobalsBuilder) {
         speculativeExecSafe = true,
     ) { callArgs, eval ->
         val heap: Heap = eval.heap()
-        val arg: Value? = callArgs.optionalPositional(0)
         val set =
-            when (arg) {
+            when (val arg: Value? = callArgs.optionalPositional(0)) {
                 null -> SetData()
                 else -> {
                     val pos = arg

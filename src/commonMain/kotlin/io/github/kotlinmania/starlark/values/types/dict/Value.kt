@@ -76,7 +76,7 @@ data class DictGen<T>(
                 @Suppress("UNCHECKED_CAST")
                 fmtKeyedContainer("{", "}", ": ", (inner as DictLike).content().iter())
             }
-            else -> super<ComplexValue>.toString()
+            else -> super.toString()
         }
 
     // --- StarlarkValue implementation (mirrors Rust's #[starlark_value] impl) ---
@@ -175,7 +175,7 @@ data class DictGen<T>(
 
     override fun setAt(index: Value, newValue: Value): Result<Unit> {
         val innerVal = inner
-        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue)
+        if (innerVal !is DictLike) return Result.failure(ValueError.CannotMutateImmutableValue())
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
         return innerVal.setAt(hashed, newValue)
     }
@@ -209,7 +209,7 @@ data class DictGen<T>(
         return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
     }
 
-    override fun typecheckerTy(): Ty? = Ty.anyDict()
+    override fun typecheckerTy(): Ty = Ty.anyDict()
 
     override fun getTypeStarlarkRepr(): Ty = Ty.anyDict()
 
@@ -433,7 +433,7 @@ class RefCellDictLike(
             cell.value.content.insertHashed(index, value)
             Result.success(Unit)
         } catch (_: Exception) {
-            Result.failure(ValueError.MutationDuringIteration)
+            Result.failure(ValueError.MutationDuringIteration())
         }
 }
 
@@ -453,10 +453,10 @@ class FrozenDictDataDictLike(
         data.content as SmallMap<Value, Value>
 
     override fun setAt(index: Hashed<Value>, value: Value): Result<Unit> =
-        Result.failure(ValueError.CannotMutateImmutableValue)
+        Result.failure(ValueError.CannotMutateImmutableValue())
 }
 
-fun getDictMethods(): Methods? = DICT_METHODS_STATIC.methods(::dictMethods)
+fun getDictMethods(): Methods = DICT_METHODS_STATIC.methods(::dictMethods)
 
 private val DICT_METHODS_STATIC = MethodsStatic()
 
@@ -495,7 +495,7 @@ class AtomicRef<T>(
 ) {
     fun borrow(): Ref<T> = Ref(value)
 
-    fun tryBorrowMut(): RefMut<T>? = RefMut(value)
+    fun tryBorrowMut(): RefMut<T> = RefMut(value)
 }
 
 internal fun hashStringValue(s: String): Int = s.hashCode()
