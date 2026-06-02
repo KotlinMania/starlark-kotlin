@@ -38,12 +38,10 @@ data class LintMessage(
     val description: String?,
     val original: String?,
 ) {
-    // impl LintMessage
     companion object {
         /**
          * Construct from an [EvalMessage].
          */
-        // pub fn new(x: EvalMessage) -> Self
         fun new(x: EvalMessage): LintMessage =
             LintMessage(
                 path = x.path,

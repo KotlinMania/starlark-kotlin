@@ -48,8 +48,9 @@ class StarlarkValueAsTypeTest {
         fun compilerArgs(x: String): Result<CompilerArgs> = Result.success(CompilerArgs(x))
 
         globals.setConst("CompilerArgs", StarlarkValueAsType.new(CompilerArgs("")))
-        globals.setFunction("compiler_args") { args, _ ->
-            compilerArgs(args.positional<String>(0))
+        globals.setFunction("compiler_args") { args, eval ->
+            val arg = args.positionalAll()[0].unpackStrErr().getOrThrow()
+            compilerArgs(arg).map { it.allocValue(eval.heap()) }
         }
     }
 

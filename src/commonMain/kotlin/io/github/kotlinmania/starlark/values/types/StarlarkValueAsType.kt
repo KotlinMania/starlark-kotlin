@@ -19,37 +19,6 @@ package io.github.kotlinmania.starlark.values.types.starlarkvalueastype
  * limitations under the License.
  */
 
-// ! Convert a value implementing [`StarlarkValue`] into a type usable in type expression.
-
-// use std::fmt;
-// use std::fmt::Debug;
-// use std::fmt::Display;
-// use std::fmt::Formatter;
-// use std::marker::PhantomData;
-
-// use allocative::Allocative;
-// use starlark_derive::NoSerialize;
-// use starlark_derive::starlark_value;
-
-// use crate as starlark;
-// use crate::any::ProvidesStaticType;
-// use crate::docs::DocItem;
-// use crate::docs::DocMember;
-// use crate::docs::DocProperty;
-// use crate::docs::DocType;
-// use crate::typing::Ty;
-// use crate::values::AllocFrozenValue;
-// use crate::values::AllocStaticSimple;
-// use crate::values::AllocValue;
-// use crate::values::FrozenHeap;
-// use crate::values::FrozenValue;
-// use crate::values::Heap;
-// use crate::values::StarlarkValue;
-// use crate::values::Value;
-// use crate::values::type_repr::StarlarkTypeRepr;
-// use crate::values::typing::TypeType;
-// use crate::values::typing::ty::AbstractType;
-
 import io.github.kotlinmania.starlark.docs.DocItem
 import io.github.kotlinmania.starlark.docs.DocMember
 import io.github.kotlinmania.starlark.docs.DocProperty
@@ -66,42 +35,23 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.typing.ty.AbstractType
 
-// #[derive(Debug, NoSerialize, Allocative, ProvidesStaticType)]
-// struct StarlarkValueAsTypeStarlarkValue(fn() -> Ty, fn() -> DocItem);
+/** Backing Starlark `type` value for a Kotlin value type representation. */
 @PublishedApi
 internal class StarlarkValueAsTypeStarlarkValue(
     private val tyFn: () -> Ty,
     private val docFn: () -> DocItem,
 ) : StarlarkValue {
-    // #[starlark_value(type = "type")]
-    // impl<'v> StarlarkValue<'v> for StarlarkValueAsTypeStarlarkValue {
-    //     type Canonical = AbstractType;
     override val TYPE: String get() = "type"
     override val HAS_eval_type: Boolean get() = true
 
-    // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty = tyFn()
 
-    // fn documentation(&self) -> DocItem
     override fun documentation(): DocItem = docFn()
 
-    // impl Display for StarlarkValueAsTypeStarlarkValue
-    //     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result
     override fun toString(): String = tyFn().toString()
 }
 
-// / Utility to declare a value usable in type expression.
-// /
-// / # Example
-// /
-// / ```
-// / use starlark::values::starlark_value_as_type::StarlarkValueAsType;
-// / const Temperature: StarlarkValueAsType<Temperature> = StarlarkValueAsType::new();
-// / ```
-// pub struct StarlarkValueAsType<T: StarlarkTypeRepr>(
-//     &'static AllocStaticSimple<StarlarkValueAsTypeStarlarkValue>,
-//     PhantomData<fn(&T)>,
-// );
+/** Utility to declare a value usable in Starlark type expressions. */
 class StarlarkValueAsType<T : StarlarkTypeRepr>
     @PublishedApi
     internal constructor(
@@ -110,12 +60,8 @@ class StarlarkValueAsType<T : StarlarkTypeRepr>
     ) : StarlarkTypeRepr,
         AllocValue,
         AllocFrozenValue {
-        // impl<T: StarlarkTypeRepr> StarlarkValueAsType<T>
         companion object {
-            // / Constructor.
-            // /
-            // / Use [`new_no_docs`](Self::new_no_docs) if `T` is not a `StarlarkValue`.
-            // pub const fn new() -> Self where T: StarlarkValue<'static>
+            /** Constructor for value types with full Starlark documentation. */
             inline fun <reified T> new(instance: T): StarlarkValueAsType<T>
             where T : StarlarkTypeRepr, T : StarlarkValue {
                 val tyFn: () -> Ty = { instance.getTypeStarlarkRepr() }
@@ -126,8 +72,7 @@ class StarlarkValueAsType<T : StarlarkTypeRepr>
                 )
             }
 
-            // / Constructor.
-            // pub const fn new_no_docs() -> Self
+            /** Constructor for value types that expose only a type expression. */
             inline fun <reified T : StarlarkTypeRepr> newNoDocs(instance: T): StarlarkValueAsType<T> {
                 val tyFn: () -> Ty = { instance.starlarkTypeRepr() }
                 val docFn: () -> DocItem = {
@@ -148,15 +93,9 @@ class StarlarkValueAsType<T : StarlarkTypeRepr>
 
         override fun toString(): String = tyRepr().toString()
 
-        // impl<T: StarlarkTypeRepr> StarlarkTypeRepr for StarlarkValueAsType<T>
-        //     fn starlark_type_repr() -> Ty
         override fun starlarkTypeRepr(): Ty = AbstractType.starlarkTypeRepr()
 
-        // impl<'v, T: StarlarkTypeRepr> AllocValue<'v> for StarlarkValueAsType<T>
-        //     fn alloc_value(self, _heap: Heap<'v>) -> Value<'v>
         override fun allocValue(heap: Heap): Value = heap.allocSimple(inner)
 
-        // impl<T: StarlarkTypeRepr> AllocFrozenValue for StarlarkValueAsType<T>
-        //     fn alloc_frozen_value(self, _heap: &FrozenHeap) -> FrozenValue
         override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(inner)
     }

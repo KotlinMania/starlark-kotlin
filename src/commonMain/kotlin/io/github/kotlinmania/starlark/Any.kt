@@ -18,20 +18,7 @@ package io.github.kotlinmania.starlark.any
  * limitations under the License.
  */
 
-// //! Methods that build upon the [`Any` trait](std::any::Any).
-
 import kotlin.reflect.KClass
-
-// use std::any::TypeId;
-// use std::cell::Cell;
-// use std::cell::RefCell;
-// use std::cell::UnsafeCell;
-// use std::collections::BTreeMap;
-// use std::collections::HashMap;
-// use std::rc::Rc;
-// use std::sync::Arc;
-
-// pub use starlark_derive::ProvidesStaticType;
 
 /**
  * Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
@@ -42,10 +29,6 @@ import kotlin.reflect.KClass
  * In Kotlin, since there are no lifetime parameters, this maps to providing
  * the [KClass] of the static type for runtime type identification.
  */
-// pub unsafe trait ProvidesStaticType<'a> {
-//     /// Same type as `Self` but with lifetimes dropped to `'static`.
-//     type StaticType: 'static + ?Sized;
-// }
 interface ProvidesStaticType {
     /**
      * Same type as `Self` but with lifetimes dropped to `'static`.
@@ -63,15 +46,6 @@ interface ProvidesStaticType {
  * because [AnyLifetime] needs to be object safe,
  * and [ProvidesStaticType] has type member.
  */
-// impl<'a, T: ProvidesStaticType<'a> + 'a + ?Sized> AnyLifetime<'a> for T {
-//     fn static_type_id() -> TypeId where Self: Sized {
-//         TypeId::of::<T::StaticType>()
-//     }
-//     fn static_type_of(&self) -> TypeId {
-//         TypeId::of::<T::StaticType>()
-//     }
-// }
-
 /**
  * Like [Any][kotlin.Any], but while `Any` requires `'static`, this version
  * allows a lifetime parameter.
@@ -105,57 +79,35 @@ interface ProvidesStaticType {
  * }
  * ```
  */
-// pub trait AnyLifetime<'a>: seal::ProvidesStaticTypeSealed<'a> + 'a {
 interface AnyLifetime {
     /**
      * Must return the `TypeId` of `Self` but where the lifetimes are changed
      * to `'static`. Must be consistent with [staticTypeOf].
      */
-    // fn static_type_id() -> TypeId where Self: Sized;
     fun staticTypeId(): KClass<*>
 
     /**
      * Must return the `TypeId` of `Self` but where the lifetimes are changed
-     * to `'static`. Must be consistent with [staticTypeId]. Must not
+     * to `'static`. Must be consistent with [staticTypeOf]. Must not
      * consult the `self` parameter in any way.
      */
-    // fn static_type_of(&self) -> TypeId;
     fun staticTypeOf(): KClass<*>
-    // Required so we can have a `dyn AnyLifetime`.
 }
-
-// mod seal {
-//     /// A bound required by `AnyLifetime<'a>` for sealing it
-//     pub trait ProvidesStaticTypeSealed<'a> {}
-//     impl<'a, T: super::ProvidesStaticType<'a> + ?Sized> ProvidesStaticTypeSealed<'a> for T {}
-// }
 
 /**
  * A bound required by [AnyLifetime] for sealing it.
  */
 interface ProvidesStaticTypeSealed
 
-// impl<'a> dyn AnyLifetime<'a> {
-
 /**
  * Is the value of type [T].
  */
-// pub fn is<T: AnyLifetime<'a>>(&self) -> bool {
-//     self.static_type_of() == T::static_type_id()
-// }
 inline fun <reified T> AnyLifetime.isType(): Boolean = this.staticTypeOf() == T::class
 
 /**
  * Downcast a reference to type [T], or return `null` if it is not the
  * right type.
  */
-// pub fn downcast_ref<T: AnyLifetime<'a>>(&self) -> Option<&T> {
-//     if self.is::<T>() {
-//         unsafe { Some(&*(self as *const Self as *const T)) }
-//     } else {
-//         None
-//     }
-// }
 inline fun <reified T> AnyLifetime.downcastRef(): T? {
     if (this.isType<T>()) {
         @Suppress("UNCHECKED_CAST")
@@ -169,13 +121,6 @@ inline fun <reified T> AnyLifetime.downcastRef(): T? {
  * Downcast a mutable reference to type [T], or return `null` if it is not
  * the right type.
  */
-// pub fn downcast_mut<T: AnyLifetime<'a>>(&mut self) -> Option<&mut T> {
-//     if self.is::<T>() {
-//         unsafe { Some(&mut *(self as *mut Self as *mut T)) }
-//     } else {
-//         None
-//     }
-// }
 inline fun <reified T> AnyLifetime.downcastMut(): T? {
     if (this.isType<T>()) {
         @Suppress("UNCHECKED_CAST")
@@ -185,222 +130,150 @@ inline fun <reified T> AnyLifetime.downcastMut(): T? {
     }
 }
 
-// } // end dyn AnyLifetime impl
-
-// macro_rules! any_lifetime {
-//     ( $t:ty ) => {
-//         unsafe impl<'a> $crate::any::ProvidesStaticType<'a> for $t {
-//             type StaticType = $t;
-//         }
-//     };
-// }
-
-// One of the disadvantages of AnyLifetime is there is no finite covering set of
-// types so we predeclare instances for things that seem useful, but the list is
-// pretty adhoc
-
-// any_lifetime!(());
 class UnitStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Unit::class
 }
 
-// any_lifetime!(bool);
 class BoolStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Boolean::class
 }
 
-// any_lifetime!(u8);
 class U8StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = UByte::class
 }
 
-// any_lifetime!(u16);
 class U16StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = UShort::class
 }
 
-// any_lifetime!(u32);
 class U32StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = UInt::class
 }
 
-// any_lifetime!(u64);
 class U64StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = ULong::class
 }
 
-// any_lifetime!(u128);
 class U128StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = ULong::class
 }
 
-// any_lifetime!(usize);
 class UsizeStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = ULong::class
 }
 
-// any_lifetime!(i8);
 class I8StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Byte::class
 }
 
-// any_lifetime!(i16);
 class I16StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Short::class
 }
 
-// any_lifetime!(i32);
 class I32StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Int::class
 }
 
-// any_lifetime!(i64);
 class I64StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Long::class
 }
 
-// any_lifetime!(i128);
 class I128StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Long::class
 }
 
-// any_lifetime!(isize);
 class IsizeStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Long::class
 }
 
-// any_lifetime!(f32);
 class F32StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Float::class
 }
 
-// any_lifetime!(f64);
 class F64StaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = Double::class
 }
 
-// any_lifetime!(String);
 class StringStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = String::class
 }
 
-// any_lifetime!(str);
 class StrStaticType : ProvidesStaticType {
     override val staticType: KClass<*> get() = CharSequence::class
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for &'a T {
-//     type StaticType = &'static T::StaticType;
-// }
 class RefStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for &'a mut T {
-//     type StaticType = &'static mut T::StaticType;
-// }
 class MutRefStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for *const T {
-//     type StaticType = *const T::StaticType;
-// }
 class ConstPtrStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for *mut T {
-//     type StaticType = *mut T::StaticType;
-// }
 class MutPtrStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T> ProvidesStaticType<'a> for [T]
-// where T: ProvidesStaticType<'a>, T::StaticType: Sized,
-// { type StaticType = [T::StaticType]; }
 class SliceStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = List::class
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Box<T> {
-//     type StaticType = Box<T::StaticType>;
-// }
 class BoxStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Rc<T> {
-//     type StaticType = Rc<T::StaticType>;
-// }
 class RcStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a> + ?Sized> ProvidesStaticType<'a> for Arc<T> {
-//     type StaticType = Arc<T::StaticType>;
-// }
 class ArcStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for Cell<T> {
-//     type StaticType = Cell<T::StaticType>;
-// }
 class CellStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for UnsafeCell<T> {
-//     type StaticType = UnsafeCell<T::StaticType>;
-// }
 class UnsafeCellStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T: ProvidesStaticType<'a>> ProvidesStaticType<'a> for RefCell<T> {
-//     type StaticType = RefCell<T::StaticType>;
-// }
 class RefCellStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T> ProvidesStaticType<'a> for Option<T>
-// where T: ProvidesStaticType<'a>, T::StaticType: Sized,
-// { type StaticType = Option<T::StaticType>; }
 class OptionStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = inner.staticType
 }
 
-// unsafe impl<'a, T, E> ProvidesStaticType<'a> for Result<T, E>
-// where T: ProvidesStaticType<'a>, T::StaticType: Sized,
-//       E: ProvidesStaticType<'a>, E::StaticType: Sized,
-// { type StaticType = Result<T::StaticType, E::StaticType>; }
 class ResultStaticType<T : ProvidesStaticType, E : ProvidesStaticType>(
     val okType: T,
     val errType: E,
@@ -408,19 +281,12 @@ class ResultStaticType<T : ProvidesStaticType, E : ProvidesStaticType>(
     override val staticType: KClass<*> get() = Result::class
 }
 
-// unsafe impl<'a, T> ProvidesStaticType<'a> for Vec<T>
-// where T: ProvidesStaticType<'a>, T::StaticType: Sized,
-// { type StaticType = Vec<T::StaticType>; }
 class VecStaticType<T : ProvidesStaticType>(
     val inner: T,
 ) : ProvidesStaticType {
     override val staticType: KClass<*> get() = MutableList::class
 }
 
-// unsafe impl<'a, K, V> ProvidesStaticType<'a> for HashMap<K, V>
-// where K: ProvidesStaticType<'a>, K::StaticType: Sized,
-//       V: ProvidesStaticType<'a>, V::StaticType: Sized,
-// { type StaticType = HashMap<K::StaticType, V::StaticType>; }
 class HashMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
     val keyType: K,
     val valueType: V,
@@ -428,10 +294,6 @@ class HashMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
     override val staticType: KClass<*> get() = MutableMap::class
 }
 
-// unsafe impl<'a, K, V> ProvidesStaticType<'a> for BTreeMap<K, V>
-// where K: ProvidesStaticType<'a>, K::StaticType: Sized,
-//       V: ProvidesStaticType<'a>, V::StaticType: Sized,
-// { type StaticType = BTreeMap<K::StaticType, V::StaticType>; }
 class BTreeMapStaticType<K : ProvidesStaticType, V : ProvidesStaticType>(
     val keyType: K,
     val valueType: V,

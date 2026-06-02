@@ -44,8 +44,6 @@ internal sealed class UnderscoreWarning : LintWarning {
         override fun toString(): String = "Used ignored variable `$name`"
     }
 
-    // impl LintWarning for UnderscoreWarning
-
     override fun severity(): EvalSeverity = EvalSeverity.Disabled
 
     override fun shortName(): String =

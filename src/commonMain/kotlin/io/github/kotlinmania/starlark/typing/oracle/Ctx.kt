@@ -20,15 +20,6 @@ import io.github.kotlinmania.starlark.typing.TypingNoContextError
 import io.github.kotlinmania.starlark.typing.TypingOrInternalError
 import io.github.kotlinmania.starlark.typing.TypingBinOp as TyTypingBinOp
 
-// Missing value types not yet ported from Rust (crate::values::*::value):
-//   - List (crate::values::list::value::List)
-//   - MutableDict (crate::values::dict::value::MutableDict)
-//   - Tuple (crate::values::tuple::value::Tuple)
-//   - MutableSet (crate::values::set::value::MutableSet)
-// These are used in Rust as type parameters to TyStarlarkValue::new::<T>().
-// In the Kotlin port, TyStarlarkValue provides named factory methods instead:
-//   TyStarlarkValue.list(), .dict(), .tuple(), .set()
-
 /*
  * Copyright 2019 The Starlark in Rust Authors.
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -163,14 +154,12 @@ class TypingOracleCtx(
         if (intersects.isFailure) return kotlin.Result.failure(intersects.exceptionOrNull()!!)
         if (!intersects.getOrThrow()) {
             return kotlin.Result.failure(
-                Exception(
-                    mkErrorAsMaybeInternal(
-                        got.span,
-                        TypingOracleCtxError.IncompatibleType(
-                            got = got.toString(),
-                            require = require.toString(),
-                        ),
-                    ).toString(),
+                mkErrorAsMaybeInternal(
+                    got.span,
+                    TypingOracleCtxError.IncompatibleType(
+                        got = got.toString(),
+                        require = require.toString(),
+                    ),
                 ),
             )
         }

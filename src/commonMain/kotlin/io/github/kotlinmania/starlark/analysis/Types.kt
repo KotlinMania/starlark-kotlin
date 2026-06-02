@@ -37,7 +37,6 @@ class Lint(
     /** The source code at [location]. */
     val original: String,
 ) {
-    // impl Display for Lint
     override fun toString(): String = "$location: $problem"
 }
 
@@ -74,7 +73,6 @@ class EvalMessage(
     /** The text referred to by [span]. */
     val original: String? = null,
 ) {
-    // impl Display for EvalMessage
     override fun toString(): String =
         buildString {
             append("$severity: $path:")

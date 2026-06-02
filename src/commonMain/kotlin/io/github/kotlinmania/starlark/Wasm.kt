@@ -20,10 +20,6 @@ package io.github.kotlinmania.starlark
  */
 
 /** Are we on wasm? */
-// pub fn is_wasm() -> bool { cfg!(target_arch = "wasm32") }
 fun isWasm(): Boolean {
-    // In Rust: cfg!(target_arch = "wasm32") — a compile-time constant.
-    // In Kotlin Multiplatform commonMain, we return false.
-    // Override with expect/actual if wasmJs/wasmWasi targets are added.
     return false
 }
