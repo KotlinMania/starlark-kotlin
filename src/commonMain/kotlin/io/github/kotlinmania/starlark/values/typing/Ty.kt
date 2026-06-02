@@ -23,6 +23,6 @@ sealed class AbstractType : StarlarkValue {
     override fun toString(): String = "type"
 
     companion object {
-        fun starlarkTypeRepr(): Ty = Ty.basic(TyBasic.Type)
+        fun starlarkTypeRepr(): Ty = Ty.basic(TyBasic.TypeObject)
     }
 }

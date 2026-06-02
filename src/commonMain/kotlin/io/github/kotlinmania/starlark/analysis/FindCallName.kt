@@ -74,7 +74,7 @@ internal fun AstModule.findFunctionCallWithName(name: String): Span? {
                                 val value = arg.expr
                                 if (arg.name.node == "name" &&
                                     value.node is ExprP.Literal<*> &&
-                                    value.node.literal is AstLiteral.String &&
+                                    value.node.literal is AstLiteral.StringLit &&
                                     value.node.literal.value.node == name
                                 ) {
                                     identifier.span

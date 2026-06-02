@@ -1,4 +1,5 @@
 // port-lint: source src/eval/runtime/params/spec.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.runtime.params.spec
 
 /*
@@ -22,6 +23,7 @@ package io.github.kotlinmania.starlark.eval.runtime.params.spec
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.symbol.SymbolMap
+import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.docs.DocParam
 import io.github.kotlinmania.starlark.docs.DocParams
 import io.github.kotlinmania.starlark.docs.DocString
@@ -49,6 +51,7 @@ import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
 import io.github.kotlinmania.starlark.values.types.dict.getValue
 
 /** Describe parameter for [`ParametersSpec`]. */
+@HiddenFromObjC
 sealed class ParametersSpecParam<out V> {
     /** Parameter is required. */
     data object Required : ParametersSpecParam<Nothing>()
@@ -68,6 +71,7 @@ sealed class ParametersSpecParam<out V> {
         }
 }
 
+@HiddenFromObjC
 sealed class ParameterKind<out V> {
     data object Required : ParameterKind<Nothing>()
 
@@ -255,6 +259,7 @@ internal class ParametersSpecBuilder<V>(
  * `*args`/`**kwargs` occur in well-formed locations.
  */
 // V = Value, or FrozenValue
+@HiddenFromObjC
 class ParametersSpec<V>(
     /** Only used in error messages */
     internal val functionName: String,

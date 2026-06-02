@@ -327,7 +327,7 @@ class TypingOracleCtx(
                     ),
                 )
             }
-            is TyBasic.Iter, is TyBasic.Type -> {
+            is TyBasic.Iter, is TyBasic.TypeObject -> {
                 // Unknown type, may be callable.
                 kotlin.Result.success(Ty.any())
             }
@@ -381,7 +381,7 @@ class TypingOracleCtx(
             is TyBasic.Dict -> kotlin.Result.success(ty.key.toTy())
             is TyBasic.Tuple -> kotlin.Result.success(ty.tuple.itemTy())
             is TyBasic.Callable -> kotlin.Result.success(Ty.any())
-            is TyBasic.Type -> kotlin.Result.success(Ty.any())
+            is TyBasic.TypeObject -> kotlin.Result.success(Ty.any())
             is TyBasic.Iter -> kotlin.Result.success(ty.item.toTy())
             is TyBasic.Custom -> ty.custom.iterItemDyn()
             is TyBasic.Set -> kotlin.Result.success(ty.item.toTy())
@@ -409,7 +409,7 @@ class TypingOracleCtx(
         index: Spanned<TyBasic>,
     ): kotlin.Result<Ty> {
         return when (array) {
-            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.Type ->
+            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject ->
                 kotlin.Result.success(Ty.any())
             is TyBasic.Tuple -> {
                 val ir = intersectsBasic(index.node, TyBasic.int())
@@ -520,7 +520,7 @@ class TypingOracleCtx(
 
     private fun exprDotBasic(array: TyBasic, attr: String): kotlin.Result<Ty> =
         when (array) {
-            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.Type ->
+            is TyBasic.Any, is TyBasic.Callable, is TyBasic.Iter, is TyBasic.TypeObject ->
                 kotlin.Result.success(Ty.any())
             is TyBasic.StarlarkValue -> array.value.attr(attr)
             is TyBasic.Tuple -> kotlin.Result.failure(TypingNoContextError)
@@ -647,7 +647,7 @@ class TypingOracleCtx(
         rhs: Spanned<TyBasic>,
     ): kotlin.Result<Ty> {
         return when (lhs) {
-            is TyBasic.Any, is TyBasic.Iter, is TyBasic.Callable, is TyBasic.Type ->
+            is TyBasic.Any, is TyBasic.Iter, is TyBasic.Callable, is TyBasic.TypeObject ->
                 kotlin.Result.success(Ty.any())
             is TyBasic.StarlarkValue ->
                 lhs.value.binOp(binOp, rhs.node)
@@ -1099,9 +1099,9 @@ class TypingOracleCtx(
                 kotlin.Result.success(x.value.isCallable())
             x is TyBasic.StarlarkValue ->
                 kotlin.Result.success(false)
-            x is TyBasic.Type && y is TyBasic.StarlarkValue ->
+            x is TyBasic.TypeObject && y is TyBasic.StarlarkValue ->
                 kotlin.Result.success(y.value.isType())
-            x is TyBasic.Type ->
+            x is TyBasic.TypeObject ->
                 kotlin.Result.success(true)
             else -> kotlin.Result.success(false)
         }

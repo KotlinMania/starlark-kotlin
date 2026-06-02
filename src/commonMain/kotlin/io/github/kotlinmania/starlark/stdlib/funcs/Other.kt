@@ -482,7 +482,7 @@ internal fun registerOther(globals: GlobalsBuilder) {
         speculativeExecSafe = true,
         asType =
             io.github.kotlinmania.starlark.typing.Ty
-                .basic(io.github.kotlinmania.starlark.typing.TyBasic.Type),
+                .basic(io.github.kotlinmania.starlark.typing.TyBasic.TypeObject),
     ) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         type(a).toValue()

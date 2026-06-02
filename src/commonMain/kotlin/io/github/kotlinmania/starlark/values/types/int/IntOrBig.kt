@@ -198,7 +198,7 @@ sealed class StarlarkInt {
                 { BigInteger.fromInt(it) },
             )
 
-        fun from(value: BigInteger): StarlarkInt =
+        internal fun from(value: BigInteger): StarlarkInt =
             when (val inline = InlineInt.tryFrom(value).getOrNull()) {
                 null -> Big(StarlarkBigInt.uncheckedNew(value))
                 else -> Small(inline)
@@ -229,7 +229,7 @@ sealed class StarlarkInt {
             )
 
         // Rust: impl From<TokenInt> for StarlarkInt
-        fun from(value: io.github.kotlinmania.starlark.syntax.lexer.TokenInt): StarlarkInt =
+        internal fun from(value: io.github.kotlinmania.starlark.syntax.lexer.TokenInt): StarlarkInt =
             when (value) {
                 is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.I32 -> from(value.value)
                 is io.github.kotlinmania.starlark.syntax.lexer.TokenInt.BigInt -> from(value.value)
@@ -281,7 +281,7 @@ sealed class StarlarkIntRef {
             is Big -> StarlarkInt.Big(value)
         }
 
-    fun toBig(): BigInteger =
+    internal fun toBig(): BigInteger =
         when (this) {
             is Small -> value.toBigInt()
             is Big -> value.get()

@@ -29,11 +29,13 @@ import io.github.kotlinmania.starlark.typing.TyStarlarkValue
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
 import kotlin.native.HiddenFromObjC
 
+@HiddenFromObjC
 class RenderConfig(
     val typeConfig: TypeRenderConfig,
     val layoutConfig: LayoutRenderConfig,
 )
 
+@HiddenFromObjC
 class DocModuleInfo(
     val module: DocModule,
     val name: String,
@@ -70,10 +72,10 @@ class DocModuleInfo(
                     is DocItem.Module -> {
                         result.addAll(traverseInner(doc.module, memberName, path))
                     }
-                    is DocItem.Type -> {
+                    is DocItem.TypeDoc -> {
                         result.add(
                             PageRender(
-                                page = DocPageRef.Type(doc.type),
+                                page = DocPageRef.TypePage(doc.type),
                                 path = path,
                                 name = memberName,
                                 ty = doc.type.ty,
@@ -97,11 +99,11 @@ class DocModuleInfo(
  * Since types and some modules are owned by other modules, we need to use the reference here.
  */
 internal sealed class DocPageRef {
-    class Module(
+    internal class Module(
         val module: DocModule,
     ) : DocPageRef()
 
-    class Type(
+    internal class TypePage(
         val type: DocType,
     ) : DocPageRef()
 }
@@ -119,7 +121,7 @@ internal class PageRender(
             is DocPageRef.Module -> {
                 page.module.renderMarkdownPageForMultipageRender(name, renderConfig)
             }
-            is DocPageRef.Type -> {
+            is DocPageRef.TypePage -> {
                 page.type.renderMarkdownPageForMultipageRender(name, renderConfig)
             }
         }

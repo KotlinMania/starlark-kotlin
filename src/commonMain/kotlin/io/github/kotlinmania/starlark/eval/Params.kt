@@ -1,4 +1,5 @@
 // port-lint: source src/eval/params.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval
 
 /*
@@ -23,11 +24,13 @@ import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpecParam
 import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
+import kotlin.native.HiddenFromObjC
 
 /**
  * Build both [ParametersSpec] (for parsing) and [ParamSpec] (for typechecking)
  * from a list of parameters.
  */
+@HiddenFromObjC
 fun <V> paramSpecs(
     functionName: String,
     posOnly: List<Triple<String, ParametersSpecParam<V>, Ty>>,

@@ -30,7 +30,7 @@ package io.github.kotlinmania.starlark.eval.bc
 //     Default, Debug, Copy, Clone, Dupe, derive_more::Display,
 //     Eq, PartialEq, Ord, PartialOrd
 // )]
-data class LoopDepth(
+internal data class LoopDepth(
     val depth: Int = 0,
 ) : Comparable<LoopDepth> {
     override fun compareTo(other: LoopDepth): Int = depth.compareTo(other.depth)

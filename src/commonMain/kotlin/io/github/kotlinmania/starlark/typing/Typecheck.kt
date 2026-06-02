@@ -122,7 +122,7 @@ internal fun solveBindings(
 }
 
 /** Structure containing all the inferred types. */
-class TypeMap(
+internal class TypeMap(
     private val codemap: CodeMap,
     private val bindings: LinkedHashMap<BindingId, Triple<String, Span, Ty>>,
 ) {
@@ -153,7 +153,7 @@ class TypeMap(
 
 /** Typecheck a module. */
 @HiddenFromObjC
-interface AstModuleTypecheck {
+internal interface AstModuleTypecheck {
     /** Typecheck a module. */
     fun typecheck(
         globals: Globals,
@@ -162,7 +162,7 @@ interface AstModuleTypecheck {
 }
 
 @HiddenFromObjC
-data class TypecheckResult(
+internal data class TypecheckResult(
     val errors: List<Exception>,
     val typeMap: TypeMap,
     val `interface`: Interface,

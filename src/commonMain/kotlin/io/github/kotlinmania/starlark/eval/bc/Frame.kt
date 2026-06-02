@@ -1,5 +1,6 @@
 
 // port-lint: source src/eval/bc/frame.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -29,6 +30,7 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
+import kotlin.native.HiddenFromObjC
 
 /**
  * Current `def` frame (but not native function frame).
@@ -178,7 +180,8 @@ internal fun BcFrame.trace(tracer: Tracer) {
  * In Rust, this stores a raw pointer to the `slots` field for efficiency.
  * In Kotlin, we simply hold a nullable reference to the [BcFrame].
  */
-class BcFramePtr internal constructor(
+@HiddenFromObjC
+internal class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {
     companion object {
@@ -218,17 +221,17 @@ class BcFramePtr internal constructor(
         frame!!.setSlot(slot, value)
     }
 
-    fun getBcSlot(slot: BcSlotIn): Value = frame!!.getBcSlot(slot)
+    internal fun getBcSlot(slot: BcSlotIn): Value = frame!!.getBcSlot(slot)
 
-    fun setBcSlot(slot: BcSlotOut, value: Value) {
+    internal fun setBcSlot(slot: BcSlotOut, value: Value) {
         frame!!.setBcSlot(slot, value)
     }
 
-    fun getBcSlotRange(slots: BcSlotInRange): List<Value> = frame!!.getBcSlotRange(slots)
+    internal fun getBcSlotRange(slots: BcSlotInRange): List<Value> = frame!!.getBcSlotRange(slots)
 
-    fun getIterIndex(loopDepth: LoopDepth): Int = frame!!.getIterIndex(loopDepth)
+    internal fun getIterIndex(loopDepth: LoopDepth): Int = frame!!.getIterIndex(loopDepth)
 
-    fun setIterIndex(loopDepth: LoopDepth, index: Int) {
+    internal fun setIterIndex(loopDepth: LoopDepth, index: Int) {
         frame!!.setIterIndex(loopDepth, index)
     }
 

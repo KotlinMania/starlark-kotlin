@@ -1,5 +1,8 @@
 // port-lint: source src/environment/globals.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.environment
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -180,6 +183,7 @@ class Globals internal constructor(
     }
 }
 
+@HiddenFromObjC
 class GlobalsData(
     val heap: FrozenHeapRef,
     val variables: SymbolMap<GlobalValue>,

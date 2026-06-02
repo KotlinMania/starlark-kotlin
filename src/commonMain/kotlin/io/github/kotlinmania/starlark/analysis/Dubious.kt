@@ -107,8 +107,8 @@ private fun toKey(x: Spanned<ExprP<out AstPayload>>): Pair<DubiousKey, Span>? =
     when (val node = x.node) {
         is ExprP.Literal ->
             when (val lit = node.literal) {
-                is AstLiteral.Int -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
-                is AstLiteral.Float -> {
+                is AstLiteral.IntLit -> DubiousKey.IntKey(StarlarkInt.from(lit.value.node)) to lit.value.span
+                is AstLiteral.FloatLit -> {
                     val n = NumRef.from(lit.value.node)
                     val asInt = n.asInt()
                     if (asInt != null) {
@@ -120,7 +120,7 @@ private fun toKey(x: Spanned<ExprP<out AstPayload>>): Pair<DubiousKey, Span>? =
                         DubiousKey.FloatKey(v.toBits()) to lit.value.span
                     }
                 }
-                is AstLiteral.String -> DubiousKey.StringKey(lit.value.node) to lit.value.span
+                is AstLiteral.StringLit -> DubiousKey.StringKey(lit.value.node) to lit.value.span
                 is AstLiteral.Ellipsis -> null
             }
         is ExprP.Identifier<*, *> -> DubiousKey.IdentifierKey(node.ident.node.ident) to node.ident.span

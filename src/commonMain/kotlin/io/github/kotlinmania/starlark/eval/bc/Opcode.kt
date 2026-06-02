@@ -24,17 +24,17 @@ package io.github.kotlinmania.starlark.eval.bc
 import kotlin.reflect.KClass
 
 /** Callback for the `dispatch` function. */
-interface BcOpcodeHandler<R> {
+internal interface BcOpcodeHandler<R> {
     fun <I : BcInstr> handle(instrClass: KClass<I>): R
 }
 
 /** Callback for the `dispatch_all` function. */
-interface BcOpcodeAllHandler {
+internal interface BcOpcodeAllHandler {
     fun <I : BcInstr> handle(instrClass: KClass<I>, opcode: BcOpcode)
 }
 
 /** Bytecode instruction opcode. */
-enum class BcOpcode {
+internal enum class BcOpcode {
     Const,
     LoadLocal,
     LoadLocalCaptured,
@@ -80,7 +80,7 @@ enum class BcOpcode {
     LeftShift,
     RightShift,
     Len,
-    Type,
+    TypeOp,
     TypeIs,
     IsInstance,
     TupleNPop,

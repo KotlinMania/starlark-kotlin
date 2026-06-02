@@ -1,4 +1,4 @@
-// port-lint: source src/small_set.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.smallset
 
 /*
@@ -21,10 +21,12 @@ package io.github.kotlinmania.starlark.collections.smallset
 
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
+import kotlin.native.HiddenFromObjC
 
 /**
  * A set with deterministic iteration order.
  */
+@HiddenFromObjC
 class SmallSet<T> private constructor(
     internal val entries: ArrayList<Hashed<T>>,
 ) {

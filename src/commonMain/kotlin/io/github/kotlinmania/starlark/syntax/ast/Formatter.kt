@@ -73,9 +73,9 @@ internal fun TokenInt.toSourceString(): String =
 /** Formats AstLiteral to Starlark code representation. */
 internal fun AstLiteral.toSourceString(): String =
     when (this) {
-        is AstLiteral.Int -> value.node.toSourceString()
-        is AstLiteral.Float -> value.node.toString()
-        is AstLiteral.String -> {
+        is AstLiteral.IntLit -> value.node.toSourceString()
+        is AstLiteral.FloatLit -> value.node.toString()
+        is AstLiteral.StringLit -> {
             val s = value.node
             val sb = StringBuilder()
             sb.append('"')

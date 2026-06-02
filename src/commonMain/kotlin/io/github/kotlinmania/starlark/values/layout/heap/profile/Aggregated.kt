@@ -46,7 +46,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.profile.stringindex.Str
 // Value → values.layout
 // Heap → values.layout.heap
 // StringId, StringIndex → values.layout.heap.profile.string_index
-class SmallMap<K, V> {
+internal class SmallMap<K, V> {
     private val map: MutableMap<K, V> = mutableMapOf()
 
     fun entry(key: K): SmallMapEntry<K, V> = SmallMapEntry(map, key)
@@ -68,7 +68,7 @@ class SmallMap<K, V> {
     }
 }
 
-class SmallMapEntry<K, V>(
+internal class SmallMapEntry<K, V>(
     private val map: MutableMap<K, V>,
     private val key: K,
 ) {

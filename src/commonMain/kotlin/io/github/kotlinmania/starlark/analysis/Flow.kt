@@ -231,7 +231,7 @@ private fun hasEffect(x: AstExpr): Boolean =
     when (val e = x.node) {
         is ExprP.Literal -> {
             // String literals have the "effect" of providing documentation
-            e.literal is AstLiteral.String
+            e.literal is AstLiteral.StringLit
         }
         is ExprP.Lambda<*, *> -> false
         is ExprP.If, is ExprP.Tuple, is ExprP.ListExpr, is ExprP.Dict -> {
@@ -468,7 +468,7 @@ internal fun misplacedLoad(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<
                 val expr = node.expr
                 val exprNode = expr.node
                 // Still allow loads after a literal string (probably documentation)
-                if (exprNode is ExprP.Literal && exprNode.literal is AstLiteral.String) {
+                if (exprNode is ExprP.Literal && exprNode.literal is AstLiteral.StringLit) {
                     // keep allowLoads as-is
                 } else {
                     allowLoads = false

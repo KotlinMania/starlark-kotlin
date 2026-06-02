@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.typing.StarlarkError
 import io.github.kotlinmania.starlark.values.layout.Value
 
 /** Ready to execute bytecode. */
-class Bc(
+internal class Bc(
     val instrs: BcInstrs = BcInstrs.default(),
     /** Number of local variable slots. */
     val localCount: UInt = 0u,
@@ -41,7 +41,7 @@ class Bc(
 ) {
     companion object {
         /** Find span for instruction. */
-        fun slowArgAtPtr(addrPtr: BcPtrAddr, bcInstrs: BcInstrs): BcInstrSlowArg {
+        internal fun slowArgAtPtr(addrPtr: BcPtrAddr, bcInstrs: BcInstrs): BcInstrSlowArg {
             var ptr = addrPtr
             while (true) {
                 val opcode = bcInstrs.getOpcodeAt(ptr)
@@ -62,7 +62,7 @@ class Bc(
             }
         }
 
-        fun wrapErrorForInstrPtr(
+        internal fun wrapErrorForInstrPtr(
             ptr: BcPtrAddr,
             e: StarlarkError,
             eval: Evaluator,
@@ -186,7 +186,7 @@ private fun dispatchInstruction(
         BcOpcode.LeftShift -> noFlow(InstrBinOpWrapper(InstrLeftShiftImpl))
         BcOpcode.RightShift -> noFlow(InstrBinOpWrapper(InstrRightShiftImpl))
         BcOpcode.Len -> noFlow(InstrUnOpWrapper(InstrLenImpl))
-        BcOpcode.Type -> noFlow(InstrUnOpWrapper(InstrTypeImpl))
+        BcOpcode.TypeOp -> noFlow(InstrUnOpWrapper(InstrTypeImpl))
         BcOpcode.TypeIs -> noFlow(InstrTypeIsImpl)
         BcOpcode.IsInstance -> noFlow(InstrIsInstanceImpl)
         BcOpcode.TupleNPop -> noFlow(InstrTupleNPopImpl)
@@ -256,7 +256,7 @@ private fun Any?.toInstrContinueArg(): InstrContinueArg {
 }
 
 /** Execute the code block, either a module or a function body. */
-fun runBlock(
+internal fun runBlock(
     eval: Evaluator,
     ec: EvaluationCallbacks,
     startIp: BcPtrAddr,

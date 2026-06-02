@@ -94,7 +94,8 @@ sealed class FunctionError(
 fun from(e: FunctionError): StarlarkError = StarlarkError.newKind(ErrorKind.Function(e))
 
 /** An object accompanying argument name for faster argument resolution. */
-interface ArgSymbol {
+@PublishedApi
+internal interface ArgSymbol {
     fun <V> getIndexFromParamSpec(ps: ParametersSpec<V>): Int?
 
     fun smallHash(): StarlarkHashValue
@@ -103,7 +104,7 @@ interface ArgSymbol {
 /**
  * `Symbol` resolved to function parameter index.
  */
-data class ResolvedArgName(
+internal data class ResolvedArgName(
     /** Hash of the argument name. */
     val hash: StarlarkHashValue,
     /** Parameter index or `null` if the argument should go to kwargs. */
@@ -118,7 +119,8 @@ data class ResolvedArgName(
 
 // Kotlin: no Coerce equivalent needed.
 
-class ArgNames<S : ArgSymbol>(
+@PublishedApi
+internal class ArgNames<S : ArgSymbol>(
     /** Names are guaranteed to be unique here. */
     private val namedArguments: List<Pair<S, StringValue>>,
 ) {
@@ -156,7 +158,7 @@ class ArgNames<S : ArgSymbol>(
 }
 
 /** Either full arguments, or short arguments for positional-only calls. */
-interface ArgumentsImpl<S : ArgSymbol> {
+internal interface ArgumentsImpl<S : ArgSymbol> {
     fun pos(): List<Value>
 
     fun named(): List<Value>
@@ -172,7 +174,8 @@ interface ArgumentsImpl<S : ArgSymbol> {
  * Arguments object is passed from the starlark interpreter to function implementation
  * when evaluation function or method calls.
  */
-class ArgumentsFull<S : ArgSymbol>(
+@PublishedApi
+internal class ArgumentsFull<S : ArgSymbol>(
     /** Positional arguments. */
     var pos: List<Value> = emptyList(),
     /** Named arguments. */
@@ -204,7 +207,7 @@ class ArgumentsFull<S : ArgSymbol>(
 /**
  * Positional-only arguments, smaller and faster than [ArgumentsFull].
  */
-class ArgumentsPos<S : ArgSymbol>(
+internal class ArgumentsPos<S : ArgSymbol>(
     val pos: List<Value>,
 ) : ArgumentsImpl<S> {
     override fun pos(): List<Value> = pos
@@ -222,9 +225,11 @@ class ArgumentsPos<S : ArgSymbol>(
  * Arguments object is passed from the starlark interpreter to function implementation
  * when evaluation function or method calls.
  */
-class Arguments(
-    @PublishedApi internal val full: ArgumentsFull<Symbol> = ArgumentsFull(),
+class Arguments @PublishedApi internal constructor(
+    @PublishedApi internal val full: ArgumentsFull<Symbol>,
 ) {
+    constructor() : this(ArgumentsFull())
+
     internal val inner: ArgumentsFull<Symbol>
         get() = full
 

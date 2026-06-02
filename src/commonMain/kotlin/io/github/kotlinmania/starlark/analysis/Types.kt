@@ -67,7 +67,7 @@ class EvalMessage(
     /** The general name of the issue. */
     val name: String,
     /** The details of the issue, generally displayed to the user. */
-    val description: String,
+    val descriptionText: String,
     /** The full error details. */
     val fullErrorWithSpan: String? = null,
     /** The text referred to by [span]. */
@@ -79,7 +79,7 @@ class EvalMessage(
             if (span != null) {
                 append("$span")
             }
-            append(" $description")
+            append(" $descriptionText")
         }
 
     companion object {
@@ -97,7 +97,7 @@ class EvalMessage(
                 span = null,
                 severity = EvalSeverity.Error,
                 name = "error",
-                description = x.toString(),
+                descriptionText = x.toString(),
                 fullErrorWithSpan = null,
                 original = null,
             )
@@ -113,7 +113,7 @@ class EvalMessage(
                 span = resolvedSpan,
                 severity = EvalSeverity.Error,
                 name = "error",
-                description = message.toString(),
+                descriptionText = message.toString(),
                 fullErrorWithSpan = fullError.toString(),
                 original = null,
             )
@@ -127,7 +127,7 @@ internal fun Lint.toEvalMessage(): EvalMessage =
         span = location.resolve(),
         severity = severity,
         name = shortName,
-        description = problem,
+        descriptionText = problem,
         fullErrorWithSpan = null,
         original = original,
     )

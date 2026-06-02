@@ -25,7 +25,7 @@ import kotlin.native.HiddenFromObjC
 
 /** Interface representing the types of all bindings in a module. */
 @HiddenFromObjC
-class Interface private constructor(
+internal class Interface private constructor(
     private val bindings: Map<String, Ty>,
 ) {
     companion object {

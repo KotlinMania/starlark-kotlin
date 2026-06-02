@@ -30,7 +30,7 @@ import kotlin.native.HiddenFromObjC
  * the function `allocated_summary` available on [`Heap`](crate::values::Heap)
  * and [`FrozenHeap`](crate::values::FrozenHeap)
  */
-class HeapSummary(
+class HeapSummary internal constructor(
     /**
      * For each type, give the (number of entries, size of all entries).
      * The size may be approximate as it includes information from
@@ -40,7 +40,7 @@ class HeapSummary(
 ) {
     /** (Count, total size) by type. */
     @HiddenFromObjC
-    fun summary(): Map<String, Pair<Int, Long>> {
+    internal fun summary(): Map<String, Pair<Int, Long>> {
         val result = mutableMapOf<String, Pair<Int, Long>>()
         for ((k, v) in summary) {
             result[k] = Pair(v.count, v.bytes)

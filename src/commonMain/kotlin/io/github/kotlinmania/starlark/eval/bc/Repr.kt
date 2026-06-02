@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 const val BC_INSTR_ALIGN: Int = 2
 
 /** Instruction header. */
-class BcInstrHeader(
+internal class BcInstrHeader(
     internal val opcode: BcOpcode,
 ) {
     companion object {
@@ -45,7 +45,7 @@ class BcInstrHeader(
 }
 
 /** How instructions are stored in memory. */
-class BcInstrRepr<I : BcInstr>(
+internal class BcInstrRepr<I : BcInstr>(
     internal val header: BcInstrHeader,
     internal val arg: Any,
 ) {

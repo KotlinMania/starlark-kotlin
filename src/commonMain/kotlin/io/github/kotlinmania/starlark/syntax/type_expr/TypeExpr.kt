@@ -1,5 +1,8 @@
 // port-lint: source starlark_syntax/src/syntax/type_expr.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.syntax.typeexpr
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -29,6 +32,7 @@ import io.github.kotlinmania.starlark.syntax.ast.BinOp
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.typing.WithDiagnostic
 
+@HiddenFromObjC
 sealed class TypeExprUnpackError(
     message: String,
 ) : Exception(message) {
@@ -51,15 +55,18 @@ sealed class TypeExprUnpackError(
  * Types that are `""` or start with `"_"` are wildcard - they match everything
  * (also deprecated).
  */
+@HiddenFromObjC
 fun typeStrLiteralIsWildcard(s: String): Boolean = s == "" || s.startsWith('_')
 
 /** Path component of type. */
+@HiddenFromObjC
 data class TypePathP<P : AstPayload, IP>(
     val first: AstIdentP<P, IP>,
     val rem: List<Spanned<String>>,
 )
 
 /** This type should be used instead of `TypeExprP`, but a lot of code needs to be updated. */
+@HiddenFromObjC
 sealed class TypeExprUnpackP<P : AstPayload, IP> {
     // Ellipsis
     class Ellipsis<P : AstPayload, IP> : TypeExprUnpackP<P, IP>()
@@ -247,9 +254,9 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                 is ExprP.Lambda<*, *> -> err("lambda")
                 is ExprP.Literal<*> ->
                     when (node.literal) {
-                        is AstLiteral.String -> err("string literal")
-                        is AstLiteral.Int -> err("int")
-                        is AstLiteral.Float -> err("float")
+                        is AstLiteral.StringLit -> err("string literal")
+                        is AstLiteral.IntLit -> err("int")
+                        is AstLiteral.FloatLit -> err("float")
                         is AstLiteral.Ellipsis -> Spanned(node = Ellipsis(), span = span)
                     }
                 is ExprP.Not<*> -> err("not")
@@ -296,6 +303,7 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
  * Exception wrapper for WithDiagnostic results.
  * Used to convert Rust's Result<_, WithDiagnostic<E>> pattern to Kotlin exceptions.
  */
+@HiddenFromObjC
 class WithDiagnosticException(
     val diagnostic: WithDiagnostic<TypeExprUnpackError>,
 ) : Exception(diagnostic.value.message)

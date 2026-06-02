@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/list/list_type.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.list
 
 /*
@@ -23,6 +24,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.native.HiddenFromObjC
 
 /**
  * A list type marker.
@@ -35,6 +37,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
  *
  * @param T The expected type of list elements, which must implement [StarlarkTypeRepr].
  */
+@HiddenFromObjC
 class ListType<T : StarlarkTypeRepr> private constructor(
     private val elementRepr: Ty,
 ) : StarlarkTypeRepr {

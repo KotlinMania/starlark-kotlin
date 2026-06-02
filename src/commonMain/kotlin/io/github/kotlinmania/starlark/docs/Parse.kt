@@ -1,4 +1,5 @@
 // port-lint: source src/docs/parse.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.docs
 
 /*
@@ -25,8 +26,10 @@ import io.github.kotlinmania.starlark.syntax.ast.AstStmtP
 import io.github.kotlinmania.starlark.syntax.ast.ExprP
 import io.github.kotlinmania.starlark.syntax.ast.StmtP
 import io.github.kotlinmania.starlark.typing.Ty
+import kotlin.native.HiddenFromObjC
 
 /** Controls the formatting to use when parsing [DocString]s from raw docstrings. */
+@HiddenFromObjC
 enum class DocStringKind {
     /**
      * Docstrings provided by users in starlark files, following python-y documentation style.
@@ -148,7 +151,7 @@ internal fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(bo
             val exprNode = exprSpanned.node
             if (exprNode is ExprP.Literal) {
                 val lit = exprNode.literal
-                if (lit is AstLiteral.String) {
+                if (lit is AstLiteral.StringLit) {
                     return lit.value.node
                 }
             }

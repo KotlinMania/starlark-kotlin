@@ -122,7 +122,7 @@ private class GlobalTypesBuilder(
 
     fun exprLiteral(literal: AstLiteral): GlobalValue =
         when (literal) {
-            is AstLiteral.String -> GlobalValue.value(heap.allocStr(literal.value.node))
+            is AstLiteral.StringLit -> GlobalValue.value(heap.allocStr(literal.value.node))
             else -> GlobalValue.any()
         }
 

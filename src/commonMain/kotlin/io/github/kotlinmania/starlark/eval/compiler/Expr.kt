@@ -1353,15 +1353,15 @@ private fun tryEvalTypeIs(
 /** Compile an AST literal to a frozen value. */
 private fun AstLiteral.compile(heap: FrozenHeap): FrozenValue =
     when (this) {
-        is AstLiteral.Int -> {
+        is AstLiteral.IntLit -> {
             val si = StarlarkInt.from(value.node)
             when (si) {
                 is StarlarkInt.Small -> FrozenValue.newInt(si.value)
                 is StarlarkInt.Big -> heap.allocSimple(si.value)
             }
         }
-        is AstLiteral.Float -> StarlarkFloat(value.node).allocFrozenValue(heap)
-        is AstLiteral.String -> heap.allocStrIntern(value.node).toFrozenValue()
+        is AstLiteral.FloatLit -> StarlarkFloat(value.node).allocFrozenValue(heap)
+        is AstLiteral.StringLit -> heap.allocStrIntern(value.node).toFrozenValue()
         is AstLiteral.Ellipsis -> heap.alloc(io.github.kotlinmania.starlark.values.types.ellipsis.Ellipsis)
     }
 
@@ -1374,7 +1374,7 @@ private fun <P : AstPayload> ExprP<P>.unpackStringLiteral(): String? =
     when (this) {
         is ExprP.Literal -> {
             val lit = this.literal
-            if (lit is AstLiteral.String) lit.value.node else null
+            if (lit is AstLiteral.StringLit) lit.value.node else null
         }
         else -> null
     }

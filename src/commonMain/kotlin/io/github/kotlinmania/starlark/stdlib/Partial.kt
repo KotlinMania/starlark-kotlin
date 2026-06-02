@@ -1,4 +1,5 @@
 // port-lint: source src/stdlib/partial.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -22,6 +23,7 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.ArgNames
+import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
@@ -78,35 +80,35 @@ fun partialStdlib(builder: GlobalsBuilder) {
             )
             named.add(v)
         }
-        val namesIndex = HashMap<ULong, Int>()
-        for ((i, entry) in names.withIndex()) {
-            val (k, _) = entry
-            namesIndex[k.hash()] = i
-        }
         val partial =
             Partial(
                 func = func,
                 pos = args,
                 named = named,
                 names = names,
-                namesIndex = namesIndex,
             )
         eval.heap().allocComplex(partial)
     }
 }
 
 /** Generic partial application value. */
+@HiddenFromObjC
 open class PartialGen<V : ValueLike, S : StringValueLike>(
     var func: V,
     // Always references a tuple.
     var pos: V,
     var named: List<V>,
     val names: List<Pair<Symbol, S>>,
-    val namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : StarlarkValue,
     Trace {
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
+
+    internal val namesIndex: HashMap<ULong, Int> = HashMap<ULong, Int>().apply {
+        for ((i, entry) in names.withIndex()) {
+            put(entry.first.hash(), i)
+        }
+    }
 
     fun posContent(): List<Value> =
         TupleGen
@@ -219,13 +221,13 @@ open class PartialGen<V : ValueLike, S : StringValueLike>(
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
 /** Partial application with live values. */
+@HiddenFromObjC
 class Partial(
     func: Value,
     pos: Value,
     named: List<Value>,
     names: List<Pair<Symbol, StringValue>>,
-    namesIndex: HashMap<ULong, Int> = HashMap(),
-) : PartialGen<Value, StringValue>(func, pos, named, names, namesIndex),
+) : PartialGen<Value, StringValue>(func, pos, named, names),
     ComplexValue,
     Freeze<FrozenPartial> {
     override fun freeze(freezer: Freezer): Result<FrozenPartial> {
@@ -251,23 +253,21 @@ class Partial(
                 pos = frozenPos.getOrThrow(),
                 named = frozenNamed,
                 names = frozenNames,
-                namesIndex = namesIndex,
             ),
         )
     }
 }
 
 /** Partial application with frozen values. */
+@HiddenFromObjC
 class FrozenPartial(
     func: io.github.kotlinmania.starlark.values.layout.FrozenValue,
     pos: io.github.kotlinmania.starlark.values.layout.FrozenValue,
     named: List<io.github.kotlinmania.starlark.values.layout.FrozenValue>,
     names: List<Pair<Symbol, FrozenStringValue>>,
-    namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : PartialGen<io.github.kotlinmania.starlark.values.layout.FrozenValue, FrozenStringValue>(
         func,
         pos,
         named,
         names,
-        namesIndex,
     )

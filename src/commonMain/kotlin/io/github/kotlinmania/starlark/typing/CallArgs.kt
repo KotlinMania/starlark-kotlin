@@ -1,4 +1,5 @@
 // port-lint: source src/typing/call_args.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.typing
 
 /*
@@ -20,10 +21,12 @@ package io.github.kotlinmania.starlark.typing
  */
 
 import io.github.kotlinmania.starlark.codemap.Spanned
+import kotlin.native.HiddenFromObjC
 
 /**
  * Function call arguments with type information.
  */
+@HiddenFromObjC
 class TyCallArgs(
     internal val pos: List<Spanned<Ty>>,
     internal val named: List<Spanned<Pair<String, Ty>>>,

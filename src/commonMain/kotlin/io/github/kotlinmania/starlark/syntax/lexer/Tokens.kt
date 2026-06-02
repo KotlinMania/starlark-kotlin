@@ -27,9 +27,16 @@ sealed class TokenInt {
     ) : TokenInt()
 
     /** Only if larger than `i32`. */
-    data class BigInt(
-        val value: BigInteger,
-    ) : TokenInt()
+class BigInt internal constructor(
+        internal val value: BigInteger,
+    ) : TokenInt() {
+        override fun equals(other: Any?): Boolean =
+            other is BigInt && value == other.value
+
+        override fun hashCode(): Int = value.hashCode()
+
+        override fun toString(): String = value.toString()
+    }
 
     override fun toString(): String =
         when (this) {

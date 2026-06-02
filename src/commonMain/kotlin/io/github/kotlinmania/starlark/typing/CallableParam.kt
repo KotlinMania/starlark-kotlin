@@ -1,5 +1,8 @@
 // port-lint: source src/typing/callable_param.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.typing
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,6 +25,7 @@ package io.github.kotlinmania.starlark.typing
 /**
  * Indication whether a parameter is required.
  */
+@HiddenFromObjC
 enum class ParamIsRequired {
     /** Parameter is required. */
     Yes,
@@ -33,6 +37,7 @@ enum class ParamIsRequired {
 /**
  * The type of a parameter — can be positional, by name, `*args` or `**kwargs`.
  */
+@HiddenFromObjC
 sealed class ParamMode : Comparable<ParamMode> {
     /** Parameter can only be passed by position. */
     data class PosOnly(
@@ -88,6 +93,7 @@ sealed class ParamMode : Comparable<ParamMode> {
 /**
  * A parameter argument to a function.
  */
+@HiddenFromObjC
 data class Param(
     /** The type of parameter. */
     val mode: ParamMode,
@@ -160,6 +166,7 @@ data class Param(
 /**
  * Split view of a parameter spec for formatting and analysis.
  */
+@HiddenFromObjC
 data class ParamSpecSplit(
     val posOnly: List<Param>,
     val posOrNamed: List<Param>,
@@ -171,6 +178,7 @@ data class ParamSpecSplit(
 /**
  * Callable parameter specification (e.g. positional only followed by `**kwargs`).
  */
+@HiddenFromObjC
 class ParamSpec private constructor(
     private val params: List<Param>,
     private val numPositional: Int,

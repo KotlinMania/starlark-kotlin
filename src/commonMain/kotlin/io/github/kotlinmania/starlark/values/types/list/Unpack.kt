@@ -1,5 +1,8 @@
 // port-lint: source src/values/types/list/unpack.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.list
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -32,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * @param T The expected element type, which must implement [StarlarkTypeRepr].
  * @property items The unpacked list items.
  */
+@HiddenFromObjC
 data class UnpackList<T>(
     /** Unpacked items. */
     val items: MutableList<T>,
@@ -74,6 +78,7 @@ data class UnpackList<T>(
  * @param T The target type for each list element.
  * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */
+@HiddenFromObjC
 class UnpackListUnpackValue<T>(
     private val elementUnpacker: UnpackValue<T>,
 ) : UnpackValue<UnpackList<T>> {
@@ -109,6 +114,7 @@ class UnpackListUnpackValue<T>(
  * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>` where
  * `type Canonical = <ListType<T> as StarlarkTypeRepr>::Canonical`.
  */
+@HiddenFromObjC
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
     private val elementRepr: T,
 ) : StarlarkTypeRepr {

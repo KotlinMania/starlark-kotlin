@@ -1,5 +1,8 @@
 // port-lint: source src/eval/bc/slow_arg.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -27,14 +30,16 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
  * Slow instruction arg: stored in the end of bytecode,
  * expensive to access. Used to implement errors.
  */
-data class BcInstrSlowArg(
+@HiddenFromObjC
+internal data class BcInstrSlowArg(
     /** Instruction code span. */
     val span: FrameSpan = FrameSpan.DEFAULT,
     /** Spans when an instruction needs multiple spans. */
     val spans: MutableList<FrameSpan> = mutableListOf(),
 )
 
-data class BcInstrEndArg(
+@HiddenFromObjC
+internal data class BcInstrEndArg(
     /** Offset of end instruction. */
     val endAddr: BcAddr = BcAddr(0u),
     /** Spans of all instructions. */

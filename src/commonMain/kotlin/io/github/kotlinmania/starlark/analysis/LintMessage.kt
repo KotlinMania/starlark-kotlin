@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -35,7 +36,8 @@ data class LintMessage(
     val code: String,
     val severity: EvalSeverity,
     val name: String,
-    val description: String?,
+    @SerialName("description")
+    val descriptionText: String?,
     val original: String?,
 ) {
     companion object {
@@ -60,7 +62,7 @@ data class LintMessage(
                 code = "STARLARK",
                 severity = x.severity,
                 name = x.name,
-                description = x.description,
+                descriptionText = x.descriptionText,
                 original = x.original,
             )
     }

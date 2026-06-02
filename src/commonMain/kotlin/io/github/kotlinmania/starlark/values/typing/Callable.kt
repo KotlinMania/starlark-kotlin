@@ -1,5 +1,8 @@
 // port-lint: source src/values/typing/callable.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.typing
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -97,6 +100,7 @@ internal class TypingCallableAt2(
  * Marker for a callable value. Can be used in function signatures
  * for better documentation and type checking.
  */
+@HiddenFromObjC
 class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
 ) : StarlarkTypeRepr,
@@ -136,6 +140,7 @@ class StarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
 }
 
 /** Marker for a callable value. */
+@HiddenFromObjC
 class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: FrozenValue,
 ) : StarlarkTypeRepr,
@@ -158,6 +163,7 @@ class FrozenStarlarkCallable<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr
     fun toCallable(): StarlarkCallable<P, R> = StarlarkCallable.uncheckedNew(value.toValue())
 }
 
+@HiddenFromObjC
 fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>.freeze(
     freezer: Freezer,
 ): Result<FrozenStarlarkCallable<P, R>> {
@@ -179,6 +185,7 @@ fun <P : StarlarkCallableParamSpec, R : StarlarkTypeRepr> StarlarkCallable<P, R>
  * usually it is OK to use it for code executed once at top-level scope (like `rule()`),
  * but not for code executed many times (like `partial()`).
  */
+@HiddenFromObjC
 class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val value: Value,
 ) : StarlarkTypeRepr,
@@ -208,6 +215,7 @@ class StarlarkCallableChecked<P : StarlarkCallableParamSpec, R : StarlarkTypeRep
     override fun allocValue(heap: Heap): Value = value
 }
 
+@HiddenFromObjC
 class StarlarkCallableCheckedUnpackValue<P : StarlarkCallableParamSpec, R : StarlarkTypeRepr>(
     val paramSpec: P,
     val returnTypeRepr: R,

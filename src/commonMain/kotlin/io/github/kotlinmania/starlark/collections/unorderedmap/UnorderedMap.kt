@@ -1,4 +1,5 @@
 // port-lint: source src/unordered_map.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.unorderedmap
 
 /*
@@ -22,6 +23,7 @@ package io.github.kotlinmania.starlark.collections.unorderedmap
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
+import kotlin.native.HiddenFromObjC
 
 /**
  * Hash map which does not expose any insertion order-specific behavior
@@ -30,6 +32,7 @@ import io.github.kotlinmania.starlark.collections.StarlarkHashValue
  * Corresponds to Rust `UnorderedMap<K, V>` backed by `hashbrown::HashTable`.
  * In Kotlin, we use a [HashMap] which provides the same semantics.
  */
+internal @HiddenFromObjC
 class UnorderedMap<K, V> internal constructor(
     internal val table: HashMap<K, V>,
 ) {
@@ -183,7 +186,7 @@ class UnorderedMap<K, V> internal constructor(
      * Convert into a [HashMap].
      * Corresponds to Rust `into_hash_map(self) -> HashMap<K, V>`.
      */
-    fun intoHashMap(): HashMap<K, V> = HashMap(table)
+    internal fun intoHashMap(): HashMap<K, V> = HashMap(table)
 
     /**
      * Apply the function to each value.
@@ -201,7 +204,7 @@ class UnorderedMap<K, V> internal constructor(
      * Index by key. Throws if key is not found.
      * Corresponds to Rust `Index<&Q>` impl.
      */
-    operator fun get(key: K, default: Nothing? = null): V =
+    operator fun get(key: K, defaultValue: Nothing? = null): V =
         table[key] ?: throw NoSuchElementException("key not found: $key")
 
     /**
@@ -240,6 +243,7 @@ internal fun <K : Comparable<K>, V> UnorderedMap<K, V>.entriesSorted(): List<Pai
  * Reference to an entry in a [UnorderedMap].
  * Corresponds to Rust `Entry<'a, K, V>`.
  */
+internal @HiddenFromObjC
 sealed class Entry<K, V> {
     /** Occupied entry. */
     class Occupied<K, V>(
@@ -252,21 +256,21 @@ sealed class Entry<K, V> {
     ) : Entry<K, V>()
 
     /** Insert a value if vacant, or return the existing value. */
-    fun orInsert(default: V): V =
+    fun orInsert(defaultValue: V): V =
         when (this) {
             is Occupied -> entry.get()
             is Vacant -> {
-                entry.insert(default)
-                default
+                entry.insert(defaultValue)
+                defaultValue
             }
         }
 
     /** Insert a value computed by a function if vacant, or return the existing value. */
-    fun orInsertWith(default: () -> V): V =
+    fun orInsertWith(defaultValue: () -> V): V =
         when (this) {
             is Occupied -> entry.get()
             is Vacant -> {
-                val v = default()
+                val v = defaultValue()
                 entry.insert(v)
                 v
             }
@@ -277,6 +281,7 @@ sealed class Entry<K, V> {
  * Reference to an occupied entry in a [UnorderedMap].
  * Corresponds to Rust `OccupiedEntry<'a, K, V>`.
  */
+internal @HiddenFromObjC
 class OccupiedEntry<K, V>(
     private val map: UnorderedMap<K, V>,
     private val key: K,
@@ -299,6 +304,7 @@ class OccupiedEntry<K, V>(
  * Reference to a vacant entry in a [UnorderedMap].
  * Corresponds to Rust `VacantEntry<'a, K, V>`.
  */
+internal @HiddenFromObjC
 class VacantEntry<K, V>(
     private val map: UnorderedMap<K, V>,
     private val key: K,
@@ -313,6 +319,7 @@ class VacantEntry<K, V>(
  * Builder for [RawEntryMut].
  * Corresponds to Rust `RawEntryBuilderMut<'a, K, V>`.
  */
+internal @HiddenFromObjC
 class RawEntryBuilderMut<K, V>(
     private val map: UnorderedMap<K, V>,
 ) {
@@ -353,6 +360,7 @@ class RawEntryBuilderMut<K, V>(
  * Raw entry in a [UnorderedMap].
  * Corresponds to Rust `RawEntryMut<'a, K, V>`.
  */
+internal @HiddenFromObjC
 sealed class RawEntryMut<K, V> {
     /** Occupied entry. */
     class Occupied<K, V>(
@@ -369,6 +377,7 @@ sealed class RawEntryMut<K, V> {
  * Reference to an occupied raw entry in a [UnorderedMap].
  * Corresponds to Rust `RawOccupiedEntryMut<'a, K, V>`.
  */
+internal @HiddenFromObjC
 class RawOccupiedEntryMut<K, V>(
     private val map: UnorderedMap<K, V>,
     private var key: K,
@@ -406,6 +415,7 @@ class RawOccupiedEntryMut<K, V>(
  * Reference to a vacant raw entry in a [UnorderedMap].
  * Corresponds to Rust `RawVacantEntryMut<'a, K, V>`.
  */
+internal @HiddenFromObjC
 class RawVacantEntryMut<K, V>(
     private val map: UnorderedMap<K, V>,
 ) {

@@ -209,7 +209,7 @@ private fun unpackDefParams(params: List<Spanned<ParameterP<CstPayload>>>, codem
 
 // BindExpr
 
-sealed class BindExpr {
+internal sealed class BindExpr {
     data class Expr(
         val expr: CstExpr,
     ) : BindExpr()

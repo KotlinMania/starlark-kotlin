@@ -1,4 +1,4 @@
-// port-lint: source src/ordered_set.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.orderedset
 
 /*
@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark.collections.orderedset
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
+import kotlin.native.HiddenFromObjC
 
 /**
  * [SmallSet] wrapper, but equality and hash of self depends on iteration order.
@@ -29,6 +30,7 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
  * Two [OrderedSet]s are equal only when they contain the same elements
  * in the same iteration order.
  */
+@HiddenFromObjC
 class OrderedSet<T : Comparable<T>> internal constructor(
     internal val inner: SmallSet<T>,
 ) : Iterable<T>,
@@ -187,6 +189,7 @@ class OrderedSet<T : Comparable<T>> internal constructor(
 }
 
 /** Error returned by [OrderedSet.tryInsert] when the element is already present. */
+@HiddenFromObjC
 class OccupiedError<T>(
     /** The value that was not inserted. */
     val value: T,

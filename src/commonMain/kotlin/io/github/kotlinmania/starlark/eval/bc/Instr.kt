@@ -31,7 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * This is more efficient than `Result<R, Exception>`,
  * see the Rust version for details on compiler optimisation.
  */
-sealed class InstrControl {
+internal sealed class InstrControl {
     /** Go to address. */
     data class Next(
         val ip: BcPtrAddr,
@@ -57,7 +57,7 @@ sealed class InstrControl {
  * Each instruction type implements this interface, defining its argument type
  * and its execution behavior.
  */
-interface BcInstr {
+internal interface BcInstr {
     /**
      * Execute the instruction.
      *

@@ -1,5 +1,8 @@
 // port-lint: source src/values/frozen_ref.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -30,6 +33,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * access guarantees as it. However, this keeps the type `T` of the actual
  * [FrozenValue] as a reference, allowing manipulation of the actual typed data.
  */
+@HiddenFromObjC
 class FrozenRef<T> internal constructor(
     internal val value: T,
 ) : Trace,

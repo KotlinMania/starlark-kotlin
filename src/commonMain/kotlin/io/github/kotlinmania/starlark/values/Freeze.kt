@@ -1,5 +1,8 @@
 // port-lint: source src/values/freeze.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -64,6 +67,7 @@ fun <T, TFrozen> freezeSmallSet(
 /**
  * Minimal stand-in for Rust's `marker::PhantomData<T>`.
  */
+@HiddenFromObjC
 data class PhantomData<T>(
     val unit: Unit = Unit,
 ) {

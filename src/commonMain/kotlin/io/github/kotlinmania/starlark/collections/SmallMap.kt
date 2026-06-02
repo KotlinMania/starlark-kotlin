@@ -1,4 +1,4 @@
-// port-lint: source src/small_map.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections
 
 /*
@@ -19,15 +19,19 @@ package io.github.kotlinmania.starlark.collections
  * limitations under the License.
  */
 
+import kotlin.native.HiddenFromObjC
+
 /**
  * A map with deterministic iteration order.
  *
  * Kotlin does not have an equivalent to `hashbrown::HashTable` in commonMain, so this port
  * keeps the same observable behaviour while using a simple insertion-ordered storage.
  */
+@HiddenFromObjC
 class SmallMap<K, V> internal constructor(
     internal val entries: ArrayList<Entry<K, V>>,
 ) {
+    @HiddenFromObjC
     internal data class Entry<K, V>(
         var key: Hashed<K>,
         var value: V,

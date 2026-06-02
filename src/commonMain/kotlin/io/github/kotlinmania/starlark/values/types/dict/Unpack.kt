@@ -1,5 +1,8 @@
 // port-lint: source src/values/types/dict/unpack.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.dict
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -29,6 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * There's an [UnpackValue] implementation for [SmallMap][io.github.kotlinmania.starlark.collections.SmallMap]
  * but this can be used when hashing of unpacked keys is not needed.
  */
+@HiddenFromObjC
 class UnpackDictEntries<K, V>(
     /** Entries of the dictionary. */
     val entries: MutableList<Pair<K, V>> = mutableListOf(),

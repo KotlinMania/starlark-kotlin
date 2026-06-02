@@ -1,4 +1,5 @@
 // port-lint: source src/eval/bc/addr.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -22,9 +23,11 @@ package io.github.kotlinmania.starlark.eval.bc
 /** Address types used in bytecode interpreter. */
 
 import kotlin.reflect.KClass
+import kotlin.native.HiddenFromObjC
 
 /** Address relative to bytecode start. */
-data class BcAddr(
+@HiddenFromObjC
+internal data class BcAddr(
     val value: UInt,
 ) : Comparable<BcAddr> {
     constructor() : this(0u)
@@ -57,7 +60,7 @@ data class BcAddr(
  * Valid pointer range of bytecode.
  * Used for debugging assertions. This object is not created in release mode.
  */
-data class BcPtrRange(
+internal data class BcPtrRange(
     /** Start byte offset. */
     val start: Int,
     /** Length in bytes. */
@@ -91,7 +94,8 @@ data class BcPtrRange(
  *
  * In Kotlin, this is an offset into a bytecode buffer with debug validation.
  */
-data class BcPtrAddr(
+@HiddenFromObjC
+internal data class BcPtrAddr(
     /** Bytecode buffer offset. */
     val offset: Int,
     /** When assertions enabled, we validate the pointer is in this range. */
@@ -100,35 +104,35 @@ data class BcPtrAddr(
     override fun compareTo(other: BcPtrAddr): Int = offset.compareTo(other.offset)
 
     companion object {
-        fun new(offset: Int, range: IfDebug<BcPtrRange>): BcPtrAddr {
+        internal fun new(offset: Int, range: IfDebug<BcPtrRange>): BcPtrAddr {
             check(offset % BC_INSTR_ALIGN == 0)
             range.ifDebug { it.assertInRange(offset) }
             return BcPtrAddr(offset, range)
         }
 
         /** Create a pointer for the beginning of the slice. */
-        fun forSliceStart(slice: LongArray): BcPtrAddr =
+        internal fun forSliceStart(slice: LongArray): BcPtrAddr =
             new(
                 0,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
 
         /** Create a pointer for the end of the slice. */
-        fun forSliceEnd(slice: LongArray): BcPtrAddr =
+        internal fun forSliceEnd(slice: LongArray): BcPtrAddr =
             new(
                 slice.size * Long.SIZE_BYTES,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
 
         /** Overload for list-based instruction buffers (used by BcInstrs). */
-        fun forSliceStart(slice: List<Any>): BcPtrAddr =
+        internal fun forSliceStart(slice: List<Any>): BcPtrAddr =
             BcPtrAddr(
                 0,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
             )
 
         /** Overload for list-based instruction buffers (used by BcInstrs). */
-        fun forSliceEnd(slice: List<Any>): BcPtrAddr =
+        internal fun forSliceEnd(slice: List<Any>): BcPtrAddr =
             BcPtrAddr(
                 slice.size,
                 IfDebug.new(BcPtrRange.forSlice(slice)),
@@ -138,7 +142,7 @@ data class BcPtrAddr(
     /** Distance from current ptr to the end of instructions. */
     private fun remainingIfDebug(): Int = range.getRefIfDebug().end() - offset
 
-    fun <I : BcInstr> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
+    internal fun <I : BcInstr> getInstr(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I> {
         // Rust: debug_assert!(self.remaining_if_debug() >= mem::size_of::<BcInstrRepr<I>>())
         check(remainingIfDebug() >= BcInstrRepr.sizeOf(instrClass))
         @Suppress("UNCHECKED_CAST")
@@ -148,14 +152,14 @@ data class BcPtrAddr(
         return repr
     }
 
-    fun <I : BcInstr> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? =
+    internal fun <I : BcInstr> getInstrChecked(instrClass: KClass<I>, instrs: Any): BcInstrRepr<I>? =
         if (getOpcode(instrs) == BcOpcode.forInstr(instrClass)) {
             getInstr(instrClass, instrs)
         } else {
             null
         }
 
-    fun getOpcode(instrs: Any): BcOpcode {
+    internal fun getOpcode(instrs: Any): BcOpcode {
         val header = instrs as BcInstrHeader
         return header.opcode
     }
@@ -179,11 +183,12 @@ data class BcPtrAddr(
 
     fun add(offset: Int): BcPtrAddr = new(this.offset + offset, this.range)
 
-    fun <I : BcInstr> addInstr(instrClass: KClass<I>): BcPtrAddr = addRel(BcAddrOffset.forInstr(instrClass))
+    internal fun <I : BcInstr> addInstr(instrClass: KClass<I>): BcPtrAddr = addRel(BcAddrOffset.forInstr(instrClass))
 }
 
 /** Difference between addresses. */
-data class BcAddrOffset(
+@HiddenFromObjC
+internal data class BcAddrOffset(
     val value: UInt,
 ) : Comparable<BcAddrOffset> {
     override fun toString(): String = value.toString()
@@ -195,7 +200,7 @@ data class BcAddrOffset(
         val FORWARD = BcAddrOffset(0xdeadbeefu)
 
         /** Size of an instruction. */
-        fun <I : BcInstr> forInstr(instrClass: KClass<I>): BcAddrOffset {
+        internal fun <I : BcInstr> forInstr(instrClass: KClass<I>): BcAddrOffset {
             BcInstrRepr.assertAlign(instrClass)
             return BcAddrOffset(BcInstrRepr.sizeOf(instrClass).toUInt())
         }
@@ -205,7 +210,8 @@ data class BcAddrOffset(
 }
 
 /** Negative difference between addresses. */
-data class BcAddrOffsetNeg(
+@HiddenFromObjC
+internal data class BcAddrOffsetNeg(
     val value: UInt,
 ) : Comparable<BcAddrOffsetNeg> {
     override fun toString(): String = value.toString()

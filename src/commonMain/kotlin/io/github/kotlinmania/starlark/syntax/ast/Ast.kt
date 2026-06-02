@@ -1,5 +1,8 @@
 // port-lint: source src/syntax/ast.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.syntax.ast
+
+import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -24,19 +27,24 @@ import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
 
 /** Payload types attached to AST nodes. */
+@HiddenFromObjC
 interface AstPayload
 
 /** Payload attached to type-expression nodes. */
+@HiddenFromObjC
 interface TypeExprPayload
 
 /**
  * Default implementation of payload returned by the parser.
  */
+@HiddenFromObjC
 object AstNoPayload : AstPayload
 
 /** Default type-expression payload returned by the parser. */
+@HiddenFromObjC
 object AstNoTypeExprPayload : TypeExprPayload
 
+@HiddenFromObjC
 class Comma
 
 typealias Expr = ExprP<AstNoPayload>
@@ -74,6 +82,7 @@ typealias AstFloat = Spanned<Double>
 typealias AstFString = AstFStringP<AstNoPayload>
 typealias AstStmt = AstStmtP<AstNoPayload>
 
+@HiddenFromObjC
 sealed class ArgumentP<P : AstPayload> {
     data class Positional<P : AstPayload>(
         val expr: AstExprP<P>,
@@ -107,6 +116,7 @@ sealed class ArgumentP<P : AstPayload> {
         }
 }
 
+@HiddenFromObjC
 sealed class ParameterP<P : AstPayload> {
     /** `/` marker. */
     class Slash<P : AstPayload> : ParameterP<P>()
@@ -142,22 +152,24 @@ sealed class ParameterP<P : AstPayload> {
         }
 }
 
+@HiddenFromObjC
 sealed class AstLiteral {
-    data class Int(
+    data class IntLit(
         val value: AstInt,
     ) : AstLiteral()
 
-    data class Float(
+    data class FloatLit(
         val value: AstFloat,
     ) : AstLiteral()
 
-    data class String(
+    data class StringLit(
         val value: AstString,
     ) : AstLiteral()
 
     object Ellipsis : AstLiteral()
 }
 
+@HiddenFromObjC
 data class LambdaP<P : AstPayload, DP>(
     val params: List<AstParameterP<P>>,
     val body: AstExprP<P>,
@@ -173,10 +185,12 @@ data class LambdaP<P : AstPayload, DP>(
     }
 }
 
+@HiddenFromObjC
 data class CallArgsP<P : AstPayload>(
     val args: List<AstArgumentP<P>>,
 )
 
+@HiddenFromObjC
 sealed class ExprP<P : AstPayload> {
     data class Tuple<P : AstPayload>(
         val elements: List<AstExprP<P>>,
@@ -277,11 +291,13 @@ sealed class ExprP<P : AstPayload> {
     ) : ExprP<P>()
 }
 
+@HiddenFromObjC
 data class TypeExprP<P : AstPayload>(
     val expr: AstExprP<P>,
     var payload: TypeExprPayload,
 )
 
+@HiddenFromObjC
 sealed class AssignTargetP<P : AstPayload> {
     data class Tuple<P : AstPayload>(
         val elements: List<AstAssignTargetP<P>>,
@@ -302,22 +318,26 @@ sealed class AssignTargetP<P : AstPayload> {
     ) : AssignTargetP<P>()
 }
 
+@HiddenFromObjC
 data class AssignP<P : AstPayload>(
     val lhs: AstAssignTargetP<P>,
     val ty: AstTypeExprP<P>?,
     val rhs: AstExprP<P>,
 )
 
+@HiddenFromObjC
 data class AssignIdentP<P : AstPayload, IAP>(
     val ident: String,
     var payload: IAP,
 )
 
+@HiddenFromObjC
 data class IdentP<P : AstPayload, IP>(
     val ident: String,
     var payload: IP,
 )
 
+@HiddenFromObjC
 data class LoadArgP<P : AstPayload, IAP>(
     val local: AstAssignIdentP<P, IAP>,
     val their: AstString,
@@ -328,17 +348,20 @@ data class LoadArgP<P : AstPayload, IAP>(
     fun spanWithTrailingComma(): Span = if (comma != null) span().merge(comma.span) else span()
 }
 
+@HiddenFromObjC
 data class LoadP<P : AstPayload, LP>(
     val module: AstString,
     val args: List<LoadArgP<P, *>>,
     var payload: LP,
 )
 
+@HiddenFromObjC
 data class ForClauseP<P : AstPayload>(
     val varTarget: AstAssignTargetP<P>,
     val over: AstExprP<P>,
 )
 
+@HiddenFromObjC
 sealed class ClauseP<P : AstPayload> {
     data class For<P : AstPayload>(
         val forClause: ForClauseP<P>,
@@ -349,6 +372,7 @@ sealed class ClauseP<P : AstPayload> {
     ) : ClauseP<P>()
 }
 
+@HiddenFromObjC
 enum class BinOp {
     Or,
     And,
@@ -373,6 +397,7 @@ enum class BinOp {
     RightShift,
 }
 
+@HiddenFromObjC
 enum class AssignOp {
     Add,
     Subtract,
@@ -387,8 +412,10 @@ enum class AssignOp {
     RightShift,
 }
 
+@HiddenFromObjC
 enum class Visibility { Private, Public }
 
+@HiddenFromObjC
 data class DefP<P : AstPayload, DP>(
     val name: AstAssignIdentP<P, *>,
     val params: List<AstParameterP<P>>,
@@ -404,17 +431,20 @@ data class DefP<P : AstPayload, DP>(
     }
 }
 
+@HiddenFromObjC
 data class ForP<P : AstPayload>(
     val varTarget: AstAssignTargetP<P>,
     val over: AstExprP<P>,
     val body: AstStmtP<P>,
 )
 
+@HiddenFromObjC
 data class FStringP<P : AstPayload>(
     val format: AstString,
     val expressions: List<AstExprP<P>>,
 )
 
+@HiddenFromObjC
 sealed class StmtP<P : AstPayload> {
     fun visitTypeExprErrMut(f: (AstTypeExprP<P>) -> Unit) {
         when (this) {

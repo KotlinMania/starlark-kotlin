@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/record/ty_record_type.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.record
 
 /*
@@ -22,6 +23,7 @@ package io.github.kotlinmania.starlark.values.types.record
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import kotlin.native.HiddenFromObjC
 
 /**
  * Data associated with a record type for typechecking.
@@ -30,6 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
  * #[doc(hidden)]
  * pub struct TyRecordData
  */
+@HiddenFromObjC
 class TyRecordData(
     /** Name of the record type. */
     internal val name: String,

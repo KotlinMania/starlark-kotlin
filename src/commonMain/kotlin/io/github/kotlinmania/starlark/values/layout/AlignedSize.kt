@@ -60,7 +60,7 @@ data class AlignedSize(
         fun of(sizeOfT: Int): AlignedSize = alignUp(sizeOfT)
     }
 
-    fun bytes(): UInt = bytes
+    internal fun bytes(): UInt = bytes
 
     // Kotlin: No std::alloc::Layout equivalent.
 

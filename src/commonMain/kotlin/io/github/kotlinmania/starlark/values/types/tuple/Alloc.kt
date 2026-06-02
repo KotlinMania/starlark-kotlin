@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/tuple/alloc.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.tuple
 
 /*
@@ -28,6 +29,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import kotlin.native.HiddenFromObjC
 
 /**
  * Utility to allocate a tuple.
@@ -41,6 +43,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * val ls = frozenHeap.alloc(AllocTuple(listOf(1, 2, 3)))
  * ```
  */
+@HiddenFromObjC
 class AllocTuple<T>(
     val items: Iterable<T>,
 ) : StarlarkTypeRepr,

@@ -1,4 +1,5 @@
 // port-lint: source src/unordered_set.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.unorderedset
 
 /*
@@ -23,6 +24,7 @@ import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.unorderedmap.UnorderedMap
+import kotlin.native.HiddenFromObjC
 
 /**
  * `HashSet` that does not expose insertion order.
@@ -30,7 +32,8 @@ import io.github.kotlinmania.starlark.collections.unorderedmap.UnorderedMap
  * Corresponds to Rust `UnorderedSet<T>` which wraps `UnorderedMap<T, ()>`.
  * In Kotlin, we wrap [UnorderedMap]<T, [Unit]> to maintain the same structure.
  */
-class UnorderedSet<T> internal constructor(
+@HiddenFromObjC
+internal class UnorderedSet<T> internal constructor(
     private val map: UnorderedMap<T, Unit>,
 ) {
     companion object {
@@ -125,7 +128,8 @@ internal fun <T : Comparable<T>> UnorderedSet<T>.entriesSorted(): List<T> =
  * Builder for [RawEntryMut].
  * Corresponds to Rust `RawEntryBuilderMut<'a, T>`.
  */
-class RawEntryBuilderMut<T>(
+@HiddenFromObjC
+internal class RawEntryBuilderMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryBuilderMut<T, Unit>,
 ) {
     /**
@@ -163,7 +167,8 @@ class RawEntryBuilderMut<T>(
  * Reference to an entry in a [UnorderedSet].
  * Corresponds to Rust `RawEntryMut<'a, T>`.
  */
-sealed class RawEntryMut<T> {
+@HiddenFromObjC
+internal sealed class RawEntryMut<T> {
     /** Occupied entry. */
     class Occupied<T>(
         val entry: RawOccupiedEntryMut<T>,
@@ -179,7 +184,8 @@ sealed class RawEntryMut<T> {
  * Reference to an occupied entry in a [UnorderedSet].
  * Corresponds to Rust `RawOccupiedEntryMut<'a, T>`.
  */
-class RawOccupiedEntryMut<T>(
+@HiddenFromObjC
+internal class RawOccupiedEntryMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawOccupiedEntryMut<T, Unit>,
 ) {
     /** Remove the entry. */
@@ -193,7 +199,8 @@ class RawOccupiedEntryMut<T>(
  * Reference to a vacant entry in a [UnorderedSet].
  * Corresponds to Rust `RawVacantEntryMut<'a, T>`.
  */
-class RawVacantEntryMut<T>(
+@HiddenFromObjC
+internal class RawVacantEntryMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawVacantEntryMut<T, Unit>,
 ) {
     /** Insert an entry to the set. Computes the hash of the key. */

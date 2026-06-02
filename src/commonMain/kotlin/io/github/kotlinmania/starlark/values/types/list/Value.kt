@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/list/value.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.list
 
 // Copyright 2018 The Starlark in Rust Authors.
@@ -41,6 +42,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import kotlin.math.max
 import kotlin.reflect.KClass
+import kotlin.native.HiddenFromObjC
 
 /** Generic list container, parameterized on the data type. */
 internal class ListGen<T>(
@@ -177,6 +179,7 @@ internal class ListGen<T>(
  *
  * Holds the mutable backing content with an iterator guard count.
  */
+@HiddenFromObjC
 class ListData(
     /** The data stored by the list. */
     private val content: MutableList<Value> = mutableListOf(),
@@ -367,6 +370,7 @@ internal fun <T : AllocFrozenValue> Array<T>.allocFrozenValue(heap: FrozenHeap):
  *
  * Holds immutable list content after freezing.
  */
+@HiddenFromObjC
 class FrozenListData(
     /** The data stored by the tuple. */
     private val content: List<FrozenValue>,

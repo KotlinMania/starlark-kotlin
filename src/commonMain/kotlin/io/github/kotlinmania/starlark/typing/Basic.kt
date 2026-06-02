@@ -44,7 +44,7 @@ sealed class TyBasic : Comparable<TyBasic> {
     ) : TyBasic()
 
     /** `type`. */
-    data object Type : TyBasic()
+    data object TypeObject : TyBasic()
 
     /** A list. */
     data class List(
@@ -117,7 +117,7 @@ sealed class TyBasic : Comparable<TyBasic> {
             is List -> "list"
             is Tuple -> "tuple"
             is Dict -> "dict"
-            is Type -> "type"
+            is TypeObject -> "type"
             is Custom -> custom.asName()
             is Any, is Iter, is Callable -> null
             is Set -> "set"
@@ -163,7 +163,7 @@ sealed class TyBasic : Comparable<TyBasic> {
                     sb.append("dict[${key.displayWith(config)}, ${value.displayWith(config)}]")
                 }
             }
-            is Type -> sb.append("type")
+            is TypeObject -> sb.append("type")
             is Custom -> sb.append(custom.toString())
             is Set -> sb.append("set[${item.displayWith(config)}]")
         }

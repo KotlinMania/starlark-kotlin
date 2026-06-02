@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/dict/dict_type.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.dict
 
 /*
@@ -22,6 +23,7 @@ package io.github.kotlinmania.starlark.values.types.dict
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
+import kotlin.native.HiddenFromObjC
 
 // / A dict type marker.
 // /
@@ -29,6 +31,7 @@ import io.github.kotlinmania.starlark.values.layout.Value
 // / [`UnpackValue`] implementation verifies the types of entries and discards them.
 //     k: PhantomData<K>,
 //     v: PhantomData<V>,
+@HiddenFromObjC
 class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor() {
     companion object {
         fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> instance(): DictType<K, V> = DictType()
@@ -38,6 +41,7 @@ class DictType<K : StarlarkTypeRepr, V : StarlarkTypeRepr> private constructor()
     }
 }
 
+@HiddenFromObjC
 fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     value: Value,
 ): Result<DictType<K, V>?> {
