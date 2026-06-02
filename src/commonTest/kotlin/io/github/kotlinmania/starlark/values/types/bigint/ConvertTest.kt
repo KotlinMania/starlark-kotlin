@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.values.types.bigint
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.values.types.int.I32UnpackValue
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 
@@ -40,12 +41,11 @@ class ConvertTest {
             }
 
             globals.setFunction("takes_i32") { args, _ ->
-                takesI32(args.positional<Int>(0))
+                takesI32(I32UnpackValue.unpackNamedParam(args.positionalAll()[0], "_i"))
             }
 
             globals.setFunction("takes_i64") { args, _ ->
-                val v = args.positional<Long>(0)
-                takesI64(v)
+                takesI64(I64UnpackValue.unpackNamedParam(args.positionalAll()[0], "_i"))
             }
         }
 
