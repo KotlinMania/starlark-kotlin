@@ -123,7 +123,7 @@ private object TestVTableFactory {
                             .AlignedSize(0u),
                     )
             },
-            heapFreezeFn = { _, _ -> error("test vtable") },
+            heapFreezeFn = { _, _, _ -> error("test vtable") },
             heapCopyFn = { _, _ -> error("test vtable") },
             starlarkValue = object : io.github.kotlinmania.starlark.values.StarlarkValue {},
         )

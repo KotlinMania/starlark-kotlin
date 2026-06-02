@@ -40,13 +40,13 @@ fun <K : AllocFrozenValue, V : AllocFrozenValue> SmallMap<K, V>.allocFrozenValue
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** AllocValue for &SmallMap<K, V>. */
-fun <K : StarlarkTypeRepr, T : StarlarkTypeRepr> SmallMap<K, T>.allocValueRef(heap: Heap): Value
-    where K : AllocValue, T : AllocValue =
+fun <K, T> SmallMap<K, T>.allocValueRef(heap: Heap): Value
+    where K : StarlarkTypeRepr, K : AllocValue, T : StarlarkTypeRepr, T : AllocValue =
     AllocDict(this.iter().asIterable()).allocValue(heap)
 
 /** AllocFrozenValue for &SmallMap<K, V>. */
-fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
-    where K : AllocFrozenValue, V : AllocFrozenValue =
+fun <K, V> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): FrozenValue
+    where K : StarlarkTypeRepr, K : AllocFrozenValue, V : StarlarkTypeRepr, V : AllocFrozenValue =
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** StarlarkTypeRepr for &SmallMap<K, V>. */
@@ -122,10 +122,10 @@ object BTreeMapUnpackValue {
         val r = mutableMapOf<K, T>()
         for ((k, v) in dict.deref().iter()) {
             @Suppress("UNCHECKED_CAST")
-            val unpackedK = (k as? K) ?: return Result.success(null)
+            val unpackedK = (k as Any as? K) ?: return Result.success(null)
 
             @Suppress("UNCHECKED_CAST")
-            val unpackedV = (v as? T) ?: return Result.success(null)
+            val unpackedV = (v as Any as? T) ?: return Result.success(null)
             r[unpackedK] = unpackedV
         }
         return Result.success(r)

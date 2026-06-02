@@ -43,7 +43,11 @@ package io.github.kotlinmania.starlark.values.types.anycomplex
 // use crate::values::layout::heap::send::HeapSyncable;
 
 import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.freezeerror.FreezeError
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -61,6 +65,7 @@ class StarlarkAnyComplex<T : Any>(
     /** The value. */
     val value: T,
 ) : ComplexValue,
+    Freeze<StarlarkValue>,
     Trace {
     companion object {
         // pub fn new(value: T) -> StarlarkAnyComplex<T>
@@ -99,6 +104,16 @@ class StarlarkAnyComplex<T : Any>(
     // #[starlark_value(type = "any_complex")]
     // impl StarlarkValue for StarlarkAnyComplex<T>
     override val TYPE: String get() = "any_complex"
+
+    @Suppress("UNCHECKED_CAST")
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
+        val freezable =
+            value as? Freeze<Any>
+                ?: return Result.failure(
+                    FreezeError.new("StarlarkAnyComplex payload of type `${value::class.simpleName}` cannot be frozen"),
+                )
+        return freezable.freeze(freezer).map { frozen -> StarlarkAnyComplex(frozen) }
+    }
 
     // unsafe impl Trace for StarlarkAnyComplex<T>
     // The value field may contain traceable content.

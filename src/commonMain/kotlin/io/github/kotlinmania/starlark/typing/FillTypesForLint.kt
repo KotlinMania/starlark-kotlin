@@ -494,7 +494,7 @@ private class GlobalTypesBuilder(
     // fn get_ty_expr(&self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
     fun getTyExpr(expr: CstTypeExpr): Ty {
         val payload =
-            expr.node.payload as? CstTypeExprPayload
+            expr.node.payload as Any? as? CstTypeExprPayload
                 ?: throw internalError(expr.span, "type not set")
         return payload.typecheckerTy
             ?: throw internalError(expr.span, "type not set")

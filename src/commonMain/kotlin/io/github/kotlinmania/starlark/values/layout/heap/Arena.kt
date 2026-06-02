@@ -20,10 +20,16 @@ package io.github.kotlinmania.starlark.values.layout.heap.arena
  */
 
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.freezeerror.FreezeError
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
 import io.github.kotlinmania.starlark.values.layout.AValueVTable
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.AlignedSize
 import io.github.kotlinmania.starlark.values.layout.BlackHole
 import io.github.kotlinmania.starlark.values.layout.ConstTypeId
@@ -35,12 +41,12 @@ import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.CallEnter
 import io.github.kotlinmania.starlark.values.layout.heap.CallExit
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.HeapKind
 import io.github.kotlinmania.starlark.values.layout.heap.profile.HeapSummary
 import io.github.kotlinmania.starlark.values.layout.heap.profile.SmallMap
 import io.github.kotlinmania.starlark.values.layout.heap.profile.alloccounts.AllocCounts
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
-import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.totalMemoryForProfile
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
@@ -66,13 +72,37 @@ private fun vtableForValue(value: StarlarkValue): AValueVTable {
         typeName = value.TYPE,
         isStr = value is StarlarkStr,
         memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
-        heapFreezeFn = { p, freezer ->
+        heapFreezeFn = freeze@{ repr, p, freezer ->
             val sv = p.valueRef<StarlarkValue>()
             val direct = tryFreezeDirectly(sv, freezer)
             if (direct != null) {
-                direct
+                if (direct.isSuccess) {
+                    AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(direct.getOrThrow()))
+                }
+                return@freeze direct
+            }
+
+            if (sv is ComplexValue) {
+                val (fv, r) = freezer.reserve<AValue>()
+                val x = AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+                @Suppress("UNCHECKED_CAST")
+                val freezable =
+                    x as Any? as? Freeze<StarlarkValue>
+                        ?: return@freeze Result.failure(
+                            FreezeError.new("Value of type `${sv.TYPE}` cannot be frozen"),
+                        )
+                val frozen = freezable.freeze(freezer).getOrElse { return@freeze Result.failure(it) }
+                r.fill(frozen)
+                @Suppress("UNCHECKED_CAST")
+                if (frozen is DefGen<*>) {
+                    freezer.frozenDefs.add(FrozenRef(frozen as DefGen<FrozenValue>))
+                }
+                Result.success(fv)
             } else {
-                heapFreezeSimpleImpl(sv, freezer)
+                val (fv, r) = freezer.reserve<AValue>()
+                val x = AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+                r.fill(x)
+                Result.success(fv)
             }
         },
         heapCopyFn = { p, tracer ->
@@ -242,7 +272,7 @@ internal class Arena {
                             AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                         )
                     },
-                    heapFreezeFn = { _, freezer ->
+                    heapFreezeFn = { _, _, freezer ->
                         val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
                         Result.success(fv.toFrozenValue())
                     },
@@ -253,6 +283,7 @@ internal class Arena {
                     hasEquals = true,
                 ),
             )
+        AValueRepr(header = header, payload = str)
         val entry = AValueOrForward.Header(header)
         nonDrop.add(entry)
         return header

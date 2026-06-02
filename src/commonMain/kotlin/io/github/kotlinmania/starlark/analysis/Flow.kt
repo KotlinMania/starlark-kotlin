@@ -424,7 +424,7 @@ internal fun redundant(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<Flow
 
     fun f(codemap: CodeMap, x: AstStmt, res: MutableList<LintT<FlowIssue>>) {
         when (val s = x.node) {
-            is StmtP.For -> check(true, codemap, s.forStmt.body as AstStmt, res)
+            is StmtP.For -> check(true, codemap, s.forStmt.body, res)
             is StmtP.Def<*, *> -> check(false, codemap, s.def.body as AstStmt, res)
             else -> {}
         }

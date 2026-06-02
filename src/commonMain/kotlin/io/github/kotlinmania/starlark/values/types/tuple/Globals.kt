@@ -41,7 +41,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
  * ```
  */
 internal fun registerTuple(globals: GlobalsBuilder) {
-    globals.setFunction("tuple") { args: Arguments, eval: Evaluator ->
+    globals.setFunction("tuple", asType = io.github.kotlinmania.starlark.typing.Ty.anyTuple()) { args: Arguments, eval: Evaluator ->
         val heap = eval.heap()
         val a = args.optionalPositional<Value>(0)
         if (a == null) {

@@ -225,14 +225,14 @@ internal fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lin
                         rhsNode is ExprP.Identifier<*, *> &&
                         (lhsNode.ident as AstAssignIdent).node.ident ==
                         (rhsNode.ident as AstIdent).node.ident &&
-                        defined[(lhsNode.ident as AstAssignIdent).node.ident]?.second == true &&
-                        !exported.contains((lhsNode.ident as AstAssignIdent).node.ident) -> {
+                        defined[lhsNode.ident.node.ident]?.second == true &&
+                        !exported.contains(lhsNode.ident.node.ident) -> {
                         // Normally this would be an error, but if we load()'d it,
                         // this is how we'd reexport through Starlark.
                         // But only allow one export
-                        exported.add((lhsNode.ident as AstAssignIdent).node.ident)
+                        exported.add(lhsNode.ident.node.ident)
                     }
-                    else -> (s.assign.lhs as AstAssignTarget).visitLvalue { ident(it, false, codemap, defined, res) }
+                    else -> s.assign.lhs.visitLvalue { ident(it, false, codemap, defined, res) }
                 }
             }
             is StmtP.AssignModify<*> -> {

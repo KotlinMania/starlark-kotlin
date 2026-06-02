@@ -83,7 +83,7 @@ internal fun Compiler.exprForType(
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
 
     @Suppress("UNCHECKED_CAST")
-    val payload = expr.node.payload as? CstTypeExprPayload
+    val payload = expr.node.payload as Any? as? CstTypeExprPayload
     val ty = payload?.compilerTy
     if (ty == null) {
         // This is unreachable. But unfortunately we do not return error here.
@@ -238,7 +238,7 @@ private fun Compiler.evalExpr(
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
 ) {
-    val payload = typeExpr.node.payload as? CstTypeExprPayload
+    val payload = typeExpr.node.payload as Any? as? CstTypeExprPayload
     if (payload?.compilerTy != null) {
         throw EvalException.newAnyhow(
             StarlarkError("Type already initialized"),

@@ -1003,12 +1003,16 @@ class Value internal constructor(
 
     // fn equals_not_ptr_eq(self, other: Value<'v>) -> crate::Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
-        try {
+        val guard = try {
             stackGuard()
         } catch (e: Exception) {
             return Result.failure(e)
         }
-        return getRef().equals(other)
+        try {
+            return getRef().equals(other)
+        } finally {
+            guard.close()
+        }
     }
 
     /**
@@ -1016,12 +1020,16 @@ class Value internal constructor(
      */
     // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     override fun compare(other: Value): Result<Int> {
-        try {
+        val guard = try {
             stackGuard()
         } catch (e: Exception) {
             return Result.failure(e)
         }
-        return getRef().compare(other)
+        try {
+            return getRef().compare(other)
+        } finally {
+            guard.close()
+        }
     }
 
     /**
@@ -1208,7 +1216,7 @@ class Value internal constructor(
         val ref = getRef()
         return if (clazz.isInstance(ref)) {
             @Suppress("UNCHECKED_CAST")
-            ref as T
+            ref as Any as T
         } else {
             null
         }

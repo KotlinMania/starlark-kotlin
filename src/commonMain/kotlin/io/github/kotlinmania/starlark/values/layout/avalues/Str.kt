@@ -56,7 +56,7 @@ internal val VALUE_STR_A_VALUE_PTR: AValueHeader by lazy {
                     AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                 )
             },
-            heapFreezeFn = { ptr, freezer ->
+            heapFreezeFn = { _, ptr, freezer ->
                 val str = ptr.valueRef<StarlarkStr>()
                 val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
                 Result.success(fv.toFrozenValue())

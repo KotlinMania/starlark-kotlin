@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.eval.compiler.constants
 
 import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 
 /**
@@ -40,11 +41,13 @@ internal class BuiltinFn(
     // generates a singleton which allocates the function only once
     // even if builder function is called multiple times.
     fun ptrEq(other: FrozenValue): Boolean = value.toValue().ptrEq(other.toValue())
+    fun ptrEq(other: Value): Boolean = value.toValue().ptrEq(other)
 
     // impl PartialEq<FrozenValue> for BuiltinFn
     // impl PartialEq<BuiltinFn> for FrozenValue (symmetric)
     override fun equals(other: Any?): Boolean {
         if (other is FrozenValue) return ptrEq(other)
+        if (other is Value) return ptrEq(other)
         if (other is BuiltinFn) return ptrEq(other.value)
         return false
     }

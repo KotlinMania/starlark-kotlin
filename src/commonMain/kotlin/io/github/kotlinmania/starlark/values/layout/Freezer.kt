@@ -22,6 +22,7 @@ package io.github.kotlinmania.starlark.values.layout
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.FrozenRef
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
@@ -70,7 +71,7 @@ class Freezer internal constructor(
         // Case 2: We have already been replaced with a forwarding, or need to freeze
         val value = value.ptr.unpackPtrOpt()!!
         val header = AValueHeader.fromIndex(value)
-        val repr = header.asRepr<Any?>()
+        val repr = header.asRepr<StarlarkValue>()
         val unpacked: AValueOrForwardUnpack =
             if (repr.overwritten != null) {
                 AValueOrForwardUnpack.Forward(repr.overwritten!!)
@@ -79,7 +80,7 @@ class Freezer internal constructor(
             }
         return when (unpacked) {
             is AValueOrForwardUnpack.Forward -> Result.success(unpacked.forward.forwardPtr().unpackFrozenValue())
-            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapFreeze(this)
+            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapFreeze(repr, this)
         }
     }
 

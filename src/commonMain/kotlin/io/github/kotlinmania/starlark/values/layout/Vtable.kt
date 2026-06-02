@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.demand.Demand
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
@@ -70,7 +71,7 @@ class AValueVTable(
     // AValue
     val isStr: Boolean,
     internal val memorySizeFn: (StarlarkValueRawPtr) -> ValueAllocSize,
-    internal val heapFreezeFn: (StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
+    internal val heapFreezeFn: (AValueRepr<StarlarkValue>, StarlarkValueRawPtr, Freezer) -> Result<FrozenValue>,
     internal val heapCopyFn: (StarlarkValueRawPtr, Tracer) -> Value,
     // StarlarkValue dispatch
     internal val starlarkValue: StarlarkValue,
@@ -96,7 +97,7 @@ class AValueVTable(
                 memorySizeFn = { _ ->
                     blackHole.size
                 },
-                heapFreezeFn = { _, _ -> error("BlackHole") },
+                heapFreezeFn = { _, _, _ -> error("BlackHole") },
                 heapCopyFn = { _, _ -> error("BlackHole") },
                 starlarkValue =
                     object : StarlarkValue {
@@ -132,7 +133,7 @@ class AValueVTable(
                 typeName = typeName,
                 isStr = false,
                 memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
-                heapFreezeFn = { _, _ -> error("forType: heapFreeze not supported for $typeName") },
+                heapFreezeFn = { _, _, _ -> error("forType: heapFreeze not supported for $typeName") },
                 heapCopyFn = { _, _ -> error("forType: heapCopy not supported for $typeName") },
                 starlarkValue =
                     object : StarlarkValue {
@@ -169,7 +170,10 @@ internal class AValueDyn(
 
     fun memorySize(): ValueAllocSize = _vtable.memorySizeFn(value)
 
-    fun heapFreeze(freezer: Freezer): Result<FrozenValue> = _vtable.heapFreezeFn(value, freezer)
+    fun heapFreeze(
+        repr: AValueRepr<StarlarkValue>,
+        freezer: Freezer,
+    ): Result<FrozenValue> = _vtable.heapFreezeFn(repr, value, freezer)
 
     fun heapCopy(tracer: Tracer): Value = _vtable.heapCopyFn(value, tracer)
 

@@ -87,7 +87,7 @@ class StarlarkStrNRepr internal constructor(
                                 AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
                             )
                         },
-                        heapFreezeFn = { _, freezer ->
+                        heapFreezeFn = { _, _, freezer ->
                             // Static constant strings: re-intern on the frozen heap.
                             val fv = freezer.frozenHeap().allocStrIntern(str.asStr())
                             Result.success(fv.toFrozenValue())

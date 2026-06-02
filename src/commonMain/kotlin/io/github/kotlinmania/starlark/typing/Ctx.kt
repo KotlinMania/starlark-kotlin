@@ -516,7 +516,10 @@ internal class TypingContext(
                 kotlin.Result.success(Ty.any())
             }
             is ExprP.Slice -> exprSlice(span, node.expr, node.start, node.stop, node.step)
-            is ExprP.Identifier<*, *> -> kotlin.Result.success(exprIdent(node.ident as CstIdent))
+            is ExprP.Identifier<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                kotlin.Result.success(exprIdent(node.ident as CstIdent))
+            }
             is ExprP.Lambda<*, *> -> {
                 approximation("We don't type check lambdas", Unit)
                 kotlin.Result.success(Ty.anyCallable())

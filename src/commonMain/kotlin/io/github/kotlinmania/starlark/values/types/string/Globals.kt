@@ -60,7 +60,7 @@ internal fun registerStr(globals: GlobalsBuilder) {
     }
 
     // str(a): formats its argument as a string (without quotation for strings)
-    globals.setFunction("str") { callArgs, eval ->
+    globals.setFunction("str", asType = io.github.kotlinmania.starlark.typing.Ty.string()) { callArgs, eval ->
         val a: Value? = callArgs.optionalPositional(0)
         if (a == null) {
             // str() with no args returns empty string

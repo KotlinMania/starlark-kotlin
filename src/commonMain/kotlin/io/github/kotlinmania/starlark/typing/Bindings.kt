@@ -337,7 +337,7 @@ internal class BindingsCollect(
     /** Type must be populated earlier. */
     @Suppress("UNCHECKED_CAST")
     private fun resolvedTy(expr: CstTypeExpr, typecheckMode: TypecheckMode, codemap: CodeMap): Ty {
-        val payload = expr.node.payload as? CstTypeExprPayload
+        val payload = expr.node.payload as Any? as? CstTypeExprPayload
         val ty =
             when (typecheckMode) {
                 TypecheckMode.Lint -> payload?.typecheckerTy

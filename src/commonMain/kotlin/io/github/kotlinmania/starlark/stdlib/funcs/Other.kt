@@ -510,7 +510,11 @@ internal fun registerOther(globals: GlobalsBuilder) {
 
     // #[starlark(speculative_exec_safe, as_type = AbstractType)]
     // fn r#type<'v>(a: Value) -> anyhow::Result<FrozenStringValue>
-    globals.setFunction("type", speculativeExecSafe = true) { callArgs, eval ->
+    globals.setFunction(
+        "type",
+        speculativeExecSafe = true,
+        asType = io.github.kotlinmania.starlark.typing.Ty.basic(io.github.kotlinmania.starlark.typing.TyBasic.Type),
+    ) { callArgs, eval ->
         val a = callArgs.positional<Value>(0)
         type(a).toValue()
     }

@@ -77,6 +77,7 @@ fun DictRef.clone(): DictRef =
 // impl<'v> DictRef<'v>
 // / Downcast the value to a dict.
 // pub fn from_value(x: Value<'v>) -> Option<DictRef<'v>>
+@Suppress("UNCHECKED_CAST")
 fun dictRefFromValue(x: Value): DictRef? =
     if (x.unpackFrozen() != null) {
         x

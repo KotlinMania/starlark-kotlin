@@ -398,19 +398,19 @@ internal sealed class ExprCompiled {
     /** Expression is builtin `len` function. */
     internal fun isFnLen(): Boolean {
         val v = asValue() ?: return false
-        return v == Constants.get().fnLen
+        return Constants.get().fnLen?.ptrEq(v) == true
     }
 
     /** Expression is builtin `type` function. */
     internal fun isFnType(): Boolean {
         val v = asValue() ?: return false
-        return v == Constants.get().fnType
+        return Constants.get().fnType?.ptrEq(v) == true
     }
 
     /** Expression is builtin `isinstance` function. */
     internal fun isFnIsinstance(): Boolean {
         val v = asValue() ?: return false
-        return v == Constants.get().fnIsinstance
+        return Constants.get().fnIsinstance?.ptrEq(v) == true
     }
 
     /** If expression is `type(x)`, return `x`. */
