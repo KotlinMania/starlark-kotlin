@@ -93,8 +93,8 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     // fn get_methods() -> Option<&'static Methods>
     override fun getMethods(): Methods? = setMethods()
 
-    // unsafe fn iterate(&self, me: Value<'v>, _heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(me: Value, _heap: Heap): Result<Value> {
+    // unsafe fn iterate(&self, me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         setLike().iterStart()
         return Result.success(me)
     }
@@ -106,7 +106,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
         return Pair(rem, rem)
     }
 
-    // unsafe fn iter_next(&self, index: usize, _heap: Heap<'v>) -> Option<Value<'v>>
+    // unsafe fn iter_next(&self, index: usize, heap: Heap<'v>) -> Option<Value<'v>>
     override fun iterNext(index: Int, heap: Heap): Value? {
         return setLike().contentUnchecked().iter().drop(index).firstOrNull()
     }
@@ -193,7 +193,7 @@ data class SetGen<T>(val inner: T) : ComplexValue, Trace, Freeze<StarlarkValue> 
     }
 
     // fn sub(&self, rhs: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun sub(rhs: Value, heap: Heap): Result<Value> {
+    override fun sub(other: Value, heap: Heap): Result<Value> {
         return try {
             val rhsSet = SetRef.unpackValueOpt(rhs)
                 ?: return ValueError.unsupportedWith(SET_TYPE, "-", rhs)

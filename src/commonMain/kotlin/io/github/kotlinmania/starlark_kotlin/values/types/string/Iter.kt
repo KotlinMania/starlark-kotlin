@@ -56,8 +56,8 @@ internal class StringIterableGen(
 
     override val staticType: KClass<*> get() = StringIterableGen::class
 
-    // unsafe fn iterate(&self, _me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
-    override fun iterate(_me: Value, heap: Heap): Result<Value> {
+    // unsafe fn iterate(&self, me: Value<'v>, heap: Heap<'v>) -> crate::Result<Value<'v>>
+    override fun iterate(me: Value, heap: Heap): Result<Value> {
         // Lazy implementation: we allocate a tuple and then iterate over it.
         val iter = if (this.produceChar) {
             heap.allocTupleIter(this.string.asStr().map { c -> heap.allocStr(c.toString()) })

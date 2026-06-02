@@ -61,7 +61,7 @@ internal class AValueComplex(
     // type StarlarkValue = T;
     // type ExtraElem = ();
 
-    // fn extra_len(_value: &T) -> usize
+    // fn extra_len(value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
     // fn offset_of_extra() -> usize
@@ -118,7 +118,7 @@ internal class AValueComplexNoFreeze(
     // type StarlarkValue = T;
     // type ExtraElem = ();
 
-    // fn extra_len(_value: &T) -> usize
+    // fn extra_len(value: &T) -> usize
     override fun extraLen(value: StarlarkValue): Int = 0
 
     // fn offset_of_extra() -> usize
@@ -128,7 +128,7 @@ internal class AValueComplexNoFreeze(
     override fun allocSizeForExtraLen(extraLen: Int): ValueAllocSize = ValueAllocSize(AlignedSize(0u))
 
     // unsafe fn heap_freeze(...) -> Result<FrozenValue>
-    override fun heapFreeze(_freezer: Freezer): Result<FrozenValue> {
+    override fun heapFreeze(freezer: Freezer): Result<FrozenValue> {
         return Result.failure(
             FreezeError(AValueError.CannotBeFrozen(value::class.simpleName ?: "unknown").message!!)
         )

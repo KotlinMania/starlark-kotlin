@@ -140,8 +140,8 @@ internal class NativeFunction(
         return heap.allocSimple(this)
     }
 
-    // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    // fn invoke(&self, me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return function.invoke(eval, args)
     }
 
@@ -157,8 +157,8 @@ internal class NativeFunction(
     // fn eval_type(&self) -> Option<Ty>
     override fun evalType(): Ty? = asType
 
-    // fn has_attr(&self, _attribute: &str, _heap: Heap<'v>) -> bool
-    override fun hasAttr(_attribute: String, _heap: Heap): Boolean {
+    // fn has_attr(&self, attribute: &str, heap: Heap<'v>) -> bool
+    override fun hasAttr(attribute: String, heap: Heap): Boolean {
         return false
     }
 
@@ -326,8 +326,8 @@ internal class BoundMethodGen<V>(
         else -> error("BoundMethodGen: unexpected thisValue type: ${v?.let { it::class }}")
     }
 
-    // fn invoke(&self, _me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
-    override fun invoke(_me: Value, args: Arguments, eval: Evaluator): Result<Value> {
+    // fn invoke(&self, me: Value<'v>, args: &Arguments<'v, '_>, eval: &mut Evaluator<'v, '_, '_>) -> crate::Result<Value<'v>>
+    override fun invoke(me: Value, args: Arguments, eval: Evaluator): Result<Value> {
         return method.asRef().function.invoke(eval, thisAsValue(), args)
     }
 

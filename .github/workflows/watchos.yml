@@ -29,6 +29,7 @@ jobs:
         run: >
           ./gradlew
           compileKotlinWatchosArm64
+          compileKotlinWatchosDeviceArm64
           compileKotlinWatchosSimulatorArm64
           watchosSimulatorArm64Test
           --no-configuration-cache

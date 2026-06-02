@@ -150,7 +150,7 @@ class EnumTypeGen internal constructor(
 
     override fun length(): Result<Int> = Result.success(elements().len())
 
-    override fun at(index: Value, _heap: Heap): Result<Value> {
+    override fun at(index: Value, heap: Heap): Result<Value> {
         val i = convertIndex(index, elements().len()).getOrElse { return Result.failure(it) }
         return Result.success(elements().getIndex(i)!!.second)
     }
@@ -181,7 +181,7 @@ class EnumTypeGen internal constructor(
         return tyEnumData()?.tyEnumType
     }
 
-    override fun exportAs(variableName: String, _eval: Evaluator): Result<Unit> {
+    override fun exportAs(variableName: String, eval: Evaluator): Result<Unit> {
         getOrInitTy {
             val tyEnumValue = Ty.custom(
                 TyUser.new(

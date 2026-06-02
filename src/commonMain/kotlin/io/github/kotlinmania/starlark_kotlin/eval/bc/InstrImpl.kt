@@ -95,7 +95,7 @@ fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
     v0.add(v1, heap)
 fun bitOrAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
     v0.bitOr(v1, heap)
-fun possibleGc(_eval: Evaluator) {}
+fun possibleGc(eval: Evaluator) {}
 fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
     kotlin.Result.success(StringValue.default())
 fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue.default()
@@ -999,7 +999,7 @@ object InstrComprListAppend : BcInstr {
 object InstrComprDictInsert : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1045,8 +1045,8 @@ object InstrCheckTypeImpl : InstrNoFlowImpl {
 
 object InstrBr {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
+        eval: Evaluator,
+        frame: BcFramePtr,
         ip: BcPtrAddr,
         target: BcAddrOffset,
     ): InstrControl {
@@ -1057,7 +1057,7 @@ object InstrBr {
 object InstrIfBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1075,7 +1075,7 @@ object InstrIfBr : BcInstr {
 object InstrIfNotBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1162,7 +1162,7 @@ object InstrContinue {
 /** `break` statement. */
 object InstrBreak {
     fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcAddrOffset>,
@@ -1177,7 +1177,7 @@ object InstrBreak {
 /** Stop all the iterations to release mutation locks before `return`. */
 object InstrIterStop : BcInstr {
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1193,8 +1193,8 @@ object InstrIterStop : BcInstr {
 
 object InstrReturnConst {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
+        eval: Evaluator,
+        frame: BcFramePtr,
         _ip: BcPtrAddr,
         value: FrozenValue,
     ): InstrControl {
@@ -1204,7 +1204,7 @@ object InstrReturnConst {
 
 object InstrReturn {
     fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         _ip: BcPtrAddr,
         slot: BcSlotIn,
@@ -1581,8 +1581,8 @@ object InstrPossibleGcImpl : InstrNoFlowImpl {
  */
 object InstrEnd {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
+        eval: Evaluator,
+        frame: BcFramePtr,
         _ip: BcPtrAddr,
         arg: BcInstrEndArg,
     ): InstrControl {
