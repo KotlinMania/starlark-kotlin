@@ -17,9 +17,9 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrConcat
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.toValue
 import io.github.kotlinmania.starlark.values.types.none.NoneOr
 import io.github.kotlinmania.starlark.values.types.tuple.TupleRef
-import io.github.kotlinmania.starlark.values.toValue
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -158,8 +158,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "elems",
         ParametersSpec.withCapacity<FrozenValue>("elems").finish(),
     ) { eval, thisValue, _ ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for elems"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for elems"))
         elems(thisStr, eval.heap())
     }
 
@@ -167,8 +168,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "codepoints",
         ParametersSpec.withCapacity<FrozenValue>("codepoints").finish(),
     ) { eval, thisValue, _ ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for codepoints"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for codepoints"))
         codepoints(thisStr, eval.heap())
     }
 
@@ -176,21 +178,25 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "count",
         ParametersSpec.newParts(
             functionName = "count",
-            posOnly = listOf(
-                Pair("needle", ParametersSpecParam.Required),
-                Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-            ),
+            posOnly =
+                listOf(
+                    Pair("needle", ParametersSpecParam.Required),
+                    Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for count"))
-        val needle = args.positional<Value>(0).unpackStr()
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for count"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for count"))
+        val needle =
+            args.positional<Value>(0).unpackStr()
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for count"))
+
         fun noneOrI32(v: Value?): NoneOr<Int> {
             if (v == null || v.isNone()) return NoneOr.None
             val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
@@ -212,11 +218,13 @@ internal fun stringMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { _, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for endswith"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for endswith"))
         val suffixVal = args.positional<Value>(0)
-        val suffix = unpackStringOrTuple(suffixVal)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for endswith"))
+        val suffix =
+            unpackStringOrTuple(suffixVal)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for endswith"))
         endswith(thisStr.asStr(), suffix).map { it.toValue() }
     }
 
@@ -231,11 +239,13 @@ internal fun stringMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { _, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for startswith"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for startswith"))
         val prefixVal = args.positional<Value>(0)
-        val prefix = unpackStringOrTuple(prefixVal)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for startswith"))
+        val prefix =
+            unpackStringOrTuple(prefixVal)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string or tuple of strings for startswith"))
         startswith(thisStr.asStr(), prefix).map { it.toValue() }
     }
 
@@ -247,21 +257,25 @@ internal fun stringMethods(builder: MethodsBuilder) {
             name,
             ParametersSpec.newParts(
                 functionName = name,
-                posOnly = listOf(
-                    Pair("needle", ParametersSpecParam.Required),
-                    Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                    Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                ),
+                posOnly =
+                    listOf(
+                        Pair("needle", ParametersSpecParam.Required),
+                        Pair("start", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                        Pair("end", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    ),
                 posOrNamed = emptyList(),
                 args = false,
                 namedOnly = emptyList(),
                 kwargs = false,
             ),
         ) { _, thisValue, args ->
-            val thisStr = StringValue.new(thisValue)
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
-            val needle = args.positional<Value>(0).unpackStr()
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
+            val thisStr =
+                StringValue.new(thisValue)
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val needle =
+                args.positional<Value>(0).unpackStr()
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
+
             fun noneOrI32(v: Value?): NoneOr<Int> {
                 if (v == null || v.isNone()) return NoneOr.None
                 val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
@@ -289,8 +303,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
             kwargs = true,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for format"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for format"))
         format(thisStr.asStr(), args, eval).map { it.toValue() }
     }
 
@@ -329,8 +344,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for join"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for join"))
         val elements = args.positional<Value>(0)
         join(thisStr.asStr(), elements, eval.heap())
     }
@@ -350,8 +366,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
                 kwargs = false,
             ),
         ) { eval, thisValue, args ->
-            val thisStr = StringValue.new(thisValue)
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val thisStr =
+                StringValue.new(thisValue)
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
             val charsVal = args.optionalPositional<Value>(0)
             val chars = if (charsVal == null || charsVal.isNone()) null else charsVal.unpackStr()
             f(thisStr, chars, eval.heap()).map { it.toValue() }
@@ -377,11 +394,13 @@ internal fun stringMethods(builder: MethodsBuilder) {
                 kwargs = false,
             ),
         ) { eval, thisValue, args ->
-            val thisStr = StringValue.new(thisValue)
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val thisStr =
+                StringValue.new(thisValue)
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
             val needleValue = args.positional<Value>(0)
-            val needle = StringValue.new(needleValue)
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
+            val needle =
+                StringValue.new(needleValue)
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string needle for $name"))
             f(thisStr, needle, eval.heap()).map { triple ->
                 eval.heap().allocTuple(listOf(triple.first.toValue(), triple.second.toValue(), triple.third.toValue()))
             }
@@ -395,23 +414,27 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "replace",
         ParametersSpec.newParts(
             functionName = "replace",
-            posOnly = listOf(
-                Pair("old", ParametersSpecParam.Required),
-                Pair("new", ParametersSpecParam.Required),
-                Pair("count", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-            ),
+            posOnly =
+                listOf(
+                    Pair("old", ParametersSpecParam.Required),
+                    Pair("new", ParametersSpecParam.Required),
+                    Pair("count", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for replace"))
-        val old = args.positional<Value>(0).unpackStr()
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for old"))
-        val new = args.positional<Value>(1).unpackStr()
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for new"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for replace"))
+        val old =
+            args.positional<Value>(0).unpackStr()
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for old"))
+        val new =
+            args.positional<Value>(1).unpackStr()
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string for new"))
         val countVal = args.optionalPositional<Value>(2)
         val count = if (countVal == null || countVal.isNone()) null else countVal.unpackI32()
         replace(thisStr, old, new, count, eval.heap()).map { it.toValue() }
@@ -421,23 +444,27 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "rsplit",
         ParametersSpec.newParts(
             functionName = "rsplit",
-            posOnly = listOf(
-                Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-            ),
+            posOnly =
+                listOf(
+                    Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for rsplit"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for rsplit"))
+
         fun noneOrStr(v: Value?): NoneOr<String> {
             if (v == null || v.isNone()) return NoneOr.None
             val s = v.unpackStr() ?: throw IllegalArgumentException("Expected string or None")
             return NoneOr.Other(s)
         }
+
         fun noneOrI32(v: Value?): NoneOr<Int> {
             if (v == null || v.isNone()) return NoneOr.None
             val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
@@ -452,23 +479,27 @@ internal fun stringMethods(builder: MethodsBuilder) {
         "split",
         ParametersSpec.newParts(
             functionName = "split",
-            posOnly = listOf(
-                Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-                Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
-            ),
+            posOnly =
+                listOf(
+                    Pair("sep", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                    Pair("maxsplit", ParametersSpecParam.Defaulted(FrozenValue.newNone())),
+                ),
             posOrNamed = emptyList(),
             args = false,
             namedOnly = emptyList(),
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for split"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for split"))
+
         fun noneOrStr(v: Value?): NoneOr<String> {
             if (v == null || v.isNone()) return NoneOr.None
             val s = v.unpackStr() ?: throw IllegalArgumentException("Expected string or None")
             return NoneOr.Other(s)
         }
+
         fun noneOrI32(v: Value?): NoneOr<Int> {
             if (v == null || v.isNone()) return NoneOr.None
             val i = v.unpackI32() ?: throw IllegalArgumentException("Expected int or None")
@@ -490,8 +521,9 @@ internal fun stringMethods(builder: MethodsBuilder) {
             kwargs = false,
         ),
     ) { eval, thisValue, args ->
-        val thisStr = StringValue.new(thisValue)
-            ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for splitlines"))
+        val thisStr =
+            StringValue.new(thisValue)
+                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for splitlines"))
         val keependsVal = args.optionalPositional<Value>(0)
         val keepends = keependsVal?.unpackBool() ?: false
         splitlines(thisStr.asStr(), keepends, eval.heap()).map { lines ->
@@ -514,10 +546,12 @@ internal fun stringMethods(builder: MethodsBuilder) {
                 kwargs = false,
             ),
         ) { eval, thisValue, args ->
-            val thisStr = StringValue.new(thisValue)
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
-            val affix = args.positional<Value>(0).unpackStr()
-                ?: return@setMethod Result.failure(IllegalArgumentException("Expected string affix for $name"))
+            val thisStr =
+                StringValue.new(thisValue)
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string receiver for $name"))
+            val affix =
+                args.positional<Value>(0).unpackStr()
+                    ?: return@setMethod Result.failure(IllegalArgumentException("Expected string affix for $name"))
             f(thisStr, affix, eval.heap()).map { it.toValue() }
         }
     }
@@ -1813,7 +1847,7 @@ private fun convertStrIndices(str: String, start: Int?, end: Int?): StrIndices? 
 }
 
 // Count Unicode code points in a string (handles surrogate pairs).
-private fun String.codePointCount(): Int {
+internal fun String.codePointCount(): Int {
     var count = 0
     var i = 0
     while (i < this.length) {

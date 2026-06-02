@@ -92,15 +92,7 @@ class UnorderedSet<T> internal constructor(
     fun rawEntryMut(): RawEntryBuilderMut<T> = RawEntryBuilderMut(map.rawEntryMut())
 
     /** Iterate over the values in the set (private). */
-    private fun iter(): Sequence<T> = map.keysUnordered()
-
-    /**
-     * Get the entries in the set, sorted.
-     * Corresponds to Rust `entries_sorted(&self) -> Vec<&T>`.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun entriesSorted(): List<T> =
-        iter().sortedWith(compareBy { it as Comparable<Any> }).toList()
+    fun iter(): Sequence<T> = map.keysUnordered()
 
     /**
      * Unordered equality: two sets are equal iff they have the same elements,
@@ -117,6 +109,17 @@ class UnorderedSet<T> internal constructor(
 
     override fun toString(): String = map.toString()
 }
+
+/**
+ * Get the entries in the set, sorted by [comparator].
+ * Corresponds to Rust `entries_sorted(&self) -> Vec<&T>`.
+ */
+fun <T> UnorderedSet<T>.entriesSortedWith(comparator: Comparator<in T>): List<T> =
+    iter().sortedWith(comparator).toList()
+
+/** Get the entries in the set, sorted by natural order. */
+fun <T : Comparable<T>> UnorderedSet<T>.entriesSorted(): List<T> =
+    entriesSortedWith(naturalOrder())
 
 /**
  * Builder for [RawEntryMut].

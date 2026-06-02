@@ -52,6 +52,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
@@ -108,9 +109,7 @@ interface StarlarkValue {
      * Like TYPE, but returns a reusable FrozenStringValue
      * pointer to it.
      */
-    fun getTypeValueStatic(): FrozenStringValue {
-        error("getTypeValueStatic must be implemented by StarlarkValue implementations")
-    }
+    fun getTypeValueStatic(): FrozenStringValue = constFrozenString(TYPE)
 
     /**
      * Return a string that is the representation of a type that a user would use in

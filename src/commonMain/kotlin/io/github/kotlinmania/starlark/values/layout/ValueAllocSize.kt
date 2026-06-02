@@ -33,14 +33,13 @@ data class ValueAllocSize(
     companion object {
         fun tryNew(size: AlignedSize): ValueAllocSize? =
             if (size < MIN_ALLOC) {
-                null
+                ValueAllocSize(MIN_ALLOC)
             } else {
                 ValueAllocSize(size)
             }
 
         fun new(size: AlignedSize): ValueAllocSize =
-            tryNew(size)
-                ?: error("$size is too small for a value (minimum is $MIN_ALLOC)")
+            ValueAllocSize(maxOf(size, MIN_ALLOC))
     }
 
     // Kotlin: No `std::alloc::Layout`. Not transliterable.

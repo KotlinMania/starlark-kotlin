@@ -54,7 +54,11 @@ class OwnedFrozenValue(
     @PublishedApi internal val owner: FrozenHeapRef,
     // Invariant: this FrozenValue must be kept alive by the `owner` field.
     @PublishedApi internal val value: FrozenValue,
-) {
+) : AutoCloseable {
+
+    override fun close() {
+        owner.close()
+    }
     companion object {
         /** Create an [OwnedFrozenValue] in a new heap. */
         fun alloc(x: AllocFrozenValue): OwnedFrozenValue {
@@ -84,7 +88,7 @@ class OwnedFrozenValue(
     internal inline fun <reified T : StarlarkValue> downcast(): Result<OwnedFrozenValueTyped<T>> {
         val typed = FrozenValueTyped.new<T>(value)
         return if (typed != null) {
-            Result.success(OwnedFrozenValueTyped(owner, typed))
+            Result.success(OwnedFrozenValueTyped(owner.clone(), typed))
         } else {
             Result.failure(
                 OwnedError.WrongType(
@@ -105,10 +109,10 @@ class OwnedFrozenValue(
      * Operate on the [FrozenValue] stored inside.
      * Safe provided you don't store the argument [FrozenValue] after the closure has returned.
      */
-    fun map(f: (FrozenValue) -> FrozenValue): OwnedFrozenValue = OwnedFrozenValue(owner, f(value))
+    fun map(f: (FrozenValue) -> FrozenValue): OwnedFrozenValue = OwnedFrozenValue(owner.clone(), f(value))
 
     /** Same as [map] above but with [Result]. */
-    fun <E : Throwable> tryMap(f: (FrozenValue) -> Result<FrozenValue>): Result<OwnedFrozenValue> = f(value).map { OwnedFrozenValue(owner, it) }
+    fun <E : Throwable> tryMap(f: (FrozenValue) -> Result<FrozenValue>): Result<OwnedFrozenValue> = f(value).map { OwnedFrozenValue(owner.clone(), it) }
 
     /** Obtain a reference to the FrozenHeap that owns this value. */
     fun owner(): FrozenHeapRef = owner
@@ -131,7 +135,11 @@ class OwnedFrozenValue(
 class OwnedFrozenValueTyped<T : StarlarkValue>(
     private val owner: FrozenHeapRef,
     private val value: FrozenValueTyped<T>,
-) {
+) : AutoCloseable {
+
+    override fun close() {
+        owner.close()
+    }
     /** Access the underlying value. */
     fun asRef(): T = value.asRef()
 
@@ -147,13 +155,13 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     fun toValue(): Value = toFrozenValue().toValue()
 
     /** Erase the type. */
-    fun toOwnedFrozenValue(): OwnedFrozenValue = OwnedFrozenValue(owner, value.toFrozenValue())
+    fun toOwnedFrozenValue(): OwnedFrozenValue = OwnedFrozenValue(owner.clone(), value.toFrozenValue())
 
     /** Convert to borrowed ref. */
-    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef.newUnchecked(value.asRef(), owner)
+    fun asOwnedRefFrozenRef(): OwnedRefFrozenRef<T> = OwnedRefFrozenRef.newUnchecked(value.asRef(), owner.clone())
 
     /** Convert to an owned ref. */
-    fun intoOwnedFrozenRef(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner)
+    fun intoOwnedFrozenRef(): OwnedFrozenRef<T> = OwnedFrozenRef.newUnchecked(value.asRef(), owner.clone())
 
     /** Obtain a reference to the FrozenHeap that owns this value. */
     fun owner(): FrozenHeapRef = owner
@@ -181,15 +189,15 @@ class OwnedFrozenValueTyped<T : StarlarkValue>(
     }
 
     /** Operate on the [FrozenValue] stored inside. */
-    fun <U : StarlarkValue> map(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>): OwnedFrozenValueTyped<U> = OwnedFrozenValueTyped(owner, f(value))
+    fun <U : StarlarkValue> map(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>): OwnedFrozenValueTyped<U> = OwnedFrozenValueTyped(owner.clone(), f(value))
 
     /** Same as [map] above but with [Result]. */
-    fun <U : StarlarkValue> tryMap(f: (FrozenValueTyped<T>) -> Result<FrozenValueTyped<U>>): Result<OwnedFrozenValueTyped<U>> = f(value).map { OwnedFrozenValueTyped(owner, it) }
+    fun <U : StarlarkValue> tryMap(f: (FrozenValueTyped<T>) -> Result<FrozenValueTyped<U>>): Result<OwnedFrozenValueTyped<U>> = f(value).map { OwnedFrozenValueTyped(owner.clone(), it) }
 
     /** Same as [map] above but with nullable. */
     fun <U : StarlarkValue> maybeMap(f: (FrozenValueTyped<T>) -> FrozenValueTyped<U>?): OwnedFrozenValueTyped<U>? {
         val result = f(value) ?: return null
-        return OwnedFrozenValueTyped(owner, result)
+        return OwnedFrozenValueTyped(owner.clone(), result)
     }
 }
 

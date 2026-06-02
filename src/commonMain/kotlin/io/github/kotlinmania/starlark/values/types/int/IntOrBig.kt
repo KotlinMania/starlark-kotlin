@@ -104,18 +104,81 @@ sealed class StarlarkInt {
                 }
             }
 
+        private fun exactBigIntegerFromDouble(f: Double): BigInteger {
+            if (!f.isFinite()) {
+                throw StarlarkIntError.CannotRepresentAsExact(f)
+            }
+            val bits = f.toRawBits()
+            val sign = if ((bits shr 63) == 0L) 1 else -1
+            var exponent = ((bits shr 52) and 0x7FFL).toInt()
+            var significand = bits and 0xFFFFFFFFFFFFFL
+
+            if (exponent == 0) {
+                // Subnormal number
+                exponent = 1 - 1023
+            } else {
+                // Normal number
+                significand = significand or 0x10000000000000L // Add implicit leading 1
+                exponent = exponent - 1023
+            }
+
+            exponent -= 52
+
+            var bi = BigInteger.fromLong(significand)
+            if (exponent >= 0) {
+                bi = bi.shl(exponent)
+            } else {
+                val shift = -exponent
+                // If it has fractional bits, we check if they are zero
+                val divisor = BigInteger.fromInt(1).shl(shift)
+                val remainder = bi % divisor
+                if (remainder != BigInteger.ZERO) {
+                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                }
+                bi = bi.shr(shift)
+            }
+            return if (sign < 0) -bi else bi
+        }
+
         fun fromF64Exact(f: Double): Result<StarlarkInt> =
             runCatching {
+                if (f.isNaN() || f.isInfinite()) {
+                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                }
                 val i = InlineInt.tryFrom(f.toInt()).getOrElse { InlineInt.ZERO }
                 if (i.toF64() == f) {
                     Small(i)
                 } else {
-                    val bi = BigInteger.tryFromDouble(f, exactRequired = true)
-                    if (bi.doubleValue(exactRequired = false) == f) {
-                        from(bi)
-                    } else {
-                        throw StarlarkIntError.CannotRepresentAsExact(f)
+                    if (f == 0.0) {
+                        return@runCatching Small(InlineInt.ZERO)
                     }
+                    val bits = f.toBits()
+                    val sign = if ((bits ushr 63) == 0L) 1 else -1
+                    val exponent = ((bits ushr 52) and 0x7FFL).toInt()
+                    val mantissa = bits and 0xFFFFFFFFFFFFFL
+
+                    val bi =
+                        if (exponent == 0) {
+                            throw StarlarkIntError.CannotRepresentAsExact(f)
+                        } else {
+                            val significand = mantissa or 0x10000000000000L
+                            val unbiasedExponent = exponent - 1023
+                            val shift = 52 - unbiasedExponent
+                            if (shift <= 0) {
+                                BigInteger.fromLong(significand).shl(-shift)
+                            } else {
+                                if (shift > 52) {
+                                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                                }
+                                val mask = (1L shl shift) - 1
+                                if ((significand and mask) != 0L) {
+                                    throw StarlarkIntError.CannotRepresentAsExact(f)
+                                }
+                                BigInteger.fromLong(significand ushr shift)
+                            }
+                        }
+                    val signedBi = if (sign < 0) -bi else bi
+                    from(signedBi)
                 }
             }
 
@@ -196,12 +259,20 @@ sealed class StarlarkIntRef {
         val value: InlineInt,
     ) : StarlarkIntRef() {
         override fun toString(): String = value.toString()
+
+        override fun equals(other: Any?): Boolean = super.equals(other)
+
+        override fun hashCode(): Int = super.hashCode()
     }
 
     data class Big(
         val value: StarlarkBigInt,
     ) : StarlarkIntRef() {
         override fun toString(): String = value.toString()
+
+        override fun equals(other: Any?): Boolean = super.equals(other)
+
+        override fun hashCode(): Int = super.hashCode()
     }
 
     fun toOwned(): StarlarkInt =

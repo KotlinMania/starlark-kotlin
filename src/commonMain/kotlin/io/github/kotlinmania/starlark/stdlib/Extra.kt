@@ -22,9 +22,23 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.ValueLike
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
+import io.github.kotlinmania.starlark.values.types.dict.AtomicRef
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.DictGen
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
+import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.list.ListLike
 import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.types.record.RecordGen
+import io.github.kotlinmania.starlark.values.types.record.recordtype.RecordTypeGen
+import io.github.kotlinmania.starlark.values.types.set.SetRef
+import io.github.kotlinmania.starlark.values.types.set.content
+import io.github.kotlinmania.starlark.values.types.structs.StructGen
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 /**
  * Apply a predicate to each element of the iterable, returning those that match.
@@ -91,7 +105,7 @@ private fun map(
  */
 private fun debug(
     v: Value,
-): Result<String> = Result.success(v.toString())
+): Result<String> = Result.success(v.debug())
 
 private class PrintWrapper(
     private val values: List<Value>,
@@ -128,16 +142,160 @@ private fun pprintImpl(
     args: List<Value>,
     eval: Evaluator,
 ): Result<NoneType> {
-    // In practice most users may want to put the print somewhere else, but this does for now.
-    eval.printHandler.println(PrintWrapper(args).toString()).getOrThrow()
+    eval.printHandler.println(args.joinToString(" ") { toPrettyRepr(it, 0) }).getOrThrow()
     return Result.success(NoneType)
+}
+
+private fun formatContainer(
+    prefix: String,
+    suffix: String,
+    items: List<Value>,
+    indentLevel: Int,
+): String {
+    if (items.isEmpty()) {
+        return "$prefix$suffix"
+    }
+    if (items.size == 1) {
+        return "$prefix ${toPrettyRepr(items[0], indentLevel)} $suffix"
+    }
+    val indent = "  ".repeat(indentLevel + 1)
+    val closingIndent = "  ".repeat(indentLevel)
+    val joined = items.joinToString(",\n$indent") { toPrettyRepr(it, indentLevel + 1) }
+    return "$prefix\n$indent$joined\n$closingIndent$suffix"
+}
+
+private fun formatKeyedContainer(
+    prefix: String,
+    suffix: String,
+    separator: String,
+    items: List<Pair<Value, Value>>,
+    indentLevel: Int,
+): String {
+    if (items.isEmpty()) {
+        return "$prefix$suffix"
+    }
+    if (items.size == 1) {
+        val (k, valV) = items[0]
+        return "$prefix ${toPrettyRepr(k, indentLevel)}$separator${toPrettyRepr(valV, indentLevel)} $suffix"
+    }
+    val indent = "  ".repeat(indentLevel + 1)
+    val closingIndent = "  ".repeat(indentLevel)
+    val joined =
+        items.joinToString(",\n$indent") { (k, valV) ->
+            "${toPrettyRepr(k, indentLevel + 1)}$separator${toPrettyRepr(valV, indentLevel + 1)}"
+        }
+    return "$prefix\n$indent$joined\n$closingIndent$suffix"
+}
+
+private fun formatStructContainer(
+    prefix: String,
+    suffix: String,
+    separator: String,
+    items: List<Pair<String, Value>>,
+    indentLevel: Int,
+): String {
+    if (items.isEmpty()) {
+        return "$prefix$suffix"
+    }
+    if (items.size == 1) {
+        val (k, valV) = items[0]
+        return "$prefix $k$separator${toPrettyRepr(valV, indentLevel)} $suffix"
+    }
+    val indent = "  ".repeat(indentLevel + 1)
+    val closingIndent = "  ".repeat(indentLevel)
+    val joined =
+        items.joinToString(",\n$indent") { (k, valV) ->
+            "$k$separator${toPrettyRepr(valV, indentLevel + 1)}"
+        }
+    return "$prefix\n$indent$joined\n$closingIndent$suffix"
+}
+
+private fun toPrettyRepr(v: Value, indentLevel: Int): String {
+    val listGen = v.downcastRef<ListGen<*>>()
+    if (listGen != null) {
+        val content = (listGen.data as ListLike).content()
+        return formatContainer("[", "]", content, indentLevel)
+    }
+
+    val tupleGen = v.downcastRef<TupleGen<*>>()
+    if (tupleGen != null) {
+        val content = tupleGen.content().map { (it as ValueLike).toValue() }
+        return formatContainer("(", ")", content, indentLevel)
+    }
+
+    val dictGen = v.downcastRef<DictGen<*>>()
+    if (dictGen != null) {
+        val innerVal = dictGen.inner
+        val content =
+            when (innerVal) {
+                is FrozenDictData -> {
+                    innerVal.content
+                        .iter()
+                        .map { (k, valV) -> k.toValue() to valV.toValue() }
+                        .toList()
+                }
+                is AtomicRef<*> -> {
+                    val d = innerVal.value
+                    if (d is Dict) {
+                        d.content
+                            .iter()
+                            .map { (k, valV) -> k to valV }
+                            .toList()
+                    } else {
+                        emptyList()
+                    }
+                }
+                else -> emptyList()
+            }
+        return formatKeyedContainer("{", "}", ": ", content, indentLevel)
+    }
+
+    val structGen = v.downcastRef<StructGen<*>>()
+    if (structGen != null) {
+        val content =
+            structGen.fields
+                .iter()
+                .map { (k, valV) ->
+                    val rawV = valV as ValueLike
+                    k to rawV.toValue()
+                }.toList()
+        return formatStructContainer("struct(", ")", "=", content, indentLevel)
+    }
+
+    val recordGen = RecordGen.fromValue(v)
+    if (recordGen != null) {
+        val recordType = recordGen.typ.downcastRef<RecordTypeGen>()
+        val name = recordType?.tyRecordData()?.name ?: "anon"
+        val content = recordGen.iter().toList()
+        return formatStructContainer("record[$name](", ")", "=", content, indentLevel)
+    }
+
+    val namespaceGen = v.downcastRef<NamespaceGen<*>>()
+    if (namespaceGen != null) {
+        val content =
+            namespaceGen.fields
+                .iter()
+                .map { (k, valV) ->
+                    val rawV = valV.value as ValueLike
+                    k to rawV.toValue()
+                }.toList()
+        return formatStructContainer("namespace(", ")", "=", content, indentLevel)
+    }
+
+    val setRef = SetRef.unpackValueOpt(v)
+    if (setRef != null) {
+        val content = setRef.content.iter().toList()
+        return formatContainer("set([", "])", content, indentLevel)
+    }
+
+    return v.toRepr()
 }
 
 private fun prettyRepr(
     a: Value,
     eval: Evaluator,
 ): Result<StringValue> {
-    val s = a.toRepr()
+    val s = toPrettyRepr(a, 0)
     val r = eval.heap().allocStr(s)
     return Result.success(StringValue.newUnchecked(r))
 }

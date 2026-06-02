@@ -52,7 +52,7 @@ class StrTypeTest {
     fun testEscapeCharacters() {
         // Test cases from the Starlark spec
         assertEquals(
-            "\u0007\b\n\r\t\u000B",
+            "\u0007\b\u000C\n\r\t\u000B",
             Assert.pass("""'\a\b\f\n\r\t\v'""").value().unpackStr()!!,
         )
         assertEquals("\u0000", Assert.pass("""'\0'""").value().unpackStr()!!)
@@ -144,10 +144,21 @@ len("😿") == 1
                                     .testingNewInt(j)
                             }
                         // Compare list slicing (comparatively simple) to string slicing (complex unicode)
-                        val charsList: List<Char> = example.toList()
+                        val codePoints = mutableListOf<String>()
+                        var idx = 0
+                        while (idx < example.length) {
+                            val c = example[idx]
+                            if (c.isHighSurrogate() && idx + 1 < example.length && example[idx + 1].isLowSurrogate()) {
+                                codePoints.add(example.substring(idx, idx + 2))
+                                idx += 2
+                            } else {
+                                codePoints.add(c.toString())
+                                idx += 1
+                            }
+                        }
                         val res1 =
                             io.github.kotlinmania.starlark.values
-                                .applySlice(charsList, start, stop, null)
+                                .applySlice(codePoints, start, stop, null)
                                 .getOrThrow()
                                 .joinToString("")
                         val res2 = s.slice(start, stop, null, heap).getOrThrow().unpackStr()!!
@@ -192,12 +203,22 @@ len("😿") == 1
     fun testStringIndex() {
         fun testStr(str: String) {
             Heap.temp { heap ->
-                val chars: List<Char> = str.toList()
+                val codePoints = mutableListOf<String>()
+                var idx = 0
+                while (idx < str.length) {
+                    val c = str[idx]
+                    if (c.isHighSurrogate() && idx + 1 < str.length && str[idx + 1].isLowSurrogate()) {
+                        codePoints.add(str.substring(idx, idx + 2))
+                        idx += 2
+                    } else {
+                        codePoints.add(c.toString())
+                        idx += 1
+                    }
+                }
                 val v = heap.allocStr(str)
-                val len = chars.size
+                val len = codePoints.size
                 assertEquals(len, v.length().getOrThrow())
-                for ((i, char) in chars.withIndex()) {
-                    val charStr = char.toString()
+                for ((i, charStr) in codePoints.withIndex()) {
                     assertEquals(charStr, v.at(Value.testingNewInt(i), heap).getOrThrow().unpackStr())
                     assertEquals(charStr, v.at(Value.testingNewInt(-len + i), heap).getOrThrow().unpackStr())
                 }

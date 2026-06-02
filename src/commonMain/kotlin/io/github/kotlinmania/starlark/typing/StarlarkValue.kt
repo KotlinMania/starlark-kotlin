@@ -80,6 +80,23 @@ private class TyStarlarkValueVTable(
     val attrTy: (String) -> Ty? = { null },
 )
 
+private fun TypingBinOp.toOracle(): io.github.kotlinmania.starlark.typing.oracle.TypingBinOp =
+    when (this) {
+        TypingBinOp.Less -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.LESS
+        TypingBinOp.BitOr -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.BIT_OR
+        TypingBinOp.In -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.IN
+        TypingBinOp.Add -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.ADD
+        TypingBinOp.Sub -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.SUB
+        TypingBinOp.Mul -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.MUL
+        TypingBinOp.Div -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.DIV
+        TypingBinOp.FloorDiv -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.FLOOR_DIV
+        TypingBinOp.Percent -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.PERCENT
+        TypingBinOp.BitAnd -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.BIT_AND
+        TypingBinOp.BitXor -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.BIT_XOR
+        TypingBinOp.LeftShift -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.LEFT_SHIFT
+        TypingBinOp.RightShift -> io.github.kotlinmania.starlark.typing.oracle.TypingBinOp.RIGHT_SHIFT
+    }
+
 /**
  * Pre-built vtables for known Starlark types.
  *
@@ -95,6 +112,13 @@ private object TyStarlarkValueVTableGet {
             hasPlus = true,
             hasMinus = true,
             hasBitNot = true,
+            binOpTy = { op, rhs ->
+                io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp(
+                    io.github.kotlinmania.starlark.values.types.num.NumTy.Int,
+                    op.toOracle(),
+                    rhs,
+                )
+            },
         )
     val FLOAT_VTABLE =
         TyStarlarkValueVTable(
@@ -102,6 +126,13 @@ private object TyStarlarkValueVTableGet {
             starlarkTypeId = StarlarkTypeId.ofCanonical(StarlarkFloat::class),
             hasPlus = true,
             hasMinus = true,
+            binOpTy = { op, rhs ->
+                io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp(
+                    io.github.kotlinmania.starlark.values.types.num.NumTy.Float,
+                    op.toOracle(),
+                    rhs,
+                )
+            },
         )
     val BOOL_VTABLE =
         TyStarlarkValueVTable(
@@ -115,6 +146,27 @@ private object TyStarlarkValueVTableGet {
             hasAt = true,
             hasSlice = true,
             hasIterate = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.string
+                    .strMethods()
+            },
+            binOpTy = { op, rhs ->
+                val isString = rhs is TyBasic.StarlarkValue && rhs.value.isStr()
+                val isInt = rhs is TyBasic.StarlarkValue && rhs.value.isInt()
+                when (op) {
+                    TypingBinOp.Add -> if (isString) Ty.string() else null
+                    TypingBinOp.Mul -> if (isInt) Ty.string() else null
+                    TypingBinOp.Percent -> Ty.string()
+                    else -> null
+                }
+            },
+            rbinOpTy = { lhs, op ->
+                val isInt = lhs is TyBasic.StarlarkValue && lhs.value.isInt()
+                when (op) {
+                    TypingBinOp.Mul -> if (isInt) Ty.string() else null
+                    else -> null
+                }
+            },
         )
     val NONE_VTABLE =
         TyStarlarkValueVTable(
@@ -130,6 +182,10 @@ private object TyStarlarkValueVTableGet {
             hasSlice = true,
             hasIterate = true,
             hasIterateCollect = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.list
+                    .listMethods()
+            },
         )
     val DICT_VTABLE =
         TyStarlarkValueVTable(
@@ -138,6 +194,10 @@ private object TyStarlarkValueVTableGet {
             hasAt = true,
             hasIterate = true,
             hasIterateCollect = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.dict
+                    .getDictMethods()
+            },
         )
     val TUPLE_VTABLE =
         TyStarlarkValueVTable(
@@ -154,6 +214,10 @@ private object TyStarlarkValueVTableGet {
             starlarkTypeId = StarlarkTypeId.ofCanonical(FrozenSet::class),
             hasIterate = true,
             hasIterateCollect = true,
+            getMethods = {
+                io.github.kotlinmania.starlark.values.types.set
+                    .setMethods()
+            },
         )
     val FUNCTION_VTABLE =
         TyStarlarkValueVTable(
@@ -415,6 +479,34 @@ class TyStarlarkValue private constructor(
          * extract it from a KClass alone, callers pass the type name string directly.
          */
         fun new(typeName: String): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.forType(typeName))
+
+        fun new(typeName: String, hasInvoke: Boolean): TyStarlarkValue {
+            val base = TyStarlarkValueVTableGet.forType(typeName)
+            return if (hasInvoke != base.hasInvoke) {
+                TyStarlarkValue(
+                    TyStarlarkValueVTable(
+                        typeName = typeName,
+                        starlarkTypeId = base.starlarkTypeId,
+                        starlarkTypeIdCheck = base.starlarkTypeIdCheck,
+                        hasPlus = base.hasPlus,
+                        hasMinus = base.hasMinus,
+                        hasBitNot = base.hasBitNot,
+                        hasAt = base.hasAt,
+                        hasSlice = base.hasSlice,
+                        hasInvoke = hasInvoke,
+                        hasIterate = base.hasIterate,
+                        hasIterateCollect = base.hasIterateCollect,
+                        hasEvalType = base.hasEvalType,
+                        binOpTy = base.binOpTy,
+                        rbinOpTy = base.rbinOpTy,
+                        getMethods = base.getMethods,
+                        attrTy = base.attrTy,
+                    )
+                )
+            } else {
+                TyStarlarkValue(base)
+            }
+        }
 
         fun int(): TyStarlarkValue = TyStarlarkValue(TyStarlarkValueVTableGet.INT_VTABLE)
 

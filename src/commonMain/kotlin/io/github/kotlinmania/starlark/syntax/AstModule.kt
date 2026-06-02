@@ -87,10 +87,21 @@ class AstModule(
             val parserState = ParserState(dialect, codemap, mutableListOf())
             return try {
                 val statement = Parser.parse(parserState, lexer)
+                if (parserState.errors.isEmpty()) {
+                    validateModule(statement, parserState)
+                }
                 if (parserState.errors.isNotEmpty()) {
                     Result.failure(parserState.errors.first())
                 } else {
-                    Result.success(AstModule(codemap, statement, dialect, false, parseLintSuppressions(codemap, dialect)))
+                    Result.success(
+                        AstModule(
+                            codemap,
+                            statement,
+                            dialect,
+                            content.contains("@starlark-rust: typecheck"),
+                            parseLintSuppressions(codemap, dialect),
+                        ),
+                    )
                 }
             } catch (e: io.github.kotlinmania.starlark.typing.EvalException) {
                 Result.failure(e)

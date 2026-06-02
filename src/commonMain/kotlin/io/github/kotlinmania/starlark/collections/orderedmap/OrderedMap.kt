@@ -31,8 +31,7 @@ import io.github.kotlinmania.starlark.collections.SmallMap
  */
 class OrderedMap<K, V> internal constructor(
     internal val inner: SmallMap<K, V>,
-) : Iterable<Pair<K, V>>,
-    Comparable<OrderedMap<K, V>> {
+) : Iterable<Pair<K, V>> {
     companion object {
         /** Create a new empty map. */
         fun <K, V> new(): OrderedMap<K, V> = OrderedMap(SmallMap.new())
@@ -41,13 +40,10 @@ class OrderedMap<K, V> internal constructor(
         fun <K, V> withCapacity(capacity: Int): OrderedMap<K, V> =
             OrderedMap(SmallMap.withCapacity(capacity))
 
-        /** Create a default (empty) [OrderedMap]. Corresponds to Rust `Default` impl. */
+        /** Create a default empty [OrderedMap]. */
         fun <K, V> default(): OrderedMap<K, V> = OrderedMap(SmallMap.new())
 
-        /**
-         * Create an [OrderedMap] from an iterable of key-value pairs.
-         * Corresponds to Rust `FromIterator` impl.
-         */
+        /** Create an [OrderedMap] from an iterable of key-value pairs. */
         fun <K, V> fromIterator(iter: Iterable<Pair<K, V>>): OrderedMap<K, V> {
             val map = SmallMap.new<K, V>()
             for ((k, v) in iter) {
@@ -56,10 +52,7 @@ class OrderedMap<K, V> internal constructor(
             return OrderedMap(map)
         }
 
-        /**
-         * Create an [OrderedMap] from a [SmallMap].
-         * Corresponds to Rust `From<SmallMap<K, V>>` impl.
-         */
+        /** Create an [OrderedMap] from a [SmallMap]. */
         fun <K, V> from(map: SmallMap<K, V>): OrderedMap<K, V> = OrderedMap(map)
     }
 
@@ -81,49 +74,31 @@ class OrderedMap<K, V> internal constructor(
     /** Iterate over the values. */
     fun values(): Sequence<V> = inner.values()
 
-    /**
-     * Get a reference to the value associated with the given key.
-     * Corresponds to Rust `get<Q>(&self, k: &Q) -> Option<&V>`.
-     */
+    /** Get a reference to the value associated with the given key. */
     fun get(key: K): V? = inner.get(key)
 
-    /**
-     * Get a reference to the value associated with the given key using [Equivalent].
-     * Corresponds to Rust `get<Q>(&self, k: &Q) -> Option<&V>` with `Q: Equivalent<K>`.
-     */
+    /** Get a reference to the value associated with the given key using [Equivalent]. */
     fun <Q> get(key: Q): V? where Q : Equivalent<K> = inner.get(key)
 
     /** Find an entry by an index. */
     fun getIndex(index: Int): Pair<K, V>? = inner.getIndex(index)
 
-    /**
-     * Find an entry index for a given key.
-     * Corresponds to Rust `get_index_of<Q>(&self, key: &Q) -> Option<usize>`.
-     */
+    /** Find an entry index for a given key. */
     fun getIndexOf(key: K): Int? = inner.getIndexOf(key)
 
     /** Find an entry index for a given key using [Equivalent]. */
     fun <Q> getIndexOf(key: Q): Int? where Q : Equivalent<K> = inner.getIndexOf(key)
 
-    /**
-     * Check if the map contains the given key.
-     * Corresponds to Rust `contains_key<Q>(&self, k: &Q) -> bool`.
-     */
+    /** Check if the map contains the given key. */
     fun containsKey(key: K): Boolean = inner.getIndexOf(key) != null
 
     /** Check if the map contains the given key using [Equivalent]. */
     fun <Q> containsKey(key: Q): Boolean where Q : Equivalent<K> = inner.getIndexOf(key) != null
 
-    /**
-     * Insert an entry into the map. Returns the previous value if the key existed.
-     * Corresponds to Rust `insert(&mut self, k: K, v: V) -> Option<V>`.
-     */
+    /** Insert an entry into the map. Returns the previous value if the key existed. */
     fun insert(key: K, value: V): V? = inner.insert(key, value)
 
-    /**
-     * Remove an entry by key. Uses shift-remove to preserve iteration order.
-     * Corresponds to Rust `remove<Q>(&mut self, k: &Q) -> Option<V>`.
-     */
+    /** Remove an entry by key. Uses shift-remove to preserve iteration order. */
     fun remove(key: K): V? = inner.shiftRemove(key)
 
     /** Remove an entry by key using [Equivalent]. Uses shift-remove to preserve iteration order. */
@@ -132,32 +107,23 @@ class OrderedMap<K, V> internal constructor(
     /** Clear the map. */
     fun clear() = inner.clear()
 
-    /**
-     * Sort the map by keys.
-     * Corresponds to Rust `sort_keys(&mut self) where K: Ord`.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun sortKeys() {
-        inner.entries.sortWith(compareBy { it.key.key() as Comparable<Any> })
+    /** Sort the map by keys. */
+    fun sortKeysWith(comparator: Comparator<in K>) {
+        inner.entries.sortWith { left, right -> comparator.compare(left.key.key(), right.key.key()) }
     }
 
-    /**
-     * Extend the map with entries from an iterable.
-     * Corresponds to Rust `Extend<(K, V)>` impl.
-     */
+    /** Extend the map with entries from an iterable. */
     fun extend(iter: Iterable<Pair<K, V>>) {
         for ((k, v) in iter) {
             inner.insert(k, v)
         }
     }
 
-    /** Corresponds to Rust `IntoIterator` impl. */
     override fun iterator(): Iterator<Pair<K, V>> = inner.iterator()
 
     /**
      * Ordered equality: two [OrderedMap]s are equal iff they contain the same entries
      * in the same iteration order.
-     * Corresponds to Rust `PartialEq` impl using `eq_ordered`.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -174,14 +140,7 @@ class OrderedMap<K, V> internal constructor(
         return true
     }
 
-    /**
-     * Hash based on ordered iteration of entries.
-     * Corresponds to Rust `Hash` impl using `hash_ordered`.
-     *
-     * In Rust, `hash_ordered` hashes only the values (the keys are already
-     * incorporated via the Hashed wrapper's hash). In Kotlin we hash both
-     * key and value in iteration order to remain consistent with [equals].
-     */
+    /** Hash based on ordered iteration of entries. */
     override fun hashCode(): Int {
         var result = 1
         for ((k, v) in iter()) {
@@ -191,30 +150,30 @@ class OrderedMap<K, V> internal constructor(
         return result
     }
 
-    /**
-     * Compare two [OrderedMap]s lexicographically by their iteration order.
-     * Corresponds to Rust `PartialOrd` / `Ord` impls.
-     */
-    override fun compareTo(other: OrderedMap<K, V>): Int {
-        val thisIter = iter().iterator()
-        val otherIter = other.iter().iterator()
-        while (thisIter.hasNext() && otherIter.hasNext()) {
-            val (tk, tv) = thisIter.next()
-            val (ok, ov) = otherIter.next()
-
-            @Suppress("UNCHECKED_CAST")
-            val keyCmp = (tk as Comparable<K>).compareTo(ok)
-            if (keyCmp != 0) return keyCmp
-            @Suppress("UNCHECKED_CAST")
-            val valCmp = (tv as Comparable<V>).compareTo(ov)
-            if (valCmp != 0) return valCmp
-        }
-        return when {
-            thisIter.hasNext() -> 1
-            otherIter.hasNext() -> -1
-            else -> 0
-        }
-    }
-
     override fun toString(): String = iter().joinToString(", ", "{", "}") { (k, v) -> "$k=$v" }
+}
+
+/** Sort the map by keys using natural order. */
+fun <K : Comparable<K>, V> OrderedMap<K, V>.sortKeys() {
+    sortKeysWith(naturalOrder())
+}
+
+/** Compare two ordered maps lexicographically by their iteration order. */
+operator fun <K : Comparable<K>, V : Comparable<V>> OrderedMap<K, V>.compareTo(other: OrderedMap<K, V>): Int {
+    val thisIter = iter().iterator()
+    val otherIter = other.iter().iterator()
+    while (thisIter.hasNext() && otherIter.hasNext()) {
+        val (tk, tv) = thisIter.next()
+        val (ok, ov) = otherIter.next()
+
+        val keyCmp = tk.compareTo(ok)
+        if (keyCmp != 0) return keyCmp
+        val valCmp = tv.compareTo(ov)
+        if (valCmp != 0) return valCmp
+    }
+    return when {
+        thisIter.hasNext() -> 1
+        otherIter.hasNext() -> -1
+        else -> 0
+    }
 }

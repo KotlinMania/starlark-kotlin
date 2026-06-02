@@ -43,6 +43,7 @@ import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
@@ -58,6 +59,8 @@ import io.github.kotlinmania.starlark.values.types.SpecialBuiltinFunction
 import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bool.allocValue
+import io.github.kotlinmania.starlark.values.types.dict.Dict
+import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
 import io.github.kotlinmania.starlark.values.types.string.allocValue
@@ -128,8 +131,7 @@ class Globals internal constructor(
     internal fun getOwned(name: String): OwnedFrozenValue? {
         val v = getFrozen(name) ?: return null
         // Safety: We know the heap this is allocated in.
-        // In Kotlin, FrozenHeapRef is already a reference type (no dupe needed).
-        return OwnedFrozenValue(heap(), v)
+        return OwnedFrozenValue(heap().clone(), v)
     }
 
     /** Get all the names defined in this environment. */
@@ -314,6 +316,18 @@ class GlobalsBuilder private constructor(
                 is Long -> value.allocFrozenValue(heap)
                 is Boolean -> FrozenValue.newBool(value)
                 is String -> heap.allocStr(value).toFrozenValue()
+                is FrozenValue -> value
+                is Value -> {
+                    val frozen = value.unpackFrozen()
+                    if (frozen != null) {
+                        frozen
+                    } else {
+                        val freezer =
+                            io.github.kotlinmania.starlark.values.layout.Freezer
+                                .new(heap)
+                        freezer.freeze(value).getOrThrow()
+                    }
+                }
                 else -> error("setConst: unsupported value type ${value::class.simpleName}")
             }
         setInner(name, frozenValue, false)
@@ -425,6 +439,35 @@ class GlobalsBuilder private constructor(
                 return Result.failure(failure)
             }
             return autoWrapFunctionResult(result.getOrNull(), heap)
+        }
+        if (result is Dict) {
+            return Result.success(result.allocValue(heap))
+        }
+        if (result is Map<*, *>) {
+            val sm = SmallMap.withCapacity<Value, Value>(result.size)
+            for ((k, v) in result) {
+                val wrappedKey = autoWrapFunctionResult(k, heap).getOrElse { return Result.failure(it) }
+                val hashedKey = wrappedKey.getHashed().getOrElse { return Result.failure(it) }
+                val wrappedValue = autoWrapFunctionResult(v, heap).getOrElse { return Result.failure(it) }
+                sm.insertHashed(hashedKey, wrappedValue)
+            }
+            return Result.success(Dict.new(sm).allocValue(heap))
+        }
+        if (result is Iterable<*>) {
+            val wrapped = mutableListOf<Value>()
+            for (item in result) {
+                val wrappedItem = autoWrapFunctionResult(item, heap).getOrElse { return Result.failure(it) }
+                wrapped.add(wrappedItem)
+            }
+            return Result.success(heap.allocListIter(wrapped))
+        }
+        if (result is Sequence<*>) {
+            val wrapped = mutableListOf<Value>()
+            for (item in result) {
+                val wrappedItem = autoWrapFunctionResult(item, heap).getOrElse { return Result.failure(it) }
+                wrapped.add(wrappedItem)
+            }
+            return Result.success(heap.allocListIter(wrapped))
         }
         return Result.success(
             when (result) {

@@ -28,13 +28,6 @@ import kotlin.reflect.KClass
 
 /**
  * Reduce boilerplate when making types instances of ComplexValue.
- *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, UnpackValue,
- * StarlarkTypeRepr, and from_value implementations for complex value types
- * (types that can contain references to other Starlark values).
- *
- * In Kotlin, we use a registration function that wires up the same capabilities
- * at runtime via the type registry.
  */
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
@@ -53,10 +46,8 @@ fun <T : StarlarkValue> starlarkComplexValue(
 }
 
 /**
- * Similar to starlark_complex_value but from_value returns Either<unfrozen, frozen>.
- *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, and a from_value
- * that returns Either<&Self, &FrozenX> instead of coercing to unfrozen.
+ * Similar to [starlarkComplexValue], but [fromValue] can return either the
+ * unfrozen value or its frozen counterpart.
  */
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
@@ -77,12 +68,6 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
 /**
  * A macro reducing boilerplate defining Starlark values which are simple - they
  * aren't mutable and can't contain references to other Starlark values.
- *
- * In Rust, this macro generates AllocValue, AllocFrozenValue, UnpackValue,
- * StarlarkTypeRepr, and from_value implementations for simple value types.
- *
- * In Kotlin, we use a registration function that wires up the same capabilities
- * at runtime via the type registry.
  */
 fun <T : StarlarkValue> starlarkSimpleValue(
     type: KClass<T>,
@@ -99,7 +84,6 @@ fun <T : StarlarkValue> starlarkSimpleValue(
 }
 
 /** Registry for complex value type registrations. */
-// (corresponds to the compile-time macro expansions in Rust)
 object ComplexValueRegistry {
     private val entries = mutableMapOf<KClass<*>, ComplexValueEntry<*>>()
 
@@ -120,9 +104,7 @@ object ComplexValueRegistry {
             )
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : StarlarkValue> get(type: KClass<T>): ComplexValueEntry<T>? =
-        entries[type] as? ComplexValueEntry<T>
+    fun get(type: KClass<out StarlarkValue>): ComplexValueEntry<*>? = entries[type]
 }
 
 data class ComplexValueEntry<T : StarlarkValue>(
@@ -154,9 +136,7 @@ object ComplexValuesRegistry {
             )
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : StarlarkValue, F : StarlarkValue> get(type: KClass<T>): ComplexValuesEntry<T, F>? =
-        entries[type] as? ComplexValuesEntry<T, F>
+    fun get(type: KClass<out StarlarkValue>): ComplexValuesEntry<*, *>? = entries[type]
 }
 
 data class ComplexValuesEntry<T : StarlarkValue, F : StarlarkValue>(
@@ -186,9 +166,7 @@ object SimpleValueRegistry {
             )
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : StarlarkValue> get(type: KClass<T>): SimpleValueEntry<T>? =
-        entries[type] as? SimpleValueEntry<T>
+    fun get(type: KClass<out StarlarkValue>): SimpleValueEntry<*>? = entries[type]
 }
 
 data class SimpleValueEntry<T : StarlarkValue>(
@@ -198,8 +176,7 @@ data class SimpleValueEntry<T : StarlarkValue>(
     val fromValue: (Value) -> T?,
 )
 
-/** Either type used by starlark_complex_values for from_value return. */
-// (corresponds to either::Either in Rust)
+/** Either type used by [starlarkComplexValues] for [fromValue] results. */
 sealed class Either<out L, out R> {
     data class Left<out L>(
         val value: L,

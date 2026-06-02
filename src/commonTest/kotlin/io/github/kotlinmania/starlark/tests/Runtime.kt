@@ -73,7 +73,7 @@ assert_eq(y, str(x))
         a.disableGc()
         a.globalsAdd(::globalsFunctions)
         a.module("test", "x = [mk(), mk()]\ndef y(): return mk()")
-        a.pass(
+        val res = a.pass(
             """
 load("test", "x", "y")
 z = x[1]
@@ -82,9 +82,11 @@ r = [y(), mk()]
 """,
         )
         // The three that were run in pass should have gone
+        (res as kotlin.AutoCloseable).close()
         assertEquals(3, count.load(), "Expected 3 deallocations")
         // Now the frozen ones should have gone too (after drop)
-        // Note: In Kotlin/JVM, explicit cleanup may differ from Rust's Drop
+        (a as kotlin.AutoCloseable).close()
+        assertEquals(5, count.load(), "Expected 5 deallocations")
     }
 
     @Test

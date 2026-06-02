@@ -37,13 +37,12 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
  * In Kotlin, `T` is a phantom type parameter used only for type-level annotation.
  * The `V` parameter represents the underlying value type ([Value] or [FrozenValue]).
  */
-class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
+class ValueOfUncheckedGeneric<V : ValueLike, T : StarlarkTypeRepr> private constructor(
     private val value: V,
 ) {
     /**
      * Cast to a different Rust type for the same Starlark type.
      */
-    @Suppress("UNCHECKED_CAST")
     fun <U : StarlarkTypeRepr> cast(): ValueOfUncheckedGeneric<V, U> = new(this.value)
 
     /** Get the value. */
@@ -55,15 +54,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      * In Rust, this uses `V: ValueLike<'v>` and `T: UnpackValue<'v>` bounds.
      * In Kotlin, due to type erasure, an explicit [UnpackValue] instance is required.
      */
-    fun <R> unpack(unpacker: UnpackValue<R>): R {
-        val asValue: Value =
-            when (val v = value) {
-                is Value -> v
-                is ValueLike -> v.toValue()
-                else -> throw IllegalStateException("Cannot convert to Value")
-            }
-        return unpacker.unpackValueErr(asValue)
-    }
+    fun <R> unpack(unpacker: UnpackValue<R>): R = unpacker.unpackValueErr(value.toValue())
 
     /** Debug representation, formatted as `ValueOfUnchecked(value)`. */
     fun toDebugString(): String = "ValueOfUnchecked(${get()})"
@@ -87,25 +78,7 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
      */
     fun allocValue(
         @Suppress("UNUSED_PARAMETER") heap: Heap,
-    ): Value =
-        when (val v = value) {
-            is Value -> v
-            is ValueLike -> v.toValue()
-            else -> throw IllegalStateException("ValueOfUncheckedGeneric: cannot alloc non-Value type")
-        }
-
-    /**
-     * Allocate frozen value. Returns the underlying frozen value.
-     *
-     * The heap parameter is unused because the value is already frozen;
-     * this simply extracts the [FrozenValue] from the wrapper.
-     */
-    fun allocFrozenValue(
-        @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
-    ): FrozenValue {
-        @Suppress("UNCHECKED_CAST")
-        return value as FrozenValue
-    }
+    ): Value = value.toValue()
 
     /** Trace the inner value for garbage collection. */
     fun trace(tracer: Tracer) {
@@ -121,25 +94,17 @@ class ValueOfUncheckedGeneric<V, T : StarlarkTypeRepr> private constructor(
             when (val v = value) {
                 is Value -> v.freeze(freezer).getOrThrow()
                 is FrozenValue -> v
-                else -> throw IllegalStateException("Cannot freeze non-Value type")
+                else -> v.toValue().freeze(freezer).getOrThrow()
             }
         return Result.success(new(frozen))
     }
 
     /** Convert to a [ValueOfUnchecked] wrapping a [Value]. */
-    fun toValue(): ValueOfUncheckedGeneric<Value, T> {
-        val asValue: Value =
-            when (val v = value) {
-                is Value -> v
-                is ValueLike -> v.toValue()
-                else -> throw IllegalStateException("Cannot convert to Value")
-            }
-        return new(asValue)
-    }
+    fun toValue(): ValueOfUncheckedGeneric<Value, T> = new(value.toValue())
 
     companion object {
         /** Wrap a value with a phantom type annotation. */
-        fun <V, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> = ValueOfUncheckedGeneric(value)
+        fun <V : ValueLike, T : StarlarkTypeRepr> new(value: V): ValueOfUncheckedGeneric<V, T> = ValueOfUncheckedGeneric(value)
     }
 }
 
@@ -155,6 +120,13 @@ typealias ValueOfUnchecked<T> = ValueOfUncheckedGeneric<Value, T>
 
 /** Frozen starlark value with type annotation. */
 typealias FrozenValueOfUnchecked<T> = ValueOfUncheckedGeneric<FrozenValue, T>
+
+/**
+ * Allocate frozen value. Returns the underlying frozen value.
+ */
+fun <T : StarlarkTypeRepr> FrozenValueOfUnchecked<T>.allocFrozenValue(
+    @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
+): FrozenValue = get()
 
 /**
  * Construct after checking the type.

@@ -19,6 +19,8 @@ package io.github.kotlinmania.starlark.values.layout.heap
  * limitations under the License.
  */
 
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicInt
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
@@ -33,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.constantString
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
@@ -93,13 +96,27 @@ class Heap internal constructor(
          */
         fun <R> temp(f: (Heap) -> R): R {
             val heap = OwnedHeap.new()
-            return f(Heap(heap))
+            try {
+                return f(Heap(heap))
+            } finally {
+                heap.arena.borrow().finish()
+                for (ref in heap.refs) {
+                    ref.close()
+                }
+            }
         }
 
         /** Like temp, but suspend. */
         suspend fun <R> tempAsync(f: suspend (Heap) -> R): R {
             val heap = OwnedHeap.new()
-            return f(Heap(heap))
+            try {
+                return f(Heap(heap))
+            } finally {
+                heap.arena.borrow().finish()
+                for (ref in heap.refs) {
+                    ref.close()
+                }
+            }
         }
     }
 
@@ -138,7 +155,7 @@ class Heap internal constructor(
     /** Add a dependency onto the provided frozen heap. */
     fun addReference(h: FrozenHeapRef) {
         if (!owned.refs.contains(h)) {
-            owned.refs.add(h)
+            owned.refs.add(h.clone())
         }
     }
 
@@ -194,13 +211,14 @@ class Heap internal constructor(
         val value = Value.newPtr(header, true)
         return StringValue.newUnchecked(value)
     }
-
     fun allocStr(x: String): Value {
+        val constant = constantString(x)
+        if (constant != null) {
+            return constant.toValue()
+        }
         val v = owned.arena.borrow().allocStr(x)
         return Value.newPtr(v, true)
-    }
-
-    /** Allocate a new value on a Heap. */
+    }    /** Allocate a new value on a Heap. */
     fun <T : AllocValue> alloc(x: T): Value = x.allocValue(this)
 
     /**
@@ -345,7 +363,6 @@ class FrozenHeap internal constructor(
     fun intoRef(): FrozenHeapRef = intoRefImpl(null)
 
     internal fun intoRefImpl(name: Any?): FrozenHeapRef {
-        arena.finish()
         if (arena.isEmpty() && refs.isEmpty()) {
             return FrozenHeapRef()
         } else {
@@ -370,7 +387,7 @@ class FrozenHeap internal constructor(
         }
 
         if (!refs.contains(heap)) {
-            refs.add(heap)
+            refs.add(heap.clone())
         }
     }
 
@@ -409,6 +426,10 @@ class FrozenHeap internal constructor(
 
     /** Allocate an interned string. Returns a FrozenStringValue. */
     fun allocStrIntern(s: String): FrozenStringValue {
+        val constant = constantString(s)
+        if (constant != null) {
+            return constant
+        }
         val hashed =
             io.github.kotlinmania.starlark.collections.Hashed
                 .new(s)
@@ -452,11 +473,35 @@ class FrozenFrozenHeap internal constructor(
     internal val arena: Arena,
     val refs: List<FrozenHeapRef>,
     val name: Any? = null,
-) {
+) : AutoCloseable {
+    private val refCount = AtomicInt(0)
+
+
+    fun incRef() {
+        refCount.fetchAndAdd(1)
+    }
+
+    fun decRef() {
+        val prev = refCount.fetchAndAdd(-1)
+        if (prev == 1) {
+            arena.finish()
+            for (ref in refs) {
+                ref.close()
+            }
+        } else if (prev < 1) {
+            refCount.store(0)
+        }
+    }
+
+    override fun close() {
+        decRef()
+    }
+
     override fun toString(): String {
         val bytes = arena.allocatedBytes()
-        val refCount = refs.size
-        return "FrozenHeap(bytes=$bytes, refs=$refCount)"
+        val refsCount = refs.size
+        val activeCount = refCount.load()
+        return "FrozenHeap(bytes=$bytes, refs=$refsCount, activeRefs=$activeCount)"
     }
 }
 
@@ -469,7 +514,30 @@ class FrozenHeapRef(
     // The Eq/Hash are by identity rather than value, since we produce unique values
     // given an underlying FrozenHeap.
     internal val inner: FrozenFrozenHeap? = null,
-) {
+) : AutoCloseable {
+    private val closed = AtomicBoolean(false)
+
+    init {
+        inner?.incRef()
+    }
+
+    fun clone(): FrozenHeapRef {
+        return FrozenHeapRef(inner)
+    }
+
+    fun incRef() {
+        inner?.incRef()
+    }
+
+    fun decRef() {
+        inner?.decRef()
+    }
+
+    override fun close() {
+        if (closed.compareAndSet(false, true)) {
+            inner?.close()
+        }
+    }
     /**
      * Number of bytes allocated on this heap, not including any memory
      * allocated outside of the starlark heap.

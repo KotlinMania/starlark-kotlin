@@ -104,13 +104,20 @@ internal fun registerFloat(globals: GlobalsBuilder) {
             val s = asStr
             val f: Double =
                 try {
-                    val f = s.toDouble()
-                    if (f.isInfinite() && !s.lowercase().contains("inf")) {
-                        throw IllegalArgumentException(
-                            "float() floating-point number too large: $s",
-                        )
-                    } else {
-                        f
+                    val normalized = s.trim().lowercase()
+                    when (normalized) {
+                        "inf", "infinity", "+inf", "+infinity" -> Double.POSITIVE_INFINITY
+                        "-inf", "-infinity" -> Double.NEGATIVE_INFINITY
+                        "nan", "+nan", "-nan" -> Double.NaN
+                        else -> {
+                            val f = s.toDouble()
+                            if (f.isInfinite() && !normalized.contains("inf")) {
+                                throw IllegalArgumentException(
+                                    "float() floating-point number too large: $s",
+                                )
+                            }
+                            f
+                        }
                     }
                 } catch (x: NumberFormatException) {
                     val repr = StringBuilder()

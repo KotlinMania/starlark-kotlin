@@ -228,7 +228,7 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         ),
     ) { eval, thisValue, args ->
         val indexValue = args.positional<Value>(0)
-        val index = indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
+        val index = indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterTypeNamed("index"))
         val el = args.positional<Value>(1)
         insert(thisValue, index, el, eval.heap()).map { Value.newNone() }
     }
@@ -248,7 +248,7 @@ internal fun listMethodsImpl(builder: MethodsBuilder) {
         val index =
             when {
                 indexValue == null || indexValue.isNone() -> null
-                else -> indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterType)
+                else -> indexValue.unpackI32() ?: return@setMethod Result.failure(ValueError.IncorrectParameterTypeNamed("index"))
             }
         pop(thisValue, index)
     }

@@ -29,6 +29,9 @@ import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
@@ -48,6 +51,23 @@ class AValueSimple<T : StarlarkValue>(
         val direct = tryFreezeDirectly(inner, freezer)
         if (direct != null) return direct
         return heapFreezeSimpleImpl(inner, freezer)
+    }
+
+    override fun heapFreeze(
+        repr: AValueRepr<*>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        val direct = tryFreezeDirectly(inner, freezer)
+        if (direct != null) {
+            if (direct.isSuccess) {
+                AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(direct.getOrThrow()))
+            }
+            return direct
+        }
+        val (fv, r) = freezer.reserve<AValue>()
+        val x = AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+        r.fill(x)
+        return Result.success(fv)
     }
 
     override fun heapCopy(tracer: Tracer): Value = heapCopyImpl(inner, tracer) { _, _ -> }

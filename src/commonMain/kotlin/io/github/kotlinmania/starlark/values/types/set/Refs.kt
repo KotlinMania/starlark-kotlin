@@ -114,7 +114,7 @@ class SetMut internal constructor(
          * Downcast the value to a mutable set reference.
          */
         internal fun fromValue(x: Value): Result<SetMut> =
-            when (val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()) {
+            when (val ptr = x.downcastRef<SetGen<RefCell>>()) {
                 null -> Result.failure(error(x))
                 else -> {
                     val borrowed = ptr.inner.tryBorrowMut()
@@ -150,21 +150,15 @@ object SetRefUnpackValue : UnpackValue<SetRef> {
                     ?.let { SetRef(Either.Right(coerceSetData(it.inner))) }
             } else {
                 value
-                    .downcastRef<SetGen<RefCell<SetData>>>()
+                    .downcastRef<SetGen<RefCell>>()
                     ?.let { ptr -> SetRef(Either.Left(ptr.inner.borrow())) }
             }
         return Result.success(result)
     }
 }
 
-/**
- * Coerce a [FrozenSetData] to a [SetData] view.
- * Corresponds to Rust's `coerce(&x.0)` which zero-cost converts FrozenSetData to SetData
- * because FrozenValue can be treated as Value.
- */
-@Suppress("UNCHECKED_CAST")
 private fun coerceSetData(data: FrozenSetData): SetData =
-    SetData(data.content as SmallSet<Value>)
+    SetData(data.valueContent())
 
 /**
  * Either type for representing one of two possible values.
@@ -184,9 +178,9 @@ sealed class Either<out L, out R> {
  * RefCell type for interior mutability.
  * Corresponds to Rust's `RefCell<T>`.
  */
-class RefCell<T>(
-    private var value: T,
-) {
+class RefCell(
+    private var value: SetData,
+) : SetLike {
     private var borrowCount = 0
     private var mutBorrowCount = 0
 
@@ -195,8 +189,7 @@ class RefCell<T>(
             throw IllegalStateException("Already mutably borrowed")
         }
         borrowCount++
-        @Suppress("UNCHECKED_CAST")
-        return BorrowedSetData(value as SetData)
+        return Borrowed(value)
     }
 
     /**
@@ -213,25 +206,38 @@ class RefCell<T>(
             return null
         }
         mutBorrowCount++
-        @Suppress("UNCHECKED_CAST")
-        return BorrowedMutSetData(value as SetData)
+        return BorrowedMut(value)
+    }
+
+    override fun content(): SmallSet<Value> = borrow().data.content
+
+    override fun iterStart() {
+        borrow()
+    }
+
+    override fun contentUnchecked(): SmallSet<Value> = borrow().data.content
+
+    override fun iterStop() {
+        releaseBorrow()
     }
 }
 
 /**
- * Borrowed reference to SetData (immutable).
- * Corresponds to Rust's `Ref<SetData>`.
+ * Borrowed reference.
  */
-class BorrowedSetData(
-    val data: SetData,
+class Borrowed<T>(
+    val data: T,
 ) {
-    fun clone(): BorrowedSetData = BorrowedSetData(data)
+    fun clone(): Borrowed<T> = Borrowed(data)
 }
 
 /**
- * Mutably borrowed reference to SetData.
- * Corresponds to Rust's `RefMut<SetData>`.
+ * Mutably borrowed reference.
  */
-class BorrowedMutSetData(
-    val data: SetData,
+class BorrowedMut<T>(
+    val data: T,
 )
+
+typealias BorrowedSetData = Borrowed<SetData>
+
+typealias BorrowedMutSetData = BorrowedMut<SetData>

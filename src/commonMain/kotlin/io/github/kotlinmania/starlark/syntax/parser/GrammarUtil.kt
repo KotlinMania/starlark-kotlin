@@ -309,7 +309,15 @@ object GrammarUtil {
         }
 
         // Validate the type expression
-        TypeExprUnpackP.unpack<AstNoPayload, Unit>(x, state.codemap)
+        try {
+            TypeExprUnpackP.unpack<AstNoPayload, Unit>(x, state.codemap)
+        } catch (ex: io.github.kotlinmania.starlark.syntax.typeexpr.WithDiagnosticException) {
+            throw EvalException.newAnyhow(
+                ex,
+                ex.diagnostic.span,
+                ex.diagnostic.codemap,
+            )
+        }
 
         return x.map { node ->
             TypeExprP(

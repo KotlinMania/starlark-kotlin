@@ -45,10 +45,9 @@ data class NamespaceGen<V>(
         fun <V> new(fields: SmallMap<String, MaybeDocHiddenValue<V>>): NamespaceGen<V> =
             NamespaceGen(fields)
 
-        fun fromValue(value: Value): Namespace? {
-            return value.downcastRef<Namespace>()
+        fun fromValue(value: Value): Namespace? =
+            value.downcastRef<Namespace>()
                 ?: value.downcastRef<FrozenNamespace>()?.let { coerceNamespace(it) }
-        }
     }
 
     fun get(key: String): V? =

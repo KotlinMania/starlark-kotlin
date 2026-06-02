@@ -171,7 +171,7 @@ data class StarlarkFloat(
             // According to the spec, all NaN values compare equal to each other,
             // but greater than any non-NaN float value.
             return if (!a.isNaN() && !b.isNaN()) {
-                a.compareTo(b)
+                if (a == b) 0 else a.compareTo(b)
             } else {
                 a.isNaN().compareTo(b.isNaN())
             }

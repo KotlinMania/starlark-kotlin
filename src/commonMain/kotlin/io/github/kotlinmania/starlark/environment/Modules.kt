@@ -88,7 +88,11 @@ class FrozenModule internal constructor(
     private val _extraValue: FrozenValue?,
     /** Module evaluation duration. */
     internal val evalDuration: Duration,
-) {
+) : AutoCloseable {
+
+    override fun close() {
+        heap.close()
+    }
     /**
      * Convert items in [Globals] into a [FrozenModule].
      * This function can be used to implement starlark module
@@ -117,7 +121,7 @@ class FrozenModule internal constructor(
     private fun getAnyVisibilityOption(name: String): Pair<OwnedFrozenValue, Visibility>? {
         val (slot, vis) = module.value.names.getName(name) ?: return null
         val value = module.value.slots.getSlot(slot) ?: return null
-        return OwnedFrozenValue(heap, value) to vis
+        return OwnedFrozenValue(heap.clone(), value) to vis
     }
 
     /**
@@ -208,8 +212,14 @@ class FrozenModule internal constructor(
         val members = SmallMap.new<String, DocItem>()
         for ((name, value) in allItems()) {
             val vis = getAnyVisibilityOption(name.asStr())
-            if (vis != null && vis.second == Visibility.Public) {
-                members.insert(name.asStr(), value.toValue().documentation())
+            if (vis != null) {
+                try {
+                    if (vis.second == Visibility.Public) {
+                        members.insert(name.asStr(), value.toValue().documentation())
+                    }
+                } finally {
+                    vis.first.close()
+                }
             }
         }
 
@@ -242,7 +252,7 @@ class FrozenModule internal constructor(
      *
      * pub fn owned_extra_value(&self) -> Option<OwnedFrozenValue>
      */
-    fun ownedExtraValue(): OwnedFrozenValue? = _extraValue?.let { OwnedFrozenValue(heap, it) }
+    fun ownedExtraValue(): OwnedFrozenValue? = _extraValue?.let { OwnedFrozenValue(heap.clone(), it) }
 }
 
 /** pub(crate) struct FrozenModuleData */
@@ -527,8 +537,9 @@ class Module internal constructor(
      */
     fun importPublicSymbols(module: FrozenModule) {
         frozenHeap.addReference(module.frozenHeap())
-        for ((k, value) in module.allItems()) {
+        for (k in module.names()) {
             if (defaultVisibility(k.asStr()) == Visibility.Public) {
+                val value = module.get(k.asStr()).getOrThrow().uncheckedFrozenValue()
                 setPrivate(k, Value.newFrozen(value))
             }
         }
@@ -545,12 +556,16 @@ class Module internal constructor(
             module.getAnyVisibility(symbol).getOrElse {
                 return Result.failure(it)
             }
-        return when (vis) {
-            Visibility.Public -> Result.success(heap().accessOwnedFrozenValue(value))
-            Visibility.Private ->
-                Result.failure(
-                    EnvironmentError.ModuleSymbolIsNotExported(symbol),
-                )
+        return try {
+            when (vis) {
+                Visibility.Public -> Result.success(heap().accessOwnedFrozenValue(value))
+                Visibility.Private ->
+                    Result.failure(
+                        EnvironmentError.ModuleSymbolIsNotExported(symbol),
+                    )
+            }
+        } finally {
+            value.close()
         }
     }
 

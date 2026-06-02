@@ -33,8 +33,11 @@ import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -300,15 +303,24 @@ xs[1] += 1
                 return Select(result)
             }
 
-            private fun fromValue(value: Value): Select? = value.downcastRef<Select>()
+            private fun fromValue(value: Value, heap: Heap): Select? {
+                val direct = value.downcastRef<Select>()
+                if (direct != null) return direct
+                val iter = value.iterate(heap).getOrNull() ?: return null
+                val ints = mutableListOf<Int>()
+                for (v in iter) {
+                    ints.add(v.unpackI32() ?: return null)
+                }
+                return Select(ints)
+            }
 
             override fun radd(lhs: Value, heap: Heap): Result<Value>? {
-                val lhsSelect = fromValue(lhs) ?: return null
+                val lhsSelect = fromValue(lhs, heap) ?: return null
                 return Result.success(heap.alloc(lhsSelect.add(this)))
             }
 
             override fun add(rhs: Value, heap: Heap): Result<Value>? {
-                val rhsSelect = fromValue(rhs) ?: return null
+                val rhsSelect = fromValue(rhs, heap) ?: return null
                 return Result.success(heap.alloc(this.add(rhsSelect)))
             }
 
@@ -766,11 +778,17 @@ bar(["a","b","c"])
         // Test the a.b = c construct.
         // No builtin Starlark types support it, so we have to define a custom type (wrapping a dictionary)
 
+        class FrozenWrapper : StarlarkValue {
+            override val TYPE: String get() = "wrapper"
+            override fun getTypeStarlarkRepr(): Ty = Ty.any()
+        }
+
         class Wrapper(
             val map: MutableMap<String, Value> = mutableMapOf(),
         ) : ComplexValue,
             AllocValue,
-            Trace {
+            Trace,
+            Freeze<FrozenWrapper> {
             override val TYPE: String get() = "wrapper"
 
             override fun starlarkTypeRepr(): Ty = Ty.any()
@@ -784,6 +802,8 @@ bar(["a","b","c"])
                 }
             }
 
+            override fun freeze(freezer: Freezer): Result<FrozenWrapper> = Result.success(FrozenWrapper())
+
             override fun getAttr(attribute: String, heap: Heap): Value? = map[attribute]
 
             override fun setAttr(attribute: String, newValue: Value): Result<Unit> {
@@ -791,12 +811,12 @@ bar(["a","b","c"])
                 return Result.success(Unit)
             }
 
-            override fun allocValue(heap: Heap): Value = heap.allocComplexNoFreeze(this)
+            override fun allocValue(heap: Heap): Value = heap.allocComplex(this)
         }
 
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("wrapper") { _, eval ->
-                Result.success(eval.heap().allocComplexNoFreeze(Wrapper()))
+                Result.success(eval.heap().allocComplex(Wrapper()))
             }
         }
 

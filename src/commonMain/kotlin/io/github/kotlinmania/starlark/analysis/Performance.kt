@@ -71,7 +71,7 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
             func.ident.node.ident == "dict" &&
             arg.node is ArgumentP.KwArgs<*>
         ) {
-            val kwArg = (arg.node as ArgumentP.KwArgs<*>).expr
+            val kwArg = arg.node.expr
             res.add(
                 LintT.new(
                     codemap,
@@ -103,7 +103,7 @@ private fun matchInefficientBoolCheck(
 
     // Check for positional argument patterns
     if (argAst.node !is ArgumentP.Positional<*>) return
-    val arg = (argAst.node as ArgumentP.Positional<*>).expr.node
+    val arg = argAst.node.expr.node
 
     when (arg) {
         is ExprP.ListComprehension<*>, is ExprP.DictComprehension<*> ->

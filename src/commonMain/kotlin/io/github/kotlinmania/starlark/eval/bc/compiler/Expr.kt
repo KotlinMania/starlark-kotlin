@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark.eval.bc.BcSlotIn
 import io.github.kotlinmania.starlark.eval.bc.BcSlotInRange
 import io.github.kotlinmania.starlark.eval.bc.BcSlotOut
 import io.github.kotlinmania.starlark.eval.bc.BcWriter
+import io.github.kotlinmania.starlark.eval.bc.DictConstKeysArg
 import io.github.kotlinmania.starlark.eval.bc.SliceArg
 import io.github.kotlinmania.starlark.eval.bc.SlotRangeTargetArg
 import io.github.kotlinmania.starlark.eval.compiler.Builtin1
@@ -245,7 +246,7 @@ private fun writeDict(
                     bc2.writeInstr(
                         "InstrDictConstKeys",
                         span,
-                        Triple(keys, values.toRangeFrom(), target),
+                        DictConstKeysArg(keys, values.toRangeFrom(), target),
                     )
                 }
             } else {
@@ -384,14 +385,16 @@ internal fun IrSpanned<ExprCompiled>.writeBc(target: BcSlotOut, bc: BcWriter) {
                             bc2.writeInstr(
                                 "InstrPercentSOne",
                                 span,
-                                listOf(expr.op.before, slot, expr.op.after, target),
+                                io.github.kotlinmania.starlark.eval.bc
+                                    .PercentSOneArg(expr.op.before, slot, expr.op.after, target),
                             )
                         }
                         is Builtin1.FormatOne -> {
                             bc2.writeInstr(
                                 "InstrFormatOne",
                                 span,
-                                listOf(expr.op.before, slot, expr.op.after, target),
+                                io.github.kotlinmania.starlark.eval.bc
+                                    .PercentSOneArg(expr.op.before, slot, expr.op.after, target),
                             )
                         }
                         is Builtin1.Dot -> {

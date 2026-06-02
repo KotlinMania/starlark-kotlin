@@ -30,6 +30,7 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.string.codePointCount
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrAdd
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrAt
 import io.github.kotlinmania.starlark.values.types.string.starlarkStrCollectRepr
@@ -112,7 +113,7 @@ class StarlarkStr(
 
     override fun length(): Result<Int> {
         // In Starlark, len() returns the number of Unicode codepoints, not bytes
-        return Result.success(value.length)
+        return Result.success(value.codePointCount())
     }
 
     override fun slice(start: Value?, stop: Value?, stride: Value?, heap: Heap): Result<Value> = starlarkStrSlice(this, start, stop, stride, heap)

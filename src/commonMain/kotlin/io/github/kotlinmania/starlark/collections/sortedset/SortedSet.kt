@@ -23,13 +23,10 @@ import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.orderedset.OrderedSet
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.collections.sortedvec.SortedVec
+import kotlin.comparisons.naturalOrder
 
-/**
- * An immutable [SmallSet] with values guaranteed to be sorted.
- *
- * Corresponds to Rust `SortedSet<T>`.
- */
-class SortedSet<T> internal constructor(
+/** An immutable [SmallSet] with values guaranteed to be sorted. */
+class SortedSet<T : Comparable<T>> internal constructor(
     private val inner: OrderedSet<T>,
 ) : Iterable<T> {
     companion object {
@@ -38,32 +35,29 @@ class SortedSet<T> internal constructor(
             SortedSet(OrderedSet.new())
 
         /** Construct without checking that the elements are sorted. */
-        fun <T> newUnchecked(inner: OrderedSet<T>): SortedSet<T> = SortedSet(inner)
+        fun <T : Comparable<T>> newUnchecked(inner: OrderedSet<T>): SortedSet<T> = SortedSet(inner)
 
-        /** Create a default (empty) [SortedSet]. Corresponds to Rust `Default` impl. */
+        /** Create a default empty [SortedSet]. */
         fun <T> default(): SortedSet<T> where T : Comparable<T> = new()
 
-        /**
-         * Create a [SortedSet] from an iterable.
-         * Corresponds to Rust `FromIterator` impl.
-         */
+        /** Create a [SortedSet] from an iterable. */
         fun <T> fromIterator(iter: Iterable<T>): SortedSet<T> where T : Comparable<T> {
             val inner = OrderedSet.fromIterator(iter)
-            inner.sort()
+            inner.sortWith(naturalOrder())
             return SortedSet(inner)
         }
 
-        /** Create a [SortedSet] from an [OrderedSet]. Corresponds to Rust `From<OrderedSet<T>>`. */
+        /** Create a [SortedSet] from an [OrderedSet]. */
         fun <T> from(inner: OrderedSet<T>): SortedSet<T> where T : Comparable<T> {
-            inner.sort()
+            inner.sortWith(naturalOrder())
             return SortedSet(inner)
         }
 
-        /** Create a [SortedSet] from a [SmallSet]. Corresponds to Rust `From<SmallSet<T>>`. */
+        /** Create a [SortedSet] from a [SmallSet]. */
         fun <T> from(inner: SmallSet<T>): SortedSet<T> where T : Comparable<T> =
             from(OrderedSet.from(inner))
 
-        /** Create a [SortedSet] from a [SortedVec]. Corresponds to Rust `From<SortedVec<T>>`. */
+        /** Create a [SortedSet] from a [SortedVec]. */
         fun <T> from(inner: SortedVec<T>): SortedSet<T> where T : Comparable<T> =
             SortedSet(OrderedSet.fromIterator(inner))
     }
@@ -94,7 +88,7 @@ class SortedSet<T> internal constructor(
 
     /** Iterate over the union of two sets. */
     fun union(other: SortedSet<T>): Sequence<T> =
-        inner.union(other.inner)
+        inner.union(other.inner).asSequence()
 
     override fun iterator(): Iterator<T> = inner.iterator()
 

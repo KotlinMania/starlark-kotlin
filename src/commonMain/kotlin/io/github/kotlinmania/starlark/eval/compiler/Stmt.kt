@@ -561,7 +561,7 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
     val lhsRef = lhs.getRef()
     val lhsTy = lhsRef.vtable().staticTypeOfValue.get()
 
-    if (ListData.isListType(lhsTy)) {
+    if (io.github.kotlinmania.starlark.values.types.list.isListType(lhs)) {
         val radd = rhs.getRef().radd(lhs, heap)
         if (radd != null) {
             return radd

@@ -80,6 +80,7 @@ class RecordGen internal constructor(
     internal val values: List<Value>,
 ) : ComplexValue,
     Freeze<RecordGen> {
+    override val TYPE: String get() = Companion.TYPE
     override val HAS_equals: Boolean get() = true
 
     companion object {

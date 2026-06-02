@@ -114,7 +114,11 @@ internal class PointerI32 internal constructor(
 
     // --- PartialEq: pointer identity in Rust ---
     // Rust: fn eq(&self, other: &Self) -> bool { ptr::eq(self, other) }
-    override fun equals(other: Any?): Boolean = this === other
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PointerI32) return false
+        return value == other.value
+    }
 
     override fun hashCode(): Int = value.hashCode()
 

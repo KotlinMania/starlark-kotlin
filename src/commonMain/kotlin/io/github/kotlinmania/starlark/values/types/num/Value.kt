@@ -56,27 +56,31 @@ sealed class NumError : Exception() {
  * between them.
  */
 sealed class NumRef {
-    data class Int(
+    class Int(
         val value: StarlarkIntRef,
-    ) : NumRef()
+    ) : NumRef() {
+        override fun toString(): String = value.toString()
+    }
 
     // `StarlarkFloat` not `Double` here because `Double` unpacks from `int` too.
-    data class Float(
+    class Float(
         val value: StarlarkFloat,
-    ) : NumRef()
+    ) : NumRef() {
+        override fun toString(): String = value.toString()
+    }
 
     /** Get underlying value as float. */
     fun asFloat(): Double =
         when (this) {
-            is Int -> value.toF64()
-            is Float -> value.value
+            is NumRef.Int -> value.toF64()
+            is NumRef.Float -> value.value
         }
 
     /** Get underlying value as int (if it can be precisely expressed as int). */
     fun asInt(): kotlin.Int? =
         when (this) {
-            is Int -> value.toI32()
-            is Float -> f64ToI32Exact(value.value)
+            is NumRef.Int -> value.toI32()
+            is NumRef.Float -> f64ToI32Exact(value.value)
         }
 
     /** Get hash of the underlying number. */
@@ -98,8 +102,8 @@ sealed class NumRef {
         // equal ints and floats should have the same hash
         if (i != null) return i.toULong()
         return when (this) {
-            is Float -> floatHash(value.value)
-            is Int ->
+            is NumRef.Float -> floatHash(value.value)
+            is NumRef.Int ->
                 when (value) {
                     is StarlarkIntRef.Small -> {
                         // shouldn't happen - asInt() should have resulted in an int
@@ -120,8 +124,8 @@ sealed class NumRef {
 
     private fun toOwned(): Num =
         when (this) {
-            is Int -> Num.Int(value.toOwned())
-            is Float -> Num.Float(value.value)
+            is NumRef.Int -> Num.Int(value.toOwned())
+            is NumRef.Float -> Num.Float(value.value)
         }
 
     /** Float division: self / other. */
@@ -137,7 +141,7 @@ sealed class NumRef {
 
     /** Floor division: self // other. */
     fun floorDiv(other: NumRef): Result<Num> =
-        if (this is Int && other is Int) {
+        if (this is NumRef.Int && other is NumRef.Int) {
             value.floorDiv(other.value).map { Num.Int(it) }
         } else {
             StarlarkFloat.floorDivImpl(asFloat(), other.asFloat()).map { Num.Float(it) }
@@ -145,7 +149,7 @@ sealed class NumRef {
 
     /** Percent (modulo): self % other. */
     fun percent(other: NumRef): Result<Num> =
-        if (this is Int && other is Int) {
+        if (this is NumRef.Int && other is NumRef.Int) {
             value.percent(other.value).map { Num.Int(it) }
         } else {
             StarlarkFloat.percentImpl(asFloat(), other.asFloat()).map { Num.Float(it) }
@@ -155,7 +159,7 @@ sealed class NumRef {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NumRef) return false
-        return if (this is Int && other is Int) {
+        return if (this is NumRef.Int && other is NumRef.Int) {
             value == other.value
         } else {
             StarlarkFloat.compareImpl(asFloat(), other.asFloat()) == 0
@@ -166,7 +170,7 @@ sealed class NumRef {
 
     /** Ord impl: total ordering for Starlark values. */
     operator fun compareTo(other: NumRef): kotlin.Int =
-        if (this is Int && other is Int) {
+        if (this is NumRef.Int && other is NumRef.Int) {
             value.compareTo(other.value)
         } else {
             StarlarkFloat.compareImpl(asFloat(), other.asFloat())
@@ -174,7 +178,7 @@ sealed class NumRef {
 
     /** Add operator. */
     operator fun plus(rhs: NumRef): Num =
-        if (this is Int && rhs is Int) {
+        if (this is NumRef.Int && rhs is NumRef.Int) {
             Num.Int(value + rhs.value)
         } else {
             Num.Float(asFloat() + rhs.asFloat())
@@ -182,7 +186,7 @@ sealed class NumRef {
 
     /** Sub operator. */
     operator fun minus(rhs: NumRef): Num =
-        if (this is Int && rhs is Int) {
+        if (this is NumRef.Int && rhs is NumRef.Int) {
             Num.Int(value - rhs.value)
         } else {
             Num.Float(asFloat() - rhs.asFloat())
@@ -190,7 +194,7 @@ sealed class NumRef {
 
     /** Mul operator. */
     operator fun times(rhs: NumRef): Num =
-        if (this is Int && rhs is Int) {
+        if (this is NumRef.Int && rhs is NumRef.Int) {
             Num.Int(value * rhs.value)
         } else {
             Num.Float(asFloat() * rhs.asFloat())

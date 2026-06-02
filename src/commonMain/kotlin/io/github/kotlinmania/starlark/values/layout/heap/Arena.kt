@@ -45,6 +45,8 @@ import io.github.kotlinmania.starlark.values.layout.totalMemoryForProfile
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
+import io.github.kotlinmania.starlark.values.types.StarlarkAny
+import io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex
 
 /**
  * Min size of allocated object including header.
@@ -100,15 +102,19 @@ private fun vtableForValue(
  * Reservation tied to the lifetime of the heap.
  */
 class Reservation<T : AValue> internal constructor(
+    private val arena: Arena,
     private val list: MutableList<AValueOrForward>,
     private val index: Int,
     private val header: AValueHeader,
 ) {
     fun fill(x: StarlarkValue) {
+        val oldBytes = header.allocSize().bytes().toInt()
         header.vtable = vtableForValue(x)
         AValueRepr(header = header, payload = x).also {
             require(it.header == header)
         }
+        val newBytes = header.allocSize().bytes().toInt()
+        arena.allocatedBytes += (newBytes - oldBytes)
     }
 
     fun ptr(): AValueHeader = header
@@ -142,17 +148,55 @@ internal class Arena {
     // drop: A,
     private val drop: MutableList<AValueOrForward> = mutableListOf()
 
+    internal var allocatedBytes: Int = 0
+
     fun isEmpty(): Boolean = allocatedBytes() == 0
 
+    fun dropSize(): Int = drop.size
+
     /** Number of allocated bytes plus padding size. */
-    fun allocatedBytes(): Int = drop.size + nonDrop.size
+    fun allocatedBytes(): Int = allocatedBytes
 
     fun availableBytes(): Int = Int.MAX_VALUE
 
     /** Release all arena entries. */
     fun finish() {
+        for (entry in drop) {
+            val unpacked = entry.unpack()
+            if (unpacked is AValueOrForwardUnpack.Header) {
+                val starlarkVal = unpacked.header.vtable.starlarkValue
+                if (starlarkVal is AutoCloseable) {
+                    try {
+                        starlarkVal.close()
+                    } catch (e: Throwable) {
+                        // Ignore
+                    }
+                }
+                if (starlarkVal is StarlarkAny<*>) {
+                    val inner = starlarkVal.inner
+                    if (inner is AutoCloseable) {
+                        try {
+                            inner.close()
+                        } catch (e: Throwable) {
+                            // Ignore
+                        }
+                    }
+                }
+                if (starlarkVal is StarlarkAnyComplex<*>) {
+                    val inner = starlarkVal.value
+                    if (inner is AutoCloseable) {
+                        try {
+                            inner.close()
+                        } catch (e: Throwable) {
+                            // Ignore
+                        }
+                    }
+                }
+            }
+        }
         drop.clear()
         nonDrop.clear()
+        allocatedBytes = 0
     }
 
     fun <T : AValue> reserveWithExtra(extraLen: Int): Reservation<T> {
@@ -161,7 +205,8 @@ internal class Arena {
         val entry = AValueOrForward.Header(blackHoleHeader)
         val index = drop.size
         drop.add(entry)
-        return Reservation(drop, index, blackHoleHeader)
+        allocatedBytes += entry.allocSize().bytes().toInt()
+        return Reservation(this, drop, index, blackHoleHeader)
     }
 
     /** Allocate a type `T`. */
@@ -174,6 +219,7 @@ internal class Arena {
             )
         val entry = AValueOrForward.Header(repr.header)
         drop.add(entry)
+        allocatedBytes += entry.allocSize().bytes().toInt()
         return repr
     }
 
@@ -187,6 +233,7 @@ internal class Arena {
             )
         val entry = AValueOrForward.Header(repr.header)
         nonDrop.add(entry)
+        allocatedBytes += entry.allocSize().bytes().toInt()
         return repr
     }
 
@@ -212,7 +259,10 @@ internal class Arena {
                     memorySizeFn = { _ ->
                         val byteLen = str.len()
                         ValueAllocSize.new(
-                            AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                            maxOf(
+                                AlignedSize.alignUp(StarlarkStr.offsetOfContent() + byteLen),
+                                MIN_ALLOC,
+                            ),
                         )
                     },
                     heapFreezeFn = { repr, _, freezer ->
@@ -230,6 +280,7 @@ internal class Arena {
         AValueRepr(header = header, payload = str)
         val entry = AValueOrForward.Header(header)
         nonDrop.add(entry)
+        allocatedBytes += entry.allocSize().bytes().toInt()
         return header
     }
 

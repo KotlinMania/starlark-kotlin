@@ -31,7 +31,7 @@ internal sealed interface Inner<T : Any> {
 
 internal class ArcOrStatic<T : Any> private constructor(
     private val inner: Inner<T>,
-) : Comparable<ArcOrStatic<T>> {
+) {
     companion object {
         fun <T : Any> newStatic(a: T): ArcOrStatic<T> = ArcOrStatic(Inner.Static(a))
 
@@ -61,7 +61,7 @@ internal class ArcOrStatic<T : Any> private constructor(
     }
 
     override fun hashCode(): Int = deref().hashCode()
-
-    @Suppress("UNCHECKED_CAST")
-    override fun compareTo(other: ArcOrStatic<T>): Int = (deref() as Comparable<T>).compareTo(other.deref())
 }
+
+internal operator fun <T> ArcOrStatic<T>.compareTo(other: ArcOrStatic<T>): Int where T : Any, T : Comparable<T> =
+    deref().compareTo(other.deref())

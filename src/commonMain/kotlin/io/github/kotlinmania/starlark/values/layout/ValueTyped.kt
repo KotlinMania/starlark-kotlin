@@ -274,16 +274,12 @@ internal inline fun <reified T : StarlarkValue> unpackFrozenValueTyped(value: Va
  * This is needed because Kotlin's [StarlarkValue] does not extend [StarlarkTypeRepr],
  * while Rust's StarlarkValue does.
  */
-@Suppress("UNCHECKED_CAST")
 internal fun valueOfUncheckedFromValue(value: Value): ValueOfUncheckedGeneric<Value, *> =
     ValueOfUncheckedGeneric.new<Value, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
-        as ValueOfUncheckedGeneric<Value, *>
 
 /**
  * Helper to create [ValueOfUncheckedGeneric] from a [FrozenValue] without requiring
  * the phantom type parameter to satisfy [StarlarkTypeRepr].
  */
-@Suppress("UNCHECKED_CAST")
 internal fun frozenValueOfUncheckedFromFrozenValue(value: FrozenValue): ValueOfUncheckedGeneric<FrozenValue, *> =
     ValueOfUncheckedGeneric.new<FrozenValue, io.github.kotlinmania.starlark.values.StarlarkTypeRepr>(value)
-        as ValueOfUncheckedGeneric<FrozenValue, *>

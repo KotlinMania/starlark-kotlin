@@ -75,13 +75,17 @@ private val ASSERTS_STAR: FrozenModule by lazy {
             .build()
     Module.withTempHeap { m ->
         val asserts = g.getOwned("asserts")!!
-        val assertsValue = m.heap().accessOwnedFrozenValue(asserts)
-        m.set("asserts", assertsValue)
-        m.set(
-            "freeze",
-            assertsValue.getAttr("freeze", m.heap()).getOrThrow()!!,
-        )
-        m.freeze().getOrThrow()
+        try {
+            val assertsValue = m.heap().accessOwnedFrozenValue(asserts)
+            m.set("asserts", assertsValue)
+            m.set(
+                "freeze",
+                assertsValue.getAttr("freeze", m.heap()).getOrThrow()!!,
+            )
+            m.freeze().getOrThrow()
+        } finally {
+            asserts.close()
+        }
     }
 }
 
@@ -256,7 +260,15 @@ class Assert(
     // but if you know how to do it, show me how.
     private var printHandler: PrintHandler? = null,
     private var staticTypechecking: Boolean = true,
-) {
+) : AutoCloseable {
+    override fun close() {
+        for (m in modules.values) {
+            if (m !== ASSERTS_STAR) {
+                m.close()
+            }
+        }
+        modules.clear()
+    }
     /**
      * Create a new assert object, which will by default use
      * extended dialect and all library extensions,
@@ -516,11 +528,10 @@ class Assert(
             Module.withTempHeap { env ->
                 val res = executeUnwrap("pass", "assert.bzl", program, env, gc)
                 env.set("_", res)
-                env
-                    .freeze()
-                    .getOrThrow()
-                    .get("_")
-                    .getOrThrow()
+                val frozen = env.freeze().getOrThrow()
+                val owned = frozen.get("_").getOrThrow()
+                frozen.close()
+                owned
             }
         }
 

@@ -33,7 +33,9 @@ private fun unpackIntErr(v: Value): Result<Int> {
         Result.success(i)
     } else {
         Result.failure(
-            ValueError.IncorrectParameterType,
+            IllegalArgumentException(
+                "Expected `int`, but got `${v.toStringForTypeError()}`",
+            ),
         )
     }
 }

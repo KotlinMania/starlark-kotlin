@@ -179,9 +179,8 @@ class SmallSet<T> private constructor(
     }
 
     /** Sort entries. */
-    @Suppress("UNCHECKED_CAST")
-    fun sort() {
-        entries.sortWith(compareBy { it.key() as Comparable<Any> })
+    fun sortWith(comparator: Comparator<in T>) {
+        entries.sortWith { left, right -> comparator.compare(left.key(), right.key()) }
     }
 
     /** Reverse the iteration order of the set. */
@@ -193,7 +192,7 @@ class SmallSet<T> private constructor(
     fun union(other: SmallSet<T>): Sequence<T> = iter() + other.iter().filter { !contains(it) }
 
     /** Equal if entries are equal in iteration order. */
-    fun eqOrdered(other: SmallSet<T>): Boolean {
+    fun eqOrdered(other: SmallSet<*>): Boolean {
         if (len() != other.len()) return false
         val thisIter = iter().iterator()
         val otherIter = other.iter().iterator()

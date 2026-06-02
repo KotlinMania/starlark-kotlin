@@ -137,6 +137,12 @@ private fun debugValue(typ: String, v: Value): String {
             return "$typ(Forward($ptrOpt))"
         }
     }
+    val listGen = v.downcastRef<io.github.kotlinmania.starlark.values.types.list.ListGen<*>>()
+    if (listGen != null) {
+        val content = (listGen.data as io.github.kotlinmania.starlark.values.types.list.ListLike).content()
+        val contentStr = content.joinToString(", ") { debugValue("Value", it) }
+        return "$typ(ListGen(ListData { content: Cell { value: ValueTyped(Value(Array { len: ${content.size}, capacity: ${content.size}, iter_count: 0, content: [$contentStr] })) } }))"
+    }
     return "$typ(${v.getRef().asDebug()})"
 }
 
@@ -838,9 +844,7 @@ class Value internal constructor(
         return serializeImpl()
     }
 
-    internal fun serializeImpl(): Result<String> {
-        return toJsonStringImpl()
-    }
+    internal fun serializeImpl(): Result<String> = toJsonStringImpl()
 
     private fun escapeJsonString(s: String): String {
         val sb = StringBuilder()
@@ -946,16 +950,17 @@ class Value internal constructor(
             // Check Dict
             val dictGen = downcastRef<io.github.kotlinmania.starlark.values.types.dict.DictGen<*>>()
             if (dictGen != null) {
-                val entries = when (val inner = dictGen.inner) {
-                    is io.github.kotlinmania.starlark.values.types.dict.FrozenDictData -> {
-                        inner.content.iter().map { Pair(it.first.toValue(), it.second.toValue()) }
+                val entries =
+                    when (val inner = dictGen.inner) {
+                        is io.github.kotlinmania.starlark.values.types.dict.FrozenDictData -> {
+                            inner.content.iter().map { Pair(it.first.toValue(), it.second.toValue()) }
+                        }
+                        is io.github.kotlinmania.starlark.values.types.dict.AtomicRef<*> -> {
+                            val dict = inner.value as io.github.kotlinmania.starlark.values.types.dict.Dict
+                            dict.content.iter().map { Pair(it.first, it.second) }
+                        }
+                        else -> emptySequence()
                     }
-                    is io.github.kotlinmania.starlark.values.types.dict.AtomicRef<*> -> {
-                        val dict = inner.value as io.github.kotlinmania.starlark.values.types.dict.Dict
-                        dict.content.iter().map { Pair(it.first, it.second) }
-                    }
-                    else -> emptySequence()
-                }
                 val sb = StringBuilder()
                 sb.append('{')
                 var first = true
@@ -1033,7 +1038,11 @@ class Value internal constructor(
                     first = false
                     sb.append(escapeJsonString(k))
                     sb.append(':')
-                    val serialized = v.value.toValue().toJsonStringImpl().getOrElse { return Result.failure(it) }
+                    val serialized =
+                        v.value
+                            .toValue()
+                            .toJsonStringImpl()
+                            .getOrElse { return Result.failure(it) }
                     sb.append(serialized)
                 }
                 sb.append('}')
@@ -1041,7 +1050,9 @@ class Value internal constructor(
             }
 
             // Check Record
-            val record = io.github.kotlinmania.starlark.values.types.record.RecordGen.fromValue(this)
+            val record =
+                io.github.kotlinmania.starlark.values.types.record.RecordGen
+                    .fromValue(this)
             if (record != null) {
                 val sb = StringBuilder()
                 sb.append('{')
@@ -1065,12 +1076,16 @@ class Value internal constructor(
             }
 
             // Check Set
-            val setVal = downcastRef<io.github.kotlinmania.starlark.values.types.set.SetGen<io.github.kotlinmania.starlark.values.types.set.RefCell<io.github.kotlinmania.starlark.values.types.set.SetData>>>()
+            val setVal = downcastRef<io.github.kotlinmania.starlark.values.types.set.SetGen<io.github.kotlinmania.starlark.values.types.set.RefCell>>()
             if (setVal != null) {
                 val sb = StringBuilder()
                 sb.append('[')
                 var first = true
-                val elements = setVal.inner.borrow().data.content.iter()
+                val elements =
+                    setVal.inner
+                        .borrow()
+                        .data.content
+                        .iter()
                 for (item in elements) {
                     if (!first) sb.append(',')
                     first = false

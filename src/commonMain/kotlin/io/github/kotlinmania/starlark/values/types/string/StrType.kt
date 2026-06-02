@@ -87,6 +87,22 @@ internal fun starlarkStrCompare(self: StarlarkStr, other: Value): Result<Int> {
     }
 }
 
+private fun String.toCodePoints(): List<String> {
+    val result = mutableListOf<String>()
+    var i = 0
+    while (i < this.length) {
+        val c = this[i]
+        if (c.isHighSurrogate() && i + 1 < this.length && this[i + 1].isLowSurrogate()) {
+            result.add(this.substring(i, i + 2))
+            i += 2
+        } else {
+            result.add(c.toString())
+            i += 1
+        }
+    }
+    return result
+}
+
 internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<Value> {
     // This method is disturbingly hot. Use the logic from `convert_index`,
     // but modified to be UTF8 string friendly.
@@ -96,26 +112,26 @@ internal fun starlarkStrAt(self: StarlarkStr, index: Value, heap: Heap): Result<
         )
 
     val s = self.asStr()
-    val chars = s.toList()
+    val chars = s.toCodePoints()
     val lenChars = chars.size
 
     if (i >= 0) {
         if (i >= lenChars) {
             return Result.failure(ValueError.IndexOutOfBound(i))
         }
-        return Result.success(heap.allocStr(chars[i].toString()))
+        return Result.success(heap.allocStr(chars[i]))
     } else {
         val ind = -i // Index from the end, minimum of 1
         if (ind > lenChars) {
             return Result.failure(ValueError.IndexOutOfBound(i))
         }
-        return Result.success(heap.allocStr(chars[lenChars - ind].toString()))
+        return Result.success(heap.allocStr(chars[lenChars - ind]))
     }
 }
 
 internal fun starlarkStrLength(self: StarlarkStr): Result<Int> {
     // In Starlark, len() returns the number of Unicode codepoints, not bytes
-    return Result.success(self.asStr().length)
+    return Result.success(self.asStr().codePointCount())
 }
 
 internal fun starlarkStrIsIn(self: StarlarkStr, other: Value): Result<Boolean> {
@@ -131,7 +147,7 @@ internal fun starlarkStrSlice(
     heap: Heap,
 ): Result<Value> {
     val s = self.asStr()
-    val chars = s.toList()
+    val chars = s.toCodePoints()
     val len = chars.size
 
     // Handle stride case

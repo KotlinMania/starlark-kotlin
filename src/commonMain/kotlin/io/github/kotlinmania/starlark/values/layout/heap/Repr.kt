@@ -262,7 +262,8 @@ internal sealed class AValueOrForward {
     fun unpack(): AValueOrForwardUnpack =
         when (this) {
             is Header -> {
-                val forward = header.asRepr().overwritten
+                val repr = reprRegistry[header.index]
+                val forward = repr?.overwritten
                 if (forward != null) {
                     AValueOrForwardUnpack.Forward(forward)
                 } else {

@@ -14,7 +14,9 @@ import io.github.kotlinmania.starlark.eval.compiler.EvalError
 import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
 import io.github.kotlinmania.starlark.eval.compiler.ParameterCompiled
 import io.github.kotlinmania.starlark.eval.compiler.ParametersCompiled
+import io.github.kotlinmania.starlark.eval.compiler.addAssign
 import io.github.kotlinmania.starlark.eval.compiler.addSpanToExprError
+import io.github.kotlinmania.starlark.eval.compiler.bitOrAssign
 import io.github.kotlinmania.starlark.eval.compiler.getAttrHashedBind
 import io.github.kotlinmania.starlark.eval.compiler.getAttrHashedRaw
 import io.github.kotlinmania.starlark.eval.compiler.isStarOrStarStar
@@ -78,13 +80,11 @@ private fun Throwable.starlarkErrorMessage(): String =
 fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
     result
 
-fun addAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
-    v0.add(v1, heap)
+// Real addAssign and bitOrAssign functions are imported from eval.compiler
 
-fun bitOrAssign(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
-    v0.bitOr(v1, heap)
-
-fun possibleGc(_eval: Evaluator) {}
+fun possibleGc(eval: Evaluator) {
+    io.github.kotlinmania.starlark.eval.compiler.possibleGc(eval)
+}
 
 fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
     kotlin.Result.success(StringValue.default())
@@ -265,9 +265,18 @@ private fun Any.toUnpackArg(): UnpackArg {
     }
     check(this is Pair<*, *>) { "InstrUnpack argument must be UnpackArg" }
     val source = first
-    val targets = second
+    val targetsRaw = second
     check(source is BcSlotIn) { "InstrUnpack source must be BcSlotIn" }
-    check(targets is List<*>) { "InstrUnpack targets must be a list" }
+    val targets =
+        when (targetsRaw) {
+            is FrozenRef<*> -> {
+                val referent = targetsRaw.deref()
+                check(referent is List<*>) { "InstrUnpack targets must be a list" }
+                referent
+            }
+            is List<*> -> targetsRaw
+            else -> throw IllegalStateException("InstrUnpack targets must be a list or FrozenRef<List>")
+        }
     return UnpackArg(
         source = source,
         targets =

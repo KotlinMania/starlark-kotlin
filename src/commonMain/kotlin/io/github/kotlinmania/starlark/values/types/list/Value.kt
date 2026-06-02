@@ -37,6 +37,7 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import kotlin.math.max
+import kotlin.reflect.KClass
 
 /** Generic list container, parameterized on the data type. */
 class ListGen<T>(
@@ -205,8 +206,8 @@ class ListData(
             return data
         }
 
-        fun isListType(x: Any): Boolean =
-            x is ListGen<*> && (x.data is ListData || x.data is FrozenListData)
+        fun isListType(x: KClass<*>): Boolean =
+            x == ListGen::class
     }
 
     /** Return an error if there's at least one iterator over the list. */

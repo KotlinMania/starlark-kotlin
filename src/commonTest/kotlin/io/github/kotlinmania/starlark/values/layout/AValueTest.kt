@@ -54,7 +54,7 @@ internal class AValueTest {
             val d0 = Dict.new(SmallMap.new()).allocValue(module.heap())
             val d1 = Dict.new(SmallMap.new()).allocValue(module.heap())
             // Pointers are not equal.
-            check(d0 !== d1)
+            check(!d0.ptrEq(d1))
 
             module.setExtraValue(module.heap().allocTuple(listOf(d0, d1)))
 
@@ -64,7 +64,7 @@ internal class AValueTest {
                 unpackTuple2<Value, Value>(extra, { it }, { it })
                     ?: error("expected a 2-element tuple")
             // Pointers are equal.
-            check(fd0 === fd1)
+            check(fd0.ptrEq(fd1))
             Result.success(Unit)
         }
     }

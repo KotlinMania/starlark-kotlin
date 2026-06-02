@@ -801,3 +801,11 @@ val fullTargetBuildTaskNames =
 tasks.named("build") {
     dependsOn(fullTargetBuildTaskNames)
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink>().configureEach {
+    doFirst {
+        val file = outputFile.get()
+        println("KOTLIN NATIVE LINK TASK: ${name}, OUTPUT: ${file.absolutePath}")
+        file.parentFile.mkdirs()
+    }
+}

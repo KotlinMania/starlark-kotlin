@@ -127,7 +127,7 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 
     moduleEnv.addEvalDuration(start.elapsedNow())
 
-    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
+    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
 
     // Return the result of evaluation
     return res.mapCatching { it }
@@ -165,7 +165,7 @@ fun Evaluator.evalFunction(
             function.invoke(params, eval)
         }
 
-    runCatching { runInfrequentInstrChecks() }.getOrElse { return Result.failure(it) }
+    runInfrequentInstrChecks().getOrElse { return Result.failure(it) }
 
     return res
 }
