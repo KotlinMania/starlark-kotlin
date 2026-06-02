@@ -20,8 +20,3 @@ package io.github.kotlinmania.starlark.analysis
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// pub(crate) mod find;
-// mod find_tests;
-// pub(crate) mod remove;
-// mod remove_tests;

@@ -1,8 +1,8 @@
 // port-lint: source src/analysis/types.rs
 package io.github.kotlinmania.starlark.analysis
 
-import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark.codemap.FileSpan
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,27 +22,6 @@ import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
  * limitations under the License.
  */
 
-/** Types supporting documentation for code written in or for Starlark. */
-
-// Note: LintWarning interface, LintT<T>, and EvalSeverity enum
-// are defined in flow.kt as forward references. The canonical definitions
-// from types.rs are transliterated below; they will unify once flow.kt
-// is updated.
-
-// pub(crate) trait LintWarning: Display
-// Already defined in flow.kt as:
-//   interface LintWarning {
-//       fun severity(): EvalSeverity
-//       fun shortName(): String
-//   }
-
-// pub(crate) struct LintT<T>
-// Already defined in flow.kt. The Rust version also has `original: String`.
-// Extension: add erase() to convert LintT<T> -> Lint.
-
-/** A lint produced by `AstModule::lint`. */
-// #[derive(Debug)]
-// pub struct Lint
 class Lint(
     /** Which code location does this lint refer to. */
     val location: FileSpan,
@@ -63,13 +42,6 @@ class Lint(
         return "$location: $problem"
     }
 }
-
-// impl<T: Display> Display for LintT<T>
-// Already handled: LintT.toString() delegates via location and problem.
-
-// impl<T: LintWarning> LintT<T>
-// pub(crate) fn new(codemap: &CodeMap, span: Span, problem: T) -> Self
-// Already in flow.kt as LintT.Companion.new
 
 /** Erase the typed problem into a generic [Lint]. */
 // pub(crate) fn erase(self) -> Lint

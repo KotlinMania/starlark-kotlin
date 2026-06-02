@@ -26,22 +26,22 @@ package io.github.kotlinmania.starlark.analysis
 //
 // But it does as things stand.
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstNoPayload
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.ParameterP
+import io.github.kotlinmania.starlark.syntax.ast.AstNoPayload
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 sealed class NameWarning : LintWarning {
     data class UnusedLoad(val name: String) : NameWarning()
@@ -474,8 +474,8 @@ private class State(
     fun comprehension(
         res1: AstExpr,
         res2: AstExpr?,
-        forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>,
-        clauses: List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>,
+        forClause: io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>,
+        clauses: List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>,
     ) {
         expr(forClause.over)
         enterScope()
@@ -515,8 +515,8 @@ private class State(
                 expr(e.lambda.body as AstExpr)
                 exitScope()
             }
-            is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
-            is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.ListComprehension<*> -> comprehension(e.expr as AstExpr, null, e.forClause as io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>)
+            is ExprP.DictComprehension<*> -> comprehension(e.key as AstExpr, e.value as AstExpr, e.forClause as io.github.kotlinmania.starlark.syntax.ast.ForClauseP<AstNoPayload>, e.clauses as List<io.github.kotlinmania.starlark.syntax.ast.ClauseP<AstNoPayload>>)
             else -> expr.visitExprChildren { x -> expr(x) }
         }
     }

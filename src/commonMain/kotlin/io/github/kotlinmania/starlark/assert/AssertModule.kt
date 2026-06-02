@@ -1,7 +1,5 @@
 // port-lint: source src/assert.rs
-package io.github.kotlinmania.starlark_kotlin.assert
-
-import io.github.kotlinmania.starlark.assert.Assert
+package io.github.kotlinmania.starlark.assert
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -22,21 +20,21 @@ import io.github.kotlinmania.starlark.assert.Assert
  */
 
 /**
- * Utilities to test Starlark code execution, using the [io.github.kotlinmania.starlark.assert.Assert] type and top-level functions.
+ * Utilities to test Starlark code execution, using the [Assert] type and top-level functions.
  *
  * There are two general approaches. You can either use the functions in this module directly, e.g.:
  *
  * ```kotlin
- * import io.github.kotlinmania.starlark_kotlin.assert
+ * import io.github.kotlinmania.starlark.assert
  * assert.eq("1+2", "3")
  * ```
  *
- * Or create an [io.github.kotlinmania.starlark.assert.Assert] object, which supports the same assertions, but also lets you modify the
+ * Or create an [Assert] object, which supports the same assertions, but also lets you modify the
  * environment in which the tests are run, e.g.:
  *
  * ```kotlin
  * import io.github.kotlinmania.starlark.assert.Assert
- * import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
+ * import io.github.kotlinmania.starlark.syntax.dialect.Dialect
  *
  * val a = Assert()
  * a.dialect(Dialect.Standard) // Use standard Starlark
@@ -51,7 +49,7 @@ import io.github.kotlinmania.starlark.assert.Assert
 // Rust `mod assert; mod conformance; pub use assert::*;`
 //
 // Kotlin does not need module declarations: `Assert.kt` and `Conformance.kt` live in the same
-// package and their public declarations are available as `io.github.kotlinmania.starlark_kotlin.assert.*`.
+// package and their public declarations are available as `io.github.kotlinmania.starlark.assert.*`.
 
 private val assert: () -> Assert = { Assert() }
 private val conformance = Assert::conformance

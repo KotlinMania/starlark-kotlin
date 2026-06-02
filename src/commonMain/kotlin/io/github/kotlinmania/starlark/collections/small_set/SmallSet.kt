@@ -1,5 +1,5 @@
 // port-lint: source src/small_set.rs
-package io.github.kotlinmania.starlark_kotlin.collections.small_set
+package io.github.kotlinmania.starlark.collections.small_set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.collections.small_set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
 
 /**
  * A set with deterministic iteration order.

@@ -19,21 +19,21 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.ResolvedFileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstTypeExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstTypeExpr
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.IdentP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 /** The filename associated with this [FileSpan]. */
 internal val FileSpan.description: String

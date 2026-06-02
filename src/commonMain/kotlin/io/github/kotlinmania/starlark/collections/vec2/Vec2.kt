@@ -1,5 +1,5 @@
 // port-lint: source src/vec2.rs
-package io.github.kotlinmania.starlark_kotlin.collections.vec2
+package io.github.kotlinmania.starlark.collections.vec2
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

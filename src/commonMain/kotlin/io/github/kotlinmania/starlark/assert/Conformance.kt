@@ -1,7 +1,6 @@
 // port-lint: source src/assert/conformance.rs
-package io.github.kotlinmania.starlark_kotlin.assert
+package io.github.kotlinmania.starlark.assert
 
-import io.github.kotlinmania.starlark.assert.Assert
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -104,7 +103,7 @@ private class ConformanceTest(
 
     // fn test(&self, assert: &Assert)
     fun test(assert: Assert) {
-        fun getLine(err: io.github.kotlinmania.starlark_kotlin.Error): Int? {
+        fun getLine(err: Error): Int? {
             return err.span()?.resolveSpan()?.begin?.line?.let { it + 1 }
         }
 

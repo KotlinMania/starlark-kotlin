@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_map.rs
-package io.github.kotlinmania.starlark_kotlin.collections.sorted_map
+package io.github.kotlinmania.starlark.collections.sorted_map
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.collections.sorted_map
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.ordered_map.OrderedMap
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.ordered_map.OrderedMap
+import io.github.kotlinmania.starlark.collections.SmallMap
 
 /**
  * [OrderedMap] but with keys sorted.

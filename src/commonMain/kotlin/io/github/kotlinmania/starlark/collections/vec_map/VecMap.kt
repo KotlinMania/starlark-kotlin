@@ -1,5 +1,5 @@
 // port-lint: source src/vec_map.rs
-package io.github.kotlinmania.starlark_kotlin.collections.vec_map
+package io.github.kotlinmania.starlark.collections.vec_map
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,12 +19,12 @@ package io.github.kotlinmania.starlark_kotlin.collections.vec_map
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 
 /**
- * Vec-backed map implementation used by [io.github.kotlinmania.starlark_kotlin.collections.SmallMap].
+ * Vec-backed map implementation used by [io.github.kotlinmania.starlark.collections.SmallMap].
  *
  * The Rust implementation uses `Vec2` + SIMD probing on hashes. This Kotlin port preserves
  * deterministic iteration order and API behaviour with a straightforward linear search.

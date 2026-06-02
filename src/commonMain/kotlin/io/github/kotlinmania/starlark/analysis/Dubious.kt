@@ -1,17 +1,17 @@
 // port-lint: source src/analysis/dubious.rs
 package io.github.kotlinmania.starlark.analysis
 
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-import io.github.kotlinmania.starlark_kotlin.values.types.int.StarlarkInt
-import io.github.kotlinmania.starlark_kotlin.values.types.num.NumRef
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.values.types.int.StarlarkInt
+import io.github.kotlinmania.starlark.values.types.num.NumRef
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

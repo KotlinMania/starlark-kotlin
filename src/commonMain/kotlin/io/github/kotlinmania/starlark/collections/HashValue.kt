@@ -1,5 +1,5 @@
 // port-lint: source src/hash_value.rs
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark.collections
 
 import kotlin.ConsistentCopyVisibility
 

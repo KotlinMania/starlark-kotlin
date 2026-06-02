@@ -1,4 +1,4 @@
-package io.github.kotlinmania.starlark_kotlin.collections
+package io.github.kotlinmania.starlark.collections
 
 /**
  * Minimal stand-in for Rust's `hashbrown::HashTable<T>`.

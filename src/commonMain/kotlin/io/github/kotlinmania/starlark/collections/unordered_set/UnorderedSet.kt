@@ -1,5 +1,5 @@
 // port-lint: source src/unordered_set.rs
-package io.github.kotlinmania.starlark_kotlin.collections.unordered_set
+package io.github.kotlinmania.starlark.collections.unordered_set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.collections.unordered_set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
-import io.github.kotlinmania.starlark_kotlin.collections.unordered_map.UnorderedMap
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.unordered_map.UnorderedMap
 
 /**
  * `HashSet` that does not expose insertion order.
@@ -123,7 +123,7 @@ class UnorderedSet<T> internal constructor(
  * Corresponds to Rust `RawEntryBuilderMut<'a, T>`.
  */
 class RawEntryBuilderMut<T>(
-    private val entry: io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawEntryBuilderMut<T, Unit>,
+    private val entry: io.github.kotlinmania.starlark.collections.unordered_map.RawEntryBuilderMut<T, Unit>,
 ) {
     /**
      * Find the entry for a key.
@@ -131,9 +131,9 @@ class RawEntryBuilderMut<T>(
      */
     fun fromEntry(value: T): RawEntryMut<T> {
         return when (val raw = entry.fromKey(value)) {
-            is io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawEntryMut.Occupied ->
+            is io.github.kotlinmania.starlark.collections.unordered_map.RawEntryMut.Occupied ->
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawEntryMut.Vacant ->
+            is io.github.kotlinmania.starlark.collections.unordered_map.RawEntryMut.Vacant ->
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
         }
     }
@@ -150,9 +150,9 @@ class RawEntryBuilderMut<T>(
      */
     fun fromHash(hash: StarlarkHashValue, isMatch: (T) -> Boolean): RawEntryMut<T> {
         return when (val raw = entry.fromHash(hash, isMatch)) {
-            is io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawEntryMut.Occupied ->
+            is io.github.kotlinmania.starlark.collections.unordered_map.RawEntryMut.Occupied ->
                 RawEntryMut.Occupied(RawOccupiedEntryMut(raw.entry))
-            is io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawEntryMut.Vacant ->
+            is io.github.kotlinmania.starlark.collections.unordered_map.RawEntryMut.Vacant ->
                 RawEntryMut.Vacant(RawVacantEntryMut(raw.entry))
         }
     }
@@ -174,7 +174,7 @@ sealed class RawEntryMut<T> {
  * Corresponds to Rust `RawOccupiedEntryMut<'a, T>`.
  */
 class RawOccupiedEntryMut<T>(
-    private val entry: io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawOccupiedEntryMut<T, Unit>,
+    private val entry: io.github.kotlinmania.starlark.collections.unordered_map.RawOccupiedEntryMut<T, Unit>,
 ) {
     /** Remove the entry. */
     fun remove(): T = entry.removeEntry().first
@@ -188,7 +188,7 @@ class RawOccupiedEntryMut<T>(
  * Corresponds to Rust `RawVacantEntryMut<'a, T>`.
  */
 class RawVacantEntryMut<T>(
-    private val entry: io.github.kotlinmania.starlark_kotlin.collections.unordered_map.RawVacantEntryMut<T, Unit>,
+    private val entry: io.github.kotlinmania.starlark.collections.unordered_map.RawVacantEntryMut<T, Unit>,
 ) {
     /** Insert an entry to the set. Computes the hash of the key. */
     fun insert(value: T) {

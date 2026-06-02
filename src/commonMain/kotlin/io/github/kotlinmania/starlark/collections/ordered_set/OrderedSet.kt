@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_set.rs
-package io.github.kotlinmania.starlark_kotlin.collections.ordered_set
+package io.github.kotlinmania.starlark.collections.ordered_set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.collections.ordered_set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.small_set.SmallSet
 
 /**
  * [SmallSet] wrapper, but equality and hash of self depends on iteration order.

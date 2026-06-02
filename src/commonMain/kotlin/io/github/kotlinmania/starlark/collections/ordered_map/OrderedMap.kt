@@ -1,5 +1,5 @@
 // port-lint: source src/ordered_map.rs
-package io.github.kotlinmania.starlark_kotlin.collections.ordered_map
+package io.github.kotlinmania.starlark.collections.ordered_map
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.collections.ordered_map
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.SmallMap
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.SmallMap
 
 /**
  * Wrapper for [SmallMap] which considers map equal if iteration order is equal.

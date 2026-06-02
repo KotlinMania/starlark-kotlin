@@ -21,26 +21,26 @@ package io.github.kotlinmania.starlark.assert
 
 /** Utilities to test Starlark code execution. */
 
-import io.github.kotlinmania.starlark_kotlin.Error
-import io.github.kotlinmania.starlark_kotlin.environment.FrozenModule
-import io.github.kotlinmania.starlark_kotlin.environment.Globals
-import io.github.kotlinmania.starlark_kotlin.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark_kotlin.environment.Module
-import io.github.kotlinmania.starlark_kotlin.stdlib.PrintHandler
-import io.github.kotlinmania.starlark_kotlin.values.typing.type_compiled.TypeCompiled
-import io.github.kotlinmania.starlark_kotlin.values.types.structs.AllocStruct
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.Evaluator
-import io.github.kotlinmania.starlark_kotlin.values.types.none.NoneType
-import io.github.kotlinmania.starlark_kotlin.values.owned.OwnedFrozenValue
-import io.github.kotlinmania.starlark_kotlin.eval.runtime.file_loader.ReturnFileLoader
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpanRef
-import io.github.kotlinmania.starlark_kotlin.values.layout.heap.Heap
-import io.github.kotlinmania.starlark_kotlin.values.layout.Value
-import io.github.kotlinmania.starlark_kotlin.syntax.dialect.Dialect
-import io.github.kotlinmania.starlark_kotlin.eval.evalModule
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.values.layout.avalues.allocList
-import io.github.kotlinmania.starlark_kotlin.values.types.bigint.allocFrozenValue
+import io.github.kotlinmania.starlark.Error
+import io.github.kotlinmania.starlark.environment.FrozenModule
+import io.github.kotlinmania.starlark.environment.Globals
+import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.stdlib.PrintHandler
+import io.github.kotlinmania.starlark.values.typing.type_compiled.TypeCompiled
+import io.github.kotlinmania.starlark.values.types.structs.AllocStruct
+import io.github.kotlinmania.starlark.eval.runtime.Evaluator
+import io.github.kotlinmania.starlark.values.types.none.NoneType
+import io.github.kotlinmania.starlark.values.owned.OwnedFrozenValue
+import io.github.kotlinmania.starlark.eval.runtime.file_loader.ReturnFileLoader
+import io.github.kotlinmania.starlark.codemap.FileSpanRef
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.syntax.dialect.Dialect
+import io.github.kotlinmania.starlark.eval.evalModule
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.values.layout.avalues.allocList
+import io.github.kotlinmania.starlark.values.types.bigint.allocFrozenValue
 
 /**
  * Print error diagnostic to stderr (or stdout as multiplatform fallback).

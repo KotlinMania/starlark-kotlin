@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_set.rs
-package io.github.kotlinmania.starlark_kotlin.collections.sorted_set
+package io.github.kotlinmania.starlark.collections.sorted_set
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,10 +19,10 @@ package io.github.kotlinmania.starlark_kotlin.collections.sorted_set
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.ordered_set.OrderedSet
-import io.github.kotlinmania.starlark_kotlin.collections.small_set.SmallSet
-import io.github.kotlinmania.starlark_kotlin.collections.sorted_vec.SortedVec
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.ordered_set.OrderedSet
+import io.github.kotlinmania.starlark.collections.small_set.SmallSet
+import io.github.kotlinmania.starlark.collections.sorted_vec.SortedVec
 
 /**
  * An immutable [SmallSet] with values guaranteed to be sorted.

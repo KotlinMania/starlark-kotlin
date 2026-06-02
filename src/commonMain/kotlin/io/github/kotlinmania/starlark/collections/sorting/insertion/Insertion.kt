@@ -1,5 +1,5 @@
 // port-lint: source src/sorting/insertion.rs
-package io.github.kotlinmania.starlark_kotlin.collections.sorting.insertion
+package io.github.kotlinmania.starlark.collections.sorting.insertion
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

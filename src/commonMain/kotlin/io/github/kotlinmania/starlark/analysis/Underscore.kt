@@ -19,27 +19,23 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.Spanned
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignIdentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Spanned
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AssignIdentP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
-// #[derive(Error, Debug)]
-// pub(crate) enum UnderscoreWarning
 internal sealed class UnderscoreWarning : LintWarning {
     /** Underscore definitions should be simple. */
-    // #[error("Underscore definitions should be simple `{0}`")]
     data class UnderscoreDefinition(val name: String) : UnderscoreWarning() {
         override fun toString(): String = "Underscore definitions should be simple `$name`"
     }
 
     /** Used ignored variable. */
-    // #[error("Used ignored variable `{0}`")]
     data class UsingIgnored(val name: String) : UnderscoreWarning() {
         override fun toString(): String = "Used ignored variable `$name`"
     }
@@ -60,7 +56,6 @@ internal sealed class UnderscoreWarning : LintWarning {
     }
 }
 
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<UnderscoreWarning>>
 internal fun underscoreLint(module: AstModule): List<LintT<UnderscoreWarning>> {
     val res = mutableListOf<LintT<UnderscoreWarning>>()
     inappropriateUnderscore(module.codemap, module.statement, true, res)
@@ -133,7 +128,6 @@ private fun AstStmt.visitStmtExprU(visitor: (AstExpr) -> Unit) {
 }
 
 /** There's no reason to make a def or lambda and give it an underscore name not at the top level. */
-// fn inappropriate_underscore(codemap: &CodeMap, x: &AstStmt, top: bool, res: &mut Vec<LintT<UnderscoreWarning>>)
 private fun inappropriateUnderscore(
     codemap: CodeMap,
     x: AstStmt,
@@ -190,14 +184,12 @@ private fun inappropriateUnderscore(
 }
 
 /** Don't want to use a variable that has been defined to be ignored. */
-// fn use_ignored(codemap: &CodeMap, x: &AstStmt, res: &mut Vec<LintT<UnderscoreWarning>>)
 private fun useIgnored(
     codemap: CodeMap,
     x: AstStmt,
     res: MutableList<LintT<UnderscoreWarning>>,
 ) {
     // We are ok with using things that were defined at the top level, but not nested.
-    // fn root_definitions<'a>(x: &'a AstStmt, res: &mut HashSet<&'a str>)
     fun rootDefinitions(x: AstStmt, defs: MutableSet<String>) {
         when (val s = x.node) {
             is StmtP.Assign<*> -> {
@@ -244,7 +236,6 @@ private fun useIgnored(
 
     // fn is_ignored(x: &str) -> bool
     fun isIgnored(name: String): Boolean {
-        // we want things like __internal__ for builtin things to expose themselves quietly
         return name.startsWith('_') && !(name.startsWith("__") && name.endsWith("__"))
     }
 
@@ -259,7 +250,7 @@ private fun useIgnored(
             is ExprP.Identifier<*, *> -> {
                 val identSpanned = e.ident as Spanned<*>
                 @Suppress("UNCHECKED_CAST")
-                val ident = (identSpanned.node as io.github.kotlinmania.starlark_kotlin.syntax.ast.IdentP<*, *>).ident
+                val ident = (identSpanned.node as io.github.kotlinmania.starlark.syntax.ast.IdentP<*, *>).ident
                 if (isIgnored(ident) && ident !in roots) {
                     res.add(
                         LintT.new(
@@ -279,5 +270,4 @@ private fun useIgnored(
     x.visitStmtExprU { child -> checkExpr(codemap, child, roots, res) }
 }
 
-// #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

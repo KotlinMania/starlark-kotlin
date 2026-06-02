@@ -19,17 +19,17 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstLiteral
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ArgumentP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ClauseP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstPayload
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.ClauseP
+import io.github.kotlinmania.starlark.syntax.ast.AstPayload
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
 /**
  * Find the location of a top level function call that has a kwarg `name`, and a string value
@@ -130,18 +130,18 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
                 val p = param.node
                 @Suppress("UNCHECKED_CAST")
                 when (p) {
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
                 }
             }
             f(lambda.body as AstExpr)
@@ -183,7 +183,7 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun <P : AstPayload> visitForClauseExprs(forClause: io.github.kotlinmania.starlark_kotlin.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
+internal fun <P : AstPayload> visitForClauseExprs(forClause: io.github.kotlinmania.starlark.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
     visitAssignTargetExprs(forClause.varTarget.node, f)
     f(forClause.over as AstExpr)
 }
@@ -247,18 +247,18 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
             s.def.params.forEach { param ->
                 val p = param.node
                 when (p) {
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Normal<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                         (p.defaultVal as AstExpr?)?.let(f)
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Args<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Args<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.KwArgs<*> -> {
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.KwArgs<*> -> {
                         p.typ?.node?.expr?.let { f(it as AstExpr) }
                     }
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.NoArgs<*>,
-                    is io.github.kotlinmania.starlark_kotlin.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.NoArgs<*>,
+                    is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Slash<*> -> { /* no expr */ }
                 }
             }
             s.def.returnType?.let { f(it.node.expr as AstExpr) }

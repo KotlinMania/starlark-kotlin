@@ -1,5 +1,5 @@
 // port-lint: source src/vec_map/iter.rs
-package io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter
+package io.github.kotlinmania.starlark.collections.vec_map.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,8 +19,8 @@ package io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 
 /**
  * Iterator adaptors for VecMap.

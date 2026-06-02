@@ -1,5 +1,5 @@
 // port-lint: source src/codemap.rs
-package io.github.kotlinmania.starlark_kotlin.codemap
+package io.github.kotlinmania.starlark.codemap
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

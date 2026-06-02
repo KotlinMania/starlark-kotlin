@@ -19,52 +19,20 @@ package io.github.kotlinmania.starlark.analysis
  * limitations under the License.
  */
 
-// use std::collections::HashMap;
-// use std::collections::HashSet;
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.FileSpan
+import io.github.kotlinmania.starlark.codemap.Span
+import io.github.kotlinmania.starlark.syntax.AstModule
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstAssignTarget
+import io.github.kotlinmania.starlark.syntax.ast.AstExpr
+import io.github.kotlinmania.starlark.syntax.ast.AstIdent
+import io.github.kotlinmania.starlark.syntax.ast.AstStmt
+import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
+import io.github.kotlinmania.starlark.syntax.ast.BinOp
+import io.github.kotlinmania.starlark.syntax.ast.ExprP
+import io.github.kotlinmania.starlark.syntax.ast.StmtP
 
-// use maplit::hashmap;
-// use once_cell::sync::Lazy;
-// use starlark_syntax::syntax::ast::AssignTarget;
-// use starlark_syntax::syntax::ast::AstAssignIdent;
-// use starlark_syntax::syntax::ast::AstExpr;
-// use starlark_syntax::syntax::ast::AstStmt;
-// use starlark_syntax::syntax::ast::BinOp;
-// use starlark_syntax::syntax::ast::DefP;
-// use starlark_syntax::syntax::ast::Expr;
-// use starlark_syntax::syntax::ast::LoadArgP;
-// use starlark_syntax::syntax::ast::Stmt;
-// use starlark_syntax::syntax::module::AstModuleFields;
-// use thiserror::Error;
-
-// use crate::analysis::EvalSeverity;
-// use crate::analysis::types::LintT;
-// use crate::analysis::types::LintWarning;
-// use crate::codemap::CodeMap;
-// use crate::codemap::FileSpan;
-// use crate::codemap::Span;
-// use crate::syntax::AstModule;
-
-import io.github.kotlinmania.starlark_kotlin.codemap.CodeMap
-import io.github.kotlinmania.starlark_kotlin.codemap.FileSpan
-import io.github.kotlinmania.starlark_kotlin.codemap.Span
-import io.github.kotlinmania.starlark_kotlin.syntax.AstModule
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstAssignTarget
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstExpr
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstIdent
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AstStmt
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.AssignTargetP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.BinOp
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.ExprP
-import io.github.kotlinmania.starlark_kotlin.syntax.ast.StmtP
-
-// #[derive(Error, Debug)]
-// pub(crate) enum Incompatibility {
-//     #[error("Type check `{0}` should be written `{1}`")]
-//     IncompatibleTypeCheck(String, String),
-//     #[error("Duplicate top-level assignment of `{0}`, first defined at {1}")]
-//     DuplicateTopLevelAssign(String, FileSpan),
-// }
 sealed class Incompatibility : LintWarning {
     /** Type check should be written differently. */
     data class IncompatibleTypeCheck(
@@ -84,17 +52,12 @@ sealed class Incompatibility : LintWarning {
             "Duplicate top-level assignment of `$name`, first defined at $firstDefined"
     }
 
-    // impl LintWarning for Incompatibility {
-    //     fn severity(&self) -> EvalSeverity {
-    //         EvalSeverity::Warning
-    //     }
+
     override fun severity(): EvalSeverity {
         return EvalSeverity.Warning
     }
 
-    //     fn short_name(&self) -> &'static str {
-    //         match self { ... }
-    //     }
+
     override fun shortName(): String {
         return when (this) {
             is IncompatibleTypeCheck -> "incompatible-type-check"
@@ -112,10 +75,6 @@ private val TYPES: Map<String, String> = mapOf(
     "int" to "0",
 )
 
-// --- Visitor helpers ---
-// Rust has visit_stmt / visit_expr / visit_lvalue as methods on the AST types
-// in starlark_syntax. In Kotlin, these are not on the types, so we implement
-// them as local extension functions.
 
 // visit_stmt helper: visit immediate child statements
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
@@ -327,7 +286,6 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
 }
 
 /** Lint an AST module for incompatibilities. */
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Incompatibility>>
 internal fun incompatibleLint(module: AstModule): List<LintT<Incompatibility>> {
     val res = mutableListOf<LintT<Incompatibility>>()
     badTypeEquality(module, res)

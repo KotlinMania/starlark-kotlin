@@ -1,5 +1,5 @@
 // port-lint: source src/sorted_vec.rs
-package io.github.kotlinmania.starlark_kotlin.collections.sorted_vec
+package io.github.kotlinmania.starlark.collections.sorted_vec
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.

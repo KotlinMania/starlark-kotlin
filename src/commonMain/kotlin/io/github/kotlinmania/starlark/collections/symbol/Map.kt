@@ -1,5 +1,5 @@
 // port-lint: source src/collections/symbol/map.rs
-package io.github.kotlinmania.starlark_kotlin.collections.symbol
+package io.github.kotlinmania.starlark.collections.symbol
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -40,7 +40,7 @@ package io.github.kotlinmania.starlark_kotlin.collections.symbol
  * so we can reasonably expect to hit the smaller cases most often.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
+import io.github.kotlinmania.starlark.collections.Hashed
 
 /**
  * A symbol map backed by a hash table of [Symbol] keys.

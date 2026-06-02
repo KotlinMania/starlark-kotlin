@@ -1,5 +1,5 @@
 // port-lint: source src/small_map/iter.rs
-package io.github.kotlinmania.starlark_kotlin.collections.small_map.iter
+package io.github.kotlinmania.starlark.collections.small_map.iter
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,16 +19,16 @@ package io.github.kotlinmania.starlark_kotlin.collections.small_map.iter
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.IterHashed as VecMapIterHashed
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.Iter as VecMapIter
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.IntoIterHashed as VecMapIntoIterHashed
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.IntoIter as VecMapIntoIter
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.Keys as VecMapKeys
-import io.github.kotlinmania.starlark_kotlin.collections.vec_map.iter.Values as VecMapValues
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.vec_map.iter.IterHashed as VecMapIterHashed
+import io.github.kotlinmania.starlark.collections.vec_map.iter.Iter as VecMapIter
+import io.github.kotlinmania.starlark.collections.vec_map.iter.IntoIterHashed as VecMapIntoIterHashed
+import io.github.kotlinmania.starlark.collections.vec_map.iter.IntoIter as VecMapIntoIter
+import io.github.kotlinmania.starlark.collections.vec_map.iter.Keys as VecMapKeys
+import io.github.kotlinmania.starlark.collections.vec_map.iter.Values as VecMapValues
 
 /**
- * Iterator types for [SmallMap][io.github.kotlinmania.starlark_kotlin.collections.SmallMap].
+ * Iterator types for [SmallMap][io.github.kotlinmania.starlark.collections.SmallMap].
  *
  * In Rust, these are thin wrappers around vec_map iterators with
  * `def_iter!()` and `def_double_ended_iter!()` macro expansions.

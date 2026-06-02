@@ -1,5 +1,5 @@
 // port-lint: source src/unordered_map.rs
-package io.github.kotlinmania.starlark_kotlin.collections.unordered_map
+package io.github.kotlinmania.starlark.collections.unordered_map
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark_kotlin.collections.unordered_map
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark_kotlin.collections.Equivalent
-import io.github.kotlinmania.starlark_kotlin.collections.Hashed
-import io.github.kotlinmania.starlark_kotlin.collections.StarlarkHashValue
+import io.github.kotlinmania.starlark.collections.Equivalent
+import io.github.kotlinmania.starlark.collections.Hashed
+import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 
 /**
  * Hash map which does not expose any insertion order-specific behavior

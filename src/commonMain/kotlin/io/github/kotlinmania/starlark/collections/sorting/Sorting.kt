@@ -1,6 +1,7 @@
 // port-lint: source src/sorting.rs
 @file:Suppress("unused")
-package io.github.kotlinmania.starlark_kotlin.collections.sorting
+
+package io.github.kotlinmania.starlark.collections.sorting
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -24,5 +25,5 @@ package io.github.kotlinmania.starlark_kotlin.collections.sorting
  * Module declaration for sorting utilities.
  *
  * In Rust, this is `pub(crate) mod insertion;`.
- * In Kotlin, the submodule is in the [io.github.kotlinmania.starlark_kotlin.collections.sorting.insertion] package.
+ * In Kotlin, the submodule is in the [io.github.kotlinmania.starlark.collections.sorting.insertion] package.
  */
