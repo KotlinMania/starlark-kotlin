@@ -38,9 +38,12 @@ import io.github.kotlinmania.starlark.typing.TyUserFields
 import io.github.kotlinmania.starlark.typing.TyUserParams
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueUnpackValue
 import io.github.kotlinmania.starlark.values.freezeSmallMap
 import io.github.kotlinmania.starlark.values.layout.Freezer
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
@@ -74,9 +77,21 @@ class RecordTypeGen internal constructor(
     internal val fields: SmallMap<String, Field>,
     private val frozen: Boolean,
 ) : ComplexValue,
-    Freeze<RecordTypeGen> {
+    Freeze<RecordTypeGen>,
+    Trace {
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
+
+    override fun trace(tracer: Tracer) {
+        for ((_, field) in fields) {
+            val defaultVal = field.default
+            if (defaultVal != null) {
+                val holder = ValueHolder(defaultVal)
+                tracer.trace(holder)
+                field.default = holder.value
+            }
+        }
+    }
 
     override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 
@@ -155,19 +170,20 @@ class RecordTypeGen internal constructor(
 
         val thisValue = me
 
-        return Result.success(
+        return runCatching {
             tyRecordDataVal.parameterSpec.parser(args, eval) { paramParser, ev ->
                 val recordFields = this.fields
                 val values = mutableListOf<Value>()
                 for ((name, field) in recordFields) {
+                    val defaultVal = field.default
                     val value =
-                        if (field.default == null) {
+                        if (defaultVal == null) {
                             val v: Value = paramParser.next(ValueUnpackValue)
                             field.typ.checkType(v, name).getOrThrow()
                             v
                         } else {
                             when (val v: Value? = paramParser.nextOpt(ValueUnpackValue)) {
-                                null -> field.default
+                                null -> defaultVal
                                 else -> {
                                     field.typ.checkType(v, name).getOrThrow()
                                     v
@@ -182,8 +198,8 @@ class RecordTypeGen internal constructor(
                         values = values,
                     ),
                 )
-            },
-        )
+            }
+        }
     }
 
     override fun getMethods(): Methods = recordTypeMethodsStatic.methods(::recordTypeMethods)

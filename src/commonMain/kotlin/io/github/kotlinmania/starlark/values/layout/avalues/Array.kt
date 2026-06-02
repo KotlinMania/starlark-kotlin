@@ -59,7 +59,8 @@ internal object AValueArray : AValue {
     }
 
     override fun heapCopy(tracer: Tracer): Value {
-        val array = unpack() as Array
+        val repr = tracer.currentRepr ?: error("Missing currentRepr")
+        val array = repr.payload as Array
         check(array.capacity() != 0) { "empty array is allocated statically" }
 
         if (array.len() == 0) {
@@ -69,6 +70,7 @@ internal object AValueArray : AValue {
         val content = array.contentMut()
 
         val (v, r, _) = tracer.reserveWithExtra<AValueArray>(content.size)
+        tracer.overwriteWithForward(v)
 
         // Trace all values in the content.
         (content as Trace).trace(tracer)

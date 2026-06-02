@@ -26,12 +26,14 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
+import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.types.array.Array
 import io.github.kotlinmania.starlark.values.types.list.FrozenListData
 import io.github.kotlinmania.starlark.values.types.list.ListData
@@ -86,8 +88,19 @@ internal object AValueList : AValue {
         return Result.success(fv)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun heapCopy(tracer: Tracer): Value {
-        error("heapCopy should be dispatched via vtable with actual value")
+        val repr = tracer.currentRepr ?: error("Missing currentRepr")
+        val list = repr.payload as ListGen<ListData>
+        return heapCopyImpl(list, tracer) { v, t ->
+            val l = v as ListGen<ListData>
+            val content = l.data.content()
+            for (i in content.indices) {
+                val holder = ValueHolder(content[i])
+                t.trace(holder)
+                l.data.setAtUnchecked(i, holder.value)
+            }
+        }
     }
 
     override fun unpack(): StarlarkValue = ListGen(ListData())

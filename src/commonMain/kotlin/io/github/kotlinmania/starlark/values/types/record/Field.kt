@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 // Kotlin: single class, no lifetime parameterization.
 class Field internal constructor(
     internal val typ: TypeCompiled,
-    internal val default: Value?,
+    internal var default: Value?,
 ) : StarlarkValue {
     companion object {
         internal fun new(typ: TypeCompiled, default: Value?): Field = Field(typ = typ, default = default)
@@ -48,9 +48,10 @@ class Field internal constructor(
 
     override fun writeHash(hasher: StarlarkHasher): Result<Unit> {
         typ.writeHash(hasher).getOrElse { return Result.failure(it) }
-        hasher.writeU8(if (default != null) 1u else 0u)
-        if (default != null) {
-            default.writeHash(hasher).getOrElse { return Result.failure(it) }
+        val d = default
+        hasher.writeU8(if (d != null) 1u else 0u)
+        if (d != null) {
+            d.writeHash(hasher).getOrElse { return Result.failure(it) }
         }
         return Result.success(Unit)
     }

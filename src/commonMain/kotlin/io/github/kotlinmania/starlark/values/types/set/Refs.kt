@@ -24,10 +24,13 @@ import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.SetType
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.layout.FrozenValueStarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
+import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
 /**
  * Define the set type.
@@ -180,7 +183,8 @@ sealed class Either<out L, out R> {
  */
 class RefCell(
     private var value: SetData,
-) : SetLike {
+) : SetLike,
+    Trace {
     private var borrowCount = 0
     private var mutBorrowCount = 0
 
@@ -219,6 +223,18 @@ class RefCell(
 
     override fun iterStop() {
         releaseBorrow()
+    }
+
+    override fun trace(tracer: Tracer) {
+        val oldSet = value.content
+        val newSet = SmallSet<Value>()
+        for (item in oldSet.iterHashed()) {
+            val holder = ValueHolder(item.key())
+            tracer.trace(holder)
+            newSet.insertHashed(Hashed.newUnchecked(item.hash(), holder.value))
+        }
+        value.content.clear()
+        value.content.addAll(newSet.iterHashed().asIterable())
     }
 }
 

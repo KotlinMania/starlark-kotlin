@@ -87,8 +87,12 @@ private fun vtableForValue(
             Result.success(fv)
         },
         heapCopyFn = { p, tracer ->
-            val sv = p.starlarkValue()
-            heapCopyImpl(sv, tracer) { _, _ -> }
+            if (avalue != null) {
+                avalue.heapCopy(tracer)
+            } else {
+                val sv = p.starlarkValue()
+                heapCopyImpl(sv, tracer) { _, _ -> }
+            }
         },
         starlarkValue = value,
         hasInvoke = value.HAS_invoke,
@@ -107,9 +111,9 @@ class Reservation<T : AValue> internal constructor(
     private val index: Int,
     private val header: AValueHeader,
 ) {
-    fun fill(x: StarlarkValue) {
+    fun fill(x: StarlarkValue, vtable: AValueVTable? = null) {
         val oldBytes = header.allocSize().bytes().toInt()
-        header.vtable = vtableForValue(x)
+        header.vtable = vtable ?: vtableForValue(x)
         AValueRepr(header = header, payload = x).also {
             require(it.header == header)
         }
