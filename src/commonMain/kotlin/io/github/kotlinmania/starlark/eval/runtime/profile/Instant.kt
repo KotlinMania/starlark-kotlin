@@ -29,7 +29,6 @@ import kotlin.time.toDuration
 internal class ProfilerInstant private constructor(
     private val value: Long, // millis in test mode, nanos in production
 ) : Comparable<ProfilerInstant> {
-
     companion object {
         const val TEST_TICK_MILLIS: Long = 7L
 

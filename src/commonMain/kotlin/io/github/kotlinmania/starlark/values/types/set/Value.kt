@@ -67,7 +67,6 @@ data class SetGen<T>(
 
     private fun setLike(): SetLike = inner as SetLike
 
-
     override fun length(): Result<Int> =
         Result.success(setLike().content().len())
 

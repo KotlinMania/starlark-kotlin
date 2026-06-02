@@ -86,7 +86,6 @@ internal object AValueFrozenList : AValue {
 
 // --- FrozenHeap list allocation extensions ---
 
-
 /** Allocate a list with the given elements on this heap. */
 fun FrozenHeap.allocList(elems: List<FrozenValue>): FrozenValue {
     if (elems.isEmpty()) {
@@ -102,7 +101,6 @@ fun FrozenHeap.allocListIter(elems: Iterable<FrozenValue>): FrozenValue {
 }
 
 // --- Heap list allocation extensions ---
-
 
 /** Allocate a list with the given elements (from a slice/array). */
 fun Heap.allocListFromSlice(elems: kotlin.Array<Value>): Value {

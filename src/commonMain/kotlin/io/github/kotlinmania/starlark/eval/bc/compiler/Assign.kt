@@ -34,7 +34,6 @@ import io.github.kotlinmania.starlark.eval.compiler.IrSpanned
 import io.github.kotlinmania.starlark.eval.compiler.asLocalNonCaptured
 import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
 
-
 /**
  * After evaluation of `(x, y[z]) = ...`, variables `x`, `y` and `z` are definitely assigned.
  *
@@ -65,7 +64,6 @@ internal fun AssignCompiledValue.markDefinitelyAssignedAfter(bc: BcWriter) {
         }
     }
 }
-
 
 /**
  * Compile an assignment target to bytecode.

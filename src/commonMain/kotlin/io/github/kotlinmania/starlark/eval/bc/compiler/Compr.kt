@@ -70,7 +70,6 @@ internal fun ClauseCompiled.writeBc(
     }
 }
 
-
 /**
  * Marks variables that are definitely assigned after evaluation of this comprehension.
  *

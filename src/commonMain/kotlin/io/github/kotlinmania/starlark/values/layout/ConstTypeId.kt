@@ -39,7 +39,6 @@ data class ConstTypeId(
     //     self.get().hash(state)
     // Handled by data class hashCode()
 
-
     companion object {
         inline fun <reified T : Any> of(): ConstTypeId = ConstTypeId(T::class)
 

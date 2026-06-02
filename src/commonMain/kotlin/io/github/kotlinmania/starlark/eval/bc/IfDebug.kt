@@ -52,18 +52,14 @@ class IfDebug<T> private constructor(
         fun <T> new(value: T): IfDebug<T> = newIfDebug { value }
 
         /** Store a value if debug assertions enabled, drop otherwise. */
-        fun <T> newIfDebug(init: () -> T): IfDebug<T> {
-            return IfDebug(
+        fun <T> newIfDebug(init: () -> T): IfDebug<T> =
+            IfDebug(
                 value = if (DEBUG) init() else null,
             )
-        }
     }
-
 
     /** Get a reference to stored value if assertions enabled, `null` otherwise. */
-    fun getRef(): T? {
-        return value
-    }
+    fun getRef(): T? = value
 
     /** Get a reference to stored value if assertions enabled, panic otherwise. */
     fun getRefIfDebug(): T = getRef() ?: error("assertions disabled")

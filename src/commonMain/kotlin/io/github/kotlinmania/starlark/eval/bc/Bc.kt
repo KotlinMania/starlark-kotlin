@@ -22,4 +22,3 @@ package io.github.kotlinmania.starlark.eval.bc
  */
 
 // / Bytecode interpreter.
-

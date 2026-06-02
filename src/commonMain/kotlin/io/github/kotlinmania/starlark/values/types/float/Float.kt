@@ -37,7 +37,13 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.num.NumRef
 import io.github.kotlinmania.starlark.values.types.num.NumTy
 import io.github.kotlinmania.starlark.values.types.num.typecheckNumBinOp
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.absoluteValue
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.roundToLong
+import kotlin.math.sign
 
 private const val WRITE_PRECISION: Int = 6
 

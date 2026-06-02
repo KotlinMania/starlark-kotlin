@@ -34,7 +34,6 @@ class Field internal constructor(
     internal val typ: TypeCompiled,
     internal val default: Value?,
 ) : StarlarkValue {
-
     companion object {
         internal fun new(typ: TypeCompiled, default: Value?): Field = Field(typ = typ, default = default)
 

@@ -24,4 +24,3 @@ package io.github.kotlinmania.starlark.values
 // / Typechecker-related types.
 
 // internal val any = "any" // conflicts with Types.kt declaration
-

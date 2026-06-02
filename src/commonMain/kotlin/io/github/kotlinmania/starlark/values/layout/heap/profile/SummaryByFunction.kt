@@ -182,7 +182,6 @@ internal class HeapSummaryByFunction(
     }
 }
 
-
 // Test data is collected from both drop and non-drop heaps.
 internal fun dropNonDrop() {
     val ast =

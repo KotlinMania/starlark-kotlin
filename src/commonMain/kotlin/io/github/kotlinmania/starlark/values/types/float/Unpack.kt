@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.values.types.float
  * limitations under the License.
  */
 
-
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.UnpackValue
@@ -41,4 +40,3 @@ class UnpackFloat(
         }
     }
 }
-

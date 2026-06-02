@@ -30,7 +30,6 @@ data class ValueAllocSize(
 ) : Comparable<ValueAllocSize> {
     override fun compareTo(other: ValueAllocSize): Int = size.compareTo(other.size)
 
-
     companion object {
         fun tryNew(size: AlignedSize): ValueAllocSize? =
             if (size < MIN_ALLOC) {

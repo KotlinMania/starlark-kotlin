@@ -31,7 +31,6 @@ data class AlignedSize(
 
     override fun toString(): String = bytes.toString()
 
-
     companion object {
         val ZERO: AlignedSize = AlignedSize(0u)
 

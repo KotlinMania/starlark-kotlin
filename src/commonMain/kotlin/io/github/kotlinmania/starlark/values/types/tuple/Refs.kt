@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.values.types.tuple
  * limitations under the License.
  */
 
-
-
-
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
@@ -30,7 +27,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 class TupleRef(
     private val contents: List<Value>,
 ) {
-
     // / `type(())`, which is `"tuple"`.
 
     // / Number of elements.
@@ -65,7 +61,6 @@ class TupleRef(
 class FrozenTupleRef(
     private val contents: List<FrozenValue>,
 ) {
-
     // / Number of elements.
     fun len(): Int = contents.size
 

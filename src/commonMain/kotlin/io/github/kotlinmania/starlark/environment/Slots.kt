@@ -28,7 +28,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 data class ModuleSlotId(
     val index: Int,
 ) {
-
     companion object {
         fun new(index: Int): ModuleSlotId = ModuleSlotId(index)
     }
@@ -37,7 +36,6 @@ data class ModuleSlotId(
 /** Indexed slots of a module. May contain unassigned values as `None`. */
 class MutableSlots {
     private val slots: MutableList<Value?> = mutableListOf()
-
 
     companion object {
         fun new(): MutableSlots = MutableSlots()
@@ -85,6 +83,5 @@ class MutableSlots {
 class FrozenSlots(
     private val slots: List<FrozenValue?>,
 ) {
-
     fun getSlot(slot: ModuleSlotId): FrozenValue? = slots[slot.index]
 }

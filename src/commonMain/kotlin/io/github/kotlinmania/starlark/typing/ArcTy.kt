@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.typing
  * limitations under the License.
  */
 
-
-
-
 private sealed class ArcTyInner : Comparable<ArcTyInner> {
     // These are shortcuts to avoid allocations for common cases.
     data object Any : ArcTyInner()

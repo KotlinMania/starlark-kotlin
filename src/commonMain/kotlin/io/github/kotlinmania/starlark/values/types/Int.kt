@@ -24,5 +24,4 @@ package io.github.kotlinmania.starlark.values.types
 // ! but instead use special values. If the value doesn't fit in the special representation,
 // ! we use [`BigInt`](num_bigint::BigInt) to store it.
 
-
 internal val INT_TYPE = io.github.kotlinmania.starlark.values.types.int.INT_TYPE

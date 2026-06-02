@@ -37,7 +37,6 @@ class DocModuleInfo(
     /** A prefix to attach to all of the pages rendered from this module. */
     val pagePath: String,
 ) {
-
     internal fun intoPageRenders(): List<PageRender> = traverseInner(module, name, pagePath)
 
     companion object {
@@ -112,7 +111,6 @@ internal class PageRender(
     /** The type of the page, if it is a type page. This is used to get the link to the type. */
     val ty: Ty?,
 ) {
-
     fun renderMarkdown(renderConfig: RenderConfig): String =
         when (page) {
             is DocPageRef.Module -> {
@@ -135,7 +133,6 @@ internal class MultipageRender(
     private val pageRenders: List<PageRender>,
     private val renderConfig: RenderConfig,
 ) {
-
     companion object {
         /**
          * Create a new MultipageRender from a list of DocModuleInfo, and an optional function

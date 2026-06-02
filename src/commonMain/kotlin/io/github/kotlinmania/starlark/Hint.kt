@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark
  * limitations under the License.
  */
 
-
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun likely(b: Boolean): Boolean = b
 

@@ -433,7 +433,6 @@ internal sealed class AssignCompiledValue {
     ) : AssignCompiledValue()
 }
 
-
 /** Assignment to a local non-captured variable. */
 internal fun AssignCompiledValue.asLocalNonCaptured(): LocalSlotId? =
     when (this) {
@@ -578,7 +577,6 @@ internal fun addAssign(lhs: Value, rhs: Value, heap: Heap): Result<Value> {
         return lhs.add(rhs, heap)
     }
 }
-
 
 internal fun Compiler.compileContext(hasReturnType: Boolean): StmtCompileContext = StmtCompileContext(hasReturnType = hasReturnType)
 

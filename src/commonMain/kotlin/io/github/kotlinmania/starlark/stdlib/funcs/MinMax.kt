@@ -119,7 +119,6 @@ private fun minMax(
     }
 }
 
-
 /**
  * Register the `min` and `max` builtin functions with the given [io.github.kotlinmania.starlark.environment.GlobalsBuilder].
  *

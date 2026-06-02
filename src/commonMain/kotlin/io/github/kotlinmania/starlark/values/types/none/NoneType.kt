@@ -19,9 +19,6 @@ package io.github.kotlinmania.starlark.values.types.none
  * limitations under the License.
  */
 
-
-
-
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
@@ -42,7 +39,6 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     override val HAS_eval_type: Boolean get() = true
 
     override fun toString(): String = "None"
-
 
     override fun isSpecial(): Boolean = true
 

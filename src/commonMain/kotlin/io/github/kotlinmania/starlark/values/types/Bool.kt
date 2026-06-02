@@ -23,5 +23,4 @@ package io.github.kotlinmania.starlark.values.types
 // !
 // ! but as special values.
 
-
 internal val BOOL_TYPE = io.github.kotlinmania.starlark.values.types.bool.BOOL_TYPE

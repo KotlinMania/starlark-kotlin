@@ -1,9 +1,6 @@
 // port-lint: source src/typing/callable.rs
 package io.github.kotlinmania.starlark.typing
 
-
-
-
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 
@@ -32,7 +29,6 @@ class TyCallable private constructor(
     private val result: Ty,
 ) : Comparable<TyCallable> {
     companion object {
-
         // / Create a new callable type.
         fun new(params: ParamSpec, result: Ty): TyCallable = TyCallable(params, result)
 

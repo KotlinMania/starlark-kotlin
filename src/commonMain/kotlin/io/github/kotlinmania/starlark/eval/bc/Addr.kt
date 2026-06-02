@@ -33,7 +33,6 @@ data class BcAddr(
 
     override fun compareTo(other: BcAddr): Int = value.compareTo(other.value)
 
-
     fun offsetFrom(start: BcAddr): BcAddrOffset {
         require(this >= start)
         return BcAddrOffset(this.value - start.value)
@@ -59,10 +58,9 @@ data class BcAddr(
  * Used for debugging assertions. This object is not created in release mode.
  */
 data class BcPtrRange(
-    // start: *const u8,
+    /** Start byte offset. */
     val start: Int,
     /** Length in bytes. */
-    // len: usize,
     val len: Int,
 ) {
     companion object {
@@ -91,14 +89,12 @@ data class BcPtrRange(
 /**
  * Pointer to an instruction in memory.
  *
- * In Rust, this is a raw pointer with debug range checks.
  * In Kotlin, this is an offset into a bytecode buffer with debug validation.
  */
 data class BcPtrAddr(
-    // ptr: *const u8
+    /** Bytecode buffer offset. */
     val offset: Int,
     /** When assertions enabled, we validate the pointer is in this range. */
-    // range: IfDebug<BcPtrRange>
     val range: IfDebug<BcPtrRange>,
 ) : Comparable<BcPtrAddr> {
     override fun compareTo(other: BcPtrAddr): Int = offset.compareTo(other.offset)

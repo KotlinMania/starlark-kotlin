@@ -1056,7 +1056,7 @@ object InstrBr {
 object InstrIfBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1074,7 +1074,7 @@ object InstrIfBr : BcInstr {
 object InstrIfNotBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
@@ -1176,7 +1176,7 @@ object InstrBreak {
 /** Stop all the iterations to release mutation locks before `return`. */
 object InstrIterStop : BcInstr {
     override fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,

@@ -74,13 +74,12 @@ private fun Compiler.compileIfs(
     val ifs = mutableListOf<IrSpanned<ExprCompiled>>()
     while (clauses.isNotEmpty()) {
         when (val x = clauses.removeAt(clauses.lastIndex)) {
-            is ClauseP.For<*> -> {
+            is ClauseP.For -> {
                 ifs.reverse()
-                @Suppress("UNCHECKED_CAST")
-                return Result.success(Pair(x.forClause as ForClauseP<CstPayload>, ifs))
+                return Result.success(Pair(x.forClause, ifs))
             }
-            is ClauseP.If<*> -> {
-                val compiled = this.exprTruth(x.cond as CstExpr).getOrElse { return Result.failure(it) }
+            is ClauseP.If -> {
+                val compiled = this.exprTruth(x.cond).getOrElse { return Result.failure(it) }
                 if (compiled.node is ExprCompiledBool.Const && compiled.node.value) {
                     // If the condition is always true, skip the clause.
                     continue

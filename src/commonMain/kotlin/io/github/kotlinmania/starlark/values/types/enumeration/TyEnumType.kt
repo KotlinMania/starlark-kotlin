@@ -25,8 +25,7 @@ import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 class TyEnumData(
     /** Name of the enum type. */
     internal val name: String,
-    /** Globally unique id of the enum type. */
-    // Id must be last so Ord is deterministic.
+    /** Globally unique id of the enum type. Must remain last so ordering is deterministic. */
     internal val id: TypeInstanceId,
     /** Type of enum variant. */
     internal val tyEnumValue: Ty,

@@ -46,7 +46,6 @@ internal interface TypeMatcherFactoryDyn {
 class TypeMatcherFactory internal constructor(
     internal val factory: TypeMatcherFactoryDyn,
 ) {
-
     companion object {
         /** Create a new [TypeMatcherFactory] from a [TypeMatcher]. */
         fun new(matcher: TypeMatcher): TypeMatcherFactory = TypeMatcherFactory(TypeMatcherFactoryImpl(matcher))

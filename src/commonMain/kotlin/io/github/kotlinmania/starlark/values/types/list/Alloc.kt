@@ -66,7 +66,6 @@ class AllocList<L>(
     }
 }
 
-
 /**
  * [StarlarkTypeRepr] for [AllocList].
  *
@@ -80,7 +79,6 @@ fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
     // In Rust: Vec::<L::Item>::starlark_type_repr()
     return Ty.anyList()
 }
-
 
 /**
  * Allocate this [AllocList] as a mutable [Value] on the given [heap].
@@ -99,7 +97,6 @@ fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
     val allocated = items.map { x -> x.allocValue(heap) }
     return heap.allocListIter(allocated)
 }
-
 
 /**
  * Allocate this [AllocList] as a [FrozenValue] on the given frozen [heap].

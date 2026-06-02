@@ -266,7 +266,6 @@ open class PartialGen<V : Any, S : Any>(
 
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
-
 /** Partial application with live values. */
 class Partial(
     func: Value,
@@ -305,7 +304,6 @@ class Partial(
         )
     }
 }
-
 
 /** Partial application with frozen values. */
 class FrozenPartial(

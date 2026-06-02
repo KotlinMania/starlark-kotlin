@@ -25,7 +25,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 internal class TypeExprCompiled(
     private val expr: IrSpanned<ExprCompiled>,
 ) {
-
     companion object {
         fun newExpr(expr: IrSpanned<ExprCompiled>): TypeExprCompiled = TypeExprCompiled(expr)
     }

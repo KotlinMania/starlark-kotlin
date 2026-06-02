@@ -135,7 +135,6 @@ internal class AValueComplexNoFreeze(
     override fun unpack(): StarlarkValue = value
 }
 
-
 /** Allocate a [ComplexValue] on the [Heap]. */
 fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out StarlarkValue> {
     check(!x.isSpecial())

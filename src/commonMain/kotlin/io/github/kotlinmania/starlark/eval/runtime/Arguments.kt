@@ -77,7 +77,6 @@ sealed class FunctionError(
         )
 }
 
-
 /** Convert a [FunctionError] into a [StarlarkError] wrapping it as [ErrorKind.Function]. */
 fun from(e: FunctionError): StarlarkError = StarlarkError.newKind(ErrorKind.Function(e))
 
@@ -518,7 +517,6 @@ class Arguments(
 
 // Kotlin: No lifetime erasure needed. Arguments does not have a lifetime parameter.
 
-
 /**
  * Cold path for [Arguments.noNamedArgs]: collects extra named argument names
  * and produces an error if any are found.
@@ -553,7 +551,6 @@ private fun bad(x: Arguments): Result<Unit> {
         )
     }
 }
-
 
 /**
  * Cold path for [Arguments.optional]: handles the rare case where `*args` is present

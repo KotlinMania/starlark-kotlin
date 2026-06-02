@@ -21,5 +21,4 @@ package io.github.kotlinmania.starlark.values.types
 
 // ! The string type. All strings must be valid UTF8.
 
-
 // Rust uses `pub use` re-exports in this module; Kotlin call sites should import concrete values/types directly.

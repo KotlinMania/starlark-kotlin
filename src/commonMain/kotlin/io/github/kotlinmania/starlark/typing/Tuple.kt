@@ -49,7 +49,6 @@ sealed class TyTuple : Comparable<TyTuple> {
         val item: ArcTy,
     ) : TyTuple()
 
-
     /** Get the type at index [i], or `null` for `Of` (any index valid). */
     fun get(i: Int): Ty? =
         when (this) {
@@ -57,14 +56,12 @@ sealed class TyTuple : Comparable<TyTuple> {
             is Of -> item.toTy()
         }
 
-
     /** Union of all element types (identity for [Of]). */
     fun itemTy(): Ty =
         when (this) {
             is Elems -> Ty.unions(elems)
             is Of -> item.toTy()
         }
-
 
     /**
      * Check if this tuple type could intersect with [other].
@@ -92,7 +89,6 @@ sealed class TyTuple : Comparable<TyTuple> {
             }
             else -> false
         }
-
 
     /** Allocate a runtime type matcher for this tuple type. */
     fun <R> matcher(factory: TypeMatcherAlloc<R>): R =
@@ -156,7 +152,6 @@ sealed class TyTuple : Comparable<TyTuple> {
                 }
             }
         }
-
 
     /** Format with a custom rendering configuration. */
     fun fmtWithConfig(config: TypeRenderConfig): String =

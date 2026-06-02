@@ -27,7 +27,6 @@ package io.github.kotlinmania.starlark.collections
 internal class StringPool {
     private val builders = mutableListOf<StringBuilder>()
 
-
     // / Fetch a string from the pool or create an empty one.
     // /
     // / It is OK to not return a string to the pool.

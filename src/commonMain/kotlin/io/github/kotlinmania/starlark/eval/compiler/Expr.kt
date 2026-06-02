@@ -940,7 +940,6 @@ internal sealed class ExprCompiled {
                                 BoundMethodGen(member.method, left),
                             )
                         is UnboundValue.Attr -> null
-                        else -> null
                     }
                 }
                 is MemberOrValue.ValueResult -> v.value.unpackFrozen()
@@ -1554,7 +1553,6 @@ private fun Compiler.exprIdent(ident: CstIdent): ExprCompiled {
             }
         }
         is ResolvedIdent.Global -> ExprCompiled.ValueExpr(resolvedIdent.value)
-        else -> error("Unexpected resolved ident: $resolvedIdent")
     }
 }
 
@@ -1717,16 +1715,14 @@ internal fun Compiler.expr(
                                 .allocStrIntern(reduced)
                         ExprCompiled.ValueExpr(v.toFrozenValue())
                     } else {
-                        @Suppress("UNCHECKED_CAST")
                         val right: CstExpr =
                             if (node.op == BinOp.In || node.op == BinOp.NotIn) {
-                                listToTuple(node.rhs as CstExpr)
+                                listToTuple(node.rhs)
                             } else {
-                                node.rhs as CstExpr
+                                node.rhs
                             }
 
-                        @Suppress("UNCHECKED_CAST")
-                        val l = this.expr(node.lhs as CstExpr).getOrThrow()
+                        val l = this.expr(node.lhs).getOrThrow()
                         val r = this.expr(right).getOrThrow()
 
                         when (node.op) {
@@ -1806,8 +1802,7 @@ internal fun Compiler.expr(
 
                     val args = ArgsCompiledValue()
                     for (expression in fstring.node.expressions) {
-                        @Suppress("UNCHECKED_CAST")
-                        args.pushPos(this.expr(expression as CstExpr).getOrThrow())
+                        args.pushPos(this.expr(expression).getOrThrow())
                     }
 
                     CallCompiled.call(span, method, args, this.optCtx())

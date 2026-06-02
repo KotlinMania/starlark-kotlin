@@ -33,7 +33,6 @@ internal class FastCell<T>(
         fun <T> default(defaultValue: T): FastCell<T> = FastCell(defaultValue)
     }
 
-
     // / Get a reference to the value.
     // /
     // / This operation is safe under assumption that other `unsafe` operations

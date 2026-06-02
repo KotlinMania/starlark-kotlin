@@ -5,7 +5,6 @@ import io.github.kotlinmania.starlark.util.arcorstatic.ArcOrStatic
 class ArcStr private constructor(
     private val inner: ArcOrStatic<String>,
 ) : Comparable<ArcStr> {
-
     companion object {
         // / Create from static `str` without allocation.
         fun newStatic(s: String): ArcStr = ArcStr(ArcOrStatic.newStatic(s))

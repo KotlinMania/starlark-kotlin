@@ -31,7 +31,6 @@ package io.github.kotlinmania.starlark.eval.bc
 data class BcSlot(
     val index: UInt,
 ) : Comparable<BcSlot> {
-
     fun toIn(): BcSlotIn = BcSlotIn(this)
 
     fun toOut(): BcSlotOut = BcSlotOut(this)
@@ -52,7 +51,6 @@ class BcSlotsN(
     /** [n] slots starting with given slot. */
     val start: BcSlot,
 ) {
-
     fun get(i: UInt): BcSlot {
         // assert!((I as usize) < N);
         check(i.toInt() < n)
@@ -74,7 +72,6 @@ data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,
 ) : Iterable<BcSlot> {
-
     fun len(): UInt = end.index - start.index
 
     fun iter(): Sequence<BcSlot> =
@@ -102,7 +99,6 @@ data class BcSlotIn(
 ) {
     operator fun plus(rhs: UInt): BcSlotIn = BcSlotIn(slot + rhs)
 
-
     /**
      * Take the slot.
      *
@@ -117,7 +113,6 @@ data class BcSlotInRange(
     var start: BcSlotIn,
     var end: BcSlotIn,
 ) {
-
     fun len(): UInt = end.slot.index - start.slot.index
 
     fun toRangeFrom(): BcSlotInRangeFrom = BcSlotInRangeFrom(start)
@@ -157,7 +152,6 @@ data class BcSlotInRange(
 data class BcSlotInRangeFrom(
     val start: BcSlotIn,
 ) {
-
     fun toRange(len: UInt): BcSlotInRange =
         BcSlotInRange(
             start = start,
@@ -173,7 +167,6 @@ data class BcSlotInRangeFrom(
 data class BcSlotOut(
     val slot: BcSlot,
 ) {
-
     fun get(): BcSlot = slot
 
     override fun toString(): String = slot.toString()

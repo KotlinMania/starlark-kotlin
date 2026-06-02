@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.typing
 
 import io.github.kotlinmania.starlark.codemap.Spanned
 
-
 /**
  * Function call arguments with type information.
  */

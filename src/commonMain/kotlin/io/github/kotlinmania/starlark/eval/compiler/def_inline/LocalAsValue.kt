@@ -38,7 +38,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 internal class LocalAsValue(
     val local: LocalSlotId,
 ) : StarlarkValue {
-
     override val TYPE: String get() = "LocalAsValue"
 
     override fun toString(): String = "LocalAsValue(local=$local)"

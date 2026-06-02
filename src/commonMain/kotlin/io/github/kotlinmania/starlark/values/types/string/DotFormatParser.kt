@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark.values.types.string
  * limitations under the License.
  */
 
-
-
 // / Output the capture as `str` or `repr`.
 enum class FormatConv {
     Str,
@@ -78,7 +76,6 @@ class FormatParser(
     private val view: String,
 ) {
     private var i: Int = 0
-
 
     // / Parse the next token from the format string.
     fun next(): Result<FormatToken?> {

@@ -23,7 +23,6 @@ package io.github.kotlinmania.starlark.typing
 class Interface private constructor(
     private val bindings: Map<String, Ty>,
 ) {
-
     companion object {
         /** Create an empty interface, with no bindings. */
         fun empty(): Interface = Interface(emptyMap())

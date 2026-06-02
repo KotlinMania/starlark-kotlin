@@ -56,7 +56,6 @@ private fun AssignOp.writeBc(
     }
 }
 
-
 /** After evaluation of `x[y] += ...`, variables `x` and `y` are definitely assigned. */
 internal fun AssignModifyLhs.markDefinitelyAssignedAfter(bc: BcWriter) {
     when (this) {

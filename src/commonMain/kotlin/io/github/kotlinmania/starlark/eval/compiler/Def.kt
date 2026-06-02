@@ -458,7 +458,6 @@ internal fun Compiler.parameter(
                     pName,
                     this.exprForType(x.node.ty)?.node,
                 )
-            else -> throw IllegalStateException("Unexpected parameter kind: $kind")
         }
     return IrSpanned(span, node)
 }
@@ -886,7 +885,7 @@ internal class DefGen<V>(
     /**
      * Returns the name used in call stack frames.
      */
-    override fun nameForCallStack(_me: Value): String = defInfo.name.asStr()
+    override fun nameForCallStack(me: Value): String = defInfo.name.asStr()
 
     /**
      * Invoke this function with the given arguments.

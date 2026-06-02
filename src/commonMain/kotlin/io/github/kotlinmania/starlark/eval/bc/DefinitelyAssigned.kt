@@ -41,7 +41,6 @@ class BcDefinitelyAssigned private constructor(
     // / at the current program point.
     private val definitelyAssigned: BooleanArray,
 ) {
-
     constructor(localCount: Int) : this(BooleanArray(localCount))
 
     /** Is local variable definitely assigned at given program point? */

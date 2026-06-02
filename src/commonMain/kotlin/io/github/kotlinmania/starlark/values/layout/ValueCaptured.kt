@@ -96,7 +96,6 @@ internal class FrozenValueCaptured(
     internal fun get(): FrozenValue? = payload
 }
 
-
 internal fun valueCapturedGet(valueCaptured: Value): Value? {
     val frozen = valueCaptured.unpackFrozen()
     if (frozen != null) {

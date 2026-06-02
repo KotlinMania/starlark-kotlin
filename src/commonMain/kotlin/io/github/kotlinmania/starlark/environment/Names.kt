@@ -46,7 +46,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 class MutableNames {
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
-
     companion object {
         fun new(): MutableNames = MutableNames()
     }
@@ -116,7 +115,6 @@ class MutableNames {
 class FrozenNames(
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>>,
 ) {
-
     fun getName(name: String): Pair<ModuleSlotId, Visibility>? {
         // Rust uses Equivalent<FrozenStringValue> for &str; in Kotlin we match by string content.
         for ((k, v) in map.iter()) {

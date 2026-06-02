@@ -28,7 +28,6 @@ internal class ScopeResolverGlobals(
     /** None if unknown. */
     val globals: FrozenRef<Globals>?,
 ) {
-
     companion object {
         fun unknown(): ScopeResolverGlobals = ScopeResolverGlobals(globals = null)
     }

@@ -253,7 +253,6 @@ data class InlineInt internal constructor(
         }
     }
 
-
     // Rust: impl BitAnd for InlineInt
     infix fun and(other: InlineInt): InlineInt = InlineInt(value and other.value)
 
@@ -278,7 +277,6 @@ data class InlineInt internal constructor(
     // For explicit comparison with Int, use equalsInt.
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun equalsInt(other: Int): Boolean = value == other
-
 
     operator fun rem(other: InlineInt): InlineInt = InlineInt(value % other.value)
 }

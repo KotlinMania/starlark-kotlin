@@ -26,7 +26,3 @@ package io.github.kotlinmania.starlark
 //   We ignore dict.setdefault/dict.update, as these are pretty complex functions
 //   We consider "non-sensicle" operations like list.remove and == to have implied types that make them meaningful
 //       even if they don't fail when doing something silly
-
-
-
-

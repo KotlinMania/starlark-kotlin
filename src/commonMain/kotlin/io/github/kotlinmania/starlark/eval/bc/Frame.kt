@@ -71,7 +71,6 @@ internal class BcFrame(
      */
     val loopIndices: IntArray = IntArray(maxLoopDepth.depth)
 
-
     // Not needed in Kotlin -- no raw pointer arithmetic.
 
     fun framePtr(): BcFramePtr = BcFramePtr(this)

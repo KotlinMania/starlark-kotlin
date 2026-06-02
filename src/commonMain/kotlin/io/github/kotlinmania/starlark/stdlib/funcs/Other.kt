@@ -401,7 +401,6 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
  */
 private fun type(a: Value): FrozenStringValue = a.getTypeValue()
 
-
 /**
  * Register the standard functions (`fail`, `any`, `all`, `dir`, `enumerate`,
  * `getattr`, `hasattr`, `hash`, `len`, `reversed`, `sorted`, `type`) with

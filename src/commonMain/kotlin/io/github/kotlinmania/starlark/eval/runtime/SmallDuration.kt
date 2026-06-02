@@ -19,8 +19,6 @@ package io.github.kotlinmania.starlark.eval.runtime
  * limitations under the License.
  */
 
-
-
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
@@ -31,7 +29,6 @@ internal data class SmallDuration(
     internal var nanos: ULong = 0u,
 ) : Comparable<SmallDuration> {
     override fun compareTo(other: SmallDuration): Int = nanos.compareTo(other.nanos)
-
 
     companion object {
         val ZERO: SmallDuration = SmallDuration(0u)

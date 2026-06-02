@@ -23,8 +23,8 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 
 //     ($s:expr) => {{
-fun constFrozenString(s: String): FrozenStringValue {
-    return constantString(s) ?: run {
+fun constFrozenString(s: String): FrozenStringValue =
+    constantString(s) ?: run {
         // `s.len() <= 1`, `StarlarkStrNRepr::new` should not be called
         // because it fails and it should be handled by `constant_string`.
         // But we still have to put something in `static`.
@@ -48,4 +48,3 @@ fun constFrozenString(s: String): FrozenStringValue {
         }
         // }};
     }
-}

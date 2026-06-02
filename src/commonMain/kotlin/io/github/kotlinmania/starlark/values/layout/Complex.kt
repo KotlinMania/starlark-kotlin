@@ -50,7 +50,6 @@ class ValueTypedComplex<T : ComplexValue, F : StarlarkValue>
         @PublishedApi internal val frozenClass: KClass<F>,
     ) : StarlarkTypeRepr,
         Trace {
-
         companion object {
             /**
              * Internal non-inline helper used by public inline [new]: checks if the raw pointer

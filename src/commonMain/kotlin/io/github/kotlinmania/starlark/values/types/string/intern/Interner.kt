@@ -21,7 +21,6 @@ package io.github.kotlinmania.starlark.values.types.string.intern
 
 // Generic interner for starlark strings.
 
-
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer

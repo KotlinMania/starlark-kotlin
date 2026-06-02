@@ -19,12 +19,9 @@ package io.github.kotlinmania.starlark.values.types.int
  * limitations under the License.
  */
 
-
-
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.layout.IntegerTooBigError
 import io.github.kotlinmania.starlark.values.layout.Value
-
 
 /**
  * Allocate an [Int] (Rust `i32`) on the Starlark heap.
@@ -34,7 +31,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
 fun allocValueI32(value: Int): StarlarkInt = StarlarkInt.from(value)
 
 fun i32StarlarkTypeRepr(): Ty = Ty.int()
-
 
 /**
  * Unpack an [Int] (Rust `i32`) from a Starlark [Value].

@@ -102,7 +102,6 @@ class BcInstrs private constructor(
     private val instrs: List<Any>,
     internal val stmtLocs: BcStatementLocations,
 ) {
-
     //       match &self.instrs {
     // In Kotlin, GC handles cleanup.
 
@@ -499,7 +498,7 @@ class BcInstrsWriter {
                     mutable[fwdIndex] = newOffset
                     mutable
                 }
-                else -> error("patchAddr: unexpected arg type: ${existing!!::class.simpleName}")
+                else -> error("patchAddr: unexpected arg type: ${existing::class.simpleName}")
             }
     }
 

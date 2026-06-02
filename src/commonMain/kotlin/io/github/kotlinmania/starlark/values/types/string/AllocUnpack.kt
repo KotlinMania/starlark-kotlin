@@ -21,8 +21,6 @@ package io.github.kotlinmania.starlark.values.types.string
 
 /** Implementations of alloc and unpack traits for string. */
 
-
-
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StringTypeRepr

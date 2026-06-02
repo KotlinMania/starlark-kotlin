@@ -109,7 +109,6 @@ class RecordGen internal constructor(
         )
     }
 
-
     private fun getRecordType(): RecordTypeGen {
         // Safe to unwrap because we always ensure typ is RecordType
         return typ.downcastRef<RecordTypeGen>()!!
@@ -126,7 +125,6 @@ class RecordGen internal constructor(
         getRecordFields()
             .keys()
             .zip(values.asSequence())
-
 
     override fun equals(other: Value): Result<Boolean> {
         val otherRecord = fromValue(other) ?: return Result.success(false)

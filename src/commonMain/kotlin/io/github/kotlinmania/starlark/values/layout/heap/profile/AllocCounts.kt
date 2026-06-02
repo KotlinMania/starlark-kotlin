@@ -24,7 +24,6 @@ data class AllocCounts(
     var bytes: Long = 0,
     var count: Int = 0,
 ) {
-
     internal fun normalizeForGoldenTests() {
         // Value sizes depend on compiler version, so normalize them.
         bytes = count.toLong() * 8

@@ -23,4 +23,3 @@ package io.github.kotlinmania.starlark.values
 
 // Possible optimisations:
 // Encoding none, bool etc in the pointer of frozen value
-

@@ -26,7 +26,6 @@ import io.github.kotlinmania.starlark.values.stackGuard
 internal class FrozenValueNotSpecial private constructor(
     private val value: FrozenValue,
 ) {
-
     companion object {
         fun new(value: FrozenValue): FrozenValueNotSpecial? =
             if (value.isStr() || value.unpackInlineInt() != null) {

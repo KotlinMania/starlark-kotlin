@@ -51,7 +51,6 @@ import io.github.kotlinmania.starlark.values.types.NativeFunction
 import io.github.kotlinmania.starlark.values.types.getKnownMethod
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 
-
 /**
  * After evaluation of function arguments like `foo(a, b=c[d], **e)`,
  * variables `a`, `b`, `c`, `d`, and `e` are definitely assigned.
@@ -83,7 +82,6 @@ private fun ArgsCompiledValue.writeBc(bc: BcWriter, k: (BcCallArgsFull<Symbol>, 
     }
 }
 
-
 /**
  * After evaluation of call like `a[b](c.d)`,
  * variables `a`, `b`, and `c` are definitely assigned.
@@ -103,7 +101,6 @@ private fun Either<BcCallArgsPos, BcCallArgsFull<Symbol>>.toBcCallArgs(): Any =
         is Either.Left -> BcCallArgsPosCallArgs<Symbol>(value)
         is Either.Right -> BcCallArgsFullCallArgs<Symbol>(value)
     }
-
 
 private fun writeArgs(
     args: ArgsCompiledValue,

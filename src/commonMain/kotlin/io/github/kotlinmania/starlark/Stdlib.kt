@@ -47,7 +47,6 @@ import io.github.kotlinmania.starlark.values.typing.registerTyping
 
 // Submodules: breakpoint, call_stack, extra, funcs, internal, json, partial
 
-
 /**
  * Return the default global environment, it is not yet frozen so that a caller
  * can refine it.
@@ -140,7 +139,6 @@ enum class LibraryExtension {
         /** A list of all extensions that will be updated as new methods are added. */
         fun all(): List<LibraryExtension> = entries
     }
-
 
     /** Add a specific extension to a `GlobalsBuilder`. */
     fun add(builder: GlobalsBuilder) {

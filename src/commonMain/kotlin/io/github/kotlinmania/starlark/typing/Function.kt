@@ -41,7 +41,6 @@ interface TyCustomFunctionImpl {
 class TyCustomFunction<F : TyCustomFunctionImpl>(
     val inner: F,
 ) : TyCustomImpl {
-
     override fun asName(): String? = "function"
 
     override fun validateCall(span: Span, args: TyCallArgs, oracle: TypingOracleCtx): Result<Ty> = inner.validateCall(span, args, oracle)
@@ -109,7 +108,6 @@ class TyFunction(
 
     /** Callable signature of the function. */
     fun callable(): TyCallable = callable
-
 
     override fun isType(): Boolean = typeAttr != null
 
