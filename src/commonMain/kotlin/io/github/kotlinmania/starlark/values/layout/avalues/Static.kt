@@ -110,7 +110,7 @@ class AllocStaticSimple<T : StarlarkValue> internal constructor(
             return AllocStaticSimple(
                 AValueRepr(
                     AValueHeader(vtable),
-                    AValueImpl.new<AValueBasic<T>>(value),
+                    AValueImpl.new(value, AValueBasic<T>()),
                 ),
             )
         }

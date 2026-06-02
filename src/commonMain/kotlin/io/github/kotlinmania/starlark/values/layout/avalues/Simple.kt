@@ -34,7 +34,7 @@ import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
 
 // pub(crate) fn simple<'v, T: StarlarkValue<'v>>(x: T) -> AValueImpl<'v, AValueSimple<T>>
-internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> = AValueImpl.new(x)
+internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> = AValueImpl.new(x, AValueSimple(x))
 
 /** AValue implementation for simple Starlark values. */
 // pub struct AValueSimple<T>(PhantomData<T>);

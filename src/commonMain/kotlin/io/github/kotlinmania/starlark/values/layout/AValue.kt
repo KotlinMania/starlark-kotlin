@@ -21,6 +21,7 @@ package io.github.kotlinmania.starlark.values.layout
 
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.arena.MIN_ALLOC
 
@@ -75,6 +76,12 @@ interface AValue {
     /** Freeze this value on the heap. */
     fun heapFreeze(freezer: Freezer): Result<FrozenValue>
 
+    /** Freeze this value with access to the owning representation for forward-pointer writes. */
+    fun heapFreeze(
+        repr: AValueRepr<StarlarkValue>,
+        freezer: Freezer,
+    ): Result<FrozenValue> = heapFreeze(freezer)
+
     /** Copy this value on the heap. */
     fun heapCopy(tracer: Tracer): Value
 
@@ -85,9 +92,13 @@ interface AValue {
 /** A value with extended ([AValue]) vtable methods. */
 class AValueImpl<T : AValue>(
     internal val value: StarlarkValue,
+    internal val avalue: T,
 ) {
     companion object {
-        fun <T : AValue> new(value: StarlarkValue): AValueImpl<T> = AValueImpl(value)
+        fun <T : AValue> new(
+            value: StarlarkValue,
+            avalue: T,
+        ): AValueImpl<T> = AValueImpl(value, avalue)
     }
 }
 
