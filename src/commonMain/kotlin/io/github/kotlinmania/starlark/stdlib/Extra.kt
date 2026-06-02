@@ -28,10 +28,9 @@ import io.github.kotlinmania.starlark.values.types.dict.AtomicRef
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictGen
 import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
-import io.github.kotlinmania.starlark.values.types.list.ListGen
-import io.github.kotlinmania.starlark.values.types.list.listGenFromValue
 import io.github.kotlinmania.starlark.values.types.list.ListLike
 import io.github.kotlinmania.starlark.values.types.list.allocList
+import io.github.kotlinmania.starlark.values.types.list.listGenFromValue
 import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import io.github.kotlinmania.starlark.values.types.record.RecordGen
@@ -40,7 +39,6 @@ import io.github.kotlinmania.starlark.values.types.set.SetRef
 import io.github.kotlinmania.starlark.values.types.set.content
 import io.github.kotlinmania.starlark.values.types.structs.structGenFromValue
 import io.github.kotlinmania.starlark.values.types.tuple.tupleGenFromValue
-import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 /**
  * Apply a predicate to each element of the iterable, returning those that match.

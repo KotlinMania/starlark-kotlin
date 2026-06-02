@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/types/structs/value.rs
+
 package io.github.kotlinmania.starlark.values.types.structs
 
 /*
@@ -90,7 +91,7 @@ internal class StructGen<V> internal constructor(
                         StructFreezeField { value, freezer ->
                             freezer.freeze(value)
                         },
-                )
+                ),
             )
 
         fun frozen(fields: SmallMap<String, FrozenValue>): FrozenStruct =
@@ -101,7 +102,7 @@ internal class StructGen<V> internal constructor(
                         StructFreezeField { value, _ ->
                             Result.success(value)
                         },
-                )
+                ),
             )
     }
 
@@ -128,7 +129,7 @@ internal class StructGen<V> internal constructor(
                     StructFreezeField { value, _ ->
                         Result.success(value)
                     },
-            )
+            ),
         )
     }
 
@@ -311,10 +312,9 @@ class FrozenStruct internal constructor(
 /**
  * Helper function to extract struct from a value.
  */
-internal fun structGenFromValue(value: Value): StructGen<*>? {
-    return value.downcastRef<Struct>()?.delegate
+internal fun structGenFromValue(value: Value): StructGen<*>? =
+    value.downcastRef<Struct>()?.delegate
         ?: value.downcastRef<FrozenStruct>()?.delegate
-}
 
 internal fun Any?.asStructValueOrNull(): Value? =
     when (this) {

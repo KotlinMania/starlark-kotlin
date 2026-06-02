@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.convertIndex
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap

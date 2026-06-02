@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.freezeSmallMap
@@ -48,7 +47,6 @@ internal data class DictGen<T>(
     val inner: T,
 ) : ComplexValue,
     Trace {
-
     override val TYPE: String get() = Dict.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
@@ -375,11 +373,13 @@ private fun Any?.asDictLike(): DictLike? =
         }
         else -> null
     }
+
 class FrozenDict internal constructor(
     internal val delegate: DictGen<FrozenDictData>,
 ) : ComplexValue by delegate,
     Trace {
     val inner: FrozenDictData get() = delegate.inner
+
     override fun trace(tracer: Tracer) {
         delegate.trace(tracer)
     }
@@ -387,9 +387,7 @@ class FrozenDict internal constructor(
     override fun toString(): String = delegate.toString()
 
     companion object {
-        fun fromValue(value: Value): FrozenDict? {
-            return value.downcastRef<FrozenDict>()
-        }
+        fun fromValue(value: Value): FrozenDict? = value.downcastRef<FrozenDict>()
     }
 }
 
@@ -399,6 +397,7 @@ class MutableDict internal constructor(
     Trace,
     Freeze<FrozenDict> {
     internal val inner: AtomicRef<Dict> get() = delegate.inner
+
     override fun trace(tracer: Tracer) {
         delegate.trace(tracer)
     }
@@ -411,19 +410,16 @@ class MutableDict internal constructor(
     }
 
     companion object {
-        fun fromValue(value: Value): MutableDict? {
-            return value.downcastRef<MutableDict>()
-        }
+        fun fromValue(value: Value): MutableDict? = value.downcastRef<MutableDict>()
     }
 }
 
 internal val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<FrozenDict> =
     AllocStaticSimple.alloc(FrozenDict(DictGen(FrozenDictData(SmallMap.new()))))
 
-internal fun dictGenFromValue(value: Value): DictGen<*>? {
-    return value.downcastRef<MutableDict>()?.delegate
+internal fun dictGenFromValue(value: Value): DictGen<*>? =
+    value.downcastRef<MutableDict>()?.delegate
         ?: value.downcastRef<FrozenDict>()?.delegate
-}
 
 /** Helper type for lookups, not useful. */
 data class ValueStr(

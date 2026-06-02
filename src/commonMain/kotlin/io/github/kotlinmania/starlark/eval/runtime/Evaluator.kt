@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/eval/runtime/evaluator.rs
+
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -29,7 +30,6 @@ import io.github.kotlinmania.starlark.codemap.FileSpanRef
 import io.github.kotlinmania.starlark.codemap.ResolvedFileSpan
 import io.github.kotlinmania.starlark.collections.Alloca
 import io.github.kotlinmania.starlark.collections.StringPool
-import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.environment.FrozenModuleData
 import io.github.kotlinmania.starlark.environment.Module
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
@@ -77,6 +77,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
 import io.github.kotlinmania.starlark.values.types.NativeFunction
+import kotlin.native.HiddenFromObjC
 
 private sealed class EvaluatorError(
     override val message: String,

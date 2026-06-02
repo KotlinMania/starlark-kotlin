@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/types/namespace/value.rs
+
 package io.github.kotlinmania.starlark.values.types.namespace
 
 /*
@@ -70,28 +71,32 @@ internal class NamespaceGen<V> internal constructor(
 
     companion object {
         fun mutable(fields: SmallMap<String, MaybeDocHiddenValue<Value>>): Namespace =
-            Namespace(NamespaceGen(
-                fields = fields,
-                traceValue =
-                    NamespaceTraceValue { value, tracer ->
-                        val holder = ValueHolder(value)
-                        tracer.trace(holder)
-                        holder.value
-                    },
-                freezeValue =
-                    NamespaceFreezeValue { value, freezer ->
-                        freezer.freeze(value)
-                    },
-            ))
+            Namespace(
+                NamespaceGen(
+                    fields = fields,
+                    traceValue =
+                        NamespaceTraceValue { value, tracer ->
+                            val holder = ValueHolder(value)
+                            tracer.trace(holder)
+                            holder.value
+                        },
+                    freezeValue =
+                        NamespaceFreezeValue { value, freezer ->
+                            freezer.freeze(value)
+                        },
+                ),
+            )
 
         fun frozen(fields: SmallMap<String, MaybeDocHiddenValue<FrozenValue>>): FrozenNamespace =
-            FrozenNamespace(NamespaceGen(
-                fields = fields,
-                freezeValue =
-                    NamespaceFreezeValue { value, _ ->
-                        Result.success(value)
-                    },
-            ))
+            FrozenNamespace(
+                NamespaceGen(
+                    fields = fields,
+                    freezeValue =
+                        NamespaceFreezeValue { value, _ ->
+                            Result.success(value)
+                        },
+                ),
+            )
 
         fun fromValue(value: Value): NamespaceGen<*>? =
             value.downcastRef<Namespace>()?.delegate
@@ -225,9 +230,7 @@ class Namespace internal constructor(
     }
 
     companion object {
-        fun fromValue(value: Value): Namespace? {
-            return value.downcastRef<Namespace>()
-        }
+        fun fromValue(value: Value): Namespace? = value.downcastRef<Namespace>()
     }
 }
 
@@ -245,9 +248,7 @@ class FrozenNamespace internal constructor(
     }
 
     companion object {
-        fun fromValue(value: Value): FrozenNamespace? {
-            return value.downcastRef<FrozenNamespace>()
-        }
+        fun fromValue(value: Value): FrozenNamespace? = value.downcastRef<FrozenNamespace>()
     }
 }
 

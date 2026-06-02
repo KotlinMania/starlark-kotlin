@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/layout/value.rs
+
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -36,7 +37,6 @@ package io.github.kotlinmania.starlark.values.layout
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import io.github.kotlinmania.starlark.Error
-import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.StarlarkHashValue
 import io.github.kotlinmania.starlark.collections.StarlarkHasher
@@ -93,6 +93,7 @@ import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
+import kotlin.native.HiddenFromObjC
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
@@ -139,7 +140,9 @@ private fun debugValue(typ: String, v: Value): String {
             return "$typ(Forward($ptrOpt))"
         }
     }
-    val listGen = io.github.kotlinmania.starlark.values.types.list.listGenFromValue(v)
+    val listGen =
+        io.github.kotlinmania.starlark.values.types.list
+            .listGenFromValue(v)
     if (listGen != null) {
         val content = (listGen.data as io.github.kotlinmania.starlark.values.types.list.ListLike).content()
         val contentStr = content.joinToString(", ") { debugValue("Value", it) }
@@ -915,7 +918,9 @@ class Value internal constructor(
 
         try {
             // Check list
-            val listGen = io.github.kotlinmania.starlark.values.types.list.listGenFromValue(this)
+            val listGen =
+                io.github.kotlinmania.starlark.values.types.list
+                    .listGenFromValue(this)
             if (listGen != null) {
                 val listLike = listGen.data as? io.github.kotlinmania.starlark.values.types.list.ListLike
                 val content = listLike?.content() ?: emptyList()
@@ -931,7 +936,9 @@ class Value internal constructor(
             }
 
             // Check tuple
-            val tupleGen = io.github.kotlinmania.starlark.values.types.tuple.tupleGenFromValue(this)
+            val tupleGen =
+                io.github.kotlinmania.starlark.values.types.tuple
+                    .tupleGenFromValue(this)
             if (tupleGen != null) {
                 val content = tupleGen.content()
                 val sb = StringBuilder()
@@ -950,7 +957,9 @@ class Value internal constructor(
             }
 
             // Check Dict
-            val dictGen = io.github.kotlinmania.starlark.values.types.dict.dictGenFromValue(this)
+            val dictGen =
+                io.github.kotlinmania.starlark.values.types.dict
+                    .dictGenFromValue(this)
             if (dictGen != null) {
                 val entries =
                     when (val inner = dictGen.inner) {
@@ -1445,7 +1454,7 @@ class Value internal constructor(
 // Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
 
 internal fun Value.Companion.default(): Value = Value.newNone()
- 
+
 internal fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
 
 @HiddenFromObjC

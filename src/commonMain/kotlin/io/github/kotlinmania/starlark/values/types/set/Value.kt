@@ -312,9 +312,7 @@ class MutableSet internal constructor(
         delegate.trace(tracer)
     }
 
-    override fun freeze(freezer: Freezer): Result<FrozenSet> {
-        return delegate.freezeToFrozenSet(freezer)
-    }
+    override fun freeze(freezer: Freezer): Result<FrozenSet> = delegate.freezeToFrozenSet(freezer)
 }
 
 class FrozenSet internal constructor(
@@ -331,10 +329,9 @@ class FrozenSet internal constructor(
     }
 }
 
-internal fun setGenFromValue(value: Value): SetGen<*>? {
-    return value.downcastRef<MutableSet>()?.delegate
+internal fun setGenFromValue(value: Value): SetGen<*>? =
+    value.downcastRef<MutableSet>()?.delegate
         ?: value.downcastRef<FrozenSet>()?.delegate
-}
 
 /**
  * AllocValue implementation for SetData.

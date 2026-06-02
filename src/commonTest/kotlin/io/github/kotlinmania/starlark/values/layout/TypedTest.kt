@@ -51,7 +51,7 @@ class TypedTest {
                     } else if (msg.contains("Expected frozen value of type")) {
                         throw IllegalArgumentException(
                             "Type of parameter `value` doesn't match, expected `TestComplexValue`, actual `${v.toStringForTypeError()}`",
-                            e
+                            e,
                         )
                     } else {
                         throw e

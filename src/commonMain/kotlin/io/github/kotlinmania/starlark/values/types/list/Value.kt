@@ -414,6 +414,7 @@ class FrozenList internal constructor(
 ) : StarlarkValue by delegate,
     Trace {
     val data: FrozenListData get() = delegate.data
+
     override fun trace(tracer: Tracer) {
         delegate.trace(tracer)
     }
@@ -421,9 +422,7 @@ class FrozenList internal constructor(
     override fun toString(): String = delegate.toString()
 
     companion object {
-        fun fromValue(value: Value): FrozenList? {
-            return value.downcastRef<FrozenList>()
-        }
+        fun fromValue(value: Value): FrozenList? = value.downcastRef<FrozenList>()
     }
 }
 
@@ -432,6 +431,7 @@ class MutableStarlarkList internal constructor(
 ) : StarlarkValue by delegate,
     Trace {
     val data: ListData get() = delegate.data
+
     override fun trace(tracer: Tracer) {
         delegate.trace(tracer)
     }
@@ -439,9 +439,7 @@ class MutableStarlarkList internal constructor(
     override fun toString(): String = delegate.toString()
 
     companion object {
-        fun fromValue(value: Value): MutableStarlarkList? {
-            return value.downcastRef<MutableStarlarkList>()
-        }
+        fun fromValue(value: Value): MutableStarlarkList? = value.downcastRef<MutableStarlarkList>()
     }
 }
 
@@ -450,10 +448,9 @@ internal val VALUE_EMPTY_FROZEN_LIST: AllocStaticSimple<FrozenList> =
 
 internal fun FrozenList.offsetOfContent(): Int = 0
 
-internal fun listGenFromValue(value: Value): ListGen<*>? {
-    return value.downcastRef<MutableStarlarkList>()?.delegate
+internal fun listGenFromValue(value: Value): ListGen<*>? =
+    value.downcastRef<MutableStarlarkList>()?.delegate
         ?: value.downcastRef<FrozenList>()?.delegate
-}
 
 // Error: Value is not list, value type: `{0}`
 private class NotListError(

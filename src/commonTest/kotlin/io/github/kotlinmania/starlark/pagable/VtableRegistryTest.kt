@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.pagable
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.StarlarkValueRawPtr
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

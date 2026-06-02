@@ -87,7 +87,12 @@ internal class Constants(
                             g
                                 .getFrozen("typing")
                                 ?.downcastFrozenRef<FrozenNamespace>()
-                        typing?.asRef()?.fields?.get("Callable")?.value?.let { BuiltinFn(it) }
+                        typing
+                            ?.asRef()
+                            ?.fields
+                            ?.get("Callable")
+                            ?.value
+                            ?.let { BuiltinFn(it) }
                     },
             )
         }

@@ -704,4 +704,3 @@ internal fun pass(program: String): OwnedFrozenValue = Assert().pass(program)
 
 /** See [Assert.passModule]. */
 internal fun passModule(program: String): FrozenModule = Assert().passModule(program)
-

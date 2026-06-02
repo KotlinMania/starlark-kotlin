@@ -29,6 +29,7 @@ internal class StaticTest {
             val value: UInt,
         ) : StarlarkValue {
             override val TYPE: String get() = "my_simple_value"
+
             override fun toString(): String = "MySimpleValue"
         }
 

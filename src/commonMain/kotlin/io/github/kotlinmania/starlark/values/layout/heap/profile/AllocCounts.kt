@@ -46,4 +46,3 @@ data class AllocCounts(
 }
 
 internal fun Iterable<AllocCounts>.sum(): AllocCounts = fold(AllocCounts.default()) { acc, x -> acc + x }
-

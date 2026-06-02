@@ -167,9 +167,13 @@ class Tuple internal constructor(
     internal val delegate: TupleGen<Value>,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
     fun len(): Int = delegate.len()
+
     fun content(): List<Value> = delegate.content()
+
     fun contentMut(): MutableList<Value> = delegate.contentMut()
+
     fun iter(): Iterator<Value> = delegate.iter()
+
     override fun toString(): String = delegate.toString()
 
     companion object {
@@ -185,8 +189,11 @@ class FrozenTuple internal constructor(
     internal val delegate: TupleGen<FrozenValue>,
 ) : io.github.kotlinmania.starlark.values.StarlarkValue by delegate {
     fun len(): Int = delegate.len()
+
     fun content(): List<FrozenValue> = delegate.content()
+
     fun iter(): Iterator<Value> = delegate.iter()
+
     override fun toString(): String = delegate.toString()
 
     companion object {
@@ -198,10 +205,9 @@ class FrozenTuple internal constructor(
     }
 }
 
-internal fun tupleGenFromValue(value: Value): TupleGen<*>? {
-    return value.downcastRef<Tuple>()?.delegate
+internal fun tupleGenFromValue(value: Value): TupleGen<*>? =
+    value.downcastRef<Tuple>()?.delegate
         ?: value.downcastRef<FrozenTuple>()?.delegate
-}
 
 /** The empty tuple, statically allocated. */
 internal val VALUE_EMPTY_TUPLE: AllocStaticSimple<FrozenTuple> =
