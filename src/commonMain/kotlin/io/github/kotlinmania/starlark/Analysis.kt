@@ -60,7 +60,7 @@ import kotlin.native.HiddenFromObjC
  * Extension interface for [io.github.kotlinmania.starlark.syntax.AstModule] to support linting.
  */
 @HiddenFromObjC
-interface AstModuleLint {
+internal interface AstModuleLint {
     /**
      * Run a static linter over the module. If the complete set of global variables are known
      * they can be passed as the [globals] argument, resulting in name-resolution lint errors.

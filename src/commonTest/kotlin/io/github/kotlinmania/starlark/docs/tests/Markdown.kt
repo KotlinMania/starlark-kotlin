@@ -287,7 +287,7 @@ internal fun globalsRenderSignatureAtBottomWithLinkedType() {
 
 internal fun goldenDocsObject() {
     val docs = DocType.fromStarlarkValue(MarkdownObj())
-    val res = docsGoldenTest("object.golden.md", DocItem.Type(docs))
+    val res = docsGoldenTest("object.golden.md", DocItem.TypeDoc(docs))
 
     check(res.contains("name.__exported__"))
 }

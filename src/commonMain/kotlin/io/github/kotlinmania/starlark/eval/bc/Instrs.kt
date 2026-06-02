@@ -98,7 +98,7 @@ private fun emptyInstrs(): List<Any> {
  * Instructions are stored as `(BcInstrHeader, arg)` pairs. Each header occupies
  * one list slot and its corresponding argument occupies the next slot.
  */
-class BcInstrs private constructor(
+internal class BcInstrs private constructor(
     private val instrs: List<Any>,
     internal val stmtLocs: BcStatementLocations,
 ) {
@@ -383,7 +383,7 @@ class BcInstrs private constructor(
  * Used during bytecode writing for forward jumps where the target
  * address is not yet known at write time.
  */
-class PatchAddr(
+internal class PatchAddr(
     val instrStart: BcAddr,
     val arg: BcAddr,
 )
@@ -400,7 +400,7 @@ class PatchAddr(
  * where each instruction is stored as a header/arg pair of objects, and the
  * garbage collector handles cleanup.
  */
-class BcInstrsWriter {
+internal class BcInstrsWriter {
     internal val instrs: MutableList<Any> = mutableListOf()
 
     // In Kotlin, GC handles cleanup.

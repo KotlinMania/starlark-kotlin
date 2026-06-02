@@ -101,11 +101,11 @@ private fun rsplitnWhitespace(s: String, maxsplit: Int): List<String> {
 }
 
 sealed class StringOrTuple {
-    data class String(
+    data class StringVal(
         val value: kotlin.String,
     ) : StringOrTuple()
 
-    data class Tuple(
+    data class TupleVal(
         val items: List<kotlin.String>,
     ) : StringOrTuple()
 }
@@ -563,7 +563,7 @@ internal fun stringMethods(builder: MethodsBuilder) {
 private fun unpackStringOrTuple(v: Value): StringOrTuple? {
     val s = v.unpackStr()
     if (s != null) {
-        return StringOrTuple.String(s)
+        return StringOrTuple.StringVal(s)
     }
     val tuple = TupleRef.fromValue(v)
     if (tuple != null) {
@@ -572,7 +572,7 @@ private fun unpackStringOrTuple(v: Value): StringOrTuple? {
             val itemStr = item.unpackStr() ?: return null
             items.add(itemStr)
         }
-        return StringOrTuple.Tuple(items)
+        return StringOrTuple.TupleVal(items)
     }
     return null
 }
@@ -708,8 +708,8 @@ internal fun endswith(
     suffix: StringOrTuple,
 ): Result<Boolean> =
     when (suffix) {
-        is StringOrTuple.String -> Result.success(thisStr.endsWith(suffix.value))
-        is StringOrTuple.Tuple -> Result.success(suffix.items.any { thisStr.endsWith(it) })
+        is StringOrTuple.StringVal -> Result.success(thisStr.endsWith(suffix.value))
+        is StringOrTuple.TupleVal -> Result.success(suffix.items.any { thisStr.endsWith(it) })
     }
 
 /**
@@ -1632,8 +1632,8 @@ internal fun startswith(
     prefix: StringOrTuple,
 ): Result<Boolean> =
     when (prefix) {
-        is StringOrTuple.String -> Result.success(thisStr.startsWith(prefix.value))
-        is StringOrTuple.Tuple -> Result.success(prefix.items.any { thisStr.startsWith(it) })
+        is StringOrTuple.StringVal -> Result.success(thisStr.startsWith(prefix.value))
+        is StringOrTuple.TupleVal -> Result.success(prefix.items.any { thisStr.startsWith(it) })
     }
 
 /**

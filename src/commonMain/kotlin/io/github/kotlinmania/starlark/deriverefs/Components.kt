@@ -72,7 +72,7 @@ class NativeCallableComponents(
             null -> DocItem.Member(DocMember.Function(funcDocs))
             else -> {
                 val (_, tyDocs) = asType
-                DocItem.Type(
+                DocItem.TypeDoc(
                     DocType(
                         docs = tyDocs.docs,
                         members = tyDocs.members,

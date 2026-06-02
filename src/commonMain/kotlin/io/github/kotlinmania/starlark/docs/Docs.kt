@@ -227,7 +227,7 @@ sealed class DocItem {
         val module: DocModule,
     ) : DocItem()
 
-    class Type(
+    class TypeDoc(
         val type: DocType,
     ) : DocItem()
 
@@ -239,7 +239,7 @@ sealed class DocItem {
     fun getDocString(): DocString? =
         when (this) {
             is Module -> module.docs
-            is Type -> type.docs
+            is TypeDoc -> type.docs
             is Member -> member.getDocString()
         }
 
@@ -256,7 +256,7 @@ sealed class DocItem {
         when (this) {
             is Module -> Result.failure(IllegalStateException("Cannot collapse module to member"))
             is Member -> Result.success(member)
-            is Type ->
+            is TypeDoc ->
                 Result.success(
                     DocMember.Property(
                         DocProperty(

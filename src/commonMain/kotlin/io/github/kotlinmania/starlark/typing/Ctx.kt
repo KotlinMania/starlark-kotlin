@@ -525,9 +525,9 @@ internal class TypingContext(
             }
             is ExprP.Literal ->
                 when (node.literal) {
-                    is AstLiteral.Int -> kotlin.Result.success(Ty.int())
-                    is AstLiteral.Float -> kotlin.Result.success(Ty.float())
-                    is AstLiteral.String -> kotlin.Result.success(Ty.string())
+                    is AstLiteral.IntLit -> kotlin.Result.success(Ty.int())
+                    is AstLiteral.FloatLit -> kotlin.Result.success(Ty.float())
+                    is AstLiteral.StringLit -> kotlin.Result.success(Ty.string())
                     is AstLiteral.Ellipsis -> kotlin.Result.success(Ty.any())
                 }
             is ExprP.Not -> {

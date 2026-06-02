@@ -32,7 +32,7 @@ import kotlin.math.max
 
 // --- BcStmtLoc ---
 
-class BcStmtLoc(
+internal class BcStmtLoc(
     val span: FrameSpan,
 )
 
@@ -42,7 +42,7 @@ class BcStmtLoc(
  * do a lookup for every instruction) and so it's implemented as a vec of statements and then a vec of
  * statement indexes for each possible BcAddr in a bytecode Bc.
  */
-class BcStatementLocations(
+internal class BcStatementLocations(
     val locs: MutableList<BcStmtLoc> = mutableListOf(),
     /** Map bytecode offset to index in `locs`. */
     val stmts: MutableList<Int> = mutableListOf(),

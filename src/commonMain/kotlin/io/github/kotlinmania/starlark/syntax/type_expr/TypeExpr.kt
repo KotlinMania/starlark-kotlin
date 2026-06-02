@@ -1,4 +1,5 @@
 // port-lint: source starlark_syntax/src/syntax/type_expr.rs
+
 package io.github.kotlinmania.starlark.syntax.typeexpr
 
 /*
@@ -247,9 +248,9 @@ sealed class TypeExprUnpackP<P : AstPayload, IP> {
                 is ExprP.Lambda<*, *> -> err("lambda")
                 is ExprP.Literal<*> ->
                     when (node.literal) {
-                        is AstLiteral.String -> err("string literal")
-                        is AstLiteral.Int -> err("int")
-                        is AstLiteral.Float -> err("float")
+                        is AstLiteral.StringLit -> err("string literal")
+                        is AstLiteral.IntLit -> err("int")
+                        is AstLiteral.FloatLit -> err("float")
                         is AstLiteral.Ellipsis -> Spanned(node = Ellipsis(), span = span)
                     }
                 is ExprP.Not<*> -> err("not")

@@ -1,4 +1,5 @@
 // port-lint: source src/syntax/ast.rs
+
 package io.github.kotlinmania.starlark.syntax.ast
 
 /*
@@ -143,15 +144,15 @@ sealed class ParameterP<P : AstPayload> {
 }
 
 sealed class AstLiteral {
-    data class Int(
+    data class IntLit(
         val value: AstInt,
     ) : AstLiteral()
 
-    data class Float(
+    data class FloatLit(
         val value: AstFloat,
     ) : AstLiteral()
 
-    data class String(
+    data class StringLit(
         val value: AstString,
     ) : AstLiteral()
 

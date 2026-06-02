@@ -227,7 +227,7 @@ private const val SET_TYPE: String = "set"
  */
 class SetData internal constructor(
     /** The data stored by the set. */
-    val content: SmallSet<Value>,
+    internal val content: SmallSet<Value>,
 ) : Trace {
     override fun trace(tracer: Tracer) {
         for (i in content.entries.indices) {
@@ -275,7 +275,7 @@ class SetData internal constructor(
  */
 class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
-    val content: SmallSet<FrozenValue> = SmallSet(),
+    internal val content: SmallSet<FrozenValue> = SmallSet(),
 ) : SetLike {
     override fun content(): SmallSet<Value> = valueContent()
 

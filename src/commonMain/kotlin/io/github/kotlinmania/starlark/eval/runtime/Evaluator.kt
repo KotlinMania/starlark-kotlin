@@ -429,7 +429,7 @@ class Evaluator(
      * * some optimizer transformations may remove statements
      */
     @HiddenFromObjC
-    fun coverage(): Set<ResolvedFileSpan> {
+    internal fun coverage(): Set<ResolvedFileSpan> {
         val pMode = profileOrInstrumentationMode
         if (pMode is ProfileOrInstrumentationMode.Profile && pMode.mode == ProfileMode.Coverage) {
             return stmtProfile.coverage()
@@ -912,7 +912,7 @@ class Evaluator(
     }
 }
 
-interface EvaluationCallbacks {
+internal interface EvaluationCallbacks {
     fun beforeInstr(
         eval: Evaluator,
         ip: BcPtrAddr,
@@ -920,7 +920,7 @@ interface EvaluationCallbacks {
     )
 }
 
-object EvalCallbacksDisabled : EvaluationCallbacks {
+internal object EvalCallbacksDisabled : EvaluationCallbacks {
     override fun beforeInstr(
         eval: Evaluator,
         ip: BcPtrAddr,
@@ -930,15 +930,15 @@ object EvalCallbacksDisabled : EvaluationCallbacks {
     }
 }
 
-enum class EvalCallbacksMode {
+internal enum class EvalCallbacksMode {
     BcProfile,
     BeforeStmt,
 }
 
-class EvalCallbacksEnabled(
-    val mode: EvalCallbacksMode,
-    val stmtLocs: BcStatementLocations,
-    val bcStartPtr: BcPtrAddr,
+internal class EvalCallbacksEnabled(
+    internal val mode: EvalCallbacksMode,
+    internal val stmtLocs: BcStatementLocations,
+    internal val bcStartPtr: BcPtrAddr,
 ) : EvaluationCallbacks {
     private fun beforeStmt(eval: Evaluator, ip: BcPtrAddr) {
         val offset = ip.offsetFrom(bcStartPtr)

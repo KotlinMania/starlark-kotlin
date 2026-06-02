@@ -39,9 +39,9 @@ interface FileLoader {
 // / A list of all load statements can be obtained through
 // / This struct will raise an error if any requested files are not available.
 @HiddenFromObjC
-class ReturnFileLoader(
+internal class ReturnFileLoader(
     // / Map from module name (first argument to `load` statement) to the actual module.
-    val modules: Map<String, FrozenModule>,
+    private val modules: Map<String, FrozenModule>,
 ) : FileLoader {
     override fun load(path: String): FrozenModule =
         modules[path]

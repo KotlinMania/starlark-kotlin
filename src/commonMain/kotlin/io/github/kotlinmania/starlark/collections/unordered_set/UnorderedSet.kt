@@ -30,7 +30,7 @@ import io.github.kotlinmania.starlark.collections.unorderedmap.UnorderedMap
  * Corresponds to Rust `UnorderedSet<T>` which wraps `UnorderedMap<T, ()>`.
  * In Kotlin, we wrap [UnorderedMap]<T, [Unit]> to maintain the same structure.
  */
-class UnorderedSet<T> internal constructor(
+internal class UnorderedSet<T> internal constructor(
     private val map: UnorderedMap<T, Unit>,
 ) {
     companion object {
@@ -125,7 +125,7 @@ internal fun <T : Comparable<T>> UnorderedSet<T>.entriesSorted(): List<T> =
  * Builder for [RawEntryMut].
  * Corresponds to Rust `RawEntryBuilderMut<'a, T>`.
  */
-class RawEntryBuilderMut<T>(
+internal class RawEntryBuilderMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawEntryBuilderMut<T, Unit>,
 ) {
     /**
@@ -163,7 +163,7 @@ class RawEntryBuilderMut<T>(
  * Reference to an entry in a [UnorderedSet].
  * Corresponds to Rust `RawEntryMut<'a, T>`.
  */
-sealed class RawEntryMut<T> {
+internal sealed class RawEntryMut<T> {
     /** Occupied entry. */
     class Occupied<T>(
         val entry: RawOccupiedEntryMut<T>,
@@ -179,7 +179,7 @@ sealed class RawEntryMut<T> {
  * Reference to an occupied entry in a [UnorderedSet].
  * Corresponds to Rust `RawOccupiedEntryMut<'a, T>`.
  */
-class RawOccupiedEntryMut<T>(
+internal class RawOccupiedEntryMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawOccupiedEntryMut<T, Unit>,
 ) {
     /** Remove the entry. */
@@ -193,7 +193,7 @@ class RawOccupiedEntryMut<T>(
  * Reference to a vacant entry in a [UnorderedSet].
  * Corresponds to Rust `RawVacantEntryMut<'a, T>`.
  */
-class RawVacantEntryMut<T>(
+internal class RawVacantEntryMut<T>(
     private val entry: io.github.kotlinmania.starlark.collections.unorderedmap.RawVacantEntryMut<T, Unit>,
 ) {
     /** Insert an entry to the set. Computes the hash of the key. */

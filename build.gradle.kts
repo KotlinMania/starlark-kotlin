@@ -805,7 +805,7 @@ tasks.named("build") {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink>().configureEach {
     doFirst {
         val file = outputFile.get()
-        println("KOTLIN NATIVE LINK TASK: ${name}, OUTPUT: ${file.absolutePath}")
+        println("KOTLIN NATIVE LINK TASK: $name, OUTPUT: ${file.absolutePath}")
         file.parentFile.mkdirs()
     }
 }

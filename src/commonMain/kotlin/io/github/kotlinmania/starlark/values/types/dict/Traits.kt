@@ -50,19 +50,19 @@ internal fun <K, V> SmallMap<K, V>.allocFrozenValueRef(heap: FrozenHeap): Frozen
     AllocDict(this.iter().asIterable()).allocFrozenValue(heap)
 
 /** StarlarkTypeRepr for &SmallMap<K, V>. */
-object SmallMapRefStarlarkTypeRepr {
+internal object SmallMapRefStarlarkTypeRepr {
     inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty =
         DictType.starlarkTypeRepr<K, V>()
 }
 
 /** StarlarkTypeRepr for SmallMap<K, V>. */
-object SmallMapStarlarkTypeRepr {
+internal object SmallMapStarlarkTypeRepr {
     inline fun <reified K : StarlarkTypeRepr, reified V : StarlarkTypeRepr> starlarkTypeRepr(): Ty =
         DictType.starlarkTypeRepr<K, V>()
 }
 
 /** UnpackValue for SmallMap<K, V> where K: UnpackValue + Hash + Eq, V: UnpackValue. */
-object SmallMapUnpackValue {
+internal object SmallMapUnpackValue {
     fun <K : Any, T : Any> unpackValueImpl(value: Value): Result<SmallMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
         val it = dict.deref().iter()
@@ -102,21 +102,21 @@ internal fun <K, V> Map<K, V>.allocFrozenValueBTreeMapRef(heap: FrozenHeap): Fro
     AllocDict(this.entries.map { (k, v) -> k to v }).allocFrozenValue(heap)
 
 /** StarlarkTypeRepr for &BTreeMap<K, V>. */
-object BTreeMapRefStarlarkTypeRepr {
+internal object BTreeMapRefStarlarkTypeRepr {
     inline fun <reified K, reified V> starlarkTypeRepr(): Ty
         where K : Comparable<K>, K : StarlarkTypeRepr, V : StarlarkTypeRepr =
         DictType.starlarkTypeRepr<K, V>()
 }
 
 /** StarlarkTypeRepr for BTreeMap<K, V>. */
-object BTreeMapStarlarkTypeRepr {
+internal object BTreeMapStarlarkTypeRepr {
     inline fun <reified K, reified V> starlarkTypeRepr(): Ty
         where K : Comparable<K>, K : StarlarkTypeRepr, V : StarlarkTypeRepr =
         DictType.starlarkTypeRepr<K, V>()
 }
 
 /** UnpackValue for BTreeMap<K, V> where K: UnpackValue + Ord, V: UnpackValue. */
-object BTreeMapUnpackValue {
+internal object BTreeMapUnpackValue {
     fun <K : Comparable<K>, T : Any> unpackValueImpl(value: Value): Result<MutableMap<K, T>?> {
         val dict = dictRefFromValue(value) ?: return Result.success(null)
         val r = mutableMapOf<K, T>()

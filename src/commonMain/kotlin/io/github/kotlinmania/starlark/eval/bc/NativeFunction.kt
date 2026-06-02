@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.values.types.NativeFunc
 import io.github.kotlinmania.starlark.values.types.NativeFunction
 
 /** Pointer to a native function optimized for bytecode execution. */
-class BcNativeFunction private constructor(
+internal class BcNativeFunction private constructor(
     private val func: FrozenValueTyped<NativeFunction>,
     /** Copy function here from [func] to avoid extra dereference when calling. */
     private val imp: NativeFunc,

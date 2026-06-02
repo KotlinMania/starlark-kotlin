@@ -1,4 +1,4 @@
-// port-lint: source src/small_map.rs
+
 package io.github.kotlinmania.starlark.collections
 
 /*

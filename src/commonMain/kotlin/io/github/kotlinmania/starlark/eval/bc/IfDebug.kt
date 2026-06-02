@@ -40,7 +40,7 @@ package io.github.kotlinmania.starlark.eval.bc
 // so gazebo suggests implementing `Dupe` for any `<T>`. T102920913.
 //     _marker: marker::PhantomData<T>,
 // Kotlin: no cfg-based conditional compilation; always store the value.
-class IfDebug<T> private constructor(
+internal class IfDebug<T> private constructor(
     private val value: T?,
 ) : Comparable<IfDebug<T>> {
     companion object {

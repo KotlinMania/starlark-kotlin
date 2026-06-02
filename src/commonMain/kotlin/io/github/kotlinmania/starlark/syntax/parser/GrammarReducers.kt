@@ -3596,7 +3596,7 @@ object GrammarReducers {
         val l = sym0.second as Int
         val i = sym1.second as AstInt
         val r = sym2.second as Int
-        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.Int(i)).ast(l, r)
+        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.IntLit(i)).ast(l, r)
         return __ret
     }
 
@@ -3604,7 +3604,7 @@ object GrammarReducers {
         val l = sym0.second as Int
         val f = sym1.second as AstFloat
         val r = sym2.second as Int
-        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.Float(f)).ast(l, r)
+        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.FloatLit(f)).ast(l, r)
         return __ret
     }
 
@@ -3612,7 +3612,7 @@ object GrammarReducers {
         val l = sym0.second as Int
         val s = sym1.second as AstString
         val r = sym2.second as Int
-        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.String(s)).ast(l, r)
+        val __ret = ExprP.Literal<AstNoPayload>(AstLiteral.StringLit(s)).ast(l, r)
         return __ret
     }
 

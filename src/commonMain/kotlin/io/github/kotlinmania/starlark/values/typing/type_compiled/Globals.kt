@@ -34,8 +34,8 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
         speculativeExecSafe = true,
         ty =
             Ty.function(
-                ParamSpec.posOnly(listOf(Ty.basic(TyBasic.Type))),
-                Ty.basic(TyBasic.Type),
+                ParamSpec.posOnly(listOf(Ty.basic(TyBasic.TypeObject))),
+                Ty.basic(TyBasic.TypeObject),
             ),
     ) { args: Arguments, eval: Evaluator ->
         val ty = args.positional1(eval.heap()).getOrThrow()
@@ -64,7 +64,7 @@ internal fun registerEvalType(globals: GlobalsBuilder) {
         "isinstance",
         ty =
             Ty.function(
-                ParamSpec.posOnly(listOf(Ty.any(), Ty.basic(TyBasic.Type))),
+                ParamSpec.posOnly(listOf(Ty.any(), Ty.basic(TyBasic.TypeObject))),
                 Ty.bool(),
             ),
     ) { args: Arguments, eval: Evaluator ->

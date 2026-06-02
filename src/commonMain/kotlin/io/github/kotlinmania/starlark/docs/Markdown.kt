@@ -330,7 +330,7 @@ internal fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConf
                 null,
                 renderConfig,
             )
-        is DocItem.Type ->
+        is DocItem.TypeDoc ->
             renderDocType(
                 "`$name` type",
                 "$name.",

@@ -65,7 +65,7 @@ class StarlarkValueAsType<T : StarlarkTypeRepr>
             inline fun <reified T> new(instance: T): StarlarkValueAsType<T>
             where T : StarlarkTypeRepr, T : StarlarkValue {
                 val tyFn: () -> Ty = { instance.getTypeStarlarkRepr() }
-                val docFn: () -> DocItem = { DocItem.Type(DocType.fromStarlarkValue(instance)) }
+                val docFn: () -> DocItem = { DocItem.TypeDoc(DocType.fromStarlarkValue(instance)) }
                 return StarlarkValueAsType(
                     inner = StarlarkValueAsTypeStarlarkValue(tyFn, docFn),
                     tyRepr = tyFn,

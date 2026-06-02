@@ -28,11 +28,11 @@ import io.github.kotlinmania.starlark.ErrorKind
  * Conversion from arbitrary exceptions is disallowed by design in order to enforce
  * that freeze errors only contain error messages and contexts as strings, no metadata.
  */
-class FreezeError(
+class FreezeError internal constructor(
     /** The base error message. */
     val errMsg: String,
     /** The error contexts that are added to the error message. */
-    val contexts: MutableList<String> = mutableListOf(),
+    internal val contexts: MutableList<String> = mutableListOf(),
 ) : Exception(errMsg) {
     /** Convert to an exception with layered context messages (mirrors `From<FreezeError> for anyhow::Error`). */
     fun toException(): Exception {

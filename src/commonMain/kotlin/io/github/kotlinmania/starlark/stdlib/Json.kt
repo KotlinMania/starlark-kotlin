@@ -57,7 +57,7 @@ import kotlin.native.HiddenFromObjC
  * Represents a JSON number that can be an integer (i64/u64) or floating point (f64),
  * or an arbitrarily large integer stored as its string representation.
  */
-class JsonNumber(
+internal class JsonNumber(
     private val raw: String,
 ) {
     /** Try to interpret this number as an unsigned 64-bit integer. */
@@ -94,7 +94,7 @@ class JsonNumber(
 // ---- StarlarkTypeRepr for JsonNumber ----
 
 /** [StarlarkTypeRepr] implementation for [JsonNumber]. */
-object JsonNumberTypeRepr : StarlarkTypeRepr {
+internal object JsonNumberTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
         Ty.union2(
             Ty
@@ -140,7 +140,7 @@ private fun allocFrozenStarlarkInt(starlarkInt: StarlarkInt, heap: FrozenHeap): 
  * unsigned 64-bit integer, then signed 64-bit integer, then f64,
  * then falls back to BigInt for arbitrarily large integers.
  */
-fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
+internal fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
     number.asU64()?.let {
         return allocStarlarkInt(
             StarlarkInt
@@ -177,7 +177,7 @@ fun allocJsonNumber(number: JsonNumber, heap: Heap): Value {
  *
  * Same conversion logic as [allocJsonNumber], but on a [FrozenHeap].
  */
-fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
+internal fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
     number.asU64()?.let {
         return allocFrozenStarlarkInt(
             StarlarkInt
@@ -216,7 +216,7 @@ fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
  * null, boolean, number, string, array, and object.
  */
 @HiddenFromObjC
-sealed class JsonValue {
+internal sealed class JsonValue {
     data object Null : JsonValue()
 
     data class Bool(
@@ -243,7 +243,7 @@ sealed class JsonValue {
 // ---- StarlarkTypeRepr for JsonValue ----
 
 /** [StarlarkTypeRepr] implementation for [JsonValue]. */
-object JsonValueTypeRepr : StarlarkTypeRepr {
+internal object JsonValueTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
         Ty
             .any()
@@ -262,7 +262,7 @@ object JsonValueTypeRepr : StarlarkTypeRepr {
  * - arrays become Starlark lists
  * - objects become Starlark dicts
  */
-fun allocJsonValue(json: JsonValue, heap: Heap): Value =
+internal fun allocJsonValue(json: JsonValue, heap: Heap): Value =
     when (json) {
         is JsonValue.Null ->
             Value
@@ -287,7 +287,7 @@ fun allocJsonValue(json: JsonValue, heap: Heap): Value =
  *
  * Same recursive conversion as [allocJsonValue], but on a [FrozenHeap].
  */
-fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue =
+internal fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue =
     when (json) {
         is JsonValue.Null ->
             FrozenValue
@@ -308,7 +308,7 @@ fun allocFrozenJsonValue(json: JsonValue, heap: FrozenHeap): FrozenValue =
 // ---- StarlarkTypeRepr for JSON Map ----
 
 /** [StarlarkTypeRepr] implementation for JSON maps (dict type). */
-object JsonMapTypeRepr : StarlarkTypeRepr {
+internal object JsonMapTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty =
         Ty.dict(
             Ty
@@ -322,7 +322,7 @@ object JsonMapTypeRepr : StarlarkTypeRepr {
 
 /** Allocate a JSON map as a Starlark dict value. */
 @HiddenFromObjC
-fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
+internal fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
     val converted = map.mapValues { allocJsonValue(it.value, heap) }
     return allocJsonMapOnHeap(converted, heap)
 }
@@ -331,7 +331,7 @@ fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
 
 /** Allocate a JSON map as a frozen Starlark dict value. */
 @HiddenFromObjC
-fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
+internal fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
     val converted = map.mapValues { allocFrozenJsonValue(it.value, heap) }
     return allocFrozenJsonMapOnHeap(converted, heap)
 }

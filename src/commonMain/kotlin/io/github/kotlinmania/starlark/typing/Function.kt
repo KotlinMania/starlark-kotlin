@@ -52,7 +52,7 @@ class TyCustomFunction<F : TyCustomFunctionImpl>(
     override fun binOp(binOp: TypingBinOp, rhs: TyBasic, ctx: TypingOracleCtx): Result<Ty> =
         when {
             // `str | list`.
-            binOp == TypingBinOp.BitOr && inner.isType() -> Result.success(Ty.basic(TyBasic.Type))
+            binOp == TypingBinOp.BitOr && inner.isType() -> Result.success(Ty.basic(TyBasic.TypeObject))
             else -> Result.failure(TypingNoContextOrInternalError.Typing)
         }
 

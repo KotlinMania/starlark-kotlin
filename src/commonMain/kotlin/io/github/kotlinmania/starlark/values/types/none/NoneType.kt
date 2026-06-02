@@ -24,6 +24,7 @@ import io.github.kotlinmania.starlark.collections.StarlarkHasher
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
@@ -33,7 +34,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
 // / Define the None type, use [`NoneType`] in Rust.
-object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneType> {
+object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, StarlarkTypeRepr {
     // / The result of `type(None)`.
     override val TYPE: String = "NoneType"
     override val HAS_eval_type: Boolean get() = true
@@ -73,6 +74,14 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
     }
 
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = FrozenValue.newNone()
+}
+
+internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
+
+fun getTypeStarlarkRepr(): Ty = NoneType.getTypeStarlarkRepr()
+
+internal class NoneTypeUnpackValueImpl : UnpackValue<NoneType> {
+    override fun starlarkTypeRepr(): Ty = Ty.none()
 
     override fun unpackValueImpl(value: Value): Result<NoneType?> =
         if (value.isNone()) {
@@ -82,8 +91,6 @@ object NoneType : StarlarkValue, AllocValue, AllocFrozenValue, UnpackValue<NoneT
         }
 }
 
-internal val VALUE_NONE: AllocStaticSimple<NoneType> = AllocStaticSimple.alloc(NoneType)
+internal val NoneTypeUnpackValue: UnpackValue<NoneType> = NoneTypeUnpackValueImpl()
 
-fun getTypeStarlarkRepr(): Ty = NoneType.getTypeStarlarkRepr()
-
-fun unpackValueImpl(value: Value): Result<NoneType?> = NoneType.unpackValueImpl(value)
+fun unpackValueImpl(value: Value): Result<NoneType?> = NoneTypeUnpackValue.unpackValueImpl(value)

@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/list_or_tuple.rs
+
 package io.github.kotlinmania.starlark.values.types.listortuple
 
 /*
@@ -24,9 +25,9 @@ package io.github.kotlinmania.starlark.values.types.listortuple
 /** Unpack a value of type `list[T]` or `tuple[T, ...]` into a list. */
 class UnpackListOrTuple<T>(
     /** Unpacked items of the list or tuple. */
-    val items: MutableList<T>,
+    val items: List<T>,
 ) : Iterable<T> {
-    constructor() : this(mutableListOf())
+    constructor() : this(emptyList())
 
     companion object {
         // Kotlin: type representation delegates to Either<UnpackList<T>, UnpackTuple<T>>
@@ -39,11 +40,11 @@ class UnpackListOrTuple<T>(
         ): UnpackListOrTuple<T>? {
             val listResult = unpackList(value)
             if (listResult != null) {
-                return UnpackListOrTuple(listResult.toMutableList())
+                return UnpackListOrTuple(listResult)
             }
             val tupleResult = unpackTuple(value)
             if (tupleResult != null) {
-                return UnpackListOrTuple(tupleResult.toMutableList())
+                return UnpackListOrTuple(tupleResult)
             }
             return null
         }

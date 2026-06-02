@@ -77,27 +77,27 @@ private fun Throwable.starlarkErrorMessage(): String =
         else -> message ?: toString()
     }
 
-fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
+internal fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: Evaluator): kotlin.Result<Unit> =
     result
 
 // Real addAssign and bitOrAssign functions are imported from eval.compiler
 
-fun possibleGc(eval: Evaluator) {
+internal fun possibleGc(eval: Evaluator) {
     io.github.kotlinmania.starlark.eval.compiler
         .possibleGc(eval)
 }
 
-fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
+internal fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
     kotlin.Result.success(StringValue.default())
 
-fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue.default()
+internal fun formatOne(before: String, arg: Value, after: String, heap: Heap): StringValue = StringValue.default()
 
 /**
  * Instructions which either fail or proceed to the following instruction,
  * and it returns error with span.
  * Instructions which either fail or proceed to the following instruction.
  */
-interface InstrNoFlowImpl {
+internal interface InstrNoFlowImpl {
     fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -106,7 +106,7 @@ interface InstrNoFlowImpl {
     ): kotlin.Result<Unit>
 }
 
-class InstrNoFlow(
+internal class InstrNoFlow(
     val impl: InstrNoFlowImpl,
 ) : BcInstr {
     override fun run(
@@ -126,7 +126,7 @@ class InstrNoFlow(
 
 // --- Constant Loading ---
 
-object InstrConstImpl : InstrNoFlowImpl {
+internal object InstrConstImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -141,7 +141,7 @@ object InstrConstImpl : InstrNoFlowImpl {
 
 // --- Local/Module Load/Store ---
 
-object InstrLoadLocalImpl : InstrNoFlowImpl {
+internal object InstrLoadLocalImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -159,7 +159,7 @@ object InstrLoadLocalImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrLoadLocalCapturedImpl : InstrNoFlowImpl {
+internal object InstrLoadLocalCapturedImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -177,7 +177,7 @@ object InstrLoadLocalCapturedImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrLoadModuleImpl : InstrNoFlowImpl {
+internal object InstrLoadModuleImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -195,7 +195,7 @@ object InstrLoadModuleImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrMovImpl : InstrNoFlowImpl {
+internal object InstrMovImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -209,7 +209,7 @@ object InstrMovImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrStoreLocalCapturedImpl : InstrNoFlowImpl {
+internal object InstrStoreLocalCapturedImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -223,7 +223,7 @@ object InstrStoreLocalCapturedImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrStoreModuleAndExportImpl : InstrNoFlowImpl {
+internal object InstrStoreModuleAndExportImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -239,7 +239,7 @@ object InstrStoreModuleAndExportImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrStoreModuleImpl : InstrNoFlowImpl {
+internal object InstrStoreModuleImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -255,7 +255,7 @@ object InstrStoreModuleImpl : InstrNoFlowImpl {
 
 // --- Unpack ---
 
-data class UnpackArg(
+internal data class UnpackArg(
     val source: BcSlotIn,
     val targets: List<BcSlotOut>,
 )
@@ -288,7 +288,7 @@ private fun Any.toUnpackArg(): UnpackArg {
     )
 }
 
-object InstrUnpackImpl : InstrNoFlowImpl {
+internal object InstrUnpackImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -319,7 +319,7 @@ object InstrUnpackImpl : InstrNoFlowImpl {
 
 // --- Array/Object Access ---
 
-object InstrArrayIndexImpl : InstrNoFlowImpl {
+internal object InstrArrayIndexImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -339,7 +339,7 @@ object InstrArrayIndexImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrSetArrayIndexImpl : InstrNoFlowImpl {
+internal object InstrSetArrayIndexImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -354,7 +354,7 @@ object InstrSetArrayIndexImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrArrayIndexSetImpl : InstrNoFlowImpl {
+internal object InstrArrayIndexSetImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -369,7 +369,7 @@ object InstrArrayIndexSetImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrObjectFieldImpl : InstrNoFlowImpl {
+internal object InstrObjectFieldImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -388,7 +388,7 @@ object InstrObjectFieldImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrSetObjectFieldImpl : InstrNoFlowImpl {
+internal object InstrSetObjectFieldImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -404,7 +404,7 @@ object InstrSetObjectFieldImpl : InstrNoFlowImpl {
 
 // --- Slice ---
 
-data class SliceArg(
+internal data class SliceArg(
     val list: BcSlotIn,
     val start: BcSlotIn?,
     val stop: BcSlotIn?,
@@ -412,7 +412,7 @@ data class SliceArg(
     val target: BcSlotOut,
 )
 
-object InstrSliceImpl : InstrNoFlowImpl {
+internal object InstrSliceImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -436,14 +436,14 @@ object InstrSliceImpl : InstrNoFlowImpl {
 
 // --- Array Index 2 ---
 
-data class ArrayIndex2Arg(
+internal data class ArrayIndex2Arg(
     val array: BcSlotIn,
     val index0: BcSlotIn,
     val index1: BcSlotIn,
     val target: BcSlotOut,
 )
 
-object InstrArrayIndex2Impl : InstrNoFlowImpl {
+internal object InstrArrayIndex2Impl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -466,7 +466,7 @@ object InstrArrayIndex2Impl : InstrNoFlowImpl {
 
 // --- Equality ---
 
-object InstrEqImpl : InstrNoFlowImpl {
+internal object InstrEqImpl : InstrNoFlowImpl {
     fun eval(v0: Value, v1: Value, heap: Heap): Result<Value> = v0.equals(v1).map { Value.newBool(it) }
 
     override fun runWithArgs(
@@ -490,7 +490,7 @@ object InstrEqImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrEqConstImpl : InstrNoFlowImpl {
+internal object InstrEqConstImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -509,7 +509,7 @@ object InstrEqConstImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrEqPtrImpl : InstrNoFlowImpl {
+internal object InstrEqPtrImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -524,7 +524,7 @@ object InstrEqPtrImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrEqIntImpl : InstrNoFlowImpl {
+internal object InstrEqIntImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -547,7 +547,7 @@ object InstrEqIntImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrEqStrImpl : InstrNoFlowImpl {
+internal object InstrEqStrImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -570,102 +570,102 @@ object InstrEqStrImpl : InstrNoFlowImpl {
 
 // --- Unary Operators ---
 
-interface InstrUnOpImpl {
+internal interface InstrUnOpImpl {
     fun eval(v: Value, heap: Heap): kotlin.Result<Value>
 }
 
-interface InstrBinOpImpl {
+internal interface InstrBinOpImpl {
     fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value>
 }
 
-object InstrNotImpl : InstrUnOpImpl {
+internal object InstrNotImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> =
         kotlin.Result.success(Value.newBool(!v.toBool()))
 }
 
-object InstrPlusImpl : InstrUnOpImpl {
+internal object InstrPlusImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> = v.plus(heap)
 }
 
-object InstrMinusImpl : InstrUnOpImpl {
+internal object InstrMinusImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> = v.minus(heap)
 }
 
-object InstrBitNotImpl : InstrUnOpImpl {
+internal object InstrBitNotImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> = v.bitNot(heap)
 }
 
 // --- Binary Operators ---
 
-object InstrAddImpl : InstrBinOpImpl {
+internal object InstrAddImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> = v0.add(v1, heap)
 }
 
-object InstrAddAssignImpl : InstrBinOpImpl {
+internal object InstrAddAssignImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         addAssign(v0, v1, heap)
 }
 
-object InstrSubImpl : InstrBinOpImpl {
+internal object InstrSubImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> = v0.sub(v1, heap)
 }
 
-object InstrMultiplyImpl : InstrBinOpImpl {
+internal object InstrMultiplyImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> = v0.mul(v1, heap)
 }
 
-object InstrPercentImpl : InstrBinOpImpl {
+internal object InstrPercentImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.percent(v1, heap)
 }
 
-object InstrFloorDivideImpl : InstrBinOpImpl {
+internal object InstrFloorDivideImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.floorDiv(v1, heap)
 }
 
-object InstrDivideImpl : InstrBinOpImpl {
+internal object InstrDivideImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> = v0.div(v1, heap)
 }
 
-object InstrBitAndImpl : InstrBinOpImpl {
+internal object InstrBitAndImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.bitAnd(v1, heap)
 }
 
-object InstrBitOrImpl : InstrBinOpImpl {
+internal object InstrBitOrImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.bitOr(v1, heap)
 }
 
-object InstrBitOrAssignImpl : InstrBinOpImpl {
+internal object InstrBitOrAssignImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         bitOrAssign(v0, v1, heap)
 }
 
-object InstrBitXorImpl : InstrBinOpImpl {
+internal object InstrBitXorImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.bitXor(v1, heap)
 }
 
-object InstrLeftShiftImpl : InstrBinOpImpl {
+internal object InstrLeftShiftImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.leftShift(v1, heap)
 }
 
-object InstrRightShiftImpl : InstrBinOpImpl {
+internal object InstrRightShiftImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v0.rightShift(v1, heap)
 }
 
-object InstrInImpl : InstrBinOpImpl {
+internal object InstrInImpl : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> =
         v1.isIn(v0).map { Value.newBool(it) }
 }
 
 // --- Binary/Unary Op Wrappers ---
 
-class InstrBinOpWrapper(
+internal class InstrBinOpWrapper(
     private val impl: InstrBinOpImpl,
 ) : InstrNoFlowImpl {
     override fun runWithArgs(
@@ -687,7 +687,7 @@ class InstrBinOpWrapper(
     }
 }
 
-class InstrUnOpWrapper(
+internal class InstrUnOpWrapper(
     private val impl: InstrUnOpImpl,
 ) : InstrNoFlowImpl {
     override fun runWithArgs(
@@ -710,7 +710,7 @@ class InstrUnOpWrapper(
 
 // --- String Interpolation ---
 
-object InstrPercentSOneImpl : InstrNoFlowImpl {
+internal object InstrPercentSOneImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -729,14 +729,14 @@ object InstrPercentSOneImpl : InstrNoFlowImpl {
     }
 }
 
-data class PercentSOneArg(
+internal data class PercentSOneArg(
     val before: FrozenStringValue,
     val argSlot: BcSlotIn,
     val after: FrozenStringValue,
     val target: BcSlotOut,
 )
 
-object InstrFormatOneImpl : InstrNoFlowImpl {
+internal object InstrFormatOneImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -753,27 +753,27 @@ object InstrFormatOneImpl : InstrNoFlowImpl {
 
 // --- Comparison ---
 
-interface InstrCompareImpl {
+internal interface InstrCompareImpl {
     fun evalCompare(ordering: Int): Boolean
 }
 
-object InstrLessImpl : InstrCompareImpl {
+internal object InstrLessImpl : InstrCompareImpl {
     override fun evalCompare(ordering: Int): Boolean = ordering < 0
 }
 
-object InstrGreaterImpl : InstrCompareImpl {
+internal object InstrGreaterImpl : InstrCompareImpl {
     override fun evalCompare(ordering: Int): Boolean = ordering > 0
 }
 
-object InstrLessOrEqualImpl : InstrCompareImpl {
+internal object InstrLessOrEqualImpl : InstrCompareImpl {
     override fun evalCompare(ordering: Int): Boolean = ordering <= 0
 }
 
-object InstrGreaterOrEqualImpl : InstrCompareImpl {
+internal object InstrGreaterOrEqualImpl : InstrCompareImpl {
     override fun evalCompare(ordering: Int): Boolean = ordering >= 0
 }
 
-class InstrCompareWrapper(
+internal class InstrCompareWrapper(
     private val impl: InstrCompareImpl,
 ) : InstrBinOpImpl {
     override fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> {
@@ -788,12 +788,12 @@ class InstrCompareWrapper(
 
 // --- Type/Len ---
 
-object InstrTypeImpl : InstrUnOpImpl {
+internal object InstrTypeImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> =
         kotlin.Result.success(v.getTypeValue().toFrozenValue().toValue())
 }
 
-object InstrTypeIsImpl : InstrNoFlowImpl {
+internal object InstrTypeIsImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -808,7 +808,7 @@ object InstrTypeIsImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrIsInstanceImpl : InstrNoFlowImpl {
+internal object InstrIsInstanceImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -823,7 +823,7 @@ object InstrIsInstanceImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrLenImpl : InstrUnOpImpl {
+internal object InstrLenImpl : InstrUnOpImpl {
     override fun eval(v: Value, heap: Heap): kotlin.Result<Value> {
         val len = v.length()
         return if (len.isSuccess) {
@@ -836,12 +836,12 @@ object InstrLenImpl : InstrUnOpImpl {
 
 // --- Tuple/List/Dict Construction ---
 
-data class SlotRangeTargetArg(
+internal data class SlotRangeTargetArg(
     val values: BcSlotInRange,
     val target: BcSlotOut,
 )
 
-object InstrTupleNPopImpl : InstrNoFlowImpl {
+internal object InstrTupleNPopImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -856,7 +856,7 @@ object InstrTupleNPopImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrListNPopImpl : InstrNoFlowImpl {
+internal object InstrListNPopImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -871,7 +871,7 @@ object InstrListNPopImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrListOfConstsImpl : InstrNoFlowImpl {
+internal object InstrListOfConstsImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -885,7 +885,7 @@ object InstrListOfConstsImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrDictOfConstsImpl : InstrNoFlowImpl {
+internal object InstrDictOfConstsImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -903,7 +903,7 @@ object InstrDictOfConstsImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrDictNPopImpl : InstrNoFlowImpl {
+internal object InstrDictNPopImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -939,13 +939,13 @@ object InstrDictNPopImpl : InstrNoFlowImpl {
     }
 }
 
-data class DictConstKeysArg(
+internal data class DictConstKeysArg(
     val keys: List<Hashed<FrozenValue>>,
     val values: BcSlotInRangeFrom,
     val target: BcSlotOut,
 )
 
-object InstrDictConstKeysImpl : InstrNoFlowImpl {
+internal object InstrDictConstKeysImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -964,7 +964,7 @@ object InstrDictConstKeysImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrListNewImpl : InstrNoFlowImpl {
+internal object InstrListNewImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -978,7 +978,7 @@ object InstrListNewImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrDictNewImpl : InstrNoFlowImpl {
+internal object InstrDictNewImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -994,7 +994,7 @@ object InstrDictNewImpl : InstrNoFlowImpl {
 
 // --- Comprehension ---
 
-object InstrComprListAppend : BcInstr {
+internal object InstrComprListAppend : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
         eval: Evaluator,
@@ -1011,7 +1011,7 @@ object InstrComprListAppend : BcInstr {
     }
 }
 
-object InstrComprDictInsert : BcInstr {
+internal object InstrComprDictInsert : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
         eval: Evaluator,
@@ -1034,7 +1034,7 @@ object InstrComprDictInsert : BcInstr {
 
 // --- Type Checking ---
 
-object InstrCheckTypeImpl : InstrNoFlowImpl {
+internal object InstrCheckTypeImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1059,7 +1059,7 @@ object InstrCheckTypeImpl : InstrNoFlowImpl {
 
 // --- Branching ---
 
-object InstrBr {
+internal object InstrBr {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1068,7 +1068,7 @@ object InstrBr {
     ): InstrControl = InstrControl.Next(ip.addRel(target))
 }
 
-object InstrIfBr : BcInstr {
+internal object InstrIfBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
         eval: Evaluator,
@@ -1086,7 +1086,7 @@ object InstrIfBr : BcInstr {
     }
 }
 
-object InstrIfNotBr : BcInstr {
+internal object InstrIfNotBr : BcInstr {
     @Suppress("UNCHECKED_CAST")
     override fun run(
         eval: Evaluator,
@@ -1107,7 +1107,7 @@ object InstrIfNotBr : BcInstr {
 // --- For Loop ---
 
 /** Setup `for` loop. */
-data class InstrIterArg(
+internal data class InstrIterArg(
     val over: BcSlotIn,
     val loopDepth: LoopDepth,
     val iterSlot: BcSlotOut,
@@ -1115,7 +1115,7 @@ data class InstrIterArg(
     val end: BcAddrOffset,
 )
 
-object InstrIter : BcInstr {
+internal object InstrIter : BcInstr {
     override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1141,7 +1141,7 @@ object InstrIter : BcInstr {
 }
 
 /** `continue` statement. */
-data class InstrContinueArg(
+internal data class InstrContinueArg(
     val iter: BcSlotIn,
     val loopDepth: LoopDepth,
     val varSlot: BcSlotOut,
@@ -1149,7 +1149,7 @@ data class InstrContinueArg(
     val end: BcAddrOffset,
 )
 
-object InstrContinue {
+internal object InstrContinue {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1174,7 +1174,7 @@ object InstrContinue {
 }
 
 /** `break` statement. */
-object InstrBreak {
+internal object InstrBreak {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1189,7 +1189,7 @@ object InstrBreak {
 }
 
 /** Stop all the iterations to release mutation locks before `return`. */
-object InstrIterStop : BcInstr {
+internal object InstrIterStop : BcInstr {
     override fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1205,7 +1205,7 @@ object InstrIterStop : BcInstr {
 
 // --- Return ---
 
-object InstrReturnConst {
+internal object InstrReturnConst {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1214,7 +1214,7 @@ object InstrReturnConst {
     ): InstrControl = InstrControl.Return(value.toValue())
 }
 
-object InstrReturn {
+internal object InstrReturn {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1226,7 +1226,7 @@ object InstrReturn {
     }
 }
 
-object InstrReturnCheckType {
+internal object InstrReturnCheckType {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1249,7 +1249,7 @@ internal data class InstrDefData(
     val info: FrozenRef<DefInfo>,
 )
 
-object InstrDefImpl : InstrNoFlowImpl {
+internal object InstrDefImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1329,7 +1329,7 @@ object InstrDefImpl : InstrNoFlowImpl {
 // --- Callable ---
 
 /** A frozen function argument to a call instruction. */
-interface BcFrozenCallable {
+internal interface BcFrozenCallable {
     fun bcInvoke(
         location: FrozenRef<FrameSpan>,
         args: Arguments,
@@ -1337,7 +1337,7 @@ interface BcFrozenCallable {
     ): kotlin.Result<Value>
 }
 
-class FrozenValueCallable(
+internal class FrozenValueCallable(
     private val value: FrozenValue,
 ) : BcFrozenCallable {
     override fun bcInvoke(
@@ -1360,7 +1360,7 @@ internal class FrozenDefCallable(
         }
 }
 
-class BcNativeFunctionCallable(
+internal class BcNativeFunctionCallable(
     private val func: BcNativeFunction,
 ) : BcFrozenCallable {
     override fun bcInvoke(
@@ -1375,14 +1375,14 @@ class BcNativeFunctionCallable(
 
 // --- Call Instructions ---
 
-data class CallArg(
+internal data class CallArg(
     val funSlot: BcSlotIn,
     val args: Any,
     val span: FrameSpan,
     val target: BcSlotOut,
 )
 
-object InstrCallImpl : InstrNoFlowImpl {
+internal object InstrCallImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1406,14 +1406,14 @@ object InstrCallImpl : InstrNoFlowImpl {
     }
 }
 
-data class CallFrozenArg(
+internal data class CallFrozenArg(
     val callable: BcFrozenCallable,
     val args: Any,
     val span: FrameSpan,
     val target: BcSlotOut,
 )
 
-object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
+internal object InstrCallFrozenGenericImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1442,7 +1442,7 @@ internal data class CallFrozenDefArg(
     val target: BcSlotOut,
 )
 
-object InstrCallFrozenDefImpl : InstrNoFlowImpl {
+internal object InstrCallFrozenDefImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1469,7 +1469,7 @@ object InstrCallFrozenDefImpl : InstrNoFlowImpl {
 
 // --- Method Calls ---
 
-data class CallMethodArg(
+internal data class CallMethodArg(
     val thisSlot: BcSlotIn,
     val symbol: Symbol,
     val args: Any,
@@ -1545,7 +1545,7 @@ private fun callMaybeKnownMethodCommon(
     return callMethodCommon(eval, frame, thisValue, symbol, arguments, span, target)
 }
 
-object InstrCallMethodImpl : InstrNoFlowImpl {
+internal object InstrCallMethodImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1561,7 +1561,7 @@ object InstrCallMethodImpl : InstrNoFlowImpl {
     }
 }
 
-object InstrCallMaybeKnownMethodImpl : InstrNoFlowImpl {
+internal object InstrCallMaybeKnownMethodImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1588,7 +1588,7 @@ object InstrCallMaybeKnownMethodImpl : InstrNoFlowImpl {
 
 // --- GC ---
 
-object InstrPossibleGcImpl : InstrNoFlowImpl {
+internal object InstrPossibleGcImpl : InstrNoFlowImpl {
     override fun runWithArgs(
         eval: Evaluator,
         frame: BcFramePtr,
@@ -1608,7 +1608,7 @@ object InstrPossibleGcImpl : InstrNoFlowImpl {
  * * as a safety against memory overruns. Function block must terminate with return instruction,
  *   but if return was missed, this instruction is executed and it panics.
  */
-object InstrEnd {
+internal object InstrEnd {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,

@@ -32,17 +32,17 @@ import io.github.kotlinmania.starlark.eval.runtime.ResolvedArgName
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 /** Call arguments. */
-interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
+internal interface BcCallArgs<S : ArgSymbol> : BcInstrArg {
     fun popFromStack(frame: BcFramePtr): ArgumentsFull<S>
 }
 
 /** Call arguments for `def` call. */
-interface BcCallArgsForDef : BcInstrArg {
+internal interface BcCallArgsForDef : BcInstrArg {
     fun popFromStack(stack: BcFramePtr): ArgumentsImpl<ResolvedArgName>
 }
 
 /** Full call arguments: positional, named, star and star-star. All taken from the stack. */
-class BcCallArgsFull<S : ArgSymbol>(
+internal class BcCallArgsFull<S : ArgSymbol>(
     val posNamed: BcSlotInRange,
     val names: List<Pair<S, FrozenStringValue>>,
     val args: BcSlotIn?,
@@ -78,7 +78,7 @@ class BcCallArgsFull<S : ArgSymbol>(
 }
 
 /** Positional-only call arguments, from stack. */
-class BcCallArgsPos(
+internal class BcCallArgsPos(
     /** Range of positional arguments. */
     val pos: BcSlotInRange,
 )
@@ -96,7 +96,7 @@ internal fun BcCallArgsFull<Symbol>.resolve(def: FrozenDef): BcCallArgsFull<Reso
     )
 
 /** Pop full call arguments from the stack frame. */
-class BcCallArgsFullCallArgs<S : ArgSymbol>(
+internal class BcCallArgsFullCallArgs<S : ArgSymbol>(
     private val full: BcCallArgsFull<S>,
 ) : BcCallArgs<S> {
     override fun popFromStack(frame: BcFramePtr): ArgumentsFull<S> {
@@ -132,7 +132,7 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
 }
 
 /** Pop positional-only call arguments from the stack frame. */
-class BcCallArgsPosCallArgs<S : ArgSymbol>(
+internal class BcCallArgsPosCallArgs<S : ArgSymbol>(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgs<S> {
     override fun popFromStack(frame: BcFramePtr): ArgumentsFull<S> {
@@ -163,7 +163,7 @@ class BcCallArgsPosCallArgs<S : ArgSymbol>(
 }
 
 /** Full call arguments for def calls, popping from the stack frame. */
-class BcCallArgsFullForDef(
+internal class BcCallArgsFullForDef(
     private val full: BcCallArgsFull<ResolvedArgName>,
 ) : BcCallArgsForDef {
     override fun popFromStack(stack: BcFramePtr): ArgumentsFull<ResolvedArgName> {
@@ -199,7 +199,7 @@ class BcCallArgsFullForDef(
 }
 
 /** Positional-only call arguments for def calls, popping from the stack frame. */
-class BcCallArgsPosForDef(
+internal class BcCallArgsPosForDef(
     private val posArgs: BcCallArgsPos,
 ) : BcCallArgsForDef {
     override fun popFromStack(stack: BcFramePtr): ArgumentsPos<ResolvedArgName> {

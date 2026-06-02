@@ -148,7 +148,7 @@ internal fun <P : AstPayload> DocString.Companion.extractRawStarlarkDocstring(bo
             val exprNode = exprSpanned.node
             if (exprNode is ExprP.Literal) {
                 val lit = exprNode.literal
-                if (lit is AstLiteral.String) {
+                if (lit is AstLiteral.StringLit) {
                     return lit.value.node
                 }
             }

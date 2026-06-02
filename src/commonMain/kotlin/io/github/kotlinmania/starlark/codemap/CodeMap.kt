@@ -142,9 +142,6 @@ class CodeMap(
         return ResolvedSpan(begin = begin, end = end)
     }
 
-    /** Filename method (mirrors Rust's CodeMap::filename()). */
-    fun filename(): String = filename
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CodeMap) return false

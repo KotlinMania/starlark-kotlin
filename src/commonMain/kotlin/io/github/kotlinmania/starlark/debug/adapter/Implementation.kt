@@ -364,7 +364,7 @@ private class BreakpointConfig {
     // maps a source filename to the breakpoint spans for the file
     private val breakpoints: MutableMap<String, Map<Span, Breakpoint>> = mutableMapOf()
 
-    fun at(spanLoc: FileSpanRef): Breakpoint? = breakpoints[spanLoc.file.filename()]?.get(spanLoc.span)
+    fun at(spanLoc: FileSpanRef): Breakpoint? = breakpoints[spanLoc.file.filename]?.get(spanLoc.span)
 
     fun setBreakpoints(
         source: String,
@@ -444,7 +444,7 @@ private fun convertFrame(id: Int, name: String, location: FileSpan?): StackFrame
             column = span.begin.column + 1,
             endLine = span.end.line + 1,
             endColumn = span.end.column + 1,
-            source = location.file.filename(),
+            source = location.file.filename,
         )
     }
     return s

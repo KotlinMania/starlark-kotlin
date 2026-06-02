@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/list/unpack.rs
+
 package io.github.kotlinmania.starlark.values.types.list
 
 /*
@@ -34,10 +35,10 @@ import io.github.kotlinmania.starlark.values.layout.Value
  */
 data class UnpackList<T>(
     /** Unpacked items. */
-    val items: MutableList<T>,
+    val items: List<T>,
 ) : Iterable<T> {
     /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
-    constructor() : this(mutableListOf())
+    constructor() : this(emptyList())
 
     /**
      * Returns an iterator over the items.
@@ -51,7 +52,7 @@ data class UnpackList<T>(
      *
      * Corresponds to Rust's `impl IntoIterator for &mut UnpackList<T>`.
      */
-    fun iterMut(): MutableIterator<T> = items.iterator()
+    fun iterMut(): MutableIterator<T> = (items as? MutableList<T> ?: items.toMutableList()).iterator()
 
     companion object {
         /** Creates a default empty [UnpackList]. */
@@ -121,7 +122,7 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
  * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
  * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
  */
-internal fun <T> UnpackList<T>.intoList(): MutableList<T> = items
+internal fun <T> UnpackList<T>.intoList(): List<T> = items
 
 /**
  * Extension for iterating an [UnpackList] by reference.

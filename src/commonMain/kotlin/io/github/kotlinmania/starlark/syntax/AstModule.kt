@@ -57,7 +57,7 @@ import io.github.kotlinmania.starlark.syntax.state.ParserState
 import kotlin.native.HiddenFromObjC
 
 @HiddenFromObjC
-class AstLoad(
+internal class AstLoad(
     val span: FileSpan,
     val moduleId: String,
     val symbols: Map<String, String>,
@@ -77,7 +77,7 @@ class AstModule(
     val typecheck: Boolean,
     private val lintSuppressions: LintSuppressions = LintSuppressions.EMPTY,
 ) {
-    fun codemap(): CodeMap = codemap
+    internal fun codemap(): CodeMap = codemap
 
     internal fun statement(): AstStmt = statement
 

@@ -153,11 +153,13 @@ interface UnpackValue<T> : StarlarkTypeRepr {
 }
 
 /** [UnpackValue] impl for [Value] (identity). */
-object ValueUnpackValue : UnpackValue<Value> {
+internal class ValueUnpackValueImpl : UnpackValue<Value> {
     override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
 
     override fun starlarkTypeRepr(): Ty = Ty.any()
 }
+
+internal val ValueUnpackValue: UnpackValue<Value> = ValueUnpackValueImpl()
 
 /** [UnpackValue] impl for [Either]. */
 class EitherUnpackValue<TLeft, TRight>(

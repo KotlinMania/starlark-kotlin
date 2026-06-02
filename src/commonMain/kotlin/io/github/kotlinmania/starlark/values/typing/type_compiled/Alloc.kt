@@ -137,7 +137,7 @@ interface TypeMatcherAlloc<R> {
             is TyBasic.Dict -> dictOf(ty.key.toTy(), ty.value.toTy())
             is TyBasic.Iter -> alloc(IsIterable)
             is TyBasic.Callable -> alloc(IsCallable)
-            is TyBasic.Type -> alloc(IsType)
+            is TyBasic.TypeObject -> alloc(IsType)
             is TyBasic.Custom -> custom(ty.custom)
             is TyBasic.Set -> setOf(ty.item.toTy())
         }

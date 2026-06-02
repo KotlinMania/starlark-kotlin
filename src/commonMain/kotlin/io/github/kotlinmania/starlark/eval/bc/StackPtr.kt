@@ -28,7 +28,7 @@ package io.github.kotlinmania.starlark.eval.bc
  * This can be both a local variable or a temporary.
  * When reading local variable, it must be definitely initialized (e.g. function parameter).
  */
-data class BcSlot(
+internal data class BcSlot(
     val index: UInt,
 ) : Comparable<BcSlot> {
     fun toIn(): BcSlotIn = BcSlotIn(this)
@@ -45,7 +45,7 @@ data class BcSlot(
 /**
  * [N] slots starting with given number.
  */
-class BcSlotsN(
+internal class BcSlotsN(
     /** The const generic N parameter from Rust. */
     val n: Int,
     /** [n] slots starting with given slot. */
@@ -68,7 +68,7 @@ class BcSlotsN(
     }
 }
 
-data class BcSlotRange(
+internal data class BcSlotRange(
     val start: BcSlot,
     val end: BcSlot,
 ) : Iterable<BcSlot> {
@@ -94,7 +94,7 @@ data class BcSlotRange(
  *
  * The slot may be a local variable, so this slot cannot be used to store a temporary value.
  */
-data class BcSlotIn(
+internal data class BcSlotIn(
     val slot: BcSlot,
 ) {
     operator fun plus(rhs: UInt): BcSlotIn = BcSlotIn(slot + rhs)
@@ -109,7 +109,7 @@ data class BcSlotIn(
     override fun toString(): String = slot.toString()
 }
 
-data class BcSlotInRange(
+internal data class BcSlotInRange(
     var start: BcSlotIn,
     var end: BcSlotIn,
 ) {
@@ -149,7 +149,7 @@ data class BcSlotInRange(
     }
 }
 
-data class BcSlotInRangeFrom(
+internal data class BcSlotInRangeFrom(
     val start: BcSlotIn,
 ) {
     fun toRange(len: UInt): BcSlotInRange =
@@ -164,7 +164,7 @@ data class BcSlotInRangeFrom(
  *
  * The slot may be a local variable, so this slot cannot be used to store a temporary value.
  */
-data class BcSlotOut(
+internal data class BcSlotOut(
     val slot: BcSlot,
 ) {
     fun get(): BcSlot = slot

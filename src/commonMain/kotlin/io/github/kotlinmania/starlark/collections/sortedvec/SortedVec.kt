@@ -1,4 +1,3 @@
-// port-lint: source src/sorted_vec.rs
 package io.github.kotlinmania.starlark.collections.sortedvec
 
 /*

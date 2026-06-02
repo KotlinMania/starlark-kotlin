@@ -253,7 +253,7 @@ internal fun DocType.renderAsCode(name: String): String {
 internal fun DocItem.renderAsCode(name: String): String =
     when (this) {
         is DocItem.Module -> this.module.renderAsCode()
-        is DocItem.Type -> this.type.renderAsCode(name)
+        is DocItem.TypeDoc -> this.type.renderAsCode(name)
         is DocItem.Member ->
             when (val m = this.member) {
                 is DocMember.Function -> m.function.renderAsCode(name)
