@@ -97,10 +97,10 @@ fun partialStdlib(builder: GlobalsBuilder) {
 
 /** Generic partial application value. */
 open class PartialGen<V : ValueLike, S : StringValueLike>(
-    val func: V,
+    var func: V,
     // Always references a tuple.
-    val pos: V,
-    val named: List<V>,
+    var pos: V,
+    var named: List<V>,
     val names: List<Pair<Symbol, S>>,
     val namesIndex: HashMap<ULong, Int> = HashMap(),
 ) : StarlarkValue,
@@ -190,22 +190,29 @@ open class PartialGen<V : ValueLike, S : StringValueLike>(
         // func, pos, and named may contain Value objects that need GC tracing.
         // names contain Symbols and StringValues which are identity-traced.
         if (func is Value) {
-            val holder =
-                ValueHolder(func)
+            val holder = ValueHolder(func as Value)
             tracer.trace(holder)
+            @Suppress("UNCHECKED_CAST")
+            func = holder.value as V
         }
         if (pos is Value) {
-            val holder =
-                ValueHolder(pos)
+            val holder = ValueHolder(pos as Value)
             tracer.trace(holder)
+            @Suppress("UNCHECKED_CAST")
+            pos = holder.value as V
         }
+        val newNamed = mutableListOf<V>()
         for (v in named) {
             if (v is Value) {
-                val holder =
-                    ValueHolder(v)
+                val holder = ValueHolder(v)
                 tracer.trace(holder)
+                @Suppress("UNCHECKED_CAST")
+                newNamed.add(holder.value as V)
+            } else {
+                newNamed.add(v)
             }
         }
+        named = newNamed
     }
 }
 

@@ -74,6 +74,10 @@ sealed class FunctionError(
     data object KwArgsIsNotDict :
         FunctionError("The argument provided for **kwargs is not a dictionary")
 
+    data class MissingParameter(
+        val msg: String,
+    ) : FunctionError(msg)
+
     //     if min == max {min.to_string()} else {format!("between {min} and {max}")})]
     data class WrongNumberOfArgs(
         val min: Int,
@@ -649,11 +653,31 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 v.unpackLong().getOrThrow()
                     ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
             Boolean::class -> v.toBool()
-            ValueTyped::class -> ValueTyped.newUnchecked<StarlarkValue>(v)
+            ValueTyped::class -> {
+                val typeArg = kotlin.reflect.typeOf<T>().arguments.firstOrNull()?.type
+                val classifier = typeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (classifier != null) {
+                    @Suppress("UNCHECKED_CAST")
+                    val ref = v.downcastRef(classifier as kotlin.reflect.KClass<out StarlarkValue>)
+                    if (ref == null) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${classifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                    }
+                }
+                ValueTyped.newUnchecked<StarlarkValue>(v)
+            }
             FrozenValueTyped::class -> {
                 val frozen =
                     v.unpackFrozen()
                         ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
+                val typeArg = kotlin.reflect.typeOf<T>().arguments.firstOrNull()?.type
+                val classifier = typeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (classifier != null) {
+                    @Suppress("UNCHECKED_CAST")
+                    val ref = frozen.toValue().downcastRef(classifier as kotlin.reflect.KClass<out StarlarkValue>)
+                    if (ref == null) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${classifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                    }
+                }
                 FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)
             }
             TypeType::class ->

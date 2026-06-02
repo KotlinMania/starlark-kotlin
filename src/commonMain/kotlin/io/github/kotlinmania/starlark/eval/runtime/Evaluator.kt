@@ -538,20 +538,21 @@ class Evaluator(
     fun frozenHeap(): FrozenHeap = moduleEnv.frozenHeap()
 
     internal fun getSlotModule(slot: ModuleSlotId): Result<Value> {
+        val name =
+            try {
+                when (val frozenModule = topFrameDefFrozenModule(false)) {
+                    null ->
+                        moduleEnv
+                            .mutableNames()
+                            .getSlot(slot)
+                            ?.asStr()
+                    else -> frozenModule.asRef().getSlotName(slot)?.asStr()
+                }
+            } catch (e: Exception) {
+                null
+            } ?: "<unknown>"
+
         fun error(eval: Evaluator, slot: ModuleSlotId): Error {
-            val name =
-                try {
-                    when (val frozenModule = eval.topFrameDefFrozenModule(false)) {
-                        null ->
-                            eval.moduleEnv
-                                .mutableNames()
-                                .getSlot(slot)
-                                ?.asStr()
-                        else -> frozenModule.asRef().getSlotName(slot)?.asStr()
-                    }
-                } catch (e: Exception) {
-                    "<internal error: $e>"
-                } ?: "<unknown>"
             return Error.newOther(
                 EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
             )
@@ -559,8 +560,16 @@ class Evaluator(
 
         val value =
             when (val frozenModule = topFrameDefFrozenModule(false)) {
-                null -> moduleEnv.slots().getSlot(slot)
-                else -> frozenModule.asRef().getSlot(slot)?.let { Value.newFrozen(it) }
+                null -> {
+                    val v = moduleEnv.slots().getSlot(slot)
+                    println("[DEBUG_SLOT] getSlotModule slot=$slot name=$name val_repr=${v?.toRepr()} val_identity=${v?.let{System.identityHashCode(it)}} val_ptr_idx=${v?.ptr?.unpackPtrOpt()}")
+                    v
+                }
+                else -> {
+                    val fv = frozenModule.asRef().getSlot(slot)
+                    println("[DEBUG_SLOT] getSlotModule FROZEN slot=$slot name=$name val_repr=${fv?.toValue()?.toRepr()} val_ptr_idx=${fv?.ptr?.toPointer()?.unpackPtrOpt()}")
+                    fv?.let { Value.newFrozen(it) }
+                }
             }
         return if (value != null) {
             Result.success(value)

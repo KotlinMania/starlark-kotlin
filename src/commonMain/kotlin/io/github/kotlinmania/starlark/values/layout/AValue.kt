@@ -142,9 +142,11 @@ internal fun heapCopyImpl(
 ): Value {
     val (v, r) = tracer.reserve<AValue>()
     val x = value
+    val origVtable = tracer.currentRepr?.header?.vtable
+    tracer.overwriteWithForward(v)
     // We have to put the forwarding node in _before_ we trace in case there are cycles
     trace(x, tracer)
-    r.fill(x)
+    r.fill(x, origVtable)
     return v
 }
 
@@ -160,8 +162,16 @@ internal fun AValueHeader.totalMemoryForProfile(): Long =
     allocSize().bytes().toLong()
 
 /** Copy value using the given tracer. */
-internal fun AValueHeader.heapCopy(tracer: Tracer): Value =
-    unpack().heapCopy(tracer)
+internal fun AValueHeader.heapCopy(tracer: Tracer): Value {
+    val repr = asRepr()
+    val oldRepr = tracer.currentRepr
+    tracer.currentRepr = repr
+    try {
+        return unpack().heapCopy(tracer)
+    } finally {
+        tracer.currentRepr = oldRepr
+    }
+}
 
 /** Len of a collection. */
 internal fun <T> size(list: List<T>): Int = list.size

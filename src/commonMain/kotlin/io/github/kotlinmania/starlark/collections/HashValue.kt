@@ -50,6 +50,15 @@ data class StarlarkHashValue private constructor(
                     hasher.write(key.asStrValue().encodeToByteArray())
                     hasher.writeU8(0xffu)
                 }
+                is io.github.kotlinmania.starlark.values.layout.ValueLike -> {
+                    val v = key.toValue()
+                    val str = v.unpackStarlarkStr()
+                    return if (str != null) {
+                        str.getHash().getOrThrow()
+                    } else {
+                        v.getHash().getOrThrow()
+                    }
+                }
                 is StarlarkHashable -> key.writeHash(hasher)
                 else -> hasher.writeU32(key.hashCode())
             }

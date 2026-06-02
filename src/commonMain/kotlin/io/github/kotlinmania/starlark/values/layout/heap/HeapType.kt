@@ -36,6 +36,7 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.constantString
+import io.github.kotlinmania.starlark.values.layout.heapCopy
 import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
@@ -271,6 +272,7 @@ class Heap internal constructor(
 
     private fun garbageCollectInternal(f: (Tracer) -> Unit) {
         val retainedArena = owned.arena.take()
+        var success = false
         try {
             val tracer =
                 Tracer(
@@ -278,8 +280,13 @@ class Heap internal constructor(
                 )
             f(tracer)
             owned.arena.set(tracer.arena)
+            success = true
         } finally {
-            retainedArena.finish()
+            if (!success) {
+                owned.arena.set(retainedArena)
+            } else {
+                retainedArena.finish()
+            }
         }
     }
 
@@ -584,6 +591,14 @@ class FrozenHeapRef(
 class Tracer internal constructor(
     internal val arena: Arena = Arena(),
 ) {
+    internal var currentRepr: AValueRepr<*>? = null
+
+    fun overwriteWithForward(v: Value) {
+        val repr = currentRepr
+        if (repr != null) {
+            AValueHeader.overwriteWithForward(repr, io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr.newUnfrozen(v))
+        }
+    }
     /** Walk over a value during garbage collection. */
     fun trace(value: ValueHolder) {
         value.value = adjust(value.value)
@@ -630,7 +645,7 @@ class Tracer internal constructor(
         val aValueOrForward = AValueOrForward.Header(header)
         return when (val unpacked = aValueOrForward.unpack()) {
             is AValueOrForwardUnpack.Forward -> unpacked.forward.forwardPtr().unpackUnfrozenValue()
-            is AValueOrForwardUnpack.Header -> unpacked.header.unpack().heapCopy(this)
+            is AValueOrForwardUnpack.Header -> unpacked.header.heapCopy(this)
         }
     }
 }
