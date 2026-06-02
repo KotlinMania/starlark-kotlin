@@ -175,11 +175,8 @@ data class StructGen<V>(
 
     override fun typecheckerTy(): Ty = selfTy()
 
-    /**
-     * Serialize to map format matching Rust serde implementation.
-     */
     @HiddenFromObjC
-    fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
+    internal fun serialize(): Map<String, V> = iter().associate { (k, v) -> k to v }
 }
 
 /**

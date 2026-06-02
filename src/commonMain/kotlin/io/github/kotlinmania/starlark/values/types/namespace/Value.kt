@@ -130,7 +130,7 @@ data class NamespaceGen<V>(
     }
 
     @HiddenFromObjC
-    fun serialize(): Map<String, V> =
+    internal fun serialize(): Map<String, V> =
         fields.iter().associate { (k, v) -> k to v.value }
 }
 
