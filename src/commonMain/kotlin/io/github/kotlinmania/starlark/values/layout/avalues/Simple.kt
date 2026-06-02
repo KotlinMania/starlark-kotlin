@@ -26,12 +26,12 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
-import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
-import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
 import io.github.kotlinmania.starlark.values.layout.heapFreezeSimpleImpl
 import io.github.kotlinmania.starlark.values.layout.tryFreezeDirectly
@@ -40,7 +40,7 @@ internal fun <T : StarlarkValue> simple(x: T): AValueImpl<AValueSimple<T>> = AVa
 
 /** AValue implementation for simple Starlark values. */
 // Kotlin: GC handles memory. AValueSimple is a marker class wrapping a StarlarkValue.
-class AValueSimple<T : StarlarkValue>(
+internal class AValueSimple<T : StarlarkValue>(
     private val inner: T,
 ) : AValue {
     override fun extraLen(value: StarlarkValue): Int = 0
@@ -77,11 +77,11 @@ class AValueSimple<T : StarlarkValue>(
 
 /** Extension function on FrozenHeap for simple typed static allocation. */
 @Suppress("UNCHECKED_CAST")
-fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
+internal fun <T : StarlarkValue> FrozenHeap.allocSimpleTypedStatic(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
 
 /** Allocate a value on the heap. */
 @Suppress("UNCHECKED_CAST")
-fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
+internal fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<T> = allocRaw(simple(value)) as FrozenValueTyped<T>
 
 /**
  * Allocate a simple [`StarlarkValue`] on this heap.
@@ -90,7 +90,7 @@ fun <T : StarlarkValue> FrozenHeap.allocSimpleTyped(value: T): FrozenValueTyped<
  * * bound by `'static` lifetime (in particular, it cannot contain references to other `Value`s)
  * * is not special builtin (e.g. `None`)
  */
-fun <T : StarlarkValue> FrozenHeap.allocSimple(value: T): FrozenValue = allocSimpleTypedStatic(value).toFrozenValue()
+internal fun <T : StarlarkValue> FrozenHeap.allocSimple(value: T): FrozenValue = allocSimpleTypedStatic(value).toFrozenValue()
 
 /** Allocate a simple [`StarlarkValue`] on this heap. */
-fun <T : StarlarkValue> Heap.allocSimple(x: T): Value = allocRaw(simple(x)).toValue()
+internal fun <T : StarlarkValue> Heap.allocSimple(x: T): Value = allocRaw(simple(x)).toValue()

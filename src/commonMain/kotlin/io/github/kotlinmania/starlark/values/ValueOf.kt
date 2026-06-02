@@ -32,7 +32,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * the correct type. Has an `UnpackValue` instance, so often used as
  * an argument to `@starlark_module` defined functions.
  */
-class ValueOf<T>(
+internal class ValueOf<T>(
     /** The original [Value] on the same heap. */
     val value: Value,
     /** The value that was unpacked. */

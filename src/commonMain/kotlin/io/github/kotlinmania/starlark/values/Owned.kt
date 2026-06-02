@@ -50,15 +50,15 @@ internal sealed class OwnedError(
  * See the other methods which unpack the code, access it as a
  * [Value] (which has a suitable lifetime) or add references to other heaps.
  */
-class OwnedFrozenValue(
+public class OwnedFrozenValue(
     @PublishedApi internal val owner: FrozenHeapRef,
     // Invariant: this FrozenValue must be kept alive by the `owner` field.
     @PublishedApi internal val value: FrozenValue,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     companion object {
         /** Create an [OwnedFrozenValue] in a new heap. */
         fun alloc(x: AllocFrozenValue): OwnedFrozenValue {
@@ -132,14 +132,14 @@ class OwnedFrozenValue(
 }
 
 /** Same as [OwnedFrozenValue] but it is known to contain [T]. */
-class OwnedFrozenValueTyped<T : StarlarkValue>(
+internal class OwnedFrozenValueTyped<T : StarlarkValue>(
     private val owner: FrozenHeapRef,
     private val value: FrozenValueTyped<T>,
 ) : AutoCloseable {
-
     override fun close() {
         owner.close()
     }
+
     /** Access the underlying value. */
     fun asRef(): T = value.asRef()
 

@@ -38,7 +38,7 @@ import io.github.kotlinmania.starlark.syntax.ast.StmtP
  * Find the location of a top level function call that has a kwarg `name`, and a string value
  * matching [name].
  */
-interface AstModuleFindCallName {
+internal interface AstModuleFindCallName {
     /**
      * Find the location of a top level function call that has a kwarg `name`, and a string value
      * matching [name].
@@ -55,7 +55,7 @@ interface AstModuleFindCallName {
  *
  * @see AstModuleFindCallName.findFunctionCallWithName
  */
-fun AstModule.findFunctionCallWithName(name: String): Span? {
+internal fun AstModule.findFunctionCallWithName(name: String): Span? {
     var ret: Span? = null
 
     fun visitExpr(node: AstExpr) {

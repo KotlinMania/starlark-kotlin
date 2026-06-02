@@ -29,8 +29,6 @@ import io.github.kotlinmania.starlark.util.cell.UnsafeCell
 import io.github.kotlinmania.starlark.util.refcell.RefCell
 import io.github.kotlinmania.starlark.util.scalar.Usize
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.FrozenValue
-import io.github.kotlinmania.starlark.values.layout.Value
 
 typealias FreezeResult<T> = Result<T>
 
@@ -129,29 +127,29 @@ interface Freeze<Frozen> {
 
 // --- small Rust-shape helpers (line-by-line ports) ---
 
-fun String.freeze(_freezer: Freezer): FreezeResult<String> = Result.success(this)
+internal fun String.freeze(freezer: Freezer): FreezeResult<String> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for String).
 fun freezeString(value: String, freezer: Freezer): FreezeResult<String> = value.freeze(freezer)
 
-fun Int.freeze(_freezer: Freezer): FreezeResult<Int> = Result.success(this)
+internal fun Int.freeze(freezer: Freezer): FreezeResult<Int> = Result.success(this)
 
-fun UInt.freeze(_freezer: Freezer): FreezeResult<UInt> = Result.success(this)
+internal fun UInt.freeze(freezer: Freezer): FreezeResult<UInt> = Result.success(this)
 
-fun Long.freeze(_freezer: Freezer): FreezeResult<Long> = Result.success(this)
+internal fun Long.freeze(freezer: Freezer): FreezeResult<Long> = Result.success(this)
 
-fun ULong.freeze(_freezer: Freezer): FreezeResult<ULong> = Result.success(this)
+internal fun ULong.freeze(freezer: Freezer): FreezeResult<ULong> = Result.success(this)
 
-fun Usize.freeze(_freezer: Freezer): FreezeResult<Usize> = Result.success(this)
+internal fun Usize.freeze(freezer: Freezer): FreezeResult<Usize> = Result.success(this)
 
-fun Boolean.freeze(_freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
+internal fun Boolean.freeze(freezer: Freezer): FreezeResult<Boolean> = Result.success(this)
 
 // Used by some derived-freeze tests (mirrors Rust `Freeze` for bool).
 fun freezeBoolean(value: Boolean, freezer: Freezer): FreezeResult<Boolean> = value.freeze(freezer)
 
-fun <T> PhantomData<T>.freeze(_freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
+internal fun <T> PhantomData<T>.freeze(freezer: Freezer): FreezeResult<PhantomData<T>> = Result.success(PhantomData())
 
-fun <T, TFrozen> List<T>.freeze(
+internal fun <T, TFrozen> List<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<List<TFrozen>> = this.intoTryMap { v -> freeze(v, freezer) }
@@ -161,7 +159,7 @@ internal fun <T, TFrozen> RefCell<T>.freeze(
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen> = freeze(this.getMut(), freezer)
 
-fun <T, TFrozen> UnsafeCell<T>.freeze(
+internal fun <T, TFrozen> UnsafeCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<UnsafeCell<TFrozen>> {
@@ -170,7 +168,7 @@ fun <T, TFrozen> UnsafeCell<T>.freeze(
     return Result.success(UnsafeCell(frozen.getOrThrow()))
 }
 
-fun <T, TFrozen> OnceCell<T>.freeze(
+internal fun <T, TFrozen> OnceCell<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen?> {
@@ -182,7 +180,7 @@ fun <T, TFrozen> OnceCell<T>.freeze(
     }
 }
 
-fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeResult<TFrozen>): FreezeResult<Box<TFrozen>> {
+internal fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeResult<TFrozen>): FreezeResult<Box<TFrozen>> {
     val frozen = freeze(this.asMut(), freezer)
     if (frozen.isFailure) return Result.failure(frozen.exceptionOrNull()!!)
     return Result.success(Box(frozen.getOrThrow()))
@@ -192,7 +190,7 @@ fun <T, TFrozen> Box<T>.freeze(freezer: Freezer, freeze: (T, Freezer) -> FreezeR
 // parameter on Box, so both extensions would compile down to the same
 // `freeze(Box, Freezer, Function2)` JVM signature. Per the kotlinmania
 // JVM-clash workaround we use a distinct Kotlin name rather than @JvmName.
-fun <T, TFrozen> Box<List<T>>.freezeListBox(
+internal fun <T, TFrozen> Box<List<T>>.freezeListBox(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<Box<List<TFrozen>>> =
@@ -201,7 +199,7 @@ fun <T, TFrozen> Box<List<T>>.freezeListBox(
         .intoTryMap { v -> freeze(v, freezer) }
         .map { v -> Box(v) }
 
-fun <T, TFrozen> T?.freeze(
+internal fun <T, TFrozen> T?.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<TFrozen?> =
@@ -211,7 +209,7 @@ fun <T, TFrozen> T?.freeze(
         freeze(this, freezer).map { it }
     }
 
-fun <K, KFrozen> Hashed<K>.freeze(
+internal fun <K, KFrozen> Hashed<K>.freeze(
     freezer: Freezer,
     freeze: (K, Freezer) -> FreezeResult<KFrozen>,
 ): FreezeResult<Hashed<KFrozen>> {
@@ -221,7 +219,7 @@ fun <K, KFrozen> Hashed<K>.freeze(
     return Result.success(Hashed.newUnchecked(this.hash(), frozenKey.getOrThrow()))
 }
 
-fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
+internal fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     freezer: Freezer,
     freezeKey: (K, Freezer) -> FreezeResult<KFrozen>,
     freezeValue: (V, Freezer) -> FreezeResult<VFrozen>,
@@ -239,7 +237,7 @@ fun <K, V, KFrozen, VFrozen> SmallMap<K, V>.freeze(
     return Result.success(new)
 }
 
-fun <T, TFrozen> SmallSet<T>.freeze(
+internal fun <T, TFrozen> SmallSet<T>.freeze(
     freezer: Freezer,
     freeze: (T, Freezer) -> FreezeResult<TFrozen>,
 ): FreezeResult<SmallSet<TFrozen>> {
@@ -252,14 +250,11 @@ fun <T, TFrozen> SmallSet<T>.freeze(
     return Result.success(new)
 }
 
-/** Freeze implementation for [FrozenValue]. Identity freeze — already frozen. */
-fun FrozenValue.freeze(_freezer: Freezer): FreezeResult<FrozenValue> = Result.success(this)
-
 /** Freeze implementation for [Unit] (Rust `()`). Identity freeze. */
-fun Unit.freeze(_freezer: Freezer): FreezeResult<Unit> = Result.success(Unit)
+internal fun Unit.freeze(freezer: Freezer): FreezeResult<Unit> = Result.success(Unit)
 
 /** Freeze implementation for [Tuple1] (Rust 1-tuple `(A,)`). */
-fun <A, AFrozen> Tuple1<A>.freeze(
+internal fun <A, AFrozen> Tuple1<A>.freeze(
     freezer: Freezer,
     freezeA: (A, Freezer) -> FreezeResult<AFrozen>,
 ): FreezeResult<Tuple1<AFrozen>> {
@@ -269,7 +264,7 @@ fun <A, AFrozen> Tuple1<A>.freeze(
 }
 
 /** Freeze implementation for [Pair] (Rust 2-tuple `(A, B)`). */
-fun <A, B, AFrozen, BFrozen> Pair<A, B>.freeze(
+internal fun <A, B, AFrozen, BFrozen> Pair<A, B>.freeze(
     freezer: Freezer,
     freezeA: (A, Freezer) -> FreezeResult<AFrozen>,
     freezeB: (B, Freezer) -> FreezeResult<BFrozen>,
@@ -282,7 +277,7 @@ fun <A, B, AFrozen, BFrozen> Pair<A, B>.freeze(
 }
 
 /** Freeze implementation for [Triple] (Rust 3-tuple `(A, B, C)`). */
-fun <A, B, C, AFrozen, BFrozen, CFrozen> Triple<A, B, C>.freeze(
+internal fun <A, B, C, AFrozen, BFrozen, CFrozen> Triple<A, B, C>.freeze(
     freezer: Freezer,
     freezeA: (A, Freezer) -> FreezeResult<AFrozen>,
     freezeB: (B, Freezer) -> FreezeResult<BFrozen>,
@@ -298,7 +293,7 @@ fun <A, B, C, AFrozen, BFrozen, CFrozen> Triple<A, B, C>.freeze(
 }
 
 /** Freeze implementation for [Tuple4] (Rust 4-tuple `(A, B, C, D)`). */
-fun <A, B, C, D, AFrozen, BFrozen, CFrozen, DFrozen> Tuple4<A, B, C, D>.freeze(
+internal fun <A, B, C, D, AFrozen, BFrozen, CFrozen, DFrozen> Tuple4<A, B, C, D>.freeze(
     freezer: Freezer,
     freezeA: (A, Freezer) -> FreezeResult<AFrozen>,
     freezeB: (B, Freezer) -> FreezeResult<BFrozen>,
@@ -317,7 +312,7 @@ fun <A, B, C, D, AFrozen, BFrozen, CFrozen, DFrozen> Tuple4<A, B, C, D>.freeze(
 }
 
 /** Freeze implementation for [Tuple5] (Rust 5-tuple `(A, B, C, D, E)`). */
-fun <A, B, C, D, E, AFrozen, BFrozen, CFrozen, DFrozen, EFrozen> Tuple5<A, B, C, D, E>.freeze(
+internal fun <A, B, C, D, E, AFrozen, BFrozen, CFrozen, DFrozen, EFrozen> Tuple5<A, B, C, D, E>.freeze(
     freezer: Freezer,
     freezeA: (A, Freezer) -> FreezeResult<AFrozen>,
     freezeB: (B, Freezer) -> FreezeResult<BFrozen>,

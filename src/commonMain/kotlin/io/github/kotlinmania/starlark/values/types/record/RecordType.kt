@@ -42,11 +42,10 @@ import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueUnpackValue
 import io.github.kotlinmania.starlark.values.freezeSmallMap
 import io.github.kotlinmania.starlark.values.layout.Freezer
-import io.github.kotlinmania.starlark.values.layout.heap.Tracer
-import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.types.FUNCTION_TYPE
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.record.Field
@@ -82,17 +81,6 @@ class RecordTypeGen internal constructor(
     // Track whether tyRecordData has been initialized (for unfrozen).
     private var tyRecordDataInitialized: Boolean = tyRecordData != null
 
-    override fun trace(tracer: Tracer) {
-        for ((_, field) in fields) {
-            val defaultVal = field.default
-            if (defaultVal != null) {
-                val holder = ValueHolder(defaultVal)
-                tracer.trace(holder)
-                field.default = holder.value
-            }
-        }
-    }
-
     override fun toString(): String = "record(${fields.iter().joinToString(", ") { (k, v) -> "$k=$v" }})"
 
     override fun freeze(freezer: Freezer): Result<RecordTypeGen> {
@@ -101,7 +89,7 @@ class RecordTypeGen internal constructor(
                 fields,
                 freezer,
                 freezeKey = { k, _ -> Result.success(k) },
-                freezeValue = { field, _ -> Result.success(field) },
+                freezeValue = { field, _ -> field.freeze(freezer) },
             ).getOrElse { return Result.failure(it) }
         return Result.success(
             RecordTypeGen(
@@ -111,6 +99,12 @@ class RecordTypeGen internal constructor(
                 frozen = true,
             ),
         )
+    }
+
+    override fun trace(tracer: Tracer) {
+        for ((_, field) in fields) {
+            field.trace(tracer)
+        }
     }
 
     // -- RecordCell helpers --
@@ -192,7 +186,7 @@ class RecordTypeGen internal constructor(
                         }
                     values.add(value)
                 }
-                ev.heap().allocComplex(
+                ev.heap().allocComplex<RecordGen>(
                     RecordGen(
                         typ = thisValue,
                         values = values,

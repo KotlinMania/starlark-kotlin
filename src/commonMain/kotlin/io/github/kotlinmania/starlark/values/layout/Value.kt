@@ -1,4 +1,6 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/values/layout/value.rs
+
 package io.github.kotlinmania.starlark.values.layout
 
 /*
@@ -91,6 +93,7 @@ import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.VALUE_EMPTY_TUPLE
 import io.github.kotlinmania.starlark.values.types.tuple.fromValue
+import kotlin.native.HiddenFromObjC
 import kotlin.reflect.KClass
 
 // We already import another `ValueError`, hence the odd name.
@@ -137,7 +140,9 @@ private fun debugValue(typ: String, v: Value): String {
             return "$typ(Forward($ptrOpt))"
         }
     }
-    val listGen = v.downcastRef<io.github.kotlinmania.starlark.values.types.list.ListGen<*>>()
+    val listGen =
+        io.github.kotlinmania.starlark.values.types.list
+            .listGenFromValue(v)
     if (listGen != null) {
         val content = (listGen.data as io.github.kotlinmania.starlark.values.types.list.ListLike).content()
         val contentStr = content.joinToString(", ") { debugValue("Value", it) }
@@ -913,7 +918,9 @@ class Value internal constructor(
 
         try {
             // Check list
-            val listGen = downcastRef<io.github.kotlinmania.starlark.values.types.list.ListGen<*>>()
+            val listGen =
+                io.github.kotlinmania.starlark.values.types.list
+                    .listGenFromValue(this)
             if (listGen != null) {
                 val listLike = listGen.data as? io.github.kotlinmania.starlark.values.types.list.ListLike
                 val content = listLike?.content() ?: emptyList()
@@ -929,7 +936,9 @@ class Value internal constructor(
             }
 
             // Check tuple
-            val tupleGen = downcastRef<io.github.kotlinmania.starlark.values.types.tuple.TupleGen<*>>()
+            val tupleGen =
+                io.github.kotlinmania.starlark.values.types.tuple
+                    .tupleGenFromValue(this)
             if (tupleGen != null) {
                 val content = tupleGen.content()
                 val sb = StringBuilder()
@@ -948,7 +957,9 @@ class Value internal constructor(
             }
 
             // Check Dict
-            val dictGen = downcastRef<io.github.kotlinmania.starlark.values.types.dict.DictGen<*>>()
+            val dictGen =
+                io.github.kotlinmania.starlark.values.types.dict
+                    .dictGenFromValue(this)
             if (dictGen != null) {
                 val entries =
                     when (val inner = dictGen.inner) {
@@ -978,12 +989,12 @@ class Value internal constructor(
             }
 
             // Check Struct
-            val structVal = downcastRef<io.github.kotlinmania.starlark.values.types.structs.StructGen<Value>>()
+            val structVal = downcastRef<io.github.kotlinmania.starlark.values.types.structs.Struct>()
             if (structVal != null) {
                 val sb = StringBuilder()
                 sb.append('{')
                 var first = true
-                for ((k, v) in structVal.fields.iter()) {
+                for ((k, v) in structVal.delegate.fields.iter()) {
                     if (!first) sb.append(',')
                     first = false
                     sb.append(escapeJsonString(k))
@@ -994,12 +1005,12 @@ class Value internal constructor(
                 sb.append('}')
                 return Result.success(sb.toString())
             }
-            val structFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.structs.StructGen<FrozenValue>>()
+            val structFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.structs.FrozenStruct>()
             if (structFrozen != null) {
                 val sb = StringBuilder()
                 sb.append('{')
                 var first = true
-                for ((k, v) in structFrozen.fields.iter()) {
+                for ((k, v) in structFrozen.delegate.fields.iter()) {
                     if (!first) sb.append(',')
                     first = false
                     sb.append(escapeJsonString(k))
@@ -1012,7 +1023,7 @@ class Value internal constructor(
             }
 
             // Check Namespace
-            val namespaceVal = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen<Value>>()
+            val namespaceVal = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.Namespace>()
             if (namespaceVal != null) {
                 val sb = StringBuilder()
                 sb.append('{')
@@ -1028,7 +1039,7 @@ class Value internal constructor(
                 sb.append('}')
                 return Result.success(sb.toString())
             }
-            val namespaceFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen<FrozenValue>>()
+            val namespaceFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace>()
             if (namespaceFrozen != null) {
                 val sb = StringBuilder()
                 sb.append('{')
@@ -1076,7 +1087,7 @@ class Value internal constructor(
             }
 
             // Check Set
-            val setVal = downcastRef<io.github.kotlinmania.starlark.values.types.set.SetGen<io.github.kotlinmania.starlark.values.types.set.RefCell>>()
+            val setVal = downcastRef<io.github.kotlinmania.starlark.values.types.set.MutableSet>()
             if (setVal != null) {
                 val sb = StringBuilder()
                 sb.append('[')
@@ -1095,7 +1106,7 @@ class Value internal constructor(
                 sb.append(']')
                 return Result.success(sb.toString())
             }
-            val setFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.set.SetGen<io.github.kotlinmania.starlark.values.types.set.FrozenSetData>>()
+            val setFrozen = downcastRef<io.github.kotlinmania.starlark.values.types.set.FrozenSet>()
             if (setFrozen != null) {
                 val sb = StringBuilder()
                 sb.append('[')
@@ -1358,6 +1369,17 @@ class Value internal constructor(
         return getRef().downcastRef<T>()
     }
 
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean {
+        if (clazz == StarlarkStr::class) {
+            return isStr()
+        }
+        if (clazz == PointerI32::class) {
+            return unpackInlineInt() != null
+        }
+        return clazz.isInstance(getRef().starlarkValue())
+    }
+
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? {
         if (clazz == StarlarkStr::class) {
@@ -1372,9 +1394,10 @@ class Value internal constructor(
             }
         }
         val ref = getRef()
-        return if (clazz.isInstance(ref)) {
+        val sv = ref.starlarkValue()
+        return if (clazz.isInstance(sv)) {
             @Suppress("UNCHECKED_CAST")
-            ref as Any as T
+            sv as T
         } else {
             null
         }
@@ -1430,13 +1453,15 @@ class Value internal constructor(
 
 // Kotlin: Coerce/CoerceKey traits not needed; type safety is handled differently.
 
-fun Value.Companion.default(): Value = Value.newNone()
+internal fun Value.Companion.default(): Value = Value.newNone()
 
-fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
+internal fun FrozenValue.Companion.default(): FrozenValue = FrozenValue.newNone()
 
-fun Value.equivalent(key: FrozenValue): Boolean = key.equals(this).getOrThrow()
+@HiddenFromObjC
+internal fun Value.equivalent(key: FrozenValue): Boolean = key.equals(this).getOrThrow()
 
-fun FrozenValue.equivalent(key: Value): Boolean = this.equals(key).getOrThrow()
+@HiddenFromObjC
+internal fun FrozenValue.equivalent(key: Value): Boolean = this.equals(key).getOrThrow()
 
 /**
  * A [Value] that can never be changed. Can be converted back to a [Value] with [toValue].
@@ -1639,7 +1664,7 @@ class FrozenValue internal constructor(
     /**
      * Downcast to string.
      */
-    fun downcastFrozenStr(): FrozenRef<String>? {
+    internal fun downcastFrozenStr(): FrozenRef<String>? {
         val value = toValue().unpackStr() ?: return null
         return FrozenRef(value)
     }
@@ -1647,7 +1672,7 @@ class FrozenValue internal constructor(
     /**
      * Note: see docs about `Value.unpackStarlarkStr` about instability.
      */
-    fun downcastFrozenStarlarkStr(): FrozenRef<StarlarkStr>? {
+    internal fun downcastFrozenStarlarkStr(): FrozenRef<StarlarkStr>? {
         val value = toValue().unpackStarlarkStr() ?: return null
         return FrozenRef(value)
     }
@@ -1704,6 +1729,10 @@ class FrozenValue internal constructor(
     // ValueLike interface requires non-reified KClass version
     override fun <T : StarlarkValue> downcastRef(clazz: KClass<T>): T? = toValue().downcastRef(clazz)
 
+    @PublishedApi
+    internal fun matchesStarlarkType(clazz: KClass<*>): Boolean =
+        toValue().matchesStarlarkType(clazz)
+
     /**
      * Downcast to a specific [StarlarkValue] type.
      */
@@ -1712,10 +1741,12 @@ class FrozenValue internal constructor(
 
 // then delegates to erased_serde::serialize(self.get_ref().as_serialize(), s).
 // The cycle detection logic is in Value.serializeImpl().
-fun Value.serialize(): Result<String> = serializeImpl()
+@HiddenFromObjC
+internal fun Value.serialize(): Result<String> = serializeImpl()
 
 // Rust: self.to_value().serialize(s)
-fun FrozenValue.serialize(): Result<String> = toValue().serialize()
+@HiddenFromObjC
+internal fun FrozenValue.serialize(): Result<String> = toValue().serialize()
 
 object ValueStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = FrozenValueStarlarkTypeRepr.starlarkTypeRepr()

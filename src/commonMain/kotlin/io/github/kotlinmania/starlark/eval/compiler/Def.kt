@@ -687,7 +687,6 @@ internal class DefGen<V>(
     // Trace implementation: trace all captured Value references and parameter defaults.
     override fun trace(tracer: Tracer) {
         // In the unfrozen case, we need to trace captured values and parameters.
-        // For the frozen case, there's nothing to trace.
         if (!frozen) {
             val newCaptured = mutableListOf<V>()
             for (cap in captured) {

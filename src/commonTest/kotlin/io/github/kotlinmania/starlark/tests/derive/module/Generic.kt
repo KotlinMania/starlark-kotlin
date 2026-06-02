@@ -55,10 +55,10 @@ private fun <T, U> methodBuilder(
     defaultU: () -> U,
 ) {
     // Just check that this compiles
-    builder.setAttribute("test_attribute") { _this, _heap ->
+    builder.setAttribute("test_attribute") { thisValue, heap ->
         defaultU().toString()
         defaultT()
-        Result.success(CustomNone<T>().allocValue(_heap))
+        Result.success(CustomNone<T>().allocValue(heap))
     }
 }
 

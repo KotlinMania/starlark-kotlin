@@ -59,7 +59,7 @@ internal fun registerRange(globals: GlobalsBuilder) {
      * list(range(10, 3, -2))                  == [10, 8, 6, 4]
      * ```
      */
-    globals.setFunction("range") { args: Arguments, _eval: Evaluator ->
+    globals.setFunction("range") { args: Arguments, eval: Evaluator ->
         val a1 = args.positional<Int>(0)
         val a2 = args.optionalPositional<Int>(1)
         val step = args.optionalPositional<Int>(2)

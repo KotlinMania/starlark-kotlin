@@ -367,7 +367,7 @@ class TyStarlarkValue private constructor(
         }
     }
 
-    internal fun index(_index: TyBasic): Result<Ty> =
+    internal fun index(index: TyBasic): Result<Ty> =
         if (vtable.hasAt) {
             Result.success(Ty.any())
         } else {
@@ -501,7 +501,7 @@ class TyStarlarkValue private constructor(
                         rbinOpTy = base.rbinOpTy,
                         getMethods = base.getMethods,
                         attrTy = base.attrTy,
-                    )
+                    ),
                 )
             } else {
                 TyStarlarkValue(base)

@@ -74,7 +74,7 @@ class AllocList<L>(
  * Corresponds to Rust's `impl StarlarkTypeRepr for AllocList<L>
  * where L: IntoIterator, L::Item: StarlarkTypeRepr`.
  */
-fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
+internal fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
     where L : Iterable<Item> {
     // In Rust: Vec::<L::Item>::starlark_type_repr()
     return Ty.anyList()
@@ -91,7 +91,7 @@ fun <L, Item : StarlarkTypeRepr> AllocList<L>.starlarkTypeRepr(): Ty
  * Corresponds to Rust's `impl AllocValue for AllocList<L>
  * where L: IntoIterator, L::Item: AllocValue`.
  */
-fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
+internal fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
     where L : Iterable<Item> {
     // Map each item through AllocValue::alloc_value, then collect into a list.
     val allocated = items.map { x -> x.allocValue(heap) }
@@ -109,7 +109,7 @@ fun <L, Item : AllocValue> AllocList<L>.allocValue(heap: Heap): Value
  * Corresponds to Rust's `impl AllocFrozenValue for AllocList<L>
  * where L: IntoIterator, L::Item: AllocFrozenValue`.
  */
-fun <L, Item : AllocFrozenValue> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+internal fun <L, Item : AllocFrozenValue> AllocList<L>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where L : Iterable<Item> {
     // Map each item through AllocFrozenValue::alloc_frozen_value, then collect.
     val allocated = items.map { x -> x.allocFrozenValue(heap) }

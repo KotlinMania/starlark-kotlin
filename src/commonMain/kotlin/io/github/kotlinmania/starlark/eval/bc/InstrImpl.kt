@@ -83,7 +83,8 @@ fun exprThrowStarlarkResult(result: kotlin.Result<Unit>, span: FrameSpan, eval: 
 // Real addAssign and bitOrAssign functions are imported from eval.compiler
 
 fun possibleGc(eval: Evaluator) {
-    io.github.kotlinmania.starlark.eval.compiler.possibleGc(eval)
+    io.github.kotlinmania.starlark.eval.compiler
+        .possibleGc(eval)
 }
 
 fun percentSOne(before: String, arg: Value, after: String, heap: Heap): kotlin.Result<StringValue> =
@@ -1060,8 +1061,8 @@ object InstrCheckTypeImpl : InstrNoFlowImpl {
 
 object InstrBr {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
+        eval: Evaluator,
+        frame: BcFramePtr,
         ip: BcPtrAddr,
         target: BcAddrOffset,
     ): InstrControl = InstrControl.Next(ip.addRel(target))
@@ -1175,7 +1176,7 @@ object InstrContinue {
 /** `break` statement. */
 object InstrBreak {
     fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Pair<BcSlotIn, BcAddrOffset>,
@@ -1206,18 +1207,18 @@ object InstrIterStop : BcInstr {
 
 object InstrReturnConst {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
-        _ip: BcPtrAddr,
+        eval: Evaluator,
+        frame: BcFramePtr,
+        ip: BcPtrAddr,
         value: FrozenValue,
     ): InstrControl = InstrControl.Return(value.toValue())
 }
 
 object InstrReturn {
     fun run(
-        _eval: Evaluator,
+        eval: Evaluator,
         frame: BcFramePtr,
-        _ip: BcPtrAddr,
+        ip: BcPtrAddr,
         slot: BcSlotIn,
     ): InstrControl {
         val v = frame.getBcSlot(slot)
@@ -1229,7 +1230,7 @@ object InstrReturnCheckType {
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,
-        _ip: BcPtrAddr,
+        ip: BcPtrAddr,
         slot: BcSlotIn,
     ): InstrControl {
         val v = frame.getBcSlot(slot)
@@ -1609,9 +1610,9 @@ object InstrPossibleGcImpl : InstrNoFlowImpl {
  */
 object InstrEnd {
     fun run(
-        _eval: Evaluator,
-        _frame: BcFramePtr,
-        _ip: BcPtrAddr,
+        eval: Evaluator,
+        frame: BcFramePtr,
+        ip: BcPtrAddr,
         arg: BcInstrEndArg,
     ): InstrControl = throw IllegalStateException("this instruction is not meant to be executed: $arg")
 }

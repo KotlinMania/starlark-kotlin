@@ -27,71 +27,89 @@ import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.TypeInstanceId
 import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
 import kotlin.test.Test
 
 class UserTest {
-    class AbstractPlant : StarlarkValue, StarlarkTypeRepr {
+    class AbstractPlant :
+        StarlarkValue,
+        StarlarkTypeRepr {
         override val TYPE: String get() = "plant"
+
         override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
     }
 
-    class Fruit(val name: String) : StarlarkValue, AllocValue, StarlarkTypeRepr {
+    class Fruit(
+        val name: String,
+    ) : StarlarkValue,
+        AllocValue,
+        StarlarkTypeRepr {
         override val TYPE: String get() = "fruit"
+
         override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
-        override fun allocValue(heap: Heap): Value {
-            throw Exception("not needed in test")
-        }
+
+        override fun allocValue(heap: Heap): Value = throw Exception("not needed in test")
     }
 
     class FruitCallable(
         val name: String,
         val tyFruitCallable: Ty,
         val tyFruit: Ty,
-    ) : StarlarkValue, AllocValue, StarlarkTypeRepr {
+    ) : StarlarkValue,
+        AllocValue,
+        StarlarkTypeRepr {
         override val TYPE: String get() = "fruit_callable"
         override val HAS_invoke: Boolean get() = true
+
         override fun typecheckerTy(): Ty? = tyFruitCallable
+
         override fun evalType(): Ty? = tyFruit
+
         override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
+
         override fun allocValue(heap: Heap): Value = heap.allocSimple(this)
 
         override fun invoke(
             me: Value,
             args: Arguments,
             eval: Evaluator,
-        ): Result<Value> {
-            throw Exception("not needed in tests, but typechecker requires it")
-        }
+        ): Result<Value> = throw Exception("not needed in tests, but typechecker requires it")
     }
 
     private fun globals(builder: GlobalsBuilder) {
         builder.setFunction("fruit") { args, eval ->
-            val name = args.positionalAll().firstOrNull()?.unpackStr()
-                ?: return@setFunction Result.failure<Value>(Exception("expected string"))
-            val tyFruit = Ty.custom(
-                TyUser.new(
-                    name = name,
-                    base = TyStarlarkValue.new("fruit"),
-                    id = TypeInstanceId.gen(),
-                    params = TyUserParams(
-                        supertypes = AbstractPlant().getTypeStarlarkRepr().iterUnion()
-                    )
-                ).getOrThrow()
-            )
-            val tyFruitCallable = Ty.custom(
-                TyUser.new(
-                    name = "fruit[$name]",
-                    base = TyStarlarkValue.new("fruit_callable", hasInvoke = true),
-                    id = TypeInstanceId.gen(),
-                    params = TyUserParams(
-                        callable = TyCallable.new(ParamSpec.empty(), tyFruit)
-                    )
-                ).getOrThrow()
-            )
+            val name =
+                args.positionalAll().firstOrNull()?.unpackStr()
+                    ?: return@setFunction Result.failure<Value>(Exception("expected string"))
+            val tyFruit =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            name = name,
+                            base = TyStarlarkValue.new("fruit"),
+                            id = TypeInstanceId.gen(),
+                            params =
+                                TyUserParams(
+                                    supertypes = AbstractPlant().getTypeStarlarkRepr().iterUnion(),
+                                ),
+                        ).getOrThrow(),
+                )
+            val tyFruitCallable =
+                Ty.custom(
+                    TyUser
+                        .new(
+                            name = "fruit[$name]",
+                            base = TyStarlarkValue.new("fruit_callable", hasInvoke = true),
+                            id = TypeInstanceId.gen(),
+                            params =
+                                TyUserParams(
+                                    callable = TyCallable.new(ParamSpec.empty(), tyFruit),
+                                ),
+                        ).getOrThrow(),
+                )
             Result.success(eval.heap().alloc(FruitCallable(name, tyFruitCallable, tyFruit)))
         }
 

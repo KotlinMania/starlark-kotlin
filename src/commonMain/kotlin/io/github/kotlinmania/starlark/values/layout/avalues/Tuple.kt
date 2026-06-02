@@ -37,9 +37,9 @@ import io.github.kotlinmania.starlark.values.types.tuple.FrozenTuple
 import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
-internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }), AValueTuple)
+internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(Tuple(TupleGen<Value>(MutableList(len) { Value.newNone() })), AValueTuple)
 
-internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }), AValueFrozenTuple)
+internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(FrozenTuple(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() })), AValueFrozenTuple)
 
 /** AValue implementation for mutable tuples. */
 internal object AValueTuple : AValue {
@@ -59,7 +59,7 @@ internal object AValueTuple : AValue {
         freezer: Freezer,
     ): Result<FrozenValue> {
         @Suppress("UNCHECKED_CAST")
-        val tuple = repr.payload as TupleGen<Value>
+        val tuple = repr.payload as Tuple
         val content = tuple.content()
 
         if (content.isEmpty()) {
@@ -77,16 +77,15 @@ internal object AValueTuple : AValue {
             frozenContent.add(frozenElem)
         }
 
-        r.fill(TupleGen(frozenContent))
+        r.fill(FrozenTuple(TupleGen(frozenContent)))
         return Result.success(fv)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun heapCopy(tracer: Tracer): Value {
-        val repr = tracer.currentRepr ?: error("Missing currentRepr")
-        val tuple = repr.payload as TupleGen<Value>
+        val tuple = tracer.currentRepr!!.payload as Tuple
         return heapCopyImpl(tuple, tracer) { v, t ->
-            val tg = v as TupleGen<Value>
+            val tg = v as Tuple
             val content = tg.contentMut()
             for (i in content.indices) {
                 val holder = ValueHolder(content[i])
@@ -96,7 +95,7 @@ internal object AValueTuple : AValue {
         }
     }
 
-    override fun unpack(): StarlarkValue = TupleGen<Value>(emptyList())
+    override fun unpack(): StarlarkValue = Tuple(TupleGen<Value>(emptyList()))
 }
 
 /** AValue implementation for frozen tuples. */
@@ -116,35 +115,35 @@ internal object AValueFrozenTuple : AValue {
         error("shouldn't be copying frozen values")
     }
 
-    override fun unpack(): StarlarkValue = TupleGen<FrozenValue>(emptyList())
+    override fun unpack(): StarlarkValue = FrozenTuple(TupleGen<FrozenValue>(emptyList()))
 }
 
 /** Allocate a tuple with the given elements on this heap. */
-fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
     if (elems.isEmpty()) {
         return FrozenValue.newEmptyTuple()
     }
-    val avalue = AValueImpl.new(TupleGen(elems), AValueFrozenTuple)
+    val avalue = AValueImpl.new(FrozenTuple(TupleGen(elems)), AValueFrozenTuple)
     return allocRaw(avalue).toFrozenValue()
 }
 
 /** Allocate a tuple from an iterator of elements. */
-fun FrozenHeap.allocTupleIter(elems: Iterable<FrozenValue>): FrozenValue {
+internal fun FrozenHeap.allocTupleIter(elems: Iterable<FrozenValue>): FrozenValue {
     val list = elems.toList()
     return allocTuple(list)
 }
 
 /** Allocate a tuple with the given elements. */
-fun Heap.allocTuple(elems: List<Value>): Value {
+internal fun Heap.allocTuple(elems: List<Value>): Value {
     if (elems.isEmpty()) {
         return Value.newEmptyTuple()
     }
-    val avalue = AValueImpl.new(TupleGen(elems), AValueTuple)
+    val avalue = AValueImpl.new(Tuple(TupleGen(elems)), AValueTuple)
     return allocRaw(avalue).toValue()
 }
 
 /** Allocate a tuple from an iterator of elements. */
-fun Heap.allocTupleIter(elems: Iterable<Value>): Value {
+internal fun Heap.allocTupleIter(elems: Iterable<Value>): Value {
     val list = elems.toList()
     return allocTuple(list)
 }

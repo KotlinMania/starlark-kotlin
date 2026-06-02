@@ -87,14 +87,14 @@ class NoneOrUnpackValue<T>(
 }
 
 /** [AllocValue] implementation for [NoneOr] where [T] implements [AllocValue]. */
-fun <T : AllocValue> NoneOr<T>.allocValue(heap: Heap): Value =
+internal fun <T : AllocValue> NoneOr<T>.allocValue(heap: Heap): Value =
     when (this) {
         is NoneOr.None -> Value.newNone()
         is NoneOr.Other -> value.allocValue(heap)
     }
 
 /** [AllocFrozenValue] implementation for [NoneOr] where [T] implements [AllocFrozenValue]. */
-fun <T : AllocFrozenValue> NoneOr<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+internal fun <T : AllocFrozenValue> NoneOr<T>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is NoneOr.None -> FrozenValue.newNone()
         is NoneOr.Other -> value.allocFrozenValue(heap)

@@ -37,7 +37,7 @@ import kotlin.text.iterator
  * unassigned variables, nested definitions etc. It would be a bad idea to rely on the
  * results of continued execution after evaluating stuff randomly.
  */
-fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
+internal fun Evaluator.evalStatements(statements: AstModule): Result<Value> {
     // We are doing a lot of funky stuff here. It's amazing anything works, so let's not push our luck with GC.
     disableGc()
 

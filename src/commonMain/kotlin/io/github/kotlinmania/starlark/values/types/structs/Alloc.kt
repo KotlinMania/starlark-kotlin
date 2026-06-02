@@ -29,6 +29,7 @@ import io.github.kotlinmania.starlark.values.AllocValue
 import io.github.kotlinmania.starlark.values.StarlarkTypeRepr
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -54,7 +55,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
  * # }
  * ```
  */
-data class AllocStruct<S>(
+internal data class AllocStruct<S>(
     val value: S,
 ) {
     companion object {
@@ -82,7 +83,7 @@ inline fun <reified K, reified V, reified S> allocStructStarlarkTypeRepr(): Ty
  * Implementation of AllocValue for AllocStruct<S>
  * where S: IntoIterator, S::Item = (K, V), K: AllocStringValue, V: AllocValue.
  */
-fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
+internal fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
     where S : Iterable<Pair<K, V>>,
           K : AllocStringValue,
           V : AllocValue {
@@ -98,14 +99,14 @@ fun <K, V, S> AllocStruct<S>.allocValue(heap: Heap): Value
         check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.allocSimple(StructGen(fields))
+    return heap.allocComplex(StructGen.mutable(fields))
 }
 
 /**
  * Implementation of AllocFrozenValue for AllocStruct<S>
  * where S: IntoIterator, S::Item = (K, V), K: AllocFrozenStringValue, V: AllocFrozenValue.
  */
-fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
+internal fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
     where S : Iterable<Pair<K, V>>,
           K : AllocFrozenStringValue,
           V : AllocFrozenValue {
@@ -121,5 +122,5 @@ fun <K, V, S> AllocStruct<S>.allocFrozenValue(heap: FrozenHeap): FrozenValue
         check(prev == null) { "non-unique key: $allocatedKey" }
     }
 
-    return heap.allocSimple(StructGen(fields))
+    return heap.allocSimple(StructGen.frozen(fields))
 }

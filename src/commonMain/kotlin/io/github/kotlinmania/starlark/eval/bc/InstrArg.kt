@@ -425,7 +425,7 @@ class FrozenRefListInstrArg<T>(
 /**
  * [BcInstrArg] implementation for [FrozenValueTyped].
  */
-class FrozenValueTypedInstrArg<T : StarlarkValue>(
+internal class FrozenValueTypedInstrArg<T : StarlarkValue>(
     val value: FrozenValueTyped<T>,
 ) : BcInstrArg {
     override fun fmtAppend(ip: BcAddr, endArg: BcInstrEndArg?, f: StringBuilder) {
@@ -786,7 +786,7 @@ class BcInstrEndArgInstrArg(
  * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
  * [BcInstrArg] and call [BcInstrArg.fmtAppend].
  */
-fun BcOpcode.fmtAppendArg(
+internal fun BcOpcode.fmtAppendArg(
     ptr: BcPtrAddr,
     ip: BcAddr,
     endArg: BcInstrEndArg?,
@@ -814,7 +814,7 @@ fun BcOpcode.fmtAppendArg(
  * the instruction's arg is stored as [Any] in [BcInstrRepr], so we cast to
  * [BcInstrArg] and call [BcInstrArg.visitJumpAddr].
  */
-fun BcOpcode.visitJumpAddr(
+internal fun BcOpcode.visitJumpAddr(
     ptr: BcPtrAddr,
     addr: BcAddr,
     consumer: (BcAddr) -> Unit,

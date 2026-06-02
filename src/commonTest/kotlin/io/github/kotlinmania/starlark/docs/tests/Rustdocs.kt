@@ -292,7 +292,7 @@ internal class Obj : StarlarkValue {
 /** These are where the module docs go */
 private fun objectMethods(builder: MethodsBuilder) {
     /** Docs for func1 */
-    builder.setMethod("func1") { _eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, _args: Arguments ->
+    builder.setMethod("func1") { eval: Evaluator, thisValue: Value, sig: ParametersSpec<FrozenValue>, args: Arguments ->
         Result.success(Value.newNone())
     }
 }
@@ -320,7 +320,7 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     builder.setConst("MAGIC", 42)
 
     /** Docs for func1 */
-    builder.setFunction("func1") { _args: Arguments, _eval: Evaluator ->
+    builder.setFunction("func1") { args: Arguments, eval: Evaluator ->
         Value.newNone()
     }
 }

@@ -1,4 +1,6 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source src/eval/runtime/evaluator.rs
+
 package io.github.kotlinmania.starlark.eval.runtime
 
 /*
@@ -75,6 +77,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.valueCapturedGet
 import io.github.kotlinmania.starlark.values.types.NativeFunction
+import kotlin.native.HiddenFromObjC
 
 private sealed class EvaluatorError(
     override val message: String,
@@ -425,6 +428,7 @@ class Evaluator(
      * * some optimizer transformations may create incorrect spans
      * * some optimizer transformations may remove statements
      */
+    @HiddenFromObjC
     fun coverage(): Set<ResolvedFileSpan> {
         val pMode = profileOrInstrumentationMode
         if (pMode is ProfileOrInstrumentationMode.Profile && pMode.mode == ProfileMode.Coverage) {
@@ -552,24 +556,15 @@ class Evaluator(
                 null
             } ?: "<unknown>"
 
-        fun error(eval: Evaluator, slot: ModuleSlotId): Error {
-            return Error.newOther(
+        fun error(eval: Evaluator, slot: ModuleSlotId): Error =
+            Error.newOther(
                 EvaluatorError.LocalVariableReferencedBeforeAssignment(name),
             )
-        }
 
         val value =
             when (val frozenModule = topFrameDefFrozenModule(false)) {
-                null -> {
-                    val v = moduleEnv.slots().getSlot(slot)
-                    println("[DEBUG_SLOT] getSlotModule slot=$slot name=$name val_repr=${v?.toRepr()} val_identity=${v?.let{System.identityHashCode(it)}} val_ptr_idx=${v?.ptr?.unpackPtrOpt()}")
-                    v
-                }
-                else -> {
-                    val fv = frozenModule.asRef().getSlot(slot)
-                    println("[DEBUG_SLOT] getSlotModule FROZEN slot=$slot name=$name val_repr=${fv?.toValue()?.toRepr()} val_ptr_idx=${fv?.ptr?.toPointer()?.unpackPtrOpt()}")
-                    fv?.let { Value.newFrozen(it) }
-                }
+                null -> moduleEnv.slots().getSlot(slot)
+                else -> frozenModule.asRef().getSlot(slot)?.let { Value.newFrozen(it) }
             }
         return if (value != null) {
             Result.success(value)

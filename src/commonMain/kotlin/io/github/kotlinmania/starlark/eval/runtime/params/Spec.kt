@@ -289,6 +289,7 @@ class ParametersSpec<V>(
             paramKinds = newKinds
         }
     }
+
     companion object {
         /** Create a new [`ParametersSpec`] with the given function name and an advance capacity hint. */
         internal fun <V> withCapacity(functionName: String, capacity: Int = 0): ParametersSpecBuilder<V> =

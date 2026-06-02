@@ -38,7 +38,7 @@ private fun myModule(globals: GlobalsBuilder) {
                 ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(listOf(Ty.string())), Ty.int()))),
                 Ty.none(),
             ),
-    ) { _args: Arguments, _eval: Evaluator ->
+    ) { args: Arguments, eval: Evaluator ->
         Result.success(NoneType)
     }
 }
@@ -193,10 +193,10 @@ def test():
                         ParamSpec.posOnly(listOf(Ty.callable(ParamSpec.posOnly(emptyList(), emptyList()), Ty.none()))),
                         Ty.none(),
                     ),
-            ) { _args: Arguments, _eval: Evaluator ->
-                val v = _args.positional1(_eval.heap()).getOrThrow()
+            ) { args: Arguments, eval: Evaluator ->
+                val v = args.positional1(eval.heap()).getOrThrow()
                 val unpacker = StarlarkCallableCheckedUnpackValue(StarlarkCallableParamSpecNone, NoneType)
-                unpacker.unpackNamedParam(v, "_f")
+                unpacker.unpackNamedParam(v, "f")
                 Result.success(NoneType)
             }
 
@@ -207,7 +207,7 @@ def test():
                         ParamSpec.posOnly(emptyList(), emptyList()),
                         Ty.none(),
                     ),
-            ) { _args: Arguments, _eval: Evaluator ->
+            ) { args: Arguments, eval: Evaluator ->
                 Result.success(NoneType)
             }
 
@@ -218,8 +218,8 @@ def test():
                         ParamSpec.posOnly(emptyList(), emptyList()),
                         Ty.int(),
                     ),
-            ) { _args: Arguments, _eval: Evaluator ->
-                Result.success(10.allocValue(_eval.heap()))
+            ) { args: Arguments, eval: Evaluator ->
+                Result.success(10.allocValue(eval.heap()))
             }
         }
 
@@ -236,7 +236,7 @@ def test():
 
 test()
         """,
-            "Type of parameter `_f` doesn't match",
+            "Type of parameter `f` doesn't match",
         )
     }
 }

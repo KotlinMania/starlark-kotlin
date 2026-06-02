@@ -127,14 +127,14 @@ internal class StarlarkStrAValue(
 }
 
 /** Allocate a string on this heap. */
-fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
+internal fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
 
 /** Intern string. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue = allocStrHashed(Hashed.new(s))
 
 /** Allocate prehashed string. */
-fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
+internal fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
     val constant = constantString(s.key)
     if (constant != null) {
         return constant
@@ -149,7 +149,7 @@ fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
 
 /** Allocate a string on the heap. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-fun Heap.allocStr(x: String): StringValue {
+internal fun Heap.allocStr(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {
         return constant.toStringValue()
@@ -161,7 +161,7 @@ fun Heap.allocStr(x: String): StringValue {
 }
 
 /** Intern string. */
-fun Heap.allocStrIntern(x: String): StringValue {
+internal fun Heap.allocStrIntern(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {
         return constant.toStringValue()
@@ -176,7 +176,7 @@ fun Heap.allocStrIntern(x: String): StringValue {
 }
 
 /** Allocate a string on the heap, based on two concatenated strings. */
-fun Heap.allocStrConcat(x: String, y: String): StringValue {
+internal fun Heap.allocStrConcat(x: String, y: String): StringValue {
     val s =
         when {
             x.isEmpty() -> y
@@ -194,7 +194,7 @@ fun Heap.allocStrConcat(x: String, y: String): StringValue {
 }
 
 /** Allocate a string on the heap, based on three concatenated strings. */
-fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
+internal fun Heap.allocStrConcat3(x: String, y: String, z: String): StringValue =
     when {
         x.isEmpty() -> allocStrConcat(y, z)
         y.isEmpty() -> allocStrConcat(x, z)

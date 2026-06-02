@@ -121,7 +121,7 @@ class EvalMessage(
     }
 }
 
-fun Lint.toEvalMessage(): EvalMessage =
+internal fun Lint.toEvalMessage(): EvalMessage =
     EvalMessage(
         path = location.description,
         span = location.resolve(),

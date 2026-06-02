@@ -85,14 +85,14 @@ sealed class ModuleError(
 class FrozenModule internal constructor(
     private val heap: FrozenHeapRef,
     private val module: FrozenRef<FrozenModuleData>,
-    private val _extraValue: FrozenValue?,
+    private val storedExtraValue: FrozenValue?,
     /** Module evaluation duration. */
     internal val evalDuration: Duration,
 ) : AutoCloseable {
-
     override fun close() {
         heap.close()
     }
+
     /**
      * Convert items in [Globals] into a [FrozenModule].
      * This function can be used to implement starlark module
@@ -129,7 +129,7 @@ class FrozenModule internal constructor(
      *
      * pub fn get_any_visibility(&self, name: &str) -> anyhow::Result<(OwnedFrozenValue, Visibility)>
      */
-    fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> =
+    internal fun getAnyVisibility(name: String): Result<Pair<OwnedFrozenValue, Visibility>> =
         getAnyVisibilityOption(name)?.let { Result.success(it) }
             ?: run {
                 val better = didYouMean(name, names().map { it.asStr() }.toList())
@@ -245,14 +245,14 @@ class FrozenModule internal constructor(
      *
      * pub fn extra_value(&self) -> Option<FrozenValue>
      */
-    fun extraValue(): FrozenValue? = _extraValue
+    fun extraValue(): FrozenValue? = storedExtraValue
 
     /**
      * `extra_value` field from `Module`, frozen.
      *
      * pub fn owned_extra_value(&self) -> Option<OwnedFrozenValue>
      */
-    fun ownedExtraValue(): OwnedFrozenValue? = _extraValue?.let { OwnedFrozenValue(heap.clone(), it) }
+    fun ownedExtraValue(): OwnedFrozenValue? = storedExtraValue?.let { OwnedFrozenValue(heap.clone(), it) }
 }
 
 /** pub(crate) struct FrozenModuleData */
@@ -327,9 +327,9 @@ class Module internal constructor(
     private val slots: MutableSlots = MutableSlots(),
     private var docstring: String? = null,
     /** Module evaluation duration. */
-    private var _evalDuration: Duration = Duration.ZERO,
+    private var accumulatedEvalDuration: Duration = Duration.ZERO,
     /** Field that can be used for any purpose you want. */
-    private var _extraValue: Value? = null,
+    private var storedExtraValue: Value? = null,
     /** When `Some`, heap profile is collected on freeze. */
     private var heapProfileOnFreeze: RetainedHeapProfileMode? = null,
 ) {
@@ -414,7 +414,7 @@ class Module internal constructor(
      *
      * pub fn names_and_visibilities(&self) -> impl Iterator<Item = (FrozenStringValue, Visibility)>
      */
-    fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = names.allNamesAndVisibilities()
+    internal fun namesAndVisibilities(): List<Pair<FrozenStringValue, Visibility>> = names.allNamesAndVisibilities()
 
     /** pub(crate) fn mutable_names(&self) -> &MutableNames */
     internal fun mutableNames(): MutableNames = names
@@ -470,7 +470,7 @@ class Module internal constructor(
         }
         val frozenSlots = slots.freeze(freezer).getOrElse { return Result.failure(it) }
         val extraValue =
-            _extraValue?.let { v ->
+            storedExtraValue?.let { v ->
                 freezer.freeze(v).getOrElse { return Result.failure(it) }
             }
         val stacks =
@@ -497,8 +497,8 @@ class Module internal constructor(
             FrozenModule(
                 heap = frozenHeap.intoRefImpl(name),
                 module = frozenModuleRef,
-                _extraValue = extraValue,
-                evalDuration = start.elapsedNow() + _evalDuration,
+                storedExtraValue = extraValue,
+                evalDuration = start.elapsedNow() + accumulatedEvalDuration,
             ),
         )
     }
@@ -576,7 +576,7 @@ class Module internal constructor(
 
     /** pub(crate) fn add_eval_duration(&self, duration: Duration) */
     internal fun addEvalDuration(duration: Duration) {
-        _evalDuration += duration
+        accumulatedEvalDuration += duration
     }
 
     /** pub(crate) fn trace(&self, tracer: &Tracer<'v>) */
@@ -590,10 +590,10 @@ class Module internal constructor(
             }
         }
 
-        _extraValue?.let { extra ->
+        storedExtraValue?.let { extra ->
             val holder = ValueHolder(extra)
             tracer.trace(holder)
-            _extraValue = holder.value
+            storedExtraValue = holder.value
         }
 
         heap().traceInterner(tracer)
@@ -605,7 +605,7 @@ class Module internal constructor(
      * pub fn set_extra_value(&self, v: Value<'v>)
      */
     fun setExtraValue(v: Value) {
-        _extraValue = v
+        storedExtraValue = v
     }
 
     /**
@@ -629,5 +629,5 @@ class Module internal constructor(
      *
      * pub fn extra_value(&self) -> Option<Value<'v>>
      */
-    fun extraValue(): Value? = _extraValue
+    fun extraValue(): Value? = storedExtraValue
 }

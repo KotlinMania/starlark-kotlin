@@ -51,4 +51,5 @@ fun <K : StarlarkTypeRepr, V : StarlarkTypeRepr> unpackDictType(
     }
 }
 
-fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty = Ty.any()
+@PublishedApi
+internal fun <T : StarlarkTypeRepr> kotlin.reflect.KClass<T>.starlarkTypeRepr(): Ty = Ty.any()

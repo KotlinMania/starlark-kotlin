@@ -27,7 +27,7 @@ import io.github.kotlinmania.starlark.Error
  */
 
 /** Run a conformance test, e.g. the Go Starlark tests */
-fun Assert.conformance(code: String) {
+internal fun Assert.conformance(code: String) {
     conformanceExcept(code, emptyList())
 }
 
@@ -37,7 +37,7 @@ fun Assert.conformance(code: String) {
  * in the order they occur in the conformance test set,
  * identified by a substring that occurs in the test.
  */
-fun Assert.conformanceExcept(code: String, except: List<String>) {
+internal fun Assert.conformanceExcept(code: String, except: List<String>) {
     val exceptIter = except.iterator()
     var nextExcept: String? = if (exceptIter.hasNext()) exceptIter.next() else null
 

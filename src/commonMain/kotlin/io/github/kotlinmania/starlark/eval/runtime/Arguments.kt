@@ -35,8 +35,8 @@ import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.ValueTypedComplex
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
-import io.github.kotlinmania.starlark.values.types.bigint.unpackLong
-import io.github.kotlinmania.starlark.values.types.bigint.unpackUInt
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToLongOrNull
+import io.github.kotlinmania.starlark.values.types.bigint.unpackValueToUIntOrNull
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictRef
 import io.github.kotlinmania.starlark.values.types.dict.dictRefFromValue
@@ -514,7 +514,7 @@ class Arguments(
      */
     inline fun <reified T> namedOptional(name: String): T? = optionalNamed<T>(name)
 
-    inline fun <reified T : ComplexValue, reified F : StarlarkValue> positionalComplex(
+    internal inline fun <reified T : ComplexValue, reified F : StarlarkValue> positionalComplex(
         index: Int,
     ): ValueTypedComplex<T, F> =
         ValueTypedComplex.newErr<T, F>(full.pos[index]).getOrThrow()
@@ -647,20 +647,23 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 unpackValueI32(v).getOrThrow()
                     ?: throw IllegalArgumentException("Expected Int, got ${v.toStringForTypeError()}")
             UInt::class ->
-                v.unpackUInt().getOrThrow()
+                unpackValueToUIntOrNull(v)
                     ?: throw IllegalArgumentException("Expected UInt, got ${v.toStringForTypeError()}")
             Long::class ->
-                v.unpackLong().getOrThrow()
+                unpackValueToLongOrNull(v)
                     ?: throw IllegalArgumentException("Expected Long, got ${v.toStringForTypeError()}")
             Boolean::class -> v.toBool()
             ValueTyped::class -> {
-                val typeArg = kotlin.reflect.typeOf<T>().arguments.firstOrNull()?.type
-                val classifier = typeArg?.classifier as? kotlin.reflect.KClass<*>
-                if (classifier != null) {
-                    @Suppress("UNCHECKED_CAST")
-                    val ref = v.downcastRef(classifier as kotlin.reflect.KClass<out StarlarkValue>)
-                    if (ref == null) {
-                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${classifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                val valueTypeArg =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                val valueClassifier = valueTypeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (valueClassifier != null) {
+                    if (!v.matchesStarlarkType(valueClassifier)) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${valueClassifier.simpleName}`, actual `${v.toStringForTypeError()}`")
                     }
                 }
                 ValueTyped.newUnchecked<StarlarkValue>(v)
@@ -669,13 +672,16 @@ internal inline fun <reified T> unpackValueAs(v: Value): T {
                 val frozen =
                     v.unpackFrozen()
                         ?: throw IllegalArgumentException("Expected frozen value, got: ${v.toStringForTypeError()}")
-                val typeArg = kotlin.reflect.typeOf<T>().arguments.firstOrNull()?.type
-                val classifier = typeArg?.classifier as? kotlin.reflect.KClass<*>
-                if (classifier != null) {
-                    @Suppress("UNCHECKED_CAST")
-                    val ref = frozen.toValue().downcastRef(classifier as kotlin.reflect.KClass<out StarlarkValue>)
-                    if (ref == null) {
-                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${classifier.simpleName}`, actual `${v.toStringForTypeError()}`")
+                val frozenTypeArg =
+                    kotlin.reflect
+                        .typeOf<T>()
+                        .arguments
+                        .firstOrNull()
+                        ?.type
+                val frozenClassifier = frozenTypeArg?.classifier as? kotlin.reflect.KClass<*>
+                if (frozenClassifier != null) {
+                    if (!frozen.matchesStarlarkType(frozenClassifier)) {
+                        throw IllegalArgumentException("Type of parameter `value` doesn't match, expected `${frozenClassifier.simpleName}`, actual `${v.toStringForTypeError()}`")
                     }
                 }
                 FrozenValueTyped.newUnchecked<StarlarkValue>(frozen)

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.environment.MethodsStatic
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.ValueError
 import io.github.kotlinmania.starlark.values.freezeSmallMap
@@ -44,30 +43,20 @@ import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import kotlin.reflect.KClass
 
-data class DictGen<T>(
+internal data class DictGen<T>(
     val inner: T,
 ) : ComplexValue,
-    Trace,
-    Freeze<StarlarkValue> {
-    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
-        val dict =
-            (inner as? AtomicRef<*>)?.value as? Dict
-                ?: return Result.failure(IllegalStateException("Expected mutable dict storage"))
-        return freezeDictData(dict, freezer).map { it }
-    }
-
+    Trace {
     override val TYPE: String get() = Dict.TYPE
     override val HAS_iterate: Boolean get() = true
     override val HAS_equals: Boolean get() = true
 
     override fun trace(tracer: Tracer) {
-        println("[DEBUG_TRACE_DICTGEN] DictGen.trace innerVal=$inner innerVal_class=${inner?.let{it::class.simpleName}}")
         val innerVal = inner
         if (innerVal is Trace) {
             innerVal.trace(tracer)
         } else if (innerVal is AtomicRef<*>) {
             val v = innerVal.value
-            println("[DEBUG_TRACE_DICTGEN] DictGen.trace innerVal is AtomicRef, v=$v v_class=${v?.let{it::class.simpleName}}")
             if (v is Trace) {
                 v.trace(tracer)
             }
@@ -131,11 +120,6 @@ data class DictGen<T>(
     override fun at(index: Value, heap: Heap): Result<Value> {
         val innerVal = inner.asDictLike() ?: return ValueError.unsupported(TYPE, "[]")
         val hashed = index.getHashed().getOrElse { return Result.failure(it) }
-        println("[DEBUG_DICT] Lookup index toRepr=${index.toRepr()} hashed_hash=${hashed.hash()} key_class=${hashed.key()::class.simpleName} key_identity=${System.identityHashCode(hashed.key())} ptr_idx=${hashed.key().ptr.unpackPtrOpt()}")
-        for (entry in innerVal.content().entries) {
-            val ek = entry.key
-            println("[DEBUG_DICT] Entry key toRepr=${ek.key().toRepr()} hashed_hash=${ek.hash()} key_class=${ek.key()::class.simpleName} key_identity=${System.identityHashCode(ek.key())} ptr_idx=${ek.key().ptr.unpackPtrOpt()} equals_key=${ek.key() == hashed.key()} equals_hash=${ek.hash() == hashed.hash()}")
-        }
         val v =
             innerVal.content().getHashedByValue(hashed)
                 ?: return Result.failure(ValueError.KeyNotFound(index.toRepr()))
@@ -195,7 +179,7 @@ data class DictGen<T>(
             for ((k, v) in rhsDictVal.iterHashed()) {
                 clonedContent.insertHashed(k, v)
             }
-            return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(clonedContent)))))
+            return Result.success(heap.allocComplex(MutableDict(DictGen(AtomicRef(Dict.new(clonedContent))))))
         }
 
         val items = SmallMap.withCapacity<Value, Value>(innerVal.content().len())
@@ -206,7 +190,7 @@ data class DictGen<T>(
         for ((k, v) in rhsDictVal.iterHashed()) {
             items.insertHashed(k, v)
         }
-        return Result.success(heap.allocComplex(DictGen(AtomicRef(Dict.new(items)))))
+        return Result.success(heap.allocComplex(MutableDict(DictGen(AtomicRef(Dict.new(items))))))
     }
 
     override fun typecheckerTy(): Ty = Ty.anyDict()
@@ -222,7 +206,7 @@ data class DictGen<T>(
     }
 }
 
-fun Dict.display(): String =
+internal fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
@@ -238,10 +222,10 @@ class Dict(
         fun new(content: SmallMap<Value, Value>): Dict = Dict(content)
 
         fun isDictType(x: KClass<*>): Boolean =
-            x == DictGen::class
+            x == FrozenDict::class || x == MutableDict::class
 
         fun fromValueUncheckedMut(x: Value): Dict {
-            val dict = x.downcastRefUnchecked<DictGen<*>>()
+            val dict = dictGenFromValue(x)!!
             val inner = dict.inner
             check(inner is AtomicRef<*>)
             val mutable = inner.value
@@ -251,16 +235,14 @@ class Dict(
     }
 
     override fun trace(tracer: Tracer) {
-        println("[DEBUG_TRACE_DICT] Dict.trace content_size=${content.len()}")
         for (entry in content.entries) {
-            val keyBefore = entry.key.key()
             val keyHolder = ValueHolder(entry.key.key())
             tracer.trace(keyHolder)
+            entry.key = Hashed.newUnchecked(entry.key.hash(), keyHolder.value)
             val valueHolder = ValueHolder(entry.value)
             tracer.trace(valueHolder)
             entry.value = valueHolder.value
             entry.key = Hashed.newUnchecked(entry.key.hash(), keyHolder.value)
-            println("[DEBUG_TRACE_DICT] Dict.trace entry key_before_ptr=${keyBefore.ptr.unpackPtrOpt()} key_after_ptr=${entry.key.key().ptr.unpackPtrOpt()}")
         }
     }
 
@@ -336,8 +318,8 @@ class Dict(
     }
 }
 
-fun Dict.allocValue(heap: Heap): Value =
-    heap.allocComplex(DictGen(AtomicRef(this)))
+internal fun Dict.allocValue(heap: Heap): Value =
+    heap.allocComplex(MutableDict(DictGen(AtomicRef(this))))
 
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
@@ -362,7 +344,7 @@ class FrozenDictData(
         if (content.isEmpty()) {
             VALUE_EMPTY_FROZEN_DICT.toFrozenValue()
         } else {
-            heap.allocSimple(DictGen(this))
+            heap.allocSimple(FrozenDict(DictGen(this)))
         }
 }
 
@@ -392,13 +374,52 @@ private fun Any?.asDictLike(): DictLike? =
         else -> null
     }
 
-/** Alias is used in `StarlarkDocs` derive. */
-typealias FrozenDict = DictGen<FrozenDictData>
+class FrozenDict internal constructor(
+    internal val delegate: DictGen<FrozenDictData>,
+) : ComplexValue by delegate,
+    Trace {
+    val inner: FrozenDictData get() = delegate.inner
 
-typealias MutableDict = DictGen<AtomicRef<Dict>>
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
 
-val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<DictGen<FrozenDictData>> =
-    AllocStaticSimple.alloc(DictGen(FrozenDictData(SmallMap.new())))
+    override fun toString(): String = delegate.toString()
+
+    companion object {
+        fun fromValue(value: Value): FrozenDict? = value.downcastRef<FrozenDict>()
+    }
+}
+
+class MutableDict internal constructor(
+    internal val delegate: DictGen<AtomicRef<Dict>>,
+) : ComplexValue by delegate,
+    Trace,
+    Freeze<FrozenDict> {
+    internal val inner: AtomicRef<Dict> get() = delegate.inner
+
+    override fun trace(tracer: Tracer) {
+        delegate.trace(tracer)
+    }
+
+    override fun toString(): String = delegate.toString()
+
+    override fun freeze(freezer: Freezer): Result<FrozenDict> {
+        val dict = inner.value
+        return freezeDictData(dict, freezer)
+    }
+
+    companion object {
+        fun fromValue(value: Value): MutableDict? = value.downcastRef<MutableDict>()
+    }
+}
+
+internal val VALUE_EMPTY_FROZEN_DICT: AllocStaticSimple<FrozenDict> =
+    AllocStaticSimple.alloc(FrozenDict(DictGen(FrozenDictData(SmallMap.new()))))
+
+internal fun dictGenFromValue(value: Value): DictGen<*>? =
+    value.downcastRef<MutableDict>()?.delegate
+        ?: value.downcastRef<FrozenDict>()?.delegate
 
 /** Helper type for lookups, not useful. */
 data class ValueStr(
@@ -415,18 +436,18 @@ data class ValueStr(
     override fun equivalent(key: Value): Boolean = key.unpackStr() == str
 }
 
-/** Freeze implementation for DictGen<AtomicRef<Dict>> (mutable dict). */
-fun DictGen<AtomicRef<Dict>>.freezeDict(freezer: Freezer): Result<DictGen<FrozenDictData>> {
+/** Freeze implementation for MutableDict (mutable dict). */
+internal fun MutableDict.freezeDict(freezer: Freezer): Result<FrozenDict> {
     val content = freezeDictContent(inner.value, freezer).getOrElse { return Result.failure(it) }
-    return Result.success(DictGen(FrozenDictData(content)))
+    return Result.success(FrozenDict(DictGen(FrozenDictData(content))))
 }
 
 private fun freezeDictData(
     dict: Dict,
     freezer: Freezer,
-): Result<DictGen<FrozenDictData>> {
+): Result<FrozenDict> {
     val content = freezeDictContent(dict, freezer).getOrElse { return Result.failure(it) }
-    return Result.success(DictGen(FrozenDictData(content)))
+    return Result.success(FrozenDict(DictGen(FrozenDictData(content))))
 }
 
 private fun freezeDictContent(
@@ -457,7 +478,7 @@ interface DictLike {
     fun setAt(index: Hashed<Value>, value: Value): Result<Unit>
 }
 
-class RefCellDictLike(
+internal class RefCellDictLike(
     private val cell: AtomicRef<*>,
 ) : DictLike {
     private fun dict(): Dict =
@@ -513,9 +534,6 @@ private fun getDictFromRef(ref: DictRef): Dict =
         is Either.Right -> aref.value
     }
 
-fun <T : DictLike> DictGen<T>.serialize(): Map<Value, Value> =
-    inner.content().iter().toMap()
-
 internal fun <K, V> fmtKeyedContainer(
     start: String,
     end: String,
@@ -536,12 +554,19 @@ internal fun <K, V> fmtKeyedContainer(
     return builder.toString()
 }
 
-class AtomicRef<T>(
+internal class AtomicRef<T>(
     var value: T,
-) {
-    fun borrow(): Ref<T> = Ref(value)
+) : Trace {
+    override fun trace(tracer: Tracer) {
+        val v = value
+        if (v is Trace) {
+            v.trace(tracer)
+        }
+    }
 
-    fun tryBorrowMut(): RefMut<T> = RefMut(value)
+    internal fun borrow(): Ref<T> = Ref(value)
+
+    internal fun tryBorrowMut(): RefMut<T> = RefMut(value)
 }
 
 internal fun hashStringValue(s: String): Int = s.hashCode()

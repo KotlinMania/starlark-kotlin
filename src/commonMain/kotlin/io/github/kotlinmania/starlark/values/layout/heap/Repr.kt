@@ -56,10 +56,12 @@ class AValueHeader(
 
     companion object {
         /** Alignment of objects in Starlark heap (8 bytes for tag bits). */
-        const val ALIGN: Int = 8
+        val ALIGN: Int = 8
 
         /** Global counter for assigning aligned indices. */
         private var counter: Long = ALIGN.toLong()
+
+        fun currentCounter(): Long = lock.withLock { counter }
 
         /** Global registry mapping index -> AValueHeader. */
         private val headerRegistry: MutableMap<Long, AValueHeader> = mutableMapOf()

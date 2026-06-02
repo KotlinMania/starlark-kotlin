@@ -20,6 +20,8 @@ package io.github.kotlinmania.starlark.values.layout.heap.arena
  */
 
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.layout.AValue
 import io.github.kotlinmania.starlark.values.layout.AValueImpl
@@ -29,6 +31,11 @@ import io.github.kotlinmania.starlark.values.layout.BlackHole
 import io.github.kotlinmania.starlark.values.layout.ConstTypeId
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueComplexNoFreeze
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueList
+import io.github.kotlinmania.starlark.values.layout.avalues.AValueTuple
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
 import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForward
 import io.github.kotlinmania.starlark.values.layout.heap.AValueOrForwardUnpack
@@ -47,12 +54,16 @@ import io.github.kotlinmania.starlark.values.layout.typed.StarlarkStr
 import io.github.kotlinmania.starlark.values.starlarktypeid.StarlarkTypeId
 import io.github.kotlinmania.starlark.values.types.StarlarkAny
 import io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex
+import io.github.kotlinmania.starlark.values.types.list.ListGen
+import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 /**
  * Min size of allocated object including header.
  * Should be able to fit `BlackHole` or forward.
  */
 internal val MIN_ALLOC: AlignedSize = AlignedSize.newBytes(16)
+
+private fun createAValueComplex(value: StarlarkValue): AValue = AValueComplex(value)
 
 /**
  * Build an [AValueVTable] from a [StarlarkValue] instance.
@@ -62,6 +73,19 @@ private fun vtableForValue(
     avalue: AValue? = null,
 ): AValueVTable {
     val typeId = ConstTypeId.of(value::class)
+    val resolvedAvalue =
+        avalue ?: when (value) {
+            is ListGen<*> -> AValueList
+            is TupleGen<*> -> AValueTuple
+            is ComplexValue -> {
+                if (value is Freeze<*>) {
+                    createAValueComplex(value)
+                } else {
+                    AValueComplexNoFreeze(value)
+                }
+            }
+            else -> null
+        }
     return AValueVTable(
         staticTypeOfValue = typeId,
         starlarkTypeId = StarlarkTypeId.fromTypeId(typeId),
@@ -69,8 +93,8 @@ private fun vtableForValue(
         isStr = value is StarlarkStr,
         memorySizeFn = { _ -> ValueAllocSize.new(AlignedSize.newBytes(16)) },
         heapFreezeFn = freeze@{ repr, p, freezer ->
-            if (avalue != null) {
-                return@freeze avalue.heapFreeze(repr, freezer)
+            if (resolvedAvalue != null) {
+                return@freeze resolvedAvalue.heapFreeze(repr, freezer)
             }
             val sv = p.starlarkValue()
             val direct = tryFreezeDirectly(sv, freezer)
@@ -87,8 +111,8 @@ private fun vtableForValue(
             Result.success(fv)
         },
         heapCopyFn = { p, tracer ->
-            if (avalue != null) {
-                avalue.heapCopy(tracer)
+            if (resolvedAvalue != null) {
+                resolvedAvalue.heapCopy(tracer)
             } else {
                 val sv = p.starlarkValue()
                 heapCopyImpl(sv, tracer) { _, _ -> }

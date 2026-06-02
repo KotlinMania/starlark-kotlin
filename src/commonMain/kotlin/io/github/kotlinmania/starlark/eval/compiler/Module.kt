@@ -89,7 +89,7 @@ internal fun Compiler.evalLoad(load: Spanned<LoadP<CstPayload, *>>): Result<Unit
     for (loadArg in load.node.args) {
         @Suppress("UNCHECKED_CAST")
         val local = loadArg.local as CstAssignIdent
-        val (slot, _captured) = scopeData.getAssignIdentSlot(local, codemap.deref())
+        val (slot, _) = scopeData.getAssignIdentSlot(local, codemap.deref())
         val moduleSlot =
             when (slot) {
                 is Slot.Local -> error("symbol need to be resolved to module")

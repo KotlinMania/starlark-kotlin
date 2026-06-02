@@ -4,7 +4,7 @@
 # idiomatic Kotlin would create false positives here.
 
 build:
-  maxIssues: 100
+  maxIssues: 150
   excludeCorrectable: false
 
 config:

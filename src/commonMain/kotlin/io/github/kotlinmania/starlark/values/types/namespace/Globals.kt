@@ -39,6 +39,6 @@ fun registerNamespace(builder: GlobalsBuilder) {
                 ),
             )
         }
-        NamespaceGen.new(fields)
+        NamespaceGen.mutable(fields)
     }
 }

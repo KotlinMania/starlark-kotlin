@@ -51,7 +51,7 @@ import kotlin.time.TimeSource
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
  * [Module] as appropriate.
  */
-fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
+internal fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     val start = TimeSource.Monotonic.markNow()
 
     val (codemap, statement, dialect, typecheck) = ast.intoParts()
@@ -134,7 +134,7 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 }
 
 /** Evaluate a function stored in a [Value], passing in `positional` and `named` arguments. */
-fun Evaluator.evalFunction(
+internal fun Evaluator.evalFunction(
     function: Value,
     positional: List<Value>,
     named: List<Pair<String, Value>>,

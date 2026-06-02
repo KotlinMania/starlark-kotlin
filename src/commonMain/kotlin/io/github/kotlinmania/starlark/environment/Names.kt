@@ -43,7 +43,7 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
  * On an unscope, we do the reverse, putting things back to how they were
  * before (apart from the total) number of slots required.
  */
-class MutableNames {
+internal class MutableNames {
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>> = SmallMap.new()
 
     companion object {
@@ -112,7 +112,7 @@ class MutableNames {
 }
 
 /** Frozen (immutable) form of [MutableNames]. */
-class FrozenNames(
+internal class FrozenNames(
     private val map: SmallMap<FrozenStringValue, Pair<ModuleSlotId, Visibility>>,
 ) {
     fun getName(name: String): Pair<ModuleSlotId, Visibility>? {

@@ -33,7 +33,7 @@ interface UnpackValueError {
 }
 
 /** [UnpackValueError] impl for [Error]. */
-fun Error.asUnpackValueError(): UnpackValueError =
+internal fun Error.asUnpackValueError(): UnpackValueError =
     object : UnpackValueError {
         override fun intoError(): Error = this@asUnpackValueError
     }

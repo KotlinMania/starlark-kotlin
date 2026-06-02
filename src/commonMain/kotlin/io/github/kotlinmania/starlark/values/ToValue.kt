@@ -9,9 +9,9 @@ import io.github.kotlinmania.starlark.values.types.int.InlineInt
  * Note: String -> Value requires a Heap (use Heap.allocStr instead).
  */
 
-fun Int.toValue(): Value = Value.newInt(InlineInt(this))
+internal fun Int.toValue(): Value = Value.newInt(InlineInt(this))
 
-fun Boolean.toValue(): Value = Value.newBool(this)
+internal fun Boolean.toValue(): Value = Value.newBool(this)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-fun Value.toValue(): Value = this
+internal fun Value.toValue(): Value = this

@@ -40,9 +40,14 @@ import io.github.kotlinmania.starlark.typing.ParamSpec
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.AllocValue
+import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexAny
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
@@ -61,8 +66,8 @@ import io.github.kotlinmania.starlark.values.types.bigint.allocValue
 import io.github.kotlinmania.starlark.values.types.bool.allocValue
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
-import io.github.kotlinmania.starlark.values.types.namespace.FrozenNamespace
 import io.github.kotlinmania.starlark.values.types.namespace.MaybeDocHiddenValue
+import io.github.kotlinmania.starlark.values.types.namespace.NamespaceGen
 import io.github.kotlinmania.starlark.values.types.string.allocValue
 import kotlin.concurrent.Volatile
 
@@ -259,7 +264,7 @@ class GlobalsBuilder private constructor(
         }
         setInner(
             name,
-            heap.allocSimple(FrozenNamespace.new(stringKeyFields)),
+            heap.allocSimple(NamespaceGen.frozen(stringKeyFields)),
             docHidden,
         )
     }
@@ -477,6 +482,20 @@ class GlobalsBuilder private constructor(
                 is StringValue -> result.toValue()
                 is FrozenStringValue -> result.toValue()
                 is AllocValue -> result.allocValue(heap)
+                is ComplexValue -> {
+                    if (result !is Trace) {
+                        return Result.failure(
+                            IllegalArgumentException(
+                                "Cannot convert non-traceable ComplexValue result of type ${result::class.simpleName} to Starlark value",
+                            ),
+                        )
+                    }
+                    if (result is Freeze<*>) {
+                        heap.allocComplexAny(result)
+                    } else {
+                        heap.allocComplexNoFreeze(result)
+                    }
+                }
                 is StarlarkValue -> heap.allocSimple(result)
                 is String -> result.allocValue(heap)
                 is Int -> result.allocValue(heap)

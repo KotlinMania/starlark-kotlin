@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.convertIndex
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.ValueTyped
 import io.github.kotlinmania.starlark.values.layout.avalues.allocListIter
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
@@ -240,7 +239,7 @@ class EnumTypeGen internal constructor(
     companion object {
         private const val FUNCTION_TYPE = "function"
 
-        fun new(elements: List<StringValue>, heap: Heap): ValueTyped<EnumTypeGen> {
+        fun new(elements: List<StringValue>, heap: Heap): Value {
             val id = TypeInstanceId.gen()
             val elemMap = SmallMap.new<Value, Value>()
 
@@ -269,7 +268,7 @@ class EnumTypeGen internal constructor(
                 }
             }
 
-            return typValue
+            return typValue.toValue()
         }
     }
 }

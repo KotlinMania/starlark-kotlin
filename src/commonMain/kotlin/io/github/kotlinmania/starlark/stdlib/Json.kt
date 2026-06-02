@@ -1,4 +1,6 @@
 // port-lint: source src/stdlib/json.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -33,6 +35,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.dict.Dict
 import io.github.kotlinmania.starlark.values.types.dict.DictGen
+import io.github.kotlinmania.starlark.values.types.dict.FrozenDict
 import io.github.kotlinmania.starlark.values.types.dict.FrozenDictData
 import io.github.kotlinmania.starlark.values.types.dict.allocValue
 import io.github.kotlinmania.starlark.values.types.float.StarlarkFloat
@@ -44,6 +47,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlin.native.HiddenFromObjC
 
 // ---- JsonNumber ----
 
@@ -211,6 +215,7 @@ fun allocFrozenJsonNumber(number: JsonNumber, heap: FrozenHeap): FrozenValue {
  * A sealed class hierarchy representing the possible JSON value types:
  * null, boolean, number, string, array, and object.
  */
+@HiddenFromObjC
 sealed class JsonValue {
     data object Null : JsonValue()
 
@@ -316,6 +321,7 @@ object JsonMapTypeRepr : StarlarkTypeRepr {
 // ---- AllocValue for JSON Map ----
 
 /** Allocate a JSON map as a Starlark dict value. */
+@HiddenFromObjC
 fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
     val converted = map.mapValues { allocJsonValue(it.value, heap) }
     return allocJsonMapOnHeap(converted, heap)
@@ -324,6 +330,7 @@ fun allocJsonMap(map: Map<String, JsonValue>, heap: Heap): Value {
 // ---- AllocFrozenValue for JSON Map ----
 
 /** Allocate a JSON map as a frozen Starlark dict value. */
+@HiddenFromObjC
 fun allocFrozenJsonMap(map: Map<String, JsonValue>, heap: FrozenHeap): FrozenValue {
     val converted = map.mapValues { allocFrozenJsonValue(it.value, heap) }
     return allocFrozenJsonMapOnHeap(converted, heap)
@@ -369,8 +376,10 @@ private fun allocFrozenJsonMapOnHeap(map: Map<String, FrozenValue>, heap: Frozen
         )
     }
     return heap.allocSimple(
-        DictGen(
-            FrozenDictData(sm),
+        FrozenDict(
+            DictGen(
+                FrozenDictData(sm),
+            ),
         ),
     )
 }

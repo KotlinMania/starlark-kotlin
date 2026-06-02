@@ -25,7 +25,7 @@ import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 
 private fun defaultValueFunctions(globals: GlobalsBuilder) {
-    globals.setFunction("foo") { args: Arguments, _eval: Evaluator ->
+    globals.setFunction("foo") { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Int>(0)
         Result.success(x ?: 75)
     }

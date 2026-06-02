@@ -1,4 +1,6 @@
 // port-lint: source src/eval/runtime/file_loader.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark.eval.runtime.fileloader
 
 /*
@@ -23,8 +25,10 @@ package io.github.kotlinmania.starlark.eval.runtime.fileloader
 // ! for the `load(...)` statement.
 
 import io.github.kotlinmania.starlark.environment.FrozenModule
+import kotlin.native.HiddenFromObjC
 
 // / A trait for turning a `path` given by a `load()` statement into a [`FrozenModule`].
+@HiddenFromObjC
 interface FileLoader {
     // / Open the file given by the load statement `path`.
     fun load(path: String): FrozenModule
@@ -34,6 +38,7 @@ interface FileLoader {
 // /
 // / A list of all load statements can be obtained through
 // / This struct will raise an error if any requested files are not available.
+@HiddenFromObjC
 class ReturnFileLoader(
     // / Map from module name (first argument to `load` statement) to the actual module.
     val modules: Map<String, FrozenModule>,

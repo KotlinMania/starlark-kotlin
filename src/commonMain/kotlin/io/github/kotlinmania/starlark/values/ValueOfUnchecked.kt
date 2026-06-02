@@ -37,7 +37,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
  * In Kotlin, `T` is a phantom type parameter used only for type-level annotation.
  * The `V` parameter represents the underlying value type ([Value] or [FrozenValue]).
  */
-class ValueOfUncheckedGeneric<V : ValueLike, T : StarlarkTypeRepr> private constructor(
+internal class ValueOfUncheckedGeneric<V : ValueLike, T : StarlarkTypeRepr> private constructor(
     private val value: V,
 ) {
     /**
@@ -116,15 +116,15 @@ class ValueOfUncheckedGeneric<V : ValueLike, T : StarlarkTypeRepr> private const
  * Providing incorrect type annotation will result
  * in incorrect error reporting by the type checker.
  */
-typealias ValueOfUnchecked<T> = ValueOfUncheckedGeneric<Value, T>
+internal typealias ValueOfUnchecked<T> = ValueOfUncheckedGeneric<Value, T>
 
 /** Frozen starlark value with type annotation. */
-typealias FrozenValueOfUnchecked<T> = ValueOfUncheckedGeneric<FrozenValue, T>
+internal typealias FrozenValueOfUnchecked<T> = ValueOfUncheckedGeneric<FrozenValue, T>
 
 /**
  * Allocate frozen value. Returns the underlying frozen value.
  */
-fun <T : StarlarkTypeRepr> FrozenValueOfUnchecked<T>.allocFrozenValue(
+internal fun <T : StarlarkTypeRepr> FrozenValueOfUnchecked<T>.allocFrozenValue(
     @Suppress("UNUSED_PARAMETER") heap: FrozenHeap,
 ): FrozenValue = get()
 
@@ -135,7 +135,7 @@ fun <T : StarlarkTypeRepr> FrozenValueOfUnchecked<T>.allocFrozenValue(
  * performed at compile time. In Kotlin, an explicit [UnpackValue] instance
  * is required to perform the runtime check.
  */
-fun <T : StarlarkTypeRepr, R> ValueOfUncheckedGeneric.Companion.newChecked(
+internal fun <T : StarlarkTypeRepr, R> ValueOfUncheckedGeneric.Companion.newChecked(
     value: Value,
     unpacker: UnpackValue<R>,
 ): ValueOfUnchecked<T> {
@@ -144,7 +144,7 @@ fun <T : StarlarkTypeRepr, R> ValueOfUncheckedGeneric.Companion.newChecked(
 }
 
 /** Construct after checking the type (convenience overload that skips type checking). */
-fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
+internal fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
     value: Value,
 ): ValueOfUnchecked<T> = ValueOfUncheckedGeneric.new(value)
 
@@ -164,7 +164,7 @@ fun <T : StarlarkTypeRepr> ValueOfUncheckedGeneric.Companion.newChecked(
  * }
  * ```
  */
-class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
+internal class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
     private val typeRepr: StarlarkTypeRepr,
 ) : UnpackValue<ValueOfUnchecked<T>> {
     override fun starlarkTypeRepr(): Ty = typeRepr.starlarkTypeRepr()
@@ -177,4 +177,4 @@ class ValueOfUncheckedUnpackValue<T : StarlarkTypeRepr>(
  *
  * This always succeeds since [ValueOfUnchecked] wraps any value without checking the type.
  */
-fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> = ValueOfUncheckedGeneric.new(value)
+internal fun <T : StarlarkTypeRepr> unpackValueOfUnchecked(value: Value): ValueOfUnchecked<T> = ValueOfUncheckedGeneric.new(value)
