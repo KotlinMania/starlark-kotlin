@@ -1,5 +1,4 @@
 // port-lint: source src/vec2.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.vec2
 
 /*
@@ -20,8 +19,6 @@ package io.github.kotlinmania.starlark.collections.vec2
  * limitations under the License.
  */
 
-import kotlin.native.HiddenFromObjC
-
 /**
  * A `List<Pair<A, B>>`-like object which stores `A` and `B` separately.
  *
@@ -29,7 +26,6 @@ import kotlin.native.HiddenFromObjC
  * Kotlin commonMain does not provide low-level allocation APIs, so this port preserves the
  * same observable behaviour using two parallel [ArrayList]s.
  */
-@HiddenFromObjC
 class Vec2<A, B> private constructor(
     private val a: ArrayList<A>,
     private val b: ArrayList<B>,

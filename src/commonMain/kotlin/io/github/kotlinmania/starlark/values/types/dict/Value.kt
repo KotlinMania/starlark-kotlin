@@ -1,5 +1,4 @@
 // port-lint: source src/values/types/dict/value.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.dict
 
 /*
@@ -43,7 +42,6 @@ import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import kotlin.reflect.KClass
-import kotlin.native.HiddenFromObjC
 
 internal data class DictGen<T>(
     val inner: T,
@@ -212,7 +210,6 @@ internal fun Dict.display(): String =
     fmtKeyedContainer("{", "}", ": ", iter())
 
 /** Define the dict type. */
-@HiddenFromObjC
 class Dict(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<Value, Value>,
@@ -324,7 +321,6 @@ class Dict(
 internal fun Dict.allocValue(heap: Heap): Value =
     heap.allocComplex(MutableDict(DictGen(AtomicRef(this))))
 
-@HiddenFromObjC
 class FrozenDictData(
     /** The data stored by the dictionary. The keys must all be hashable values. */
     val content: SmallMap<FrozenValue, FrozenValue>,

@@ -1,8 +1,5 @@
 // port-lint: source src/values/unpack.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values
-
-import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -48,7 +45,6 @@ interface UnpackValueErrorInfallible : UnpackValueError {
 }
 
 /** [UnpackValueError] impl for [Either]. */
-@HiddenFromObjC
 class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
     private val either: Either<A, B>,
 ) : UnpackValueError {
@@ -60,7 +56,6 @@ class EitherUnpackValueError<A : UnpackValueError, B : UnpackValueError>(
 }
 
 /** [UnpackValueErrorInfallible] impl for [Either]. */
-@HiddenFromObjC
 class EitherUnpackValueErrorInfallible<A : UnpackValueErrorInfallible, B : UnpackValueErrorInfallible>(
     private val either: Either<A, B>,
 ) : UnpackValueErrorInfallible {
@@ -158,14 +153,15 @@ interface UnpackValue<T> : StarlarkTypeRepr {
 }
 
 /** [UnpackValue] impl for [Value] (identity). */
-object ValueUnpackValue : UnpackValue<Value> {
+internal class ValueUnpackValueImpl : UnpackValue<Value> {
     override fun unpackValueImpl(value: Value): Result<Value?> = Result.success(value)
 
     override fun starlarkTypeRepr(): Ty = Ty.any()
 }
 
+internal val ValueUnpackValue: UnpackValue<Value> = ValueUnpackValueImpl()
+
 /** [UnpackValue] impl for [Either]. */
-@HiddenFromObjC
 class EitherUnpackValue<TLeft, TRight>(
     private val left: UnpackValue<TLeft>,
     private val right: UnpackValue<TRight>,

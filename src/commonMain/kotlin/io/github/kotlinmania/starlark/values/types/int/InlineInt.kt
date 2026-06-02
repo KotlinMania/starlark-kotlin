@@ -297,13 +297,13 @@ object InlineIntStarlarkTypeRepr : StarlarkTypeRepr {
 }
 
 /** Rust: impl<'v> UnpackValue<'v> for InlineInt */
-object InlineIntUnpackValue : UnpackValue<InlineInt> {
-    // Rust: fn starlark_type_repr() -> Ty
+internal class InlineIntUnpackValueImpl : UnpackValue<InlineInt> {
     override fun starlarkTypeRepr(): Ty = InlineIntStarlarkTypeRepr.starlarkTypeRepr()
 
-    // Rust: fn unpack_value_impl(value: Value<'v>) -> crate::Result<Option<Self>>
     override fun unpackValueImpl(value: Value): Result<InlineInt?> = Result.success(value.unpackInlineInt())
 }
+
+internal val InlineIntUnpackValue: UnpackValue<InlineInt> = InlineIntUnpackValueImpl()
 
 /** Rust: impl<'v> AllocValue<'v> for InlineInt */
 object InlineIntAllocValue : AllocValue {

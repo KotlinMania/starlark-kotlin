@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.sortedset
 
 /*
@@ -24,10 +23,8 @@ import io.github.kotlinmania.starlark.collections.orderedset.OrderedSet
 import io.github.kotlinmania.starlark.collections.smallset.SmallSet
 import io.github.kotlinmania.starlark.collections.sortedvec.SortedVec
 import kotlin.comparisons.naturalOrder
-import kotlin.native.HiddenFromObjC
 
 /** An immutable [SmallSet] with values guaranteed to be sorted. */
-@HiddenFromObjC
 class SortedSet<T : Comparable<T>> internal constructor(
     private val inner: OrderedSet<T>,
 ) : Iterable<T> {

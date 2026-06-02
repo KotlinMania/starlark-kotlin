@@ -1,5 +1,5 @@
 // port-lint: source src/macros.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.starlark
 
 /*
@@ -25,13 +25,11 @@ import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-import kotlin.native.HiddenFromObjC
 import kotlin.reflect.KClass
 
 /**
  * Reduce boilerplate when making types instances of ComplexValue.
  */
-@HiddenFromObjC
 fun <T : StarlarkValue> starlarkComplexValue(
     unfrozenType: KClass<T>,
     frozenType: KClass<out StarlarkValue>,
@@ -52,7 +50,6 @@ fun <T : StarlarkValue> starlarkComplexValue(
  * Similar to [starlarkComplexValue], but [fromValue] can return either the
  * unfrozen value or its frozen counterpart.
  */
-@HiddenFromObjC
 fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
     unfrozenType: KClass<T>,
     frozenType: KClass<F>,
@@ -73,7 +70,6 @@ fun <T : StarlarkValue, F : StarlarkValue> starlarkComplexValues(
  * A macro reducing boilerplate defining Starlark values which are simple - they
  * aren't mutable and can't contain references to other Starlark values.
  */
-@HiddenFromObjC
 fun <T : StarlarkValue> starlarkSimpleValue(
     type: KClass<T>,
     allocValue: (T, Heap) -> Value,
@@ -89,7 +85,6 @@ fun <T : StarlarkValue> starlarkSimpleValue(
 }
 
 /** Registry for complex value type registrations. */
-@HiddenFromObjC
 object ComplexValueRegistry {
     private val entries = mutableMapOf<KClass<*>, ComplexValueEntry<*>>()
 
@@ -113,7 +108,6 @@ object ComplexValueRegistry {
     fun get(type: KClass<out StarlarkValue>): ComplexValueEntry<*>? = entries[type]
 }
 
-@HiddenFromObjC
 data class ComplexValueEntry<T : StarlarkValue>(
     val unfrozenType: KClass<T>,
     val frozenType: KClass<out StarlarkValue>,
@@ -123,7 +117,6 @@ data class ComplexValueEntry<T : StarlarkValue>(
 )
 
 /** Registry for complex values (Either variant) type registrations. */
-@HiddenFromObjC
 object ComplexValuesRegistry {
     private val entries = mutableMapOf<KClass<*>, ComplexValuesEntry<*, *>>()
 
@@ -147,7 +140,6 @@ object ComplexValuesRegistry {
     fun get(type: KClass<out StarlarkValue>): ComplexValuesEntry<*, *>? = entries[type]
 }
 
-@HiddenFromObjC
 data class ComplexValuesEntry<T : StarlarkValue, F : StarlarkValue>(
     val unfrozenType: KClass<T>,
     val frozenType: KClass<F>,
@@ -157,7 +149,6 @@ data class ComplexValuesEntry<T : StarlarkValue, F : StarlarkValue>(
 )
 
 /** Registry for simple value type registrations. */
-@HiddenFromObjC
 object SimpleValueRegistry {
     private val entries = mutableMapOf<KClass<*>, SimpleValueEntry<*>>()
 
@@ -179,7 +170,6 @@ object SimpleValueRegistry {
     fun get(type: KClass<out StarlarkValue>): SimpleValueEntry<*>? = entries[type]
 }
 
-@HiddenFromObjC
 data class SimpleValueEntry<T : StarlarkValue>(
     val type: KClass<T>,
     val allocValue: (T, Heap) -> Value,
@@ -188,7 +178,6 @@ data class SimpleValueEntry<T : StarlarkValue>(
 )
 
 /** Either type used by [starlarkComplexValues] for [fromValue] results. */
-@HiddenFromObjC
 sealed class Either<out L, out R> {
     data class Left<out L>(
         val value: L,

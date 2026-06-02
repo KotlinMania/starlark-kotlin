@@ -91,7 +91,7 @@ interface TypeCompiledDyn {
 }
 
 /** A compiled type expression wrapped as a Starlark value with a type matcher. */
-class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
+internal class TypeCompiledImplAsStarlarkValue<T : TypeMatcher>(
     internal val typeCompiledImpl: T,
     internal val ty: Ty,
 ) : StarlarkValue,

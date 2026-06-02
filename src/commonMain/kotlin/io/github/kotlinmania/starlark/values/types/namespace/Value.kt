@@ -54,7 +54,6 @@ internal fun interface NamespaceFreezeValue<V> {
     ): Result<FrozenValue>
 }
 
-@HiddenFromObjC
 data class MaybeDocHiddenValue<V>(
     var value: V,
     val docHidden: Boolean,
@@ -211,7 +210,6 @@ internal class NamespaceGen<V> internal constructor(
         fields.iter().associate { (k, v) -> k to v.value }
 }
 
-@HiddenFromObjC
 class Namespace internal constructor(
     internal val delegate: NamespaceGen<Value>,
 ) : StarlarkValue by delegate,
@@ -236,7 +234,6 @@ class Namespace internal constructor(
     }
 }
 
-@HiddenFromObjC
 class FrozenNamespace internal constructor(
     internal val delegate: NamespaceGen<FrozenValue>,
 ) : StarlarkValue by delegate,

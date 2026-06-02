@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.sortedmap
 
 /*
@@ -23,10 +22,8 @@ import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.SmallMap
 import io.github.kotlinmania.starlark.collections.orderedmap.OrderedMap
 import io.github.kotlinmania.starlark.collections.orderedmap.sortKeys
-import kotlin.native.HiddenFromObjC
 
 /** [OrderedMap] but with keys sorted. */
-@HiddenFromObjC
 class SortedMap<K, V> internal constructor(
     private val map: OrderedMap<K, V>,
 ) : Iterable<Pair<K, V>> {

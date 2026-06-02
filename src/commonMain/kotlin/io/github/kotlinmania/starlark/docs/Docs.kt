@@ -1,8 +1,5 @@
 // port-lint: source src/docs.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.docs
-
-import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -32,7 +29,6 @@ import io.github.kotlinmania.starlark.values.StarlarkValue
 import kotlin.js.JsName
 
 /** The documentation provided by a user for a specific module, object, function, etc. */
-@HiddenFromObjC
 data class DocString(
     /** The first line of a doc string. This has whitespace trimmed from it. */
     val summary: String = "",
@@ -52,7 +48,6 @@ data class DocString(
  *
  * See the docs on [DocType] for the distinction between that type and this one.
  */
-@HiddenFromObjC
 class DocModule(
     val docs: DocString? = null,
     val members: SmallMap<String, DocItem> = SmallMap.new(),
@@ -69,7 +64,6 @@ class DocModule(
 }
 
 /** Documents a single function. */
-@HiddenFromObjC
 class DocFunction(
     /**
      * Documentation for the function. If parsed, this should generally be the first statement
@@ -97,7 +91,6 @@ class DocFunction(
 }
 
 /** Function parameters. */
-@HiddenFromObjC
 data class DocParams(
     val posOnly: List<DocParam> = emptyList(),
     val posOrNamed: List<DocParam> = emptyList(),
@@ -147,7 +140,6 @@ data class DocParams(
 }
 
 /** A single parameter of a function. */
-@HiddenFromObjC
 data class DocParam(
     /** Does not include `*` or `**`. */
     val name: String,
@@ -164,7 +156,6 @@ data class DocParam(
 }
 
 /** Details about the return value of a function. */
-@HiddenFromObjC
 class DocReturn(
     /** Extra semantic details around the returned value's meaning. */
     val docs: DocString? = null,
@@ -172,14 +163,12 @@ class DocReturn(
 )
 
 /** A single property of an object. These are explicitly not functions (see [DocMember]). */
-@HiddenFromObjC
 class DocProperty(
     val docs: DocString? = null,
     val typ: Ty,
 )
 
 /** A named member of an object. */
-@HiddenFromObjC
 sealed class DocMember {
     class Property(
         val property: DocProperty,
@@ -207,7 +196,6 @@ sealed class DocMember {
  * importantly because the members here are expected to be attributes on *values* of the type, not
  * on the type itself.
  */
-@HiddenFromObjC
 class DocType(
     val docs: DocString? = null,
     /** Name and details of each attr/function that can be accessed on this type. */
@@ -234,7 +222,6 @@ class DocType(
     }
 }
 
-@HiddenFromObjC
 sealed class DocItem {
     class Module(
         val module: DocModule,

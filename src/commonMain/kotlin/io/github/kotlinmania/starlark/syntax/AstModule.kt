@@ -70,7 +70,6 @@ internal data class AstModuleParts(
     val typecheck: Boolean,
 )
 
-@HiddenFromObjC
 class AstModule(
     val codemap: CodeMap,
     internal var statement: AstStmt,

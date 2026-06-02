@@ -86,8 +86,10 @@ object StructRefStarlarkTypeRepr : StarlarkTypeRepr {
     override fun starlarkTypeRepr(): Ty = Ty.anyStruct()
 }
 
-object StructRefUnpackValue : UnpackValue<StructRef> {
+internal class StructRefUnpackValueImpl : UnpackValue<StructRef> {
     override fun starlarkTypeRepr(): Ty = StructRefStarlarkTypeRepr.starlarkTypeRepr()
 
     override fun unpackValueImpl(value: Value): Result<StructRef?> = Result.success(StructRef.fromValue(value))
 }
+
+internal val StructRefUnpackValue: UnpackValue<StructRef> = StructRefUnpackValueImpl()

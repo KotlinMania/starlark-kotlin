@@ -1,5 +1,4 @@
 // port-lint: source src/docs/markdown.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.docs.markdown
 
 /*
@@ -32,10 +31,8 @@ import io.github.kotlinmania.starlark.docs.RenderConfig
 import io.github.kotlinmania.starlark.docs.renderCode
 import io.github.kotlinmania.starlark.typing.Ty
 import io.github.kotlinmania.starlark.typing.TypeRenderConfig
-import kotlin.native.HiddenFromObjC
 
 /** Configuration for layout rendering. */
-@HiddenFromObjC
 enum class LayoutRenderConfig {
     Default,
 

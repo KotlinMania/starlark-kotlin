@@ -27,7 +27,7 @@ sealed class TokenInt {
     ) : TokenInt()
 
     /** Only if larger than `i32`. */
-class BigInt internal constructor(
+    class BigInt internal constructor(
         internal val value: BigInteger,
     ) : TokenInt() {
         override fun equals(other: Any?): Boolean =

@@ -1,8 +1,6 @@
 // port-lint: source src/typing/error.rs
-package io.github.kotlinmania.starlark.typing
 
-import io.github.kotlinmania.starlark.codemap.CodeMap
-import io.github.kotlinmania.starlark.codemap.Span
+package io.github.kotlinmania.starlark.typing
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -21,6 +19,9 @@ import io.github.kotlinmania.starlark.codemap.Span
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import io.github.kotlinmania.starlark.codemap.CodeMap
+import io.github.kotlinmania.starlark.codemap.Span
 
 /** Evaluation exception with source location diagnostics attached. */
 class EvalException(

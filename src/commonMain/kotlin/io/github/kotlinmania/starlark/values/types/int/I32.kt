@@ -59,8 +59,10 @@ fun unpackValueI32(value: Value): Result<Int?> {
     return Result.success(null)
 }
 
-object I32UnpackValue : UnpackValue<Int> {
+internal class I32UnpackValueImpl : UnpackValue<Int> {
     override fun starlarkTypeRepr(): Ty = Ty.int()
 
     override fun unpackValueImpl(value: Value): Result<Int?> = unpackValueI32(value)
 }
+
+internal val I32UnpackValue: UnpackValue<Int> = I32UnpackValueImpl()

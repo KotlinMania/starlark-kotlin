@@ -1,8 +1,5 @@
 // port-lint: source src/eval/bc/writer.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
-
-import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -35,7 +32,6 @@ import kotlin.math.max
 
 // --- BcStmtLoc ---
 
-@HiddenFromObjC
 internal class BcStmtLoc(
     val span: FrameSpan,
 )
@@ -46,7 +42,6 @@ internal class BcStmtLoc(
  * do a lookup for every instruction) and so it's implemented as a vec of statements and then a vec of
  * statement indexes for each possible BcAddr in a bytecode Bc.
  */
-@HiddenFromObjC
 internal class BcStatementLocations(
     val locs: MutableList<BcStmtLoc> = mutableListOf(),
     /** Map bytecode offset to index in `locs`. */

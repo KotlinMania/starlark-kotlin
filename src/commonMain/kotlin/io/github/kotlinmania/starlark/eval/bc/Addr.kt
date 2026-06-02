@@ -1,5 +1,4 @@
 // port-lint: source src/eval/bc/addr.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -23,10 +22,8 @@ package io.github.kotlinmania.starlark.eval.bc
 /** Address types used in bytecode interpreter. */
 
 import kotlin.reflect.KClass
-import kotlin.native.HiddenFromObjC
 
 /** Address relative to bytecode start. */
-@HiddenFromObjC
 internal data class BcAddr(
     val value: UInt,
 ) : Comparable<BcAddr> {
@@ -94,7 +91,6 @@ internal data class BcPtrRange(
  *
  * In Kotlin, this is an offset into a bytecode buffer with debug validation.
  */
-@HiddenFromObjC
 internal data class BcPtrAddr(
     /** Bytecode buffer offset. */
     val offset: Int,
@@ -187,7 +183,6 @@ internal data class BcPtrAddr(
 }
 
 /** Difference between addresses. */
-@HiddenFromObjC
 internal data class BcAddrOffset(
     val value: UInt,
 ) : Comparable<BcAddrOffset> {
@@ -210,7 +205,6 @@ internal data class BcAddrOffset(
 }
 
 /** Negative difference between addresses. */
-@HiddenFromObjC
 internal data class BcAddrOffsetNeg(
     val value: UInt,
 ) : Comparable<BcAddrOffsetNeg> {

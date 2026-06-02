@@ -1,4 +1,5 @@
 // port-lint: source src/values/types/tuple/unpack.rs
+
 package io.github.kotlinmania.starlark.values.types.tuple.unpack
 
 /*
@@ -22,9 +23,9 @@ package io.github.kotlinmania.starlark.values.types.tuple.unpack
 /** Unpack a value of type `tuple[T, ...]` into a list. */
 class UnpackTuple<T>(
     /** Unpacked items. */
-    val items: MutableList<T>,
+    val items: List<T>,
 ) : Iterable<T> {
-    constructor() : this(mutableListOf())
+    constructor() : this(emptyList())
 
     companion object {
         // Kotlin: type representation deferred to when Ty is fully ported.

@@ -1,8 +1,6 @@
 // port-lint: source src/values/types/list/unpack.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-package io.github.kotlinmania.starlark.values.types.list
 
-import kotlin.native.HiddenFromObjC
+package io.github.kotlinmania.starlark.values.types.list
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -35,13 +33,12 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * @param T The expected element type, which must implement [StarlarkTypeRepr].
  * @property items The unpacked list items.
  */
-@HiddenFromObjC
 data class UnpackList<T>(
     /** Unpacked items. */
-    val items: MutableList<T>,
+    val items: List<T>,
 ) : Iterable<T> {
     /** Create an empty [UnpackList]. Corresponds to Rust's `impl Default`. */
-    constructor() : this(mutableListOf())
+    constructor() : this(emptyList())
 
     /**
      * Returns an iterator over the items.
@@ -55,7 +52,7 @@ data class UnpackList<T>(
      *
      * Corresponds to Rust's `impl IntoIterator for &mut UnpackList<T>`.
      */
-    fun iterMut(): MutableIterator<T> = items.iterator()
+    fun iterMut(): MutableIterator<T> = (items as? MutableList<T> ?: items.toMutableList()).iterator()
 
     companion object {
         /** Creates a default empty [UnpackList]. */
@@ -78,7 +75,6 @@ data class UnpackList<T>(
  * @param T The target type for each list element.
  * @property elementUnpacker The [UnpackValue] used to unpack individual elements.
  */
-@HiddenFromObjC
 class UnpackListUnpackValue<T>(
     private val elementUnpacker: UnpackValue<T>,
 ) : UnpackValue<UnpackList<T>> {
@@ -114,7 +110,6 @@ class UnpackListUnpackValue<T>(
  * Corresponds to Rust's `impl StarlarkTypeRepr for UnpackList<T>` where
  * `type Canonical = <ListType<T> as StarlarkTypeRepr>::Canonical`.
  */
-@HiddenFromObjC
 class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
     private val elementRepr: T,
 ) : StarlarkTypeRepr {
@@ -127,7 +122,7 @@ class UnpackListStarlarkTypeRepr<T : StarlarkTypeRepr>(
  * Corresponds to Rust's `impl IntoIterator for UnpackList<T>` where
  * `type Item = T` and `type IntoIter = vec::IntoIter<T>`.
  */
-internal fun <T> UnpackList<T>.intoList(): MutableList<T> = items
+internal fun <T> UnpackList<T>.intoList(): List<T> = items
 
 /**
  * Extension for iterating an [UnpackList] by reference.

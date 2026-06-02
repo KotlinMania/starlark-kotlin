@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.syntax.parser
 
 import io.github.kotlinmania.starlark.codemap.Spanned
@@ -24,9 +23,7 @@ import io.github.kotlinmania.starlark.syntax.ast.Stmt
 import io.github.kotlinmania.starlark.syntax.lexer.Token
 import io.github.kotlinmania.starlark.syntax.lexer.TokenFString
 import io.github.kotlinmania.starlark.syntax.lexer.TokenInt
-import kotlin.native.HiddenFromObjC
 
-@HiddenFromObjC
 sealed class GrammarSymbol {
     data class Variant0(
         val value: Token,

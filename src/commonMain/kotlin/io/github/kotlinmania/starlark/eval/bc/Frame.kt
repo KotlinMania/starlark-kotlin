@@ -1,6 +1,5 @@
 
 // port-lint: source src/eval/bc/frame.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.eval.bc
 
 /*
@@ -30,7 +29,6 @@ import io.github.kotlinmania.starlark.eval.runtime.LocalSlotIdCapturedOrNot
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
-import kotlin.native.HiddenFromObjC
 
 /**
  * Current `def` frame (but not native function frame).
@@ -180,7 +178,6 @@ internal fun BcFrame.trace(tracer: Tracer) {
  * In Rust, this stores a raw pointer to the `slots` field for efficiency.
  * In Kotlin, we simply hold a nullable reference to the [BcFrame].
  */
-@HiddenFromObjC
 internal class BcFramePtr internal constructor(
     private var frame: BcFrame?,
 ) {

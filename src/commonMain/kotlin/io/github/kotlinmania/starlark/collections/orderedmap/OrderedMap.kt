@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.orderedmap
 
 /*
@@ -22,7 +21,6 @@ package io.github.kotlinmania.starlark.collections.orderedmap
 import io.github.kotlinmania.starlark.collections.Equivalent
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.collections.SmallMap
-import kotlin.native.HiddenFromObjC
 
 /**
  * Wrapper for [SmallMap] which considers map equal if iteration order is equal.
@@ -30,7 +28,6 @@ import kotlin.native.HiddenFromObjC
  * Unlike [SmallMap], two [OrderedMap]s are equal only when they contain the same
  * key-value pairs in the same iteration order.
  */
-@HiddenFromObjC
 class OrderedMap<K, V> internal constructor(
     internal val inner: SmallMap<K, V>,
 ) : Iterable<Pair<K, V>> {

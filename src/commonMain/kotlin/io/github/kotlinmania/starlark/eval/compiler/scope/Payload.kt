@@ -1,8 +1,6 @@
 // port-lint: source src/eval/compiler/scope/payload.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-package io.github.kotlinmania.starlark.eval.compiler.scope
 
-import kotlin.native.HiddenFromObjC
+package io.github.kotlinmania.starlark.eval.compiler.scope
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -43,7 +41,6 @@ import io.github.kotlinmania.starlark.typing.Interface
 import io.github.kotlinmania.starlark.typing.Ty
 
 /** Compiler-specific AST payload. */
-@HiddenFromObjC
 object CstPayload : AstPayload
 
 internal typealias CstLoadPayload = Interface
@@ -52,7 +49,6 @@ internal typealias CstIdentAssignPayload = BindingId?
 internal typealias CstDefPayload = ScopeId
 internal typealias CstTypeExprPayloadType = CstTypeExprPayload
 
-@HiddenFromObjC
 internal data class CstTypeExprPayload(
     /** Populated before evaluation of top level statements in normal evaluation. */
     var compilerTy: Ty? = null,

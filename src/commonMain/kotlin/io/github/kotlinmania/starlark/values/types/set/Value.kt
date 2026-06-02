@@ -1,8 +1,5 @@
 // port-lint: source src/values/types/set/value.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.values.types.set
-
-import kotlin.native.HiddenFromObjC
 
 /*
  * Copyright 2019 The Starlark in Rust Authors.
@@ -228,7 +225,6 @@ private const val SET_TYPE: String = "set"
  *
  * Corresponds to Rust's `SetData`.
  */
-@HiddenFromObjC
 class SetData internal constructor(
     /** The data stored by the set. */
     internal val content: SmallSet<Value>,
@@ -277,7 +273,6 @@ class SetData internal constructor(
  *
  * Corresponds to Rust's `FrozenSetData`.
  */
-@HiddenFromObjC
 class FrozenSetData(
     /** The data stored by the set. The values must all be hashable values. */
     internal val content: SmallSet<FrozenValue> = SmallSet(),
@@ -303,7 +298,6 @@ internal fun FrozenSetData.valueContent(): SmallSet<Value> {
     return values
 }
 
-@HiddenFromObjC
 class MutableSet internal constructor(
     internal val delegate: SetGen<RefCell>,
 ) : StarlarkValue by delegate,
@@ -321,7 +315,6 @@ class MutableSet internal constructor(
     override fun freeze(freezer: Freezer): Result<FrozenSet> = delegate.freezeToFrozenSet(freezer)
 }
 
-@HiddenFromObjC
 class FrozenSet internal constructor(
     internal val delegate: SetGen<FrozenSetData>,
 ) : StarlarkValue by delegate,
@@ -382,7 +375,6 @@ private fun setMethodsImpl(builder: io.github.kotlinmania.starlark.environment.M
  *
  * Corresponds to Rust's `SetLike` trait.
  */
-@HiddenFromObjC
 interface SetLike {
     fun content(): SmallSet<Value>
 

@@ -251,19 +251,23 @@ object FrozenListRefStarlarkTypeRepr : StarlarkTypeRepr {
  *
  * Corresponds to Rust's `impl UnpackValue<'v> for &'v ListRef<'v>`.
  */
-object ListRefUnpackValue : UnpackValue<ListRef> {
+internal class ListRefUnpackValueImpl : UnpackValue<ListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 
     override fun unpackValueImpl(value: Value): Result<ListRef?> = Result.success(ListRef.fromValue(value))
 }
+
+internal val ListRefUnpackValue: UnpackValue<ListRef> = ListRefUnpackValueImpl()
 
 /**
  * [UnpackValue] for [FrozenListRef].
  *
  * Corresponds to Rust's `impl UnpackValue<'v> for &'v FrozenListRef`.
  */
-object FrozenListRefUnpackValue : UnpackValue<FrozenListRef> {
+internal class FrozenListRefUnpackValueImpl : UnpackValue<FrozenListRef> {
     override fun starlarkTypeRepr(): Ty = Ty.anyList()
 
     override fun unpackValueImpl(value: Value): Result<FrozenListRef?> = Result.success(FrozenListRef.fromValue(value))
 }
+
+internal val FrozenListRefUnpackValue: UnpackValue<FrozenListRef> = FrozenListRefUnpackValueImpl()

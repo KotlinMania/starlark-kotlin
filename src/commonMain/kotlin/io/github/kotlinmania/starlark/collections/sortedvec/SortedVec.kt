@@ -1,4 +1,3 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.collections.sortedvec
 
 /*
@@ -19,12 +18,9 @@ package io.github.kotlinmania.starlark.collections.sortedvec
  * limitations under the License.
  */
 
-import kotlin.native.HiddenFromObjC
-
 /**
  * Type which enforces that its elements are sorted. That's it.
  */
-@HiddenFromObjC
 class SortedVec<T : Comparable<T>> private constructor(
     private val vec: MutableList<T>,
 ) : Iterable<T>,

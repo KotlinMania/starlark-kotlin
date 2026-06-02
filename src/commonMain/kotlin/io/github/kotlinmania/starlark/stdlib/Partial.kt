@@ -1,5 +1,4 @@
 // port-lint: source src/stdlib/partial.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 package io.github.kotlinmania.starlark.stdlib
 
 /*
@@ -23,7 +22,6 @@ package io.github.kotlinmania.starlark.stdlib
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.eval.runtime.ArgNames
-import kotlin.native.HiddenFromObjC
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.ArgumentsFull
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
@@ -92,7 +90,6 @@ fun partialStdlib(builder: GlobalsBuilder) {
 }
 
 /** Generic partial application value. */
-@HiddenFromObjC
 open class PartialGen<V : ValueLike, S : StringValueLike>(
     var func: V,
     // Always references a tuple.
@@ -104,11 +101,12 @@ open class PartialGen<V : ValueLike, S : StringValueLike>(
     override val TYPE: String get() = FUNCTION_TYPE
     override val HAS_invoke: Boolean get() = true
 
-    internal val namesIndex: HashMap<ULong, Int> = HashMap<ULong, Int>().apply {
-        for ((i, entry) in names.withIndex()) {
-            put(entry.first.hash(), i)
+    internal val namesIndex: HashMap<ULong, Int> =
+        HashMap<ULong, Int>().apply {
+            for ((i, entry) in names.withIndex()) {
+                put(entry.first.hash(), i)
+            }
         }
-    }
 
     fun posContent(): List<Value> =
         TupleGen
@@ -221,7 +219,6 @@ open class PartialGen<V : ValueLike, S : StringValueLike>(
 private val PARTIAL_RUST_LOC = rustLoc("partial.kt", 1)
 
 /** Partial application with live values. */
-@HiddenFromObjC
 class Partial(
     func: Value,
     pos: Value,
@@ -259,7 +256,6 @@ class Partial(
 }
 
 /** Partial application with frozen values. */
-@HiddenFromObjC
 class FrozenPartial(
     func: io.github.kotlinmania.starlark.values.layout.FrozenValue,
     pos: io.github.kotlinmania.starlark.values.layout.FrozenValue,
