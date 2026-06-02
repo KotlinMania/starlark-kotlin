@@ -86,9 +86,7 @@ class EvalMessage(
 
     companion object {
         /** Produce an `EvalMessage` from a `starlark::Error`. */
-        fun fromError(file: String, err: Exception): EvalMessage {
-            return fromAnyError(file, err)
-        }
+        fun fromError(file: String, err: Exception): EvalMessage = fromAnyError(file, err)
 
         /**
          * Create an `EvalMessage` from any kind of error.

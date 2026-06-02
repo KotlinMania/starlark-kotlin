@@ -44,11 +44,9 @@ data class FrozenFileSpan private constructor(
     /** The span within [file]. */
     private val span: Span,
 ) {
-
     override fun toString(): String = toFileSpan().toString()
 
     companion object {
-
         /** A default empty [CodeMap] singleton, equivalent to Rust's `CodeMap::empty_static()`. */
         private val EMPTY_CODEMAP: CodeMap = CodeMap("", "")
 
@@ -59,7 +57,6 @@ data class FrozenFileSpan private constructor(
 
         /** Convenience function equivalent to [DEFAULT], mirroring Rust's `Default` impl. */
         fun default(): FrozenFileSpan = DEFAULT
-
 
         /**
          * Creates a new [FrozenFileSpan] without validating that [span] is within [file].
@@ -84,12 +81,10 @@ data class FrozenFileSpan private constructor(
     /** Returns the span within the code map. */
     internal fun span(): Span = span
 
-
     /**
      * Returns a new [FrozenFileSpan] pointing to the end of this span.
      */
     internal fun endSpan(): FrozenFileSpan = FrozenFileSpan(file, span.endSpan())
-
 
     /**
      * Converts this frozen span to a [FileSpanRef].
@@ -100,7 +95,6 @@ data class FrozenFileSpan private constructor(
      * Converts this frozen span to an owned [FileSpan].
      */
     internal fun toFileSpan(): FileSpan = FileSpan(file.asRef(), span)
-
 
     /**
      * Merges this span with [other]. If both reference the same file, returns a span

@@ -40,6 +40,7 @@ class UnpackTest {
                         "b".allocValue(heap),
                     ),
                 )
+
             fun tupleFromValue(value: Any): List<Any>? =
                 (value as? Value)?.let { Tuple.fromValue(it)?.content() }
 

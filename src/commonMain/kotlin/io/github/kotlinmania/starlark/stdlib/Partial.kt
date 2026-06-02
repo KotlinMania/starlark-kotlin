@@ -104,7 +104,6 @@ fun partialStdlib(builder: GlobalsBuilder) {
     }
 }
 
-
 /** Generic partial application value. */
 open class PartialGen<V : Any, S : Any>(
     val func: V,
@@ -160,7 +159,6 @@ open class PartialGen<V : Any, S : Any>(
         sb.append("})")
         return sb.toString()
     }
-
 
     override fun nameForCallStack(me: Value): String = "partial"
 

@@ -54,7 +54,6 @@ private fun indentTrimmed(s: String, prefix: String): String =
             if (line.isBlank()) line else "$prefix$line"
         }.trimEnd()
 
-
 /** Render this docstring as a "starlark" docstring. */
 fun DocString.renderAsCode(): String {
     val s =
@@ -70,7 +69,6 @@ fun DocString.renderAsCode(): String {
  * a common convention in starlark docstrings.
  */
 fun DocString.renderAsQuotedCode(): String = "\"\"\"\n${renderAsCode()}\n\"\"\""
-
 
 fun DocModule.renderAsCode(): String {
     var res = docs?.renderAsQuotedCode() ?: ""

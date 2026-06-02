@@ -74,7 +74,8 @@ class AggregatedTest {
             // 3 allocated, 2 retained.
             assertEquals(
                 2,
-                stacks.root.callees.values()
+                stacks.root.callees
+                    .values()
                     .first()
                     .allocs.summary["string"]!!
                     .count,

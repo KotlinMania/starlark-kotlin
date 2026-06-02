@@ -92,9 +92,7 @@ private fun map(
 // fn debug(val: Value) -> anyhow::Result<String>
 private fun debug(
     v: Value,
-): Result<String> {
-    return Result.success(v.toString())
-}
+): Result<String> = Result.success(v.toString())
 
 private class PrintWrapper(
     private val values: List<Value>,
@@ -135,6 +133,7 @@ private fun pprintImpl(
     eval.printHandler.println(PrintWrapper(args).toString()).getOrThrow()
     return Result.success(NoneType)
 }
+
 private fun prettyRepr(
     a: Value,
     eval: Evaluator,

@@ -19,7 +19,6 @@ package io.github.kotlinmania.starlark.tests.derive
  * limitations under the License.
  */
 
-
 // Only check it compiles.
 
 private sealed class AllocNoVariant

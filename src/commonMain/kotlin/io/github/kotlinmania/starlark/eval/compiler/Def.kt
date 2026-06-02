@@ -1029,8 +1029,6 @@ internal fun newDef(
     return Result.success(eval.heap().allocComplex(def))
 }
 
-
-
 /**
  * A [MutableList] view backed by an array, so that [ParametersSpec.collectInline]
  * can write directly into frame slots without an intermediate copy.

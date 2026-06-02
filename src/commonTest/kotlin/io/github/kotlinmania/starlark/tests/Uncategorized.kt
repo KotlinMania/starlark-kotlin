@@ -35,7 +35,7 @@ import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
@@ -800,14 +800,14 @@ bar(["a","b","c"])
                 return Result.success(Unit)
             }
 
-            override fun allocValue(heap: Heap): Value = heap.allocComplex(this)
+            override fun allocValue(heap: Heap): Value = heap.allocComplexNoFreeze(this)
         }
 
         // #[starlark_module]
         // fn module(builder: &mut GlobalsBuilder)
         fun moduleFunctions(builder: GlobalsBuilder) {
             builder.setFunction("wrapper") { _, eval ->
-                Result.success(eval.heap().allocComplex(Wrapper()))
+                Result.success(eval.heap().allocComplexNoFreeze(Wrapper()))
             }
         }
 

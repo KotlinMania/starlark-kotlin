@@ -1003,11 +1003,12 @@ class Value internal constructor(
 
     // fn equals_not_ptr_eq(self, other: Value<'v>) -> crate::Result<bool>
     private fun equalsNotPtrEq(other: Value): Result<Boolean> {
-        val guard = try {
-            stackGuard()
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
+        val guard =
+            try {
+                stackGuard()
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         try {
             return getRef().equals(other)
         } finally {
@@ -1020,11 +1021,12 @@ class Value internal constructor(
      */
     // pub fn compare(self, other: Value<'v>) -> crate::Result<Ordering>
     override fun compare(other: Value): Result<Int> {
-        val guard = try {
-            stackGuard()
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
+        val guard =
+            try {
+                stackGuard()
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         try {
             return getRef().compare(other)
         } finally {

@@ -24,7 +24,6 @@ import io.github.kotlinmania.starlark.values.UnpackValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.bigint.allocValue
-import io.github.kotlinmania.starlark.values.types.int.InlineInt
 import io.github.kotlinmania.starlark.values.types.int.InlineIntUnpackValue
 import io.github.kotlinmania.starlark.values.types.string.allocValue
 import io.github.kotlinmania.starlark.values.types.string.unpackValueImplOwnedString

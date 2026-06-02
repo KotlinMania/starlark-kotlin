@@ -261,7 +261,6 @@ def www():
     )
 }
 
-
 internal fun testNewListDictSyntaxFailRuntime() {
     Assert.fail(
         """
@@ -273,7 +272,6 @@ noop(uuu)(["mm"])
         """Value `["mm"]` of type `list` does not match""",
     )
 }
-
 
 internal fun testBitOr() {
     val types =

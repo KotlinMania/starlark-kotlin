@@ -54,7 +54,12 @@ internal fun registerBool(globals: GlobalsBuilder) {
      * bool("1") == True
      * ```
      */
-    globals.setFunction("bool", asType = io.github.kotlinmania.starlark.typing.Ty.bool()) { args: Arguments, eval: Evaluator ->
+    globals.setFunction(
+        "bool",
+        asType =
+            io.github.kotlinmania.starlark.typing.Ty
+                .bool(),
+    ) { args: Arguments, eval: Evaluator ->
         val x = args.optionalPositional<Value>(0)
         Value.newBool(x?.toBool() ?: false)
     }

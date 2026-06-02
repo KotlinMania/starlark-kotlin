@@ -50,7 +50,6 @@ internal class UnusedLoad(
     /** Unused local names, e. g. `x` in `load("foo", x="y")`. */
     val unusedArgs: List<LoadArgP<*, *>>,
 ) {
-
     /** If the whole `load` statement is unused. */
     fun allUnused(): Boolean = unusedArgs.size == load.node.args.size
 }

@@ -26,47 +26,39 @@ import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
+import io.github.kotlinmania.starlark.values.layout.avalues.allocComplexNoFreeze
 import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heap.ValueHolder
 
-// #[derive(Trace, Freeze, Debug, Display, Allocative, ProvidesStaticType, NoSerialize)]
-// #[display("TestComplexValue<{}>", _0)]
-// pub(crate) struct TestComplexValue<V: ValueLifetimeless>(pub(crate) V)
 internal class TestComplexValue(
     val inner: Value,
 ) : ComplexValue,
     Trace,
     AllocValue,
     AllocFrozenValue {
-    // #[starlark_value(type = "TestComplexValue")]
     override val TYPE: String get() = "TestComplexValue"
 
     override fun starlarkTypeRepr(): Ty = getTypeStarlarkRepr()
 
     override fun toString(): String = "TestComplexValue<$inner>"
 
-    // #[derive(Trace)] — traces the inner Value field.
     override fun trace(tracer: Tracer) {
         val holder = ValueHolder(inner)
         tracer.trace(holder)
     }
 
-    // impl AllocValue for TestComplexValue<Value>
-    override fun allocValue(heap: Heap): Value = heap.allocComplex(this)
+    override fun allocValue(heap: Heap): Value = heap.allocComplexNoFreeze(this)
 
-    // impl AllocFrozenValue for TestComplexValue<FrozenValue>
     override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
 }
 
 /**
- * There's no anyhow API to print error without rust backtrace
+ * Trim noisy stack backtraces from error text.
  * ([issue](https://github.com/dtolnay/anyhow/issues/300)).
  */
-// pub(crate) fn trim_rust_backtrace(error: &str) -> &str
 internal fun trimRustBacktrace(error: String): String {
     val pos = error.indexOf("\nStack backtrace:")
     return if (pos >= 0) {

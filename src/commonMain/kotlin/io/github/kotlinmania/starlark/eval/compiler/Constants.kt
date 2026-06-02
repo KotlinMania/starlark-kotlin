@@ -41,6 +41,7 @@ internal class BuiltinFn(
     // generates a singleton which allocates the function only once
     // even if builder function is called multiple times.
     fun ptrEq(other: FrozenValue): Boolean = value.toValue().ptrEq(other.toValue())
+
     fun ptrEq(other: Value): Boolean = value.toValue().ptrEq(other)
 
     // impl PartialEq<FrozenValue> for BuiltinFn

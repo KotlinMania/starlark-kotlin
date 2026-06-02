@@ -18,8 +18,8 @@ import io.github.kotlinmania.starlark.values.Freeze
 import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
-import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
+import io.github.kotlinmania.starlark.values.layout.constFrozenString
 import io.github.kotlinmania.starlark.values.types.anycomplex.StarlarkAnyComplex
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -52,7 +52,8 @@ class AnyComplexTest {
 
             assertEquals(
                 "aaa",
-                data.downcastRef<StarlarkAnyComplex<*>>()!!
+                data
+                    .downcastRef<StarlarkAnyComplex<*>>()!!
                     .value
                     .let { it as UnfrozenData }
                     .string

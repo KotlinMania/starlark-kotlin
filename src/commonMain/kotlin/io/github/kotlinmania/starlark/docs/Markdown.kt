@@ -410,7 +410,6 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
             """<pre class="language-python"><code>$contents</code></pre>"""
     }
 
-
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,

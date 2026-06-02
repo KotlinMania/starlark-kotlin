@@ -5,7 +5,6 @@ import io.github.kotlinmania.starlark.codemap.CodeMap
 import io.github.kotlinmania.starlark.codemap.Span
 import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
-import io.github.kotlinmania.starlark.eval.compiler.BindingId
 import io.github.kotlinmania.starlark.eval.compiler.ModuleScopeData
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.Slot
@@ -489,10 +488,9 @@ private class GlobalTypesBuilder(
         return Ty.any()
     }
 
-    fun getTyExpr(expr: CstTypeExpr): Ty {
-        return expr.node.payload.typecheckerTy
+    fun getTyExpr(expr: CstTypeExpr): Ty =
+        expr.node.payload.typecheckerTy
             ?: throw internalError(expr.span, "type not set")
-    }
 
     fun getTyExprOpt(expr: CstTypeExpr?): Ty = if (expr == null) Ty.any() else getTyExpr(expr)
 
@@ -651,7 +649,7 @@ internal class ModuleVarTypes(
  * Populate `TypeExprP` type payload when running lint typechecker.
  * (Compiler typechecked populates the payload after proper full evaluation.)
  */
-    internal fun fillTypesForLintTypechecker(
+internal fun fillTypesForLintTypechecker(
     module: List<CstStmt>,
     ctx: TypingOracleCtx,
     moduleScopeData: ModuleScopeData,

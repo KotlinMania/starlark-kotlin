@@ -44,7 +44,6 @@ private fun <T> anyArrayAvalue(cap: Int): AValueImpl<AValueAnyArray<T>> = AValue
 
 /** AValue implementation for Array (mutable, variable-length content backed by capacity). */
 internal object AValueArray : AValue {
-
     override fun extraLen(value: StarlarkValue): Int {
         // Note we return capacity, not length here.
         return (value as Array).capacity()
@@ -106,7 +105,6 @@ internal class AValueAnyArray<T> : AValue {
     override fun unpack(): StarlarkValue = AnyArray.new<Any>(0)
 }
 
-
 private fun <T> FrozenHeap.doAllocAnySlice(values: List<T>): FrozenRef<List<T>> {
     val anyArray = AnyArray.new<T>(values.size)
     for (v in values) {
@@ -126,7 +124,6 @@ fun <T> FrozenHeap.allocAnySlice(values: List<T>): FrozenRef<List<T>> {
         return doAllocAnySlice(values)
     }
 }
-
 
 internal fun Heap.allocArray(cap: Int): ValueTyped<Array> {
     if (cap == 0) {

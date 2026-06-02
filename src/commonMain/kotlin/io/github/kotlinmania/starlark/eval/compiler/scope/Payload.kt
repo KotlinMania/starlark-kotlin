@@ -23,10 +23,10 @@ package io.github.kotlinmania.starlark.eval.compiler.scope
 
 // We use CST as acronym for compiler-specific AST.
 
+import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.eval.compiler.BindingId
 import io.github.kotlinmania.starlark.eval.compiler.ResolvedIdent
 import io.github.kotlinmania.starlark.eval.compiler.ScopeId
-import io.github.kotlinmania.starlark.codemap.Spanned
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignIdentP
 import io.github.kotlinmania.starlark.syntax.ast.AstAssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstExprP

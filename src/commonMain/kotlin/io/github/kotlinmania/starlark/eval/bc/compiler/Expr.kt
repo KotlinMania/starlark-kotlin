@@ -82,6 +82,7 @@ internal fun writeExprs(
         )
     }
 }
+
 internal fun writeExprOpt(
     expr: IrSpanned<ExprCompiled>?,
     bc: BcWriter,

@@ -19,9 +19,9 @@ package io.github.kotlinmania.starlark.values.types
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
 import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStr
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
 import kotlin.test.assertEquals

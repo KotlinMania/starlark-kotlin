@@ -92,7 +92,10 @@ internal class AValueComplex<T>(
         r.fill(frozen)
 
         if (frozen is FrozenDefPostFreeze) {
-            freezer.frozenDefs.add(io.github.kotlinmania.starlark.values.FrozenRef(frozen))
+            freezer.frozenDefs.add(
+                io.github.kotlinmania.starlark.values
+                    .FrozenRef(frozen),
+            )
         }
 
         return Result.success(fv)
@@ -118,7 +121,10 @@ internal class AValueComplex<T>(
         r.fill(frozen)
 
         if (frozen is FrozenDefPostFreeze) {
-            freezer.frozenDefs.add(io.github.kotlinmania.starlark.values.FrozenRef(frozen))
+            freezer.frozenDefs.add(
+                io.github.kotlinmania.starlark.values
+                    .FrozenRef(frozen),
+            )
         }
 
         return Result.success(fv)

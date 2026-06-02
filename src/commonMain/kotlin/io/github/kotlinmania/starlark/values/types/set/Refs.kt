@@ -113,8 +113,8 @@ class SetMut internal constructor(
         /**
          * Downcast the value to a mutable set reference.
          */
-        internal fun fromValue(x: Value): Result<SetMut> {
-            return when (val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()) {
+        internal fun fromValue(x: Value): Result<SetMut> =
+            when (val ptr = x.downcastRef<SetGen<RefCell<SetData>>>()) {
                 null -> Result.failure(error(x))
                 else -> {
                     val borrowed = ptr.inner.tryBorrowMut()
@@ -125,7 +125,6 @@ class SetMut internal constructor(
                     }
                 }
             }
-        }
     }
 }
 

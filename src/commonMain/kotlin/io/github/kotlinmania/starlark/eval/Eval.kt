@@ -24,7 +24,6 @@ package io.github.kotlinmania.starlark.eval
  * [evalModule].
  */
 
-
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.extractRawStarlarkDocstring
@@ -47,7 +46,6 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocAnySlice
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.allocAny
 import kotlin.time.TimeSource
-
 
 // --- impl Evaluator ---
 

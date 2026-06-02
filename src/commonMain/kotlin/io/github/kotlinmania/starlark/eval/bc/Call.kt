@@ -48,7 +48,6 @@ class BcCallArgsFull<S : ArgSymbol>(
     val args: BcSlotIn?,
     val kwargs: BcSlotIn?,
 ) {
-
     /** Number of positional arguments. */
     // fn pos(&self) -> u32
     private fun pos(): UInt {
@@ -119,8 +118,8 @@ class BcCallArgsFullCallArgs<S : ArgSymbol>(
 
     // impl<S: ArgSymbol> BcInstrArg for BcCallArgsFull<S>
     override fun fmtAppend(
-         ip: BcAddr,
-         endArg: BcInstrEndArg?,
+        ip: BcAddr,
+        endArg: BcInstrEndArg?,
         f: StringBuilder,
     ) {
         f.append(" {$full}")
