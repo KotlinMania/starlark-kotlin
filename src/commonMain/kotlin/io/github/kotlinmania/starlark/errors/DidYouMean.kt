@@ -46,11 +46,6 @@ private fun levenshtein(a: String, b: String): Int {
     return dp[m][n]
 }
 
-// / Find a suggestion for a typo.
-// pub(crate) fn did_you_mean<'a>(
-//     value: &str,
-//     variants: impl IntoIterator<Item = &'a str>,
-// ) -> Option<&'a str>
 internal fun didYouMean(value: String, variants: Iterable<String>): String? {
     if (value.isEmpty()) {
         return null
@@ -64,12 +59,6 @@ internal fun didYouMean(value: String, variants: Iterable<String>): String? {
             2
         }
 
-    // variants
-    //     .into_iter()
-    //     .map(|v| (v, levenshtein(value, v)))
-    //     .filter(|(_, dist)| *dist <= max_dist)
-    //     .min_by_key(|(_v, sim)| *sim)
-    //     .map(|(v, _)| v)
     return variants
         .map { v -> Pair(v, levenshtein(value, v)) }
         .filter { (_, dist) -> dist <= maxDist }
@@ -77,40 +66,3 @@ internal fun didYouMean(value: String, variants: Iterable<String>): String? {
         ?.first
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::errors::did_you_mean::did_you_mean;
-//
-//     #[test]
-//     fn prefixes() {
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_librar", vec!["cxx_library"]));
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_libra", vec!["cxx_library"]));
-//         assert_eq!(None, did_you_mean("cxx_libr", vec!["cxx_library"]));
-//     }
-//
-//     #[test]
-//     fn typos() {
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_librarx", vec!["cxx_library"]));
-//         assert_eq!(Some("cxx_library"), did_you_mean("cxx_libraxx", vec!["cxx_library"]));
-//         assert_eq!(None, did_you_mean("cxx_librxxx", vec!["cxx_library"]));
-//     }
-//
-//     #[test]
-//     fn best() {
-//         assert_eq!(Some("abc"), did_you_mean("abx", vec!["abc", "abcd"]));
-//     }
-//
-//     #[test]
-//     fn very_short() {
-//         assert_eq!(Some("a"), did_you_mean("b", vec!["a"]));
-//         assert_eq!(Some("ab"), did_you_mean("b", vec!["ab"]));
-//         assert_eq!(None, did_you_mean("b", vec!["cd"]));
-//         assert_eq!(None, did_you_mean("bc", vec!["de"]));
-//     }
-//
-//     #[test]
-//     fn earlier_variants_are_more_important() {
-//         assert_eq!(Some("aaaay"), did_you_mean("aaaax", vec!["aaaay", "aaaaz"]));
-//         assert_eq!(Some("aaaaz"), did_you_mean("aaaax", vec!["aaaaz", "aaaay"]));
-//     }
-// }

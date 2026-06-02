@@ -61,7 +61,6 @@ sealed class Incompatibility : LintWarning {
         }
 }
 
-// static TYPES: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| { ... });
 private val TYPES: Map<String, String> =
     mapOf(
         "bool" to "True",
@@ -71,9 +70,7 @@ private val TYPES: Map<String, String> =
         "int" to "0",
     )
 
-// visit_stmt helper: visit immediate child statements
 private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val s = this.node) {
         is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach(visitor)
         is StmtP.Def<*, *> -> visitor(s.def.body as AstStmt)
@@ -81,9 +78,7 @@ private fun AstStmt.visitStmt(visitor: (AstStmt) -> Unit) {
     }
 }
 
-// visit_expr helper: visit immediate child expressions in a statement
 private fun AstStmt.visitStmtChildrenExpr(visitor: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val s = this.node) {
         is StmtP.Expression<*> -> visitor(s.expr as AstExpr)
         is StmtP.Statements<*> -> (s.stmts as List<AstStmt>).forEach { it.visitStmtChildrenExpr(visitor) }
@@ -98,9 +93,7 @@ private fun AstStmt.visitStmtChildrenExpr(visitor: (AstExpr) -> Unit) {
     }
 }
 
-// visit_expr helper for expressions: visit immediate child expressions
 private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
         is ExprP.Call<*> -> {
             visitor(e.expr as AstExpr)
@@ -116,9 +109,7 @@ private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
     }
 }
 
-// visit_lvalue helper: visit all identifier lvalues in an assignment target
 private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
         is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
         is AssignTargetP.Tuple<*> -> (t.elements as List<AstAssignTarget>).forEach { it.visitLvalue(visitor) }
@@ -126,7 +117,6 @@ private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
     }
 }
 
-// fn lookup_type<'a>(x: &AstExpr, types: &HashMap<&str, &'a str>) -> Option<&'a str>
 private fun lookupType(x: AstExpr, types: Map<String, String>): String? =
     when (val e = x.node) {
         is ExprP.Identifier<*, *> -> types[(e.ident as AstIdent).node.ident]
@@ -134,12 +124,10 @@ private fun lookupType(x: AstExpr, types: Map<String, String>): String? =
     }
 
 // Return true if this expression matches `type($x)`
-// fn is_type_call(x: &AstExpr) -> bool
 private fun isTypeCall(x: AstExpr): Boolean =
     when (val e = x.node) {
         is ExprP.Call<*> -> {
             if (e.args.args.size == 1) {
-                @Suppress("UNCHECKED_CAST")
                 val func = (e.expr as AstExpr).node
                 func is ExprP.Identifier<*, *> && (func.ident as AstIdent).node.ident == "type"
             } else {
@@ -149,15 +137,12 @@ private fun isTypeCall(x: AstExpr): Boolean =
         else -> false
     }
 
-// fn match_bad_type_equality(...)
-@Suppress("UNCHECKED_CAST")
 private fun matchBadTypeEquality(
     codemap: CodeMap,
     x: AstExpr,
     types: Map<String, String>,
     res: MutableList<LintT<Incompatibility>>,
 ) {
-    // If we see type(x) == y (or negated), where y is in our types table, suggest a replacement
     when (val e = x.node) {
         is ExprP.Op<*> -> {
             if ((e.op == BinOp.Equal || e.op == BinOp.NotEqual) && isTypeCall(e.lhs as AstExpr)) {
@@ -180,8 +165,7 @@ private fun matchBadTypeEquality(
     }
 }
 
-// fn bad_type_equality(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
-private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+internal fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
     val types = TYPES
 
     fun check(
@@ -199,11 +183,10 @@ private fun badTypeEquality(module: AstModule, res: MutableList<LintT<Incompatib
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-// fn duplicate_top_level_assignment(module: &AstModule, res: &mut Vec<LintT<Incompatibility>>)
-@Suppress("UNCHECKED_CAST")
-private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
-    val defined = HashMap<String, Pair<Span, Boolean>>() // (name, (location, is_load))
-    val exported = HashSet<String>() // name's already exported by is_load
+
+internal fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<LintT<Incompatibility>>) {
+    val defined = HashMap<String, Pair<Span, Boolean>>()
+    val exported = HashSet<String>() // name's already exported
 
     fun ident(
         x: AstAssignIdent,
@@ -256,16 +239,13 @@ private fun duplicateTopLevelAssignment(module: AstModule, res: MutableList<Lint
                 (s.lhs as AstAssignTarget).visitLvalue { ident(it, false, codemap, defined, res) }
             }
             is StmtP.Def<*, *> -> {
-                // Stmt::Def(DefP { name, .. }) => ident(name, false, codemap, defined, res),
                 ident(s.def.name as AstAssignIdent, false, codemap, defined, res)
             }
             is StmtP.Load<*, *> -> {
-                // for LoadArgP { local, .. } in &load.args { ident(local, true, ...) }
                 for (arg in s.loadStmt.args) {
                     ident(arg.local as AstAssignIdent, true, codemap, defined, res)
                 }
             }
-            // Visit statements, but don't descend under def - only top-level statements are interesting
             else -> x.visitStmt { stmt(it, codemap, defined, exported, res) }
         }
     }

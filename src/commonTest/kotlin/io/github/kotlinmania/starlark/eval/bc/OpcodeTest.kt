@@ -21,10 +21,10 @@ class OpcodeTest {
     @Test
     fun opcodeCount() {
         for (i in 0 until 10000) {
-            if (i < BcOpcode.COUNT) {
-                assertNotNull(BcOpcode.byNumber(i))
+            if (i < BcOpcode.COUNT.toInt()) {
+                assertNotNull(BcOpcode.byNumber(i.toUInt()))
             } else {
-                assertNull(BcOpcode.byNumber(i))
+                assertNull(BcOpcode.byNumber(i.toUInt()))
             }
         }
     }

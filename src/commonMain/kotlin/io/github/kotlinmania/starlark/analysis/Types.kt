@@ -42,7 +42,6 @@ class Lint(
 }
 
 /** Erase the typed problem into a generic [Lint]. */
-// pub(crate) fn erase(self) -> Lint
 internal fun <T> LintT<T>.erase(): Lint where T : LintWarning =
     Lint(
         location = this.location,
@@ -59,8 +58,6 @@ internal fun <T> LintT<T>.erase(): Lint where T : LintWarning =
 // When unified, add Advice.
 
 /** Potential problems that occurred while parsing a starlark program. */
-// #[derive(Debug, Clone)]
-// pub struct EvalMessage
 class EvalMessage(
     /** The path to the starlark program. */
     val path: String,
@@ -89,10 +86,7 @@ class EvalMessage(
 
     companion object {
         /** Produce an `EvalMessage` from a `starlark::Error`. */
-        // pub fn from_error(file: &Path, err: &crate::Error) -> Self
         fun fromError(file: String, err: Exception): EvalMessage {
-            // If the error has span information, use from_diagnostic.
-            // Otherwise fall back to from_any_error.
             return fromAnyError(file, err)
         }
 
@@ -101,7 +95,6 @@ class EvalMessage(
          *
          * Prefer to use `fromError` if at all possible.
          */
-        // pub fn from_any_error(file: &Path, x: &impl std::fmt::Display) -> Self
         fun fromAnyError(file: String, x: Any): EvalMessage =
             EvalMessage(
                 path = file,
@@ -113,7 +106,6 @@ class EvalMessage(
                 original = null,
             )
 
-        // fn from_diagnostic(span: &FileSpan, message: impl Display, full_error: impl Display) -> Self
         private fun fromDiagnostic(
             span: FileSpan,
             message: Any,
@@ -127,13 +119,12 @@ class EvalMessage(
                 name = "error",
                 description = message.toString(),
                 fullErrorWithSpan = fullError.toString(),
-                original = null, // span.source_span() not yet available
+                original = null,
             )
         }
     }
 }
 
-// impl From<Lint> for EvalMessage
 fun Lint.toEvalMessage(): EvalMessage =
     EvalMessage(
         path = location.description,

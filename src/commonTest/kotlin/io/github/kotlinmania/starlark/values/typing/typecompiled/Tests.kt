@@ -22,8 +22,6 @@ package io.github.kotlinmania.starlark.values.typing.typecompiled
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 
-// #[test]
-// fn test_types()
 internal fun testTypes() {
     val a = Assert()
     a.isTrue(
@@ -141,8 +139,6 @@ def foo(f: int = None):
     )
 }
 
-// #[test]
-// fn test_new_syntax_without_dot_type_compile_time()
 internal fun testNewSyntaxWithoutDotTypeCompileTime() {
     Assert.pass("def f() -> int: return 17")
     Assert.fail(
@@ -153,8 +149,6 @@ def f() -> int: return 'tea'
     )
 }
 
-// #[test]
-// fn test_new_syntax_without_dot_type_runtime()
 internal fun testNewSyntaxWithoutDotTypeRuntime() {
     Assert.pass(
         """
@@ -171,8 +165,6 @@ f()
     )
 }
 
-// #[test]
-// fn test_type_compiled_display()
 internal fun testTypeCompiledDisplay() {
     fun t(expected: String, ty0: String) {
         Heap.temp { heap ->
@@ -189,8 +181,6 @@ internal fun testTypeCompiledDisplay() {
     t("None", "None")
 }
 
-// #[test]
-// fn test_type_compiled_starlark_api()
 internal fun testTypeCompiledStarlarkApi() {
     Assert.eq("\"int\"", "repr(eval_type(int))")
     Assert.eq("\"int | str\"", "repr(eval_type(int | str))")
@@ -203,14 +193,10 @@ internal fun testTypeCompiledStarlarkApi() {
     )
 }
 
-// #[test]
-// fn test_eval_type_eval_type()
 internal fun testEvalTypeEvalType() {
     Assert.isTrue("isinstance(1, eval_type(eval_type(int)))")
 }
 
-// #[test]
-// fn test_type_compiled_can_be_used_in_function_signature()
 internal fun testTypeCompiledCanBeUsedInFunctionSignature() {
     Assert.pass(
         """
@@ -246,15 +232,11 @@ def g():
     )
 }
 
-// #[test]
-// fn test_isinstance()
 internal fun testIsinstance() {
     Assert.eq("True", "isinstance(1, int)")
     Assert.eq("False", "isinstance(1, str)")
 }
 
-// #[test]
-// fn test_new_list_dict_syntax_pass()
 internal fun testNewListDictSyntaxPass() {
     Assert.pass(
         """
@@ -266,8 +248,6 @@ uuu([1, 2, 3])
     )
 }
 
-// #[test]
-// fn test_new_list_dict_syntax_fail_compile_time()
 internal fun testNewListDictSyntaxFailCompileTime() {
     Assert.fail(
         """
@@ -281,8 +261,7 @@ def www():
     )
 }
 
-// #[test]
-// fn test_new_list_dict_syntax_fail_runtime()
+
 internal fun testNewListDictSyntaxFailRuntime() {
     Assert.fail(
         """
@@ -295,8 +274,7 @@ noop(uuu)(["mm"])
     )
 }
 
-// #[test]
-// fn test_bit_or()
+
 internal fun testBitOr() {
     val types =
         listOf(

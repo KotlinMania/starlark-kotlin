@@ -44,17 +44,10 @@ data class FrozenFileSpan private constructor(
     /** The span within [file]. */
     private val span: Span,
 ) {
-    // impl Display for FrozenFileSpan
-    //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    //         Display::fmt(&self.to_file_span(), f)
-    //     }
+
     override fun toString(): String = toFileSpan().toString()
 
     companion object {
-        // impl Default for FrozenFileSpan
-        //     fn default() -> FrozenFileSpan {
-        //         FrozenFileSpan::new(FrozenRef::new(CodeMap::empty_static()), Span::default())
-        //     }
 
         /** A default empty [CodeMap] singleton, equivalent to Rust's `CodeMap::empty_static()`. */
         private val EMPTY_CODEMAP: CodeMap = CodeMap("", "")
@@ -67,23 +60,11 @@ data class FrozenFileSpan private constructor(
         /** Convenience function equivalent to [DEFAULT], mirroring Rust's `Default` impl. */
         fun default(): FrozenFileSpan = DEFAULT
 
-        // pub(crate) const fn new_unchecked(
-        //     file: FrozenRef<'static, CodeMap>,
-        //     span: Span,
-        // ) -> FrozenFileSpan {
-        //     FrozenFileSpan { file, span }
-        // }
 
         /**
          * Creates a new [FrozenFileSpan] without validating that [span] is within [file].
          */
         fun newUnchecked(file: FrozenRef<CodeMap>, span: Span): FrozenFileSpan = FrozenFileSpan(file, span)
-
-        // pub(crate) fn new(file: FrozenRef<'static, CodeMap>, span: Span) -> FrozenFileSpan {
-        //     // Check the span is valid: this will panic if the span is not valid.
-        //     file.source_span(span);
-        //     Self::new_unchecked(file, span)
-        // }
 
         /**
          * Creates a new [FrozenFileSpan], validating that [span] is valid within [file].
@@ -97,63 +78,29 @@ data class FrozenFileSpan private constructor(
         }
     }
 
-    // pub(crate) fn file(&self) -> FrozenRef<'static, CodeMap>
-
     /** Returns the frozen code map reference. */
     internal fun file(): FrozenRef<CodeMap> = file
-
-    // pub(crate) fn span(&self) -> Span
 
     /** Returns the span within the code map. */
     internal fun span(): Span = span
 
-    // pub(crate) fn end_span(&self) -> FrozenFileSpan {
-    //     FrozenFileSpan {
-    //         file: self.file,
-    //         span: self.span.end_span(),
-    //     }
-    // }
 
     /**
      * Returns a new [FrozenFileSpan] pointing to the end of this span.
      */
     internal fun endSpan(): FrozenFileSpan = FrozenFileSpan(file, span.endSpan())
 
-    // pub(crate) fn file_span_ref(&self) -> FileSpanRef<'static> {
-    //     FileSpanRef {
-    //         file: self.file.as_ref(),
-    //         span: self.span,
-    //     }
-    // }
 
     /**
      * Converts this frozen span to a [FileSpanRef].
      */
     internal fun fileSpanRef(): FileSpanRef = FileSpanRef(file.asRef(), span)
 
-    // pub(crate) fn to_file_span(&self) -> FileSpan {
-    //     FileSpan {
-    //         file: (*self.file).dupe(),
-    //         span: self.span,
-    //     }
-    // }
-
     /**
      * Converts this frozen span to an owned [FileSpan].
      */
     internal fun toFileSpan(): FileSpan = FileSpan(file.asRef(), span)
 
-    // pub(crate) fn merge(&self, other: &FrozenFileSpan) -> FrozenFileSpan {
-    //     if self.file == other.file {
-    //         FrozenFileSpan {
-    //             file: self.file,
-    //             span: self.span.merge(other.span),
-    //         }
-    //     } else {
-    //         // We need to pick something if we merge two spans from different files.
-    //         *self
-    //     }
-    // }
 
     /**
      * Merges this span with [other]. If both reference the same file, returns a span

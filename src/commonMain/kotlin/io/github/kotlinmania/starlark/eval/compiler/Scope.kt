@@ -74,7 +74,7 @@ import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
 // ---------------------------------------------------------------------------
-// Visitor infrastructure (port of starlark_syntax::syntax::uniplate)
+// Visitor infrastructure
 // ---------------------------------------------------------------------------
 
 /** VisitMut — mutable visitor over CST children. */

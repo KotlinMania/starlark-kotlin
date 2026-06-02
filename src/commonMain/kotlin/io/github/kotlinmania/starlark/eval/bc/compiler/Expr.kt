@@ -48,7 +48,6 @@ import io.github.kotlinmania.starlark.eval.bc.compiler.def.markDefinitelyAssigne
 import io.github.kotlinmania.starlark.eval.bc.compiler.def.writeBc as defWriteBc
 
 /** Try extract consecutive definitely initialized locals from expressions. */
-// fn try_slot_range(exprs, bc) -> Option<BcSlotInRange>
 private fun trySlotRange(
     exprs: Iterable<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -65,7 +64,6 @@ private fun trySlotRange(
 }
 
 /** Compile several expressions into consecutive registers. */
-// pub(crate) fn write_exprs(exprs, bc, k)
 internal fun writeExprs(
     exprs: Iterable<IrSpanned<ExprCompiled>>,
     bc: BcWriter,
@@ -84,8 +82,6 @@ internal fun writeExprs(
         )
     }
 }
-
-// pub(crate) fn write_expr_opt(expr, bc, k)
 internal fun writeExprOpt(
     expr: IrSpanned<ExprCompiled>?,
     bc: BcWriter,

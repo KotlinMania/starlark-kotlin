@@ -88,7 +88,7 @@ internal fun formatOne(
  * or grab things sequentially, but not both.
  * FormatArgs knows which we are doing and keeps them in mind.
  */
-private class FormatArgs<T : Iterator<Value>>(
+internal class FormatArgs<T : Iterator<Value>>(
     // Initially we have the iterator set and the args empty.
     // If we ever ask by index, we decant the iterator into args.
     private var iterator: T,
@@ -96,6 +96,10 @@ private class FormatArgs<T : Iterator<Value>>(
     private var byIndex: Boolean = false,
     private var byOrder: Boolean = false,
 ) {
+    companion object {
+        fun <T : Iterator<Value>> new(iterator: T): FormatArgs<T> = FormatArgs(iterator)
+    }
+
     fun nextOrdered(): Result<Value> =
         if (byIndex) {
             Result.failure(
@@ -160,7 +164,7 @@ internal fun format(
         r
     }
 
-private fun <T : Iterator<Value>> formatCapture(
+internal fun <T : Iterator<Value>> formatCapture(
     field: String,
     conv: FormatConv,
     args: FormatArgs<T>,

@@ -5,38 +5,25 @@ import io.github.kotlinmania.starlark.values.layout.avalues.allocTuple
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 import io.github.kotlinmania.starlark.typing.EvalException
 import io.github.kotlinmania.starlark.typing.StarlarkError
-// Types from values.layout
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.FrozenValueTyped
-// Types from values.layout.typed
 import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.collections.Hashed
-// Types from values.layout.heap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
-// Types from io.github.kotlinmania.starlark.collections
 import io.github.kotlinmania.starlark.collections.SmallMap
-// Types from eval.runtime.profile
 import io.github.kotlinmania.starlark.eval.runtime.profile.ProfilerInstant
-// Types from eval.runtime
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.Arguments
 import io.github.kotlinmania.starlark.eval.runtime.ArgumentsImpl
 import io.github.kotlinmania.starlark.eval.runtime.LocalSlotId
 import io.github.kotlinmania.starlark.eval.runtime.LocalCapturedSlotId
-// Types from eval.bc.frame (sub-package)
-// Types from values.types.dict
 import io.github.kotlinmania.starlark.values.types.dict.Dict
-// Types from eval.runtime.params.spec
 import io.github.kotlinmania.starlark.eval.runtime.params.spec.ParametersSpec
-// Types from values.types.list
 import io.github.kotlinmania.starlark.values.types.list.ListData
-// Types from values
 import io.github.kotlinmania.starlark.values.FrozenRef
-// Types from values.typing.type_compiled
 import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
-// Types from collections.symbol
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.environment.ModuleSlotId
 import io.github.kotlinmania.starlark.eval.compiler.ParameterCompiled
@@ -373,15 +360,15 @@ object InstrObjectFieldImpl : InstrNoFlowImpl {
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
-    ): kotlin.Result<Unit> {
+    ): Result<Unit> {
         val (obj, field, target) = arg as Triple<BcSlotIn, Symbol, BcSlotOut>
         val objVal = frame.getBcSlot(obj)
         val value = getAttrHashedBind(objVal, field, eval.heap())
         return if (value.isSuccess) {
             frame.setBcSlot(target, value.getOrThrow())
-            kotlin.Result.success(Unit)
+            Result.success(Unit)
         } else {
-            kotlin.Result.failure(value.exceptionOrNull()!!)
+            Result.failure(value.exceptionOrNull()!!)
         }
     }
 }
@@ -447,7 +434,7 @@ object InstrArrayIndex2Impl : InstrNoFlowImpl {
         frame: BcFramePtr,
         ip: BcPtrAddr,
         arg: Any,
-    ): kotlin.Result<Unit> {
+    ): Result<Unit> {
         val a = arg as ArrayIndex2Arg
         val array = frame.getBcSlot(a.array)
         val index0 = frame.getBcSlot(a.index0)
@@ -455,9 +442,9 @@ object InstrArrayIndex2Impl : InstrNoFlowImpl {
         val value = array.getRef().at2(index0, index1, eval.heap())
         return if (value.isSuccess) {
             frame.setBcSlot(a.target, value.getOrThrow())
-            kotlin.Result.success(Unit)
+            Result.success(Unit)
         } else {
-            kotlin.Result.failure(value.exceptionOrNull()!!)
+            Result.failure(value.exceptionOrNull()!!)
         }
     }
 }
@@ -465,7 +452,7 @@ object InstrArrayIndex2Impl : InstrNoFlowImpl {
 // --- Equality ---
 
 object InstrEqImpl : InstrNoFlowImpl {
-    fun eval(v0: Value, v1: Value, heap: Heap): kotlin.Result<Value> = v0.equals(v1).map { Value.newBool(it) }
+    fun eval(v0: Value, v1: Value, heap: Heap): Result<Value> = v0.equals(v1).map { Value.newBool(it) }
 
     override fun runWithArgs(
         eval: Evaluator,

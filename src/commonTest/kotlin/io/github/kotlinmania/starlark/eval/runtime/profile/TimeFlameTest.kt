@@ -23,6 +23,7 @@ import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.Globals
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
 import io.github.kotlinmania.starlark.environment.Module
+import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.fileloader.ReturnOwnedFileLoader
 import io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode
@@ -71,7 +72,7 @@ def foo():
 
         Module.withTempHeap { module ->
             val eval = Evaluator(module)
-            eval.enableProfile(ProfileMode.TimeFlame).getOrThrow()
+            eval.enableProfile(ProfileMode.TimeFlame)
             eval.setLoader(loader)
             eval
                 .evalModule(
@@ -92,7 +93,7 @@ bar()
                     Globals.standard(),
                 ).getOrThrow()
 
-            val profile = eval.genProfile().getOrThrow().genFlameData()
+            val profile = eval.genProfile().genFlameData()
             val theLine = profile.lines().find { it.contains("foo") }
             assertNotNull(theLine, "There must be a line with `foo` in the profile: $profile")
             assertTrue(

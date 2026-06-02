@@ -40,7 +40,6 @@ import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.types.starlarkvalueastype.StarlarkValueAsType
 
-// struct InputTypeRepr;
 private class InputTypeRepr :
     StarlarkValue,
     StarlarkTypeRepr {
@@ -51,7 +50,6 @@ private class InputTypeRepr :
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
-// struct OutputTypeRepr;
 private class OutputTypeRepr :
     StarlarkValue,
     StarlarkTypeRepr {
@@ -62,49 +60,31 @@ private class OutputTypeRepr :
     override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
 }
 
-// #[starlark_module]
-// fn globals(builder: &mut GlobalsBuilder)
 private fun globals(builder: GlobalsBuilder) {
-    // const Input: StarlarkValueAsType<InputTypeRepr> = StarlarkValueAsType::new()
     builder.set("Input", StarlarkValueAsType.new(InputTypeRepr()))
-    // const Output: StarlarkValueAsType<OutputTypeRepr> = StarlarkValueAsType::new()
     builder.set("Output", StarlarkValueAsType.new(OutputTypeRepr()))
-
-    // fn simple(arg_int: i32, arg_bool: bool, arg_vec: UnpackList<&str>, arg_dict: SmallMap<String, (bool, i32)>) -> anyhow::Result<NoneType>
-    builder.setFunction("simple") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    // TODO: Check rust - these aren't supposed to be empty I suspect.
+    builder.setFunction("simple") { args: Arguments, eval: Evaluator ->
     }
 
-    // fn default_arg(arg1: Option<Value>, arg2: Value, eval: &mut Evaluator) -> anyhow::Result<Vec<String>>
-    builder.setFunction("default_arg") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    builder.setFunction("default_arg") { args: Arguments, eval: Evaluator ->
     }
 
-    // fn args_kwargs(args: UnpackTuple<Value>, kwargs: Value) -> anyhow::Result<NoneType>
-    builder.setFunction("args_kwargs") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    builder.setFunction("args_kwargs") { args: Arguments, eval: Evaluator ->
     }
 
-    // fn custom_types(arg1: StringValue, arg2: ValueOfUnchecked<InputTypeRepr>, heap: Heap) -> anyhow::Result<ValueOfUnchecked<OutputTypeRepr>>
-    builder.setFunction("custom_types") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    builder.setFunction("custom_types") { args: Arguments, eval: Evaluator ->
     }
 
-    // fn pos_named(arg1: i32, #[starlark(require = named)] arg2: i32) -> anyhow::Result<i32>
-    builder.setFunction("pos_named") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    builder.setFunction("pos_named") { args: Arguments, eval: Evaluator ->
     }
 
-    // fn with_arguments(args: &Arguments) -> anyhow::Result<i32>
-    builder.setFunction("with_arguments") { _args: Arguments, _eval: Evaluator ->
-        error("unimplemented")
+    builder.setFunction("with_arguments") { args: Arguments, eval: Evaluator ->
     }
 }
 
 /** Test that a Rust starlark_module produces the right documentation. */
 
-// #[test]
-// fn test_rustdoc()
 internal fun testRustdoc() {
     val got = GlobalsBuilder.new().with(::globals).build()
     val a = Assert()
@@ -146,7 +126,6 @@ def with_arguments(*args, **kwargs) -> int: pass
     }
 }
 
-// struct Obj;
 internal class Obj : StarlarkValue {
     override val TYPE: String get() = "obj"
 
@@ -160,18 +139,13 @@ internal class Obj : StarlarkValue {
 }
 
 /** These are where the module docs go */
-// #[starlark_module]
-// fn object(builder: &mut MethodsBuilder)
 private fun objectMethods(builder: MethodsBuilder) {
     /** Docs for func1 */
-    // fn func1(this: Value, foo: String) -> anyhow::Result<String>
     builder.setMethod("func1") { _eval: Evaluator, _this: Value, _sig: ParametersSpec<FrozenValue>, _args: Arguments ->
         Result.success(Value.newNone())
     }
 }
 
-// #[test]
-// fn inner_object_functions_have_docs()
 internal fun innerObjectFunctionsHaveDocs() {
     Heap.temp { heap ->
         val obj = heap.allocSimple(Obj())
@@ -191,10 +165,7 @@ internal fun innerObjectFunctionsHaveDocs() {
     }
 }
 
-// #[starlark_module]
-// fn module(builder: &mut GlobalsBuilder)
 private fun moduleFunctions(builder: GlobalsBuilder) {
-    // const MAGIC: i32 = 42
     builder.setConst("MAGIC", 42)
 
     /** Docs for func1 */
@@ -204,8 +175,6 @@ private fun moduleFunctions(builder: GlobalsBuilder) {
     }
 }
 
-// #[test]
-// fn inner_module_functions_have_docs()
 internal fun innerModuleFunctionsHaveDocs() {
     val item =
         GlobalsBuilder

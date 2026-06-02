@@ -20,6 +20,8 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  */
 
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.CsvWriter
+import io.github.kotlinmania.starlark.eval.runtime.profile.csv.quoteStrForCsv
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

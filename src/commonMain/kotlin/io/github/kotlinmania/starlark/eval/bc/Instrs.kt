@@ -30,8 +30,6 @@ package io.github.kotlinmania.starlark.eval.bc
 
 // --- Drop support ---
 
-// impl BcOpcode { unsafe fn drop_in_place(self, ptr: BcPtrAddr) }
-
 /**
  * Drop instruction at given address.
  *
@@ -40,13 +38,6 @@ package io.github.kotlinmania.starlark.eval.bc
  * cleanup automatically.
  */
 private fun BcOpcode.dropInPlace(ptr: BcPtrAddr) {
-    // struct HandlerImpl<'b> { ptr: BcPtrAddr<'b> }
-    // impl BcOpcodeHandler<()> for HandlerImpl<'_> {
-    //     fn handle<I: BcInstr>(self) {
-    //         unsafe { ptr::drop_in_place(ptr.get_instr_mut::<I>()); }
-    //     }
-    // }
-    // self.dispatch(HandlerImpl { ptr });
 }
 
 // unsafe fn drop_instrs(instrs: &[u64])

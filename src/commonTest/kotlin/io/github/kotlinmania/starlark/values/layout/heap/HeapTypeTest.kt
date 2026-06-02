@@ -21,7 +21,8 @@ package io.github.kotlinmania.starlark.values.layout.heap
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.values.layout.StringValue
+import io.github.kotlinmania.starlark.values.layout.avalues.str.allocStrIntern
+import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -30,9 +31,7 @@ class HeapTypeTest {
     @Test
     fun testSendSync() {
         // Mirrors upstream `fn test_send_sync() where FrozenHeapRef: Send + Sync {}`.
-        // The companion runtime channel guard `testFrozenHeapRefSendSync` lives in
-        // commonMain. This anchor exists for the Rust mod-tests function name.
-        testFrozenHeapRefSendSync()
+        // Kotlin/Native and JVM do not expose Rust's Send + Sync marker trait semantics.
     }
 
     @Test
@@ -41,7 +40,7 @@ class HeapTypeTest {
             val first = heap.allocStr("xx")
             val second = heap.allocStr("xx")
             assertFalse(
-                first.toValue().ptrEq(second.toValue()),
+                first.ptrEq(second),
                 "Plain allocations should recreate values. Note assertion negation.",
             )
         }

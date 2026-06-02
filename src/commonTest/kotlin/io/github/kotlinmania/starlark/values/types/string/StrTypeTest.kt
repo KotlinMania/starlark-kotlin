@@ -72,7 +72,11 @@ class StrTypeTest {
         Heap.temp { heap ->
             for (x in examples) {
                 assertEquals(
-                    heap.allocStr(x).getHashed().getOrThrow().hash(),
+                    heap
+                        .allocStr(x)
+                        .getHashed()
+                        .getOrThrow()
+                        .hash(),
                     heap
                         .allocStr(x)
                         .getHashed()
@@ -89,7 +93,7 @@ class StrTypeTest {
     fun testZeroLengthStringHashIsNotZero() {
         Heap.temp { heap ->
             assertNotEquals(
-                0,
+                0u,
                 heap
                     .allocStr("")
                     .getHash()

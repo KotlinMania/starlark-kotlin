@@ -41,7 +41,6 @@ class Bc(
 ) {
     companion object {
         /** Find span for instruction. */
-        // pub(crate) fn slow_arg_at_ptr(addr_ptr: BcPtrAddr<'_>) -> &BcInstrSlowArg
         fun slowArgAtPtr(addrPtr: BcPtrAddr, bcInstrs: BcInstrs): BcInstrSlowArg {
             var ptr = addrPtr
             while (true) {

@@ -50,7 +50,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 internal sealed class ModuleError(
     override val message: String,
 ) : Exception(message) {
-    // #[error("No imports are available, you tried `{0}` (no call to `Evaluator.set_loader`)")]
     data class NoImportsAvailable(
         val name: String,
     ) : ModuleError("No imports are available, you tried `$name` (no call to `Evaluator.set_loader`)")
@@ -64,7 +63,6 @@ internal sealed class ModuleError(
         ModuleError("Top level stmt count mismatch (internal error)")
 }
 
-// impl<'v> Compiler<'v, '_, '_, '_>
 // Extension functions on Compiler for module evaluation.
 
 // fn eval_load(&mut self, load: Spanned<&LoadP<CstPayload>>) -> Result<(), EvalException>

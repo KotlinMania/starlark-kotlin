@@ -14,11 +14,11 @@ package io.github.kotlinmania.starlark.values.layout.typed
  */
 
 import io.github.kotlinmania.starlark.collections.Hashed
-import io.github.kotlinmania.starlark.values.layout.FrozenStringValue
-import io.github.kotlinmania.starlark.values.layout.StringValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.string.allocFrozenStringValue
+import io.github.kotlinmania.starlark.values.types.string.allocStringValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,17 +28,17 @@ class StringTest {
         val expected = Hashed.new("xyz").hash()
 
         Heap.temp { heap ->
-            val s: StringValue = heap.allocStr("xyz")
+            val s: StringValue = "xyz".allocStringValue(heap)
             assertEquals(expected, Hashed.new(s).hash())
-            assertEquals(s.getHashed().hash(), s.hashed()!!.hash())
-            val v: Value = heap.allocStr("xyz").toValue()
+            assertEquals(expected, s.getHashed().hash())
+            val v: Value = heap.allocStr("xyz")
             assertEquals(expected, v.getHashed().getOrThrow().hash())
         }
 
         val heap = FrozenHeap.new()
-        val fs: FrozenStringValue = heap.allocStr("xyz")
+        val fs: FrozenStringValue = "xyz".allocFrozenStringValue(heap)
         assertEquals(expected, Hashed.new(fs).hash())
-        val fv = heap.allocStr("xyz").toFrozenValue()
+        val fv = "xyz".allocFrozenStringValue(heap).toFrozenValue()
         assertEquals(expected, fv.getHashed().getOrThrow().hash())
     }
 }

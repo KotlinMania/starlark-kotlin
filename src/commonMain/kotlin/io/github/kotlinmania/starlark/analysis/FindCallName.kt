@@ -99,10 +99,8 @@ fun AstModule.findFunctionCallWithName(name: String): Span? {
 
 /**
  * Visit immediate child expressions in an [ExprP] node.
- * Mirrors `ExprP::visit_expr` from Rust's `uniplate.rs`.
  */
 internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (this) {
         is ExprP.Tuple<*> -> elements.forEach { f(it as AstExpr) }
         is ExprP.Dot<*> -> f(expr as AstExpr)
@@ -129,7 +127,6 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
         is ExprP.Lambda<*, *> -> {
             lambda.params.forEach { param ->
                 val p = param.node
-                @Suppress("UNCHECKED_CAST")
                 when (p) {
                     is io.github.kotlinmania.starlark.syntax.ast.ParameterP.Normal<*> -> {
                         p.typ
@@ -194,13 +191,11 @@ internal fun <P : AstPayload> ExprP<P>.visitChildExprs(f: (AstExpr) -> Unit) {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun <P : AstPayload> visitForClauseExprs(forClause: io.github.kotlinmania.starlark.syntax.ast.ForClauseP<P>, f: (AstExpr) -> Unit) {
     visitAssignTargetExprs(forClause.varTarget.node, f)
     f(forClause.over as AstExpr)
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun <P : AstPayload> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) -> Unit) {
     when (clause) {
         is ClauseP.For<*> -> visitForClauseExprs(clause.forClause, f)
@@ -208,7 +203,6 @@ internal fun <P : AstPayload> visitClauseExprs(clause: ClauseP<P>, f: (AstExpr) 
     }
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun <P : AstPayload> visitAssignTargetExprs(target: AssignTargetP<P>, f: (AstExpr) -> Unit) {
     when (target) {
         is AssignTargetP.Tuple<*> -> target.elements.forEach { visitAssignTargetExprs(it.node, f) }
@@ -224,9 +218,7 @@ internal fun <P : AstPayload> visitAssignTargetExprs(target: AssignTargetP<P>, f
 /**
  * Visit all expressions within an [AstStmt] by recursing into child statements and
  * calling [f] on each expression found.
- * Mirrors `StmtP::visit_expr` from Rust's `uniplate.rs`.
  */
-@Suppress("UNCHECKED_CAST")
 internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
     when (val s = node) {
         is StmtP.Statements<*> -> s.stmts.forEach { (it as AstStmt).visitExprs(f) }
@@ -296,9 +288,7 @@ internal fun AstStmt.visitExprs(f: (AstExpr) -> Unit) {
 
 /**
  * Visit immediate child statements in an [AstStmt] node.
- * Mirrors `StmtP::visit_stmt` from Rust's `uniplate.rs`.
  */
-@Suppress("UNCHECKED_CAST")
 internal fun AstStmt.visitStmtChildren(f: (AstStmt) -> Unit) {
     when (val s = node) {
         is StmtP.Statements<*> -> s.stmts.forEach { f(it as AstStmt) }

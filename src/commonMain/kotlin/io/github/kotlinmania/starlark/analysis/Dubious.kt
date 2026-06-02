@@ -100,7 +100,6 @@ private sealed class DubiousKey {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? =
     when (val node = x.node) {
         is ExprP.Literal ->
@@ -129,7 +128,6 @@ private fun toKey(x: AstExpr): Pair<DubiousKey, Span>? =
 // Go implementation of Starlark disallows duplicate top-level assignments,
 // it's likely that will become Starlark standard sooner or later, so check now.
 // The one place we allow it is to export something you grabbed with load.
-@Suppress("UNCHECKED_CAST")
 internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun expr(x: AstExpr, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {
@@ -162,7 +160,6 @@ internal fun duplicateDictionaryKey(module: AstModule, res: MutableList<LintT<Du
         .visitExprs { x -> expr(x, module.codemap, res) }
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun identifierAsStatement(module: AstModule, res: MutableList<LintT<Dubious>>) {
     fun stmt(x: AstStmt, codemap: CodeMap, results: MutableList<LintT<Dubious>>) {
         when (val node = x.node) {

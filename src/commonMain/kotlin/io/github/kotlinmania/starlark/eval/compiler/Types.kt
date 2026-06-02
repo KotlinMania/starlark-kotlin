@@ -70,14 +70,9 @@ private sealed class TypesError(
     class TypeIndexOnNonDictOrTuple : TypesError("[,] can only be applied to dict or tuple functions in type expression")
 }
 
-// impl<'v> Compiler<'v, '_, '_, '_>
 // Extension functions on Compiler for type expression evaluation.
 
 /** Compile expression when it is expected to be interpreted as type. */
-// pub(crate) fn expr_for_type(
-//     &mut self,
-//     expr: Option<&CstTypeExpr>,
-// ) -> Option<IrSpanned<TypeCompiled>>
 internal fun Compiler.exprForType(
     expr: CstTypeExpr?,
 ): IrSpanned<TypeCompiled>? {
@@ -114,11 +109,6 @@ internal fun Compiler.exprForType(
 }
 
 /** We evaluated type expression to `Value`, now convert it to `FrozenValue`. */
-// fn alloc_value_for_type(
-//     &mut self,
-//     value: Value<'v>,
-//     span: Span,
-// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.allocValueForType(
     value: Value,
     span: Span,
@@ -129,7 +119,6 @@ private fun Compiler.allocValueForType(
         throw EvalException.newAnyhow(e, span, codemap.value)
     }
 
-// fn eval_ident_in_type_expr(&mut self, ident: &CstIdent) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
     val identPayload =
         ident.node.payload
@@ -166,7 +155,6 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
  * We may use non-frozen values as types, so we don't reuse `expr_ident` function
  * which is used in normal compilation.
  */
-// fn eval_path(&mut self, path: TypePathP<CstPayload>) -> Result<Value<'v>, EvalException>
 private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Value {
     var value = evalIdentInTypeExpr(path.first)
     for (step in path.rem) {
@@ -178,10 +166,6 @@ private fun Compiler.evalPath(path: TypePathP<CstPayload, CstIdentPayload>): Val
     return value
 }
 
-// fn eval_expr_as_type(
-//     &mut self,
-//     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-// ) -> Result<TypeCompiled>, EvalException>
 private fun Compiler.evalExprAsType(
     expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
 ): TypeCompiled {
@@ -194,10 +178,7 @@ private fun Compiler.evalExprAsType(
  * Evaluate expression in context of typechecker.
  * It is very restricted in what it can do.
  */
-// fn eval_expr(
-//     &mut self,
-//     expr: Spanned<TypeExprUnpackP<CstPayload>>,
-// ) -> Result<Value<'v>, EvalException>
+
 private fun Compiler.evalExpr(
     expr: Spanned<TypeExprUnpackP<CstPayload, CstIdentPayload>>,
 ): Value =
@@ -253,10 +234,6 @@ private fun Compiler.evalExpr(
         }
     }
 
-// fn populate_types_in_type_expr(
-//     &mut self,
-//     type_expr: &mut CstTypeExpr,
-// ) -> Result<(), EvalException>
 @Suppress("UNCHECKED_CAST")
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
@@ -277,10 +254,6 @@ private fun Compiler.populateTypesInTypeExpr(
     }
 }
 
-// pub(crate) fn populate_types_in_stmt(
-//     &mut self,
-//     stmt: &mut CstStmt,
-// ) -> Result<(), EvalException>
 internal fun Compiler.populateTypesInStmt(
     stmt: CstStmt,
 ) {

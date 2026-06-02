@@ -22,6 +22,8 @@ package io.github.kotlinmania.starlark.values.types.string.intern
 import io.github.kotlinmania.starlark.collections.Hashed
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
+import io.github.kotlinmania.starlark.values.types.string.allocFrozenStringValue
+import io.github.kotlinmania.starlark.values.types.string.allocStringValue
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -32,8 +34,8 @@ class InternerTest {
         val heap2 = FrozenHeap.new()
         val intern = FrozenStringValueInterner()
 
-        val xx1 = intern.intern(Hashed.new("xx")) { heap1.allocStr("xx") }
-        val xx2 = intern.intern(Hashed.new("xx")) { heap2.allocStr("xx") }
+        val xx1 = intern.intern(Hashed.new("xx")) { "xx".allocFrozenStringValue(heap1) }
+        val xx2 = intern.intern(Hashed.new("xx")) { "xx".allocFrozenStringValue(heap2) }
         assertTrue(xx1.toValue().ptrEq(xx2.toValue()))
     }
 
@@ -42,7 +44,7 @@ class InternerTest {
         Heap.temp { heap1 ->
             val intern = StringValueInterner()
 
-            val xx1 = intern.intern(Hashed.new("xx")) { heap1.allocStr("xx") }
+            val xx1 = intern.intern(Hashed.new("xx")) { "xx".allocStringValue(heap1) }
             val xx2 =
                 intern.intern(Hashed.new("xx")) {
                     error("alloc_str should be only called once")

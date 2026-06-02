@@ -1,7 +1,6 @@
 // port-lint: tests src/docs/tests.rs
-@file:Suppress("unused")
 
-package io.github.kotlinmania.starlark.docs.tests
+package io.github.kotlinmania.starlark.docs
 
 /*
  * Copyright 2018 The Starlark in Rust Authors.
@@ -21,5 +20,3 @@ package io.github.kotlinmania.starlark.docs.tests
  * limitations under the License.
  */
 
-// mod markdown;
-// mod rustdocs;

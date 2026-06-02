@@ -31,8 +31,6 @@ import io.github.kotlinmania.starlark.values.layout.Value
  * This is more efficient than `Result<R, Exception>`,
  * see the Rust version for details on compiler optimisation.
  */
-// #[must_use]
-// pub(crate) enum InstrControl<'v, 'b>
 sealed class InstrControl {
     /** Go to address. */
     // Next(BcPtrAddr<'b>)
@@ -70,12 +68,6 @@ interface BcInstr {
      * Rust's associated type `type Arg: BcInstrArg` has no runtime representation;
      * in Kotlin the concrete arg is passed as [Any] and cast by each implementation.
      */
-    // fn run<'v, 'b>(
-    //     eval: &mut Evaluator<'v, '_, '_>,
-    //     frame: BcFramePtr<'v>,
-    //     ip: BcPtrAddr<'b>,
-    //     arg: &Self::Arg,
-    // ) -> InstrControl<'v, 'b>;
     fun run(
         eval: Evaluator,
         frame: BcFramePtr,

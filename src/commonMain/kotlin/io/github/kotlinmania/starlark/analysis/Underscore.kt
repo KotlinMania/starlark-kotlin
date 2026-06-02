@@ -142,7 +142,6 @@ private fun inappropriateUnderscore(
     res: MutableList<LintT<UnderscoreWarning>>,
 ) {
     // Is this value allowed as an assignment to a boring identifier - just tuple of vars and var.
-    // fn is_allowed(x: &AstExpr) -> bool
     fun isAllowed(x: AstExpr): Boolean =
         when (val e = x.node) {
             is ExprP.Tuple<*> -> e.elements.isNotEmpty() && e.elements.all { it.node is ExprP.Identifier<*, *> }
@@ -244,10 +243,8 @@ private fun useIgnored(
         }
     }
 
-    // fn is_ignored(x: &str) -> bool
     fun isIgnored(name: String): Boolean = name.startsWith('_') && !(name.startsWith("__") && name.endsWith("__"))
 
-    // fn check_expr(codemap: &CodeMap, x: &AstExpr, roots: &HashSet<&str>, res: &mut Vec<LintT<UnderscoreWarning>>)
     fun checkExpr(
         codemap: CodeMap,
         x: AstExpr,

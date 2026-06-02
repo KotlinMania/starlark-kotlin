@@ -196,8 +196,8 @@ def bad() -> str:
             )
         val res = m.lint(null)
         assertEquals(2, res.size)
-        assertEquals(Pos.new(2u), res[0].location.span.begin)
-        assertEquals(Pos.new(183u), res[1].location.span.begin)
+        assertEquals(Pos(2), res[0].location.span.begin)
+        assertEquals(Pos(183), res[1].location.span.begin)
     }
 
     @Test

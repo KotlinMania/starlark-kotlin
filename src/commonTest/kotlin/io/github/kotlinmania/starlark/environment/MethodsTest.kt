@@ -14,20 +14,33 @@ package io.github.kotlinmania.starlark.environment
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.typing.Ty
+import io.github.kotlinmania.starlark.typing.TyStarlarkValue
+import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.StarlarkValue
+import io.github.kotlinmania.starlark.values.layout.FrozenValue
+import io.github.kotlinmania.starlark.values.layout.Value
+import io.github.kotlinmania.starlark.values.layout.avalues.simple.allocSimple
+import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import kotlin.test.Test
 
 class MethodsTest {
-    private class Magic : StarlarkValue {
+    private class Magic :
+        StarlarkValue,
+        AllocFrozenValue {
         override val TYPE: String get() = "magic"
 
         override fun toString(): String = "Magic"
 
         override fun getMethods(): Methods? =
-            MethodsStatic.new().methods { x ->
-                x.setAttribute("my_type", "magic", null)
-                x.setAttribute("my_value", 42, null)
+            MethodsStatic().methods { x ->
+                x.setAttribute("my_type") { _, heap -> Result.success(heap.allocStr("magic")) }
+                x.setAttribute("my_value") { _, _ -> Result.success(Value.testingNewInt(42)) }
             }
+
+        override fun starlarkTypeRepr(): Ty = Ty.starlarkValue(TyStarlarkValue.new(TYPE))
+
+        override fun allocFrozenValue(heap: FrozenHeap): FrozenValue = heap.allocSimple(this)
     }
 
     @Test

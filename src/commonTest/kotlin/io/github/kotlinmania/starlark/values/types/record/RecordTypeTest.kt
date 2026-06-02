@@ -20,6 +20,7 @@ package io.github.kotlinmania.starlark.values.types.record
  */
 
 import io.github.kotlinmania.starlark.assert.Assert
+import io.github.kotlinmania.starlark.assert.failGolden
 import kotlin.test.Test
 
 class RecordTypeTest {

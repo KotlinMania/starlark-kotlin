@@ -19,6 +19,7 @@ package io.github.kotlinmania.starlark.eval.runtime.profile
  * limitations under the License.
  */
 
+import io.github.kotlinmania.starlark.eval.evalModule
 import io.github.kotlinmania.starlark.eval.runtime.SmallDuration
 import io.github.kotlinmania.starlark.util.ArcStr
 import kotlin.test.Test
@@ -48,14 +49,14 @@ g()
                         program,
                         io.github.kotlinmania.starlark.syntax.dialect.Dialect.AllOptionsInternal,
                     ).getOrThrow()
-            eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.Typecheck).getOrThrow()
+            eval.enableProfile(io.github.kotlinmania.starlark.eval.runtime.profile.mode.ProfileMode.Typecheck)
             eval
                 .evalModule(
                     ast,
                     io.github.kotlinmania.starlark.environment.Globals
                         .standard(),
                 ).getOrThrow()
-            val profile = eval.genProfile().getOrThrow()
+            val profile = eval.genProfile()
             // Check the profile contains typecheck data; structural assertion only.
             profile.profileMode().toString()
         }

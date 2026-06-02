@@ -15,8 +15,7 @@ package io.github.kotlinmania.starlark.values.layout
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
-import io.github.kotlinmania.starlark.tests.util.TestComplexValue
-import io.github.kotlinmania.starlark.values.types.int.pointerI32.PointerI32
+import io.github.kotlinmania.starlark.tests.TestComplexValue
 import io.github.kotlinmania.starlark.values.types.none.NoneType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,25 +23,25 @@ import kotlin.test.assertEquals
 class TypedTest {
     @Test
     fun int() {
-        val v = FrozenValueTyped.new<PointerI32>(FrozenValue.testingNewInt(17))!!
+        val v = FrozenValue.testingNewInt(17).toValue().unpackIntValue()!!
         assertEquals(17, v.asRef().get().toI32())
     }
 
     @Test
     fun testUnpackValueForFrozenValueTyped() {
         fun module(globals: GlobalsBuilder) {
-            fun mutable(): Result<TestComplexValue<Value>> =
+            fun mutable(): Result<TestComplexValue> =
                 Result.success(TestComplexValue(Value.newNone()))
 
-            fun takesFrozenValueTyped(value: FrozenValueTyped<TestComplexValue<FrozenValue>>): Result<NoneType> {
+            fun takesFrozenValueTyped(value: FrozenValueTyped<TestComplexValue>): Result<NoneType> {
                 value.toString()
                 return Result.success(NoneType)
             }
 
-            globals.setConst("FROZEN", TestComplexValue(FrozenValue.newNone()))
+            globals.setConst("FROZEN", TestComplexValue(FrozenValue.newNone().toValue()))
             globals.setFunction("mutable") { _, _ -> mutable() }
             globals.setFunction("takes_frozen_value_typed") { args, _ ->
-                takesFrozenValueTyped(args.positional<FrozenValueTyped<TestComplexValue<FrozenValue>>>(0))
+                takesFrozenValueTyped(args.positional<FrozenValueTyped<TestComplexValue>>(0))
             }
         }
 

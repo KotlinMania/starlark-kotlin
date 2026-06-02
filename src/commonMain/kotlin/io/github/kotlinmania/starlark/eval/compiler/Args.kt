@@ -35,14 +35,6 @@ import io.github.kotlinmania.starlark.syntax.ast.CallArgsP
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.typed.FrozenStringValue
 
-// #[derive(Default, Clone, Debug, VisitSpanMut)]
-// pub(crate) struct ArgsCompiledValue {
-//     pub(crate) pos_named: Vec<IrSpanned<ExprCompiled>>,
-//     pub(crate) names: Vec<(Symbol, FrozenStringValue)>,
-//     pub(crate) args: Option<IrSpanned<ExprCompiled>>,
-//     pub(crate) kwargs: Option<IrSpanned<ExprCompiled>>,
-// }
-
 /**
  * Compiled representation of function call arguments.
  *
@@ -70,7 +62,6 @@ internal class ArgsCompiledValue(
      * Returns the single positional argument if there are no named, star-args,
      * or star-star-kwargs arguments, or `null` otherwise.
      */
-    // pub(crate) fn one_pos(&self) -> Option<&IrSpanned<ExprCompiled>>
     fun onePos(): IrSpanned<ExprCompiled>? =
         if (posNamed.size == 1 && names.isEmpty() && args == null && kwargs == null) {
             posNamed[0]
@@ -84,7 +75,6 @@ internal class ArgsCompiledValue(
      * Returns the two positional arguments if there are no named, star-args,
      * or star-star-kwargs arguments, or `null` otherwise.
      */
-    // pub(crate) fn two_pos(&self) -> Option<(&IrSpanned<ExprCompiled>, &IrSpanned<ExprCompiled>)>
     fun twoPos(): Pair<IrSpanned<ExprCompiled>, IrSpanned<ExprCompiled>>? =
         if (posNamed.size == 2 && names.isEmpty() && args == null && kwargs == null) {
             Pair(posNamed[0], posNamed[1])

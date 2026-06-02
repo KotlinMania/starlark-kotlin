@@ -57,7 +57,6 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
  * After evaluation of function arguments like `foo(a, b=c[d], **e)`,
  * variables `a`, `b`, `c`, `d`, and `e` are definitely assigned.
  */
-// fn mark_definitely_assigned_after(&self, bc: &mut BcWriter)
 internal fun ArgsCompiledValue.markDefinitelyAssignedAfterCall(bc: BcWriter) {
     for (n in posNamed) {
         n.markDefinitelyAssignedAfter(bc)

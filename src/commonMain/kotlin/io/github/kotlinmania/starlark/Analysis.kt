@@ -20,6 +20,14 @@ package io.github.kotlinmania.starlark
  */
 
 import io.github.kotlinmania.starlark.analysis.Lint
+import io.github.kotlinmania.starlark.analysis.erase
+import io.github.kotlinmania.starlark.analysis.flowLint
+import io.github.kotlinmania.starlark.analysis.incompatibleLint
+import io.github.kotlinmania.starlark.analysis.lintDubious
+import io.github.kotlinmania.starlark.analysis.lintPerformance
+import io.github.kotlinmania.starlark.analysis.namesLint
+import io.github.kotlinmania.starlark.analysis.underscoreLint
+import io.github.kotlinmania.starlark.syntax.AstModule
 
 /**
  * Linter.
@@ -56,3 +64,13 @@ interface AstModuleLint {
      */
     fun lint(globals: Set<String>? = null): List<Lint>
 }
+
+fun AstModule.lint(globals: Set<String>? = null): List<Lint> =
+    buildList {
+        addAll(flowLint(this@lint).map { it.erase() })
+        addAll(lintDubious(this@lint).map { it.erase() })
+        addAll(incompatibleLint(this@lint).map { it.erase() })
+        addAll(namesLint(this@lint, globals).map { it.erase() })
+        addAll(lintPerformance(this@lint).map { it.erase() })
+        addAll(underscoreLint(this@lint).map { it.erase() })
+    }

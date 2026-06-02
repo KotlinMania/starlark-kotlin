@@ -15,13 +15,16 @@ package io.github.kotlinmania.starlark.eval.runtime
 
 import io.github.kotlinmania.starlark.assert.Assert
 import io.github.kotlinmania.starlark.environment.GlobalsBuilder
+import io.github.kotlinmania.starlark.eval.runtime.rustloc.rustLoc
 import io.github.kotlinmania.starlark.values.layout.Value
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class RustLocTest {
     private fun rustLocGlobals(globals: GlobalsBuilder) {
-        fun invoke(f: Value, eval: Evaluator): Result<Value> = f.invokeWithLoc(rustLoc(), Arguments.default(), eval)
+        fun invoke(f: Value, eval: Evaluator): Result<Value> =
+            f.invokeWithLoc(rustLoc("src/eval/runtime/rust_loc.rs", 24), Arguments.default(), eval)
+
         globals.setFunction("invoke") { args, eval ->
             invoke(args.positional<Value>(0), eval)
         }

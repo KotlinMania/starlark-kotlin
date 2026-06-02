@@ -57,7 +57,6 @@ private enum class DSOpts {
     Combined,
 }
 
-// fn render_doc_string(opts: DSOpts, string: &Option<DocString>) -> Option<String>
 private fun renderDocString(opts: DSOpts, string: DocString?): String? {
     val d = string ?: return null
     return when (opts) {
@@ -84,10 +83,8 @@ private fun renderDocString(opts: DSOpts, string: DocString?): String? {
  * Function names can have underscores in them, which are markdown,
  * so escape them if we render them outside a codeblock.
  */
-// fn escape_name(name: &str) -> String
 private fun escapeName(name: String): String = name.replace("_", "\\_")
 
-// fn render_property(name: &str, property: &DocProperty, render_config: &RenderConfig) -> String
 private fun renderProperty(name: String, property: DocProperty, renderConfig: RenderConfig): String {
     val prototype =
         renderCodeBlock(
@@ -112,7 +109,6 @@ private fun renderProperty(name: String, property: DocProperty, renderConfig: Re
 }
 
 /** If there are any parameter docs to render, render them as a list. */
-// fn render_function_parameters(params: impl IntoIterator<Item = (String, &DocParam)>) -> Option<String>
 private fun renderFunctionParameters(params: Iterable<Pair<String, DocParam>>): String? {
     var paramList: StringBuilder? = null
 
@@ -149,7 +145,6 @@ private fun renderFunctionParameters(params: Iterable<Pair<String, DocParam>>): 
     return paramList?.toString()
 }
 
-// fn render_function(name: &str, function: &DocFunction, include_header: bool, render_config: &RenderConfig) -> String
 private fun renderFunction(
     name: String,
     function: DocFunction,
@@ -165,7 +160,6 @@ private fun renderFunction(
     }
 }
 
-// fn render_default_layout(name: &str, function: &DocFunction, include_header: bool, render_config: &RenderConfig) -> String
 private fun renderDefaultLayout(
     name: String,
     function: DocFunction,
@@ -222,7 +216,6 @@ private fun renderDefaultLayout(
     }
 }
 
-// fn render_signature_at_bottom_layout(name: &str, function: &DocFunction, render_config: &RenderConfig) -> String
 private fun renderSignatureAtBottomLayout(
     name: String,
     function: DocFunction,
@@ -261,7 +254,6 @@ private fun renderSignatureAtBottomLayout(
     }
 }
 
-// pub(super) fn render_members(...)
 internal fun renderMembers(
     name: String,
     docs: DocString?,
@@ -291,7 +283,6 @@ internal fun renderMembers(
     return "$header$summary\n\n$membersDetails"
 }
 
-// pub(super) fn render_doc_type(name: &str, prefix: &str, t: &DocType, render_config: &RenderConfig) -> String
 internal fun renderDocType(
     name: String,
     prefix: String,
@@ -316,7 +307,6 @@ internal fun renderDocType(
  * Used by LSP.
  * It will not render the type signatures with link to types.
  */
-// pub fn render_doc_item_no_link(name: &str, item: &DocItem) -> String
 fun renderDocItemNoLink(name: String, item: DocItem): String =
     renderDocItem(
         name,
@@ -327,7 +317,6 @@ fun renderDocItemNoLink(name: String, item: DocItem): String =
         ),
     )
 
-// pub fn render_doc_item(name: &str, item: &DocItem, render_config: &RenderConfig) -> String
 fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): String =
     when (item) {
         is DocItem.Module ->
@@ -358,7 +347,6 @@ fun renderDocItem(name: String, item: DocItem, renderConfig: RenderConfig): Stri
     }
 
 /** Used by LSP. */
-// pub fn render_doc_member(name: &str, item: &DocMember, render_config: &RenderConfig) -> String
 fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): String =
     when (item) {
         is DocMember.Function -> renderFunction(name, item.function, true, renderConfig)
@@ -366,7 +354,6 @@ fun renderDocMember(name: String, item: DocMember, renderConfig: RenderConfig): 
     }
 
 /** Used by LSP. */
-// pub fn render_doc_param(starred_name: String, item: &DocParam) -> String
 fun renderDocParam(starredName: String, item: DocParam): String = renderFunctionParameters(listOf(Pair(starredName, item))) ?: ""
 
 /**
@@ -374,14 +361,12 @@ fun renderDocParam(starredName: String, item: DocParam): String = renderFunction
  * their prototype split over multiple lines. Otherwise, it is returned as
  * a single line.
  */
-// const MAX_ARGS_BEFORE_MULTILINE: usize = 3;
 private const val MAX_ARGS_BEFORE_MULTILINE = 3
 
 /** If the prototype ends up longer than this length, we'll split it anyway. */
 // const MAX_LENGTH_BEFORE_MULTILINE: usize = 80;
 private const val MAX_LENGTH_BEFORE_MULTILINE = 80
 
-// fn raw_type_prefix(prefix: &str, t: &Ty, render_config: &TypeRenderConfig) -> String
 private fun rawTypePrefix(prefix: String, t: Ty, renderConfig: TypeRenderConfig): String =
     if (t.isAny()) {
         ""
@@ -389,7 +374,6 @@ private fun rawTypePrefix(prefix: String, t: Ty, renderConfig: TypeRenderConfig)
         "$prefix${t.displayWith(renderConfig)}"
     }
 
-// fn render_function_prototype(function_name: &str, f: &DocFunction, render_config: &TypeRenderConfig) -> String
 private fun renderFunctionPrototype(
     functionName: String,
     f: DocFunction,
@@ -410,7 +394,6 @@ private fun renderFunctionPrototype(
     }
 }
 
-// fn render_strings_with_code_blocks(contents: &str, render_config: &TypeRenderConfig) -> String
 private val CODE_BLOCK_RE = Regex("""```([\s\S]*?)```""")
 
 private fun renderStringsWithCodeBlocks(contents: String, renderConfig: TypeRenderConfig): String =
@@ -420,7 +403,6 @@ private fun renderStringsWithCodeBlocks(contents: String, renderConfig: TypeRend
 
 // For LinkedType render in markdown, for code block ``` ``` we cannot contain the link in it.
 // We need to use the html block here.
-// fn render_code_block(contents: &str, render_config: &TypeRenderConfig) -> String
 private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): String =
     when (renderConfig) {
         is TypeRenderConfig.Default -> "```python\n$contents\n```"
@@ -428,10 +410,7 @@ private fun renderCodeBlock(contents: String, renderConfig: TypeRenderConfig): S
             """<pre class="language-python"><code>$contents</code></pre>"""
     }
 
-// --- Extension methods on DocModule and DocType (impl blocks in Rust) ---
 
-// impl DocModule
-// pub(super) fn render_markdown_page_for_multipage_render(&self, name: &str, render_config: &RenderConfig) -> String
 fun DocModule.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,
@@ -448,8 +427,6 @@ fun DocModule.renderMarkdownPageForMultipageRender(
         renderConfig,
     )
 
-// impl DocType
-// pub(super) fn render_markdown_page_for_multipage_render(&self, name: &str, render_config: &RenderConfig) -> String
 fun DocType.renderMarkdownPageForMultipageRender(
     name: String,
     renderConfig: RenderConfig,

@@ -177,7 +177,6 @@ private fun AstAssignTarget.visitAssignTargetExprChildren(visitor: (AstExpr) -> 
 
 /** Visit all lvalue identifier leaves of an assign target. */
 private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val t = this.node) {
         is AssignTargetP.Tuple -> t.elements.forEach { (it as AstAssignTarget).visitLvalue(visitor) }
         is AssignTargetP.Identifier<*, *> -> visitor(t.ident as AstAssignIdent)
@@ -187,7 +186,6 @@ private fun AstAssignTarget.visitLvalue(visitor: (AstAssignIdent) -> Unit) {
 
 /** Visit all expression children of a parameter (default value, type annotation). */
 private fun ParameterP<AstNoPayload>.visitParameterExprChildren(visitor: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (this) {
         is ParameterP.Normal -> {
             typ?.let { visitor(it.node.expr as AstExpr) }
@@ -201,7 +199,6 @@ private fun ParameterP<AstNoPayload>.visitParameterExprChildren(visitor: (AstExp
 
 /** Visit all expression children of an AstExpr (recursing one level via the visitor). */
 private fun AstExpr.visitExprChildren(visitor: (AstExpr) -> Unit) {
-    @Suppress("UNCHECKED_CAST")
     when (val e = this.node) {
         is ExprP.Tuple -> e.elements.forEach { visitor(it as AstExpr) }
         is ExprP.Dot<*> -> visitor(e.expr as AstExpr)
@@ -531,7 +528,6 @@ private class State(
         exitScope()
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun expr(expr: AstExpr) {
         when (val e = expr.node) {
             is ExprP.Identifier<*, *> -> useIdent(astStrFromIdent(e.ident as AstIdent))
@@ -572,7 +568,6 @@ private class State(
         assign.visitLvalue { x -> useIdent(astStrFromAssignIdent(x)) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun stmt(stmt: AstStmt) {
         when (val s = stmt.node) {
             is StmtP.Expression -> {

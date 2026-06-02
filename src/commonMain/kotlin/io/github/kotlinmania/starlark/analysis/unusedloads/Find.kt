@@ -43,31 +43,19 @@ import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.layout.heap.FrozenHeap
 import io.github.kotlinmania.starlark.values.types.allocAny
 
-// Forward-reference AST types until starlark_syntax port is complete.
-// use starlark_syntax::codemap::FileSpanRef;
-// use starlark_syntax::syntax::ast::LoadArgP;
-// use starlark_syntax::syntax::ast::LoadP;
-// use starlark_syntax::syntax::ast::StmtP;
-
 /** Unused load statement. */
-// pub(crate) struct UnusedLoad
 internal class UnusedLoad(
     /** Location of the statement (i.e. position of `load` keyword). */
-    // pub(crate) load: Spanned<LoadP<CstPayload>>,
     val load: Spanned<LoadP<*, *>>,
     /** Unused local names, e. g. `x` in `load("foo", x="y")`. */
-    // pub(crate) unused_args: Vec<LoadArgP<CstPayload>>,
     val unusedArgs: List<LoadArgP<*, *>>,
 ) {
-    // impl UnusedLoad
 
     /** If the whole `load` statement is unused. */
-    // pub(crate) fn all_unused(&self) -> bool
     fun allUnused(): Boolean = unusedArgs.size == load.node.args.size
 }
 
 /** Check if there are `@unused` markers on the lines with the given span. */
-// fn has_unused_marker_in_range(span: FileSpanRef) -> bool
 private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
     val beginLine = span.file.findLine(span.span.begin)
     val endLine = span.file.findLine(span.span.end)
@@ -82,7 +70,6 @@ private fun hasUnusedMarkerInRange(span: FileSpan): Boolean {
 
 /**
  * Visit all identifiers in read position recursively within a CstStmt.
- * Port of `StmtP::visit_ident` from Rust's `uniplate.rs`.
  */
 private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
     fun Spanned<IdentP<*, *>>.toCstIdent(): CstIdent {
@@ -195,7 +182,6 @@ private fun CstStmt.visitIdent(f: (CstIdent) -> Unit) {
 }
 
 /** Parse the module and find unused loads. */
-// pub(crate) fn find_unused_loads(name: &str, program: &str) -> crate::Result<(CodeMap, Vec<UnusedLoad>)>
 internal fun findUnusedLoads(
     name: String,
     program: String,
@@ -223,14 +209,12 @@ internal fun findUnusedLoads(
 
     // --- Collect load statements ---
 
-    // struct LoadSymbol<'a>
     class LoadSymbol(
         val arg: LoadArgP<*, *>,
         val bindingId: BindingId,
         var used: Boolean,
     )
 
-    // struct LoadWip<'a>
     class LoadWip(
         val load: Spanned<LoadP<*, *>>,
         val args: MutableList<LoadSymbol>,

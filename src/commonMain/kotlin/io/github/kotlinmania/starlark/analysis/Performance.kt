@@ -26,9 +26,7 @@ import io.github.kotlinmania.starlark.syntax.ast.AstExpr
 import io.github.kotlinmania.starlark.syntax.ast.ArgumentP
 import io.github.kotlinmania.starlark.syntax.AstModule
 
-// pub(crate) enum Performance
 internal sealed class Performance : LintWarning {
-    // #[error("Dict copy `{0}` is more efficient as `{1}`")]
     data class DictWithoutStarStar(
         val original: String,
         val replacement: String,
@@ -40,7 +38,6 @@ internal sealed class Performance : LintWarning {
         override fun shortName(): String = "dict-without-star-star"
     }
 
-    // #[error("`{0}` eagerly evaluates all items...")]
     data class EagerAndInefficientBoolCheck(
         val expr: String,
     ) : Performance() {
@@ -52,7 +49,6 @@ internal sealed class Performance : LintWarning {
         override fun shortName(): String = "eager-and-inefficient-bool-check"
     }
 
-    // #[error("`{0}` allocates a new {1}...")]
     data class InefficientBoolCheck(
         val expr: String,
         val kind: String,
@@ -66,9 +62,7 @@ internal sealed class Performance : LintWarning {
     }
 }
 
-// fn match_dict_copy(codemap: &CodeMap, x: &AstExpr, res: &mut Vec<LintT<Performance>>)
 private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
-    // If we see `dict(**x)` suggest `dict(x)`
     val expr = x.node
     if (expr is ExprP.Call<*> && expr.args.args.size == 1) {
         val func = expr.expr.node
@@ -92,7 +86,6 @@ private fun matchDictCopy(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<P
     }
 }
 
-// fn match_inefficient_bool_check(codemap: &CodeMap, x: &AstExpr, res: &mut Vec<LintT<Performance>>)
 private fun matchInefficientBoolCheck(
     codemap: CodeMap,
     x: AstExpr,
@@ -113,14 +106,9 @@ private fun matchInefficientBoolCheck(
     val arg = (argAst.node as ArgumentP.Positional<*>).expr.node
 
     when (arg) {
-        // any([blah for blah in blahs]) or any({k: v for ...})
         is ExprP.ListExpr<*>, is ExprP.Dict<*> -> {
-            // Comprehension variants — in the full AST these would be
-            // ExprP.ListComprehension / ExprP.DictComprehension.
-            // Placeholder: trigger on list/dict comprehensions once available.
         }
         is ExprP.Call<*> -> {
-            // any(list(_get_some_dict())) or any(dict([]))
             val innerFunc = arg.expr.node
             if (innerFunc is ExprP.Identifier<*, *>) {
                 val innerIdent = innerFunc.ident.node.ident
@@ -142,7 +130,6 @@ private fun matchInefficientBoolCheck(
     }
 }
 
-// fn check_call_expr(module: &AstModule, res: &mut Vec<LintT<Performance>>)
 private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>>) {
     fun check(codemap: CodeMap, x: AstExpr, res: MutableList<LintT<Performance>>) {
         matchDictCopy(codemap, x, res)
@@ -152,12 +139,9 @@ private fun checkCallExpr(module: AstModule, res: MutableList<LintT<Performance>
     module.statement.visitExprs { x -> check(module.codemap, x, res) }
 }
 
-// pub(crate) fn lint(module: &AstModule) -> Vec<LintT<Performance>>
 internal fun lintPerformance(module: AstModule): List<LintT<Performance>> {
     val res = mutableListOf<LintT<Performance>>()
     checkCallExpr(module, res)
     return res
 }
 
-// #[cfg(test)] mod tests
-// Tests are in commonTest, not here.

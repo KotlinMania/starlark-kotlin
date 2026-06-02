@@ -33,9 +33,7 @@ private class Out(
     val out: StringBuilder = StringBuilder(),
     var pos: Pos = Pos(0),
 ) {
-    /**
-     * fn append_to(&mut self, pos: Pos)
-     *
+    /***
      * Append source text from current position up to [pos], then advance.
      */
     fun appendTo(pos: Pos) {
@@ -45,9 +43,7 @@ private class Out(
         this.pos = pos
     }
 
-    /**
-     * fn skip_to(&mut self, pos: Pos)
-     *
+    /***
      * Advance the current position to [pos] without appending.
      */
     fun skipTo(pos: Pos) {
@@ -59,7 +55,6 @@ private class Out(
     /**
      * Append to the beginning of the span, and set the position to the end of the span.
      *
-     * fn skip_span(&mut self, span: Span)
      */
     fun skipSpan(span: Span) {
         appendTo(span.begin)
@@ -70,7 +65,6 @@ private class Out(
 /**
  * Return `null` if there are no unused loads.
  *
- * pub fn remove_unused_loads(name: &str, program: &str) -> crate::Result<Option<String>>
  */
 fun removeUnusedLoads(name: String, program: String): Result<String?> {
     val (codemap, unusedLoads) =

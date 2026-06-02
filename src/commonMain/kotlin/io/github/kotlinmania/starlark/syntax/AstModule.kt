@@ -63,6 +63,10 @@ class AstModule(
     val dialect: Dialect,
     val typecheck: Boolean,
 ) {
+    fun codemap(): CodeMap = codemap
+
+    fun statement(): AstStmt = statement
+
     // fn into_parts(self) -> (CodeMap, AstStmt, Dialect, bool)
     fun intoParts(): AstModuleParts =
         AstModuleParts(codemap, statement, dialect, typecheck)

@@ -24,11 +24,6 @@ package io.github.kotlinmania.starlark.eval
  * [evalModule].
  */
 
-// pub(crate) mod bc;
-// pub(crate) mod compiler;
-// mod params;
-// pub(crate) mod runtime;
-// pub(crate) mod soft_error;
 
 import io.github.kotlinmania.starlark.collections.symbol.Symbol
 import io.github.kotlinmania.starlark.docs.DocString
@@ -53,20 +48,6 @@ import io.github.kotlinmania.starlark.values.layout.typed.StringValue
 import io.github.kotlinmania.starlark.values.types.allocAny
 import kotlin.time.TimeSource
 
-// --- Re-exports (Rust `pub use`) ---
-// pub use runtime::arguments::Arguments;
-// pub use runtime::before_stmt::BeforeStmtFuncDyn;
-// pub use runtime::evaluator::Evaluator;
-// pub use runtime::file_loader::FileLoader;
-// pub use runtime::file_loader::ReturnFileLoader;
-// pub use runtime::params::parser::ParametersParser;
-// pub use runtime::params::spec::ParametersSpec;
-// pub use runtime::params::spec::ParametersSpecParam;
-// pub use runtime::profile::data::ProfileData;
-// pub use runtime::profile::mode::ProfileMode;
-// pub use soft_error::SoftErrorHandler;
-// pub use starlark_syntax::call_stack::CallStack;
-// In Kotlin, these are accessible via their own packages. No re-export needed.
 
 // --- impl Evaluator ---
 
@@ -74,7 +55,6 @@ import kotlin.time.TimeSource
  * Evaluate an [AstModule] with this [Evaluator], modifying the in-scope
  * [Module] as appropriate.
  */
-// pub fn eval_module(&mut self, ast: AstModule, globals: &Globals) -> crate::Result<Value<'v>>
 fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
     val start = TimeSource.Monotonic.markNow()
 
@@ -158,7 +138,6 @@ fun Evaluator.evalModule(ast: AstModule, globals: Globals): Result<Value> {
 }
 
 /** Evaluate a function stored in a [Value], passing in `positional` and `named` arguments. */
-// pub fn eval_function(&mut self, function: Value, positional: &[Value], named: &[(&str, Value)]) -> crate::Result<Value>
 fun Evaluator.evalFunction(
     function: Value,
     positional: List<Value>,
@@ -182,7 +161,7 @@ fun Evaluator.evalFunction(
         )
     }.getOrElse { return Result.failure(it) }
 
-    // eval_module pushes an "empty" call stack frame. other places expect that first frame
+    // evalmodule pushes an "empty" call stack frame. other places expect that first frame
     // to be ignorable, and so we push an empty frame too (otherwise things would ignore
     // this function's own frame).
     val res =
