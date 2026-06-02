@@ -31,7 +31,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignOp
 import io.github.kotlinmania.starlark.syntax.ast.AssignP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
@@ -81,9 +80,8 @@ internal class DefParam(
     val ty: CstTypeExpr?,
 )
 
-@Suppress("UNCHECKED_CAST")
 private fun resolvedBindingId(ident: CstAssignIdent, codemap: CodeMap): BindingId =
-    ident.node.payload as? BindingId
+    ident.node.payload
         ?: throw InternalError.msg("Binding not resolved for '${ident.node.ident}'", ident.span, codemap)
 
 @Suppress("UNCHECKED_CAST")
@@ -335,13 +333,11 @@ internal class BindingsCollect(
     }
 
     /** Type must be populated earlier. */
-    @Suppress("UNCHECKED_CAST")
     private fun resolvedTy(expr: CstTypeExpr, typecheckMode: TypecheckMode, codemap: CodeMap): Ty {
-        val payload = expr.node.payload as Any? as? CstTypeExprPayload
         val ty =
             when (typecheckMode) {
-                TypecheckMode.Lint -> payload?.typecheckerTy
-                TypecheckMode.Compiler -> payload?.compilerTy
+                TypecheckMode.Lint -> expr.node.payload.typecheckerTy
+                TypecheckMode.Compiler -> expr.node.payload.compilerTy
             }
         return ty ?: throw InternalError.msg("Type must be populated earlier", expr.span, codemap)
     }
@@ -390,12 +386,10 @@ internal class BindingsCollect(
                     nameTy = Pair(paramName, varTy)
                 }
             }
-            if (nameTy != null) {
-                bindings.types[resolvedBindingId(nameTy.first, codemap)] = nameTy.second
-            }
+            bindings.types[resolvedBindingId(nameTy.first, codemap)] = nameTy.second
         }
         val params2 = ParamSpec.newParts(posOnly, posOrNamed, args, namedOnly, kwargs)
-        val retTy = resolveTyOpt(returnType, typecheckMode, codemap)
+        val retTy = resolveTyOpt(returnType as CstTypeExpr?, typecheckMode, codemap)
         bindings.types[resolvedBindingId(name as CstAssignIdent, codemap)] = Ty.function(params2, retTy)
         visitDefChildren(def) { x -> visit(x, retTy, typecheckMode, codemap) }
     }
@@ -408,7 +402,7 @@ internal class BindingsCollect(
                     is StmtP.Assign<*> -> {
                         val assignP = node.assign as AssignP<CstPayload>
                         if (assignP.ty != null) {
-                            val ty2 = resolvedTy(assignP.ty, typecheckMode, codemap)
+                            val ty2 = resolvedTy(assignP.ty as CstTypeExpr, typecheckMode, codemap)
                             bindings.checkType.add(Triple(assignP.ty.span, assignP.rhs, ty2))
                             if (assignP.lhs.node is AssignTargetP.Identifier<*, *>) {
                                 val id = (assignP.lhs.node as AssignTargetP.Identifier<CstPayload, *>).ident as CstAssignIdent
@@ -494,7 +488,6 @@ internal class BindingsCollect(
                                     Pair(node.forClause as ForClauseP<CstPayload>, node.clauses as List<ClauseP<CstPayload>>)
                                 is ExprP.DictComprehension<*> ->
                                     Pair(node.forClause as ForClauseP<CstPayload>, node.clauses as List<ClauseP<CstPayload>>)
-                                else -> error("unreachable")
                             }
                         val forClauses = mutableListOf(for1)
                         for (clause in clauses) {
@@ -628,12 +621,12 @@ private fun visitExprChildren(expr: CstExpr, f: (Visit) -> Unit) {
             (node.step as CstExpr?)?.let { f(Visit.Expr(it)) }
         }
         is ExprP.Identifier<*, *> -> {}
+        is ExprP.Literal<*> -> {}
         is ExprP.Lambda<*, *> -> {
             val l = node as ExprP.Lambda<CstPayload, *>
-            l.lambda.params.forEach { visitParamExprs(it as Spanned<ParameterP<CstPayload>>) { e -> f(Visit.Expr(e)) } }
+            l.lambda.params.forEach { visitParamExprs(it) { e -> f(Visit.Expr(e)) } }
             f(Visit.Expr(l.lambda.body))
         }
-        is ExprP.Literal<*> -> {}
         is ExprP.Not<*> -> f(Visit.Expr(node.expr as CstExpr))
         is ExprP.Minus<*> -> f(Visit.Expr(node.expr as CstExpr))
         is ExprP.Plus<*> -> f(Visit.Expr(node.expr as CstExpr))

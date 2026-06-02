@@ -380,7 +380,6 @@ internal class RetainedHeapProfile(
                         ProfileDataImpl.HeapFlameRetained(info.clone())
                     RetainedHeapProfileMode.Summary ->
                         ProfileDataImpl.HeapSummaryRetained(info.clone())
-                    else -> throw IllegalStateException("Unexpected mode: $mode")
                 },
         )
 

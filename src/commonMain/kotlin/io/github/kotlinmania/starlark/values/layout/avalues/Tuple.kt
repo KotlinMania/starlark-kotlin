@@ -33,10 +33,10 @@ import io.github.kotlinmania.starlark.values.types.tuple.Tuple
 import io.github.kotlinmania.starlark.values.types.tuple.TupleGen
 
 // fn tuple_avalue<'v>(len: usize) -> AValueImpl<'v, AValueTuple>
-internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }))
+internal fun tupleAvalue(len: Int): AValueImpl<AValueTuple> = AValueImpl.new(TupleGen<Value>(MutableList(len) { Value.newNone() }), AValueTuple)
 
 // fn frozen_tuple_avalue<'fv>(len: usize) -> AValueImpl<'fv, AValueFrozenTuple>
-internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }))
+internal fun frozenTupleAvalue(len: Int): AValueImpl<AValueFrozenTuple> = AValueImpl.new(TupleGen<FrozenValue>(MutableList(len) { FrozenValue.newNone() }), AValueFrozenTuple)
 
 /** AValue implementation for mutable tuples. */
 // struct AValueTuple;
@@ -104,7 +104,7 @@ fun FrozenHeap.allocTuple(elems: List<FrozenValue>): FrozenValue {
     if (elems.isEmpty()) {
         return FrozenValue.newEmptyTuple()
     }
-    val avalue = AValueImpl.new<AValueFrozenTuple>(TupleGen(elems))
+    val avalue = AValueImpl.new(TupleGen(elems), AValueFrozenTuple)
     return allocRaw(avalue).toFrozenValue()
 }
 
@@ -123,7 +123,7 @@ fun Heap.allocTuple(elems: List<Value>): Value {
     if (elems.isEmpty()) {
         return Value.newEmptyTuple()
     }
-    val avalue = AValueImpl.new<AValueTuple>(TupleGen(elems))
+    val avalue = AValueImpl.new(TupleGen(elems), AValueTuple)
     return allocRaw(avalue).toValue()
 }
 

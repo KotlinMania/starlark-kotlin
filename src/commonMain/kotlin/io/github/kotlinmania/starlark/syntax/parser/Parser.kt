@@ -51,7 +51,7 @@ object Parser {
 
             val action: Int =
                 if (lookahead != null) {
-                    val (_, token, _) = lookahead!!
+                    val (_, token, _) = lookahead
                     Grammar.__action(currentState, token.toInteger())
                 } else {
                     GrammarState.EOF_ACTION[currentState].toInt()

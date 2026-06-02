@@ -255,7 +255,6 @@ class TypingOracleCtx(
                             is ParamMode.PosOnly -> mode.required
                             is ParamMode.PosOrName -> mode.required
                             is ParamMode.NameOnly -> mode.required
-                            else -> ParamIsRequired.No
                         }
                     when {
                         argsList.isEmpty() -> {
@@ -897,8 +896,7 @@ class TypingOracleCtx(
             }
             BinOp.Equal, BinOp.NotEqual -> {
                 // It's not an error to compare two different types, but it is pointless
-                @Suppress("UNCHECKED_CAST")
-                val vr = validateType(rhs as Spanned<Ty>, lhs.node)
+                val vr = validateType(rhs, lhs.node)
                 if (vr.isFailure) return kotlin.Result.failure(vr.exceptionOrNull()!!)
                 kotlin.Result.success(boolRet)
             }

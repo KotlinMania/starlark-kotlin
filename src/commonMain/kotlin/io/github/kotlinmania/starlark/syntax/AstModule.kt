@@ -268,8 +268,7 @@ private fun rewriteExpr(expr: AstExpr, replace: Map<String, String>): AstExpr {
             is ExprP.Index2<*> -> node
             is ExprP.FString<*> -> node
         }
-    @Suppress("UNCHECKED_CAST")
-    return Spanned(rewritten as ExprP<AstNoPayload>, expr.span)
+    return Spanned(rewritten, expr.span)
 }
 
 private fun rewriteArg(arg: ArgumentP<AstNoPayload>, replace: Map<String, String>): ArgumentP<AstNoPayload> =
@@ -314,7 +313,7 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
                 StmtP.For<AstNoPayload>(
                     forStmt.copy(
                         over = rewriteExpr(forStmt.over, replace),
-                        body = rewriteStmt(forStmt.body as AstStmt, replace),
+                        body = rewriteStmt(forStmt.body, replace),
                     ),
                 )
             }
@@ -325,7 +324,7 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
                         name = def.name,
                         params = def.params,
                         returnType = def.returnType,
-                        body = rewriteStmt(def.body as AstStmt, replace),
+                        body = rewriteStmt(def.body, replace),
                         payload = def.payload,
                     ),
                 )
@@ -344,11 +343,10 @@ private fun rewriteStmt(stmt: AstStmt, replace: Map<String, String>): AstStmt {
                     node.op,
                     rewriteExpr(node.rhs as AstExpr, replace),
                 )
-            is StmtP.Load<*, *> -> node
-            is StmtP.Break<*> -> node
-            is StmtP.Continue<*> -> node
-            is StmtP.Pass<*> -> node
-            else -> node
+            is StmtP.Load<*, *> -> node as StmtP<AstNoPayload>
+            is StmtP.Break<*> -> node as StmtP<AstNoPayload>
+            is StmtP.Continue<*> -> node as StmtP<AstNoPayload>
+            is StmtP.Pass<*> -> node as StmtP<AstNoPayload>
         }
-    return Spanned(rewritten as StmtP<AstNoPayload>, stmt.span)
+    return Spanned(rewritten, stmt.span)
 }

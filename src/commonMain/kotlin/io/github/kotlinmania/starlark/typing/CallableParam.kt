@@ -294,7 +294,7 @@ class ParamSpec private constructor(
 
         val posOnlyTypes = mutableListOf<Ty>()
         for (p in splitView.posOnly) {
-            if (p.mode !is ParamMode.PosOnly || (p.mode as ParamMode.PosOnly).required != ParamIsRequired.Yes) {
+            if (p.mode !is ParamMode.PosOnly || p.mode.required != ParamIsRequired.Yes) {
                 return null
             }
             posOnlyTypes.add(p.ty)
@@ -302,10 +302,10 @@ class ParamSpec private constructor(
 
         val namedOnlyPairs = mutableListOf<Pair<String, Ty>>()
         for (p in splitView.namedOnly) {
-            if (p.mode !is ParamMode.NameOnly || (p.mode as ParamMode.NameOnly).required != ParamIsRequired.Yes) {
+            if (p.mode !is ParamMode.NameOnly || p.mode.required != ParamIsRequired.Yes) {
                 return null
             }
-            namedOnlyPairs.add((p.mode as ParamMode.NameOnly).name to p.ty)
+            namedOnlyPairs.add(p.mode.name to p.ty)
         }
 
         return posOnlyTypes to namedOnlyPairs

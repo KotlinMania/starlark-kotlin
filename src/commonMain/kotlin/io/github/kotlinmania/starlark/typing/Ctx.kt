@@ -77,7 +77,7 @@ internal class CallArgsUnpack<P : AstPayload>(
                         if (stage > 1) {
                             throw EvalException.parserError("named argument after *args or **kwargs", arg.span, codemap)
                         }
-                        val namedArg = arg.node as ArgumentP.Named
+                        val namedArg = arg.node
                         if (!namedNames.add(namedArg.name.node)) {
                             // Check the names are distinct
                             throw EvalException.parserError("repeated named argument", namedArg.name.span, codemap)

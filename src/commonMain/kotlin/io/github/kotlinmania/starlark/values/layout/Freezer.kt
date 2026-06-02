@@ -19,7 +19,7 @@ package io.github.kotlinmania.starlark.values.layout
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.compiler.FrozenDef
+import io.github.kotlinmania.starlark.eval.compiler.FrozenDefPostFreeze
 import io.github.kotlinmania.starlark.values.AllocFrozenValue
 import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.StarlarkValue
@@ -37,7 +37,7 @@ class Freezer internal constructor(
 ) {
     /** Defs frozen by this freezer. */
     // pub(crate) frozen_defs: RefCell<Vec<FrozenRef<'static, FrozenDef>>>,
-    internal val frozenDefs: MutableList<FrozenRef<FrozenDef>> = mutableListOf()
+    internal val frozenDefs: MutableList<FrozenRef<FrozenDefPostFreeze>> = mutableListOf()
 
     companion object {
         // pub(crate) fn new(heap: &'fv FrozenHeap) -> Self

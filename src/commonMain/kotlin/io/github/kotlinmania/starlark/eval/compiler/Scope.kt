@@ -153,7 +153,7 @@ private fun mapPayloadsStmt(
             for (p in defP.params as List<Spanned<ParameterP<CstPayload>>>) {
                 mapPayloadsParam(p.node, scopeData, loads)
             }
-            defP.returnType?.let { mapPayloadsTypeExpr(it as Spanned<TypeExprP<CstPayload, Any?>>, scopeData, loads) }
+            defP.returnType?.let { mapPayloadsTypeExpr(it as CstTypeExpr, scopeData, loads) }
             // map_def: () -> ScopeId
             defP.payload = scopeData.newScope().first
             mapPayloadsStmt(defP.body as CstStmt, scopeData, loads)
@@ -185,7 +185,7 @@ private fun mapPayloadsStmt(
 
         is StmtP.Assign<*> -> {
             mapPayloadsAssignTarget(node.assign.lhs as Spanned<AssignTargetP<CstPayload>>, scopeData, loads)
-            node.assign.ty?.let { mapPayloadsTypeExpr(it as Spanned<TypeExprP<CstPayload, Any?>>, scopeData, loads) }
+            node.assign.ty?.let { mapPayloadsTypeExpr(it as CstTypeExpr, scopeData, loads) }
             mapPayloadsExpr(node.assign.rhs as CstExpr, scopeData, loads)
         }
 
@@ -260,7 +260,21 @@ private fun mapPayloadsParam(
     if (ident != null) {
         mapPayloadsAssignIdent(ident as Spanned<AssignIdentP<CstPayload, Any?>>)
     }
-    param.visitParameterExprChildrenMut { e -> mapPayloadsExpr(e, scopeData, loads) }
+    when (param) {
+        is ParameterP.Normal<*> -> {
+            (param.typ as CstTypeExpr?)?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
+            (param.defaultVal as CstExpr?)?.let { mapPayloadsExpr(it, scopeData, loads) }
+        }
+        is ParameterP.Args<*> -> {
+            (param.typ as CstTypeExpr?)?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
+        }
+        is ParameterP.KwArgs<*> -> {
+            (param.typ as CstTypeExpr?)?.let { mapPayloadsTypeExpr(it, scopeData, loads) }
+        }
+        is ParameterP.NoArgs<*>,
+        is ParameterP.Slash<*>,
+        -> {}
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -290,9 +304,8 @@ private fun mapPayloadsAssignIdent(ident: Spanned<AssignIdentP<CstPayload, Any?>
     ident.node.payload = null // map_ident_assign: () -> None
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun mapPayloadsTypeExpr(
-    typeExpr: Spanned<TypeExprP<CstPayload, Any?>>,
+    typeExpr: CstTypeExpr,
     scopeData: ModuleScopeData,
     loads: Map<String, Interface>,
 ) {
@@ -1145,7 +1158,7 @@ internal class ModuleScopeBuilder(
                 val assignP = node.assign as io.github.kotlinmania.starlark.syntax.ast.AssignP<CstPayload>
                 resolveIdentsInAssign(assignP.lhs)
                 if (assignP.ty != null) {
-                    resolveIdentsInTypeExpr(assignP.ty!!)
+                    resolveIdentsInTypeExpr(assignP.ty as CstTypeExpr)
                 }
                 resolveIdentsInExpr(assignP.rhs)
             }
@@ -1203,7 +1216,7 @@ internal class ModuleScopeBuilder(
             is ExprP.Identifier<*, *> -> resolveIdent(scope, node.ident as CstIdent)
             is ExprP.Lambda<*, *> -> {
                 val lambdaP = node.lambda as LambdaP<CstPayload, ScopeId>
-                resolveIdentsInDef(lambdaP.payload, lambdaP.params as List<CstParameter>, null, null, lambdaP.body)
+                resolveIdentsInDef(lambdaP.payload, lambdaP.params, null, null, lambdaP.body)
             }
             is ExprP.ListComprehension<*> -> {
                 resolveIdentsInCompr(

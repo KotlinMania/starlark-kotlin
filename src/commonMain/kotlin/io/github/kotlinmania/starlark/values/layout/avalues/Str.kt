@@ -88,7 +88,7 @@ internal fun starlarkStr(len: Int, hash: StarlarkHashValue): AValueImpl<Starlark
     // finalized when the caller fills the allocation via alloc_str_init.
     val str = StarlarkStr(ByteArray(len).decodeToString())
     str.precomputedHash = hash
-    return AValueImpl.new(str)
+    return AValueImpl.new(str, StarlarkStrAValue(str))
 }
 
 // pub(crate) struct StarlarkStrAValue;
@@ -131,6 +131,7 @@ fun FrozenHeap.allocStr(x: String): FrozenStringValue = allocStrIntern(x)
 
 /** Intern string. */
 // pub(crate) fn alloc_str_intern(&self, s: &str) -> FrozenStringValue
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 internal fun FrozenHeap.allocStrIntern(s: String): FrozenStringValue = allocStrHashed(Hashed.new(s))
 
 /** Allocate prehashed string. */
@@ -150,6 +151,7 @@ fun FrozenHeap.allocStrHashed(s: Hashed<String>): FrozenStringValue {
 
 /** Allocate a string on the heap. */
 // pub fn alloc_str(self, x: &str) -> StringValue<'v>
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 fun Heap.allocStr(x: String): StringValue {
     val constant = constantString(x)
     if (constant != null) {

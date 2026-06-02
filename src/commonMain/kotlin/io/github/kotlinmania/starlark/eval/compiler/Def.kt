@@ -681,7 +681,8 @@ internal class DefGen<V>(
     private val frozen: Boolean,
 ) : ComplexValue,
     Trace,
-    Freeze<FrozenDef> {
+    Freeze<FrozenDef>,
+    FrozenDefPostFreeze {
     override fun toString(): String = parameters.signature()
 
     // Trace implementation: trace all captured Value references.
@@ -932,6 +933,46 @@ internal class DefGen<V>(
         hasher.write(defInfo.name.asStr().encodeToByteArray())
         return Result.success(Unit)
     }
+
+    override fun postFreeze(
+        module: FrozenRef<FrozenModuleData>,
+        heap: Heap,
+        frozenHeap: FrozenHeap,
+    ) {
+        // `defModule` contains the module where this `def` is declared.
+        val defModule =
+            this.module.loadRelaxed() ?: run {
+                this.module.storeRelaxed(module)
+                module
+            }
+
+        // Now perform the optimization of function body with fully frozen module:
+        // all module variables are frozen, so we can inline more aggressively.
+        val bodyOptimized =
+            defInfo.bodyStmts
+                .optimize(
+                    OptCtx.new(
+                        OptCtxEvalForOptimizeOnFreeze(
+                            OptimizeOnFreezeContext(
+                                module = defModule.asRef(),
+                                heap = heap,
+                                frozenHeap = frozenHeap,
+                            ),
+                        ),
+                        parameters.len().toUInt(),
+                    ),
+                ).asBc(
+                    defInfo.stmtCompileContext,
+                    FrozenRef(defInfo.used),
+                    parameters.len(),
+                    frozenHeap,
+                )
+
+        // Store the optimized body.
+        // This is (relatively) safe because we know that during freeze
+        // nobody has a reference to stmt: nobody is executing this `def`.
+        optimizedOnFreezeStmt.set(bodyOptimized)
+    }
 }
 
 /** Type alias for non-frozen def. */
@@ -939,6 +980,14 @@ internal typealias Def = DefGen<Value>
 
 /** Type alias for frozen def. */
 internal typealias FrozenDef = DefGen<FrozenValue>
+
+internal interface FrozenDefPostFreeze {
+    fun postFreeze(
+        module: FrozenRef<FrozenModuleData>,
+        heap: Heap,
+        frozenHeap: FrozenHeap,
+    )
+}
 
 // ---- DefLike ----
 
@@ -980,54 +1029,7 @@ internal fun newDef(
     return Result.success(eval.heap().allocComplex(def))
 }
 
-// ---- FrozenDef.postFreeze ----
 
-/**
- * Post-freeze optimization for a frozen def.
- *
- * Module passed to this function is not always the module where the function
- * is declared: a function can be created in a frozen module and frozen later
- * in another module. The [module] parameter is the module being frozen now.
- */
-internal fun FrozenDef.postFreeze(
-    module: FrozenRef<FrozenModuleData>,
-    heap: Heap,
-    frozenHeap: FrozenHeap,
-) {
-    // `defModule` contains the module where this `def` is declared.
-    val defModule =
-        this.module.loadRelaxed() ?: run {
-            this.module.storeRelaxed(module)
-            module
-        }
-
-    // Now perform the optimization of function body with fully frozen module:
-    // all module variables are frozen, so we can inline more aggressively.
-    val bodyOptimized =
-        this.defInfo.bodyStmts
-            .optimize(
-                OptCtx.new(
-                    OptCtxEvalForOptimizeOnFreeze(
-                        OptimizeOnFreezeContext(
-                            module = defModule.asRef(),
-                            heap = heap,
-                            frozenHeap = frozenHeap,
-                        ),
-                    ),
-                    this.parameters.len().toUInt(),
-                ),
-            ).asBc(
-                this.defInfo.stmtCompileContext,
-                FrozenRef(this.defInfo.used),
-                this.parameters.len(),
-                frozenHeap,
-            )
-
-    // Store the optimized body.
-    // This is (relatively) safe because we know that during freeze
-    // nobody has a reference to stmt: nobody is executing this `def`.
-    this.optimizedOnFreezeStmt.set(bodyOptimized)
-}
 
 /**
  * A [MutableList] view backed by an array, so that [ParametersSpec.collectInline]

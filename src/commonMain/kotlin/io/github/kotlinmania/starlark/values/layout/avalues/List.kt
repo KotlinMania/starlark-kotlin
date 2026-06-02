@@ -40,11 +40,11 @@ internal fun listAvalue(
     content: ValueTyped<Array>,
 ): AValueImpl<AValueList> {
     val listData = ListData.new(content.asRef().content().toMutableList())
-    return AValueImpl.new(ListGen(listData))
+    return AValueImpl.new(ListGen(listData), AValueList)
 }
 
 // fn frozen_list_avalue<'fv>(len: usize) -> AValueImpl<'fv, AValueFrozenList>
-internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> = AValueImpl.new(ListGen(FrozenListData.new(content)))
+internal fun frozenListAvalue(content: List<FrozenValue>): AValueImpl<AValueFrozenList> = AValueImpl.new(ListGen(FrozenListData.new(content)), AValueFrozenList)
 
 /** AValue implementation for mutable lists. */
 // struct AValueList;
@@ -149,7 +149,7 @@ fun Heap.tryAllocListIter(
         val v = elem.getOrElse { return Result.failure(it) }
         listData.push(v, this)
     }
-    return Result.success(allocRaw(AValueImpl.new<AValueList>(listGen)).toValue())
+    return Result.success(allocRaw(AValueImpl.new(listGen, AValueList)).toValue())
 }
 
 /** Allocate a list by concatenating two slices. */

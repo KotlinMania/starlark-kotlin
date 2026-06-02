@@ -40,6 +40,7 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstExpr
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentAssignPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
+import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
 import io.github.kotlinmania.starlark.eval.runtime.Evaluator
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.GC_THRESHOLD
@@ -255,14 +256,14 @@ internal class StmtsCompiled(
                 expr.node.isPureInfallible() -> empty()
                 expr.node is ExprCompiled.ListExpr -> {
                     val stmts = empty()
-                    for (x in (expr.node as ExprCompiled.ListExpr).elements) {
+                    for (x in expr.node.elements) {
                         stmts.extend(expr(x))
                     }
                     stmts
                 }
                 expr.node is ExprCompiled.TupleExpr -> {
                     val stmts = empty()
-                    for (x in (expr.node as ExprCompiled.TupleExpr).elements) {
+                    for (x in expr.node.elements) {
                         stmts.extend(expr(x))
                     }
                     stmts
@@ -270,18 +271,18 @@ internal class StmtsCompiled(
                 // Unwrap infallible expressions.
                 expr.node is ExprCompiled.Builtin1Expr &&
                     (
-                        (expr.node as ExprCompiled.Builtin1Expr).op is Builtin1.Not ||
-                            (expr.node as ExprCompiled.Builtin1Expr).op is Builtin1.TypeIs
-                    ) -> expr((expr.node as ExprCompiled.Builtin1Expr).expr)
+                        expr.node.op is Builtin1.Not ||
+                            expr.node.op is Builtin1.TypeIs
+                    ) -> expr(expr.node.expr)
                 // "And" and "or" for effect are equivalent to `if`.
                 expr.node is ExprCompiled.LogicalBinOp &&
-                    (expr.node as ExprCompiled.LogicalBinOp).op == ExprLogicalBinOp.And -> {
-                    val binOp = expr.node as ExprCompiled.LogicalBinOp
+                    expr.node.op == ExprLogicalBinOp.And -> {
+                    val binOp = expr.node
                     ifStmt(expr.span, binOp.lhs, expr(binOp.rhs), empty())
                 }
                 expr.node is ExprCompiled.LogicalBinOp &&
-                    (expr.node as ExprCompiled.LogicalBinOp).op == ExprLogicalBinOp.Or -> {
-                    val binOp = expr.node as ExprCompiled.LogicalBinOp
+                    expr.node.op == ExprLogicalBinOp.Or -> {
+                    val binOp = expr.node
                     ifStmt(expr.span, binOp.lhs, empty(), expr(binOp.rhs))
                 }
                 else -> {
@@ -305,10 +306,10 @@ internal class StmtsCompiled(
             val condBool = ExprCompiledBool.new(cond)
             return when (condBool.node) {
                 is ExprCompiledBool.Const -> {
-                    if ((condBool.node as ExprCompiledBool.Const).value) t else f
+                    if (condBool.node.value) t else f
                 }
                 is ExprCompiledBool.Expr -> {
-                    val condExpr = (condBool.node as ExprCompiledBool.Expr).expr
+                    val condExpr = condBool.node.expr
                     when {
                         condExpr is ExprCompiled.Builtin1Expr && condExpr.op is Builtin1.Not ->
                             ifStmt(span, condExpr.expr, f, t)
@@ -872,7 +873,7 @@ private fun Compiler.stmtDirect(
                             frozenSignatureSpan,
                             defP.payload,
                             defP.params,
-                            defP.returnType,
+                            defP.returnType as CstTypeExpr?,
                             defP.body,
                         )
                     }.getOrElse { return Result.failure(it) },
@@ -940,7 +941,7 @@ private fun Compiler.stmtDirect(
         is StmtP.Expression -> stmtExpr(node.expr)
         is StmtP.Assign -> {
             val rhs = this.expr(node.assign.rhs).getOrElse { return Result.failure(it) }
-            val ty = this.exprForType(node.assign.ty)
+            val ty = this.exprForType(node.assign.ty as CstTypeExpr?)
             val lhs = assignTarget(node.assign.lhs).getOrElse { return Result.failure(it) }
             Result.success(
                 StmtsCompiled.one(
@@ -975,6 +976,5 @@ private fun Compiler.stmtDirect(
                     ),
                 ),
             )
-        else -> error("Unexpected statement: $node")
     }
 }

@@ -35,7 +35,6 @@ import io.github.kotlinmania.starlark.docs.DocString
 import io.github.kotlinmania.starlark.docs.DocStringKind
 import io.github.kotlinmania.starlark.docs.fromDocstring
 import io.github.kotlinmania.starlark.errors.didYouMean
-import io.github.kotlinmania.starlark.eval.compiler.postFreeze
 import io.github.kotlinmania.starlark.eval.runtime.profile.data.ProfileData
 import io.github.kotlinmania.starlark.eval.runtime.profile.heap.RetainedHeapProfileMode
 import io.github.kotlinmania.starlark.syntax.ast.Visibility

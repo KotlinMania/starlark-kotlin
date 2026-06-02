@@ -35,9 +35,9 @@ internal data class StackFrame(
 ) : io.github.kotlinmania.starlark.values.StarlarkValue,
     io.github.kotlinmania.starlark.values.AllocValue,
     io.github.kotlinmania.starlark.values.Trace {
-    override fun trace(_tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
+    override fun trace(tracer: io.github.kotlinmania.starlark.values.layout.heap.Tracer) {
         // No Value fields to trace.
-        _tracer.hashCode()
+        tracer.hashCode()
     }
 
     override val TYPE: String get() = Companion.TYPE

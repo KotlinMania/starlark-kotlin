@@ -82,13 +82,6 @@ package io.github.kotlinmania.starlark
  *  - derive_refs/ (derive_refs)
  */
 
-// Re-exports (equivalent to `pub use` in Rust lib.rs)
-// pub use starlark_derive::starlark_module -> annotation-based in Kotlin
-// pub use starlark_syntax::Error -> io.github.kotlinmania.starlark.Error
-// pub use starlark_syntax::ErrorKind -> io.github.kotlinmania.starlark.ErrorKind
-// pub use starlark_syntax::Result -> kotlin.Result
-// pub use stdlib::PrintHandler -> io.github.kotlinmania.starlark.stdlib.PrintHandler
-
 /**
  * Root module marker for the starlark-kotlin library.
  *

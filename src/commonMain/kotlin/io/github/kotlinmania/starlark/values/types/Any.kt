@@ -81,5 +81,5 @@ fun <T> FrozenHeap.allocAny(value: T): FrozenRef<T> {
     return this
         .allocSimpleTypedStatic(StarlarkAny.new(value))
         .asFrozenRef()
-        .map { r -> (r as StarlarkAny<T>).inner }
+        .map { r -> r.inner }
 }

@@ -27,7 +27,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdentPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.eval.runtime.FrameSpan
 import io.github.kotlinmania.starlark.eval.runtime.frozenfilespan.FrozenFileSpan
 import io.github.kotlinmania.starlark.syntax.ast.AstPayload
@@ -49,24 +48,18 @@ import io.github.kotlinmania.starlark.values.typing.typecompiled.TypeCompiled
 private sealed class TypesError(
     message: String,
 ) : Exception(message) {
-    // #[error("Identifier is not resolved (internal error)")]
     class UnresolvedIdentifier : TypesError("Identifier is not resolved (internal error)")
 
-    // #[error("Identifier is resolve as local variable (internal error)")]
     class LocalIdentifier : TypesError("Identifier is resolve as local variable (internal error)")
 
-    // #[error("Module variable is not set: `{0}`")]
     class ModuleVariableNotSet(
         val name: String,
     ) : TypesError("Module variable is not set: `$name`")
 
-    // #[error("Type payload not set (internal error)")]
     class TypePayloadNotSet : TypesError("Type payload not set (internal error)")
 
-    // #[error("[] can only be applied to list function in type expression")]
     class TypeIndexOnNonList : TypesError("[] can only be applied to list function in type expression")
 
-    // #[error("[,] can only be applied to dict or tuple functions in type expression")]
     class TypeIndexOnNonDictOrTuple : TypesError("[,] can only be applied to dict or tuple functions in type expression")
 }
 
@@ -82,9 +75,7 @@ internal fun Compiler.exprForType(
     if (expr == null) return null
     val span = FrameSpan.new(FrozenFileSpan.new(codemap, expr.span))
 
-    @Suppress("UNCHECKED_CAST")
-    val payload = expr.node.payload as Any? as? CstTypeExprPayload
-    val ty = payload?.compilerTy
+    val ty = expr.node.payload.compilerTy
     if (ty == null) {
         // This is unreachable. But unfortunately we do not return error here.
         // Still make an error in panic to produce nice panic message.
@@ -143,11 +134,9 @@ private fun Compiler.evalIdentInTypeExpr(ident: CstIdent): Value {
                             codemap.value,
                         )
                 }
-                else -> throw IllegalStateException("Unexpected slot: $slot")
             }
         }
         is ResolvedIdent.Global -> identPayload.value.toValue()
-        else -> throw IllegalStateException("Unexpected resolved ident: $identPayload")
     }
 }
 
@@ -234,12 +223,11 @@ private fun Compiler.evalExpr(
         }
     }
 
-@Suppress("UNCHECKED_CAST")
 private fun Compiler.populateTypesInTypeExpr(
     typeExpr: CstTypeExpr,
 ) {
-    val payload = typeExpr.node.payload as Any? as? CstTypeExprPayload
-    if (payload?.compilerTy != null) {
+    val payload = typeExpr.node.payload
+    if (payload.compilerTy != null) {
         throw EvalException.newAnyhow(
             StarlarkError("Type already initialized"),
             typeExpr.span,
@@ -249,15 +237,14 @@ private fun Compiler.populateTypesInTypeExpr(
     // This should not fail because we validated it at parse time.
     val unpack = TypeExprUnpackP.unpack<CstPayload, CstIdentPayload>(typeExpr.node.expr, codemap.value)
     val typeValue = evalExprAsType(unpack)
-    if (payload != null) {
-        payload.compilerTy = typeValue.asTy()
-    }
+    payload.compilerTy = typeValue.asTy()
 }
 
 internal fun Compiler.populateTypesInStmt(
     stmt: CstStmt,
 ) {
-    stmt.node.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr) }
+    @Suppress("UNCHECKED_CAST")
+    stmt.node.visitTypeExprErrMut { typeExpr -> populateTypesInTypeExpr(typeExpr as CstTypeExpr) }
 }
 
 /**

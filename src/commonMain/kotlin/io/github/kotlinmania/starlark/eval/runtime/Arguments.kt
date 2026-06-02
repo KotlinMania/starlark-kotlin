@@ -355,6 +355,7 @@ class Arguments(
     internal fun names(): Result<Dict> {
         val mapResult = namesMap()
         if (mapResult.isFailure) return Result.failure(mapResult.exceptionOrNull()!!)
+        @Suppress("UNCHECKED_CAST")
         return Result.success(Dict.new(mapResult.getOrThrow() as SmallMap<Value, Value>))
     }
 
@@ -670,25 +671,18 @@ private fun DictRef.dict(): Dict =
     when (val ref = aref) {
         is DictEither.Left -> ref.value.value
         is DictEither.Right -> ref.value
-        else -> throw IllegalStateException("Unexpected DictEither: $ref")
     }
 
 private fun DictRef.len(): Int = dict().len()
 
-private fun DictRef.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> {
-    @Suppress("UNCHECKED_CAST")
-    return dict().iterHashed() as Sequence<Pair<Hashed<Value>, Value>>
-}
+private fun DictRef.iterHashed(): Sequence<Pair<Hashed<Value>, Value>> =
+    dict().iterHashed()
 
-private fun DictRef.keys(): Sequence<Value> {
-    @Suppress("UNCHECKED_CAST")
-    return dict().keys() as Sequence<Value>
-}
+private fun DictRef.keys(): Sequence<Value> =
+    dict().keys()
 
-private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? {
-    @Suppress("UNCHECKED_CAST")
-    return dict().downcastRefKeyString() as SmallMap<StringValue, Value>?
-}
+private fun DictRef.downcastRefKeyString(): SmallMap<StringValue, Value>? =
+    dict().downcastRefKeyString()
 
 // #[cfg(test)] mod tests
 // Tests are in commonTest, not here.

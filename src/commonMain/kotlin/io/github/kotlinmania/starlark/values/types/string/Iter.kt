@@ -3,7 +3,10 @@ package io.github.kotlinmania.starlark.values.types.string
 
 import io.github.kotlinmania.starlark.any.ProvidesStaticType
 import io.github.kotlinmania.starlark.values.ComplexValue
+import io.github.kotlinmania.starlark.values.Freeze
+import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
+import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.avalues.allocComplex
 import io.github.kotlinmania.starlark.values.layout.avalues.allocTupleIter
@@ -47,7 +50,8 @@ internal class StringIterableGen(
     val produceChar: Boolean, // if not char, then int
 ) : ComplexValue,
     Trace,
-    ProvidesStaticType {
+    ProvidesStaticType,
+    Freeze<StarlarkValue> {
     // #[display("iterator")]
     override fun toString(): String = "iterator"
 
@@ -71,6 +75,11 @@ internal class StringIterableGen(
                 )
             }
         return Result.success(iter)
+    }
+
+    override fun freeze(freezer: Freezer): Result<StarlarkValue> {
+        val frozenStr = string.freeze(freezer).getOrElse { return Result.failure(it) }
+        return Result.success(StringIterableGen(frozenStr.toStringValue(), produceChar))
     }
 
     // unsafe impl Trace for StringIterableGen

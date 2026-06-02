@@ -15,7 +15,6 @@ import io.github.kotlinmania.starlark.eval.compiler.scope.CstIdent
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstPayload
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstStmt
 import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExpr
-import io.github.kotlinmania.starlark.eval.compiler.scope.CstTypeExprPayload
 import io.github.kotlinmania.starlark.syntax.ast.AssignP
 import io.github.kotlinmania.starlark.syntax.ast.AssignTargetP
 import io.github.kotlinmania.starlark.syntax.ast.AstLiteral
@@ -245,7 +244,7 @@ private class GlobalTypesBuilder(
     @Suppress("UNCHECKED_CAST")
     fun resolveAssignIdentToModuleSlotId(ident: CstAssignIdent): ModuleSlotId {
         val bindingId =
-            ident.node.payload as? BindingId
+            ident.node.payload
                 ?: throw internalError(ident.span, "binding not resolved")
         val binding = moduleScopeData.getBinding(bindingId)
         val resolvedSlot = binding.resolvedSlot(ctx.codemap)
@@ -393,7 +392,7 @@ private class GlobalTypesBuilder(
             }
         }
 
-        val result = getTyExprOpt(def.returnType)
+        val result = getTyExprOpt(def.returnType as CstTypeExpr?)
         val paramSpec = ParamSpec.newParts(posOnly, posOrName, args, nameOnly, kwargs)
         assignIdentValue(def.name as CstAssignIdent, GlobalValue.ty(Ty.function(paramSpec, result)))
     }
@@ -482,7 +481,6 @@ private class GlobalTypesBuilder(
         return Ty.any()
     }
 
-    // fn ty_expr(&mut self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
     fun tyExpr(expr: CstTypeExpr): Ty {
         // TypeExprUnpackP.unpack not yet available
         // When TypeExprUnpackP is ported, this should be:
@@ -491,16 +489,11 @@ private class GlobalTypesBuilder(
         return Ty.any()
     }
 
-    // fn get_ty_expr(&self, expr: &CstTypeExpr) -> Result<Ty, InternalError>
     fun getTyExpr(expr: CstTypeExpr): Ty {
-        val payload =
-            expr.node.payload as Any? as? CstTypeExprPayload
-                ?: throw internalError(expr.span, "type not set")
-        return payload.typecheckerTy
+        return expr.node.payload.typecheckerTy
             ?: throw internalError(expr.span, "type not set")
     }
 
-    // fn get_ty_expr_opt(&mut self, expr: Option<&CstTypeExpr>) -> Result<Ty, InternalError>
     fun getTyExprOpt(expr: CstTypeExpr?): Ty = if (expr == null) Ty.any() else getTyExpr(expr)
 
     // fn fill_types(&mut self, stmt: &mut CstStmt) -> Result<(), InternalError>
@@ -658,8 +651,7 @@ internal class ModuleVarTypes(
  * Populate `TypeExprP` type payload when running lint typechecker.
  * (Compiler typechecked populates the payload after proper full evaluation.)
  */
-// pub(crate) fn fill_types_for_lint_typechecker(...)
-internal fun fillTypesForLintTypechecker(
+    internal fun fillTypesForLintTypechecker(
     module: List<CstStmt>,
     ctx: TypingOracleCtx,
     moduleScopeData: ModuleScopeData,

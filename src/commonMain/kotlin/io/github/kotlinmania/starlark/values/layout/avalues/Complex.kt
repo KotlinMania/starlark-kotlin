@@ -19,10 +19,9 @@ package io.github.kotlinmania.starlark.values.layout.avalues
  * limitations under the License.
  */
 
-import io.github.kotlinmania.starlark.eval.compiler.DefGen
+import io.github.kotlinmania.starlark.eval.compiler.FrozenDefPostFreeze
 import io.github.kotlinmania.starlark.values.ComplexValue
 import io.github.kotlinmania.starlark.values.Freeze
-import io.github.kotlinmania.starlark.values.FrozenRef
 import io.github.kotlinmania.starlark.values.StarlarkValue
 import io.github.kotlinmania.starlark.values.Trace
 import io.github.kotlinmania.starlark.values.freezeerror.FreezeError
@@ -33,6 +32,9 @@ import io.github.kotlinmania.starlark.values.layout.Freezer
 import io.github.kotlinmania.starlark.values.layout.FrozenValue
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.layout.ValueAllocSize
+import io.github.kotlinmania.starlark.values.layout.heap.AValueHeader
+import io.github.kotlinmania.starlark.values.layout.heap.AValueRepr
+import io.github.kotlinmania.starlark.values.layout.heap.ForwardPtr
 import io.github.kotlinmania.starlark.values.layout.heap.Heap
 import io.github.kotlinmania.starlark.values.layout.heap.Tracer
 import io.github.kotlinmania.starlark.values.layout.heapCopyImpl
@@ -56,9 +58,9 @@ private sealed class AValueError : Exception() {
 // where
 //     T: ComplexValue<'v>,
 //     T::Frozen: StarlarkValue<'static>,
-internal class AValueComplex(
-    private val value: ComplexValue,
-) : AValue {
+internal class AValueComplex<T>(
+    private val value: T,
+) : AValue where T : ComplexValue, T : Freeze<out StarlarkValue> {
     // type StarlarkValue = T;
     // type ExtraElem = ();
 
@@ -83,18 +85,40 @@ internal class AValueComplex(
         // let x = AValueHeader::overwrite_with_forward(...);
         // let res = x.freeze(freezer)?;
         // r.fill(res);
-        @Suppress("UNCHECKED_CAST")
-        val freezable = value as Freeze<StarlarkValue>
-        val result = freezable.freeze(freezer)
+        val result = value.freeze(freezer)
         val frozen = result.getOrElse { return Result.failure(it) }
 
         val (fv, r) = freezer.reserve<AValue>()
         r.fill(frozen)
 
-        // if TypeId::of::<T::Frozen>() == TypeId::of::<FrozenDef>()
-        @Suppress("UNCHECKED_CAST")
-        if (frozen is DefGen<*>) {
-            freezer.frozenDefs.add(FrozenRef(frozen as DefGen<FrozenValue>))
+        if (frozen is FrozenDefPostFreeze) {
+            freezer.frozenDefs.add(io.github.kotlinmania.starlark.values.FrozenRef(frozen))
+        }
+
+        return Result.success(fv)
+    }
+
+    override fun heapFreeze(
+        repr: AValueRepr<StarlarkValue>,
+        freezer: Freezer,
+    ): Result<FrozenValue> {
+        val direct = tryFreezeDirectly(value, freezer)
+        if (direct != null) {
+            if (direct.isSuccess) {
+                AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(direct.getOrThrow()))
+            }
+            return direct
+        }
+
+        val (fv, r) = freezer.reserve<AValue>()
+        AValueHeader.overwriteWithForward(repr, ForwardPtr.newFrozen(fv))
+
+        val result = value.freeze(freezer)
+        val frozen = result.getOrElse { return Result.failure(it) }
+        r.fill(frozen)
+
+        if (frozen is FrozenDefPostFreeze) {
+            freezer.frozenDefs.add(io.github.kotlinmania.starlark.values.FrozenRef(frozen))
         }
 
         return Result.success(fv)
@@ -142,9 +166,9 @@ internal class AValueComplexNoFreeze(
 
 /** Allocate a [ComplexValue] on the [Heap]. */
 // pub fn alloc_complex<T>(self, x: T) -> Value<'v>
-fun Heap.allocComplex(x: ComplexValue): Value {
+fun <T> Heap.allocComplex(x: T): Value where T : ComplexValue, T : Freeze<out StarlarkValue> {
     check(!x.isSpecial())
-    return allocRaw(AValueImpl.new<AValueComplex>(x)).toValue()
+    return allocRaw(AValueImpl.new(x, AValueComplex(x))).toValue()
 }
 
 /** Allocate a value which can be traced (garbage collected), but cannot be frozen. */
@@ -154,5 +178,5 @@ fun Heap.allocComplexNoFreeze(x: StarlarkValue): Value {
     check(!x.isSpecial())
     // When specializations are stable, we can have single `alloc_complex` function,
     // which enables or not enables freezing depending on whether `T` implements `Freeze`.
-    return allocRaw(AValueImpl.new<AValueComplexNoFreeze>(x)).toValue()
+    return allocRaw(AValueImpl.new(x, AValueComplexNoFreeze(x))).toValue()
 }

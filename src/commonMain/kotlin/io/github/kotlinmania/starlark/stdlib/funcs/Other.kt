@@ -391,8 +391,9 @@ private fun sorted(x: Value, key: Value?, reverse: Boolean, eval: Evaluator): Va
         },
     )
 
-    if (compareOk != null) {
-        throw compareOk!!
+    val err = compareOk
+    if (err != null) {
+        throw err
     }
 
     return heap.allocList(pairs.map { it.first })

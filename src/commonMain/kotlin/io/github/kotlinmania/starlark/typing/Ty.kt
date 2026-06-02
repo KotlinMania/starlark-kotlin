@@ -28,8 +28,8 @@ import io.github.kotlinmania.starlark.eval.compiler.SmallVec1
 import io.github.kotlinmania.starlark.typing.oracle.TypingOracleCtx
 import io.github.kotlinmania.starlark.values.layout.Value
 import io.github.kotlinmania.starlark.values.typing.TypingNever
+import kotlin.ConsistentCopyVisibility
 
-// Rust: format!("{val:?}") / write!(f, "{val:?}") style debug formatting.
 // We only implement what this file needs: stable-ish escaping for strings.
 private fun format(value: Any?): String =
     when (value) {
@@ -56,8 +56,6 @@ private fun format(value: Any?): String =
  * A typing operation wasn't able to produce a precise result,
  * so made some kind of approximation.
  */
-// #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-// pub struct Approximation
 data class Approximation(
     /** The category of the approximation, e.g. `"Unknown type"`. */
     val category: String,
@@ -66,7 +64,6 @@ data class Approximation(
 ) {
     companion object {
         /** Create a new [Approximation]. */
-        // pub fn new(category: &'static str, message: impl Debug) -> Self
         fun new(category: String, message: Any): Approximation =
             Approximation(
                 category = category,
@@ -74,7 +71,6 @@ data class Approximation(
             )
     }
 
-    // impl Display for Approximation
     override fun toString(): String = "Approximation: $category = ${format(message)}"
 }
 
@@ -89,6 +85,7 @@ data class Approximation(
  *
  * Corresponds to Rust's `Ty` struct.
  */
+@ConsistentCopyVisibility
 data class Ty private constructor(
     /**
      * A series of alternative types.
@@ -194,7 +191,6 @@ data class Ty private constructor(
             basic(TyBasic.StarlarkValue(value))
 
         /** Typechecker type of value. */
-        // pub fn of_value(value: Value) -> Ty
         fun ofValue(value: Value): Ty = value.getRef().typecheckerTy() ?: value.getTypeStarlarkRepr()
 
         /**
@@ -202,7 +198,6 @@ data class Ty private constructor(
          *
          * Corresponds to Rust's `Ty::from_native_callable_components`.
          */
-        // pub(crate) fn from_native_callable_components(comp, as_type) -> Result<Self>
         internal fun fromNativeCallableComponents(
             comp: NativeCallableComponents,
             asType: Ty?,
@@ -224,7 +219,6 @@ data class Ty private constructor(
                 return any()
             }
 
-            // fn next_skip_never<I: Iterator<Item = Ty>>(iter: &mut I) -> Option<Ty>
             fun nextSkipNever(iter: Iterator<Ty>): Ty? {
                 for (x in iter) {
                     if (!x.isNever()) {

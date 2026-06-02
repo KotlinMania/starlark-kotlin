@@ -99,7 +99,7 @@ fun FrozenValue.allocValue(_heap: Heap): Value = this.toValue()
 fun Value.allocValue(_heap: Heap): Value = this
 
 // impl<A: AllocValue, B: AllocValue> AllocValue for Either<A, B>
-inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
+fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap): Value =
     when (this) {
         is Either.Left -> {
             val a = value
@@ -113,7 +113,7 @@ inline fun <A : AllocValue, B : AllocValue> Either<A, B>.allocValue(heap: Heap):
     }
 
 // impl<A: AllocFrozenValue, B: AllocFrozenValue> AllocFrozenValue for Either<A, B>
-inline fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
+fun <A : AllocFrozenValue, B : AllocFrozenValue> Either<A, B>.allocFrozenValue(heap: FrozenHeap): FrozenValue =
     when (this) {
         is Either.Left -> {
             val a = value

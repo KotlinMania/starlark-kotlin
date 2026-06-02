@@ -189,7 +189,6 @@ fun Value.unpackBigInteger(): Result<BigInteger?> {
         when (intRef) {
             is StarlarkIntRef.Small -> BigInteger.fromInt(intRef.value.toI32())
             is StarlarkIntRef.Big -> intRef.value.get()
-            else -> throw IllegalStateException("Unexpected StarlarkIntRef: $intRef")
         },
     )
 }
